@@ -70,7 +70,7 @@ namespace TransportLinesManager
 			if (TransportListInterface.instance != null) {
 				TransportListInterface.instance.init ();
 			} 
-		}	
+		}	 
 	}
 
 	public class UIButtonLineInfo : UIButton {
