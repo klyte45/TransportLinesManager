@@ -8,9 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Collections;
 using System.Reflection;
 using ColossalFramework.Plugins;
 using System.IO;
@@ -23,8 +21,11 @@ namespace TransportLinesManager
 {
 	public class TransportListInterface {
 		//		private Material lineMaterial;
+		public SavedInt savedBusCapacity;
+
 		public   UIView uiView;
-		public   UIButton abrePainelButton;
+		public   UIButton abrePainelButton;		
+		public  UILabel titleLabel ;
 		public   bool b_show = false;
 		public    UIPanel mainPanel ;
 		public    List<GameObject> linesButtons = new List<GameObject> ();
@@ -54,11 +55,18 @@ namespace TransportLinesManager
 		//		public UIPanel scrollPanel;
 		
 		public  UIPanel agesChartPanel;
-		public  UIRadialChartAge agesChart;
-		
-		
-		public  UILabel titleLabel ;
-		
+		public  UIRadialChartAge agesChart;	
+
+		//ExtraData Panel		
+		public    UIPanel extraDataPanel ;
+		public  UILabel busCapacity;			
+		public  UILabel trainCapacity;	
+
+
+		public TransportListInterface(){			
+			savedBusCapacity = new SavedInt("BusCapacity", Settings.gameSettingsFile, 30,true);
+		}
+
 		public    void destroy(){
 			if (lineInfoPanel) {
 				UnityEngine.Object.Destroy (lineInfoPanel.gameObject);
@@ -78,7 +86,7 @@ namespace TransportLinesManager
 				return;
 			}
 			if (!initialized) {	
-				
+				setBusesCapacity(savedBusCapacity.value);
 				uiView = GameObject.FindObjectOfType<UIView> ();			
 				if (uiView == null)
 					return;
@@ -94,6 +102,9 @@ namespace TransportLinesManager
 				createViews();
 
 				initialized = true;
+			}
+			if (mainPanel.isVisible) {
+				updateExtraInfoBidings();
 			}
 			if (lineInfoPanel.isVisible) {
 				updateBidings ();
@@ -395,10 +406,11 @@ namespace TransportLinesManager
 			
 		}
 		private void createViews(){
-			/////////////////////////////////////////////////////
-			
+			/////////////////////////////////////////////////////			
 			createMainView ();
 			createInfoView ();
+			
+			createExtraOptionsView ();
 		}
 
 		private void createInfoView(){
@@ -666,6 +678,104 @@ namespace TransportLinesManager
 			titleLabel.width = 630;
 			titleLabel.height = 30;			
 			titleLabel.name = "TransportLinesManagerLabelTitle";
+		}
+
+		private void createExtraOptionsView(){
+						 
+			createUIElement<UIPanel> (ref extraDataPanel, mainPanel.transform);
+			extraDataPanel.relativePosition = new Vector3 (mainPanel.width, 0f);
+			extraDataPanel.width = 580;
+			extraDataPanel.height = 100;
+			extraDataPanel.color = new Color32 (16, 32, 48, 255);
+			extraDataPanel.backgroundSprite = "InfoviewPanel";
+			extraDataPanel.name = "TLMExtraOptionsPanel";
+			
+			//
+			UILabel title = null;
+			createUIElement<UILabel> (ref title, extraDataPanel.transform);	
+			title.relativePosition = new Vector3 (15f, 15f);
+			title.text = "Extra Options";
+			title.width = 240;
+			title.height = 30;	
+			title.name = "TLMExtraOptionsTitleLabel";
+			title.eventClick += fecharTelaTransportes;
+
+			createUIElement<UILabel> (ref busCapacity, extraDataPanel.transform);	
+			busCapacity.relativePosition = new Vector3 (15f, 50f);
+			busCapacity.prefix = "Bus Capacity: ";
+			busCapacity.width = 240;
+			busCapacity.height = 30;	
+			busCapacity.name = "BusCapacityLabel";
+			busCapacity.eventClick += fecharTelaTransportes;
+
+			UIButton BusTo30Pas = null;
+			createUIElement<UIButton> (ref BusTo30Pas, extraDataPanel.transform);	
+			BusTo30Pas.relativePosition = new Vector3 (150f, 40f);
+			BusTo30Pas.text = "To 30";
+			BusTo30Pas.width = 40;
+			BusTo30Pas.height = 30;
+			initButton (BusTo30Pas, true, "ButtonMenu");	
+			BusTo30Pas.name = "BusCapacityTo30Button";
+			BusTo30Pas.eventClick += (component, eventParam) => {
+				Singleton<BusAI>.instance.m_passengerCapacity = 30;
+				setBusesCapacity(30);
+			};
+			
+			UIButton BusTo60Pas = null;
+			createUIElement<UIButton> (ref BusTo60Pas, extraDataPanel.transform);	
+			BusTo60Pas.relativePosition = new Vector3 (195f, 40f);
+			BusTo60Pas.text = "To 60"; 
+			BusTo60Pas.width = 40;
+			BusTo60Pas.height = 30;
+			initButton (BusTo60Pas, true, "ButtonMenu");	
+			BusTo60Pas.name = "BusCapacityTo60Button";
+			BusTo60Pas.eventClick += (component, eventParam) => {
+				Singleton<BusAI>.instance.m_passengerCapacity = 60;
+				setBusesCapacity(60);
+			};
+			
+			UIButton BusTo90Pas = null;
+			createUIElement<UIButton> (ref BusTo90Pas, extraDataPanel.transform);	
+			BusTo90Pas.relativePosition = new Vector3 (240f, 40f);
+			BusTo90Pas.text = "To 90";
+			BusTo90Pas.width = 40;
+			BusTo90Pas.height = 30;
+			initButton (BusTo90Pas, true, "ButtonMenu");	
+			BusTo90Pas.name = "BusCapacityTo90Button";
+			BusTo90Pas.eventClick += (component, eventParam) => {
+				Singleton<BusAI>.instance.m_passengerCapacity = 90;
+				setBusesCapacity(90);
+			};
+
+			UILabel warning = null;
+			createUIElement<UILabel> (ref warning, extraDataPanel.transform);	
+			warning.relativePosition = new Vector3 (295f, 50f);
+			warning.text = "(Will need to reboot the depots manually!)";
+			warning.width = 70;
+			warning.height = 30;	
+			warning.textScale = 0.8f;
+			warning.textColor = new Color (1, 1, 0, 1);
+			warning.name = "TLMExtraOptionsWarningLabel";
+
+
+		}
+
+		private void setBusesCapacity(int capacity){
+			this.savedBusCapacity.value = capacity;
+			Singleton<BusAI>.instance.m_passengerCapacity = capacity;
+			for (int i=0; i<Singleton<VehicleManager>.instance.m_vehicles.m_buffer.Length;i++) {
+				Vehicle v = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[i];
+				if(v.Info.GetAI() is BusAI){
+					BusAI b = (v.Info.GetAI() as BusAI);
+					b.m_passengerCapacity = capacity;
+					v.m_transferSize=(ushort)capacity;
+				}
+			}
+
+		}
+
+		private void updateExtraInfoBidings(){
+			busCapacity.text = "" + Singleton<BusAI>.instance.m_passengerCapacity;
 		}
 
 		private void updateBidings(){

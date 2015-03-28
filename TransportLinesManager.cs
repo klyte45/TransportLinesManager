@@ -21,7 +21,7 @@ namespace TransportLinesManager
 {
 	public class TransportLinesManagerMod :  IUserMod, ILoadingExtension{
 
-		public static string version = "1.1.2";
+		public static string version = "1.2.0";
 
 		public string Name { 
 			get { 
