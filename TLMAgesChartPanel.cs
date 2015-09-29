@@ -17,7 +17,7 @@ using System.Runtime.CompilerServices;
 using ColossalFramework.Math;
 using ColossalFramework.Globalization;
 
-namespace TransportLinesManager 
+namespace Klyte.TransportLinesManager 
 {
 	public class TLMAgesChartPanel	{			
 		private  UIPanel agesChartPanel;

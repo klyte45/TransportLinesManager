@@ -17,8 +17,9 @@ using System.Runtime.CompilerServices;
 using ColossalFramework.Math;
 using ColossalFramework.Globalization;
 
-namespace TransportLinesManager
+namespace Klyte.TransportLinesManager
 {
+
 	public class TLMUtils
 	{	
 		
@@ -250,7 +251,7 @@ namespace TransportLinesManager
 				middle=-1;
 				int[] districtArray = districtList.ToArray();
 				if(districtArray.Length ==1){
-					return  (TLMController.instance.savedCircularOnSingleDistrict.value?"Circular ":"")+dm.GetDistrictName(districtArray[0]);
+					return  (TransportLinesManagerMod.savedCircularOnSingleDistrict.value?"Circular ":"")+dm.GetDistrictName(districtArray[0]);
 				}else if(findSimetry(districtArray,out middle)){
 					int firstIdx = middle;
 					int lastIdx = middle + districtArray.Length/2;
@@ -426,6 +427,11 @@ namespace TransportLinesManager
 				return false;
 			}
 			return true;
+		}
+
+		public class UIButtonLineInfo : UIButton
+		{
+			public ushort lineID;
 		}
 
 		private static char[] latinoMaiusculo = {

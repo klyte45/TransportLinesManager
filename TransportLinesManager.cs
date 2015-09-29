@@ -16,24 +16,134 @@ using ColossalFramework.Threading;
 using System.Runtime.CompilerServices;
 using ColossalFramework.Math;
 using ColossalFramework.Globalization;
+using Klyte.Extensions;
 
-namespace TransportLinesManager
+namespace Klyte.TransportLinesManager
 {
 	public class TransportLinesManagerMod :  IUserMod, ILoadingExtension
 	{
 
-		public static string version = "2.3";
+		public static string version = "2.4";
 		public static TransportLinesManagerMod instance;
-		public SavedBool savedAutoNaming;
-		public SavedBool savedAutoColor;
-		public SavedBool savedCircularOnSingleDistrict;
-		public SavedBool savedUseRandomColorOnPaletteOverflow;
-		public SavedInt savedNomenclaturaMetro;
-		public SavedInt savedNomenclaturaOnibus;
-		public SavedInt savedNomenclaturaTrem;
-		public SavedInt savedAutoColorPaletteMetro;
-		public SavedInt savedAutoColorPaletteTrem;
-		public SavedInt savedAutoColorPaletteOnibus;
+		private SavedBool m_savedAutoNaming;
+		private SavedBool m_savedAutoColor;
+		private SavedBool m_savedCircularOnSingleDistrict;
+		private SavedBool m_savedUseRandomColorOnPaletteOverflow;
+		private SavedInt m_savedNomenclaturaMetro;
+		private SavedInt m_savedNomenclaturaOnibus;
+		private SavedInt m_savedNomenclaturaTrem;
+		private SavedString m_savedAutoColorPaletteMetro;
+		private SavedString m_savedAutoColorPaletteTrem;
+		private SavedString m_savedAutoColorPaletteOnibus;
+		private SavedBool m_savedShowMetroLinesOnLinearMap;
+		private SavedBool m_savedShowBusLinesOnLinearMap;
+		private SavedBool m_savedShowTrainLinesOnLinearMap;
+		private SavedBool m_savedShowAirportsOnLinearMap;
+		private SavedBool m_savedShowPassengerPortsOnLinearMap;
+		private SavedBool m_savedShowTaxiStopsOnLinearMap;
+		private SavedString m_savedPalettes;
+
+		public static SavedBool savedAutoNaming {
+			get {
+				return TransportLinesManagerMod.instance.m_savedAutoNaming;
+			}
+		}
+		
+		public static SavedBool savedAutoColor {
+			get {
+				return TransportLinesManagerMod.instance.m_savedAutoColor;
+			}
+		}
+		
+		public static SavedBool savedCircularOnSingleDistrict {
+			get {
+				return TransportLinesManagerMod.instance.m_savedCircularOnSingleDistrict;
+			}
+		}
+		
+		public static SavedBool savedUseRandomColorOnPaletteOverflow {
+			get {
+				return TransportLinesManagerMod.instance.m_savedUseRandomColorOnPaletteOverflow;
+			}
+		}
+		
+		public static SavedBool savedShowMetroLinesOnLinearMap {
+			get {
+				return TransportLinesManagerMod.instance.m_savedShowMetroLinesOnLinearMap;
+			}
+		}
+		
+		public static SavedBool savedShowBusLinesOnLinearMap {
+			get {
+				return TransportLinesManagerMod.instance.m_savedShowBusLinesOnLinearMap;
+			}
+		}
+		
+		public static SavedBool savedShowTrainLinesOnLinearMap {
+			get {
+				return TransportLinesManagerMod.instance.m_savedShowTrainLinesOnLinearMap;
+			}
+		}
+		
+		public static SavedBool savedShowAirportsOnLinearMap {
+			get {
+				return TransportLinesManagerMod.instance.m_savedShowAirportsOnLinearMap;
+			}
+		}
+
+		public static SavedBool savedShowPassengerPortsOnLinearMap {
+			get {
+				return TransportLinesManagerMod.instance.m_savedShowPassengerPortsOnLinearMap;
+			}
+		}
+
+		public static SavedBool savedShowTaxiStopsOnLinearMap {
+			get {
+				return TransportLinesManagerMod.instance.m_savedShowTaxiStopsOnLinearMap;
+			}
+		}
+		
+		public static SavedInt savedNomenclaturaMetro {
+			get {
+				return TransportLinesManagerMod.instance.m_savedNomenclaturaMetro;
+			}
+		}
+		
+		public static SavedInt savedNomenclaturaOnibus {
+			get {
+				return TransportLinesManagerMod.instance.m_savedNomenclaturaOnibus;
+			}
+		}
+		
+		public static SavedInt savedNomenclaturaTrem {
+			get {
+				return TransportLinesManagerMod.instance.m_savedNomenclaturaTrem;
+			}
+		}
+		
+		public static SavedString savedAutoColorPaletteMetro {
+			get {
+				return TransportLinesManagerMod.instance.m_savedAutoColorPaletteMetro;
+			}
+		}
+		
+		public static SavedString savedAutoColorPaletteTrem {
+			get {
+				return TransportLinesManagerMod.instance.m_savedAutoColorPaletteTrem;
+			}
+		}
+		
+		public static SavedString savedAutoColorPaletteOnibus {
+			get {
+				return TransportLinesManagerMod.instance.m_savedAutoColorPaletteOnibus;
+			}
+		}
+
+		public static SavedString savedPalettes {
+			get {
+				return TransportLinesManagerMod.instance.m_savedPalettes;
+			}
+		}
 
 		public string Name { 
 			get { 
@@ -44,7 +154,7 @@ namespace TransportLinesManager
 		
 		public string Description { 
 			get { return "A shortcut to manage all city's public transports lines."; } 
-		} 
+		}
 
 		public void OnCreated (ILoading loading)
 		{
@@ -52,41 +162,173 @@ namespace TransportLinesManager
 
 		public TransportLinesManagerMod ()
 		{			
-			savedNomenclaturaMetro = new SavedInt ("NomenclaturaMetro", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, true);
-			savedNomenclaturaTrem = new SavedInt ("NomenclaturaTrem", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, true);
-			savedNomenclaturaOnibus = new SavedInt ("NomenclaturaOnibus", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, true);
-			savedAutoNaming = new SavedBool ("AutoNameLines", Settings.gameSettingsFile, false, true);
-			savedAutoColor = new SavedBool ("AutoColorLines", Settings.gameSettingsFile, false, true);
-			savedUseRandomColorOnPaletteOverflow = new SavedBool ("AutoColorUseRandomColorOnPaletteOverflow", Settings.gameSettingsFile, false, true);
-			savedCircularOnSingleDistrict = new SavedBool ("AutoNameCircularOnSingleDistrictLineNaming", Settings.gameSettingsFile, true, true);
-			savedAutoColorPaletteMetro = new SavedInt ("AutoColorPaletteMetro", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, true);
-			savedAutoColorPaletteTrem = new SavedInt ("AutoColorPaletteTrem", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, true);
-			savedAutoColorPaletteOnibus = new SavedInt ("AutoColorPaletteOnibus", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, true);
+			m_savedPalettes = new SavedString ("savedPalettesTLM", Settings.gameSettingsFile, TLMAutoColorPalettes.defaultPaletteList, true);
+			m_savedNomenclaturaMetro = new SavedInt ("NomenclaturaMetro", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, true);
+			m_savedNomenclaturaTrem = new SavedInt ("NomenclaturaTrem", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, true);
+			m_savedNomenclaturaOnibus = new SavedInt ("NomenclaturaOnibus", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, true);
+			m_savedAutoNaming = new SavedBool ("AutoNameLines", Settings.gameSettingsFile, false, true);
+			m_savedAutoColor = new SavedBool ("AutoColorLines", Settings.gameSettingsFile, false, true);
+			m_savedUseRandomColorOnPaletteOverflow = new SavedBool ("AutoColorUseRandomColorOnPaletteOverflow", Settings.gameSettingsFile, false, true);
+			m_savedCircularOnSingleDistrict = new SavedBool ("AutoNameCircularOnSingleDistrictLineNaming", Settings.gameSettingsFile, true, true);
+			m_savedAutoColorPaletteMetro = new SavedString ("AutoColorPaletteMetro", Settings.gameSettingsFile, TLMAutoColorPalettes.PALETTE_RANDOM, true);
+			m_savedAutoColorPaletteTrem = new SavedString ("AutoColorPaletteTrem", Settings.gameSettingsFile, TLMAutoColorPalettes.PALETTE_RANDOM, true);
+			m_savedAutoColorPaletteOnibus = new SavedString ("AutoColorPaletteOnibus", Settings.gameSettingsFile, TLMAutoColorPalettes.PALETTE_RANDOM, true);
+			m_savedShowMetroLinesOnLinearMap = new SavedBool ("showMetroLinesOnLinearMap", Settings.gameSettingsFile, true, true);
+			m_savedShowBusLinesOnLinearMap = new SavedBool ("showBusLinesOnLinearMap", Settings.gameSettingsFile, false, true);
+			m_savedShowTrainLinesOnLinearMap = new SavedBool ("showTrainLinesOnLinearMap", Settings.gameSettingsFile, true, true);
+			m_savedShowTaxiStopsOnLinearMap = new SavedBool ("showTaxiStopsOnLinearMap", Settings.gameSettingsFile, false, true);
+			m_savedShowAirportsOnLinearMap = new SavedBool ("showAirportsOnLinearMap", Settings.gameSettingsFile, true, true);
+			m_savedShowPassengerPortsOnLinearMap = new SavedBool ("showPassengerPortsOnLinearMap", Settings.gameSettingsFile, true, true);
 			instance = this;
 		}
 
-		public void OnSettingsUI (UIHelperBase helper)
+		private UIDropDown busPalette ;
+		private UIDropDown metroPalette ;
+		private UIDropDown trainPalette ;
+		private UIDropDown editorSelector ;
+
+		public void OnSettingsUI (UIHelperBase helperDefault)
 		{
 			string[] namingOptions = new string[] {
 				"Number","Lower Latin","Upper Latin","Lower Greek", "Upper Greek", "Lower Cyrilic", "Upper Cyrilic"
 			};
-			string[] palettes = new string[] {
-				"Random","São Paulo 2035 (30)"
-			};
-			UIHelperBase group1 = helper.AddGroup ("Line Naming Strategy");			
-			group1.AddCheckbox ("Auto naming enabled", savedAutoNaming.value, toggleAutoNaming);
-			group1.AddCheckbox ("Use 'Circular' word on single district lines", savedCircularOnSingleDistrict.value, toggleCircularAutoName);
-			group1.AddDropdown ("Bus Lines Identifier", namingOptions, savedNomenclaturaOnibus.value, setNamingBus);
-			group1.AddDropdown ("Metro Lines Identifier", namingOptions, savedNomenclaturaMetro.value, setNamingMetro);
-			group1.AddDropdown ("Train Lines Identifier", namingOptions, savedNomenclaturaTrem.value, setNamingTrain);
-			UIHelperBase group2 = helper.AddGroup ("Line Coloring Strategy");
-			group2.AddCheckbox ("Auto coloring enabled", savedAutoColor.value, toggleAutoColor);
-			group2.AddCheckbox ("Random colors on palette overflow", savedUseRandomColorOnPaletteOverflow.value, toggleAutoColorRandomOveflow);
-			group2.AddDropdown ("Bus Lines Palette", palettes, savedAutoColorPaletteOnibus.value, setAutoColorBus);
-			group2.AddDropdown ("Metro Lines Palette", palettes, savedAutoColorPaletteMetro.value, setAutoColorMetro);
-			group2.AddDropdown ("Train Lines Palette", palettes, savedAutoColorPaletteTrem.value, setAutoColorTrain);
+			UIHelperExtension helper = new UIHelperExtension ((UIHelper)helperDefault);
+			UIHelperExtension group1 = helper.AddGroupExtended ("Line Naming Strategy");			
+			group1.AddCheckbox ("Auto naming enabled", m_savedAutoNaming.value, toggleAutoNaming);
+			group1.AddCheckbox ("Use 'Circular' word on single district lines", m_savedCircularOnSingleDistrict.value, toggleCircularAutoName);
+			group1.AddDropdown ("Bus Lines Identifier", namingOptions, m_savedNomenclaturaOnibus.value, setNamingBus);
+			group1.AddDropdown ("Metro Lines Identifier", namingOptions, m_savedNomenclaturaMetro.value, setNamingMetro);
+			group1.AddDropdown ("Train Lines Identifier", namingOptions, m_savedNomenclaturaTrem.value, setNamingTrain);
+			UIHelperExtension group2 = helper.AddGroupExtended ("Line Coloring Strategy");
+			group2.AddCheckbox ("Auto coloring enabled", m_savedAutoColor.value, toggleAutoColor);
+			group2.AddCheckbox ("Random colors on palette overflow", m_savedUseRandomColorOnPaletteOverflow.value, toggleAutoColorRandomOveflow);
+			busPalette = group2.AddDropdown ("Bus Lines Palette", TLMAutoColorPalettes.paletteList, m_savedAutoColorPaletteOnibus.value, setAutoColorBus) as UIDropDown;
+			metroPalette = group2.AddDropdown ("Metro Lines Palette", TLMAutoColorPalettes.paletteList, m_savedAutoColorPaletteMetro.value, setAutoColorMetro) as UIDropDown;
+			trainPalette = group2.AddDropdown ("Train Lines Palette", TLMAutoColorPalettes.paletteList, m_savedAutoColorPaletteTrem.value, setAutoColorTrain) as UIDropDown;
+			UIHelperExtension group4 = helper.AddGroupExtended ("Custom palettes config [" + UIHelperExtension.version + "]");
+			((group4.self) as UIPanel).autoLayoutDirection = LayoutDirection.Horizontal;
+			((group4.self) as UIPanel).wrapLayout = true;
+
+			UITextField paletteName = null;
+			DropDownColorSelector colorEditor = null;
+			NumberedColorList colorList = null;
+
+			editorSelector = group4.AddDropdown ("Palette Select", TLMAutoColorPalettes.paletteListForEditing, 0, delegate (int sel) {
+				if (sel <= 0 || sel >= TLMAutoColorPalettes.paletteListForEditing.Length) {
+					paletteName.enabled = false;
+					colorEditor.Disable ();
+					colorList.Disable ();
+				} else {
+					paletteName.enabled = true;
+					colorEditor.Disable ();
+					colorList.colorList = TLMAutoColorPalettes.getColors (TLMAutoColorPalettes.paletteListForEditing [sel]);
+					colorList.Enable ();
+					paletteName.text = TLMAutoColorPalettes.paletteListForEditing [sel];
+				}
+			}) as UIDropDown;
+			
+			group4.AddButton ("Create", delegate() {
+				string newName = TLMAutoColorPalettes.addPalette();
+				updateDropDowns("","");
+				editorSelector.selectedValue = newName;
+			});
+			group4.AddButton ("Delete", delegate() {
+				TLMAutoColorPalettes.removePalette (editorSelector.selectedValue);
+				updateDropDowns ("", "");
+			});
+			paletteName = group4.AddTextField ("Palette Name", delegate(string val) {
+				
+			}, "", (string value) => {
+				string oldName =editorSelector.selectedValue;
+				paletteName.text = TLMAutoColorPalettes.renamePalette (oldName, value);
+				updateDropDowns (oldName, value);
+			});
+			paletteName.parent.width = 500;
+
+			colorEditor = group4.AddColorField ("Colors", Color.black, delegate (Color c) {
+				TLMAutoColorPalettes.setColor (colorEditor.id, editorSelector.selectedValue, c);				
+				colorList.colorList = TLMAutoColorPalettes.getColors (editorSelector.selectedValue);
+			}, delegate {
+				TLMAutoColorPalettes.removeColor(editorSelector.selectedValue,colorEditor.id);		
+				colorList.colorList = TLMAutoColorPalettes.getColors (editorSelector.selectedValue);
+			});
+
+			colorList = group4.AddNumberedColorList (null, new List<Color32> (), delegate (int c) {
+				colorEditor.id = c;
+				colorEditor.selectedColor = TLMAutoColorPalettes.getColor (c, editorSelector.selectedValue);
+				colorEditor.title = c.ToString ();
+				colorEditor.Enable ();
+			}, colorEditor.parent.GetComponentInChildren<UILabel> (), delegate () {
+				TLMAutoColorPalettes.addColor (editorSelector.selectedValue);
+			});
+
+			paletteName.enabled = false;
+			colorEditor.Disable ();
+			colorList.Disable ();
+
+			UIHelperExtension group3 = helper.AddGroupExtended ("Linear map line intersections");
+			group3.AddCheckbox ("Show metro lines", m_savedShowMetroLinesOnLinearMap.value, toggleShowMetroLinesOnLinearMap);
+			group3.AddCheckbox ("Show train lines", m_savedShowTrainLinesOnLinearMap.value, toggleShowTrainLinesOnLinearMap);
+			group3.AddCheckbox ("Show bus lines (be careful!)", m_savedShowBusLinesOnLinearMap.value, toggleShowBusLinesOnLinearMap);
+			group3.AddCheckbox ("Show airports", m_savedShowAirportsOnLinearMap.value, toggleShowAirportsOnLinearMap);
+			group3.AddCheckbox ("Show seaports", m_savedShowPassengerPortsOnLinearMap.value, toggleShowPassengerPortsOnLinearMap);
+			group3.AddCheckbox ("Show taxi stops (AD only)", m_savedShowTaxiStopsOnLinearMap.value, toggleShowTaxiStopsOnLinearMap);
 		}
-		
+
+		private void updateDropDowns (string oldName, string newName)
+		{
+
+			string idxSel =editorSelector.selectedValue;			
+			editorSelector.items = TLMAutoColorPalettes.paletteListForEditing;
+			if (!TLMAutoColorPalettes.paletteListForEditing.Contains (idxSel)) {
+				if (idxSel != oldName || !TLMAutoColorPalettes.paletteListForEditing.Contains (newName)) {
+					editorSelector.selectedIndex = 0;
+				} else {
+					idxSel = newName;
+					editorSelector.selectedIndex = TLMAutoColorPalettes.paletteListForEditing.ToList().IndexOf(idxSel);
+				}
+			} else {
+				editorSelector.selectedIndex = TLMAutoColorPalettes.paletteListForEditing.ToList().IndexOf(idxSel);
+			}
+
+			
+			idxSel = (busPalette.selectedValue);
+			busPalette.items = TLMAutoColorPalettes.paletteList;
+			if(!TLMAutoColorPalettes.paletteList.Contains(idxSel)){
+				if(idxSel != oldName || !TLMAutoColorPalettes.paletteList.Contains(newName)){
+					idxSel = TLMAutoColorPalettes.PALETTE_RANDOM;
+				}else{
+					idxSel = newName;
+				}
+			}
+			busPalette.selectedIndex = TLMAutoColorPalettes.paletteList.ToList().IndexOf(idxSel);
+			setAutoColorBus (TLMAutoColorPalettes.paletteList.ToList().IndexOf(idxSel));
+			
+			idxSel = (metroPalette.selectedValue);
+			metroPalette.items = TLMAutoColorPalettes.paletteList;
+			if(!TLMAutoColorPalettes.paletteList.Contains(idxSel)){
+				if(idxSel != oldName || !TLMAutoColorPalettes.paletteList.Contains(newName)){
+					idxSel = TLMAutoColorPalettes.PALETTE_RANDOM;
+				}else{
+					idxSel = newName;
+				}
+			}
+			metroPalette.selectedIndex = TLMAutoColorPalettes.paletteList.ToList().IndexOf(idxSel);
+			setAutoColorMetro (TLMAutoColorPalettes.paletteList.ToList().IndexOf(idxSel));
+			
+			idxSel =  (trainPalette.selectedValue);
+			trainPalette.items = TLMAutoColorPalettes.paletteList;
+			if(!TLMAutoColorPalettes.paletteList.Contains(idxSel)){
+				if(idxSel != oldName || !TLMAutoColorPalettes.paletteList.Contains(newName)){
+					idxSel = TLMAutoColorPalettes.PALETTE_RANDOM;
+				}else{
+					idxSel = newName;
+				}
+			}
+			trainPalette.selectedIndex = TLMAutoColorPalettes.paletteList.ToList().IndexOf(idxSel);
+			setAutoColorTrain (TLMAutoColorPalettes.paletteList.ToList().IndexOf(idxSel));
+		}
+
 		public void OnLevelLoaded (LoadMode mode)
 		{
 
@@ -101,7 +343,7 @@ namespace TransportLinesManager
 			}
 			if (TLMController.taLineNumber == null) {
 				TLMController.taLineNumber = CreateTextureAtlas ("lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView> ().FindUIComponent<UIPanel> ("InfoPanel").atlas.material, 64, 64, new string[] {
-					"SubwayIcon","TrainIcon","BusIcon"
+					"SubwayIcon","TrainIcon","BusIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon"
 				});
 
 			}
@@ -152,50 +394,82 @@ namespace TransportLinesManager
 		///Metodos de seleçao
 		private void setNamingBus (int idx)
 		{
-			savedNomenclaturaOnibus.value = idx;
+			m_savedNomenclaturaOnibus.value = idx;
 		}
 
 		private void setNamingMetro (int idx)
 		{
-			savedNomenclaturaMetro.value = idx;
+			m_savedNomenclaturaMetro.value = idx;
 		}
 
 		private void setNamingTrain (int idx)
 		{
-			savedNomenclaturaTrem.value = idx;
+			m_savedNomenclaturaTrem.value = idx;
 		}
 		
 		private void setAutoColorBus (int idx)
 		{
-			savedAutoColorPaletteOnibus.value = idx;
+			m_savedAutoColorPaletteOnibus.value = TLMAutoColorPalettes.paletteList [idx];
 		}
 
 		private void setAutoColorMetro (int idx)
 		{
-			savedAutoColorPaletteMetro.value = idx;
+			m_savedAutoColorPaletteMetro.value = TLMAutoColorPalettes.paletteList [idx];
 		}
 
 		private void setAutoColorTrain (int idx)
 		{
-			savedAutoColorPaletteTrem.value = idx;
+			m_savedAutoColorPaletteTrem.value = TLMAutoColorPalettes.paletteList [idx];
 		}
 
 		private void toggleAutoColor (bool b)
 		{
-			savedAutoColor.value = b;
+			m_savedAutoColor.value = b;
 		}
+
 		private void toggleAutoColorRandomOveflow (bool b)
 		{
-			savedUseRandomColorOnPaletteOverflow.value = b;
+			m_savedUseRandomColorOnPaletteOverflow.value = b;
 		}
 
 		private void toggleCircularAutoName (bool b)
 		{
-			savedCircularOnSingleDistrict.value = b;
+			m_savedCircularOnSingleDistrict.value = b;
 		}
+
 		private void toggleAutoNaming (bool b)
 		{
-			savedAutoNaming.value = b;
+			m_savedAutoNaming.value = b;
+		}
+
+		private void toggleShowMetroLinesOnLinearMap (bool b)
+		{
+			m_savedShowMetroLinesOnLinearMap.value = b;
+		}
+
+		private void toggleShowTrainLinesOnLinearMap (bool b)
+		{
+			m_savedShowTrainLinesOnLinearMap.value = b;
+		}
+
+		private void toggleShowBusLinesOnLinearMap (bool b)
+		{
+			m_savedShowBusLinesOnLinearMap.value = b;
+		}
+		
+		private void toggleShowPassengerPortsOnLinearMap (bool b)
+		{
+			m_savedShowPassengerPortsOnLinearMap.value = b;
+		}
+
+		private void toggleShowAirportsOnLinearMap (bool b)
+		{
+			m_savedShowAirportsOnLinearMap.value = b;
+		}
+
+		private void toggleShowTaxiStopsOnLinearMap (bool b)
+		{
+			m_savedShowTaxiStopsOnLinearMap.value = b;
 		}
 
 		

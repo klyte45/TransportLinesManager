@@ -16,10 +16,11 @@ using ColossalFramework.Threading;
 using System.Runtime.CompilerServices;
 using ColossalFramework.Math;
 using ColossalFramework.Globalization;
+using Klyte.Extensions;
 
-namespace TransportLinesManager 
+namespace Klyte.TransportLinesManager
 {
-	public class  TLMLineInfoPanel 
+	public class  TLMLineInfoPanel
 	{
 		private TLMAgesChartPanel agesPanel;
 		private TLMController m_controller;
@@ -27,128 +28,140 @@ namespace TransportLinesManager
 
 		//line info	
 		private  UIPanel lineInfoPanel;
-
 		private  InstanceID m_lineIdSelecionado;
 		private CameraController m_CameraController;
 		private string lastLineName;
-		private  UILabel lineLenghtLabel;			
-		private  UILabel lineStopsLabel;			
-		private  UITextField lineNumberLabel;		
-		private  UILabel lineTransportIconTypeLabel;	
+		private  UILabel lineLenghtLabel;
+		private  UILabel lineStopsLabel;
+		private  UITextField lineNumberLabel;
+		private  UILabel lineTransportIconTypeLabel;
 		private  UILabel viagensEvitadasLabel;
 		private  UILabel passageirosEturistasLabel;
 		private  UILabel veiculosLinhaLabel;
 		private  UILabel autoNameLabel;
+		private 	UIDropDown lineTime;
 		private  UITextField lineNameField;
-		private UIColorField lineColorPicker;	
+		private UIColorField lineColorPicker;
+		private AsyncAction daytimeChange;
 
 		public Transform transform {
-			get{
+			get {
 				return lineInfoPanel.transform;
 			}
 		}
 		
-		public GameObject gameObject{
-			get{
-				return lineInfoPanel.gameObject;
+		public GameObject gameObject {
+			get {
+				try {						
+					return lineInfoPanel.gameObject;
+				} catch (Exception e) {
+					return null;
+				}
 			}
 		}
-		public bool isVisible{
-			get{
+
+		public bool isVisible {
+			get {
 				return lineInfoPanel.isVisible;
 			}
 		}
-		public TLMController controller{
-			get{
+
+		public TLMController controller {
+			get {
 				return m_controller;
 			}
 		}
-		public TLMLinearMap linearMap{
-			get{
+
+		public TLMLinearMap linearMap {
+			get {
 				return m_linearMap;
 			}
 		}
-		public InstanceID lineIdSelecionado{
-			get{
+
+		public InstanceID lineIdSelecionado {
+			get {
 				return m_lineIdSelecionado;
 			}
 		}
 		
-		public CameraController cameraController{
-			get{
+		public CameraController cameraController {
+			get {
 				return m_CameraController;
 			}
 		}
 
-		public TLMLineInfoPanel(TLMController controller){
+		public TLMLineInfoPanel (TLMController controller)
+		{
 			this.m_controller = controller;
 			GameObject gameObject = GameObject.FindGameObjectWithTag ("MainCamera");
-			if (gameObject != null)
-			{
+			if (gameObject != null) {
 				m_CameraController = gameObject.GetComponent<CameraController> ();
 			}
 			createInfoView ();
 		}
 
-		public void Show(){
-			lineInfoPanel.Show();
+		public void Show ()
+		{
+			lineInfoPanel.Show ();
 		}
 		
-		public void Hide(){
-			lineInfoPanel.Hide();
+		public void Hide ()
+		{
+			lineInfoPanel.Hide ();
 		}
 
 
 		
 		
 		//ACOES
-		private  void saveLineName(UITextField u){
+		private  void saveLineName (UITextField u)
+		{
 			string value = u.text;
 			
 			TLMUtils.setLineName (m_lineIdSelecionado.TransportLine, value);
 		}
 		
-		private  void saveLineNumber(UITextField u){
+		private  void saveLineNumber (UITextField u)
+		{
 			String value = u.text;
 			if (value.Length > 0) {
 				bool numeroUsado = true;
-				ushort num = UInt16.Parse(value);
-				if(num>=10000 || num <1){
-					lineNumberLabel.textColor = new Color(1,0,0,1);
+				ushort num = UInt16.Parse (value);
+				if (num >= 10000 || num < 1) {
+					lineNumberLabel.textColor = new Color (1, 0, 0, 1);
 					return;
 				}
 				ModoNomenclatura mn = ModoNomenclatura.Numero;
-				switch	(m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].Info.m_transportType){
+				switch (m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].Info.m_transportType) {
 				case TransportInfo.TransportType.Bus:
-					numeroUsado = m_controller.mainPanel.onibus.Keys.Contains(num) &&  m_controller.mainPanel.onibus[num]!= m_lineIdSelecionado.TransportLine;
-					mn = (ModoNomenclatura) m_controller.savedNomenclaturaOnibus.value;
+					numeroUsado = m_controller.mainPanel.onibus.Keys.Contains (num) && m_controller.mainPanel.onibus [num] != m_lineIdSelecionado.TransportLine;
+					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
 					break;
 					
 				case TransportInfo.TransportType.Metro:
-					numeroUsado = m_controller.mainPanel.metro.Keys.Contains(num) &&  m_controller.mainPanel.metro[num]!= m_lineIdSelecionado.TransportLine;
-					mn = (ModoNomenclatura)  m_controller.savedNomenclaturaMetro.value;
+					numeroUsado = m_controller.mainPanel.metro.Keys.Contains (num) && m_controller.mainPanel.metro [num] != m_lineIdSelecionado.TransportLine;
+					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
 					break;
 					
 				case TransportInfo.TransportType.Train:
-					numeroUsado = m_controller.mainPanel.trens.Keys.Contains(num) &&  m_controller.mainPanel.trens[num]!= m_lineIdSelecionado.TransportLine;					
-					mn = (ModoNomenclatura)  m_controller.savedNomenclaturaTrem.value;
+					numeroUsado = m_controller.mainPanel.trens.Keys.Contains (num) && m_controller.mainPanel.trens [num] != m_lineIdSelecionado.TransportLine;					
+					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
 					break;
 				}
-				if(numeroUsado){
-					lineNumberLabel.textColor = new Color(1,0,0,1);
-				}else{
-					lineNumberLabel.textColor = new Color(1,1,1,1);
+				if (numeroUsado) {
+					lineNumberLabel.textColor = new Color (1, 0, 0, 1);
+				} else {
+					lineNumberLabel.textColor = new Color (1, 1, 1, 1);
 					m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].m_lineNumber = num;
-					m_linearMap.setLineNumberCircle(num,mn);
+					m_linearMap.setLineNumberCircle (num, mn);
 					autoNameLabel.text = m_linearMap.autoName;
 				}
 			} else {				
 			}
 		}
-		
 
-
-		private void createInfoView(){
+		private void createInfoView ()
+		{
 			//line info painel
 			
 			TLMUtils.createUIElement<UIPanel> (ref lineInfoPanel, m_controller.mainRef.transform);		
@@ -163,10 +176,10 @@ namespace TransportLinesManager
 			lineInfoPanel.autoLayout = false;
 			lineInfoPanel.useCenter = true;
 			lineInfoPanel.wrapLayout = false;
-			lineInfoPanel.canFocus= true;
-			TLMUtils.createDragHandle (lineInfoPanel, lineInfoPanel,35f);
+			lineInfoPanel.canFocus = true;
+			TLMUtils.createDragHandle (lineInfoPanel, lineInfoPanel, 35f);
 			lineInfoPanel.eventVisibilityChanged += (component, value) => {
-				if(m_linearMap != null){
+				if (m_linearMap != null) {
 					m_linearMap.isVisible = value;
 				}
 			};
@@ -198,7 +211,7 @@ namespace TransportLinesManager
 			lineNumberLabel.numericalOnly = true;
 			lineNumberLabel.maxLength = 4;
 			lineNumberLabel.eventLostFocus += ( component,  eventParam) => {
-				saveLineNumber(lineNumberLabel);
+				saveLineNumber (lineNumberLabel);
 				TransportLine t = m_controller.tm.m_lines.m_buffer [m_lineIdSelecionado.TransportLine];
 				lineNumberLabel.text = "" + t.m_lineNumber;
 			};
@@ -215,14 +228,14 @@ namespace TransportLinesManager
 			lineNameField.height = 25;			
 			lineNameField.name = "LineNameLabel";		
 			lineNameField.maxLength = 256;
-			lineNameField.textScale=1.5f;
+			lineNameField.textScale = 1.5f;
 			TLMUtils.uiTextFieldDefaults (lineNameField);
 			lineNameField.eventGotFocus += ( component,  eventParam) => {
 				lastLineName = lineNameField.text;
 			};
 			lineNameField.eventLostFocus += ( component,  eventParam) => {
-				if(lastLineName != lineNameField.text){
-					saveLineName(lineNameField);
+				if (lastLineName != lineNameField.text) {
+					saveLineName (lineNameField);
 				}
 				lineNameField.text = m_controller.tm.GetLineName (m_lineIdSelecionado.TransportLine);
 			};
@@ -292,41 +305,44 @@ namespace TransportLinesManager
 			autoNameLabel.wordWrap = true;
 			autoNameLabel.clipChildren = false;
 			
-			lineColorPicker = GameObject.Instantiate(PublicTransportWorldInfoPanel.FindObjectOfType<UIColorField> ().gameObject).GetComponent<UIColorField>();
+			lineColorPicker = GameObject.Instantiate (PublicTransportWorldInfoPanel.FindObjectOfType<UIColorField> ().gameObject).GetComponent<UIColorField> ();
 			//				
-			lineInfoPanel.AttachUIComponent(lineColorPicker.gameObject);
+			lineInfoPanel.AttachUIComponent (lineColorPicker.gameObject);
 			lineColorPicker.name = "LineColorPicker";
 			lineColorPicker.relativePosition = new Vector3 (50f, 10f);	
+
 			lineColorPicker.anchor = UIAnchorStyle.Top & UIAnchorStyle.Left;
-			lineColorPicker.eventSelectedColorChanged += (UIComponent component, Color value) =>  {
-				lineNumberLabel.color = value;	
-				TLMUtils.setLineColor(m_lineIdSelecionado.TransportLine,value);
-				m_linearMap.setLinearMapColor(value);				
-			};			
+			lineColorPicker.eventSelectedColorChanged += (UIComponent component, Color value) => {				
+				TLMUtils.setLineColor (m_lineIdSelecionado.TransportLine, value);
+				updateLineUI (value);				
+			};
+
+			lineTime = UIHelperExtension.CloneBasicDropDown ("Line Operation", new string[] {
+				"Day & Night",
+				"Day Only",
+				"Night Only",
+				"Disable (without delete)"
+			}, changeLineTime, lineInfoPanel);
+			lineTime.parent.relativePosition = new Vector3 (50f, 170f);
 			
 			UIButton deleteLine = null;
 			TLMUtils.createUIElement<UIButton> (ref deleteLine, lineInfoPanel.transform);	
-			deleteLine.relativePosition = new Vector3 (10f, lineInfoPanel.height-40f);
+			deleteLine.relativePosition = new Vector3 (10f, lineInfoPanel.height - 40f);
 			deleteLine.text = "Delete";
 			deleteLine.width = 70;
 			deleteLine.height = 30;
 			TLMUtils.initButton (deleteLine, true, "ButtonMenu");	
 			deleteLine.name = "DeleteLineButton";
-			deleteLine.color = new Color(1,0,0,1);
-			deleteLine.eventClick += (UIComponent component, UIMouseEventParameter eventParam) => {					
-				TransportLine t = m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine];
-				m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].m_lineNumber = 0;
-				m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].m_flags |= TransportLine.Flags.Deleted | TransportLine.Flags.Hidden;
-				m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].m_flags &= ~TransportLine.Flags.Created & ~TransportLine.Flags.Created;
-				m_controller.tm.m_lineCount--;
-				t.ClearStops(m_lineIdSelecionado.TransportLine);
-				
-				m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine] = default(TransportLine);
-				closeLineInfo(component,eventParam);
+			deleteLine.color = new Color (1, 0, 0, 1);
+			deleteLine.eventClick += (UIComponent component, UIMouseEventParameter eventParam) => {
+				Singleton<SimulationManager>.instance.AddAction (delegate {
+					Singleton<TransportManager>.instance.ReleaseLine (m_lineIdSelecionado.TransportLine);
+				});
+				closeLineInfo (component, eventParam);
 			};
 			UIButton voltarButton2 = null;
 			TLMUtils.createUIElement<UIButton> (ref voltarButton2, lineInfoPanel.transform);	
-			voltarButton2.relativePosition = new Vector3 (lineInfoPanel.width - 250f, lineInfoPanel.height-40f);
+			voltarButton2.relativePosition = new Vector3 (lineInfoPanel.width - 250f, lineInfoPanel.height - 40f);
 			voltarButton2.text = "Close";
 			voltarButton2.width = 240;
 			voltarButton2.height = 30;
@@ -336,7 +352,7 @@ namespace TransportLinesManager
 
 			UIButton autoName = null;
 			TLMUtils.createUIElement<UIButton> (ref autoName, lineInfoPanel.transform);	
-			autoName.relativePosition = new Vector3 (lineInfoPanel.width - 250f, lineInfoPanel.height-80f);
+			autoName.relativePosition = new Vector3 (lineInfoPanel.width - 250f, lineInfoPanel.height - 80f);
 			autoName.text = "Use Auto Name";
 			autoName.width = 240;
 			autoName.height = 30;
@@ -344,26 +360,43 @@ namespace TransportLinesManager
 			autoName.name = "AutoNameButton";
 			autoName.eventClick += (component, eventParam) => {
 				lineNameField.text = m_linearMap.autoName;
-				saveLineName(lineNameField);
+				saveLineName (lineNameField);
+			};
+
+			UIButton autoColor = null;
+			TLMUtils.createUIElement<UIButton> (ref autoColor, lineInfoPanel.transform);	
+			autoColor.relativePosition = new Vector3 (lineInfoPanel.width - 250f, lineInfoPanel.height - 120f);
+			autoColor.text = "Pick color from palette";
+			autoColor.tooltip = "Redefine the line color using palette settings; Line number based";
+			autoColor.width = 240;
+			autoColor.height = 30;
+			TLMUtils.initButton (autoColor, true, "ButtonMenu");	
+			autoColor.name = "AutoNameButton";
+			autoColor.eventMouseUp += (component, eventParam) => {
+				lineColorPicker.selectedColor = m_controller.AutoColor (m_lineIdSelecionado.TransportLine);	
+				updateLineUI (lineColorPicker.selectedColor);
 			};
 
 
 			agesPanel = new TLMAgesChartPanel (this);			
-			m_linearMap = new TLMLinearMap(this);
+			m_linearMap = new TLMLinearMap (this);
 		}
 
-
+		private void updateLineUI (Color color)
+		{
+			lineNumberLabel.color = color;	
+			m_linearMap.setLinearMapColor (color);	
+		}
 		
-
-		
-		
-		public void updateBidings(){
+		public void updateBidings ()
+		{
 			ushort lineID = m_lineIdSelecionado.TransportLine;
 			TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID];
 			TransportInfo info = tl.Info;
 			int turistas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].m_passengers.m_touristPassengers.m_averageCount;
 			int residentes = (int)Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].m_passengers.m_residentPassengers.m_averageCount;
-			if(residentes==0)residentes=1;
+			if (residentes == 0)
+				residentes = 1;
 			int criancas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].m_passengers.m_childPassengers.m_averageCount;
 			int adolescentes = (int)Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].m_passengers.m_teenPassengers.m_averageCount;
 			int jovens = (int)Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].m_passengers.m_youngPassengers.m_averageCount;
@@ -371,14 +404,13 @@ namespace TransportLinesManager
 			int idosos = (int)Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].m_passengers.m_seniorPassengers.m_averageCount;
 			int motoristas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].m_passengers.m_carOwningPassengers.m_averageCount;
 			int veiculosLinha = Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].CountVehicles (lineID);
-			int porcCriancas = (criancas*100/ residentes);
-			int porcAdolescentes = (adolescentes*100/ residentes);
-			int porcJovens =  (jovens*100/ residentes);
-			int porcAdultos =(adultos*100/ residentes);
-			int porcIdosos = (idosos*100/ residentes);
+			int porcCriancas = (criancas * 100 / residentes);
+			int porcAdolescentes = (adolescentes * 100 / residentes);
+			int porcJovens = (jovens * 100 / residentes);
+			int porcAdultos = (adultos * 100 / residentes);
+			int porcIdosos = (idosos * 100 / residentes);
 			int soma = porcCriancas + porcAdolescentes + porcJovens + porcAdultos + porcIdosos;
-			if (soma != 0 && soma != 100)
-			{
+			if (soma != 0 && soma != 100) {
 				porcAdultos = 100 - (porcCriancas + porcAdolescentes + porcJovens + porcIdosos);
 			}
 			agesPanel.SetValues (new int[]
@@ -389,7 +421,7 @@ namespace TransportLinesManager
 				porcAdultos,
 				porcIdosos
 			});
-			passageirosEturistasLabel.text= LocaleFormatter.FormatGeneric ("TRANSPORT_LINE_PASSENGERS", new object[]
+			passageirosEturistasLabel.text = LocaleFormatter.FormatGeneric ("TRANSPORT_LINE_PASSENGERS", new object[]
 			                                                               {
 				residentes,
 				turistas
@@ -400,37 +432,36 @@ namespace TransportLinesManager
 			});
 			int viagensSalvas = 0;
 			int coeficienteViagens = 0;
-			if (residentes + turistas != 0)
-			{
+			if (residentes + turistas != 0) {
 				coeficienteViagens += criancas * 0;
 				coeficienteViagens += adolescentes * 5;
 				coeficienteViagens += jovens * ((15 * residentes + 20 * turistas + (residentes + turistas >> 1)) / (residentes + turistas));
 				coeficienteViagens += adultos * ((20 * residentes + 20 * turistas + (residentes + turistas >> 1)) / (residentes + turistas));
 				coeficienteViagens += idosos * ((10 * residentes + 20 * turistas + (residentes + turistas >> 1)) / (residentes + turistas));
 			}
-			if (coeficienteViagens != 0)
-			{
+			if (coeficienteViagens != 0) {
 				viagensSalvas = (int)(((long)motoristas * 10000L + (long)(coeficienteViagens >> 1)) / (long)coeficienteViagens);
 				viagensSalvas = Mathf.Clamp (viagensSalvas, 0, 100);
 			}
 			viagensEvitadasLabel.text = LocaleFormatter.FormatGeneric ("TRANSPORT_LINE_TRIPSAVED", new object[]{
 				viagensSalvas
 			});
+
+			if (daytimeChange != null && daytimeChange.completedOrFailed) {
+				linearMap.updateLine ();
+				daytimeChange = null;
+			}
 		}
 
-		public  void closeLineInfo(UIComponent component, UIMouseEventParameter eventParam)
+		public  void closeLineInfo (UIComponent component, UIMouseEventParameter eventParam)
 		{			
-			TransportLine t = m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine];	
-			
-			t.m_flags |= TransportLine.Flags.Created;
-			t.m_flags &= ~TransportLine.Flags.Selected &~TransportLine.Flags.Hidden;
-			lineInfoPanel. Hide();	
+			TransportLine t = m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine];
+			lineInfoPanel.Hide ();	
 			m_controller.mainPanel.Show ();
 		}
 		
-		
-		
-		public   void openLineInfo(UIComponent component, UIMouseEventParameter eventParam){
+		public   void openLineInfo (UIComponent component, UIMouseEventParameter eventParam)
+		{
 			ushort lineID = (component as UIButtonLineInfo).lineID;			
 			
 			m_lineIdSelecionado = default(InstanceID);
@@ -438,22 +469,31 @@ namespace TransportLinesManager
 			//lines info
 			float totalSize = 0f;
 			for (int i = 0; i< m_controller.tm.m_lineCurves [(int)lineID].Length; i++) {
-				Bezier3 bez = m_controller.tm.m_lineCurves [(int)lineID][i];
-				totalSize +=  TLMUtils.calcBezierLenght (bez.a,bez.b,bez.c,bez.d,0.1f);
+				Bezier3 bez = m_controller.tm.m_lineCurves [(int)lineID] [i];
+				totalSize += TLMUtils.calcBezierLenght (bez.a, bez.b, bez.c, bez.d, 0.1f);
 			}
 			
 			TransportLine t = m_controller.tm.m_lines.m_buffer [(int)lineID];
 			int stopsCount = t.CountStops (lineID);
-			lineLenghtLabel.text = string.Format ("{0:N2}",totalSize);
-			lineNumberLabel.text = ""+t.m_lineNumber;
+			lineLenghtLabel.text = string.Format ("{0:N2}", totalSize);
+			lineNumberLabel.text = "" + t.m_lineNumber;
 			lineNumberLabel.color = m_controller.tm.GetLineColor (lineID);
-			lineStopsLabel.text = ""+stopsCount;
+			lineStopsLabel.text = "" + stopsCount;
 			lineNameField.text = m_controller.tm.GetLineName (lineID);
-			lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(t.Info.m_transportType);
-			t.m_flags &= ~TransportLine.Flags.Created;
-			t.m_flags |= TransportLine.Flags.Selected |TransportLine.Flags.Hidden;
+			lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon (t.Info.m_transportType);
 			lineColorPicker.selectedColor = m_controller.tm.GetLineColor (lineID);
-			
+
+			bool day, night;
+			t.GetActive (out day, out night);
+			if (day && night) {
+				lineTime.selectedIndex = 0;
+			} else if (day) {
+				lineTime.selectedIndex = 1;
+			} else if (night) {
+				lineTime.selectedIndex = 2;
+			} else {
+				lineTime.selectedIndex = 3;
+			}
 
 			m_linearMap.updateLine ();
 			lineInfoPanel.Show ();
@@ -462,6 +502,27 @@ namespace TransportLinesManager
 			autoNameLabel.text = m_linearMap.autoName;
 		}
 
+		private void changeLineTime (int selection)
+		{
+			daytimeChange = Singleton<SimulationManager>.instance.AddAction (delegate {				
+				ushort lineID = m_lineIdSelecionado.TransportLine;
+				switch (selection) {
+				case 0:
+					Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].SetActive (true, true);
+					break;
+				case 1:
+					Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].SetActive (true, false);
+					break;				
+				case 2:				
+					Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].SetActive (false, true);
+					break;			
+				case 3:
+					Singleton<TransportManager>.instance.m_lines.m_buffer [(int)lineID].SetActive (false, false);
+					break;
+				}
+			});
+
+		}
 	}
 }
 

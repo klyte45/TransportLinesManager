@@ -17,7 +17,7 @@ using System.Runtime.CompilerServices;
 using ColossalFramework.Math;
 using ColossalFramework.Globalization;
 
-namespace TransportLinesManager
+namespace Klyte.TransportLinesManager
 {
 	public class TLMController
 	{
@@ -26,65 +26,7 @@ namespace TransportLinesManager
 		public static UITextureAtlas taTLM = null;
 		public static UITextureAtlas taLineNumber = null;
 
-		public SavedBool savedAutoNaming {
-			get {
-				return TransportLinesManagerMod.instance.savedAutoNaming;
-			}
-		}
 
-		public SavedBool savedAutoColor {
-			get {
-				return TransportLinesManagerMod.instance.savedAutoColor;
-			}
-		}
-
-		public SavedBool savedCircularOnSingleDistrict {
-			get {
-				return TransportLinesManagerMod.instance.savedCircularOnSingleDistrict;
-			}
-		}
-
-		public SavedBool savedUseRandomColorOnPaletteOverflow {
-			get {
-				return TransportLinesManagerMod.instance.savedUseRandomColorOnPaletteOverflow;
-			}
-		}
-
-		public SavedInt savedNomenclaturaMetro {
-			get {
-				return TransportLinesManagerMod.instance.savedNomenclaturaMetro;
-			}
-		}
-
-		public SavedInt savedNomenclaturaOnibus {
-			get {
-				return TransportLinesManagerMod.instance.savedNomenclaturaOnibus;
-			}
-		}
-
-		public SavedInt savedNomenclaturaTrem {
-			get {
-				return TransportLinesManagerMod.instance.savedNomenclaturaTrem;
-			}
-		}
-
-		public SavedInt savedAutoColorPaletteMetro {
-			get {
-				return TransportLinesManagerMod.instance.savedAutoColorPaletteMetro;
-			}
-		}
-
-		public SavedInt savedAutoColorPaletteTrem {
-			get {
-				return TransportLinesManagerMod.instance.savedAutoColorPaletteTrem;
-			}
-		}
-
-		public SavedInt savedAutoColorPaletteOnibus {
-			get {
-				return TransportLinesManagerMod.instance.savedAutoColorPaletteOnibus;
-			}
-		}
 				
 		public UIView uiView;
 		public UIComponent mainRef;
@@ -179,6 +121,18 @@ namespace TransportLinesManager
 				
 				container.height = 37 * ((int)((container.childCount + 1) / 2)) + 6;
 
+//				Array16<Vehicle> vehiclesOriginal =  VehicleManager.instance.m_vehicles;
+//				VehicleManager.instance.m_vehicles =  new Array16<Vehicle> (ushort.MaxValue);
+//				ushort j;
+//				for(int i =0; i< vehiclesOriginal.m_buffer.Length;i++){
+//					VehicleManager.instance.m_vehicles.CreateItem(out j);
+//					VehicleManager.instance.m_vehicles.m_buffer[j] = vehiclesOriginal.m_buffer[i];
+//				}
+//				var prop = VehicleManager.instance.GetType().GetField("m_renderBuffer", System.Reflection.BindingFlags.NonPublic
+//				                                | System.Reflection.BindingFlags.Instance);
+//				prop.SetValue(VehicleManager.instance, new ulong[1024]);
+
+
 				initialized = true;
 			}
 			if (m_mainPanel.isVisible || m_lineInfoPanel.isVisible) {
@@ -193,7 +147,7 @@ namespace TransportLinesManager
 				m_lineInfoPanel.updateBidings ();
 			}
 
-			if (lastLineCount != tm.m_lineCount && (savedAutoColor.value || savedAutoNaming.value)) {
+			if (lastLineCount != tm.m_lineCount && (TransportLinesManagerMod.savedAutoColor.value || TransportLinesManagerMod.savedAutoNaming.value)) {
 				CheckForAutoChanges ();
 				if (mainPanel.isVisible) {
 					mainPanel.Show ();
@@ -207,32 +161,35 @@ namespace TransportLinesManager
 			for (ushort i = 0; i < tm.m_lines.m_size; i++) {
 				TransportLine t = tm.m_lines.m_buffer [(int)i];
 				if ((t.m_flags & (TransportLine.Flags.Created)) != TransportLine.Flags.None) {
-					if (savedAutoNaming.value && ((t.m_flags & (TransportLine.Flags.CustomName)) == TransportLine.Flags.None)) {
+					if (TransportLinesManagerMod.savedAutoNaming.value && ((t.m_flags & (TransportLine.Flags.CustomName)) == TransportLine.Flags.None)) {
 						AutoName (i);
 					}
-					if (savedAutoColor.value && ((t.m_flags & (TransportLine.Flags.CustomColor)) == TransportLine.Flags.None)) {
+					if (TransportLinesManagerMod.savedAutoColor.value && ((t.m_flags & (TransportLine.Flags.CustomColor)) == TransportLine.Flags.None)) {
 						AutoColor (i);
 					}
 				}
 			}
 		}
 
-		public void AutoColor (ushort i)
+		public Color AutoColor (ushort i)
 		{
 			TransportLine t = tm.m_lines.m_buffer [(int)i];
 			try {
-				int pal = (int)TLMAutoColorPalettes.Pallete.Random;
+				string pal = TLMAutoColorPalettes.PALETTE_RANDOM;
 				if (t.Info.m_transportType == TransportInfo.TransportType.Bus) {
-					pal = savedAutoColorPaletteOnibus.value;
+					pal = TransportLinesManagerMod.savedAutoColorPaletteOnibus.value;
 				} else if (t.Info.m_transportType == TransportInfo.TransportType.Metro) {
-					pal = savedAutoColorPaletteMetro.value;
+					pal = TransportLinesManagerMod.savedAutoColorPaletteMetro.value;
 				} else if (t.Info.m_transportType == TransportInfo.TransportType.Train) {
-					pal = savedAutoColorPaletteTrem.value;
+					pal = TransportLinesManagerMod.savedAutoColorPaletteTrem.value;
 				}
-				TLMUtils.setLineColor (i, TLMAutoColorPalettes.getColor (t.m_lineNumber, (TLMAutoColorPalettes.Pallete)pal));
+				Color c = TLMAutoColorPalettes.getColor (t.m_lineNumber, pal);
+				TLMUtils.setLineColor (i, c);
+				return c;
 			} catch (Exception e) {
 				DebugOutputPanel.AddMessage (PluginManager.MessageType.Error, "ERRO!!!!! " + e.Message);
-				savedAutoColor.value = false;
+				TransportLinesManagerMod.savedAutoColor.value = false;
+				return Color.clear;
 			}
 		}
 
@@ -242,17 +199,17 @@ namespace TransportLinesManager
 			try {
 				int mn = (int)ModoNomenclatura.Numero;
 				if (t.Info.m_transportType == TransportInfo.TransportType.Bus) {
-					mn = savedNomenclaturaOnibus.value;
+					mn = TransportLinesManagerMod.savedNomenclaturaOnibus.value;
 				} else if (t.Info.m_transportType == TransportInfo.TransportType.Metro) {
-					mn = savedNomenclaturaMetro.value;
+					mn = TransportLinesManagerMod.savedNomenclaturaMetro.value;
 				} else if (t.Info.m_transportType == TransportInfo.TransportType.Train) {
-					mn = savedNomenclaturaTrem.value;
+					mn = TransportLinesManagerMod.savedNomenclaturaTrem.value;
 				}
 				TLMUtils.setLineName ((ushort)lineIdx, "[" + TLMUtils.getString ((ModoNomenclatura)mn, t.m_lineNumber) + "] " + TLMUtils.calculateAutoName (lineIdx));
 			} catch (Exception e) {
 				DebugOutputPanel.AddMessage (PluginManager.MessageType.Error, "ERRO!!!!! " + e.Message);
 				DebugOutputPanel.AddMessage (PluginManager.MessageType.Error,e.StackTrace);
-				savedAutoNaming.value = false;
+				TransportLinesManagerMod.savedAutoNaming.value = false;
 			}
 		}
 

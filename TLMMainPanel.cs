@@ -17,7 +17,7 @@ using System.Runtime.CompilerServices;
 using ColossalFramework.Math;
 using ColossalFramework.Globalization;
 
-namespace TransportLinesManager
+namespace Klyte.TransportLinesManager
 {
 	public class TLMMainPanel
 	{
@@ -53,7 +53,11 @@ namespace TransportLinesManager
 
 		public GameObject gameObject {
 			get {
-				return mainPanel.gameObject;
+				try{
+					return mainPanel.gameObject;
+				}catch (Exception e){
+					return null;
+				}
 			}
 		}
 
@@ -207,13 +211,13 @@ namespace TransportLinesManager
 				ModoNomenclatura mn;
 				if (t.Info.m_transportType == TransportInfo.TransportType.Train) {
 					TLMUtils.initButtonSameSprite (itemButton, "TrainIcon");
-					mn = (ModoNomenclatura)m_controller.savedNomenclaturaTrem.value;
+					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
 				} else if (t.Info.m_transportType == TransportInfo.TransportType.Metro) {
 					TLMUtils.initButtonSameSprite (itemButton, "SubwayIcon");
-					mn = (ModoNomenclatura)m_controller.savedNomenclaturaMetro.value;
+					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
 				} else {
 					TLMUtils.initButtonSameSprite (itemButton, "BusIcon");
-					mn = (ModoNomenclatura)m_controller.savedNomenclaturaOnibus.value;
+					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
 				}
 				itemButton.color = m_controller.tm.GetLineColor (map [k]);
 				itemButton.hoveredTextColor = itemButton.color;
@@ -223,7 +227,18 @@ namespace TransportLinesManager
 				itemButton.lineID = map [k];
 				itemButton.eventClick += m_controller.lineInfoPanel.openLineInfo;
 				setLineNumberMainListing (t.m_lineNumber, itemButton, mn);
-				
+
+				bool day, night;
+				t.GetActive(out day, out night);
+				if(!day || !night){
+					UILabel lineTime = null;
+					TLMUtils.createUIElement<UILabel>(ref lineTime,itemButton.transform);
+					lineTime.relativePosition = new Vector3 (0, 0);
+					lineTime.width = 35;
+					lineTime.height = 35;
+					lineTime.atlas = TLMController.taLineNumber;
+					lineTime.backgroundSprite =  day ? "DayIcon" : night?"NightIcon": "DisabledIcon";
+				}				
 				itemButton.name = "TransportLinesManagerLineButton" + itemButton.text;
 				j++;
 				
@@ -362,7 +377,7 @@ namespace TransportLinesManager
 			resetLineColor.height = 30;
 			TLMUtils.initButton (resetLineColor, true, "ButtonMenu");	
 			resetLineColor.name = "RecolorAllButton";
-			resetLineColor.isVisible = controller.savedAutoColor.value;
+			resetLineColor.isVisible = TransportLinesManagerMod.savedAutoColor.value;
 			resetLineColor.eventClick += (component, eventParam) => {
 				for (ushort i =0; i < controller.tm.m_lines.m_size; i++) {
 					TransportLine t = controller.tm.m_lines.m_buffer [(int)i];
