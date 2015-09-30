@@ -87,18 +87,27 @@ namespace Klyte.TransportLinesManager
 		
 		public Dictionary<Int32,UInt16> trens {
 			get {
+				if(trensList==null){
+					listaLinhas ();
+				}
 				return trensList;
 			}
 		}
 
 		public Dictionary<Int32,UInt16> metro {
 			get {
+				if(metroList==null){
+					listaLinhas ();
+				}
 				return metroList;
 			}
 		}
 
 		public Dictionary<Int32,UInt16> onibus {
 			get {
+				if(onibusList==null){
+					listaLinhas ();
+				}
 				return onibusList;
 			}
 		}
@@ -208,16 +217,27 @@ namespace Klyte.TransportLinesManager
 				itemButton.height = 35;
 				TLMUtils.initButton (itemButton, true, "ButtonMenu");
 				itemButton.atlas = TLMController.taLineNumber;
-				ModoNomenclatura mn;
+				ModoNomenclatura mn, pre;
+				Separador s;
+				bool z;
 				if (t.Info.m_transportType == TransportInfo.TransportType.Train) {
 					TLMUtils.initButtonSameSprite (itemButton, "TrainIcon");
 					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
+					pre = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
+					s = (Separador)TransportLinesManagerMod.savedNomenclaturaTremSeparador.value;
+					z = TransportLinesManagerMod.savedNomenclaturaTremZeros.value;
 				} else if (t.Info.m_transportType == TransportInfo.TransportType.Metro) {
 					TLMUtils.initButtonSameSprite (itemButton, "SubwayIcon");
 					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
+					pre = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
+					s = (Separador)TransportLinesManagerMod.savedNomenclaturaMetroSeparador.value;
+					z = TransportLinesManagerMod.savedNomenclaturaMetroZeros.value;
 				} else {
 					TLMUtils.initButtonSameSprite (itemButton, "BusIcon");
 					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
+					pre = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
+					s = (Separador)TransportLinesManagerMod.savedNomenclaturaOnibusSeparador.value;
+					z = TransportLinesManagerMod.savedNomenclaturaOnibusZeros.value;
 				}
 				itemButton.color = m_controller.tm.GetLineColor (map [k]);
 				itemButton.hoveredTextColor = itemButton.color;
@@ -226,7 +246,7 @@ namespace Klyte.TransportLinesManager
 				itemButton.tooltip = m_controller.tm.GetLineName ((ushort)map [k]);
 				itemButton.lineID = map [k];
 				itemButton.eventClick += m_controller.lineInfoPanel.openLineInfo;
-				setLineNumberMainListing (t.m_lineNumber, itemButton, mn);
+				setLineNumberMainListing (t.m_lineNumber, itemButton, pre,s,mn,z);
 
 				bool day, night;
 				t.GetActive(out day, out night);
@@ -318,8 +338,9 @@ namespace Klyte.TransportLinesManager
 			TLMUtils.createDragHandle (titleLabel, mainPanel);
 		}
 		
-		private void setLineNumberMainListing (int num, UIButton button, ModoNomenclatura mn)
+		private void setLineNumberMainListing (int num, UIButton button, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, bool zeros)
 		{
+
 			UILabel l = button.AddUIComponent<UILabel> ();
 			l.autoSize = false;
 			l.autoHeight = false;
@@ -330,20 +351,9 @@ namespace Klyte.TransportLinesManager
 			l.width = button.width;
 			l.height = button.height;
 			l.useOutline = true;
-			l.text = TLMUtils.getString (mn, num);
+			l.text = TLMUtils.getString (pre, s,mn, num,zeros);
 			float ratio = l.width / 50;
-			if (l.text.Length == 4) {
-				l.textScale = ratio;	
-				l.relativePosition = new Vector3 (0f, 1f);			
-			} else if (l.text.Length == 3) {
-				l.textScale = ratio * 1.25f;
-				l.relativePosition = new Vector3 (0f, 1.5f);
-			} else if (l.text.Length == 2) {
-				l.textScale = ratio * 1.75f;
-				l.relativePosition = new Vector3 (-0.5f, 0.5f);
-			} else {
-				l.textScale = ratio * 2.3f;
-			}
+			TLMLineUtils.setLineNumberCircleOnRef (num, pre, s,mn,zeros, l,ratio);
 		}
 
 		//botoes da antiga parte extra

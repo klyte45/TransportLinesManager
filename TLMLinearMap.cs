@@ -29,7 +29,10 @@ namespace Klyte.TransportLinesManager
 		private UIPanel lineStationsPanel;
 		private UIPanel mainContainer;
 		private string m_autoName;
+		private ModoNomenclatura pre;
 		private ModoNomenclatura mn;
+		private Separador sep;
+		private bool zerosEsquerda;
 	
 		public bool isVisible {
 			get {
@@ -55,7 +58,7 @@ namespace Klyte.TransportLinesManager
 			get {				
 				ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;		
 				TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer [(int)lineID];
-				return "[" + TLMUtils.getString (mn, t.m_lineNumber) + "] " + m_autoName;
+				return "[" + TLMUtils.getString (pre, sep, mn, t.m_lineNumber,zerosEsquerda).Replace('\n',' ') + "] " + m_autoName;
 			}
 		}
 
@@ -72,46 +75,12 @@ namespace Klyte.TransportLinesManager
 			lineStationsPanel.color = c;
 		}
 		
-		public void setLineNumberCircle (int num, ModoNomenclatura mn)
+		public void setLineNumberCircle (int num, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, bool zeros)
 		{
-			setLineNumberCircleOnRef (num, mn, linearMapLineNumber);
+			TLMLineUtils.setLineNumberCircleOnRef (num, pre,s, mn,zeros, linearMapLineNumber);
 		}
 
-		public void setLineNumberCircleOnRef (int num, ModoNomenclatura mn, UILabel reference)
-		{
-			reference.text = TLMUtils.getString (mn, num);
-			int lenght = reference.text.Length;
-			if (lenght == 4) {
-				reference.textScale = 1f;				
-				reference.relativePosition = new Vector3 (0f, 1f);
-			} else if (lenght == 3) {
-				reference.textScale = 1.25f;
-				reference.relativePosition = new Vector3 (0f, 1.5f);
-			} else if (lenght == 2) {
-				reference.textScale = 1.75f;
-				reference.relativePosition = new Vector3 (-0.5f, 0.5f);
-			} else {
-				reference.textScale = 2.3f;
-				reference.relativePosition = new Vector3 (-0.5f, 0f);
-			}
-		}
 
-		private ItemClass.SubService setFormatBgByType (TransportLine line, out String bgSprite, out ModoNomenclatura nomenclatura)
-		{
-			if (line.Info.m_transportType == TransportInfo.TransportType.Train) {
-				bgSprite = "TrainIcon";
-				nomenclatura = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
-				return ItemClass.SubService.PublicTransportTrain;
-			} else if (line.Info.m_transportType == TransportInfo.TransportType.Metro) {
-				bgSprite = "SubwayIcon";				
-				nomenclatura = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
-				return ItemClass.SubService.PublicTransportMetro;
-			} else {
-				bgSprite = "BusIcon";				
-				nomenclatura = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
-				return ItemClass.SubService.None;
-			}
-		}
 
 		public void updateLine ()
 		{	
@@ -121,16 +90,16 @@ namespace Klyte.TransportLinesManager
 			setLinearMapColor (lineInfoPanel.controller.tm.GetLineColor (lineID));
 			clearStations ();
 			String bgSprite;
-			ItemClass.SubService ss = setFormatBgByType (t, out bgSprite, out mn);	
+			ItemClass.SubService ss = TLMLineUtils.setFormatBgByType (t, out bgSprite, out pre,out sep,out mn, out zerosEsquerda);	
 			linearMapLineNumberFormat.backgroundSprite = bgSprite;
 			bool day, night;
 			t.GetActive (out day, out  night);
 			if (!day || !night) {
-				linearMapLineTime.backgroundSprite = day ? "DayIcon" : night?"NightIcon": "DisabledIcon";
+				linearMapLineTime.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
 			} else {
 				linearMapLineTime.backgroundSprite = "";
 			}
-			setLineNumberCircle (t.m_lineNumber, mn);
+			setLineNumberCircle (t.m_lineNumber, pre,sep,mn,zerosEsquerda);
 			
 			m_autoName = "";
 			ushort[] stopBuildings = new ushort[stopsCount];
@@ -340,26 +309,7 @@ namespace Klyte.TransportLinesManager
 			TransportManager tm = Singleton<TransportManager> .instance;
 
 
-			Dictionary<String,ushort> otherLinesIntersections = new Dictionary<String,ushort> ();
-			
-			foreach (ushort s in intersections) {
-				TransportLine tl = tm.m_lines.m_buffer [(int)s];
-				if (tl.Info.GetSubService () != t.Info.GetSubService () || tl.m_lineNumber != t.m_lineNumber) {
-					string transportTypeLetter = "";
-					switch (tl.Info.m_transportType) {
-					case TransportInfo.TransportType.Bus:
-						transportTypeLetter = "E";
-						break;
-					case TransportInfo.TransportType.Metro:
-						transportTypeLetter = "B";
-						break;
-					case TransportInfo.TransportType.Train:
-						transportTypeLetter = "C";
-						break;
-					}
-					otherLinesIntersections.Add (transportTypeLetter + tl.m_lineNumber.ToString ().PadLeft (5, '0'), s);
-				}
-			}
+
 			
 			UIButton stationButton = null;			
 			TLMUtils.createUIElement<UIButton> (ref stationButton, lineStationsPanel.transform);
@@ -389,7 +339,8 @@ namespace Klyte.TransportLinesManager
 				lineInfoPanel.cameraController.ClearTarget ();
 				
 			};
-			
+
+			var otherLinesIntersections = TLMLineUtils.IndexLines (intersections, t);
 			
 			int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (port != string.Empty ? 1 : 0);
 			if (intersectionCount > 0) {
@@ -401,79 +352,10 @@ namespace Klyte.TransportLinesManager
 				intersectionsPanel.autoLayoutDirection = LayoutDirection.Horizontal;
 				intersectionsPanel.relativePosition = new Vector3 (-20, 10);
 				intersectionsPanel.wrapLayout = false;
+				intersectionsPanel.autoFitChildrenVertically =true;
 
-				float size = otherLinesIntersections.Count > 3 ? 20 : 40;
-				float multiplier = otherLinesIntersections.Count > 3 ? 0.4f :0.8f;
-				foreach (var s in otherLinesIntersections.OrderBy (x => x.Key)) {
-					TransportLine intersectLine = tm.m_lines.m_buffer [(int)s.Value];
-					String bgSprite;
-					ModoNomenclatura nomenclatura;
-					ItemClass.SubService ss = setFormatBgByType (intersectLine, out bgSprite, out nomenclatura);	
-					UIButtonLineInfo lineCircleIntersect = null;
-					TLMUtils.createUIElement<UIButtonLineInfo> (ref lineCircleIntersect, intersectionsPanel.transform);
-					lineCircleIntersect.autoSize = false;
-					lineCircleIntersect.width = size;
-					lineCircleIntersect.height = size;
-					lineCircleIntersect.color = intersectLine.m_color;
-					lineCircleIntersect.pivot = UIPivotPoint.MiddleLeft;
-					lineCircleIntersect.verticalAlignment = UIVerticalAlignment.Middle;
-					lineCircleIntersect.name = "LineFormat";
-					lineCircleIntersect.relativePosition = new Vector3 (0f, 0f);
-					lineCircleIntersect.atlas = TLMController.taLineNumber;	
-					lineCircleIntersect.normalBgSprite = bgSprite;
-					lineCircleIntersect.hoveredColor = Color.white;
-					lineCircleIntersect.hoveredTextColor = Color.red;
-					lineCircleIntersect.lineID = s.Value;
-					lineCircleIntersect.tooltip = tm.GetLineName (s.Value);
-					lineCircleIntersect.eventClick += lineInfoPanel.openLineInfo;
-					TLMUtils.createDragHandle (lineCircleIntersect, mainContainer);
+				TLMLineUtils.PrintIntersections (airport, port, taxi, intersectionsPanel, otherLinesIntersections);
 
-
-					UILabel lineNumberIntersect = null;
-				
-					TLMUtils.createUIElement<UILabel> (ref lineNumberIntersect, lineCircleIntersect.transform);
-					lineNumberIntersect.autoSize = false;
-					lineNumberIntersect.autoHeight = false;
-					lineNumberIntersect.width = lineCircleIntersect.width;
-					lineNumberIntersect.pivot = UIPivotPoint.MiddleCenter;
-					lineNumberIntersect.textAlignment = UIHorizontalAlignment.Center;
-					lineNumberIntersect.verticalAlignment = UIVerticalAlignment.Middle;
-					lineNumberIntersect.name = "LineNumber";
-					lineNumberIntersect.height = size;
-					lineNumberIntersect.relativePosition = new Vector3 (-0.5f, 0.5f);
-					lineNumberIntersect.textColor = Color.white;
-					lineNumberIntersect.outlineColor = Color.black;
-					lineNumberIntersect.useOutline = true;
-					bool day, night;
-					intersectLine.GetActive (out day, out  night);
-					if (!day || !night) {
-						UILabel daytimeIndicator = null;
-						TLMUtils.createUIElement<UILabel> (ref daytimeIndicator, lineCircleIntersect.transform);
-						daytimeIndicator.autoSize = false;
-						daytimeIndicator.width = size;
-						daytimeIndicator.height = size;
-						daytimeIndicator.color = Color.white;
-						daytimeIndicator.pivot = UIPivotPoint.MiddleLeft;
-						daytimeIndicator.verticalAlignment = UIVerticalAlignment.Middle;
-						daytimeIndicator.name = "LineTime";
-						daytimeIndicator.relativePosition = new Vector3 (0f, 0f);
-						daytimeIndicator.atlas = TLMController.taLineNumber;	
-						daytimeIndicator.backgroundSprite = day ? "DayIcon" : night?"NightIcon": "DisabledIcon";
-					}
-					TLMUtils.createDragHandle (lineNumberIntersect, mainContainer);	
-					setLineNumberCircleOnRef (intersectLine.m_lineNumber, nomenclatura, lineNumberIntersect);
-					lineNumberIntersect.textScale *= multiplier;
-					lineNumberIntersect.relativePosition *= multiplier;
-				}
-				if (airport != string.Empty) {
-					addExtraStationBuildingIntersection (intersectionsPanel, size, "AirplaneIcon", airport);
-				}
-				if (port != string.Empty) {
-					addExtraStationBuildingIntersection (intersectionsPanel, size, "ShipIcon", port);
-				}
-				if (taxi != string.Empty) {
-					addExtraStationBuildingIntersection (intersectionsPanel, size, "TaxiIcon", taxi);
-				}
 				intersectionsPanel.autoLayout = true;
 				intersectionsPanel.wrapLayout = true;
 				intersectionsPanel.width = 55;
@@ -485,21 +367,7 @@ namespace Klyte.TransportLinesManager
 			
 		}
 
-		private void addExtraStationBuildingIntersection (UIComponent parent, float size, string bgSprite, string description)
-		{
-			UILabel lineCircleIntersect = null;
-			TLMUtils.createUIElement<UILabel> (ref lineCircleIntersect, parent.transform);
-			lineCircleIntersect.autoSize = false;
-			lineCircleIntersect.width = size;
-			lineCircleIntersect.height = size;
-			lineCircleIntersect.pivot = UIPivotPoint.MiddleLeft;
-			lineCircleIntersect.verticalAlignment = UIVerticalAlignment.Middle;
-			lineCircleIntersect.name = "LineFormat";
-			lineCircleIntersect.relativePosition = new Vector3 (0f, 0f);
-			lineCircleIntersect.atlas = TLMController.taLineNumber;	
-			lineCircleIntersect.backgroundSprite = bgSprite;
-			lineCircleIntersect.tooltip = description;
-		}
+
 
 		private static ItemClass.Service[] seachOrder = new ItemClass.Service[]{
 			ItemClass.Service.Monument,
@@ -524,14 +392,14 @@ namespace Klyte.TransportLinesManager
 			NetManager nm = Singleton<NetManager>.instance;
 			BuildingManager bm = Singleton<BuildingManager>.instance;
 			NetNode nn = nm.m_nodes.m_buffer [(int)stopId];
-			ushort buildingId=0;
+			ushort buildingId = 0;
 			bool transportBuilding = false;
 			if (ss != ItemClass.SubService.None) {
 				buildingId = bm.FindBuilding (nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
 				transportBuilding = true;
 			} 
 
-			if(buildingId==0){
+			if (buildingId == 0) {
 				buildingId = bm.FindBuilding (nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active, Building.Flags.Untouchable);
 				if (buildingId == 0) {
 					int iterator = 0;
@@ -566,11 +434,11 @@ namespace Klyte.TransportLinesManager
 			TransportInfo thisLineInfo = tm.m_lines.m_buffer [(int)nn.m_transportLine].Info;			
 			TransportLine thisLine = tm.m_lines.m_buffer [(int)nn.m_transportLine];
 			linhas = new List<ushort> ();
-			GetNearStops (nn.m_position, 30f, ref linhas);
+			TLMLineUtils.GetNearStops (nn.m_position, 30f, ref linhas);
 			Vector3 sidewalkPosition = Vector3.zero;
 			if (buildingId > 0 && transportBuilding) {
 				sidewalkPosition = b.CalculateSidewalkPosition ();
-				GetNearStops (sidewalkPosition, 100f, ref linhas);
+				TLMLineUtils.GetNearStops (sidewalkPosition, 100f, ref linhas);
 			}
 
 			airport = String.Empty;
@@ -578,7 +446,7 @@ namespace Klyte.TransportLinesManager
 			taxiStand = String.Empty;
 
 			if (TransportLinesManagerMod.savedShowAirportsOnLinearMap.value) {
-				ushort airportId = bm.FindBuilding (sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane, Building.Flags.None, Building.Flags.Untouchable) ;
+				ushort airportId = bm.FindBuilding (sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane, Building.Flags.None, Building.Flags.Untouchable);
 
 				if (airportId > 0) {
 					InstanceID iid = default(InstanceID);
@@ -587,7 +455,7 @@ namespace Klyte.TransportLinesManager
 				}
 			}
 			if (TransportLinesManagerMod.savedShowPassengerPortsOnLinearMap.value) {
-				ushort portId = bm.FindBuilding (sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip, Building.Flags.None, Building.Flags.Untouchable) ;
+				ushort portId = bm.FindBuilding (sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip, Building.Flags.None, Building.Flags.Untouchable);
 
 				if (portId > 0) {
 					InstanceID iid = default(InstanceID);
@@ -609,50 +477,7 @@ namespace Klyte.TransportLinesManager
 			return location;
 		}
 
-		public bool GetNearStops (Vector3 pos, float maxDistance, ref List<ushort> linesFound)
-		{
-			int num = Mathf.Max ((int)((pos.x - maxDistance) / 64f + 135f), 0);
-			int num2 = Mathf.Max ((int)((pos.z - maxDistance) / 64f + 135f), 0);
-			int num3 = Mathf.Min ((int)((pos.x + maxDistance) / 64f + 135f), 269);
-			int num4 = Mathf.Min ((int)((pos.z + maxDistance) / 64f + 135f), 269);
-			bool noneFound = true;
-			NetManager nm = Singleton<NetManager>.instance;
-			TransportManager tm = Singleton<TransportManager>.instance;
-			for (int i = num2; i <= num4; i++) {
-				for (int j = num; j <= num3; j++) {
-					ushort num6 = nm.m_nodeGrid [i * 270 + j];
-					int num7 = 0;
-					while (num6 != 0) {
-						NetInfo info = nm.m_nodes.m_buffer [(int)num6].Info;
 
-						if ((info.m_class.m_service == ItemClass.Service.PublicTransport) && 
-							((info.m_class.m_subService == ItemClass.SubService.PublicTransportTrain && TransportLinesManagerMod.savedShowTrainLinesOnLinearMap.value)
-							|| (info.m_class.m_subService == ItemClass.SubService.PublicTransportMetro && TransportLinesManagerMod.savedShowMetroLinesOnLinearMap.value)
-							|| (info.m_class.m_subService == ItemClass.SubService.PublicTransportBus && TransportLinesManagerMod.savedShowBusLinesOnLinearMap.value))) {
-							ushort transportLine = nm.m_nodes.m_buffer [(int)num6].m_transportLine;
-							if (transportLine != 0) {
-								TransportInfo info2 = tm.m_lines.m_buffer [(int)transportLine].Info;
-								if (!linesFound.Contains (transportLine) && (tm.m_lines.m_buffer [(int)transportLine].m_flags & TransportLine.Flags.Temporary) == TransportLine.Flags.None) {
-									float num8 = Vector3.SqrMagnitude (pos - nm.m_nodes.m_buffer [(int)num6].m_position);
-									if (num8 < maxDistance * maxDistance) {
-										linesFound.Add (transportLine);
-										GetNearStops (nm.m_nodes.m_buffer [(int)num6].m_position, maxDistance, ref linesFound);
-										noneFound = false;
-									}
-								}
-							}
-						}
-
-						num6 = nm.m_nodes.m_buffer [(int)num6].m_nextGridNode;
-						if (++num7 >= 32768) {
-							CODebugBase<LogChannel>.Error (LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
-							break;
-						}
-					}
-				}
-			}
-			return noneFound;
-		}
 
 	}
 }

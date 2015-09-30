@@ -34,6 +34,7 @@ namespace Klyte.TransportLinesManager
 		private  UILabel lineLenghtLabel;
 		private  UILabel lineStopsLabel;
 		private  UITextField lineNumberLabel;
+		private  UIDropDown linePrefixDropDown;
 		private  UILabel lineTransportIconTypeLabel;
 		private  UILabel viagensEvitadasLabel;
 		private  UILabel passageirosEturistasLabel;
@@ -102,6 +103,9 @@ namespace Klyte.TransportLinesManager
 
 		public void Show ()
 		{
+			if (!GameObject.Find ("InfoViewsPanel").GetComponent<UIPanel> ().isVisible) {
+				GameObject.Find ("InfoViewsPanel").GetComponent<UIPanel> ().isVisible = true;
+			}
 			lineInfoPanel.Show ();
 		}
 		
@@ -120,45 +124,74 @@ namespace Klyte.TransportLinesManager
 			
 			TLMUtils.setLineName (m_lineIdSelecionado.TransportLine, value);
 		}
-		
-		private  void saveLineNumber (UITextField u)
+
+		private bool isNumeroUsado (int numLinha, TransportInfo.TransportType tipo)
 		{
-			String value = u.text;
-			if (value.Length > 0) {
-				bool numeroUsado = true;
-				ushort num = UInt16.Parse (value);
-				if (num >= 10000 || num < 1) {
-					lineNumberLabel.textColor = new Color (1, 0, 0, 1);
-					return;
-				}
-				ModoNomenclatura mn = ModoNomenclatura.Numero;
-				switch (m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].Info.m_transportType) {
-				case TransportInfo.TransportType.Bus:
-					numeroUsado = m_controller.mainPanel.onibus.Keys.Contains (num) && m_controller.mainPanel.onibus [num] != m_lineIdSelecionado.TransportLine;
-					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
-					break;
+			bool numeroUsado = true;
+			switch (tipo) {
+			case TransportInfo.TransportType.Bus:
+				numeroUsado = m_controller.mainPanel.onibus.Keys.Contains (numLinha) && m_controller.mainPanel.onibus [numLinha] != m_lineIdSelecionado.TransportLine;
+				break;
+				
+			case TransportInfo.TransportType.Metro:
+				numeroUsado = m_controller.mainPanel.metro.Keys.Contains (numLinha) && m_controller.mainPanel.metro [numLinha] != m_lineIdSelecionado.TransportLine;
+				break;
+				
+			case TransportInfo.TransportType.Train:
+				numeroUsado = m_controller.mainPanel.trens.Keys.Contains (numLinha) && m_controller.mainPanel.trens [numLinha] != m_lineIdSelecionado.TransportLine;		
+				break;
+			}
+			return numeroUsado;
+		}
+		
+		private  void saveLineNumber (UIComponent c, object v)
+		{
+			saveLineNumber ();
+		}
+
+		private  void saveLineNumber (UIComponent c, int v)
+		{
+			saveLineNumber ();
+		}
+
+		private  void saveLineNumber ()
+		{
+			String value = "0" + lineNumberLabel.text;
+			int valPrefixo = linePrefixDropDown.selectedIndex;
+			ModoNomenclatura mn;
+			ModoNomenclatura mnPrefixo;
+			Separador sep;
+			bool zeros;
+			var tipoLinha = m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].Info.m_transportType;
+			TLMLineUtils.GetLineNumberRules (out mn, out mnPrefixo, out sep,out zeros, tipoLinha);
+			ushort num = ushort.Parse (value);
+			if (mnPrefixo != ModoNomenclatura.Nenhum) {
+				num = (ushort)(valPrefixo * 1000 + (num % 1000));
+			}
+			bool numeroUsado = isNumeroUsado (num, tipoLinha);
+			if (num < 1) {
+				lineNumberLabel.textColor = new Color (1, 0, 0, 1);
+				return;
+			}
+
+			if (numeroUsado) {
+				lineNumberLabel.textColor = new Color (1, 0, 0, 1);
+			} else {
+				lineNumberLabel.textColor = new Color (1, 1, 1, 1);
+				m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].m_lineNumber = num;
+				m_linearMap.setLineNumberCircle (num, mnPrefixo, sep, mn,zeros);
+				autoNameLabel.text = m_linearMap.autoName;
 					
-				case TransportInfo.TransportType.Metro:
-					numeroUsado = m_controller.mainPanel.metro.Keys.Contains (num) && m_controller.mainPanel.metro [num] != m_lineIdSelecionado.TransportLine;
-					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
-					break;
-					
-				case TransportInfo.TransportType.Train:
-					numeroUsado = m_controller.mainPanel.trens.Keys.Contains (num) && m_controller.mainPanel.trens [num] != m_lineIdSelecionado.TransportLine;					
-					mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
-					break;
-				}
-				if (numeroUsado) {
-					lineNumberLabel.textColor = new Color (1, 0, 0, 1);
+				if (mnPrefixo != ModoNomenclatura.Nenhum) {
+					lineNumberLabel.text = (num % 1000).ToString ();
+					linePrefixDropDown.selectedIndex = (num / 1000);
 				} else {
-					lineNumberLabel.textColor = new Color (1, 1, 1, 1);
-					m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].m_lineNumber = num;
-					m_linearMap.setLineNumberCircle (num, mn);
-					autoNameLabel.text = m_linearMap.autoName;
+					lineNumberLabel.text = (num % 10000).ToString ();
 				}
-			} else {				
 			}
 		}
+
+
 
 		private void createInfoView ()
 		{
@@ -194,6 +227,24 @@ namespace Klyte.TransportLinesManager
 			lineTransportIconTypeLabel.name = "LineTransportIcon";	
 			lineTransportIconTypeLabel.clipChildren = true;
 			TLMUtils.createDragHandle (lineTransportIconTypeLabel, lineInfoPanel);
+
+			GameObject lpddgo = GameObject.Instantiate (UITemplateManager.GetAsGameObject (UIHelperExtension.kDropdownTemplate).GetComponent<UIPanel> ().Find<UIDropDown> ("Dropdown").gameObject);
+			linePrefixDropDown = lpddgo.GetComponent<UIDropDown> ();
+			lineInfoPanel.AttachUIComponent (linePrefixDropDown.gameObject);
+			linePrefixDropDown.isLocalized = false;
+			linePrefixDropDown.autoSize = false;
+			linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
+			linePrefixDropDown.text = "";
+			linePrefixDropDown.width = 40;
+			linePrefixDropDown.height = 35;		
+			linePrefixDropDown.name = "LinePrefixDropDown";		
+			linePrefixDropDown.textScale = 1.6f;
+			linePrefixDropDown.itemHeight = 35;
+			linePrefixDropDown.itemPadding = new RectOffset (2, 2, 2, 2);
+			linePrefixDropDown.textFieldPadding = new RectOffset (2, 2, 2, 2);
+			linePrefixDropDown.eventSelectedIndexChanged += saveLineNumber;
+			linePrefixDropDown.relativePosition = new Vector3 (70f, 3f);
+
 			
 			TLMUtils.createUIElement<UITextField> (ref lineNumberLabel, lineInfoPanel.transform);	
 			lineNumberLabel.autoSize = false;
@@ -210,13 +261,8 @@ namespace Klyte.TransportLinesManager
 			TLMUtils.uiTextFieldDefaults (lineNumberLabel);
 			lineNumberLabel.numericalOnly = true;
 			lineNumberLabel.maxLength = 4;
-			lineNumberLabel.eventLostFocus += ( component,  eventParam) => {
-				saveLineNumber (lineNumberLabel);
-				TransportLine t = m_controller.tm.m_lines.m_buffer [m_lineIdSelecionado.TransportLine];
-				lineNumberLabel.text = "" + t.m_lineNumber;
-			};
+			lineNumberLabel.eventLostFocus += saveLineNumber;
 			lineNumberLabel.zOrder = 10;
-			TLMUtils.createDragHandle (lineNumberLabel, lineInfoPanel);
 			
 			
 			TLMUtils.createUIElement<UITextField> (ref lineNameField, lineInfoPanel.transform);
@@ -456,14 +502,23 @@ namespace Klyte.TransportLinesManager
 		public  void closeLineInfo (UIComponent component, UIMouseEventParameter eventParam)
 		{			
 			TransportLine t = m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine];
-			lineInfoPanel.Hide ();	
+			Hide ();	
 			m_controller.mainPanel.Show ();
 		}
 		
 		public   void openLineInfo (UIComponent component, UIMouseEventParameter eventParam)
 		{
-			ushort lineID = (component as UIButtonLineInfo).lineID;			
-			
+			ushort lineID = (component as UIButtonLineInfo).lineID;	
+			openLineInfo (lineID);
+
+		}
+
+		public   void openLineInfo (ushort lineID)
+		{
+			WorldInfoPanel.HideAllWorldInfoPanels ();
+			linePrefixDropDown.eventSelectedIndexChanged -= saveLineNumber;
+			lineNumberLabel.eventLostFocus -= saveLineNumber;
+
 			m_lineIdSelecionado = default(InstanceID);
 			m_lineIdSelecionado.TransportLine = lineID;	
 			//lines info
@@ -473,10 +528,45 @@ namespace Klyte.TransportLinesManager
 				totalSize += TLMUtils.calcBezierLenght (bez.a, bez.b, bez.c, bez.d, 0.1f);
 			}
 			
-			TransportLine t = m_controller.tm.m_lines.m_buffer [(int)lineID];
+			TransportLine t = m_controller.tm.m_lines.m_buffer [(int)lineID];	
+			ushort lineNumber = t.m_lineNumber;
+
+			ModoNomenclatura mnPrefixo = ModoNomenclatura.Nenhum;
+			var tipoLinha = t.Info.m_transportType;
+			switch (tipoLinha) {
+			case TransportInfo.TransportType.Bus:
+				mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
+				break;
+				
+			case TransportInfo.TransportType.Metro:
+				mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
+				break;
+				
+			case TransportInfo.TransportType.Train:				
+				mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
+				break;
+			}
+
+			if (mnPrefixo != ModoNomenclatura.Nenhum) {
+				lineNumberLabel.text = (lineNumber % 1000).ToString ();
+				lineNumberLabel.relativePosition = new Vector3 (110f, 3f);
+				lineNumberLabel.width = 55;
+				linePrefixDropDown.enabled = false;
+				linePrefixDropDown.items = TLMUtils.getStringOptionsForPrefix (mnPrefixo);
+				linePrefixDropDown.selectedIndex = lineNumber / 1000;
+				linePrefixDropDown.enabled = true;
+				lineNumberLabel.maxLength = 3;
+			} else {
+				lineNumberLabel.text = (lineNumber).ToString ();
+				lineNumberLabel.relativePosition = new Vector3 (80f, 3f);
+				lineNumberLabel.width = 75;
+				lineNumberLabel.maxLength = 4;
+				linePrefixDropDown.enabled = false;
+			}
+
+
 			int stopsCount = t.CountStops (lineID);
 			lineLenghtLabel.text = string.Format ("{0:N2}", totalSize);
-			lineNumberLabel.text = "" + t.m_lineNumber;
 			lineNumberLabel.color = m_controller.tm.GetLineColor (lineID);
 			lineStopsLabel.text = "" + stopsCount;
 			lineNameField.text = m_controller.tm.GetLineName (lineID);
@@ -496,10 +586,14 @@ namespace Klyte.TransportLinesManager
 			}
 
 			m_linearMap.updateLine ();
-			lineInfoPanel.Show ();
+			Show ();
 			m_controller.mainPanel.Hide ();
 
 			autoNameLabel.text = m_linearMap.autoName;
+
+			
+			linePrefixDropDown.eventSelectedIndexChanged += saveLineNumber;
+			lineNumberLabel.eventLostFocus += saveLineNumber;
 		}
 
 		private void changeLineTime (int selection)
