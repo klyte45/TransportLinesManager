@@ -24,7 +24,7 @@ namespace Klyte.TransportLinesManager
 	public class TransportLinesManagerMod :  IUserMod, ILoadingExtension
 	{
 
-		public static string version = "3.0";
+		public static string version = "3.0.2";
 		public static TransportLinesManagerMod instance;
 		private SavedBool m_savedAutoNaming;
 		private SavedBool m_savedAutoColor;
@@ -55,6 +55,7 @@ namespace Klyte.TransportLinesManager
 		private SavedBool m_savedShowTaxiStopsOnLinearMap;
 		private SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel;
 		private SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
+		private SavedBool m_savedUseTLMDepotVehiclesManager;
 		private SavedString m_savedPalettes;
 
 		public static SavedBool savedAutoNaming {
@@ -80,11 +81,13 @@ namespace Klyte.TransportLinesManager
 				return TransportLinesManagerMod.instance.m_savedUseRandomColorOnPaletteOverflow;
 			}
 		}
+
 		public static SavedBool savedOverrideDefaultLineInfoPanel {
 			get {
 				return TransportLinesManagerMod.instance.m_savedOverrideDefaultLineInfoPanel;
 			}
 		}
+
 		public static SavedBool savedAutoColorBasedOnPrefix {
 			get {
 				return TransportLinesManagerMod.instance.m_savedAutoColorBasedOnPrefix;
@@ -126,9 +129,16 @@ namespace Klyte.TransportLinesManager
 				return TransportLinesManagerMod.instance.m_savedShowNearLinesInCityServicesWorldInfoPanel;
 			}
 		}
+
 		public static SavedBool savedShowNearLinesInZonedBuildingWorldInfoPanel {
 			get {
 				return TransportLinesManagerMod.instance.m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
+			}
+		}
+			
+		public static SavedBool savedUseTLMDepotVehiclesManager {
+			get {
+				return TransportLinesManagerMod.instance.m_savedUseTLMDepotVehiclesManager;
 			}
 		}
 
@@ -155,6 +165,7 @@ namespace Klyte.TransportLinesManager
 				return TransportLinesManagerMod.instance.m_savedNomenclaturaTrem;
 			}
 		}
+
 		public static SavedInt savedNomenclaturaMetroSeparador {
 			get {
 				return TransportLinesManagerMod.instance.m_savedNomenclaturaMetroSeparador;
@@ -190,7 +201,6 @@ namespace Klyte.TransportLinesManager
 				return TransportLinesManagerMod.instance.m_savedNomenclaturaTremPrefixo;
 			}
 		}
-
 		
 		public static SavedBool savedNomenclaturaMetroZeros {
 			get {
@@ -266,7 +276,6 @@ namespace Klyte.TransportLinesManager
 			m_savedNomenclaturaTremZeros = new SavedBool ("NomenclaturaTremZeros", Settings.gameSettingsFile, true, true);
 			m_savedAutoNaming = new SavedBool ("AutoNameLines", Settings.gameSettingsFile, false, true);
 			m_savedAutoColor = new SavedBool ("AutoColorLines", Settings.gameSettingsFile, false, true);
-			m_savedOverrideDefaultLineInfoPanel = new SavedBool ("TLMOverrideDefaultLineInfoPanel", Settings.gameSettingsFile, true, true);
 			m_savedUseRandomColorOnPaletteOverflow = new SavedBool ("AutoColorUseRandomColorOnPaletteOverflow", Settings.gameSettingsFile, false, true);
 			m_savedAutoColorBasedOnPrefix = new SavedBool ("AutoColorBasedOnPrefix", Settings.gameSettingsFile, false, true);
 			m_savedCircularOnSingleDistrict = new SavedBool ("AutoNameCircularOnSingleDistrictLineNaming", Settings.gameSettingsFile, true, true);
@@ -280,7 +289,14 @@ namespace Klyte.TransportLinesManager
 			m_savedShowAirportsOnLinearMap = new SavedBool ("showAirportsOnLinearMap", Settings.gameSettingsFile, true, true);
 			m_savedShowPassengerPortsOnLinearMap = new SavedBool ("showPassengerPortsOnLinearMap", Settings.gameSettingsFile, true, true);
 			m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool ("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
-			m_savedShowNearLinesInZonedBuildingWorldInfoPanel=new SavedBool ("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
+			m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool ("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
+			//IPT Incompatible
+			bool IPTEnabled = Singleton<PluginManager>.instance.GetPluginsInfo ().FirstOrDefault (x => x.publishedFileID.AsUInt64 == 424106600L && x.isEnabled) != null;
+			m_savedOverrideDefaultLineInfoPanel = new SavedBool ("TLMOverrideDefaultLineInfoPanel", Settings.gameSettingsFile, !IPTEnabled, true);
+			m_savedUseTLMDepotVehiclesManager = new SavedBool ("useTLMDepotVehiclesManager", Settings.gameSettingsFile, !IPTEnabled, true);
+			toggleOverrideDefaultLineInfoPanel (m_savedOverrideDefaultLineInfoPanel.value);
+			toggleUseTLMDepotVehiclesManager (m_savedUseTLMDepotVehiclesManager.value);
+
 			instance = this;
 		}
 
@@ -301,7 +317,8 @@ namespace Klyte.TransportLinesManager
 				"<None>","-",".","/", "<Blank Space>","<New Line>"
 			};
 			UIHelperExtension helper = new UIHelperExtension ((UIHelper)helperDefault);
-			helper.AddCheckbox ("Override default line info panel",m_savedOverrideDefaultLineInfoPanel.value,toggleOverrideDefaultLineInfoPanel);
+			helper.AddCheckbox ("Override default line info panel (Always disabled with IPT!)", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
+			helper.AddCheckbox ("Use TLM Depot Manager (Always disabled with IPT!)", m_savedUseTLMDepotVehiclesManager.value, toggleUseTLMDepotVehiclesManager);
 			UIHelperExtension group1 = helper.AddGroupExtended ("Line Naming Strategy");			
 			((UIPanel)group1.self).autoLayoutDirection = LayoutDirection.Horizontal;		
 			((UIPanel)group1.self).wrapLayout = true;
@@ -311,17 +328,17 @@ namespace Klyte.TransportLinesManager
 			group1.AddDropdown ("Bus Lines Prefix", namingOptionsPrefixo, m_savedNomenclaturaOnibusPrefixo.value, setNamingBusPrefixo);
 			group1.AddDropdown ("Bus Lines Separator", namingOptionsSeparador, m_savedNomenclaturaOnibusSeparador.value, setNamingBusSeparador);
 			group1.AddDropdown ("Bus Lines Identifier", namingOptions, m_savedNomenclaturaOnibus.value, setNamingBus);
-			group1.AddCheckbox ("Leading zeros for bus lines (when prefix is used)",m_savedNomenclaturaOnibusZeros.value,toggleOverrideSavedNomenclaturaOnibusZeros);
+			group1.AddCheckbox ("Leading zeros for bus lines (when prefix is used)", m_savedNomenclaturaOnibusZeros.value, toggleOverrideSavedNomenclaturaOnibusZeros);
 			group1.AddSpace (20);
 			group1.AddDropdown ("Metro Lines Prefix", namingOptionsPrefixo, m_savedNomenclaturaMetroPrefixo.value, setNamingMetroPrefixo);
 			group1.AddDropdown ("Metro Lines Separator", namingOptionsSeparador, m_savedNomenclaturaMetroSeparador.value, setNamingMetroSeparador);
 			group1.AddDropdown ("Metro Lines Identifier", namingOptions, m_savedNomenclaturaMetro.value, setNamingMetro);
-			group1.AddCheckbox ("Leading zeros for metro lines (when prefix is used)",m_savedNomenclaturaMetroZeros.value,toggleOverrideSavedNomenclaturaMetroZeros);
+			group1.AddCheckbox ("Leading zeros for metro lines (when prefix is used)", m_savedNomenclaturaMetroZeros.value, toggleOverrideSavedNomenclaturaMetroZeros);
 			group1.AddSpace (20);
 			group1.AddDropdown ("Train Lines Prefix", namingOptionsPrefixo, m_savedNomenclaturaTremPrefixo.value, setNamingTrainPrefixo);
 			group1.AddDropdown ("Train Lines Separator", namingOptionsSeparador, m_savedNomenclaturaTremSeparador.value, setNamingTrainSeparador);
 			group1.AddDropdown ("Train Lines Identifier", namingOptions, m_savedNomenclaturaTrem.value, setNamingTrain);
-			group1.AddCheckbox ("Leading zeros for train lines (when prefix is used)",m_savedNomenclaturaTremZeros.value,toggleOverrideSavedNomenclaturaTremZeros);
+			group1.AddCheckbox ("Leading zeros for train lines (when prefix is used)", m_savedNomenclaturaTremZeros.value, toggleOverrideSavedNomenclaturaTremZeros);
 
 			UIHelperExtension group2 = helper.AddGroupExtended ("Line Coloring Strategy");
 			group2.AddCheckbox ("Auto coloring enabled", m_savedAutoColor.value, toggleAutoColor);
@@ -580,16 +597,20 @@ namespace Klyte.TransportLinesManager
 			m_savedAutoColorPaletteTrem.value = TLMAutoColorPalettes.paletteList [idx];
 		}
 		
-		private void toggleOverrideSavedNomenclaturaOnibusZeros(bool b){
+		private void toggleOverrideSavedNomenclaturaOnibusZeros (bool b)
+		{
 			m_savedNomenclaturaOnibusZeros.value = b;
 		}
-		private void toggleOverrideSavedNomenclaturaTremZeros(bool b){
+
+		private void toggleOverrideSavedNomenclaturaTremZeros (bool b)
+		{
 			m_savedNomenclaturaTremZeros.value = b;
 		}
-		private void toggleOverrideSavedNomenclaturaMetroZeros(bool b){
+
+		private void toggleOverrideSavedNomenclaturaMetroZeros (bool b)
+		{
 			m_savedNomenclaturaMetroZeros.value = b;
 		}
-
 
 		private void toggleAutoColor (bool b)
 		{
@@ -600,11 +621,22 @@ namespace Klyte.TransportLinesManager
 		{
 			m_savedUseRandomColorOnPaletteOverflow.value = b;
 		}
-		private void toggleOverrideDefaultLineInfoPanel(bool b){
-			m_savedOverrideDefaultLineInfoPanel.value = b;
+
+		private void toggleOverrideDefaultLineInfoPanel (bool b)
+		{
+			
+			bool IPTEnabled = Singleton<PluginManager>.instance.GetPluginsInfo ().FirstOrDefault (x => x.publishedFileID.AsUInt64 == 424106600L && x.isEnabled) != null;
+			m_savedOverrideDefaultLineInfoPanel.value = b && !IPTEnabled;
 		}
 
-		private void toggleAutoColorBasedOnPrefix (bool b){
+		private void toggleUseTLMDepotVehiclesManager (bool b)
+		{
+			bool IPTEnabled = Singleton<PluginManager>.instance.GetPluginsInfo ().FirstOrDefault (x => x.publishedFileID.AsUInt64 == 424106600L && x.isEnabled) != null;
+			m_savedUseTLMDepotVehiclesManager.value = b && !IPTEnabled;
+		}
+
+		private void toggleAutoColorBasedOnPrefix (bool b)
+		{
 			m_savedAutoColorBasedOnPrefix.value = b;
 		}
 
@@ -652,7 +684,9 @@ namespace Klyte.TransportLinesManager
 		{
 			m_savedShowNearLinesInCityServicesWorldInfoPanel.value = b;
 		}
-		private void toggleShowNearLinesInZonedBuildingWorldInfoPanel(bool b){
+
+		private void toggleShowNearLinesInZonedBuildingWorldInfoPanel (bool b)
+		{
 			m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value = b;
 		}
 		

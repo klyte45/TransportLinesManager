@@ -104,6 +104,21 @@ namespace Klyte.TransportLinesManager
 			return noneFound;
 		}
 
+		public static Vector2 gridPositionGameDefault (Vector3 pos)
+		{
+			int x = Mathf.Max ((int)((pos.x) / 64f + 135f), 0);
+			int z = Mathf.Max ((int)((-pos.z) / 64f + 135f), 0);
+			return new Vector2 (x, z);
+		}
+
+		
+		public static Vector2 gridPosition81Tiles (Vector3 pos)
+		{
+			int x = Mathf.Max ((int)((pos.x) / 64f + 243f), 0);
+			int z = Mathf.Max ((int)((-pos.z) / 64f + 243f), 0);
+			return new Vector2 (x, z);
+		}
+
 		/// <summary>
 		/// Index the lines.
 		/// </summary>
@@ -138,8 +153,19 @@ namespace Klyte.TransportLinesManager
 		public static void PrintIntersections (string airport, string port, string taxi, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, float scale = 1.0f, int maxItemsForSizeSwap = 3)
 		{
 			TransportManager tm = Singleton<TransportManager>.instance;
-			float size = scale * (otherLinesIntersections.Count > maxItemsForSizeSwap ? 20 : 40);
-			float multiplier = scale * (otherLinesIntersections.Count > maxItemsForSizeSwap ? 0.4f : 0.8f);
+
+			int intersectionCount = otherLinesIntersections.Count;
+			if (!String.IsNullOrEmpty (airport)) {
+				intersectionCount++;
+			}
+			if (!String.IsNullOrEmpty (port)) {
+				intersectionCount++;
+			}
+			if (!String.IsNullOrEmpty (taxi)) {
+				intersectionCount++;
+			}
+			float size = scale * (intersectionCount > maxItemsForSizeSwap ? 20 : 40);
+			float multiplier = scale * (intersectionCount > maxItemsForSizeSwap ? 0.4f : 0.8f);
 			foreach (var s in otherLinesIntersections.OrderBy (x => x.Key)) {
 				TransportLine intersectLine = tm.m_lines.m_buffer [(int)s.Value];
 				String bgSprite;
@@ -640,7 +666,7 @@ namespace Klyte.TransportLinesManager
 			}
 		}
 
-		static bool CalculateSimmetry (ItemClass.SubService ss, int stopsCount, TransportLine t, out int middle)
+		public static bool CalculateSimmetry (ItemClass.SubService ss, int stopsCount, TransportLine t, out int middle)
 		{
 			int j;
 			NetManager nm = Singleton<NetManager>.instance;

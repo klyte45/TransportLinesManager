@@ -37,8 +37,6 @@ namespace Klyte.TransportLinesManager
 		private UIButton resetLineNames;
 		private UIButton resetLineColor;
 
-
-
 		public void Show ()
 		{
 			mainPanel.Show ();
@@ -53,9 +51,9 @@ namespace Klyte.TransportLinesManager
 
 		public GameObject gameObject {
 			get {
-				try{
+				try {
 					return mainPanel.gameObject;
-				}catch (Exception e){
+				} catch (Exception e) {
 					return null;
 				}
 			}
@@ -87,7 +85,7 @@ namespace Klyte.TransportLinesManager
 		
 		public Dictionary<Int32,UInt16> trens {
 			get {
-				if(trensList==null){
+				if (trensList == null) {
 					listaLinhas ();
 				}
 				return trensList;
@@ -96,7 +94,7 @@ namespace Klyte.TransportLinesManager
 
 		public Dictionary<Int32,UInt16> metro {
 			get {
-				if(metroList==null){
+				if (metroList == null) {
 					listaLinhas ();
 				}
 				return metroList;
@@ -105,7 +103,7 @@ namespace Klyte.TransportLinesManager
 
 		public Dictionary<Int32,UInt16> onibus {
 			get {
-				if(onibusList==null){
+				if (onibusList == null) {
 					listaLinhas ();
 				}
 				return onibusList;
@@ -143,7 +141,7 @@ namespace Klyte.TransportLinesManager
 			linesListPanel.useTouchMouseScroll = true;
 			linesListPanel.scrollWheelAmount = 20;
 			linesListPanel.eventMouseWheel += (UIComponent component, UIMouseEventParameter eventParam) => {
-				linesListPanel.scrollPosition -= new Vector2(0,eventParam.wheelDelta*linesListPanel.scrollWheelAmount);
+				linesListPanel.scrollPosition -= new Vector2 (0, eventParam.wheelDelta * linesListPanel.scrollWheelAmount);
 			};
 			panelListing.AttachUIComponent (linesListPanel.gameObject);
 			linesListPanel.relativePosition = new Vector3 (0, 0);
@@ -152,6 +150,7 @@ namespace Klyte.TransportLinesManager
 
 			createResetAllLinesNamingButton ();
 			createResetAllLinesColorButton ();
+			createLinesDrawButton ();
 
 		}
 
@@ -246,18 +245,18 @@ namespace Klyte.TransportLinesManager
 				itemButton.tooltip = m_controller.tm.GetLineName ((ushort)map [k]);
 				itemButton.lineID = map [k];
 				itemButton.eventClick += m_controller.lineInfoPanel.openLineInfo;
-				setLineNumberMainListing (t.m_lineNumber, itemButton, pre,s,mn,z);
+				setLineNumberMainListing (t.m_lineNumber, itemButton, pre, s, mn, z);
 
 				bool day, night;
-				t.GetActive(out day, out night);
-				if(!day || !night){
+				t.GetActive (out day, out night);
+				if (!day || !night) {
 					UILabel lineTime = null;
-					TLMUtils.createUIElement<UILabel>(ref lineTime,itemButton.transform);
+					TLMUtils.createUIElement<UILabel> (ref lineTime, itemButton.transform);
 					lineTime.relativePosition = new Vector3 (0, 0);
 					lineTime.width = 35;
 					lineTime.height = 35;
 					lineTime.atlas = TLMController.taLineNumber;
-					lineTime.backgroundSprite =  day ? "DayIcon" : night?"NightIcon": "DisabledIcon";
+					lineTime.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
 				}				
 				itemButton.name = "TransportLinesManagerLineButton" + itemButton.text;
 				j++;
@@ -351,39 +350,58 @@ namespace Klyte.TransportLinesManager
 			l.width = button.width;
 			l.height = button.height;
 			l.useOutline = true;
-			l.text = TLMUtils.getString (pre, s,mn, num,zeros);
+			l.text = TLMUtils.getString (pre, s, mn, num, zeros);
 			float ratio = l.width / 50;
-			TLMLineUtils.setLineNumberCircleOnRef (num, pre, s,mn,zeros, l,ratio);
+			TLMLineUtils.setLineNumberCircleOnRef (num, pre, s, mn, zeros, l, ratio);
 		}
 
 		//botoes da antiga parte extra
-		private void createResetAllLinesNamingButton(){
+		private void createResetAllLinesNamingButton ()
+		{
 			TLMUtils.createUIElement<UIButton> (ref resetLineNames, mainPanel.transform);	
-			resetLineNames.width = mainPanel.width/2 - 15;
+			resetLineNames.width = mainPanel.width / 2 - 15;
 			resetLineNames.height = 30;
-			resetLineNames.relativePosition = new Vector3 (mainPanel.width - resetLineNames.width  - 10f, mainPanel.height-40f);
+			resetLineNames.relativePosition = new Vector3 (mainPanel.width - resetLineNames.width - 10f, mainPanel.height - 40f);
 			resetLineNames.text = "Reset all names";
 			resetLineNames.tooltip = "Will reset all names to default name, under the current naming strategy";
 			TLMUtils.initButton (resetLineNames, true, "ButtonMenu");	
 			resetLineNames.name = "RenameAllButton";
 			resetLineNames.isVisible = true;
 			resetLineNames.eventClick += (component, eventParam) => {
-				for(ushort i =0; i < controller.tm.m_lines.m_size;i++){
-					TransportLine t = controller.tm.m_lines.m_buffer[(int)i];
-					if((t.m_flags & (TransportLine.Flags.Created)) != TransportLine.Flags.None && t.m_lineNumber >0){
-						controller.AutoName(i);
+				for (ushort i =0; i < controller.tm.m_lines.m_size; i++) {
+					TransportLine t = controller.tm.m_lines.m_buffer [(int)i];
+					if ((t.m_flags & (TransportLine.Flags.Created)) != TransportLine.Flags.None && t.m_lineNumber > 0) {
+						controller.AutoName (i);
 					}
 				}
-				Show();
+				Show ();
+			};
+		}
+
+		private void createLinesDrawButton ()
+		{
+			UIButton createLineDraw = null;
+			TLMUtils.createUIElement<UIButton> (ref createLineDraw, mainPanel.transform);	
+			createLineDraw.width = mainPanel.width / 2 - 15;
+			createLineDraw.height = 30;
+			createLineDraw.relativePosition = new Vector3 (mainPanel.width - createLineDraw.width - 10f, mainPanel.height + 10f);
+			createLineDraw.text = "DRAW MAP!";
+			createLineDraw.tooltip = "DRAW MAP!";
+			TLMUtils.initButton (createLineDraw, true, "ButtonMenu");	
+			createLineDraw.name = "DrawMapButton";
+			createLineDraw.isVisible = true;
+			createLineDraw.eventClick += (component, eventParam) => {
+				TLMMapDrawer.drawCityMap();
 			};
 		}
 		
-		private void createResetAllLinesColorButton(){
+		private void createResetAllLinesColorButton ()
+		{
 			TLMUtils.createUIElement<UIButton> (ref resetLineColor, mainPanel.transform);	
-			resetLineColor.relativePosition = new Vector3 (10f, mainPanel.height-40f);
+			resetLineColor.relativePosition = new Vector3 (10f, mainPanel.height - 40f);
 			resetLineColor.text = "Reset all colors";
 			resetLineColor.tooltip = "Will reset all colors to default, under the current color pallet strategy if it's actived (based in lines' numbers)";
-			resetLineColor.width =  mainPanel.width/2 - 15;
+			resetLineColor.width = mainPanel.width / 2 - 15;
 			resetLineColor.height = 30;
 			TLMUtils.initButton (resetLineColor, true, "ButtonMenu");	
 			resetLineColor.name = "RecolorAllButton";

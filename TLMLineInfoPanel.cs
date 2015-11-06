@@ -25,6 +25,8 @@ namespace Klyte.TransportLinesManager
 		private TLMAgesChartPanel agesPanel;
 		private TLMController m_controller;
 		private TLMLinearMap m_linearMap;
+//		private readonly string costsFormat = "₡ {0:#,0.00} + ₡ {1:#,0.00} = ₡ {2:#,0.00}";
+		private int lastStopsCount = 0;
 
 		//line info	
 		private  UIPanel lineInfoPanel;
@@ -40,6 +42,7 @@ namespace Klyte.TransportLinesManager
 		private  UILabel passageirosEturistasLabel;
 		private  UILabel veiculosLinhaLabel;
 		private  UILabel autoNameLabel;
+//		private  UILabel custosLabel;
 		private 	UIDropDown lineTime;
 		private  UITextField lineNameField;
 		private UIColorField lineColorPicker;
@@ -163,7 +166,7 @@ namespace Klyte.TransportLinesManager
 			Separador sep;
 			bool zeros;
 			var tipoLinha = m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].Info.m_transportType;
-			TLMLineUtils.GetLineNumberRules (out mn, out mnPrefixo, out sep,out zeros, tipoLinha);
+			TLMLineUtils.GetLineNumberRules (out mn, out mnPrefixo, out sep, out zeros, tipoLinha);
 			ushort num = ushort.Parse (value);
 			if (mnPrefixo != ModoNomenclatura.Nenhum) {
 				num = (ushort)(valPrefixo * 1000 + (num % 1000));
@@ -179,7 +182,7 @@ namespace Klyte.TransportLinesManager
 			} else {
 				lineNumberLabel.textColor = new Color (1, 1, 1, 1);
 				m_controller.tm.m_lines.m_buffer [(int)m_lineIdSelecionado.TransportLine].m_lineNumber = num;
-				m_linearMap.setLineNumberCircle (num, mnPrefixo, sep, mn,zeros);
+				m_linearMap.setLineNumberCircle (num, mnPrefixo, sep, mn, zeros);
 				autoNameLabel.text = m_linearMap.autoName;
 					
 				if (mnPrefixo != ModoNomenclatura.Nenhum) {
@@ -190,8 +193,6 @@ namespace Klyte.TransportLinesManager
 				}
 			}
 		}
-
-
 
 		private void createInfoView ()
 		{
@@ -339,9 +340,22 @@ namespace Klyte.TransportLinesManager
 			passageirosEturistasLabel.name = "TouristAndPassagersLabel";
 			passageirosEturistasLabel.textScale = 0.8f;
 
+			
+//			TLMUtils.createUIElement<UILabel> (ref custosLabel, lineInfoPanel.transform);
+//			custosLabel.autoSize = false; 
+//			custosLabel.relativePosition = new Vector3 (10f, 135f);			 
+//			custosLabel.textAlignment = UIHorizontalAlignment.Left;
+//			custosLabel.prefix = "Costs (Vehicles + Stops): ";
+//			custosLabel.width = 350;
+//			custosLabel.height = 100;
+//			custosLabel.name = "CustosLabel";
+//			custosLabel.textScale = 0.8f;
+//			custosLabel.wordWrap = true;
+//			custosLabel.clipChildren = false;
+
 			TLMUtils.createUIElement<UILabel> (ref autoNameLabel, lineInfoPanel.transform);
 			autoNameLabel.autoSize = false; 
-			autoNameLabel.relativePosition = new Vector3 (10f, 135f);			 
+			autoNameLabel.relativePosition = new Vector3 (10f, 165f);			 
 			autoNameLabel.textAlignment = UIHorizontalAlignment.Left;
 			autoNameLabel.prefix = "Generated Auto Name: ";
 			autoNameLabel.width = 350;
@@ -369,7 +383,7 @@ namespace Klyte.TransportLinesManager
 				"Night Only",
 				"Disable (without delete)"
 			}, changeLineTime, lineInfoPanel);
-			lineTime.parent.relativePosition = new Vector3 (50f, 170f);
+			lineTime.parent.relativePosition = new Vector3 (120f, 220f);
 			
 			UIButton deleteLine = null;
 			TLMUtils.createUIElement<UIButton> (ref deleteLine, lineInfoPanel.transform);	
@@ -497,6 +511,33 @@ namespace Klyte.TransportLinesManager
 				linearMap.updateLine ();
 				daytimeChange = null;
 			}
+
+			//lines info
+			int stopsCount = tl.CountStops (lineID);
+			if (lastStopsCount!=stopsCount) {
+				float totalSize = 0f;
+				for (int i = 0; i< m_controller.tm.m_lineCurves [(int)lineID].Length; i++) {
+					Bezier3 bez = m_controller.tm.m_lineCurves [(int)lineID] [i];
+					totalSize += TLMUtils.calcBezierLenght (bez.a, bez.b, bez.c, bez.d, 0.1f);
+				}
+				lineLenghtLabel.text = string.Format ("{0:N2}", totalSize);
+				lastStopsCount=stopsCount;
+			}
+			lineStopsLabel.text = "" + stopsCount;
+//			//custos da linha
+//			float costVehicles = 0;
+//			ushort nextVehId = tl.m_vehicles;
+//			while (nextVehId >0) {
+//				costVehicles += Singleton<VehicleManager>.instance.m_vehicles.m_buffer [(int)nextVehId].Info.GetMaintenanceCost () ;
+//				nextVehId = Singleton<VehicleManager>.instance.m_vehicles.m_buffer [(int)nextVehId].m_nextLineVehicle;
+//			}
+//			float costStops = 0;
+//			int a = tl.m_stops;
+//			for (int i = 0; i< stopsCount; i++) {
+//				costStops += Singleton<NetManager>.instance.m_nodes.m_buffer [(int)tl.GetStop (i)].Info.GetMaintenanceCost () ;
+//			}
+//			custosLabel.text = String.Format (costsFormat, costVehicles, costStops, costVehicles + costStops);
+
 		}
 
 		public  void closeLineInfo (UIComponent component, UIMouseEventParameter eventParam)
@@ -521,12 +562,6 @@ namespace Klyte.TransportLinesManager
 
 			m_lineIdSelecionado = default(InstanceID);
 			m_lineIdSelecionado.TransportLine = lineID;	
-			//lines info
-			float totalSize = 0f;
-			for (int i = 0; i< m_controller.tm.m_lineCurves [(int)lineID].Length; i++) {
-				Bezier3 bez = m_controller.tm.m_lineCurves [(int)lineID] [i];
-				totalSize += TLMUtils.calcBezierLenght (bez.a, bez.b, bez.c, bez.d, 0.1f);
-			}
 			
 			TransportLine t = m_controller.tm.m_lines.m_buffer [(int)lineID];	
 			ushort lineNumber = t.m_lineNumber;
@@ -564,11 +599,9 @@ namespace Klyte.TransportLinesManager
 				linePrefixDropDown.enabled = false;
 			}
 
+			
 
-			int stopsCount = t.CountStops (lineID);
-			lineLenghtLabel.text = string.Format ("{0:N2}", totalSize);
 			lineNumberLabel.color = m_controller.tm.GetLineColor (lineID);
-			lineStopsLabel.text = "" + stopsCount;
 			lineNameField.text = m_controller.tm.GetLineName (lineID);
 			lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon (t.Info.m_transportType);
 			lineColorPicker.selectedColor = m_controller.tm.GetLineColor (lineID);

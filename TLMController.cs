@@ -94,7 +94,8 @@ namespace Klyte.TransportLinesManager
 				if (!uiView)
 					return;
 				mainRef = uiView.FindUIComponent<UIPanel> ("InfoPanel").Find<UITabContainer> ("InfoViewsContainer").Find<UIPanel> ("InfoViewsPanel");
-
+				if (!mainRef)
+					return;
 
 				
 				tm = Singleton<TransportManager>.instance;				
