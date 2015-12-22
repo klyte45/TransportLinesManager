@@ -18,6 +18,7 @@ using ColossalFramework.Math;
 using ColossalFramework.Globalization;
 using Klyte.Extensions;
 
+[assembly: AssemblyVersion("3.0.*")]
 namespace Klyte.TransportLinesManager
 {
 	public class TransportLinesManagerMod :  IUserMod, ILoadingExtension
