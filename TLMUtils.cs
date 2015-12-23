@@ -1,25 +1,16 @@
-using UnityEngine;
-using System.Collections;
 using ColossalFramework;
+using ColossalFramework.Plugins;
 using ColossalFramework.UI;
-using ICities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine.EventSystems;
-using System.Reflection;
-using ColossalFramework.Plugins;
 using System.IO;
-using ColossalFramework.Threading;
-using System.Runtime.CompilerServices;
-using ColossalFramework.Math;
-using ColossalFramework.Globalization;
+using System.Linq;
+using System.Reflection;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager
 {
-	public class TLMLineUtils
+    public class TLMLineUtils
 	{
 
 		public static void GetLineNumberRules (out ModoNomenclatura mn, out ModoNomenclatura mnPrefixo, out Separador sep, out bool zeros, TransportInfo.TransportType tipoLinha)

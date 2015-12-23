@@ -1,27 +1,16 @@
 using ColossalFramework;
+using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
-using System;
+using Klyte.Extensions;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using System.Collections;
-using System.Reflection;
-using ColossalFramework.Plugins;
-using System.IO;
-using ColossalFramework.Threading;
-using System.Runtime.CompilerServices;
-using ColossalFramework.Math;
-using ColossalFramework.Globalization;
-using Klyte.Extensions;
 
 [assembly: AssemblyVersion("3.0.*")]
 namespace Klyte.TransportLinesManager
 {
-	public class TransportLinesManagerMod :  IUserMod, ILoadingExtension
+    public class TransportLinesManagerMod :  IUserMod, ILoadingExtension
 	{
 
 		public static string version = "3.0.2";
