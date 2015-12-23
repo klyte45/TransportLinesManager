@@ -21,7 +21,8 @@ namespace Klyte.TransportLinesManager
             NetManager nm = NetManager.instance;
             TLMController controller = TLMController.instance;
             Dictionary<Vector2, Station> stations = new Dictionary<Vector2, Station>();
-            Dictionary<Segment2, Color32> lines = new Dictionary<Segment2, Color32>();
+            Dictionary<Segment2, Color32> svgLines = new Dictionary<Segment2, Color32>();
+            Dictionary<TransportLine, List<Station>> transportLines = new Dictionary<TransportLine, List<Station>>();
             MultiMap<Vector2, Vector2> intersects = new MultiMap<Vector2, Vector2>();
             float nil = 0;
             //			List<int> usedX = new List<int> ();
@@ -31,6 +32,7 @@ namespace Klyte.TransportLinesManager
                 TransportLine t = controller.tm.m_lines.m_buffer[(int)i];
                 if (t.Info.m_transportType == TransportInfo.TransportType.Metro || t.Info.m_transportType == TransportInfo.TransportType.Train)
                 {
+
                     int stopsCount = t.CountStops(i);
                     if (stopsCount == 0)
                     {
@@ -39,6 +41,9 @@ namespace Klyte.TransportLinesManager
                     Color color = t.m_color;
                     Vector2 ultPos = Vector2.zero;
                     Segment2 lastSeg = default(Segment2);
+
+
+                    transportLines[t] = new List<Station>();
 
                     int startStop = 0;
                     int finalStop = stopsCount;
@@ -53,17 +58,18 @@ namespace Klyte.TransportLinesManager
                         //						Debug.Log ("ULT POS:" + ultPos);
                         ushort nextStop = t.GetStop(j % stopsCount);
                         string name = TLMUtils.getStationName(nextStop, t.Info.m_stationSubService);
-                        Vector2 pos = calc(nm.m_nodes.m_buffer[nextStop].m_position);
+
+                        Vector2 pos = calc(TLMUtils.getStationBuildingPosition(nextStop, t.Info.m_stationSubService));
                         Vector2 gridAdd = Vector2.zero;
 
                         ushort nextNextStop = t.GetStop(j % stopsCount);
-                        Vector2 gridNextPos = calc(nm.m_nodes.m_buffer[nextNextStop].m_position);
+                        Vector2 gridNextPos = calc(TLMUtils.getStationBuildingPosition(nextNextStop, t.Info.m_stationSubService));
                         float angle = -GetAngleOfLineBetweenTwoPoints(pos, gridNextPos);
                         CardinalPoint cardinal = CardinalPoint.getCardinalPoint(angle);
 
                         bool intersectStation = false;
                         int countIterations = 0;
-                        while (stations.Keys.Contains(pos) || lines.Keys.Where(x => x.DistanceSqr(pos, out nil) == 0).Count() > 0)
+                        while (stations.Keys.Contains(pos) || svgLines.Keys.Where(x => x.DistanceSqr(pos, out nil) == 0).Count() > 0)
                         {
                             //							Debug.Log ("COUNT:" + lines.Keys.Where(x=>x.DistanceSqr(pos,out nil)==0).Count());
                             if (!intersectStation && stations.Keys.Contains(pos))
@@ -92,7 +98,7 @@ namespace Klyte.TransportLinesManager
                               //								Debug.Log ("90,45,0!" );
                                 Segment2 s = new Segment2(ultPos, pos);
                                 float sAngle = Vector2.Angle(s.a, s.b);
-                                Segment2[] intersectorsSegments = lines.Keys.AsQueryable().Where(x => Vector2.Angle(x.a, x.b) == sAngle && x.Intersect(s)).ToArray();
+                                Segment2[] intersectorsSegments = svgLines.Keys.AsQueryable().Where(x => Vector2.Angle(x.a, x.b) == sAngle && x.Intersect(s)).ToArray();
                                 Vector2[] intersectorStations = stations.Keys.Where(x => s.DistanceSqr(x, out nil) == 0 && x != s.a && x != s.b).ToArray();
                                 if (intersectorsSegments.Length > 0 || intersectorStations.Length > 0)
                                 {
@@ -134,16 +140,16 @@ namespace Klyte.TransportLinesManager
                                         }
                                     }
                                     //TEMP!!!!
-                                    lines.Add(new Segment2(s.a, closerA - lineParallel), color);
-                                    lines.Add(new Segment2(closerA - lineParallel, closerA - lineParallel + detourOffset1), color);
-                                    lines.Add(new Segment2(closerA - lineParallel + detourOffset1, closerB + lineParallel + detourOffset2), color);
-                                    lines.Add(new Segment2(closerB + lineParallel + detourOffset2, closerB + lineParallel), color);
+                                    svgLines.Add(new Segment2(s.a, closerA - lineParallel), color);
+                                    svgLines.Add(new Segment2(closerA - lineParallel, closerA - lineParallel + detourOffset1), color);
+                                    svgLines.Add(new Segment2(closerA - lineParallel + detourOffset1, closerB + lineParallel + detourOffset2), color);
+                                    svgLines.Add(new Segment2(closerB + lineParallel + detourOffset2, closerB + lineParallel), color);
                                     lastSeg = new Segment2(closerB + lineParallel, s.b);
-                                    lines.Add(lastSeg, color);
+                                    svgLines.Add(lastSeg, color);
                                 }
                                 else {
                                     //									Debug.Log ("90,45,0!");
-                                    lines.Add(s, color);
+                                    svgLines.Add(s, color);
                                     lastSeg = s;
                                 }
                             }
@@ -152,8 +158,8 @@ namespace Klyte.TransportLinesManager
                                 s1 = new Segment2(ultPos, ultPos + new Vector2(Math.Min(Math.Abs(d.x), Math.Abs(d.y)) * Math.Sign(d.x), Math.Min(Math.Abs(d.x), Math.Abs(d.y)) * Math.Sign(d.y)));
                                 s2 = new Segment2(s1.b, pos);
 
-                                lines.Add(s1, color);
-                                lines.Add(s2, color);
+                                svgLines.Add(s1, color);
+                                svgLines.Add(s2, color);
                                 lastSeg = s2;
                             }
                         }
@@ -167,7 +173,7 @@ namespace Klyte.TransportLinesManager
                         for (int v = 0; v < 8; v++, cp++)
                         {
                             Vector2 testPos = pos + getCardinalOffset(cp);
-                            if (!stations.Keys.Contains(testPos) && lines.Keys.Where(x => x.DistanceSqr(testPos, out nil) == 0).Count() == 0)
+                            if (!stations.Keys.Contains(testPos) && svgLines.Keys.Where(x => x.DistanceSqr(testPos, out nil) == 0).Count() == 0)
                             {
                                 vizinhosVazios++;
                                 if (vizinhosVazios > maxVizinhosVazios)
@@ -182,22 +188,29 @@ namespace Klyte.TransportLinesManager
                                 name = "";
                             }
                         }
-                        stations.Add(pos, new Station(name, melhorCp));
+                        Station thisStation = new Station(name, melhorCp, pos);
+                        stations.Add(pos, thisStation);
+
+                        transportLines[t].Add(thisStation);
 
                         //						Debug.Log ("POS:" + pos);
                         ultPos = pos;
                     }
                 }
             }
-            float minX = Math.Min(lines.Min(x => Math.Min(x.Key.a.x, x.Key.b.x)), stations.Min(x => x.Key.x));
-            float minY = Math.Min(lines.Min(x => Math.Min(x.Key.a.y, x.Key.b.y)), stations.Min(x => x.Key.y));
-            float maxX = Math.Max(lines.Max(x => Math.Max(x.Key.a.x, x.Key.b.x)), stations.Max(x => x.Key.x));
-            float maxY = Math.Max(lines.Max(x => Math.Max(x.Key.a.y, x.Key.b.y)), stations.Max(x => x.Key.y));
+            float minX = Math.Min(svgLines.Min(x => Math.Min(x.Key.a.x, x.Key.b.x)), stations.Min(x => x.Key.x));
+            float minY = Math.Min(svgLines.Min(x => Math.Min(x.Key.a.y, x.Key.b.y)), stations.Min(x => x.Key.y));
+            float maxX = Math.Max(svgLines.Max(x => Math.Max(x.Key.a.x, x.Key.b.x)), stations.Max(x => x.Key.x));
+            float maxY = Math.Max(svgLines.Max(x => Math.Max(x.Key.a.y, x.Key.b.y)), stations.Max(x => x.Key.y));
 
             SVGTemplate svg = new SVGTemplate((int)(maxY - minY + 4) * 30, (int)(maxX - minX + 4) * 30, 30, minX - 2, minY - 2);
-            foreach (var line in lines)
+            //foreach (var line in svgLines)
+            //{
+            //    svg.addLineSegment(line.Key.a, line.Key.b, line.Value);
+            //}
+            foreach (var line in transportLines)
             {
-                svg.addLineSegment(line.Key.a, line.Key.b, line.Value);
+                svg.addPath(line.Value, line.Key.m_color);
             }
             foreach (var intersectKey in intersects.Keys)
             {
@@ -215,7 +228,7 @@ namespace Klyte.TransportLinesManager
                 {
                     Vector2 testingPoint = station.Key + getCardinalOffset(angle);
                     int countIterations = 0;
-                    while (stations.Keys.Contains(testingPoint) || lines.Keys.Where(x => x.DistanceSqr(testingPoint, out nil) == 0).Count() > 0)
+                    while (stations.Keys.Contains(testingPoint) || svgLines.Keys.Where(x => x.DistanceSqr(testingPoint, out nil) == 0).Count() > 0)
                     {
                         //							Debug.Log ("COUNT:" + lines.Keys.Where(x=>x.DistanceSqr(pos,out nil)==0).Count());
                         angle++;
@@ -227,7 +240,7 @@ namespace Klyte.TransportLinesManager
                         }
                     }
                 }
-                svg.addStation(station.Key, getCardinalAngle(angle), station.Value.name);
+                svg.addStation(station.Value, getCardinalAngle(angle), station.Value.name);
             }
             String folder = "Transport Lines Manager";
             if (File.Exists(folder) && (File.GetAttributes(folder) & FileAttributes.Directory) != FileAttributes.Directory)
@@ -238,7 +251,7 @@ namespace Klyte.TransportLinesManager
             {
                 Directory.CreateDirectory(folder);
             }
-            String filename = folder + Path.DirectorySeparatorChar + "0TLM_MAP_" + Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd") + ".html";
+            String filename = folder + Path.DirectorySeparatorChar + "TLM_MAP_" + Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd") + ".html";
             if (File.Exists(filename))
             {
                 File.Delete(filename);
@@ -248,15 +261,26 @@ namespace Klyte.TransportLinesManager
             sr.Close();
         }
 
-        struct Station
+        public struct Station
         {
-            public string name;
-            public CardinalPoint preferredAngle;
+            public string name
+            {
+                get; set;
+            }
+            public CardinalPoint preferredAngle
+            {
+                get; set;
+            }
+            public Vector2 position
+            {
+                get; set;
+            }
 
-            public Station(string n, CardinalPoint pref)
+            public Station(string n, CardinalPoint pref, Vector2 pos)
             {
                 name = n;
                 preferredAngle = pref;
+                position = pos;
             }
         }
 
@@ -504,6 +528,17 @@ namespace Klyte.TransportLinesManager
         /// </summary>
         private readonly string lineSegment = "<line x1='{0}' y1='{1}' x2='{2}' y2='{3}' style='stroke:rgb({4},{5},{6});stroke-width:30' stroke-linecap='round'/>";
         /// <summary>
+        /// The line segment. <>
+        /// 0 = X1 
+        /// 1 = Y1
+        /// 2 = X2 
+        /// 3 = Y2
+        /// 4 = R
+        /// 5 = G 
+        /// 6 = B 
+        /// </summary>
+        private readonly string pathLine = "<path d='{0}' style='stroke:rgb({1},{2},{3});stroke-width:30;fill: none' stroke-linejoin=\"round\" stroke-linecap=\"round\"/>";
+        /// <summary>
         /// The integration.<>
         /// 0 = X 
         /// 1 = Y 
@@ -552,6 +587,8 @@ namespace Klyte.TransportLinesManager
             "  <rect x=\"-30\" y=\"-30\" width=\"60\" height=\"60\" fill=\"rgb({3},{4},{5})\" stroke=\"black\" stroke-width=\"1\" />" +
             "<text x=\"0\" y=\"10\" fill=\"white\"  stroke=\"black\" stroke-width=\"0.5\" style=\"font-size:30px\"   text-anchor=\"middle\">{2}</text>" +
             "</g>";
+
+
         /// <summary>
         /// The train line symbol.<>
         /// 0 = X 
@@ -573,6 +610,8 @@ namespace Klyte.TransportLinesManager
         private float multiplier;
         private int height;
 
+        private Dictionary<int, List<Range<int>>> hRanges = new Dictionary<int, List<Range<int>>>();
+
         private Vector2 offset;
 
         public SVGTemplate(int width, int height, float multiplier = 1, float offsetX = 0, float offsetY = 0)
@@ -589,30 +628,35 @@ namespace Klyte.TransportLinesManager
             return document.ToString();
         }
 
-        public void addStation(Vector2 point, float angle, string name)
+        public void addStation(TLMMapDrawer.Station s, float angle, string name)
         {
+            Vector2 point = s.position;
+
             switch (CardinalPoint.getCardinalPoint(angle).Value)
             {
                 case CardinalPoint.CardinalInternal.NW:
                 case CardinalPoint.CardinalInternal.W:
                 case CardinalPoint.CardinalInternal.SW:
-                    addStationReversed(point, angle, name);
+                    addStationReversed(s, angle, name);
                     return;
             }
+            //     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "STPUT: " + s.name + " => " + s.position);
             point -= offset;
             document.AppendFormat(station, point.x * multiplier, (point.y * multiplier), angle, (name));
         }
 
-        public void addStationReversed(Vector2 point, float angle, string name)
+        public void addStationReversed(TLMMapDrawer.Station s, float angle, string name)
         {
+            Vector2 point = s.position;
             switch (CardinalPoint.getCardinalPoint(angle).Value)
             {
                 case CardinalPoint.CardinalInternal.NE:
                 case CardinalPoint.CardinalInternal.E:
                 case CardinalPoint.CardinalInternal.SE:
-                    addStation(point, angle, name);
+                    addStation(s, angle, name);
                     return;
             }
+            //   DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "STPUT: " + s.name + " => " + s.position);
             point -= offset;
             document.AppendFormat(stationReversed, point.x * multiplier, (point.y * multiplier), angle, (name));
         }
@@ -626,6 +670,27 @@ namespace Klyte.TransportLinesManager
                 color = new Color32(240, 240, 240, 255);
             }
             document.AppendFormat(lineSegment, p1.x * multiplier, (p1.y * multiplier), p2.x * multiplier, (p2.y * multiplier), color.r, color.g, color.b);
+        }
+
+        public void addPath(List<TLMMapDrawer.Station> points, Color32 color)
+        {
+            StringBuilder path = new StringBuilder();
+            Vector2 point = points[0].position - offset;
+            path.Append("M " + point.x * multiplier + "," + point.y * multiplier);
+            for (int i = 1; i < points.Count; i++)
+            {
+                var sPrev = points[i - 1].position - offset;
+                var s = points[i].position - offset;
+                var diff = s - sPrev;
+                float offsetx = (Math.Abs(diff.x) > Math.Abs(diff.y) ? Math.Abs(Math.Abs(diff.x) - Math.Abs(diff.y)) * Math.Sign(diff.x) : 0);
+                float offsety = (Math.Abs(diff.x) < Math.Abs(diff.y) ? Math.Abs(Math.Abs(diff.x) - Math.Abs(diff.y)) * Math.Sign(diff.y) : 0);
+                float minChangeCoord = Math.Min(Math.Abs(diff.x), Math.Abs(diff.y));
+                var diagPoint = new Vector2(minChangeCoord * Math.Sign(diff.x), minChangeCoord * Math.Sign(diff.y));
+                path.Append(" l " + offsetx * multiplier / 2 + "," + offsety * multiplier / 2 + " l " + diagPoint.x * multiplier + "," + diagPoint.y * multiplier + " L " + s.x * multiplier + "," + s.y * multiplier);
+
+            }
+            document.AppendFormat(pathLine, path.ToString(), color.r, color.g, color.b);
+
         }
 
         public void addMetroLineIndication(Vector2 point, string name, Color32 color)
