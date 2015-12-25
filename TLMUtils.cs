@@ -903,6 +903,17 @@ namespace Klyte.TransportLinesManager
             return buildingId;
 
         }
+        /// <summary>
+        /// -180° a 180°
+        /// </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <returns></returns>
+        public static float GetAngleOfLineBetweenTwoPoints(Vector2 p1, Vector2 p2)
+        {
+
+            return (float)(Vector2.Angle(p1, p2) * (180f / Math.PI));
+        }
 
         public static bool findSimetry(int[] array, out int middle)
         {
@@ -1218,6 +1229,18 @@ namespace Klyte.TransportLinesManager
         /// </summary>
         public T Maximum { get; set; }
 
+        public Range(T min, T max)
+        {
+            if (min.CompareTo(max) >= 0)
+            {
+                var temp = min;
+                min = max;
+                max = temp;
+            }
+            Minimum = min;
+            Maximum = max;
+        }
+
         /// <summary>
         /// Presents the Range in readable format
         /// </summary>
@@ -1258,6 +1281,16 @@ namespace Klyte.TransportLinesManager
         public Boolean ContainsRange(Range<T> Range)
         {
             return this.IsValid() && Range.IsValid() && this.ContainsValue(Range.Minimum) && this.ContainsValue(Range.Maximum);
+        }
+
+        /// <summary>
+        /// Determines if another range intersect this range
+        /// </summary>
+        /// <param name="Range">The child range to test</param>
+        /// <returns>True if range is inside, else false</returns>
+        public Boolean IntersectRange(Range<T> Range)
+        {
+            return this.IsValid() && Range.IsValid() && (this.ContainsValue(Range.Minimum) || this.ContainsValue(Range.Maximum) || Range.ContainsValue(this.Maximum) || Range.ContainsValue(this.Maximum));
         }
     }
 }
