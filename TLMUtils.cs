@@ -1288,9 +1288,19 @@ namespace Klyte.TransportLinesManager
         /// </summary>
         /// <param name="Range">The child range to test</param>
         /// <returns>True if range is inside, else false</returns>
+        public Boolean IntersectRangeNotSequential(Range<T> Range)
+        {
+            return this.IntersectRange(Range) && !this.IsBorderSequence(Range);
+        }
+
         public Boolean IntersectRange(Range<T> Range)
         {
             return this.IsValid() && Range.IsValid() && (this.ContainsValue(Range.Minimum) || this.ContainsValue(Range.Maximum) || Range.ContainsValue(this.Maximum) || Range.ContainsValue(this.Maximum));
+        }
+
+        public Boolean IsBorderSequence(Range<T> Range)
+        {
+            return this.IsValid() && Range.IsValid() && (this.Maximum.Equals(Range.Minimum) || this.Minimum.Equals(Range.Maximum));
         }
     }
 }

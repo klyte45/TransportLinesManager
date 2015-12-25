@@ -519,6 +519,32 @@ namespace Klyte.TransportLinesManager
             return InternalValue.ToString();
         }
 
+        public static CardinalPoint getCardinal2D(Vector2 p1, Vector2 p2)
+        {
+            var lastOffset = p1 - p2;
+            if (Math.Abs(lastOffset.x) - Math.Abs(lastOffset.y) > 0)
+            {
+                if (lastOffset.x > 0)
+                {
+                    return CardinalPoint.W;
+                }
+                else
+                {
+                    return CardinalPoint.E;
+                }
+            }
+            else
+            {
+                if (lastOffset.y > 0)
+                {
+                    return CardinalPoint.S;
+                }
+                else
+                {
+                    return CardinalPoint.N;
+                }
+            }
+        }
 
     }
 
@@ -737,86 +763,61 @@ namespace Klyte.TransportLinesManager
             path.Append("M " + p0.x * multiplier + "," + p0.y * multiplier);
             CardinalPoint lastDirection = CardinalPoint.ZERO;
             doLog("SVGTEMPLATE:addPath():695 => offset = {0}; multiplier = {1}", offset, multiplier);
+            Vector2 sPrevPrev = Vector2.zero;
+
             for (int i = 1; i < points.Count; i++)
             {
                 var sPrev = points[i - 1].position - offset;
                 var s = points[i].position - offset;
 
+                CardinalPoint fromDirection = CardinalPoint.ZERO;
                 if (i > 1)
                 {
-                    var sPrevPrev = points[i - 2].position - offset;
-                    var lastOffset = sPrevPrev - sPrev;
-                    CardinalPoint fromDirection = CardinalPoint.ZERO;
-                    if (Math.Abs(lastOffset.x) - Math.Abs(lastOffset.y) > 0)
-                    {
-                        if (lastOffset.x > 0)
-                        {
-                            fromDirection = CardinalPoint.W;
-                        }
-                        else
-                        {
-                            fromDirection = CardinalPoint.E;
-                        }
-                    }
-                    else
-                    {
-                        if (lastOffset.y > 0)
-                        {
-                            fromDirection = CardinalPoint.S;
-                        }
-                        else
-                        {
-                            fromDirection = CardinalPoint.N;
-                        }
-                    }
+                    fromDirection = CardinalPoint.getCardinal2D(sPrevPrev, sPrev);
                     doLog("SVGTEMPLATE:addPath():752 => sPrevPrev = {0}; sPrev = {1}; s = {2}; direction = {3}; STATION= {4}", sPrevPrev, sPrev, s, fromDirection, points[i].name);
+                    var sPrevPrevPrev = Vector2.zero;
                     if (s.y >= sPrev.y && fromDirection == CardinalPoint.S)// Λ line
                     {
-                        Debug.LogWarning("SVGTEMPLATE:addPath():709 => CASE Λ");
+                        doLog("SVGTEMPLATE:addPath():709 => CASE Λ");
                         var offsetX = Math.Sign(s.x - sPrevPrev.x);
-                        path.Append(" L " + (offsetX + sPrev.x) * multiplier + "," + (sPrev.y - 1) * multiplier);
-                        path.Append(" L " + (offsetX * 2 + sPrev.x) * multiplier + "," + (sPrev.y - 1) * multiplier);
+                        sPrevPrevPrev = sPrev;
+                        sPrevPrev = sPrev + new Vector2(offsetX, -1);
                         sPrev += new Vector2(offsetX * 2, -1);
                     }
                     else if (s.y <= sPrev.y && fromDirection == CardinalPoint.N)// V line
                     {
-                        Debug.LogWarning("SVGTEMPLATE:addPath():709 => CASE V");
+                        doLog("SVGTEMPLATE:addPath():709 => CASE V");
                         var offsetX = Math.Sign(s.x - sPrevPrev.x);
-                        path.Append(" L " + (offsetX + sPrev.x) * multiplier + "," + (sPrev.y + 1) * multiplier);
-                        path.Append(" L " + (offsetX * 2 + sPrev.x) * multiplier + "," + (sPrev.y + 1) * multiplier);
-                        sPrev += new Vector2(offsetX, 1);
+                        sPrevPrevPrev = sPrev;
+                        sPrevPrev = sPrev + new Vector2(offsetX, 1);
+                        sPrev += new Vector2(offsetX * 2, 1);
                     }
                     else if (s.x <= sPrev.x && fromDirection == CardinalPoint.E)// < line
                     {
-                        Debug.LogWarning("SVGTEMPLATE:addPath():709 => CASE <");
+                        doLog("SVGTEMPLATE:addPath():709 => CASE <");
                         var offsetY = Math.Sign(-s.y - sPrevPrev.y);
-                        path.Append(" L " + (1 + sPrev.x) * multiplier + "," + (sPrev.y + offsetY) * multiplier);
-                        path.Append(" L " + (1 + sPrev.x) * multiplier + "," + (sPrev.y + offsetY * 2) * multiplier);
-                        sPrev += new Vector2(1, offsetY);
+                        sPrevPrevPrev = sPrev;
+                        sPrevPrev = sPrev+ new Vector2(1, offsetY);
+                        sPrev += new Vector2(1, offsetY * 2);
                     }
                     else if (s.x >= sPrev.x && fromDirection == CardinalPoint.W)// > line
                     {
-                        Debug.LogWarning("SVGTEMPLATE:addPath():709 => CASE >");
+                        doLog("SVGTEMPLATE:addPath():709 => CASE >");
                         var offsetY = Math.Sign(s.y - sPrevPrev.y);
-                        path.Append(" L " + (-1 + sPrev.x) * multiplier + "," + (sPrev.y + offsetY) * multiplier);
-                        path.Append(" L " + (-1 + sPrev.x) * multiplier + "," + (sPrev.y + offsetY * 2) * multiplier);
+                        sPrevPrevPrev = sPrev;
+                        sPrevPrev = sPrev + new Vector2(-1, offsetY);
                         sPrev += new Vector2(-1, offsetY * 2);
                     }
-
-                    //doLog("SVGTEMPLATE:addPath():709 => sPrevPrev = {0}; sPrev = {1}; s = {2}; angle = {3}; anglePrev = {4}", sPrevPrev, sPrev, s, angle, anglePrev);
-                    //if (anglePrev.Value == (~angle).Value)
-                    //{
-                    //    var distance = anglePrev - angle;
-                    //    while (distance > 2)
-                    //    {
-                    //        sPrev = ((distance < 1 ? ++anglePrev : --anglePrev)).getPointForAngle2D(sPrev, 1);
-                    //        distance = anglePrev - angle;
-                    //        doLog("SVGTEMPLATE:addPath():717 => angle = {0}; anglePrev = {1}; distance = {2}", angle, anglePrev, distance);
-                    //        path.Append(" L " + sPrev.x * multiplier + "," + sPrev.y * multiplier);
-                    //    }
-                    //}
+                    else
+                    {
+                        goto DiagCheck;
+                    }
+                    addToPathString(path, sPrevPrevPrev, sPrevPrev);
+                    addToPathString(path, sPrevPrev, sPrev);
+                    fromDirection = CardinalPoint.getCardinal2D(sPrevPrev, sPrev);
                 }
 
+                DiagCheck:
                 var diff = s - sPrev;
                 float minChangeCoord = Math.Min(Math.Abs(diff.x), Math.Abs(diff.y));
                 var diagPointEndOffset = new Vector2(minChangeCoord * Math.Sign(diff.x), minChangeCoord * Math.Sign(diff.y));
@@ -835,55 +836,36 @@ namespace Klyte.TransportLinesManager
                     var targetPointD1 = getFreeD1Point(sPrev, diagPointEnd);
                     doLog("SVGTEMPLATE:addPath() => D1! STATIONS= {0} ({2}) a {1} ({3}); DIAG END: {5}; DIAG IDX: {6}; TARGETPOINT: {4}", points[i - 1].name, points[i].name, sPrev, s, targetPointD1, diagPointEnd, index);
                     offsetRemove = diagPointEnd - targetPointD1;
-                    //if (isHorizontal)
-                    //{
-                    //    doLog("SVGTEMPLATE:addPath() => HORIZONTAL! ");
-                    //    calcBeginD1X:
-                    //    var targetPointX = getFreeHorizontal(targetPointD1, s - offsetRemove);
-                    //    if (s - offsetRemove != targetPointX && targetPointD1.x != sPrev.x)
-                    //    {
-                    //        var direction = (diagPointEnd - sPrev);
-                    //        direction.Normalize();
-                    //        targetPointD1 -= direction;
-                    //        offsetRemove = diagPointEnd - targetPointD1;
-                    //        goto calcBeginD1X;
-                    //    }
-                    //    if (!hRanges.ContainsKey((int)targetPointX.y))
-                    //    {
-                    //        hRanges[(int)targetPointX.y] = new List<Range<int>>();
-                    //    }
-                    //    var targetXlineXs = new Range<int>((int)targetPointD1.x, (int)(s - offsetRemove).x);
-                    //    hRanges[(int)targetPointX.y].Add(targetXlineXs);
-                    //}
-
-                    //if (isVertical)
-                    //{
-                    //    doLog("SVGTEMPLATE:addPath() => VERTICAL! ");
-                    //    calcBeginD1Y:
-                    //    var targetPointY = getFreeVertical(targetPointD1, s - offsetRemove);
-                    //    if (s - offsetRemove != targetPointY && targetPointD1.y != sPrev.y)
-                    //    {
-                    //        var direction = (diagPointEnd - sPrev);
-                    //        direction.Normalize();
-                    //        targetPointD1 -= direction;
-                    //        offsetRemove = diagPointEnd - targetPointD1;
-                    //        goto calcBeginD1Y;
-                    //    }
-                    //    if (!vRanges.ContainsKey((int)targetPointY.x))
-                    //    {
-                    //        vRanges[(int)targetPointY.x] = new List<Range<int>>();
-                    //    }
-                    //    var targetYlineYs = new Range<int>((int)targetPointD1.y, (int)(s - offsetRemove).y);
-                    //    vRanges[(int)targetPointY.x].Add(targetYlineYs);
-                    //}
-                    diagPointEnd -= offsetRemove;
-
-                    if (!d1Ranges.ContainsKey(index))
+                    if (isHorizontal)
                     {
-                        d1Ranges[index] = new List<Range<int>>();
+                        calcBeginD1X:
+                        var targetPointX = getFreeHorizontal(targetPointD1, s - offsetRemove);
+                        doLog("SVGTEMPLATE:addPath() => HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s - offsetRemove).x != targetPointY.x && targetPointD1.x != sPrev.x: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x, targetPointD1.x, sPrev.x);
+                        if ((s - offsetRemove).x != (targetPointX).x && targetPointD1.x != sPrev.x)
+                        {
+                            var direction = (diagPointEnd - sPrev);
+                            direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
+                            targetPointD1 -= direction;
+                            offsetRemove = diagPointEnd - targetPointD1;
+                            goto calcBeginD1X;
+                        }
                     }
-                    var lineXs = new Range<int>((int)sPrev.x, (int)diagPointEnd.x);
-                    d1Ranges[index].Add(lineXs);
+
+                    if (isVertical)
+                    {
+                        calcBeginD1Y:
+                        var targetPointY = getFreeVertical(targetPointD1, s - offsetRemove);
+                        doLog("SVGTEMPLATE:addPath() => VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointX: {4}; (s - offsetRemove).y != targetPointX.y && targetPointD1.y != sPrev.y: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s - offsetRemove).y, targetPointY.y, targetPointD1.y, sPrev.y);
+                        if ((s - offsetRemove).y != targetPointY.y && targetPointD1.y != sPrev.y)
+                        {
+                            var direction = (diagPointEnd - sPrev);
+                            direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
+                            targetPointD1 -= direction;
+                            offsetRemove = diagPointEnd - targetPointD1;
+                            goto calcBeginD1Y;
+                        }
+                    }
+                    diagPointEnd -= offsetRemove;
                 }
 
                 if (isD2)
@@ -893,69 +875,94 @@ namespace Klyte.TransportLinesManager
                     var targetPointD2 = getFreeD2Point(sPrev, diagPointEnd);
                     doLog("SVGTEMPLATE:addPath() => D2! STATIONS= {0} ({2}) a {1} ({3}); DIAG END: {5}; DIAG IDX: {6}; TARGETPOINT: {4}", points[i - 1].name, points[i].name, sPrev, s, targetPointD2, diagPointEnd, index);
                     offsetRemove = diagPointEnd - targetPointD2;
-                    //if (isHorizontal)
-                    //{
-                    //    doLog("SVGTEMPLATE:addPath() => HORIZONTAL! ");
-                    //    calcBeginD2X:
-                    //    var targetPointX = getFreeHorizontal(targetPointD2, s - offsetRemove);
-                    //    if (s - offsetRemove != targetPointX && targetPointD2.x != sPrev.x)
-                    //    {
-                    //        var direction = (diagPointEnd - sPrev);
-                    //        direction.Normalize();
-                    //        targetPointD2 -= direction;
-                    //        offsetRemove = diagPointEnd - targetPointD2;
-                    //        goto calcBeginD2X;
-                    //    }
-                    //    if (!hRanges.ContainsKey((int)targetPointX.y))
-                    //    {
-                    //        hRanges[(int)targetPointX.y] = new List<Range<int>>();
-                    //    }
-                    //    var targetXlineXs = new Range<int>((int)targetPointD2.x, (int)(s - offsetRemove).x);
-                    //    hRanges[(int)targetPointX.y].Add(targetXlineXs);
-                    //}
-
-                    //if (isVertical)
-                    //{
-                    //    doLog("SVGTEMPLATE:addPath() => VERTICAL! ");
-                    //    calcBeginD2Y:
-                    //    var targetPointY = getFreeVertical(targetPointD2, s - offsetRemove);
-                    //    if (s - offsetRemove != targetPointY && targetPointD2.y != sPrev.y)
-                    //    {
-                    //        var direction = (diagPointEnd - sPrev);
-                    //        direction.Normalize();
-                    //        targetPointD2 -= direction;
-                    //        offsetRemove = diagPointEnd - targetPointD2;
-                    //        goto calcBeginD2Y;
-                    //    }
-                    //    if (!vRanges.ContainsKey((int)targetPointY.x))
-                    //    {
-                    //        vRanges[(int)targetPointY.x] = new List<Range<int>>();
-                    //    }
-                    //    var targetYlineYs = new Range<int>((int)targetPointD2.y, (int)(s - offsetRemove).y);
-                    //    vRanges[(int)targetPointY.x].Add(targetYlineYs);
-                    //}
-                    diagPointEnd -= offsetRemove;
-
-                    if (!d2Ranges.ContainsKey(index))
+                    if (isHorizontal)
                     {
-                        d2Ranges[index] = new List<Range<int>>();
+                        calcBeginD2X:
+                        var targetPointX = getFreeHorizontal(targetPointD2, s - offsetRemove);
+                        doLog("SVGTEMPLATE:addPath() => HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s - offsetRemove).x != targetPointY.x && targetPointD2.x != sPrev.x: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x, targetPointD2.x, sPrev.x);
+                        if (s - offsetRemove != targetPointX && targetPointD2.y != sPrev.y)
+                        {
+                            var direction = (diagPointEnd - sPrev);
+                            direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
+                            targetPointD2 -= direction;
+                            offsetRemove = diagPointEnd - targetPointD2;
+                            goto calcBeginD2X;
+                        }
                     }
-                    var lineXs = new Range<int>((int)sPrev.x, (int)diagPointEnd.x);
-                    d2Ranges[index].Add(lineXs);
+
+                    if (isVertical)
+                    {
+                        calcBeginD2Y:
+                        var targetPointY = getFreeVertical(targetPointD2, s - offsetRemove);
+                        doLog("SVGTEMPLATE:addPath() => VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointX: {4}; (s - offsetRemove).y != targetPointX.y && targetPointD2.y != sPrev.y: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s - offsetRemove).y, targetPointY.y, targetPointD2.y, sPrev.y);
+                        if (s - offsetRemove != targetPointY && targetPointD2.x != sPrev.x)
+                        {
+                            var direction = (diagPointEnd - sPrev);
+                            direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
+                            targetPointD2 -= direction;
+                            offsetRemove = diagPointEnd - targetPointD2;
+                            goto calcBeginD2Y;
+                        }
+                    }
+                    diagPointEnd -= offsetRemove;
+                }
+
+                doLog("SVGTEMPLATE:addPath() => s - offsetRemove == sPrev : {0} - {1} == {2} = {3}", s, offsetRemove, sPrev, s - offsetRemove == sPrev);
+
+                if (s - offsetRemove == sPrev)
+                {
+                    sPrevPrev = sPrev;
+                    switch (fromDirection.Value)
+                    {
+                        case CardinalPoint.CardinalInternal.N:
+                            sPrev += new Vector2(0, 1);
+                            break;
+                        case CardinalPoint.CardinalInternal.S:
+                            sPrev += new Vector2(0, -1);
+                            break;
+                        case CardinalPoint.CardinalInternal.W:
+                            sPrev += new Vector2(1, 0);
+                            break;
+                        case CardinalPoint.CardinalInternal.E:
+                            sPrev += new Vector2(-1, 0);
+                            break;
+                        case CardinalPoint.CardinalInternal.ZERO:
+                            sPrev += new Vector2(Math.Sign(s.x - sPrev.x), 0);
+                            break;
+                    }
+                    addToPathString(path, sPrevPrev, sPrev);
+                    goto DiagCheck;
+                }
+                if (sPrev == diagPointEnd && fromDirection.Value != CardinalPoint.CardinalInternal.ZERO)
+                {
+                    var sMid = s - offsetRemove;
+                    var toDirection = CardinalPoint.getCardinal2D(sPrev, sMid);
+                    if (toDirection.Value != fromDirection.Value)
+                    {
+                        var direction = (s - sPrev);
+                        direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
+                        diagPointEnd += direction;
+                        offsetRemove -= direction;
+                    }
                 }
 
                 if (isD1 || isD2)
                 {
-                    path.Append(" L " + diagPointEnd.x * multiplier + "," + diagPointEnd.y * multiplier);
+                    if (diagPointEnd != sPrev)
+                    {
+                        addToPathString(path, sPrev, diagPointEnd);
+                    }
+                    sPrevPrev = diagPointEnd;
                     if (offsetRemove != Vector2.zero)
                     {
                         var diagCompl = s - offsetRemove;
-                        path.Append(" L " + diagCompl.x * multiplier + "," + diagCompl.y * multiplier);
+                        addToPathString(path, sPrevPrev, diagCompl);
+                        sPrevPrev = diagCompl;
                     }
                 }
                 if (diagPointEnd + offsetRemove != s)
                 {
-                    path.Append(" L " + s.x * multiplier + "," + s.y * multiplier);
+                    addToPathString(path, sPrevPrev, s);
                 }
 
             }
@@ -963,19 +970,25 @@ namespace Klyte.TransportLinesManager
 
         }
 
+        private void addToPathString(StringBuilder pathString, Vector2 p0, Vector2 p1)
+        {
+            pathString.Append(" L " + p1.x * multiplier + "," + p1.y * multiplier);
+            addSegmentToIndex(p0, p1);
+        }
+
         private Vector2 getFreeHorizontal(Vector2 p1, Vector2 p2)
         {
             if (p1.y != p2.y) return p2;
             int targetX = (int)p2.x;
-            doLog(" getFreeHorizontal idx: {0} hRanges.ContainsKey(index)={1}", (int)p2.y, hRanges.ContainsKey((int)p2.y));
+            doLog(" getFreeHorizontal idx: {0} hRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.y, hRanges.ContainsKey((int)p2.y), p1, p2);
             if (hRanges.ContainsKey((int)p2.y))
             {
                 Range<int> lineXs = new Range<int>((int)p1.x, (int)p2.x);
-                var searchResult = hRanges[(int)p2.y].FindAll(x => x.IntersectRange(lineXs));
+                var searchResult = hRanges[(int)p2.y].FindAll(x => x.IntersectRangeNotSequential(lineXs));
                 doLog(" getFreeHorizontal idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.y, lineXs, searchResult.Count, string.Join(",", hRanges[(int)p2.y].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
-                    if (Math.Sign((p2 - p1).x) > 0)
+                    if (Math.Sign((p2.x - p1.x)) > 0)
                     {
 
                         targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Min(), (int)p1.x);
@@ -996,15 +1009,15 @@ namespace Klyte.TransportLinesManager
         {
             if (p1.x != p2.x) return p2;
             int targetY = (int)p2.y;
-            doLog(" getFreeVertical idx: {0} vRanges.ContainsKey(index)={1}", (int)p2.x, vRanges.ContainsKey((int)p2.x));
+            doLog(" getFreeVertical idx: {0} vRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.x, vRanges.ContainsKey((int)p2.x), p1, p2);
             if (vRanges.ContainsKey((int)p2.x))
             {
                 Range<int> lineYs = new Range<int>((int)p1.y, (int)p2.y);
-                var searchResult = vRanges[(int)p2.x].FindAll(x => x.IntersectRange(lineYs));
+                var searchResult = vRanges[(int)p2.x].FindAll(x => x.IntersectRangeNotSequential(lineYs));
                 doLog(" getFreeVertical idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.x, lineYs, searchResult.Count, string.Join(",", vRanges[(int)p2.x].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
-                    if (Math.Sign((p2 - p1).y) > 0)
+                    if (Math.Sign((p2.y - p1.y)) > 0)
                     {
                         targetY = Math.Max(searchResult.Select(x => x.Minimum - 1).Min(), (int)p1.y);
                     }
@@ -1027,11 +1040,11 @@ namespace Klyte.TransportLinesManager
             if (d1Ranges.ContainsKey(index))
             {
                 Range<int> lineXs = new Range<int>((int)p1.x, (int)p2.x);
-                var searchResult = d1Ranges[index].FindAll(x => x.IntersectRange(lineXs));
+                var searchResult = d1Ranges[index].FindAll(x => x.IntersectRangeNotSequential(lineXs));
                 doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = {3} ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d1Ranges[index].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
-                    if (Math.Sign((p2 - p1).x) > 0)
+                    if (Math.Sign((p2.x - p1.x)) > 0)
                     {
                         targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Min(), (int)p1.x);
                     }
@@ -1057,11 +1070,11 @@ namespace Klyte.TransportLinesManager
             if (d2Ranges.ContainsKey(index))
             {
                 Range<int> lineXs = new Range<int>((int)p1.x, (int)p2.x);
-                var searchResult = d2Ranges[index].FindAll(x => x.IntersectRange(lineXs));
+                var searchResult = d2Ranges[index].FindAll(x => x.IntersectRangeNotSequential(lineXs));
                 doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d2Ranges[index].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
-                    if (Math.Sign((p2 - p1).x) > 0)
+                    if (Math.Sign((p2.x - p1.x)) > 0)
                     {
                         targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Min(), (int)p1.x);
                     }
@@ -1074,6 +1087,65 @@ namespace Klyte.TransportLinesManager
 
             return new Vector2(targetX, targetX - index);
         }
+
+        private void addVerticalRange(int x, Range<int> values)
+        {
+            if (!vRanges.ContainsKey(x))
+            {
+                vRanges[x] = new List<Range<int>>();
+            }
+            vRanges[x].Add(values);
+        }
+        private void addHorizontalRange(int y, Range<int> values)
+        {
+            if (!hRanges.ContainsKey(y))
+            {
+                hRanges[y] = new List<Range<int>>();
+            }
+            hRanges[y].Add(values);
+        }
+        private void addD1Range(Vector2 refPoint, Range<int> values)
+        {
+            int index = (int)refPoint.x + (int)refPoint.y;
+            if (!d1Ranges.ContainsKey(index))
+            {
+                d1Ranges[index] = new List<Range<int>>();
+            }
+            d1Ranges[index].Add(values);
+        }
+        private void addD2Range(Vector2 refPoint, Range<int> values)
+        {
+            int index = (int)refPoint.x - (int)refPoint.y;
+            if (!d1Ranges.ContainsKey(index))
+            {
+                d1Ranges[index] = new List<Range<int>>();
+            }
+            d1Ranges[index].Add(values);
+        }
+
+        private void addSegmentToIndex(Vector2 p1, Vector2 p2)
+        {
+            if (p1 == p2) return;
+            if (p1.x + p1.y == p2.x + p2.y)
+            {
+                addD1Range(p1, new Range<int>((int)p2.x, (int)p1.x));
+            }
+
+            if (p1.x - p1.y == p2.x - p2.y)
+            {
+                addD2Range(p1, new Range<int>((int)p2.x, (int)p1.x));
+            }
+
+            if (p2.x == p1.x)
+            {
+                addVerticalRange((int)p2.x, new Range<int>((int)p2.y, (int)p1.y));
+            }
+            if (p2.y == p1.y)
+            {
+                addHorizontalRange((int)p2.y, new Range<int>((int)p2.x, (int)p1.x));
+            }
+        }
+
 
         private void doLog(string format, params object[] args)
         {
