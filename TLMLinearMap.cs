@@ -470,12 +470,12 @@ namespace Klyte.TransportLinesManager
             TransportInfo thisLineInfo = tm.m_lines.m_buffer[(int)nn.m_transportLine].Info;
             TransportLine thisLine = tm.m_lines.m_buffer[(int)nn.m_transportLine];
             linhas = new List<ushort>();
-            TLMLineUtils.GetNearStops(nn.m_position, 30f, ref linhas);
+            TLMLineUtils.GetNearLines(nn.m_position, 30f, ref linhas);
             Vector3 sidewalkPosition = Vector3.zero;
             if (buildingId > 0 && transportBuilding)
             {
                 sidewalkPosition = b.CalculateSidewalkPosition();
-                TLMLineUtils.GetNearStops(sidewalkPosition, 100f, ref linhas);
+                TLMLineUtils.GetNearLines(sidewalkPosition, 100f, ref linhas);
             }
 
             airport = String.Empty;

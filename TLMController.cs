@@ -10,7 +10,6 @@ namespace Klyte.TransportLinesManager
 {
     public class TLMController
     {
-        private Material lineMaterial;
         public static TLMController instance;
         public static UITextureAtlas taTLM = null;
         public static UITextureAtlas taLineNumber = null;
@@ -437,7 +436,7 @@ namespace Klyte.TransportLinesManager
 
                 List<ushort> nearLines = new List<ushort>();
 
-                TLMLineUtils.GetNearStops(b.CalculateSidewalkPosition(), 100f, ref nearLines);
+                TLMLineUtils.GetNearLines(b.CalculateSidewalkPosition(), 100f, ref nearLines);
                 bool showPanel = nearLines.Count > 0;
                 //				DebugOutputPanel.AddMessage (PluginManager.MessageType.Warning, "nearLines.Count = " + nearLines.Count);
                 if (showPanel)

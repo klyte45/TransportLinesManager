@@ -20,13 +20,16 @@ namespace Klyte.TransportLinesManager
             CalculateCoords calc = TLMLineUtils.gridPosition81Tiles;
             NetManager nm = NetManager.instance;
             TLMController controller = TLMController.instance;
-            Dictionary<Vector2, Station> stations = new Dictionary<Vector2, Station>();
+            List<Station> stations = new List<Station>();
             Dictionary<Segment2, Color32> svgLines = new Dictionary<Segment2, Color32>();
-            Dictionary<TransportLine, List<Station>> transportLines = new Dictionary<TransportLine, List<Station>>();
+            Dictionary<ushort, List<Station>> transportLines = new Dictionary<ushort, List<Station>>();
             MultiMap<Vector2, Vector2> intersects = new MultiMap<Vector2, Vector2>();
-            float nil = 0;
             //			List<int> usedX = new List<int> ();
             //			List<int> usedY = new List<int> ();
+            float minX = float.PositiveInfinity;
+            float minY = float.PositiveInfinity;
+            float maxX = float.NegativeInfinity;
+            float maxY = float.NegativeInfinity;
             for (ushort i = 0; i < controller.tm.m_lines.m_size; i++)
             {
                 TransportLine t = controller.tm.m_lines.m_buffer[(int)i];
@@ -40,11 +43,7 @@ namespace Klyte.TransportLinesManager
                     }
                     Color color = t.m_color;
                     Vector2 ultPos = Vector2.zero;
-                    Segment2 lastSeg = default(Segment2);
-
-
-                    transportLines[t] = new List<Station>();
-
+                    transportLines[i] = new List<Station>();
                     int startStop = 0;
                     int finalStop = stopsCount;
                     int middle = 0;
@@ -59,92 +58,63 @@ namespace Klyte.TransportLinesManager
                         ushort nextStop = t.GetStop(j % stopsCount);
                         string name = TLMUtils.getStationName(nextStop, t.Info.m_stationSubService);
 
-                        Vector2 pos = calc(TLMUtils.getStationBuildingPosition(nextStop, t.Info.m_stationSubService));
+                        Vector3 worldPos = TLMUtils.getStationBuildingPosition(nextStop, t.Info.m_stationSubService);
+                        Vector2 pos2D = calc(worldPos);
                         Vector2 gridAdd = Vector2.zero;
 
-                        ushort nextNextStop = t.GetStop(j % stopsCount);
-                        Vector2 gridNextPos = calc(TLMUtils.getStationBuildingPosition(nextNextStop, t.Info.m_stationSubService));
-                        float angle = -TLMUtils.GetAngleOfLineBetweenTwoPoints(pos, gridNextPos);
-                        CardinalPoint cardinal = CardinalPoint.getCardinalPoint(angle);
-
-                        bool intersectStation = false;
-                        int countIterations = 0;
-                        while (stations.Keys.Contains(pos) || svgLines.Keys.Where(x => x.DistanceSqr(pos, out nil) == 0).Count() > 0)
+                        var idx = stations.FirstOrDefault(x => x.stops.Contains(nextStop));
+                        if (idx != null)
                         {
-                            //							Debug.Log ("COUNT:" + lines.Keys.Where(x=>x.DistanceSqr(pos,out nil)==0).Count());
-                            if (!intersectStation && stations.Keys.Contains(pos))
-                            {
-                                intersectStation = true;
-                            }
-                            if (gridAdd == Vector2.zero)
-                            {
-                                gridAdd = cardinal.getCardinalOffset();
-                            }
-                            else {
-                                pos -= gridAdd;
-                                gridAdd = (cardinal++).getCardinalOffset() * (1 + (countIterations / 8));
-                            }
-                            pos += gridAdd;
-                            countIterations++;
+                            transportLines[i].Add(idx);
                         }
-
-
-
-                        if (ultPos != Vector2.zero)
+                        else
                         {
-                            Segment2 s = new Segment2(ultPos, pos);
-                            float sAngle = Vector2.Angle(s.a, s.b);
-                            svgLines.Add(s, color);
-                            lastSeg = s;
-                        }
-
-
-
-                        CardinalPoint cp = CardinalPoint.E;
-                        int vizinhosVazios = 0;
-                        int maxVizinhosVazios = 0;
-                        CardinalPoint melhorCp = cp;
-                        for (int v = 0; v < 8; v++, cp++)
-                        {
-                            Vector2 testPos = pos + cp.getCardinalOffset();
-                            if (!stations.Keys.Contains(testPos) && svgLines.Keys.Where(x => x.DistanceSqr(testPos, out nil) == 0).Count() == 0)
+                            List<ushort> nearStops = new List<ushort>();
+                            TLMLineUtils.GetNearStopPoints(worldPos, 100f, ref nearStops);
+                            TLMUtils.doLog("Station: ${0}; nearStops: ${1}", name, string.Join(",", nearStops.Select(x => x.ToString()).ToArray()));
+                            Station thisStation = new Station(name, pos2D, nearStops);
+                            stations.Add(thisStation);
+                            transportLines[i].Add(thisStation);
+                            if (pos2D.x > maxX)
                             {
-                                vizinhosVazios++;
-                                if (vizinhosVazios > maxVizinhosVazios)
-                                {
-                                    maxVizinhosVazios = vizinhosVazios;
-                                    melhorCp = cp;
-                                }
+                                maxX = pos2D.x;
                             }
-                            else if (stations.Keys.Contains(testPos))
+                            if (pos2D.y > maxY)
                             {
-                                intersects.Add(pos, testPos);
-                                name = "";
+                                maxY = pos2D.y;
+                            }
+                            if (pos2D.x < minX)
+                            {
+                                minX = pos2D.x;
+                            }
+                            if (pos2D.y < minY)
+                            {
+                                minY = pos2D.y;
                             }
                         }
-                        Station thisStation = new Station(name, melhorCp, pos);
-                        stations.Add(pos, thisStation);
-
-                        transportLines[t].Add(thisStation);
-
                         //						Debug.Log ("POS:" + pos);
-                        ultPos = pos;
+                        ultPos = pos2D;
                     }
                 }
             }
-            float minX = Math.Min(svgLines.Min(x => Math.Min(x.Key.a.x, x.Key.b.x)), stations.Min(x => x.Key.x));
-            float minY = Math.Min(svgLines.Min(x => Math.Min(x.Key.a.y, x.Key.b.y)), stations.Min(x => x.Key.y));
-            float maxX = Math.Max(svgLines.Max(x => Math.Max(x.Key.a.x, x.Key.b.x)), stations.Max(x => x.Key.x));
-            float maxY = Math.Max(svgLines.Max(x => Math.Max(x.Key.a.y, x.Key.b.y)), stations.Max(x => x.Key.y));
 
             SVGTemplate svg = new SVGTemplate((int)((maxY - minY + 16) * SVGTemplate.RADIUS), (int)((maxX - minX + 16) * SVGTemplate.RADIUS), SVGTemplate.RADIUS, minX - 8, minY - 8);
-            //foreach (var line in svgLines)
-            //{
-            //    svg.addLineSegment(line.Key.a, line.Key.b, line.Value);
-            //}
+            //calcula as posições de todas as estações no mapa
             foreach (var line in transportLines)
             {
-                svg.addPath(line.Value, line.Key.m_color);
+                var station0 = line.Value[0];
+                var prevPos = station0.getPositionForLine(line.Key, line.Value[1].defaultCentralPos);
+                for (int i = 1; i < line.Value.Count; i++)
+                {
+                    prevPos = line.Value[i].getPositionForLine(line.Key, prevPos);
+                }
+            }
+            //adiciona as exceções
+            svg.addStationsToExceptionMap(stations);
+            //pinta as linhas
+            foreach (var line in transportLines)
+            {
+                svg.addTransportLineOnMap(line.Value, line.Key);
             }
             foreach (var intersectKey in intersects.Keys)
             {
@@ -157,24 +127,7 @@ namespace Klyte.TransportLinesManager
             }
             foreach (var station in stations)
             {
-                CardinalPoint angle = station.Value.preferredAngle;
-                if (!string.IsNullOrEmpty(station.Value.name))
-                {
-                    Vector2 testingPoint = station.Key + angle.getCardinalOffset();
-                    int countIterations = 0;
-                    while (stations.Keys.Contains(testingPoint) || svgLines.Keys.Where(x => x.DistanceSqr(testingPoint, out nil) == 0).Count() > 0)
-                    {
-                        //							Debug.Log ("COUNT:" + lines.Keys.Where(x=>x.DistanceSqr(pos,out nil)==0).Count());
-                        angle++;
-                        testingPoint = station.Key + angle.getCardinalOffset();
-                        countIterations++;
-                        if (countIterations >= 8)
-                        {
-                            break;
-                        }
-                    }
-                }
-                svg.addStation(station.Value, angle.getCardinalAngle(), station.Value.name);
+                svg.addStation(station);
             }
             String folder = "Transport Lines Manager";
             if (File.Exists(folder) && (File.GetAttributes(folder) & FileAttributes.Directory) != FileAttributes.Directory)
@@ -195,38 +148,108 @@ namespace Klyte.TransportLinesManager
             sr.Close();
         }
 
-        public struct Station
+        public class Station
         {
             public string name
             {
                 get; set;
             }
-            public CardinalPoint preferredAngle
+            private Vector2 centralPos
             {
                 get; set;
             }
-            public Vector2 position
+            public Vector2 defaultCentralPos
+            {
+                get
+                {
+                    return centralPos;
+                }
+            }
+            public List<ushort> stops
             {
                 get; set;
+            }
+            public Vector2 writePoint
+            {
+                get
+                {
+                    return lastPoint;
+                }
+            }
+            public float writeAngle
+            {
+                get
+                {
+                    return CardinalPoint.getCardinalPoint(Vector2.Angle(centralPos, lastPoint)).getCardinalAngle();
+                }
             }
 
-            public Station(string n, CardinalPoint pref, Vector2 pos)
+            private Vector2 lastPoint;
+
+            public Station(string n, Vector2 pos, List<ushort> stops)
             {
                 name = n;
-                preferredAngle = pref;
-                position = pos;
+                centralPos = pos;
+                this.stops = stops;
+                lastPoint = pos;
             }
+
+            private Dictionary<Vector2, ushort> stopsPos = new Dictionary<Vector2, ushort>();
+
+            public Vector2 getPositionForLine(ushort lineIndex, Vector2 to)
+            {
+                Vector2 from = centralPos;
+
+                TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() (STATION: {2}) lineIndex: {0}; from: {1}; stopPos: [{3}]", lineIndex, from, name, string.Join(",", stopsPos.Select(x => x.Key.ToString() + " = " + x.Value).ToArray()));
+                if (stopsPos.ContainsValue(lineIndex))
+                {
+                    return stopsPos.First(x => x.Value == lineIndex).Key;
+                }
+                if (stopsPos.Count == 0)
+                {
+                    stopsPos.Add(centralPos, lineIndex);
+                    return centralPos;
+                }
+                else
+                {
+                    var direction = to - from;
+                    direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
+                    var totalOffset = direction;
+                    TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() direction: {0}; from: {1}; to: ", direction, from, to);
+                    while (stopsPos.ContainsKey(centralPos + totalOffset))
+                    {
+                        totalOffset += direction;
+                    }
+                    lastPoint = centralPos + totalOffset;
+                    stopsPos.Add(lastPoint, lineIndex);
+                    return lastPoint;
+                }
+            }
+
+            public string getIntegrationLinePath(Vector2 offset, float multiplier)
+            {
+                if (stopsPos.Count <= 1) return string.Empty;
+                StringBuilder result = new StringBuilder();
+                Vector2 from = centralPos - offset;
+                foreach (Vector2 point in stopsPos.Keys)
+                {
+                    if (point != centralPos)
+                    {
+                        Vector2 to = point - offset;
+                        result.Append(string.Format(" M {0},{1} L {2},{3} ", from.x * multiplier, from.y * multiplier, to.x * multiplier, to.y * multiplier));
+                    }
+                }
+                return result.ToString();
+            }
+
+
+            public List<Vector2> getAllStationPoints()
+            {
+                return stopsPos.Keys.ToList();
+            }
+
         }
-
-
-
         private delegate Vector2 CalculateCoords(Vector3 pos);
-
-
-
-
-
-
     }
 
     public struct CardinalPoint
@@ -360,6 +383,31 @@ namespace Klyte.TransportLinesManager
                 case CardinalPoint.CardinalInternal.SE:
                     return new Vector2(1, -1);
                 case CardinalPoint.CardinalInternal.SW:
+                    return new Vector2(-1, -1);
+            }
+            return Vector2.zero;
+        }
+
+
+        public Vector2 getCardinalOffset2D()
+        {
+            switch (InternalValue)
+            {
+                case CardinalPoint.CardinalInternal.E:
+                    return new Vector2(1, 0);
+                case CardinalPoint.CardinalInternal.W:
+                    return new Vector2(-1, 0);
+                case CardinalPoint.CardinalInternal.S:
+                    return new Vector2(0, 1);
+                case CardinalPoint.CardinalInternal.N:
+                    return new Vector2(0, -1);
+                case CardinalPoint.CardinalInternal.SE:
+                    return new Vector2(1, 1);
+                case CardinalPoint.CardinalInternal.SW:
+                    return new Vector2(-1, 1);
+                case CardinalPoint.CardinalInternal.NE:
+                    return new Vector2(1, -1);
+                case CardinalPoint.CardinalInternal.NW:
                     return new Vector2(-1, -1);
             }
             return Vector2.zero;
@@ -522,7 +570,32 @@ namespace Klyte.TransportLinesManager
         public static CardinalPoint getCardinal2D(Vector2 p1, Vector2 p2)
         {
             var lastOffset = p1 - p2;
-            if (Math.Abs(lastOffset.x) - Math.Abs(lastOffset.y) > 0)
+            if (Math.Abs(lastOffset.x) - Math.Abs(lastOffset.y) == 0)
+            {
+                if (lastOffset.x > 0)
+                {
+                    if (lastOffset.y > 0)
+                    {
+                        return CardinalPoint.SW;
+                    }
+                    else
+                    {
+                        return CardinalPoint.NW;
+                    }
+                }
+                else
+                {
+                    if (lastOffset.y > 0)
+                    {
+                        return CardinalPoint.SE;
+                    }
+                    else
+                    {
+                        return CardinalPoint.NE;
+                    }
+                }
+            }
+            else if (Math.Abs(lastOffset.x) - Math.Abs(lastOffset.y) > 0)
             {
                 if (lastOffset.x > 0)
                 {
@@ -608,34 +681,17 @@ namespace Klyte.TransportLinesManager
         /// 2 = Ang (º) 
         /// 3 = Station Name 
         /// </summary>
-        private readonly string station = "<g transform=\"rotate({2},{0},{1}) translate({0},{1})\">" +
-            "<circle cx=\"0\" cy=\"0\" r=\"" + RADIUS * 0.4 + "\" fill=\"white\" style=\"stroke:rgb(155,155,155);stroke-width:1\"/>" +
-                "<text x=\"" + RADIUS * 0.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"stroke:rgb(255,255,255);stroke-width:1\">{3}</text>" +
-            "</g>";
-        /// <summary>
-        /// The station for 4.<>
-        /// 0 = X 
-        /// 1 = Y 
-        /// 2 = Ang (º) 
-        /// 3 = Station Name 
-        /// </summary>
-        private readonly string station4 = "<g transform=\"rotate({2},{0},{1}) translate({0},{1})\">" +
-            "<circle cx=\"0\" cy=\"0\" r=\"" + RADIUS * 0.85 + "\" fill=\"white\" style=\"stroke:rgb(155,155,155);stroke-width:1\"/>" +
-                "<text x=\"" + RADIUS * 1.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"stroke:rgb(255,255,255);stroke-width:1\">{3}</text>" +
-            "</g>";
+        private static string getStationTemplate()
+        {
+            return "<g transform=\"rotate({2},{0},{1}) translate({0},{1})\">" +
+                    "<circle cx=\"0\" cy=\"0\" r=\"" + RADIUS * 0.4 + "\" fill=\"white\" style=\"stroke:rgb(155,155,155);stroke-width:1\"/>" +
+                    "<text x=\"" + RADIUS * 0.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"stroke:rgb(255,255,255);stroke-width:1\">{3}</text>" +
+                    "</g>";
+        }
 
-        /// <summary>
-        /// The station for 4.<>
-        /// 0 = X 
-        /// 1 = Y 
-        /// 2 = Ang (º) 
-        /// 3 = Station Name 
-        /// </summary>
-        private readonly string station9 = "<g transform=\"rotate({2},{0},{1}) translate({0},{1})\">" +
-            "<circle cx=\"0\" cy=\"0\" r=\"" + RADIUS * 1.3 + "\" fill=\"white\" style=\"stroke:rgb(155,155,155);stroke-width:1\"/>" +
-                "<text x=\"" + RADIUS * 2.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"stroke:rgb(255,255,255);stroke-width:1\">{3}</text>" +
-            "</g>";
-
+        private readonly string stationPointTemplate = "<circle style=\"stroke:rgb(155,155,155); stroke-width:1\" fill=\"white\" r=\"" + RADIUS * 0.4 + "\" cy=\"0\" cx=\"0\" transform=\"translate({0},{1})\"/>";
+        private readonly string stationNameTemplate = "<text transform=\"rotate({2},{0},{1}) translate({0},{1})\" x=\"" + RADIUS * 0.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"text-shadow: 0px 0px 6px white;\">{3}</text>";
+        private readonly string stationNameInverseTemplate = "<text transform=\"rotate({2},{0},{1}) translate({0},{1}) scale(-1,-1)\" x=\"" + -RADIUS * 0.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"text-shadow: 0px 0px 6px white; text-anchor: end\">{3}</text>";
         /// <summary>
         /// The station.<>
         /// 0 = X 
@@ -643,10 +699,13 @@ namespace Klyte.TransportLinesManager
         /// 2 = Ang (º) 
         /// 3 = Station Name 
         /// </summary>
-        private readonly string stationReversed = "<g transform=\"rotate({2},{0},{1}) translate({0},{1})\">" +
-            "<circle cx=\"0\" cy=\"0\" r=\"" + RADIUS * 0.4 + "\" fill=\"white\" style=\"stroke:rgb(155,155,155);stroke-width:1\"/>" +
-                "<text x=\"" + RADIUS / 2 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" transform=\"rotate(180," + RADIUS / 2 + ",0)\"text-anchor=\"end \" style=\"stroke:rgb(255,255,255);stroke-width:1\">{3}</text>" +
-            "</g>";
+        private static string getStationReversedTemplate()
+        {
+            return "<g transform=\"rotate({2},{0},{1}) translate({0},{1})\">" +
+                    "<circle cx=\"0\" cy=\"0\" r=\"" + RADIUS * 0.4 + "\" fill=\"white\" style=\"stroke:rgb(155,155,155);stroke-width:1\"/>" +
+                    "<text x=\"" + RADIUS * 0.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" transform=\"rotate(180," + RADIUS / 2 + ",0)\"text-anchor=\"end \" style=\"stroke:rgb(255,255,255);stroke-width:1\">{3}</text>" +
+                    "</g>";
+        }
 
         /// <summary>
         /// The metro line symbol.<>
@@ -712,37 +771,44 @@ namespace Klyte.TransportLinesManager
             return document.ToString();
         }
 
-        public void addStation(TLMMapDrawer.Station s, float angle, string name)
+        public void addStationsToExceptionMap(List<TLMMapDrawer.Station> stations)
         {
-            Vector2 point = s.position;
+            foreach (var s in stations)
+            {
+                foreach (var p in s.getAllStationPoints())
+                {
+                    addStationToAllRangeMaps(p);
+                }
+            }
+        }
 
+        public void addStation(TLMMapDrawer.Station s)
+        {
+            bool inverse = false;
+            string name = s.name;
+            var angle = s.writeAngle;
             switch (CardinalPoint.getCardinalPoint(angle).Value)
             {
                 case CardinalPoint.CardinalInternal.NW:
                 case CardinalPoint.CardinalInternal.W:
                 case CardinalPoint.CardinalInternal.SW:
-                    addStationReversed(s, angle, name);
+                    inverse = true;
                     return;
             }
             //     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "STPUT: " + s.name + " => " + s.position);
-            point -= offset;
-            document.AppendFormat(station, point.x * multiplier, (point.y * multiplier), angle, (name));
-        }
-
-        public void addStationReversed(TLMMapDrawer.Station s, float angle, string name)
-        {
-            Vector2 point = s.position;
-            switch (CardinalPoint.getCardinalPoint(angle).Value)
+            string integrationPath = s.getIntegrationLinePath(offset, multiplier);
+            if (integrationPath != string.Empty)
             {
-                case CardinalPoint.CardinalInternal.NE:
-                case CardinalPoint.CardinalInternal.E:
-                case CardinalPoint.CardinalInternal.SE:
-                    addStation(s, angle, name);
-                    return;
+                document.AppendFormat(pathLine, integrationPath, 128, 128, 128);
             }
-            //   DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "STPUT: " + s.name + " => " + s.position);
-            point -= offset;
-            document.AppendFormat(stationReversed, point.x * multiplier, (point.y * multiplier), angle, (name));
+            foreach (Vector2 pos in s.getAllStationPoints())
+            {
+                var point = pos - offset;
+                document.AppendFormat(stationPointTemplate, point.x * multiplier, (point.y * multiplier));
+            }
+            var namePoint = s.writePoint - offset;
+            document.AppendFormat(inverse ? stationNameInverseTemplate : stationNameTemplate, namePoint.x * multiplier, (namePoint.y * multiplier), angle, s.name);
+
         }
 
         public void addLineSegment(Vector2 p1, Vector2 p2, Color32 color)
@@ -756,65 +822,171 @@ namespace Klyte.TransportLinesManager
             document.AppendFormat(lineSegment, p1.x * multiplier, (p1.y * multiplier), p2.x * multiplier, (p2.y * multiplier), color.r, color.g, color.b);
         }
 
-        public void addPath(List<TLMMapDrawer.Station> points, Color32 color)
+        public void addTransportLineOnMap(List<TLMMapDrawer.Station> points, ushort transportLineIdx)
         {
+            TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)transportLineIdx];
+            Color32 color = t.m_color;
             StringBuilder path = new StringBuilder();
-            Vector2 p0 = points[0].position - offset;
+            Vector2 p0 = points[0].getPositionForLine(transportLineIdx, points[1].defaultCentralPos) - offset;
             path.Append("M " + p0.x * multiplier + "," + p0.y * multiplier);
             CardinalPoint lastDirection = CardinalPoint.ZERO;
-            doLog("SVGTEMPLATE:addPath():695 => offset = {0}; multiplier = {1}", offset, multiplier);
+            TLMUtils.doLog("SVGTEMPLATE:addPath():695 => offset = {0}; multiplier = {1}", offset, multiplier);
             Vector2 sPrevPrev = Vector2.zero;
-
+            Vector2 sPrev = p0;
             for (int i = 1; i < points.Count; i++)
             {
-                var sPrev = points[i - 1].position - offset;
-                var s = points[i].position - offset;
-
+                var s = points[i].getPositionForLine(transportLineIdx, sPrev) - offset;
                 CardinalPoint fromDirection = CardinalPoint.ZERO;
+                Vector2 basicDirection = new Vector2(0, -1);
                 if (i > 1)
                 {
                     fromDirection = CardinalPoint.getCardinal2D(sPrevPrev, sPrev);
-                    doLog("SVGTEMPLATE:addPath():752 => sPrevPrev = {0}; sPrev = {1}; s = {2}; direction = {3}; STATION= {4}", sPrevPrev, sPrev, s, fromDirection, points[i].name);
+                    TLMUtils.doLog("SVGTEMPLATE:addPath():752 => sPrevPrev = {0}; sPrev = {1}; s = {2}; direction = {3}; STATION= {4}", sPrevPrev, sPrev, s, fromDirection, points[i].name);
                     var sPrevPrevPrev = Vector2.zero;
-                    if (s.y >= sPrev.y && fromDirection == CardinalPoint.S)// Λ line
+                    switch (fromDirection.Value)
                     {
-                        doLog("SVGTEMPLATE:addPath():709 => CASE Λ");
-                        var offsetX = Math.Sign(s.x - sPrevPrev.x);
-                        sPrevPrevPrev = sPrev;
-                        sPrevPrev = sPrev + new Vector2(offsetX, -1);
-                        sPrev += new Vector2(offsetX * 2, -1);
+                        case CardinalPoint.CardinalInternal.S:// Λ line
+                            basicDirection = new Vector2(0, -1);
+                            CASE_S:
+                            if (s.y > sPrev.y)
+                            {
+                                TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE Λ");
+                                var offsetX = Math.Sign(s.x - sPrevPrev.x);
+                                basicDirection = new Vector2(offsetX, 0);
+                                sPrevPrevPrev = sPrev;
+                                sPrevPrev = sPrev + new Vector2(offsetX, -1);
+                                sPrev += new Vector2(offsetX * 2, -1);
+                            }
+                            else if (Math.Abs((sPrev - s).y) > 1)
+                            {
+                                sPrevPrev = sPrev;
+                                sPrev += basicDirection;
+                            }
+                            else goto DiagCheck;
+                            break;
+                        case CardinalPoint.CardinalInternal.N:// V line
+                            basicDirection = new Vector2(0, 1);
+                            CASE_N:
+                            if (s.y < sPrev.y)
+                            {
+                                TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE V");
+                                var offsetX = Math.Sign(s.x - sPrevPrev.x);
+                                basicDirection = new Vector2(offsetX, 0);
+                                sPrevPrevPrev = sPrev;
+                                sPrevPrev = sPrev + new Vector2(offsetX, 1);
+                                sPrev += new Vector2(offsetX * 2, 1);
+                            }
+                            else if (Math.Abs((sPrev - s).y) > 1)
+                            {
+                                sPrevPrev = sPrev;
+                                sPrev += basicDirection;
+                            }
+                            else goto DiagCheck;
+                            break;
+                        case CardinalPoint.CardinalInternal.E:// < line
+                            basicDirection = new Vector2(1, 0);
+                            CASE_E:
+                            if (s.x < sPrev.x)
+                            {
+                                TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE <");
+                                var offsetY = Math.Sign(s.y - sPrevPrev.y);
+                                basicDirection = new Vector2(0, offsetY);
+                                sPrevPrevPrev = sPrev;
+                                sPrevPrev = sPrev + new Vector2(1, offsetY);
+                                sPrev += new Vector2(1, offsetY * 2);
+                            }
+                            else if (Math.Abs((sPrev - s).x) > 1)
+                            {
+                                sPrevPrev = sPrev;
+                                sPrev += basicDirection;
+                            }
+                            else goto DiagCheck;
+                            break;
+                        case CardinalPoint.CardinalInternal.W:// > line
+                            basicDirection = new Vector2(-1, 0);
+                            CASE_W:
+                            if (s.x > sPrev.x)
+                            {
+                                TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE >");
+                                var offsetY = Math.Sign(s.y - sPrevPrev.y);
+                                basicDirection = new Vector2(0, offsetY);
+                                sPrevPrevPrev = sPrev;
+                                sPrevPrev = sPrev + new Vector2(-1, offsetY);
+                                sPrev += new Vector2(-1, offsetY * 2);
+                            }
+                            else if (Math.Abs((sPrev - s).x) > 1)
+                            {
+                                sPrevPrev = sPrev;
+                                sPrev += basicDirection;
+                            }
+                            else goto DiagCheck;
+                            break;
+                        case CardinalPoint.CardinalInternal.SW:
+                            basicDirection = new Vector2(-1, -1);
+                            if (s.x > sPrev.x)
+                            {
+                                goto CASE_W;
+                            }
+                            else if (s.y > sPrev.y)
+                            {
+                                goto CASE_S;
+                            }
+                            break;
+                        case CardinalPoint.CardinalInternal.SE:
+                            basicDirection = new Vector2(1, -1);
+                            if (s.x < sPrev.x)
+                            {
+                                goto CASE_E;
+                            }
+                            else if (s.y > sPrev.y)
+                            {
+                                goto CASE_S;
+                            }
+                            break;
+                        case CardinalPoint.CardinalInternal.NW:
+                            basicDirection = new Vector2(-1, 1);
+                            if (s.x > sPrev.x)
+                            {
+                                goto CASE_W;
+                            }
+                            else if (s.y < sPrev.y)
+                            {
+                                goto CASE_N;
+                            }
+                            break;
+                        case CardinalPoint.CardinalInternal.NE:
+                            basicDirection = new Vector2(1, 1);
+                            if (s.x < sPrev.x)
+                            {
+                                goto CASE_E;
+                            }
+                            else if (s.y < sPrev.y)
+                            {
+                                goto CASE_N;
+                            }
+                            break;
                     }
-                    else if (s.y <= sPrev.y && fromDirection == CardinalPoint.N)// V line
+
+                    if (sPrevPrevPrev != Vector2.zero)
                     {
-                        doLog("SVGTEMPLATE:addPath():709 => CASE V");
-                        var offsetX = Math.Sign(s.x - sPrevPrev.x);
-                        sPrevPrevPrev = sPrev;
-                        sPrevPrev = sPrev + new Vector2(offsetX, 1);
-                        sPrev += new Vector2(offsetX * 2, 1);
+                        addToPathString(path, sPrevPrevPrev, sPrevPrev);
                     }
-                    else if (s.x <= sPrev.x && fromDirection == CardinalPoint.E)// < line
-                    {
-                        doLog("SVGTEMPLATE:addPath():709 => CASE <");
-                        var offsetY = Math.Sign(-s.y - sPrevPrev.y);
-                        sPrevPrevPrev = sPrev;
-                        sPrevPrev = sPrev+ new Vector2(1, offsetY);
-                        sPrev += new Vector2(1, offsetY * 2);
-                    }
-                    else if (s.x >= sPrev.x && fromDirection == CardinalPoint.W)// > line
-                    {
-                        doLog("SVGTEMPLATE:addPath():709 => CASE >");
-                        var offsetY = Math.Sign(s.y - sPrevPrev.y);
-                        sPrevPrevPrev = sPrev;
-                        sPrevPrev = sPrev + new Vector2(-1, offsetY);
-                        sPrev += new Vector2(-1, offsetY * 2);
-                    }
-                    else
-                    {
-                        goto DiagCheck;
-                    }
-                    addToPathString(path, sPrevPrevPrev, sPrevPrev);
+
                     addToPathString(path, sPrevPrev, sPrev);
                     fromDirection = CardinalPoint.getCardinal2D(sPrevPrev, sPrev);
+                }
+                else // i==0
+                {
+                    var diff0 = s - sPrev;
+                    if (Math.Abs(Math.Abs(diff0.x) - Math.Abs(diff0.y)) > 1)
+                    {
+                        var toDirection = CardinalPoint.getCardinal2D(sPrev, s);
+                        basicDirection = toDirection.getCardinalOffset();
+                        sPrevPrev = sPrev;
+                        sPrev += basicDirection;
+                        addToPathString(path, sPrevPrev, sPrev);
+                        fromDirection = CardinalPoint.getCardinal2D(sPrevPrev, sPrev);
+                    }
                 }
 
                 DiagCheck:
@@ -834,13 +1006,20 @@ namespace Klyte.TransportLinesManager
                     //diag
                     int index = (int)(diagPointEnd.y + diagPointEnd.x);
                     var targetPointD1 = getFreeD1Point(sPrev, diagPointEnd);
-                    doLog("SVGTEMPLATE:addPath() => D1! STATIONS= {0} ({2}) a {1} ({3}); DIAG END: {5}; DIAG IDX: {6}; TARGETPOINT: {4}", points[i - 1].name, points[i].name, sPrev, s, targetPointD1, diagPointEnd, index);
+                    if (targetPointD1 == sPrev)
+                    {
+                        sPrevPrev = sPrev;
+                        sPrev += basicDirection;
+                        addToPathString(path, sPrevPrev, sPrev);
+                        goto DiagCheck;
+                    }
+                    TLMUtils.doLog("SVGTEMPLATE:addPath() => D1! STATIONS= {0} ({2}) a {1} ({3}); DIAG END: {5}; DIAG IDX: {6}; TARGETPOINT: {4}", points[i - 1].name, points[i].name, sPrev, s, targetPointD1, diagPointEnd, index);
                     offsetRemove = diagPointEnd - targetPointD1;
                     if (isHorizontal)
                     {
                         calcBeginD1X:
                         var targetPointX = getFreeHorizontal(targetPointD1, s - offsetRemove);
-                        doLog("SVGTEMPLATE:addPath() => HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s - offsetRemove).x != targetPointY.x && targetPointD1.x != sPrev.x: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x, targetPointD1.x, sPrev.x);
+                        TLMUtils.doLog("SVGTEMPLATE:addPath() => HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s - offsetRemove).x != targetPointY.x && targetPointD1.x != sPrev.x: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x, targetPointD1.x, sPrev.x);
                         if ((s - offsetRemove).x != (targetPointX).x && targetPointD1.x != sPrev.x)
                         {
                             var direction = (diagPointEnd - sPrev);
@@ -855,7 +1034,7 @@ namespace Klyte.TransportLinesManager
                     {
                         calcBeginD1Y:
                         var targetPointY = getFreeVertical(targetPointD1, s - offsetRemove);
-                        doLog("SVGTEMPLATE:addPath() => VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointX: {4}; (s - offsetRemove).y != targetPointX.y && targetPointD1.y != sPrev.y: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s - offsetRemove).y, targetPointY.y, targetPointD1.y, sPrev.y);
+                        TLMUtils.doLog("SVGTEMPLATE:addPath() => VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointX: {4}; (s - offsetRemove).y != targetPointX.y && targetPointD1.y != sPrev.y: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s - offsetRemove).y, targetPointY.y, targetPointD1.y, sPrev.y);
                         if ((s - offsetRemove).y != targetPointY.y && targetPointD1.y != sPrev.y)
                         {
                             var direction = (diagPointEnd - sPrev);
@@ -873,13 +1052,20 @@ namespace Klyte.TransportLinesManager
                     //diag
                     int index = (int)(diagPointEnd.x - diagPointEnd.y);
                     var targetPointD2 = getFreeD2Point(sPrev, diagPointEnd);
-                    doLog("SVGTEMPLATE:addPath() => D2! STATIONS= {0} ({2}) a {1} ({3}); DIAG END: {5}; DIAG IDX: {6}; TARGETPOINT: {4}", points[i - 1].name, points[i].name, sPrev, s, targetPointD2, diagPointEnd, index);
+                    if (targetPointD2 == sPrev)
+                    {
+                        sPrevPrev = sPrev;
+                        sPrev += basicDirection;
+                        addToPathString(path, sPrevPrev, sPrev);
+                        goto DiagCheck;
+                    }
+                    TLMUtils.doLog("SVGTEMPLATE:addPath() => D2! STATIONS= {0} ({2}) a {1} ({3}); DIAG END: {5}; DIAG IDX: {6}; TARGETPOINT: {4}", points[i - 1].name, points[i].name, sPrev, s, targetPointD2, diagPointEnd, index);
                     offsetRemove = diagPointEnd - targetPointD2;
                     if (isHorizontal)
                     {
                         calcBeginD2X:
                         var targetPointX = getFreeHorizontal(targetPointD2, s - offsetRemove);
-                        doLog("SVGTEMPLATE:addPath() => HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s - offsetRemove).x != targetPointY.x && targetPointD2.x != sPrev.x: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x, targetPointD2.x, sPrev.x);
+                        TLMUtils.doLog("SVGTEMPLATE:addPath() => HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s - offsetRemove).x != targetPointY.x && targetPointD2.x != sPrev.x: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x, targetPointD2.x, sPrev.x);
                         if (s - offsetRemove != targetPointX && targetPointD2.y != sPrev.y)
                         {
                             var direction = (diagPointEnd - sPrev);
@@ -894,7 +1080,7 @@ namespace Klyte.TransportLinesManager
                     {
                         calcBeginD2Y:
                         var targetPointY = getFreeVertical(targetPointD2, s - offsetRemove);
-                        doLog("SVGTEMPLATE:addPath() => VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointX: {4}; (s - offsetRemove).y != targetPointX.y && targetPointD2.y != sPrev.y: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s - offsetRemove).y, targetPointY.y, targetPointD2.y, sPrev.y);
+                        TLMUtils.doLog("SVGTEMPLATE:addPath() => VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointX: {4}; (s - offsetRemove).y != targetPointX.y && targetPointD2.y != sPrev.y: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s - offsetRemove).y, targetPointY.y, targetPointD2.y, sPrev.y);
                         if (s - offsetRemove != targetPointY && targetPointD2.x != sPrev.x)
                         {
                             var direction = (diagPointEnd - sPrev);
@@ -907,9 +1093,9 @@ namespace Klyte.TransportLinesManager
                     diagPointEnd -= offsetRemove;
                 }
 
-                doLog("SVGTEMPLATE:addPath() => s - offsetRemove == sPrev : {0} - {1} == {2} = {3}", s, offsetRemove, sPrev, s - offsetRemove == sPrev);
+                TLMUtils.doLog("SVGTEMPLATE:addPath() => s - offsetRemove == sPrev : {0} - {1} == {2} = {3}", s, offsetRemove, sPrev, s - offsetRemove == sPrev);
 
-                if (s - offsetRemove == sPrev)
+                if (s - offsetRemove == sPrev && offsetRemove != Vector2.zero)
                 {
                     sPrevPrev = sPrev;
                     switch (fromDirection.Value)
@@ -933,38 +1119,52 @@ namespace Klyte.TransportLinesManager
                     addToPathString(path, sPrevPrev, sPrev);
                     goto DiagCheck;
                 }
-                if (sPrev == diagPointEnd && fromDirection.Value != CardinalPoint.CardinalInternal.ZERO)
+                TLMUtils.doLog("SVGTEMPLATE:addPath():1095 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
+                if (sPrev == diagPointEnd && fromDirection.Value != CardinalPoint.CardinalInternal.ZERO && offsetRemove != Vector2.zero)
                 {
-                    var sMid = s - offsetRemove;
-                    var toDirection = CardinalPoint.getCardinal2D(sPrev, sMid);
+                    sPrevPrev = sPrev;
+                    sPrev = s - offsetRemove;
+                    var toDirection = CardinalPoint.getCardinal2D(sPrevPrev, sPrev);
                     if (toDirection.Value != fromDirection.Value)
                     {
-                        var direction = (s - sPrev);
+                        var direction = (s - sPrevPrev);
                         direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
                         diagPointEnd += direction;
                         offsetRemove -= direction;
                     }
                 }
+                TLMUtils.doLog("SVGTEMPLATE:addPath():1108 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
 
                 if (isD1 || isD2)
                 {
                     if (diagPointEnd != sPrev)
                     {
                         addToPathString(path, sPrev, diagPointEnd);
+                        if (diagPointEnd != s)
+                        {
+                            sPrevPrev = sPrev;
+                            sPrev = diagPointEnd;
+                        }
                     }
-                    sPrevPrev = diagPointEnd;
+                    TLMUtils.doLog("SVGTEMPLATE:addPath():1116 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
                     if (offsetRemove != Vector2.zero)
                     {
                         var diagCompl = s - offsetRemove;
-                        addToPathString(path, sPrevPrev, diagCompl);
-                        sPrevPrev = diagCompl;
+                        addToPathString(path, sPrev, diagCompl);
+                        if (diagCompl != s)
+                        {
+                            sPrevPrev = sPrev;
+                            sPrev = diagCompl;
+                        }
+                        TLMUtils.doLog("SVGTEMPLATE:addPath():1123 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
                     }
                 }
                 if (diagPointEnd + offsetRemove != s)
                 {
-                    addToPathString(path, sPrevPrev, s);
+                    addToPathString(path, sPrev, s);
                 }
-
+                sPrevPrev = sPrev;
+                sPrev = s;
             }
             document.AppendFormat(pathLine, path.ToString(), color.r, color.g, color.b);
 
@@ -980,22 +1180,22 @@ namespace Klyte.TransportLinesManager
         {
             if (p1.y != p2.y) return p2;
             int targetX = (int)p2.x;
-            doLog(" getFreeHorizontal idx: {0} hRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.y, hRanges.ContainsKey((int)p2.y), p1, p2);
+            TLMUtils.doLog(" getFreeHorizontal idx: {0} hRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.y, hRanges.ContainsKey((int)p2.y), p1, p2);
             if (hRanges.ContainsKey((int)p2.y))
             {
                 Range<int> lineXs = new Range<int>((int)p1.x, (int)p2.x);
-                var searchResult = hRanges[(int)p2.y].FindAll(x => x.IntersectRangeNotSequential(lineXs));
-                doLog(" getFreeHorizontal idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.y, lineXs, searchResult.Count, string.Join(",", hRanges[(int)p2.y].Select(x => x.ToString()).ToArray()));
+                var searchResult = hRanges[(int)p2.y].FindAll(x => x.IntersectRange(lineXs));
+                TLMUtils.doLog(" getFreeHorizontal idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.y, lineXs, searchResult.Count, string.Join(",", hRanges[(int)p2.y].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.x - p1.x)) > 0)
                     {
 
-                        targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Min(), (int)p1.x);
+                        targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Max(), (int)p1.x);
                     }
                     else
                     {
-                        targetX = Math.Min(searchResult.Select(x => x.Maximum + 1).Max(), (int)p1.x);
+                        targetX = Math.Min(searchResult.Select(x => x.Maximum + 1).Min(), (int)p1.x);
                     }
                 }
             }
@@ -1009,21 +1209,21 @@ namespace Klyte.TransportLinesManager
         {
             if (p1.x != p2.x) return p2;
             int targetY = (int)p2.y;
-            doLog(" getFreeVertical idx: {0} vRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.x, vRanges.ContainsKey((int)p2.x), p1, p2);
+            TLMUtils.doLog(" getFreeVertical idx: {0} vRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.x, vRanges.ContainsKey((int)p2.x), p1, p2);
             if (vRanges.ContainsKey((int)p2.x))
             {
                 Range<int> lineYs = new Range<int>((int)p1.y, (int)p2.y);
-                var searchResult = vRanges[(int)p2.x].FindAll(x => x.IntersectRangeNotSequential(lineYs));
-                doLog(" getFreeVertical idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.x, lineYs, searchResult.Count, string.Join(",", vRanges[(int)p2.x].Select(x => x.ToString()).ToArray()));
+                var searchResult = vRanges[(int)p2.x].FindAll(x => x.IntersectRange(lineYs));
+                TLMUtils.doLog(" getFreeVertical idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.x, lineYs, searchResult.Count, string.Join(",", vRanges[(int)p2.x].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.y - p1.y)) > 0)
                     {
-                        targetY = Math.Max(searchResult.Select(x => x.Minimum - 1).Min(), (int)p1.y);
+                        targetY = Math.Max(searchResult.Select(x => x.Minimum - 1).Max(), (int)p1.y);
                     }
                     else
                     {
-                        targetY = Math.Min(searchResult.Select(x => x.Maximum + 1).Max(), (int)p1.y);
+                        targetY = Math.Min(searchResult.Select(x => x.Maximum + 1).Min(), (int)p1.y);
                     }
                 }
             }
@@ -1036,21 +1236,21 @@ namespace Klyte.TransportLinesManager
             if (p1.x + p1.y != p2.x + p2.y) return p2;
             int targetX = (int)p2.x;
             int index = (int)(p2.x + p2.y);
-            doLog(" getFreeHorizontalD1Point idx: {0} d2Ranges.ContainsKey(index)={1}", index, d1Ranges.ContainsKey(index));
+            TLMUtils.doLog(" getFreeHorizontalD1Point idx: {0} d1Ranges.ContainsKey(index)={1}", index, d1Ranges.ContainsKey(index));
             if (d1Ranges.ContainsKey(index))
             {
                 Range<int> lineXs = new Range<int>((int)p1.x, (int)p2.x);
-                var searchResult = d1Ranges[index].FindAll(x => x.IntersectRangeNotSequential(lineXs));
-                doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = {3} ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d1Ranges[index].Select(x => x.ToString()).ToArray()));
+                var searchResult = d1Ranges[index].FindAll(x => x.IntersectRange(lineXs));
+                TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = {3} ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d1Ranges[index].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.x - p1.x)) > 0)
                     {
-                        targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Min(), (int)p1.x);
+                        targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Max(), (int)p1.x);
                     }
                     else
                     {
-                        targetX = Math.Min(searchResult.Select(x => x.Maximum + 1).Max(), (int)p1.x);
+                        targetX = Math.Min(searchResult.Select(x => x.Maximum + 1).Min(), (int)p1.x);
                     }
                 }
             }
@@ -1065,27 +1265,35 @@ namespace Klyte.TransportLinesManager
             if (p1.x - p1.y != p2.x - p2.y) return p2;
             int targetX = (int)p2.x;
             int index = (int)(p2.x - p2.y);
-            doLog(" getFreeHorizontalD1Point idx: {0} d2Ranges.ContainsKey(index)={1}", index, d2Ranges.ContainsKey(index));
+            TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0} d2Ranges.ContainsKey(index)={1}", index, d2Ranges.ContainsKey(index));
 
             if (d2Ranges.ContainsKey(index))
             {
                 Range<int> lineXs = new Range<int>((int)p1.x, (int)p2.x);
-                var searchResult = d2Ranges[index].FindAll(x => x.IntersectRangeNotSequential(lineXs));
-                doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d2Ranges[index].Select(x => x.ToString()).ToArray()));
+                var searchResult = d2Ranges[index].FindAll(x => x.IntersectRange(lineXs));
+                TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d2Ranges[index].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.x - p1.x)) > 0)
                     {
-                        targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Min(), (int)p1.x);
+                        targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Max(), (int)p1.x);
                     }
                     else
                     {
-                        targetX = Math.Min(searchResult.Select(x => x.Maximum + 1).Max(), (int)p1.x);
+                        targetX = Math.Min(searchResult.Select(x => x.Maximum + 1).Min(), (int)p1.x);
                     }
                 }
             }
 
             return new Vector2(targetX, targetX - index);
+        }
+
+        private void addStationToAllRangeMaps(Vector2 station)
+        {
+            addVerticalRange((int)station.x, new Range<int>((int)station.y, (int)station.y));
+            addHorizontalRange((int)station.y, new Range<int>((int)station.x, (int)station.x));
+            addD1Range(station, new Range<int>((int)station.x, (int)station.x));
+            addD2Range(station, new Range<int>((int)station.x, (int)station.x));
         }
 
         private void addVerticalRange(int x, Range<int> values)
@@ -1116,11 +1324,11 @@ namespace Klyte.TransportLinesManager
         private void addD2Range(Vector2 refPoint, Range<int> values)
         {
             int index = (int)refPoint.x - (int)refPoint.y;
-            if (!d1Ranges.ContainsKey(index))
+            if (!d2Ranges.ContainsKey(index))
             {
-                d1Ranges[index] = new List<Range<int>>();
+                d2Ranges[index] = new List<Range<int>>();
             }
-            d1Ranges[index].Add(values);
+            d2Ranges[index].Add(values);
         }
 
         private void addSegmentToIndex(Vector2 p1, Vector2 p2)
@@ -1147,10 +1355,7 @@ namespace Klyte.TransportLinesManager
         }
 
 
-        private void doLog(string format, params object[] args)
-        {
-            Debug.LogWarningFormat(format, args);
-        }
+
 
         public void addMetroLineIndication(Vector2 point, string name, Color32 color)
         {

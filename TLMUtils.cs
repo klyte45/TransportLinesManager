@@ -51,7 +51,7 @@ namespace Klyte.TransportLinesManager
         /// <param name="pos">Position.</param>
         /// <param name="maxDistance">Max distance.</param>
         /// <param name="linesFound">Lines found.</param>
-        public static bool GetNearStops(Vector3 pos, float maxDistance, ref List<ushort> linesFound)
+        public static bool GetNearLines(Vector3 pos, float maxDistance, ref List<ushort> linesFound)
         {
             int num = Mathf.Max((int)((pos.x - maxDistance) / 64f + 135f), 0);
             int num2 = Mathf.Max((int)((pos.z - maxDistance) / 64f + 135f), 0);
@@ -85,7 +85,7 @@ namespace Klyte.TransportLinesManager
                                     if (num8 < maxDistance * maxDistance)
                                     {
                                         linesFound.Add(transportLine);
-                                        GetNearStops(nm.m_nodes.m_buffer[(int)num6].m_position, maxDistance, ref linesFound);
+                                        GetNearLines(nm.m_nodes.m_buffer[(int)num6].m_position, maxDistance, ref linesFound);
                                         noneFound = false;
                                     }
                                 }
@@ -93,6 +93,58 @@ namespace Klyte.TransportLinesManager
                         }
 
                         num6 = nm.m_nodes.m_buffer[(int)num6].m_nextGridNode;
+                        if (++num7 >= 32768)
+                        {
+                            CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                            break;
+                        }
+                    }
+                }
+            }
+            return noneFound;
+        }
+        //GetNearStopPoints
+        public static bool GetNearStopPoints(Vector3 pos, float maxDistance, ref List<ushort> stopsFound, int depth = 0)
+        {
+            if (depth >= 4) return false;
+            int num = Mathf.Max((int)((pos.x - maxDistance) / 64f + 135f), 0);
+            int num2 = Mathf.Max((int)((pos.z - maxDistance) / 64f + 135f), 0);
+            int num3 = Mathf.Min((int)((pos.x + maxDistance) / 64f + 135f), 269);
+            int num4 = Mathf.Min((int)((pos.z + maxDistance) / 64f + 135f), 269);
+            bool noneFound = true;
+            NetManager nm = Singleton<NetManager>.instance;
+            TransportManager tm = Singleton<TransportManager>.instance;
+            for (int i = num2; i <= num4; i++)
+            {
+                for (int j = num; j <= num3; j++)
+                {
+                    ushort stopId = nm.m_nodeGrid[i * 270 + j];
+                    int num7 = 0;
+                    while (stopId != 0)
+                    {
+                        NetInfo info = nm.m_nodes.m_buffer[(int)stopId].Info;
+
+                        if ((info.m_class.m_service == ItemClass.Service.PublicTransport) &&
+                            ((info.m_class.m_subService == ItemClass.SubService.PublicTransportTrain)
+                            || (info.m_class.m_subService == ItemClass.SubService.PublicTransportMetro)))
+                        {
+                            ushort transportLine = nm.m_nodes.m_buffer[(int)stopId].m_transportLine;
+                            if (transportLine != 0)
+                            {
+                                if (!stopsFound.Contains(stopId))
+                                {
+                                    float num8 = Vector3.SqrMagnitude(pos - nm.m_nodes.m_buffer[(int)stopId].m_position);
+                                    if (num8 < maxDistance * maxDistance)
+                                    {
+                                        stopsFound.Add(stopId);
+                                        GetNearStopPoints(nm.m_nodes.m_buffer[(int)stopId].m_position, maxDistance, ref stopsFound, depth + 1);
+                                        noneFound = false;
+                                    }
+                                }
+                            }
+                        }
+
+                        stopId = nm.m_nodes.m_buffer[(int)stopId].m_nextGridNode;
                         if (++num7 >= 32768)
                         {
                             CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
@@ -320,7 +372,10 @@ namespace Klyte.TransportLinesManager
 
     public class TLMUtils
     {
-
+        public static void doLog(string format, params object[] args)
+        {
+            Debug.LogWarningFormat(format, args);
+        }
         public static void createUIElement<T>(ref T uiItem, Transform parent) where T : Component
         {
             GameObject container = new GameObject();
@@ -1263,6 +1318,17 @@ namespace Klyte.TransportLinesManager
             return (Minimum.CompareTo(value) <= 0) && (value.CompareTo(Maximum) <= 0);
         }
 
+
+        /// <summary>
+        /// Determines if the provided value is inside the range
+        /// </summary>
+        /// <param name="value">The value to test</param>
+        /// <returns>True if the value is inside Range, else false</returns>
+        public Boolean IsBetweenLimits(T value)
+        {
+            return (Minimum.CompareTo(value) < 0) && (value.CompareTo(Maximum) < 0);
+        }
+
         /// <summary>
         /// Determines if this Range is inside the bounds of another range
         /// </summary>
@@ -1272,6 +1338,8 @@ namespace Klyte.TransportLinesManager
         {
             return this.IsValid() && Range.IsValid() && Range.ContainsValue(this.Minimum) && Range.ContainsValue(this.Maximum);
         }
+
+      
 
         /// <summary>
         /// Determines if another range is inside the bounds of this range
@@ -1288,11 +1356,6 @@ namespace Klyte.TransportLinesManager
         /// </summary>
         /// <param name="Range">The child range to test</param>
         /// <returns>True if range is inside, else false</returns>
-        public Boolean IntersectRangeNotSequential(Range<T> Range)
-        {
-            return this.IntersectRange(Range) && !this.IsBorderSequence(Range);
-        }
-
         public Boolean IntersectRange(Range<T> Range)
         {
             return this.IsValid() && Range.IsValid() && (this.ContainsValue(Range.Minimum) || this.ContainsValue(Range.Maximum) || Range.ContainsValue(this.Maximum) || Range.ContainsValue(this.Maximum));
