@@ -14,7 +14,13 @@ namespace Klyte.TransportLinesManager
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
     {
 
-        public static string version = typeof(TransportLinesManagerMod).Assembly.GetName().Version.Major + "." + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Minor + " b" + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Build;
+        public static string version
+        {
+            get
+            {
+         return       typeof(TransportLinesManagerMod).Assembly.GetName().Version.Major + "." + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Minor + " b" + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Build;
+            }
+        }
         public static TransportLinesManagerMod instance;
         private SavedBool m_savedAutoNaming;
         private SavedBool m_savedAutoColor;
