@@ -30,6 +30,7 @@ namespace Klyte.TransportLinesManager
             float minY = float.PositiveInfinity;
             float maxX = float.NegativeInfinity;
             float maxY = float.NegativeInfinity;
+            int nextStationId = 1;
             for (ushort i = 0; i < controller.tm.m_lines.m_size; i++)
             {
                 TransportLine t = controller.tm.m_lines.m_buffer[(int)i];
@@ -72,7 +73,7 @@ namespace Klyte.TransportLinesManager
                             List<ushort> nearStops = new List<ushort>();
                             TLMLineUtils.GetNearStopPoints(worldPos, 100f, ref nearStops);
                             TLMUtils.doLog("Station: ${0}; nearStops: ${1}", name, string.Join(",", nearStops.Select(x => x.ToString()).ToArray()));
-                            Station thisStation = new Station(name, pos2D, nearStops);
+                            Station thisStation = new Station(name, pos2D, nearStops, nextStationId++);
                             stations.Add(thisStation);
                             transportLines[i].Add(thisStation);
                             if (pos2D.x > maxX)
@@ -101,11 +102,18 @@ namespace Klyte.TransportLinesManager
             SVGTemplate svg = new SVGTemplate((int)((maxY - minY + 16) * SVGTemplate.RADIUS), (int)((maxX - minX + 16) * SVGTemplate.RADIUS), SVGTemplate.RADIUS, minX - 8, minY - 8);
 
             var linesOrdened = transportLines.OrderBy(x => getLineUID(x.Key)).ToList();
+            //ordena pela quantidade de linhas passando
+            stations = stations.OrderBy(x => x.linesPassing).ToList();
+
+            foreach (var station in stations)
+            {
+                station.optimizeLines();
+            }
             //calcula as posições de todas as estações no mapa
             foreach (var line in linesOrdened)
             {
                 var station0 = line.Value[0];
-                var prevPos = station0.getPositionForLine(line.Key, line.Value[1].defaultCentralPos);
+                var prevPos = station0.getPositionForLine(line.Key, line.Value[1].centralPos);
                 for (int i = 1; i < line.Value.Count; i++)
                 {
                     prevPos = line.Value[i].getPositionForLine(line.Key, prevPos);
@@ -163,15 +171,19 @@ namespace Klyte.TransportLinesManager
             {
                 get; set;
             }
-            private Vector2 centralPos
+            private Vector2 originalCentralPos
             {
                 get; set;
             }
-            public Vector2 defaultCentralPos
+            public Vector2 centralPos
+            {
+                get; set;
+            }
+            public int linesPassing
             {
                 get
                 {
-                    return centralPos;
+                    return linesPos.Count;
                 }
             }
             public List<ushort> stops
@@ -182,42 +194,54 @@ namespace Klyte.TransportLinesManager
             {
                 get
                 {
-                    return lastPoint;
+                    return centralPos + lastPoint;
                 }
             }
             public float writeAngle
             {
                 get
                 {
-                    return CardinalPoint.getCardinalPoint(Vector2.Angle(centralPos, lastPoint)).getCardinalAngle();
+                    if (lastPoint != Vector2.zero)
+                    {
+                        return Vector2.zero.GetAngleToPoint(lastPoint);
+                    }
+                    else
+                    {
+                        return suggestedAngle;
+                    }
                 }
             }
 
-            private Vector2 lastPoint;
+            private float suggestedAngle = 0;
+            private Vector2 lastPoint = Vector2.zero;
+            private int id;
+            private List<int> optimizedWithStationsId = new List<int>();
 
-            public Station(string n, Vector2 pos, List<ushort> stops)
+            public Station(string n, Vector2 pos, List<ushort> stops, int stationId)
             {
                 name = n;
+                originalCentralPos = pos;
                 centralPos = pos;
                 this.stops = stops;
-                lastPoint = pos;
+                id = stationId;
             }
 
-            private Dictionary<Vector2, ushort> stopsPos = new Dictionary<Vector2, ushort>();
+            private Dictionary<Vector2, ushort> linesPos = new Dictionary<Vector2, ushort>();
 
             public Vector2 getPositionForLine(ushort lineIndex, Vector2 to)
             {
-                Vector2 from = centralPos;
+                Vector2 from = originalCentralPos;
 
-                TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() (STATION: {2}) lineIndex: {0}; from: {1}; stopPos: [{3}]", lineIndex, from, name, string.Join(",", stopsPos.Select(x => x.Key.ToString() + " = " + x.Value).ToArray()));
-                if (stopsPos.ContainsValue(lineIndex))
+                TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() (STATION: {2}) lineIndex: {0}; from: {1}; stopPos: [{3}]", lineIndex, from, name, string.Join(",", linesPos.Select(x => x.Key.ToString() + " = " + x.Value).ToArray()));
+                if (linesPos.ContainsValue(lineIndex))
                 {
-                    return stopsPos.First(x => x.Value == lineIndex).Key;
+                    return linesPos.First(x => x.Value == lineIndex).Key + originalCentralPos;
                 }
-                if (stopsPos.Count == 0)
+                if (linesPos.Count == 0)
                 {
-                    stopsPos.Add(centralPos, lineIndex);
-                    return centralPos;
+                    suggestedAngle = 45 * (float)Math.Ceiling((from.GetAngleToPoint(to) - 22.5f) / 45f) + 90;
+                    linesPos.Add(Vector2.zero, lineIndex);
+                    return originalCentralPos;
                 }
                 else
                 {
@@ -225,26 +249,26 @@ namespace Klyte.TransportLinesManager
                     direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
                     var totalOffset = direction;
                     TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() direction: {0}; from: {1}; to: ", direction, from, to);
-                    while (stopsPos.ContainsKey(centralPos + totalOffset))
+                    while (linesPos.ContainsKey(totalOffset))
                     {
                         totalOffset += direction;
                     }
-                    lastPoint = centralPos + totalOffset;
-                    stopsPos.Add(lastPoint, lineIndex);
-                    return lastPoint;
+                    lastPoint = totalOffset;
+                    linesPos.Add(totalOffset, lineIndex);
+                    return originalCentralPos + lastPoint;
                 }
             }
 
             public string getIntegrationLinePath(Vector2 offset, float multiplier)
             {
-                if (stopsPos.Count <= 1) return string.Empty;
+                if (linesPos.Count <= 1) return string.Empty;
                 StringBuilder result = new StringBuilder();
-                Vector2 from = centralPos - offset;
-                foreach (Vector2 point in stopsPos.Keys)
+                Vector2 from = originalCentralPos - offset;
+                foreach (Vector2 point in linesPos.Keys)
                 {
-                    if (point != centralPos)
+                    if (point != Vector2.zero)
                     {
-                        Vector2 to = point - offset;
+                        Vector2 to = originalCentralPos + point - offset;
                         result.Append(string.Format(" M {0},{1} L {2},{3} ", from.x * multiplier, from.y * multiplier, to.x * multiplier, to.y * multiplier));
                     }
                 }
@@ -252,11 +276,15 @@ namespace Klyte.TransportLinesManager
             }
 
 
-            public Dictionary<Vector2, ushort> getAllStationPoints()
+            public Dictionary<Vector2, ushort> getAllStationOffsetPoints()
             {
-                return stopsPos;
+                return linesPos;
             }
 
+            internal void optimizeLines()
+            {
+
+            }
         }
         private delegate Vector2 CalculateCoords(Vector3 pos);
     }
@@ -697,9 +725,9 @@ namespace Klyte.TransportLinesManager
         }
 
         private readonly string stationPointTemplate = "<circle style=\"stroke:rgb(155,155,155); stroke-width:1\" fill=\"rgb({2},{3},{4})\" r=\"" + RADIUS * 0.4 + "\" cy=\"0\" cx=\"0\" transform=\"translate({0},{1})\"/>";
-     //   private readonly string stationNameTemplate = "<text transform=\"rotate({2},{0},{1}) translate({0},{1})\" x=\"" + RADIUS * 0.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"text-shadow: 0px 0px 6px white;\">{3}</text>";
+        //   private readonly string stationNameTemplate = "<text transform=\"rotate({2},{0},{1}) translate({0},{1})\" x=\"" + RADIUS * 0.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"text-shadow: 0px 0px 6px white;\">{3}</text>";
         private readonly string stationNameTemplate = "<div class='stationContainer' style='top: {1}px; left: {0}px;' ><p style='transform: rotate({2}deg) translate(12px, 0px) ;'>{3}</p></div>";
-        private readonly string stationNameInverseTemplate = "<div class='stationContainer' style='top: {1}px; left: {0}px;' ><p style='transform: rotate({2}deg) translate(12px, 0px) ;'>{3}</p></div>";
+        private readonly string stationNameInverseTemplate = "<div class='stationContainer' style='top: {1}px; left: {0}px;' ><p style='transform: rotate({2}deg) translate(12px, 0px) ;'><b>{3}</b></p></div>";
         /// <summary>
         /// The station.<>
         /// 0 = X 
@@ -793,9 +821,9 @@ namespace Klyte.TransportLinesManager
         {
             foreach (var s in stations)
             {
-                foreach (var p in s.getAllStationPoints())
+                foreach (var p in s.getAllStationOffsetPoints())
                 {
-                    addStationToAllRangeMaps(p.Key);
+                    addStationToAllRangeMaps(s.centralPos + p.Key);
                 }
             }
         }
@@ -811,7 +839,7 @@ namespace Klyte.TransportLinesManager
                 case CardinalPoint.CardinalInternal.W:
                 case CardinalPoint.CardinalInternal.SW:
                     inverse = true;
-                    return;
+                    break;
             }
             //     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "STPUT: " + s.name + " => " + s.position);
             string integrationPath = s.getIntegrationLinePath(offset, multiplier);
@@ -819,9 +847,9 @@ namespace Klyte.TransportLinesManager
             {
                 svgPart.AppendFormat(pathLine, integrationPath, 128, 128, 128);
             }
-            foreach (var pos in s.getAllStationPoints())
+            foreach (var pos in s.getAllStationOffsetPoints())
             {
-                var point = pos.Key - offset;
+                var point = s.centralPos + pos.Key - offset;
                 var t = TLMController.instance.tm.m_lines.m_buffer[(int)pos.Value];
                 Color32 stationColor;
                 bool day, night;
@@ -865,7 +893,7 @@ namespace Klyte.TransportLinesManager
             TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)transportLineIdx];
             Color32 color = new Color32(Math.Min(t.m_color.r, (byte)240), Math.Min(t.m_color.g, (byte)240), Math.Min(t.m_color.b, (byte)240), 255);
             StringBuilder path = new StringBuilder();
-            Vector2 p0 = points[0].getPositionForLine(transportLineIdx, points[1].defaultCentralPos) - offset;
+            Vector2 p0 = points[0].getPositionForLine(transportLineIdx, points[1].centralPos) - offset;
             path.Append("M " + p0.x * multiplier + "," + p0.y * multiplier);
             CardinalPoint lastDirection = CardinalPoint.ZERO;
             TLMUtils.doLog("SVGTEMPLATE:addPath():695 => offset = {0}; multiplier = {1}", offset, multiplier);

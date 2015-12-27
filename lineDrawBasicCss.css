@@ -25,5 +25,11 @@ div.stationContainer {
     }
 
 svg path {
-    filter: drop-shadow(-2px 2px 0 #fff) drop-shadow(-2px -2px 0 #fff) drop-shadow(2px 2px 0 #fff) drop-shadow(2px -2px 0 #fff);
+    filter: drop-shadow(-1.5px 1.5px 0 #fff) drop-shadow(-1.5px -1.5px 0 #fff) drop-shadow(1.5px 1.5px 0 #fff) drop-shadow(1.5px -1.5px 0 #fff);
+}
+
+div.stationContainer > p > b {
+    display: flex;
+    transform: scale(-1, -1);
+    font-weight: inherit;
 }

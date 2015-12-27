@@ -957,18 +957,7 @@ namespace Klyte.TransportLinesManager
             }
             return buildingId;
 
-        }
-        /// <summary>
-        /// -180° a 180°
-        /// </summary>
-        /// <param name="p1"></param>
-        /// <param name="p2"></param>
-        /// <returns></returns>
-        public static float GetAngleOfLineBetweenTwoPoints(Vector2 p1, Vector2 p2)
-        {
-
-            return (float)(Vector2.Angle(p1, p2) * (180f / Math.PI));
-        }
+        }      
 
         public static bool findSimetry(int[] array, out int middle)
         {
@@ -1364,6 +1353,27 @@ namespace Klyte.TransportLinesManager
         public Boolean IsBorderSequence(Range<T> Range)
         {
             return this.IsValid() && Range.IsValid() && (this.Maximum.Equals(Range.Minimum) || this.Minimum.Equals(Range.Maximum));
+        }
+    }
+
+    public static class Vector2Extensions
+    {
+        public static float GetAngleToPoint(this Vector2 from, Vector2 to)
+        {
+            float ca = to.x - from.x;
+            float co = to.y - from.y;
+            if (co == 0)
+            {
+                return ca > 0 ? 0 : 180;
+            }
+            else if (ca < 0)
+            {
+                return Mathf.Atan(co / ca) * Mathf.Rad2Deg + 180;
+            }
+            else
+            {
+                return Mathf.Atan(co / ca) * Mathf.Rad2Deg;
+            }
         }
     }
 }
