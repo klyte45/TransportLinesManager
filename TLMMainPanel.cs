@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
@@ -236,29 +237,10 @@ namespace Klyte.TransportLinesManager
                 ModoNomenclatura mn, pre;
                 Separador s;
                 bool z;
-                if (t.Info.m_transportType == TransportInfo.TransportType.Train)
-                {
-                    TLMUtils.initButtonSameSprite(itemButton, "TrainIcon");
-                    mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
-                    pre = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
-                    s = (Separador)TransportLinesManagerMod.savedNomenclaturaTremSeparador.value;
-                    z = TransportLinesManagerMod.savedNomenclaturaTremZeros.value;
-                }
-                else if (t.Info.m_transportType == TransportInfo.TransportType.Metro)
-                {
-                    TLMUtils.initButtonSameSprite(itemButton, "SubwayIcon");
-                    mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
-                    pre = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
-                    s = (Separador)TransportLinesManagerMod.savedNomenclaturaMetroSeparador.value;
-                    z = TransportLinesManagerMod.savedNomenclaturaMetroZeros.value;
-                }
-                else {
-                    TLMUtils.initButtonSameSprite(itemButton, "BusIcon");
-                    mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
-                    pre = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
-                    s = (Separador)TransportLinesManagerMod.savedNomenclaturaOnibusSeparador.value;
-                    z = TransportLinesManagerMod.savedNomenclaturaOnibusZeros.value;
-                }
+                string icon;
+                TLMLineUtils.getLineNamingParameters(map[k], out mn, out s, out pre, out z, out icon);
+                TLMUtils.initButtonSameSprite(itemButton, icon);
+               
                 itemButton.color = m_controller.tm.GetLineColor(map[k]);
                 itemButton.hoveredTextColor = itemButton.color;
                 itemButton.textColor = TLMUtils.contrastColor(t.GetColor());
@@ -433,7 +415,7 @@ namespace Klyte.TransportLinesManager
             resetLineColor.height = 30;
             TLMUtils.initButton(resetLineColor, true, "ButtonMenu");
             resetLineColor.name = "RecolorAllButton";
-            resetLineColor.isVisible = TransportLinesManagerMod.savedAutoColor.value;
+            resetLineColor.isVisible = TransportLinesManagerMod.instance.currentLoadedCityConfig.getBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED);
             resetLineColor.eventClick += (component, eventParam) =>
             {
                 for (ushort i = 0; i < controller.tm.m_lines.m_size; i++)

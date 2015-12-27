@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
@@ -88,7 +89,7 @@ namespace Klyte.TransportLinesManager
             setLinearMapColor(lineInfoPanel.controller.tm.GetLineColor(lineID));
             clearStations();
             String bgSprite;
-            ItemClass.SubService ss = TLMLineUtils.setFormatBgByType(t, out bgSprite, out pre, out sep, out mn, out zerosEsquerda);
+            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out pre, out sep, out mn, out zerosEsquerda, out bgSprite);
             linearMapLineNumberFormat.backgroundSprite = bgSprite;
             bool day, night;
             t.GetActive(out day, out night);
@@ -220,7 +221,7 @@ namespace Klyte.TransportLinesManager
                 int[] districtArray = districtList.ToArray();
                 if (districtArray.Length == 1)
                 {
-                    m_autoName = (TransportLinesManagerMod.savedCircularOnSingleDistrict.value ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
+                    m_autoName = (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
                 }
                 else if (TLMUtils.findSimetry(districtArray, out middle))
                 {
@@ -482,7 +483,7 @@ namespace Klyte.TransportLinesManager
             passengerPort = String.Empty;
             taxiStand = String.Empty;
 
-            if (TransportLinesManagerMod.savedShowAirportsOnLinearMap.value)
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP))
             {
                 ushort airportId = bm.FindBuilding(sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane, Building.Flags.None, Building.Flags.Untouchable);
 
@@ -493,7 +494,7 @@ namespace Klyte.TransportLinesManager
                     airport = bm.GetBuildingName(airportId, iid);
                 }
             }
-            if (TransportLinesManagerMod.savedShowPassengerPortsOnLinearMap.value)
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP))
             {
                 ushort portId = bm.FindBuilding(sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip, Building.Flags.None, Building.Flags.Untouchable);
 
@@ -504,7 +505,7 @@ namespace Klyte.TransportLinesManager
                     passengerPort = bm.GetBuildingName(portId, iid);
                 }
             }
-            if (TransportLinesManagerMod.savedShowPassengerPortsOnLinearMap.value)
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP))
             {
                 ushort taxiId = bm.FindBuilding(sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 50f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTaxi, Building.Flags.None, Building.Flags.Untouchable);
 

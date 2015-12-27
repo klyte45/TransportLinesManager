@@ -5,6 +5,7 @@ using Klyte.Extensions;
 using System;
 using System.Linq;
 using UnityEngine;
+using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
@@ -174,7 +175,7 @@ namespace Klyte.TransportLinesManager
             Separador sep;
             bool zeros;
             var tipoLinha = m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine].Info.m_transportType;
-            TLMLineUtils.GetLineNumberRules(out mn, out mnPrefixo, out sep, out zeros, tipoLinha);
+            TLMLineUtils.getLineNamingParameters(m_lineIdSelecionado.TransportLine, out mn, out sep, out mnPrefixo, out zeros);
             ushort num = ushort.Parse(value);
             if (mnPrefixo != ModoNomenclatura.Nenhum)
             {
@@ -596,22 +597,8 @@ namespace Klyte.TransportLinesManager
             TransportLine t = m_controller.tm.m_lines.m_buffer[(int)lineID];
             ushort lineNumber = t.m_lineNumber;
 
-            ModoNomenclatura mnPrefixo = ModoNomenclatura.Nenhum;
-            var tipoLinha = t.Info.m_transportType;
-            switch (tipoLinha)
-            {
-                case TransportInfo.TransportType.Bus:
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
-                    break;
-
-                case TransportInfo.TransportType.Metro:
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
-                    break;
-
-                case TransportInfo.TransportType.Train:
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
-                    break;
-            }
+            TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(lineID);
+            ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMCW.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
             if (mnPrefixo != ModoNomenclatura.Nenhum)
             {

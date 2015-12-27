@@ -7,42 +7,76 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
     public class TLMLineUtils
     {
-
-        public static void GetLineNumberRules(out ModoNomenclatura mn, out ModoNomenclatura mnPrefixo, out Separador sep, out bool zeros, TransportInfo.TransportType tipoLinha)
+        public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura mn, out Separador s, out ModoNomenclatura pre, out bool z)
         {
-            switch (tipoLinha)
+            string nil;
+            getLineNamingParameters(lineIdx, out mn, out s, out pre, out z, out nil);
+        }
+
+        public static ItemClass.SubService getLineNamingParameters(ushort lineIdx, out ModoNomenclatura mn, out Separador s, out ModoNomenclatura pre, out bool z, out string icon)
+        {
+            TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(lineIdx);
+
+            mn = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
+            s = (Separador)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
+            pre = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+            z = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
+            switch (transportType)
             {
-                case TransportInfo.TransportType.Bus:
-                    mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
-                    sep = (Separador)TransportLinesManagerMod.savedNomenclaturaOnibusSeparador.value;
-                    zeros = TransportLinesManagerMod.savedNomenclaturaOnibusZeros.value;
-                    break;
-                case TransportInfo.TransportType.Metro:
-                    mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
-                    sep = (Separador)TransportLinesManagerMod.savedNomenclaturaMetroSeparador.value;
-                    zeros = TransportLinesManagerMod.savedNomenclaturaMetroZeros.value;
-                    break;
-                case TransportInfo.TransportType.Train:
-                    mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
-                    sep = (Separador)TransportLinesManagerMod.savedNomenclaturaTremSeparador.value;
-                    zeros = TransportLinesManagerMod.savedNomenclaturaTremZeros.value;
-                    break;
+                case TLMCW.ConfigIndex.TRAM_CONFIG:
+                    icon = "TramIcon";
+                    return ItemClass.SubService.PublicTransportTrain;
+                case TLMCW.ConfigIndex.TRAIN_CONFIG:
+                    icon = "TrainIcon";
+                    return ItemClass.SubService.PublicTransportTrain;
+                case TLMCW.ConfigIndex.METRO_CONFIG:
+                    icon = "SubwayIcon";
+                    return ItemClass.SubService.PublicTransportMetro;
+                case TLMCW.ConfigIndex.BUS_CONFIG:
+                    icon = "BusIcon";
+                    return ItemClass.SubService.PublicTransportBus;
                 default:
-                    mn = ModoNomenclatura.Numero;
-                    mnPrefixo = ModoNomenclatura.Nenhum;
-                    sep = Separador.Nenhum;
-                    zeros = false;
-                    return;
+                    icon = "BusIcon";
+                    return ItemClass.SubService.None;
             }
         }
+
+        //public static void GetLineNumberRules(out ModoNomenclatura mn, out ModoNomenclatura mnPrefixo, out Separador sep, out bool zeros, TransportInfo.TransportType tipoLinha)
+        //{
+        //    switch (tipoLinha)
+        //    {
+        //        case TransportInfo.TransportType.Bus:
+        //            mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
+        //            mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
+        //            sep = (Separador)TransportLinesManagerMod.savedNomenclaturaOnibusSeparador.value;
+        //            zeros = TransportLinesManagerMod.savedNomenclaturaOnibusZeros.value;
+        //            break;
+        //        case TransportInfo.TransportType.Metro:
+        //            mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
+        //            mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
+        //            sep = (Separador)TransportLinesManagerMod.savedNomenclaturaMetroSeparador.value;
+        //            zeros = TransportLinesManagerMod.savedNomenclaturaMetroZeros.value;
+        //            break;
+        //        case TransportInfo.TransportType.Train:
+        //            mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
+        //            mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
+        //            sep = (Separador)TransportLinesManagerMod.savedNomenclaturaTremSeparador.value;
+        //            zeros = TransportLinesManagerMod.savedNomenclaturaTremZeros.value;
+        //            break;
+        //        default:
+        //            mn = ModoNomenclatura.Numero;
+        //            mnPrefixo = ModoNomenclatura.Nenhum;
+        //            sep = Separador.Nenhum;
+        //            zeros = false;
+        //            return;
+        //    }
+        //}
 
 
         /// <summary>
@@ -70,13 +104,10 @@ namespace Klyte.TransportLinesManager
                     {
                         NetInfo info = nm.m_nodes.m_buffer[(int)num6].Info;
 
-                        if ((info.m_class.m_service == ItemClass.Service.PublicTransport) &&
-                            ((info.m_class.m_subService == ItemClass.SubService.PublicTransportTrain && TransportLinesManagerMod.savedShowTrainLinesOnLinearMap.value)
-                            || (info.m_class.m_subService == ItemClass.SubService.PublicTransportMetro && TransportLinesManagerMod.savedShowMetroLinesOnLinearMap.value)
-                            || (info.m_class.m_subService == ItemClass.SubService.PublicTransportBus && TransportLinesManagerMod.savedShowBusLinesOnLinearMap.value)))
+                        if ((info.m_class.m_service == ItemClass.Service.PublicTransport))
                         {
                             ushort transportLine = nm.m_nodes.m_buffer[(int)num6].m_transportLine;
-                            if (transportLine != 0)
+                            if (transportLine != 0 && TLMCW.getCurrentConfigBool(TLMCW.getConfigIndexForLine(transportLine) | TLMConfigWarehouse.ConfigIndex.SHOW_IN_LINEAR_MAP))
                             {
                                 TransportInfo info2 = tm.m_lines.m_buffer[(int)transportLine].Info;
                                 if (!linesFound.Contains(transportLine) && (tm.m_lines.m_buffer[(int)transportLine].m_flags & TransportLine.Flags.Temporary) == TransportLine.Flags.None)
@@ -231,7 +262,7 @@ namespace Klyte.TransportLinesManager
                 ModoNomenclatura nomenclatura, prefixo;
                 Separador separador;
                 bool zeros;
-                ItemClass.SubService ss = setFormatBgByType(intersectLine, out bgSprite, out prefixo, out separador, out nomenclatura, out zeros);
+                ItemClass.SubService ss = getLineNamingParameters(s.Value, out prefixo, out separador, out nomenclatura, out zeros, out bgSprite);
                 UIButtonLineInfo lineCircleIntersect = null;
                 TLMUtils.createUIElement<UIButtonLineInfo>(ref lineCircleIntersect, intersectionsPanel.transform);
                 lineCircleIntersect.autoSize = false;
@@ -339,42 +370,14 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static ItemClass.SubService setFormatBgByType(TransportLine line, out String bgSprite, out ModoNomenclatura prefixo, out Separador s, out ModoNomenclatura nomenclatura, out bool zerosEsquerda)
-        {
-            if (line.Info.m_transportType == TransportInfo.TransportType.Train)
-            {
-                bgSprite = "TrainIcon";
-                nomenclatura = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
-                prefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
-                s = (Separador)TransportLinesManagerMod.savedNomenclaturaTremSeparador.value;
-                zerosEsquerda = TransportLinesManagerMod.savedNomenclaturaTremZeros.value;
-                return ItemClass.SubService.PublicTransportTrain;
-            }
-            else if (line.Info.m_transportType == TransportInfo.TransportType.Metro)
-            {
-                bgSprite = "SubwayIcon";
-                nomenclatura = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
-                prefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
-                s = (Separador)TransportLinesManagerMod.savedNomenclaturaMetroSeparador.value;
-                zerosEsquerda = TransportLinesManagerMod.savedNomenclaturaMetroZeros.value;
-                return ItemClass.SubService.PublicTransportMetro;
-            }
-            else {
-                bgSprite = "BusIcon";
-                nomenclatura = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
-                prefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
-                s = (Separador)TransportLinesManagerMod.savedNomenclaturaOnibusSeparador.value;
-                zerosEsquerda = TransportLinesManagerMod.savedNomenclaturaOnibusZeros.value;
-                return ItemClass.SubService.None;
-            }
-        }
+
     }
 
     public class TLMUtils
     {
         public static void doLog(string format, params object[] args)
         {
-            Debug.LogWarningFormat(format, args);
+            Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
         }
         public static void createUIElement<T>(ref T uiItem, Transform parent) where T : Component
         {
@@ -745,7 +748,7 @@ namespace Klyte.TransportLinesManager
                 int[] districtArray = districtList.ToArray();
                 if (districtArray.Length == 1)
                 {
-                    return (TransportLinesManagerMod.savedCircularOnSingleDistrict.value ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
+                    return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
                 }
                 else if (findSimetry(districtArray, out middle))
                 {
@@ -957,7 +960,7 @@ namespace Klyte.TransportLinesManager
             }
             return buildingId;
 
-        }      
+        }
 
         public static bool findSimetry(int[] array, out int middle)
         {
@@ -1328,7 +1331,7 @@ namespace Klyte.TransportLinesManager
             return this.IsValid() && Range.IsValid() && Range.ContainsValue(this.Minimum) && Range.ContainsValue(this.Maximum);
         }
 
-      
+
 
         /// <summary>
         /// Determines if another range is inside the bounds of this range
@@ -1373,6 +1376,21 @@ namespace Klyte.TransportLinesManager
             else
             {
                 return Mathf.Atan(co / ca) * Mathf.Rad2Deg;
+            }
+        }
+    }
+
+    public static class Int32Extensions
+    {
+        public static int ParseOrDefault(string val, int defaultVal)
+        {
+            try
+            {
+                return int.Parse(val);
+            }
+            catch (Exception e)
+            {
+                return defaultVal;
             }
         }
     }
