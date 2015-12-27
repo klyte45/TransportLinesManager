@@ -99,8 +99,10 @@ namespace Klyte.TransportLinesManager
             }
 
             SVGTemplate svg = new SVGTemplate((int)((maxY - minY + 16) * SVGTemplate.RADIUS), (int)((maxX - minX + 16) * SVGTemplate.RADIUS), SVGTemplate.RADIUS, minX - 8, minY - 8);
+
+            var linesOrdened = transportLines.OrderBy(x => getLineUID(x.Key)).ToList();
             //calcula as posições de todas as estações no mapa
-            foreach (var line in transportLines)
+            foreach (var line in linesOrdened)
             {
                 var station0 = line.Value[0];
                 var prevPos = station0.getPositionForLine(line.Key, line.Value[1].defaultCentralPos);
@@ -112,7 +114,7 @@ namespace Klyte.TransportLinesManager
             //adiciona as exceções
             svg.addStationsToExceptionMap(stations);
             //pinta as linhas
-            foreach (var line in transportLines)
+            foreach (var line in linesOrdened)
             {
                 svg.addTransportLineOnMap(line.Value, line.Key);
             }
@@ -146,6 +148,13 @@ namespace Klyte.TransportLinesManager
             var sr = File.CreateText(filename);
             sr.WriteLine(svg.getResult());
             sr.Close();
+        }
+
+        private static int getLineUID(ushort lineId)
+        {
+            var t = TLMController.instance.tm.m_lines.m_buffer[lineId];
+            int result = ((int)t.Info.m_transportType << 16) | t.m_lineNumber;
+            return result;
         }
 
         public class Station
@@ -243,9 +252,9 @@ namespace Klyte.TransportLinesManager
             }
 
 
-            public List<Vector2> getAllStationPoints()
+            public Dictionary<Vector2, ushort> getAllStationPoints()
             {
-                return stopsPos.Keys.ToList();
+                return stopsPos;
             }
 
         }
@@ -630,16 +639,16 @@ namespace Klyte.TransportLinesManager
         /// 0 = Height
         /// 1 = Width
         /// </summary>
-        public readonly string header = "<!DOCTYPE html>" +
-            "<html><head> <meta charset=\"UTF-8\"> " +
-            "<style>" +
-            "* {{" +
-            "font-family: 'AvantGarde Md BT', Arial;" +
-            "font-weight: bold;" +
-            "}}" +
-            "</style>" +
-            "</head><body>" +
-            "<svg height='{0}' width='{1}'>";
+        public string getHtmlHeader(int height, int width)
+        {
+            return "<!DOCTYPE html>" +
+             "<html><head> <meta charset=\"UTF-8\"> " +
+             "<style>" +
+            ResourceLoader.loadResourceString("lineDrawBasicCss.css") +
+             "</style>" +
+             "</head><body>" +
+             string.Format("<svg height='{0}' width='{1}'>", height, width);
+        }
         /// <summary>
         /// The line segment. <>
         /// 0 = X1 
@@ -652,14 +661,12 @@ namespace Klyte.TransportLinesManager
         /// </summary>
         private readonly string lineSegment = "<line x1='{0}' y1='{1}' x2='{2}' y2='{3}' style='stroke:rgb({4},{5},{6});stroke-width:" + RADIUS + "' stroke-linecap='round'/>";
         /// <summary>
-        /// The line segment. <>
-        /// 0 = X1 
-        /// 1 = Y1
-        /// 2 = X2 
-        /// 3 = Y2
-        /// 4 = R
-        /// 5 = G 
-        /// 6 = B 
+        /// The line
+        /// 0 = path;
+        /// 1 = R;
+        /// 2 = G;
+        /// 3 = B;
+        /// 4 = Line ref;
         /// </summary>
         private readonly string pathLine = "<path d='{0}' style='stroke:rgb({1},{2},{3});stroke-width:" + RADIUS + ";fill: none' stroke-linejoin=\"round\" stroke-linecap=\"round\"/>";
         ///// <summary>
@@ -689,9 +696,10 @@ namespace Klyte.TransportLinesManager
                     "</g>";
         }
 
-        private readonly string stationPointTemplate = "<circle style=\"stroke:rgb(155,155,155); stroke-width:1\" fill=\"white\" r=\"" + RADIUS * 0.4 + "\" cy=\"0\" cx=\"0\" transform=\"translate({0},{1})\"/>";
-        private readonly string stationNameTemplate = "<text transform=\"rotate({2},{0},{1}) translate({0},{1})\" x=\"" + RADIUS * 0.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"text-shadow: 0px 0px 6px white;\">{3}</text>";
-        private readonly string stationNameInverseTemplate = "<text transform=\"rotate({2},{0},{1}) translate({0},{1}) scale(-1,-1)\" x=\"" + -RADIUS * 0.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"text-shadow: 0px 0px 6px white; text-anchor: end\">{3}</text>";
+        private readonly string stationPointTemplate = "<circle style=\"stroke:rgb(155,155,155); stroke-width:1\" fill=\"rgb({2},{3},{4})\" r=\"" + RADIUS * 0.4 + "\" cy=\"0\" cx=\"0\" transform=\"translate({0},{1})\"/>";
+     //   private readonly string stationNameTemplate = "<text transform=\"rotate({2},{0},{1}) translate({0},{1})\" x=\"" + RADIUS * 0.8 + "\" y=\"" + RADIUS / 6 + "\" fill=\"black\" style=\"text-shadow: 0px 0px 6px white;\">{3}</text>";
+        private readonly string stationNameTemplate = "<div class='stationContainer' style='top: {1}px; left: {0}px;' ><p style='transform: rotate({2}deg) translate(12px, 0px) ;'>{3}</p></div>";
+        private readonly string stationNameInverseTemplate = "<div class='stationContainer' style='top: {1}px; left: {0}px;' ><p style='transform: rotate({2}deg) translate(12px, 0px) ;'>{3}</p></div>";
         /// <summary>
         /// The station.<>
         /// 0 = X 
@@ -738,10 +746,16 @@ namespace Klyte.TransportLinesManager
         /// <summary>
         /// The footer.
         /// </summary>
-        public readonly string footer = "</svg></body></html>";
-        private StringBuilder document;
+        public readonly string footer = "</body></html>";
+
+
+
+
+        private StringBuilder svgPart = new StringBuilder();
+        private StringBuilder htmlPart = new StringBuilder();
         private float multiplier;
         private int height;
+        private int width;
 
 
         private Dictionary<int, List<Range<int>>> hRanges = new Dictionary<int, List<Range<int>>>();
@@ -759,14 +773,18 @@ namespace Klyte.TransportLinesManager
 
         public SVGTemplate(int width, int height, float multiplier = 1, float offsetX = 0, float offsetY = 0)
         {
-            document = new StringBuilder(String.Format(header, width, height));
             this.multiplier = multiplier;
+            this.width = width;
             this.height = height;
             this.offset = new Vector2(offsetX, offsetY);
         }
 
         public string getResult()
         {
+            StringBuilder document = new StringBuilder(getHtmlHeader(width, height));
+            document.Append(svgPart);
+            document.Append("</svg>");
+            document.Append(htmlPart);
             document.Append(footer);
             return document.ToString();
         }
@@ -777,7 +795,7 @@ namespace Klyte.TransportLinesManager
             {
                 foreach (var p in s.getAllStationPoints())
                 {
-                    addStationToAllRangeMaps(p);
+                    addStationToAllRangeMaps(p.Key);
                 }
             }
         }
@@ -799,15 +817,35 @@ namespace Klyte.TransportLinesManager
             string integrationPath = s.getIntegrationLinePath(offset, multiplier);
             if (integrationPath != string.Empty)
             {
-                document.AppendFormat(pathLine, integrationPath, 128, 128, 128);
+                svgPart.AppendFormat(pathLine, integrationPath, 128, 128, 128);
             }
-            foreach (Vector2 pos in s.getAllStationPoints())
+            foreach (var pos in s.getAllStationPoints())
             {
-                var point = pos - offset;
-                document.AppendFormat(stationPointTemplate, point.x * multiplier, (point.y * multiplier));
+                var point = pos.Key - offset;
+                var t = TLMController.instance.tm.m_lines.m_buffer[(int)pos.Value];
+                Color32 stationColor;
+                bool day, night;
+                t.GetActive(out day, out night);
+                if (day && night)
+                {
+                    stationColor = Color.white;
+                }
+                else if (day)
+                {
+                    stationColor = Color.yellow;
+                }
+                else if (night)
+                {
+                    stationColor = Color.blue;
+                }
+                else
+                {
+                    stationColor = Color.black;
+                }
+                svgPart.AppendFormat(stationPointTemplate, point.x * multiplier, (point.y * multiplier), stationColor.r, stationColor.g, stationColor.b);
             }
             var namePoint = s.writePoint - offset;
-            document.AppendFormat(inverse ? stationNameInverseTemplate : stationNameTemplate, namePoint.x * multiplier, (namePoint.y * multiplier), angle, s.name);
+            htmlPart.AppendFormat(inverse ? stationNameInverseTemplate : stationNameTemplate, namePoint.x * multiplier, (namePoint.y * multiplier), angle, s.name);
 
         }
 
@@ -819,13 +857,13 @@ namespace Klyte.TransportLinesManager
             {
                 color = new Color32(240, 240, 240, 255);
             }
-            document.AppendFormat(lineSegment, p1.x * multiplier, (p1.y * multiplier), p2.x * multiplier, (p2.y * multiplier), color.r, color.g, color.b);
+            svgPart.AppendFormat(lineSegment, p1.x * multiplier, (p1.y * multiplier), p2.x * multiplier, (p2.y * multiplier), color.r, color.g, color.b);
         }
 
         public void addTransportLineOnMap(List<TLMMapDrawer.Station> points, ushort transportLineIdx)
         {
             TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)transportLineIdx];
-            Color32 color = t.m_color;
+            Color32 color = new Color32(Math.Min(t.m_color.r, (byte)240), Math.Min(t.m_color.g, (byte)240), Math.Min(t.m_color.b, (byte)240), 255);
             StringBuilder path = new StringBuilder();
             Vector2 p0 = points[0].getPositionForLine(transportLineIdx, points[1].defaultCentralPos) - offset;
             path.Append("M " + p0.x * multiplier + "," + p0.y * multiplier);
@@ -1046,8 +1084,7 @@ namespace Klyte.TransportLinesManager
                     }
                     diagPointEnd -= offsetRemove;
                 }
-
-                if (isD2)
+                else if (isD2)
                 {
                     //diag
                     int index = (int)(diagPointEnd.x - diagPointEnd.y);
@@ -1091,6 +1128,34 @@ namespace Klyte.TransportLinesManager
                         }
                     }
                     diagPointEnd -= offsetRemove;
+                }
+                else if (isHorizontal)
+                {
+                    var targetPointX = getFreeHorizontal(sPrev, s);
+                    TLMUtils.doLog("SVGTEMPLATE:addPath() => SÓ HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s ).y != targetPointY.x && targetPointD2.x != sPrev.x: {5} != {6}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x);
+                    if (s != targetPointX)
+                    {
+                        addToPathString(path, sPrev, targetPointX);
+                        var offsetX = Math.Sign(s.x - sPrev.x);
+                        sPrevPrev = targetPointX;
+                        sPrev = targetPointX + new Vector2(offsetX, 1);
+                        addToPathString(path, sPrevPrev, sPrev);
+                        goto DiagCheck;
+                    }
+                }
+                else if (isVertical)
+                {
+                    var targetPointY = getFreeVertical(sPrev, s);
+                    TLMUtils.doLog("SVGTEMPLATE:addPath() => SÓ VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s).y != targetPointY.y : {5} != {6} ", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s).y, targetPointY.y);
+                    if (s != targetPointY)
+                    {
+                        addToPathString(path, sPrev, targetPointY);
+                        var offsetY = Math.Sign(s.y - sPrev.y);
+                        sPrevPrev = targetPointY;
+                        sPrev = targetPointY + new Vector2(1, offsetY); ;
+                        addToPathString(path, sPrevPrev, sPrev);
+                        goto DiagCheck;
+                    }
                 }
 
                 TLMUtils.doLog("SVGTEMPLATE:addPath() => s - offsetRemove == sPrev : {0} - {1} == {2} = {3}", s, offsetRemove, sPrev, s - offsetRemove == sPrev);
@@ -1166,7 +1231,7 @@ namespace Klyte.TransportLinesManager
                 sPrevPrev = sPrev;
                 sPrev = s;
             }
-            document.AppendFormat(pathLine, path.ToString(), color.r, color.g, color.b);
+            svgPart.AppendFormat(pathLine, path.ToString(), color.r, color.g, color.b);
 
         }
 
@@ -1183,7 +1248,7 @@ namespace Klyte.TransportLinesManager
             TLMUtils.doLog(" getFreeHorizontal idx: {0} hRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.y, hRanges.ContainsKey((int)p2.y), p1, p2);
             if (hRanges.ContainsKey((int)p2.y))
             {
-                Range<int> lineXs = new Range<int>((int)p1.x, (int)p2.x);
+                Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x) + 1, (int)Math.Max(p1.x, p2.x) - 1);
                 var searchResult = hRanges[(int)p2.y].FindAll(x => x.IntersectRange(lineXs));
                 TLMUtils.doLog(" getFreeHorizontal idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.y, lineXs, searchResult.Count, string.Join(",", hRanges[(int)p2.y].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
@@ -1212,7 +1277,7 @@ namespace Klyte.TransportLinesManager
             TLMUtils.doLog(" getFreeVertical idx: {0} vRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.x, vRanges.ContainsKey((int)p2.x), p1, p2);
             if (vRanges.ContainsKey((int)p2.x))
             {
-                Range<int> lineYs = new Range<int>((int)p1.y, (int)p2.y);
+                Range<int> lineYs = new Range<int>((int)Math.Min(p1.y, p2.y) + 1, (int)Math.Max(p1.y, p2.y) - 1);
                 var searchResult = vRanges[(int)p2.x].FindAll(x => x.IntersectRange(lineYs));
                 TLMUtils.doLog(" getFreeVertical idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.x, lineYs, searchResult.Count, string.Join(",", vRanges[(int)p2.x].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
@@ -1239,7 +1304,7 @@ namespace Klyte.TransportLinesManager
             TLMUtils.doLog(" getFreeHorizontalD1Point idx: {0} d1Ranges.ContainsKey(index)={1}", index, d1Ranges.ContainsKey(index));
             if (d1Ranges.ContainsKey(index))
             {
-                Range<int> lineXs = new Range<int>((int)p1.x, (int)p2.x);
+                Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x) + 1, (int)Math.Max(p1.x, p2.x) - 1);
                 var searchResult = d1Ranges[index].FindAll(x => x.IntersectRange(lineXs));
                 TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = {3} ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d1Ranges[index].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
@@ -1269,7 +1334,7 @@ namespace Klyte.TransportLinesManager
 
             if (d2Ranges.ContainsKey(index))
             {
-                Range<int> lineXs = new Range<int>((int)p1.x, (int)p2.x);
+                Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x) + 1, (int)Math.Max(p1.x, p2.x) - 1);
                 var searchResult = d2Ranges[index].FindAll(x => x.IntersectRange(lineXs));
                 TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d2Ranges[index].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
@@ -1360,13 +1425,13 @@ namespace Klyte.TransportLinesManager
         public void addMetroLineIndication(Vector2 point, string name, Color32 color)
         {
             point -= offset;
-            document.AppendFormat(metroLineSymbol, point.x * multiplier, (point.y * multiplier), name, color.r, color.g, color.b);
+            svgPart.AppendFormat(metroLineSymbol, point.x * multiplier, (point.y * multiplier), name, color.r, color.g, color.b);
         }
 
         public void addTrainLineSegment(Vector2 point, string name, Color32 color)
         {
             point -= offset;
-            document.AppendFormat(trainLineSymbol, point.x * multiplier, (point.y * multiplier), name, color.r, color.g, color.b);
+            svgPart.AppendFormat(trainLineSymbol, point.x * multiplier, (point.y * multiplier), name, color.r, color.g, color.b);
         }
     }
 
