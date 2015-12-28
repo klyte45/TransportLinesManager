@@ -182,14 +182,19 @@ namespace Klyte.TransportLinesManager
             try
             {
                 TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(i);
-                bool prefixBased = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_PREFIX_BASED) && TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum;
-                string pal = TLMCW.getCurrentConfigString(transportType | (prefixBased ? TLMCW.ConfigIndex.PALETTE_MAIN : TLMCW.ConfigIndex.PALETTE_SUBLINE));
+                bool prefixBased = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_PREFIX_BASED);
+
                 bool randomOnOverflow = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
 
+                string pal = TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_SUBLINE);
                 ushort num = t.m_lineNumber;
-                if (prefixBased && num >= 1000)
+                if (num >= 1000 && TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
                 {
-                    num /= 1000;
+                    pal = TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_MAIN);
+                    if (prefixBased)
+                    {
+                        num /= 1000;
+                    }
                 }
                 Color c = TLMAutoColorPalettes.getColor(num, pal, randomOnOverflow);
                 TLMUtils.setLineColor(i, c);

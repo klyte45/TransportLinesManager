@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager
 {
@@ -175,8 +176,11 @@ namespace Klyte.TransportLinesManager
         public void addToListInt(ConfigIndex i, int value)
         {
             List<int> list = getListInt(i);
-            list.Add(value);
-            setToFile(i, serializeList(list));
+            if (!list.Contains(value))
+            {
+                list.Add(value);
+                setToFile(i, serializeList(list));
+            }
         }
         public void removeFromListInt(ConfigIndex i, int value)
         {
@@ -215,6 +219,54 @@ namespace Klyte.TransportLinesManager
         private void setToFile(ConfigIndex i, int value)
         {
             new SavedInt(i.ToString(), thisFileName, value, true).value = value;
+        }
+
+        public static Color32 getColorForTransportType(ConfigIndex i)
+        {
+            switch (i & ConfigIndex.SYSTEM_PART)
+            {
+                case ConfigIndex.TRAIN_CONFIG:
+                    return new Color32(250, 104, 0, 255);
+                case ConfigIndex.TRAM_CONFIG:
+                    return new Color32(73, 27, 137, 255);
+                case ConfigIndex.METRO_CONFIG:
+                    return new Color32(58, 117, 50, 255);
+                case ConfigIndex.BUS_CONFIG:
+                    return new Color32(53, 121, 188, 255);
+                case ConfigIndex.PLANE_CONFIG:
+                    return new Color32(0xa8, 0x01, 0x7a, 255);
+                case ConfigIndex.SHIP_CONFIG:
+                    return new Color32(0xe3, 0xf0, 0, 255);
+                case ConfigIndex.TAXI_CONFIG:
+                    return new Color32(60, 184, 120, 255);
+                default:
+                    return new Color();
+
+            }
+        }
+
+        public static string getNameForTransportType(ConfigIndex i)
+        {
+            switch (i & ConfigIndex.SYSTEM_PART)
+            {
+                case ConfigIndex.TRAIN_CONFIG:
+                    return "Train";
+                case ConfigIndex.TRAM_CONFIG:
+                    return "Tram";
+                case ConfigIndex.METRO_CONFIG:
+                    return "Metro";
+                case ConfigIndex.BUS_CONFIG:
+                    return "Bus";
+                case ConfigIndex.PLANE_CONFIG:
+                    return "Plane";
+                case ConfigIndex.SHIP_CONFIG:
+                    return "Ship";
+                case ConfigIndex.TAXI_CONFIG:
+                    return "Taxi";
+                default:
+                    return "???";
+
+            }
         }
 
         public enum ConfigIndex

@@ -28,6 +28,7 @@ namespace Klyte.TransportLinesManager
         private UIDropDown linePrefixDropDown;
         private UILabel lineTransportIconTypeLabel;
         private UILabel viagensEvitadasLabel;
+        private UICheckBox isTramCheck;
         private UILabel passageirosEturistasLabel;
         private UILabel veiculosLinhaLabel;
         private UILabel autoNameLabel;
@@ -360,7 +361,23 @@ namespace Klyte.TransportLinesManager
             passageirosEturistasLabel.name = "TouristAndPassagersLabel";
             passageirosEturistasLabel.textScale = 0.8f;
 
-
+            isTramCheck = lineInfoPanel.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kCheckBoxTemplate)) as UICheckBox;
+            isTramCheck.text = "is a Tram Line";
+            isTramCheck.isChecked = false;
+            isTramCheck.relativePosition = new Vector3(10f, 135f);
+            isTramCheck.eventCheckChanged += delegate (UIComponent c, bool isChecked)
+            {
+                if (isChecked)
+                {
+                    TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                }
+                else
+                {
+                    TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                }
+                Hide();
+                openLineInfo(m_lineIdSelecionado.TransportLine);
+            };
             //			TLMUtils.createUIElement<UILabel> (ref custosLabel, lineInfoPanel.transform);
             //			custosLabel.autoSize = false; 
             //			custosLabel.relativePosition = new Vector3 (10f, 135f);			 
@@ -623,7 +640,21 @@ namespace Klyte.TransportLinesManager
 
             lineNumberLabel.color = m_controller.tm.GetLineColor(lineID);
             lineNameField.text = m_controller.tm.GetLineName(lineID);
-            lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(t.Info.m_transportType);
+            if (transportType == TLMCW.ConfigIndex.TRAM_CONFIG)
+            {
+                lineTransportIconTypeLabel.atlas = TLMController.taLineNumber;
+                lineTransportIconTypeLabel.backgroundSprite = "TramImage";
+                isTramCheck.isChecked = true;
+            }
+            else
+            {
+                isTramCheck.isChecked = false;
+                lineTransportIconTypeLabel.atlas = linePrefixDropDown.atlas;
+                lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(t.Info.m_transportType);
+            }
+
+            isTramCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Train;
+
             lineColorPicker.selectedColor = m_controller.tm.GetLineColor(lineID);
 
             bool day, night;

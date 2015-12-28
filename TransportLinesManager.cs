@@ -283,79 +283,46 @@ namespace Klyte.TransportLinesManager
             UIHelperExtension helper = new UIHelperExtension((UIHelper)helperDefault);
             helper.AddCheckbox("Override default line info panel (Always disabled with IPT!)", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
 
+
+
             helper.AddSpace(10);
 
             configSelector = (UIDropDown)helper.AddDropdown("Show Configurations For", getOptionsForLoadConfig(), 0, reloadData);
             TLMUtils.doLog("Loading Group 1");
-            UIHelperExtension group1 = helper.AddGroupExtended("Buses Config");
-            ((UIPanel)group1.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group1.self).backgroundSprite = "EmptySprite";
-            ((UIPanel)group1.self).wrapLayout = true;
-            ((UIPanel)group1.self).color = new Color32(53, 121, 188, 128);
-            group1.AddSpace(30);
-            generateDropdownConfig(group1, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.BUS_PREFIX);
-            generateDropdownConfig(group1, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.BUS_SEPARATOR);
-            generateDropdownConfig(group1, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.BUS_SUFFIX);
-            generateDropdownStringValueConfig(group1, "Default Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_MAIN);
-            generateDropdownStringValueConfig(group1, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_SUBLINE);
-            generateCheckboxConfig(group1, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.BUS_LEADING_ZEROS);
-            generateCheckboxConfig(group1, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_RANDOM_ON_OVERFLOW);
-            generateCheckboxConfig(group1, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_PREFIX_BASED);
-
-
-            UIHelperExtension group2 = helper.AddGroupExtended("Metro Config");
-            ((UIPanel)group2.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group2.self).backgroundSprite = "EmptySprite";
-            ((UIPanel)group2.self).wrapLayout = true;
-            ((UIPanel)group2.self).color = new Color32(58, 117, 50, 128);
-            group2.AddSpace(30);
-
-            generateDropdownConfig(group2, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.METRO_PREFIX);
-            generateDropdownConfig(group2, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.METRO_SEPARATOR);
-            generateDropdownConfig(group2, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.METRO_SUFFIX);
-            generateDropdownStringValueConfig(group2, "Prefix Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_MAIN);
-            generateDropdownStringValueConfig(group2, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_SUBLINE);
-
-
-
-            generateCheckboxConfig(group2, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.METRO_LEADING_ZEROS);
-            generateCheckboxConfig(group2, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_RANDOM_ON_OVERFLOW);
-            generateCheckboxConfig(group2, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_PREFIX_BASED);
-
-            UIHelperExtension group3 = helper.AddGroupExtended("Train Config");
-            ((UIPanel)group3.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group3.self).backgroundSprite = "EmptySprite";
-            ((UIPanel)group3.self).wrapLayout = true;
-            ((UIPanel)group3.self).color = new Color32(250, 104, 0, 128);
-            group3.AddSpace(30);
-            generateDropdownConfig(group3, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.TRAIN_PREFIX);
-            generateDropdownConfig(group3, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.TRAIN_SEPARATOR);
-            generateDropdownConfig(group3, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.TRAIN_SUFFIX);
-            generateDropdownStringValueConfig(group3, "Prefix Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_MAIN);
-            generateDropdownStringValueConfig(group3, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_SUBLINE);
-
-
-
-            generateCheckboxConfig(group3, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.TRAIN_LEADING_ZEROS);
-            generateCheckboxConfig(group3, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_RANDOM_ON_OVERFLOW);
-            generateCheckboxConfig(group3, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_PREFIX_BASED);
-
-
-            UIHelperExtension group4 = helper.AddGroupExtended("Tram Config");
-            ((UIPanel)group4.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group4.self).wrapLayout = true;
-            ((UIPanel)group4.self).backgroundSprite = "EmptySprite";
-            ((UIPanel)group4.self).color = new Color32(73, 27, 137, 128);
-            group4.AddSpace(30);
-            generateDropdownConfig(group4, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.TRAM_PREFIX);
-            generateDropdownConfig(group4, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.TRAM_SEPARATOR);
-            generateDropdownConfig(group4, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.TRAM_SUFFIX);
-            generateDropdownStringValueConfig(group4, "Prefix Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_MAIN);
-            generateDropdownStringValueConfig(group4, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_SUBLINE);
-
-            generateCheckboxConfig(group4, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.TRAM_LEADING_ZEROS);
-            generateCheckboxConfig(group4, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_RANDOM_ON_OVERFLOW);
-            generateCheckboxConfig(group4, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_PREFIX_BASED);
+            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG })
+            {
+                UIHelperExtension group1 = helper.AddGroupExtended(TLMConfigWarehouse.getNameForTransportType(transportType) + " Config");
+                ((UIPanel)group1.self).autoLayoutDirection = LayoutDirection.Horizontal;
+                ((UIPanel)group1.self).backgroundSprite = "EmptySprite";
+                ((UIPanel)group1.self).wrapLayout = true;
+                ((UIPanel)group1.self).color = TLMConfigWarehouse.getColorForTransportType(transportType);
+                ((UIPanel)group1.self).width = 730;
+                group1.AddSpace(30);
+                UIDropDown prefixDD = generateDropdownConfig(group1, "Prefix", namingOptionsPrefixo, transportType | TLMConfigWarehouse.ConfigIndex.PREFIX);
+                var separatorContainer = generateDropdownConfig(group1, "Separator", namingOptionsSeparador, transportType | TLMConfigWarehouse.ConfigIndex.SEPARATOR).transform.parent.GetComponent<UIPanel>();
+                UIDropDown suffixDD = generateDropdownConfig(group1, "Identifier", namingOptionsSufixo, transportType | TLMConfigWarehouse.ConfigIndex.SUFFIX);
+                var prefixedPaletteContainer = generateDropdownStringValueConfig(group1, "Palette for Prefixed", TLMAutoColorPalettes.paletteList, transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_MAIN).transform.parent.GetComponent<UIPanel>();
+                var paletteLabel = generateDropdownStringValueConfig(group1, "Palette for Unprefixed", TLMAutoColorPalettes.paletteList, transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_SUBLINE).transform.parent.GetComponentInChildren<UILabel>();
+                var zerosContainer = generateCheckboxConfig(group1, "Leading zeros on suffix", transportType | TLMConfigWarehouse.ConfigIndex.LEADING_ZEROS);
+                generateCheckboxConfig(group1, "Random colors on palette overflow", transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
+                var autoColorBasedContainer = generateCheckboxConfig(group1, "Auto color based on prefix for prefixed lines", transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_PREFIX_BASED);
+                PropertyChangedEventHandler<int> updateFunction = delegate (UIComponent c, int sel)
+                {
+                    bool isPrefixed = (ModoNomenclatura)sel != ModoNomenclatura.Nenhum;
+                    separatorContainer.isVisible = isPrefixed;
+                    prefixedPaletteContainer.isVisible = isPrefixed;
+                    zerosContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero;
+                    autoColorBasedContainer.isVisible = isPrefixed;
+                    paletteLabel.text = isPrefixed ? "Palette for Unprefixed" : "Palette";
+                };
+                prefixDD.eventSelectedIndexChanged += updateFunction;
+                suffixDD.eventSelectedIndexChanged += delegate (UIComponent c, int sel)
+                {
+                    bool isPrefixed = (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Nenhum;
+                    zerosContainer.isVisible = isPrefixed && (ModoNomenclatura)sel == ModoNomenclatura.Numero;
+                };
+                updateFunction.Invoke(null, prefixDD.selectedIndex);
+            }
 
             UIHelperExtension group7 = helper.AddGroupExtended("Near Lines Config");
             generateCheckboxConfig(group7, "Show bus lines", TLMConfigWarehouse.ConfigIndex.BUS_SHOW_IN_LINEAR_MAP);
@@ -568,7 +535,7 @@ namespace Klyte.TransportLinesManager
             if (TLMController.taLineNumber == null)
             {
                 TLMController.taLineNumber = CreateTextureAtlas("lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                    "BusIcon","SubwayIcon","TrainIcon","TramIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon"
+                    "BusIcon","SubwayIcon","TrainIcon","TramIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","TramImage"
                 });
 
             }
