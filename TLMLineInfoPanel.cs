@@ -170,14 +170,14 @@ namespace Klyte.TransportLinesManager
         {
             String value = "0" + lineNumberLabel.text;
             int valPrefixo = linePrefixDropDown.selectedIndex;
-            ModoNomenclatura mn;
-            ModoNomenclatura mnPrefixo;
+            ModoNomenclatura sufixo;
+            ModoNomenclatura prefixo;
             Separador sep;
             bool zeros;
             var tipoLinha = m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine].Info.m_transportType;
-            TLMLineUtils.getLineNamingParameters(m_lineIdSelecionado.TransportLine, out mn, out sep, out mnPrefixo, out zeros);
+            TLMLineUtils.getLineNamingParameters(m_lineIdSelecionado.TransportLine, out prefixo, out sep, out sufixo, out zeros);
             ushort num = ushort.Parse(value);
-            if (mnPrefixo != ModoNomenclatura.Nenhum)
+            if (prefixo != ModoNomenclatura.Nenhum)
             {
                 num = (ushort)(valPrefixo * 1000 + (num % 1000));
             }
@@ -195,10 +195,10 @@ namespace Klyte.TransportLinesManager
             else {
                 lineNumberLabel.textColor = new Color(1, 1, 1, 1);
                 m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine].m_lineNumber = num;
-                m_linearMap.setLineNumberCircle(num, mnPrefixo, sep, mn, zeros);
+                m_linearMap.setLineNumberCircle(num, prefixo, sep, sufixo, zeros);
                 autoNameLabel.text = m_linearMap.autoName;
 
-                if (mnPrefixo != ModoNomenclatura.Nenhum)
+                if (prefixo != ModoNomenclatura.Nenhum)
                 {
                     lineNumberLabel.text = (num % 1000).ToString();
                     linePrefixDropDown.selectedIndex = (num / 1000);

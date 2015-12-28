@@ -238,9 +238,9 @@ namespace Klyte.TransportLinesManager
                 Separador s;
                 bool z;
                 string icon;
-                TLMLineUtils.getLineNamingParameters(map[k], out mn, out s, out pre, out z, out icon);
+                TLMLineUtils.getLineNamingParameters(map[k], out pre, out s, out mn, out z, out icon);
                 TLMUtils.initButtonSameSprite(itemButton, icon);
-               
+
                 itemButton.color = m_controller.tm.GetLineColor(map[k]);
                 itemButton.hoveredTextColor = itemButton.color;
                 itemButton.textColor = TLMUtils.contrastColor(t.GetColor());
@@ -343,7 +343,7 @@ namespace Klyte.TransportLinesManager
             TLMUtils.createDragHandle(titleLabel, mainPanel);
         }
 
-        private void setLineNumberMainListing(int num, UIButton button, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, bool zeros)
+        private void setLineNumberMainListing(int num, UIButton button, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros)
         {
 
             UILabel l = button.AddUIComponent<UILabel>();
@@ -356,9 +356,9 @@ namespace Klyte.TransportLinesManager
             l.width = button.width;
             l.height = button.height;
             l.useOutline = true;
-            l.text = TLMUtils.getString(pre, s, mn, num, zeros);
+            l.text = TLMUtils.getString(prefix, s, sufix, num, zeros);
             float ratio = l.width / 50;
-            TLMLineUtils.setLineNumberCircleOnRef(num, pre, s, mn, zeros, l, ratio);
+            TLMLineUtils.setLineNumberCircleOnRef(num, prefix, s, sufix, zeros, l, ratio);
         }
 
         //botoes da antiga parte extra

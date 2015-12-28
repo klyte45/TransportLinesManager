@@ -18,8 +18,8 @@ namespace Klyte.TransportLinesManager
         private UIPanel lineStationsPanel;
         private UIPanel mainContainer;
         private string m_autoName;
-        private ModoNomenclatura pre;
-        private ModoNomenclatura mn;
+        private ModoNomenclatura prefix;
+        private ModoNomenclatura suffix;
         private Separador sep;
         private bool zerosEsquerda;
 
@@ -57,7 +57,7 @@ namespace Klyte.TransportLinesManager
             {
                 ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
                 TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
-                return "[" + TLMUtils.getString(pre, sep, mn, t.m_lineNumber, zerosEsquerda).Replace('\n', ' ') + "] " + m_autoName;
+                return "[" + TLMUtils.getString(prefix, sep, suffix, t.m_lineNumber, zerosEsquerda).Replace('\n', ' ') + "] " + m_autoName;
             }
         }
 
@@ -89,7 +89,7 @@ namespace Klyte.TransportLinesManager
             setLinearMapColor(lineInfoPanel.controller.tm.GetLineColor(lineID));
             clearStations();
             String bgSprite;
-            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out pre, out sep, out mn, out zerosEsquerda, out bgSprite);
+            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out zerosEsquerda, out bgSprite);
             linearMapLineNumberFormat.backgroundSprite = bgSprite;
             bool day, night;
             t.GetActive(out day, out night);
@@ -100,7 +100,7 @@ namespace Klyte.TransportLinesManager
             else {
                 linearMapLineTime.backgroundSprite = "";
             }
-            setLineNumberCircle(t.m_lineNumber, pre, sep, mn, zerosEsquerda);
+            setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, zerosEsquerda);
 
             m_autoName = "";
             ushort[] stopBuildings = new ushort[stopsCount];

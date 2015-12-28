@@ -36,7 +36,18 @@ namespace Klyte.TransportLinesManager
         private SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
         private SavedString m_savedPalettes;
 
-        private string currentSelectedConfigEditor;
+        private UIDropDown editorSelector;
+        private Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown> dropDowns = new Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown>();
+        private Dictionary<TLMConfigWarehouse.ConfigIndex, UICheckBox> checkBoxes = new Dictionary<TLMConfigWarehouse.ConfigIndex, UICheckBox>();
+        private UIDropDown configSelector;
+
+        private string currentSelectedConfigEditor
+        {
+            get
+            {
+                return configSelector.selectedIndex == 0 ? currentCityId : TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
+            }
+        }
 
         public static SavedString savedPalettes
         {
@@ -74,8 +85,48 @@ namespace Klyte.TransportLinesManager
         {
             get
             {
-                return TLMConfigWarehouse.getConfig(currentCityId);
+                return TLMConfigWarehouse.getConfig(currentCityId, currentCityName);
             }
+        }
+
+        private string currentCityId
+        {
+            get
+            {
+                if (Singleton<SimulationManager>.instance.m_metaData != null)
+                {
+                    return Singleton<SimulationManager>.instance.m_metaData.m_gameInstanceIdentifier;
+                }
+                else return TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
+            }
+        }
+        private string currentCityName
+        {
+            get
+            {
+                if (Singleton<SimulationManager>.instance.m_metaData != null)
+                {
+                    return Singleton<SimulationManager>.instance.m_metaData.m_CityName;
+                }
+                else return TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
+            }
+        }
+
+        private TLMConfigWarehouse currentConfigWarehouseEditor
+        {
+            get
+            {
+                return TLMConfigWarehouse.getConfig(currentSelectedConfigEditor, currentCityName);
+            }
+        }
+
+        private string[] getOptionsForLoadConfig()
+        {
+            if (currentCityId == TLMConfigWarehouse.GLOBAL_CONFIG_INDEX)
+            {
+                return new string[] { TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
+            }
+            else return new string[] { currentCityName, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
         }
 
         public string Name
@@ -114,44 +165,17 @@ namespace Klyte.TransportLinesManager
             {
                 convertSavegame3_0();
             }
-            else
-            {
-                loadConfigArray();
-            }
             currentSaveVersion.value = majorVersion;
             toggleOverrideDefaultLineInfoPanel(m_savedOverrideDefaultLineInfoPanel.value);
-            currentSelectedConfigEditor = currentCityId;
             instance = this;
         }
 
-        private string currentCityId
-        {
-            get
-            {
-                if (Singleton<SimulationManager>.instance.m_metaData != null)
-                {
-                    return Singleton<SimulationManager>.instance.m_metaData.m_gameInstanceIdentifier;
-                }
-                else return TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
-            }
-        }
 
-        private TLMConfigWarehouse currentConfigWarehouseEditor
-        {
-            get
-            {
-                return TLMConfigWarehouse.getConfig(currentSelectedConfigEditor);
-            }
-        }
 
-        private void loadConfigArray()
-        {
-
-        }
         private void convertSavegame3_0()
         {
             TLMUtils.doLog("Converting old save from 3.0");
-            var globalConfigArray = TLMConfigWarehouse.getConfig(TLMConfigWarehouse.GLOBAL_CONFIG_INDEX);
+            var globalConfigArray = TLMConfigWarehouse.getConfig(TLMConfigWarehouse.GLOBAL_CONFIG_INDEX, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX);
 
             var m_savedNomenclaturaMetro = new SavedInt("NomenclaturaMetro", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, false);
             var m_savedNomenclaturaTrem = new SavedInt("NomenclaturaTrem", Settings.gameSettingsFile, (int)ModoNomenclatura.Numero, false);
@@ -243,9 +267,6 @@ namespace Klyte.TransportLinesManager
             TLMUtils.doLog("Success Converting default data! Saving commons");
         }
 
-        private UIDropDown editorSelector;
-        private Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown> dropDowns = new Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown>();
-        private Dictionary<TLMConfigWarehouse.ConfigIndex, UICheckBox> checkBoxes = new Dictionary<TLMConfigWarehouse.ConfigIndex, UICheckBox>();
 
         public void OnSettingsUI(UIHelperBase helperDefault)
         {
@@ -261,100 +282,114 @@ namespace Klyte.TransportLinesManager
             };
             UIHelperExtension helper = new UIHelperExtension((UIHelper)helperDefault);
             helper.AddCheckbox("Override default line info panel (Always disabled with IPT!)", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
-            helper.AddDropdown("Show Configurations For", getOptionsForLoadConfig(), 0, reloadData);
+
+            helper.AddSpace(10);
+
+            configSelector = (UIDropDown)helper.AddDropdown("Show Configurations For", getOptionsForLoadConfig(), 0, reloadData);
             TLMUtils.doLog("Loading Group 1");
-            UIHelperExtension group1 = helper.AddGroupExtended("Line Naming Strategy");
+            UIHelperExtension group1 = helper.AddGroupExtended("Buses Config");
             ((UIPanel)group1.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group1.self).backgroundSprite = "EmptySprite";
             ((UIPanel)group1.self).wrapLayout = true;
-
-
-            generateCheckboxConfig(group1, "Auto coloring enabled", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
-            generateCheckboxConfig(group1, "Auto naming enabled", TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED);
-            generateCheckboxConfig(group1, "Use 'Circular' word on single district lines", TLMConfigWarehouse.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE);
-
-            group1.AddSpace(20);
-            group1.AddLabel("Buses Config");
-
-            generateDropdownStringValueConfig(group1, "Default Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_MAIN);
-            generateDropdownStringValueConfig(group1, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_SUBLINE);
-
+            ((UIPanel)group1.self).color = new Color32(53, 121, 188, 128);
+            group1.AddSpace(30);
             generateDropdownConfig(group1, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.BUS_PREFIX);
             generateDropdownConfig(group1, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.BUS_SEPARATOR);
             generateDropdownConfig(group1, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.BUS_SUFFIX);
-
-
+            generateDropdownStringValueConfig(group1, "Default Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_MAIN);
+            generateDropdownStringValueConfig(group1, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_SUBLINE);
             generateCheckboxConfig(group1, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.BUS_LEADING_ZEROS);
             generateCheckboxConfig(group1, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_RANDOM_ON_OVERFLOW);
             generateCheckboxConfig(group1, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_PREFIX_BASED);
 
-            group1.AddSpace(30);
-            group1.AddLabel("Metro Config");
-            generateDropdownStringValueConfig(group1, "Prefix Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_MAIN);
-            generateDropdownStringValueConfig(group1, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_SUBLINE);
 
-            generateDropdownConfig(group1, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.METRO_PREFIX);
-            generateDropdownConfig(group1, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.METRO_SEPARATOR);
-            generateDropdownConfig(group1, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.METRO_SUFFIX);
+            UIHelperExtension group2 = helper.AddGroupExtended("Metro Config");
+            ((UIPanel)group2.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group2.self).backgroundSprite = "EmptySprite";
+            ((UIPanel)group2.self).wrapLayout = true;
+            ((UIPanel)group2.self).color = new Color32(58, 117, 50, 128);
+            group2.AddSpace(30);
 
-
-            generateCheckboxConfig(group1, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.METRO_LEADING_ZEROS);
-            generateCheckboxConfig(group1, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_RANDOM_ON_OVERFLOW);
-            generateCheckboxConfig(group1, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_PREFIX_BASED);
-
-            group1.AddSpace(30);
-            group1.AddLabel("Train Config");
-
-            generateDropdownStringValueConfig(group1, "Prefix Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_MAIN);
-            generateDropdownStringValueConfig(group1, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_SUBLINE);
-
-            generateDropdownConfig(group1, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.TRAIN_PREFIX);
-            generateDropdownConfig(group1, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.TRAIN_SEPARATOR);
-            generateDropdownConfig(group1, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.TRAIN_SUFFIX);
+            generateDropdownConfig(group2, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.METRO_PREFIX);
+            generateDropdownConfig(group2, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.METRO_SEPARATOR);
+            generateDropdownConfig(group2, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.METRO_SUFFIX);
+            generateDropdownStringValueConfig(group2, "Prefix Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_MAIN);
+            generateDropdownStringValueConfig(group2, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_SUBLINE);
 
 
-            generateCheckboxConfig(group1, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.TRAIN_LEADING_ZEROS);
-            generateCheckboxConfig(group1, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_RANDOM_ON_OVERFLOW);
-            generateCheckboxConfig(group1, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_PREFIX_BASED);
 
-            group1.AddSpace(30);
-            group1.AddLabel("Tram Config");
+            generateCheckboxConfig(group2, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.METRO_LEADING_ZEROS);
+            generateCheckboxConfig(group2, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_RANDOM_ON_OVERFLOW);
+            generateCheckboxConfig(group2, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_PREFIX_BASED);
 
-            generateDropdownStringValueConfig(group1, "Prefix Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_MAIN);
-            generateDropdownStringValueConfig(group1, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_SUBLINE);
+            UIHelperExtension group3 = helper.AddGroupExtended("Train Config");
+            ((UIPanel)group3.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group3.self).backgroundSprite = "EmptySprite";
+            ((UIPanel)group3.self).wrapLayout = true;
+            ((UIPanel)group3.self).color = new Color32(250, 104, 0, 128);
+            group3.AddSpace(30);
+            generateDropdownConfig(group3, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.TRAIN_PREFIX);
+            generateDropdownConfig(group3, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.TRAIN_SEPARATOR);
+            generateDropdownConfig(group3, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.TRAIN_SUFFIX);
+            generateDropdownStringValueConfig(group3, "Prefix Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_MAIN);
+            generateDropdownStringValueConfig(group3, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_SUBLINE);
 
-            generateDropdownConfig(group1, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.TRAM_PREFIX);
-            generateDropdownConfig(group1, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.TRAM_SEPARATOR);
-            generateDropdownConfig(group1, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.TRAM_SUFFIX);
 
 
-            generateCheckboxConfig(group1, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.TRAM_LEADING_ZEROS);
-            generateCheckboxConfig(group1, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_RANDOM_ON_OVERFLOW);
-            generateCheckboxConfig(group1, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_PREFIX_BASED);
+            generateCheckboxConfig(group3, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.TRAIN_LEADING_ZEROS);
+            generateCheckboxConfig(group3, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_RANDOM_ON_OVERFLOW);
+            generateCheckboxConfig(group3, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_PREFIX_BASED);
+
+
+            UIHelperExtension group4 = helper.AddGroupExtended("Tram Config");
+            ((UIPanel)group4.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group4.self).wrapLayout = true;
+            ((UIPanel)group4.self).backgroundSprite = "EmptySprite";
+            ((UIPanel)group4.self).color = new Color32(73, 27, 137, 128);
+            group4.AddSpace(30);
+            generateDropdownConfig(group4, "Prefix", namingOptionsPrefixo, TLMConfigWarehouse.ConfigIndex.TRAM_PREFIX);
+            generateDropdownConfig(group4, "Separator", namingOptionsSeparador, TLMConfigWarehouse.ConfigIndex.TRAM_SEPARATOR);
+            generateDropdownConfig(group4, "Identifier", namingOptionsSufixo, TLMConfigWarehouse.ConfigIndex.TRAM_SUFFIX);
+            generateDropdownStringValueConfig(group4, "Prefix Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_MAIN);
+            generateDropdownStringValueConfig(group4, "Secondary Palette", TLMAutoColorPalettes.paletteList, TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_SUBLINE);
+
+            generateCheckboxConfig(group4, "Leading zeros (when prefix is used)", TLMConfigWarehouse.ConfigIndex.TRAM_LEADING_ZEROS);
+            generateCheckboxConfig(group4, "Random colors on palette overflow", TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_RANDOM_ON_OVERFLOW);
+            generateCheckboxConfig(group4, "Auto color based on prefix", TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_PREFIX_BASED);
+
+            UIHelperExtension group7 = helper.AddGroupExtended("Near Lines Config");
+            generateCheckboxConfig(group7, "Show bus lines", TLMConfigWarehouse.ConfigIndex.BUS_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, "Show metro line", TLMConfigWarehouse.ConfigIndex.METRO_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, "Show train lines", TLMConfigWarehouse.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, "Show trams lines", TLMConfigWarehouse.ConfigIndex.TRAM_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, "Show seaports", TLMConfigWarehouse.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, "Show airports", TLMConfigWarehouse.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, "Show taxi stops (AD only)", TLMConfigWarehouse.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP);
+
+
+            UIHelperExtension group8 = helper.AddGroupExtended("Automation");
+            generateCheckboxConfig(group8, "Auto coloring enabled", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
+            generateCheckboxConfig(group8, "Auto naming enabled", TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED);
+            generateCheckboxConfig(group8, "Use 'Circular' word on single district lines", TLMConfigWarehouse.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE);
 
             TLMUtils.doLog("Loading Group 2");
 
-            UIHelperExtension group2 = helper.AddGroupExtended("Linear map line intersections");
-            generateCheckboxConfig(group2, "Show metro line", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
-            generateCheckboxConfig(group2, "Show train/tram lines", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
-            generateCheckboxConfig(group2, "Show bus lines", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
-            generateCheckboxConfig(group2, "Show seaports", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
-            generateCheckboxConfig(group2, "Show airports", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
-            generateCheckboxConfig(group2, "Show taxi stops (AD only)", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
 
-            group2.AddSpace(20);
-            group2.AddCheckbox("Show near lines in public services buildings' world info panel", m_savedShowNearLinesInCityServicesWorldInfoPanel.value, toggleShowNearLinesInCityServicesWorldInfoPanel);
-            group2.AddCheckbox("Show near lines in zoned buildings' world info panel", m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value, toggleShowNearLinesInZonedBuildingWorldInfoPanel);
+            UIHelperExtension group5 = helper.AddGroupExtended("Global Options");
+            group5.AddSpace(20);
+            group5.AddCheckbox("Show near lines in public services buildings' world info panel", m_savedShowNearLinesInCityServicesWorldInfoPanel.value, toggleShowNearLinesInCityServicesWorldInfoPanel);
+            group5.AddCheckbox("Show near lines in zoned buildings' world info panel", m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value, toggleShowNearLinesInZonedBuildingWorldInfoPanel);
 
             TLMUtils.doLog("Loading Group 3");
-            UIHelperExtension group3 = helper.AddGroupExtended("Custom palettes config [" + UIHelperExtension.version + "]");
-            ((group3.self) as UIPanel).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((group3.self) as UIPanel).wrapLayout = true;
+            UIHelperExtension group6 = helper.AddGroupExtended("Custom palettes config [" + UIHelperExtension.version + "]");
+            ((group6.self) as UIPanel).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((group6.self) as UIPanel).wrapLayout = true;
 
             UITextField paletteName = null;
             DropDownColorSelector colorEditor = null;
             NumberedColorList colorList = null;
 
-            editorSelector = group3.AddDropdown("Palette Select", TLMAutoColorPalettes.paletteListForEditing, 0, delegate (int sel)
+            editorSelector = group6.AddDropdown("Palette Select", TLMAutoColorPalettes.paletteListForEditing, 0, delegate (int sel)
             {
                 if (sel <= 0 || sel >= TLMAutoColorPalettes.paletteListForEditing.Length)
                 {
@@ -371,18 +406,18 @@ namespace Klyte.TransportLinesManager
                 }
             }) as UIDropDown;
 
-            group3.AddButton("Create", delegate ()
+            group6.AddButton("Create", delegate ()
             {
                 string newName = TLMAutoColorPalettes.addPalette();
                 updateDropDowns("", "");
                 editorSelector.selectedValue = newName;
             });
-            group3.AddButton("Delete", delegate ()
+            group6.AddButton("Delete", delegate ()
             {
                 TLMAutoColorPalettes.removePalette(editorSelector.selectedValue);
                 updateDropDowns("", "");
             });
-            paletteName = group3.AddTextField("Palette Name", delegate (string val)
+            paletteName = group6.AddTextField("Palette Name", delegate (string val)
             {
 
             }, "", (string value) =>
@@ -393,7 +428,7 @@ namespace Klyte.TransportLinesManager
             });
             paletteName.parent.width = 500;
 
-            colorEditor = group3.AddColorField("Colors", Color.black, delegate (Color c)
+            colorEditor = group6.AddColorField("Colors", Color.black, delegate (Color c)
             {
                 TLMAutoColorPalettes.setColor(colorEditor.id, editorSelector.selectedValue, c);
                 colorList.colorList = TLMAutoColorPalettes.getColors(editorSelector.selectedValue);
@@ -403,7 +438,7 @@ namespace Klyte.TransportLinesManager
                 colorList.colorList = TLMAutoColorPalettes.getColors(editorSelector.selectedValue);
             });
 
-            colorList = group3.AddNumberedColorList(null, new List<Color32>(), delegate (int c)
+            colorList = group6.AddNumberedColorList(null, new List<Color32>(), delegate (int c)
             {
                 colorEditor.id = c;
                 colorEditor.selectedColor = TLMAutoColorPalettes.getColor(c, editorSelector.selectedValue, false);
@@ -436,23 +471,45 @@ namespace Klyte.TransportLinesManager
 
         private UIDropDown generateDropdownStringValueConfig(UIHelperExtension group, string title, string[] options, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.getString(configIndex), delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, dropDowns[configIndex].items[i]); });
+            dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.getString(configIndex), delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, options[i]); });
             return dropDowns[configIndex];
         }
 
         private void reloadData(int selection)
         {
-
-        }
-
-        private string[] getOptionsForLoadConfig()
-        {
-            if (currentCityId == TLMConfigWarehouse.GLOBAL_CONFIG_INDEX)
+            TLMUtils.doLog("OPÇÔES RECARREGANDO ARQUIVO", currentSelectedConfigEditor);
+            foreach (var i in dropDowns)
             {
-                return new string[] { TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
+                TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
+                try
+                {
+                    switch (i.Key & TLMConfigWarehouse.ConfigIndex.TYPE_PART)
+                    {
+                        case TLMConfigWarehouse.ConfigIndex.TYPE_INT:
+                            i.Value.selectedIndex = currentConfigWarehouseEditor.getInt(i.Key);
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.TYPE_STRING:
+                            int selectedIndex = i.Value.items.ToList().IndexOf(currentConfigWarehouseEditor.getString(i.Key));
+                            i.Value.selectedIndex = Math.Max(selectedIndex, 0);
+                            break;
+                        default:
+                            TLMUtils.doLog("TIPO INVÁLIDO!", i);
+                            break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    TLMUtils.doLog("EXCEPTION! {0} | {1} | [{2}]", i.Key, currentConfigWarehouseEditor.getString(i.Key), string.Join(",", i.Value.items));
+                }
+
             }
-            else return new string[] { currentCityId, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
+            foreach (var i in checkBoxes)
+            {
+                TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
+                i.Value.isChecked = currentConfigWarehouseEditor.getBool(i.Key);
+            }
         }
+
 
         private void updateDropDowns(string oldName, string newName)
         {
@@ -618,8 +675,6 @@ namespace Klyte.TransportLinesManager
             this.Invalidate();
         }
     }
-
-
 
 
 }

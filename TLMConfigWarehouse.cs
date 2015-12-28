@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,12 +25,13 @@ namespace Klyte.TransportLinesManager
         private static Dictionary<string, TLMConfigWarehouse> loadedCities = new Dictionary<string, TLMConfigWarehouse>();
         public bool unsafeMode = false;
         private string cityId;
+        private string cityName;
 
-        public static TLMConfigWarehouse getConfig(string cityId)
+        public static TLMConfigWarehouse getConfig(string cityId, string cityName)
         {
             if (!loadedCities.ContainsKey(cityId))
             {
-                loadedCities[cityId] = new TLMConfigWarehouse(cityId);
+                loadedCities[cityId] = new TLMConfigWarehouse(cityId, cityName);
             }
             return loadedCities[cityId];
         }
@@ -91,12 +93,35 @@ namespace Klyte.TransportLinesManager
             return transportType;
         }
 
-        private TLMConfigWarehouse(string cityId)
+        private TLMConfigWarehouse(string cityId, string cityName)
         {
             this.cityId = cityId;
+            this.cityName = cityName;
             SettingsFile tlmSettings = new SettingsFile();
             tlmSettings.fileName = thisFileName;
             GameSettings.AddSettingsFile(tlmSettings);
+
+            if (!tlmSettings.IsValid() && cityId != GLOBAL_CONFIG_INDEX)
+            {
+                TLMConfigWarehouse defaultFile = getConfig(GLOBAL_CONFIG_INDEX, GLOBAL_CONFIG_INDEX);
+                foreach (string key in GameSettings.FindSettingsFileByName(defaultFile.thisFileName).ListKeys())
+                {
+                    ConfigIndex ci = (ConfigIndex)Enum.Parse(typeof(ConfigIndex), key);
+                    switch (ci & ConfigIndex.TYPE_PART)
+                    {
+                        case ConfigIndex.TYPE_BOOL:
+                            setBool(ci, defaultFile.getBool(ci));
+                            break;
+                        case ConfigIndex.TYPE_STRING:
+                        case ConfigIndex.TYPE_LIST:
+                            setString(ci, defaultFile.getString(ci));
+                            break;
+                        case ConfigIndex.TYPE_INT:
+                            setInt(ci, defaultFile.getInt(ci));
+                            break;
+                    }
+                }
+            }
         }
 
         private string thisFileName
@@ -194,13 +219,16 @@ namespace Klyte.TransportLinesManager
 
         public enum ConfigIndex
         {
-            GLOBAL_CONFIG = 0x10000,
-            TRAM_LINES_IDS = 0x10001,
-            AUTO_COLOR_ENABLED = 0x10002,
-            CIRCULAR_IN_SINGLE_DISTRICT_LINE = 0x10003,
-            AUTO_NAME_ENABLED = 0x10004,
+            SYSTEM_PART = 0xFF0000,
+            TYPE_PART = 0x00FF00,
+            DESC_DATA = 0xFF,
 
-            SHOW_IN_LINEAR_MAP = 0x01000,
+            GLOBAL_CONFIG = 0x10000,
+            TRAM_LINES_IDS = 0x10001 | TYPE_LIST,
+            AUTO_COLOR_ENABLED = 0x10002 | TYPE_BOOL,
+            CIRCULAR_IN_SINGLE_DISTRICT_LINE = 0x10003 | TYPE_BOOL,
+            AUTO_NAME_ENABLED = 0x10004 | TYPE_BOOL,
+
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = 0xFF0000,
@@ -210,14 +238,20 @@ namespace Klyte.TransportLinesManager
             TAXI_CONFIG = TransportInfo.TransportType.Taxi << 16,
             SHIP_CONFIG = TransportInfo.TransportType.Ship << 16,
 
-            PREFIX = 0x1,
-            SEPARATOR = 0x2,
-            SUFFIX = 0x3,
-            LEADING_ZEROS = 0x4,
-            PALETTE_MAIN = 0x5,
-            PALETTE_SUBLINE = 0x6,
-            PALETTE_RANDOM_ON_OVERFLOW = 0x7,
-            PALETTE_PREFIX_BASED = 0x8,
+            TYPE_STRING = 0x0100,
+            TYPE_INT = 0x0200,
+            TYPE_BOOL = 0x0300,
+            TYPE_LIST = 0x0400,
+
+            PREFIX = 0x1 | TYPE_INT,
+            SEPARATOR = 0x2 | TYPE_INT,
+            SUFFIX = 0x3 | TYPE_INT,
+            LEADING_ZEROS = 0x4 | TYPE_BOOL,
+            PALETTE_MAIN = 0x5 | TYPE_STRING,
+            PALETTE_SUBLINE = 0x6 | TYPE_STRING,
+            PALETTE_RANDOM_ON_OVERFLOW = 0x7 | TYPE_BOOL,
+            PALETTE_PREFIX_BASED = 0x8 | TYPE_BOOL,
+            SHOW_IN_LINEAR_MAP = 0x9 | TYPE_BOOL,
 
             TRAIN_PREFIX = TRAIN_CONFIG | PREFIX,
             TRAM_PREFIX = TRAM_CONFIG | PREFIX,

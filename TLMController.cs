@@ -208,12 +208,12 @@ namespace Klyte.TransportLinesManager
             TransportLine t = tm.m_lines.m_buffer[(int)lineIdx];
             try
             {
-                ModoNomenclatura mn, pre;
+                ModoNomenclatura sufixo, prefixo;
                 Separador s;
                 bool z;
-                TLMLineUtils.getLineNamingParameters(lineIdx, out mn, out s, out pre, out z);
+                TLMLineUtils.getLineNamingParameters(lineIdx, out prefixo, out s, out sufixo, out z);
 
-                TLMUtils.setLineName((ushort)lineIdx, "[" + TLMUtils.getString(pre, s, mn, t.m_lineNumber, z).Replace('\n', ' ') + "] " + TLMUtils.calculateAutoName(lineIdx));
+                TLMUtils.setLineName((ushort)lineIdx, "[" + TLMUtils.getString(prefixo, s, sufixo, t.m_lineNumber, z).Replace('\n', ' ') + "] " + TLMUtils.calculateAutoName(lineIdx));
             }
             catch (Exception e)
             {

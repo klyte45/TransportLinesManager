@@ -13,20 +13,21 @@ namespace Klyte.TransportLinesManager
 {
     public class TLMLineUtils
     {
-        public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura mn, out Separador s, out ModoNomenclatura pre, out bool z)
+        public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out bool zeros)
         {
             string nil;
-            getLineNamingParameters(lineIdx, out mn, out s, out pre, out z, out nil);
+            getLineNamingParameters(lineIdx, out prefix, out s, out suffix, out zeros, out nil);
+
         }
 
-        public static ItemClass.SubService getLineNamingParameters(ushort lineIdx, out ModoNomenclatura mn, out Separador s, out ModoNomenclatura pre, out bool z, out string icon)
+        public static ItemClass.SubService getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out bool zeros, out string icon)
         {
             TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(lineIdx);
 
-            mn = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
+            suffix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
             s = (Separador)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
-            pre = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
-            z = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
+            prefix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+            zeros = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
             switch (transportType)
             {
                 case TLMCW.ConfigIndex.TRAM_CONFIG:
@@ -259,10 +260,10 @@ namespace Klyte.TransportLinesManager
             {
                 TransportLine intersectLine = tm.m_lines.m_buffer[(int)s.Value];
                 String bgSprite;
-                ModoNomenclatura nomenclatura, prefixo;
+                ModoNomenclatura sufixo, prefixo;
                 Separador separador;
                 bool zeros;
-                ItemClass.SubService ss = getLineNamingParameters(s.Value, out prefixo, out separador, out nomenclatura, out zeros, out bgSprite);
+                ItemClass.SubService ss = getLineNamingParameters(s.Value, out prefixo, out separador, out sufixo, out zeros, out bgSprite);
                 UIButtonLineInfo lineCircleIntersect = null;
                 TLMUtils.createUIElement<UIButtonLineInfo>(ref lineCircleIntersect, intersectionsPanel.transform);
                 lineCircleIntersect.autoSize = false;
@@ -311,7 +312,7 @@ namespace Klyte.TransportLinesManager
                     daytimeIndicator.atlas = TLMController.taLineNumber;
                     daytimeIndicator.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
                 }
-                setLineNumberCircleOnRef(intersectLine.m_lineNumber, prefixo, separador, nomenclatura, zeros, lineNumberIntersect);
+                setLineNumberCircleOnRef(intersectLine.m_lineNumber, prefixo, separador, sufixo, zeros, lineNumberIntersect);
                 lineNumberIntersect.textScale *= multiplier;
                 lineNumberIntersect.relativePosition *= multiplier;
             }
@@ -345,9 +346,9 @@ namespace Klyte.TransportLinesManager
             lineCircleIntersect.tooltip = description;
         }
 
-        public static void setLineNumberCircleOnRef(int num, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, bool zeros, UILabel reference, float ratio = 1f)
+        public static void setLineNumberCircleOnRef(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros, UILabel reference, float ratio = 1f)
         {
-            reference.text = TLMUtils.getString(pre, s, mn, num, zeros);
+            reference.text = TLMUtils.getString(prefix, s, sufix, num, zeros);
             int lenght = reference.text.Length;
             if (lenght >= 4)
             {
@@ -538,35 +539,35 @@ namespace Klyte.TransportLinesManager
             return saida.ToArray();
         }
 
-        public static string getString(ModoNomenclatura pre, Separador s, ModoNomenclatura m, int numero, bool zerosEsquerda)
+        public static string getString(ModoNomenclatura prefixo, Separador s, ModoNomenclatura sufixo, int numero, bool zerosEsquerda)
         {
-            string prefixo = "";
-            if (pre != ModoNomenclatura.Nenhum)
+            string prefixoSaida = "";
+            if (prefixo != ModoNomenclatura.Nenhum)
             {
-                switch (pre)
+                switch (prefixo)
                 {
                     case ModoNomenclatura.GregoMaiusculo:
-                        prefixo = getStringFromNumber(gregoMaiusculo, numero / 1000);
+                        prefixoSaida = getStringFromNumber(gregoMaiusculo, numero / 1000);
                         break;
                     case ModoNomenclatura.GregoMinusculo:
-                        prefixo = getStringFromNumber(gregoMinusculo, numero / 1000);
+                        prefixoSaida = getStringFromNumber(gregoMinusculo, numero / 1000);
                         break;
                     case ModoNomenclatura.CirilicoMaiusculo:
-                        prefixo = getStringFromNumber(cirilicoMaiusculo, numero / 1000);
+                        prefixoSaida = getStringFromNumber(cirilicoMaiusculo, numero / 1000);
                         break;
                     case ModoNomenclatura.CirilicoMinusculo:
-                        prefixo = getStringFromNumber(cirilicoMinusculo, numero / 1000);
+                        prefixoSaida = getStringFromNumber(cirilicoMinusculo, numero / 1000);
                         break;
                     case ModoNomenclatura.LatinoMaiusculo:
-                        prefixo = getStringFromNumber(latinoMaiusculo, numero / 1000);
+                        prefixoSaida = getStringFromNumber(latinoMaiusculo, numero / 1000);
                         break;
                     case ModoNomenclatura.LatinoMinusculo:
-                        prefixo = getStringFromNumber(latinoMinusculo, numero / 1000);
+                        prefixoSaida = getStringFromNumber(latinoMinusculo, numero / 1000);
                         break;
                     default:
                         if (numero >= 1000)
                         {
-                            prefixo = "" + (numero / 1000);
+                            prefixoSaida = "" + (numero / 1000);
                         }
                         break;
                 }
@@ -575,53 +576,53 @@ namespace Klyte.TransportLinesManager
 
             if (numero > 0)
             {
-                if (prefixo != "" && s != Separador.Nenhum)
+                if (prefixoSaida != "" && s != Separador.Nenhum)
                 {
                     switch (s)
                     {
                         case Separador.Barra:
-                            prefixo += "/";
+                            prefixoSaida += "/";
                             break;
                         case Separador.Espaco:
-                            prefixo += " ";
+                            prefixoSaida += " ";
                             break;
                         case Separador.Hifen:
-                            prefixo += "-";
+                            prefixoSaida += "-";
                             break;
                         case Separador.Ponto:
-                            prefixo += ".";
+                            prefixoSaida += ".";
                             break;
                         case Separador.QuebraLinha:
-                            prefixo += "\n";
+                            prefixoSaida += "\n";
                             break;
                     }
                 }
-                switch (m)
+                switch (sufixo)
                 {
                     case ModoNomenclatura.GregoMaiusculo:
-                        return prefixo + getStringFromNumber(gregoMaiusculo, numero);
+                        return prefixoSaida + getStringFromNumber(gregoMaiusculo, numero);
                     case ModoNomenclatura.GregoMinusculo:
-                        return prefixo + getStringFromNumber(gregoMinusculo, numero);
+                        return prefixoSaida + getStringFromNumber(gregoMinusculo, numero);
                     case ModoNomenclatura.CirilicoMaiusculo:
-                        return prefixo + getStringFromNumber(cirilicoMaiusculo, numero);
+                        return prefixoSaida + getStringFromNumber(cirilicoMaiusculo, numero);
                     case ModoNomenclatura.CirilicoMinusculo:
-                        return prefixo + getStringFromNumber(cirilicoMinusculo, numero);
+                        return prefixoSaida + getStringFromNumber(cirilicoMinusculo, numero);
                     case ModoNomenclatura.LatinoMaiusculo:
-                        return prefixo + getStringFromNumber(latinoMaiusculo, numero);
+                        return prefixoSaida + getStringFromNumber(latinoMaiusculo, numero);
                     case ModoNomenclatura.LatinoMinusculo:
-                        return prefixo + getStringFromNumber(latinoMinusculo, numero);
+                        return prefixoSaida + getStringFromNumber(latinoMinusculo, numero);
                     default:
-                        if (zerosEsquerda && prefixo != "")
+                        if (zerosEsquerda && prefixoSaida != "")
                         {
-                            return prefixo + numero.ToString("D3");
+                            return prefixoSaida + numero.ToString("D3");
                         }
                         else {
-                            return prefixo + numero;
+                            return prefixoSaida + numero;
                         }
                 }
             }
             else {
-                return prefixo;
+                return prefixoSaida;
             }
         }
 
