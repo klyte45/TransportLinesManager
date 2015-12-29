@@ -398,6 +398,7 @@ namespace Klyte.TransportLinesManager
 
 
         private static ItemClass.Service[] seachOrder = new ItemClass.Service[]{
+            ItemClass.Service.PublicTransport,
             ItemClass.Service.Monument,
             ItemClass.Service.Beautification,
             ItemClass.Service.Government,
@@ -424,13 +425,13 @@ namespace Klyte.TransportLinesManager
             bool transportBuilding = false;
             if (ss != ItemClass.SubService.None)
             {
-                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
+                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.CustomName, Building.Flags.Untouchable);
                 transportBuilding = true;
             }
 
             if (buildingId == 0)
             {
-                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active, Building.Flags.Untouchable);
+                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active | Building.Flags.CustomName, Building.Flags.Untouchable);
                 if (buildingId == 0)
                 {
                     int iterator = 0;

@@ -33,6 +33,9 @@ namespace Klyte.TransportLinesManager
                 case TLMCW.ConfigIndex.TRAM_CONFIG:
                     icon = "TramIcon";
                     return ItemClass.SubService.PublicTransportTrain;
+                case TLMCW.ConfigIndex.BULLET_TRAIN_CONFIG:
+                    icon = "BulletTrainIcon";
+                    return ItemClass.SubService.PublicTransportTrain;
                 case TLMCW.ConfigIndex.TRAIN_CONFIG:
                     icon = "TrainIcon";
                     return ItemClass.SubService.PublicTransportTrain;
@@ -47,37 +50,6 @@ namespace Klyte.TransportLinesManager
                     return ItemClass.SubService.None;
             }
         }
-
-        //public static void GetLineNumberRules(out ModoNomenclatura mn, out ModoNomenclatura mnPrefixo, out Separador sep, out bool zeros, TransportInfo.TransportType tipoLinha)
-        //{
-        //    switch (tipoLinha)
-        //    {
-        //        case TransportInfo.TransportType.Bus:
-        //            mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
-        //            mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
-        //            sep = (Separador)TransportLinesManagerMod.savedNomenclaturaOnibusSeparador.value;
-        //            zeros = TransportLinesManagerMod.savedNomenclaturaOnibusZeros.value;
-        //            break;
-        //        case TransportInfo.TransportType.Metro:
-        //            mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
-        //            mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
-        //            sep = (Separador)TransportLinesManagerMod.savedNomenclaturaMetroSeparador.value;
-        //            zeros = TransportLinesManagerMod.savedNomenclaturaMetroZeros.value;
-        //            break;
-        //        case TransportInfo.TransportType.Train:
-        //            mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
-        //            mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
-        //            sep = (Separador)TransportLinesManagerMod.savedNomenclaturaTremSeparador.value;
-        //            zeros = TransportLinesManagerMod.savedNomenclaturaTremZeros.value;
-        //            break;
-        //        default:
-        //            mn = ModoNomenclatura.Numero;
-        //            mnPrefixo = ModoNomenclatura.Nenhum;
-        //            sep = Separador.Nenhum;
-        //            zeros = false;
-        //            return;
-        //    }
-        //}
 
 
         /// <summary>
@@ -219,16 +191,22 @@ namespace Klyte.TransportLinesManager
                 if (t.Equals(default(TransportLine)) || tl.Info.GetSubService() != t.Info.GetSubService() || tl.m_lineNumber != t.m_lineNumber)
                 {
                     string transportTypeLetter = "";
-                    switch (tl.Info.m_transportType)
+                    switch (TLMCW.getConfigIndexForLine(s))
                     {
-                        case TransportInfo.TransportType.Bus:
+                        case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
+                            transportTypeLetter = "F";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
                             transportTypeLetter = "E";
                             break;
-                        case TransportInfo.TransportType.Metro:
-                            transportTypeLetter = "B";
-                            break;
-                        case TransportInfo.TransportType.Train:
+                        case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
                             transportTypeLetter = "C";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                            transportTypeLetter = "D";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG:
+                            transportTypeLetter = "B";
                             break;
                     }
                     otherLinesIntersections.Add(transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0'), s);
@@ -378,7 +356,7 @@ namespace Klyte.TransportLinesManager
     {
         public static void doLog(string format, params object[] args)
         {
-            Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+            //Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
         }
         public static void createUIElement<T>(ref T uiItem, Transform parent) where T : Component
         {

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-[assembly: AssemblyVersion("3.1.*")]
+[assembly: AssemblyVersion("4.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -34,7 +34,15 @@ namespace Klyte.TransportLinesManager
         private SavedBool m_savedOverrideDefaultLineInfoPanel;
         private SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel;
         private SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
+        private SavedString m_tramAssets;
+        private SavedString m_bulletTrainAssets;
+        private SavedString m_inactiveTrains;
         private SavedString m_savedPalettes;
+
+        private TextList<string> listTrains = null;
+        private TextList<string> listTrams = null;
+        private TextList<string> listBulletTrains = null;
+        private TextList<string> listInactives = null;
 
         private UIDropDown editorSelector;
         private Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown> dropDowns = new Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown>();
@@ -46,6 +54,28 @@ namespace Klyte.TransportLinesManager
             get
             {
                 return configSelector.selectedIndex == 0 ? currentCityId : TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
+            }
+        }
+
+        public static SavedString tramAssets
+        {
+            get
+            {
+                return TransportLinesManagerMod.instance.m_tramAssets;
+            }
+        }
+        public static SavedString bulletTrainAssets
+        {
+            get
+            {
+                return TransportLinesManagerMod.instance.m_bulletTrainAssets;
+            }
+        }
+        public static SavedString inactiveTrains
+        {
+            get
+            {
+                return TransportLinesManagerMod.instance.m_inactiveTrains;
             }
         }
 
@@ -89,11 +119,19 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public static bool isCityLoaded
+        {
+            get
+            {
+                return Singleton<SimulationManager>.instance.m_metaData != null;
+            }
+        }
+
         private string currentCityId
         {
             get
             {
-                if (Singleton<SimulationManager>.instance.m_metaData != null)
+                if (isCityLoaded)
                 {
                     return Singleton<SimulationManager>.instance.m_metaData.m_gameInstanceIdentifier;
                 }
@@ -104,7 +142,7 @@ namespace Klyte.TransportLinesManager
         {
             get
             {
-                if (Singleton<SimulationManager>.instance.m_metaData != null)
+                if (isCityLoaded)
                 {
                     return Singleton<SimulationManager>.instance.m_metaData.m_CityName;
                 }
@@ -143,6 +181,7 @@ namespace Klyte.TransportLinesManager
             get { return "A shortcut to manage all city's public transports lines."; }
         }
 
+
         public void OnCreated(ILoading loading)
         {
         }
@@ -153,7 +192,10 @@ namespace Klyte.TransportLinesManager
             tlmSettings.fileName = TLMConfigWarehouse.CONFIG_FILENAME;
             GameSettings.AddSettingsFile(tlmSettings);
 
-            m_savedPalettes = new SavedString("savedPalettesTLM", Settings.gameSettingsFile, TLMAutoColorPalettes.defaultPaletteList, true);
+            m_savedPalettes = new SavedString("savedPalettesTLM", Settings.gameSettingsFile, "", true);
+            m_tramAssets = new SavedString("TLMTramAssets", Settings.gameSettingsFile, "", true);
+            m_bulletTrainAssets = new SavedString("TLMBulletTrainAssets", Settings.gameSettingsFile, "", true);
+            m_inactiveTrains = new SavedString("TLMInactiveTrains", Settings.gameSettingsFile, "", true);
             m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
             m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
             //IPT Incompatible
@@ -215,41 +257,49 @@ namespace Klyte.TransportLinesManager
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAIN_PREFIX, m_savedNomenclaturaTremPrefixo.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BUS_PREFIX, m_savedNomenclaturaOnibusPrefixo.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAM_PREFIX, m_savedNomenclaturaTremPrefixo.value);
+            globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_PREFIX, m_savedNomenclaturaTremPrefixo.value);
 
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.METRO_SEPARATOR, m_savedNomenclaturaMetroSeparador.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAIN_SEPARATOR, m_savedNomenclaturaTremSeparador.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BUS_SEPARATOR, m_savedNomenclaturaOnibusSeparador.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAM_SEPARATOR, m_savedNomenclaturaTremSeparador.value);
+            globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_SEPARATOR, m_savedNomenclaturaTremSeparador.value);
 
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.METRO_SUFFIX, m_savedNomenclaturaMetro.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAIN_SUFFIX, m_savedNomenclaturaTrem.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BUS_SUFFIX, m_savedNomenclaturaOnibus.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAM_SUFFIX, m_savedNomenclaturaTrem.value);
+            globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_SUFFIX, m_savedNomenclaturaTrem.value);
 
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.METRO_LEADING_ZEROS, m_savedNomenclaturaMetroZeros.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAIN_LEADING_ZEROS, m_savedNomenclaturaTremZeros.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BUS_LEADING_ZEROS, m_savedNomenclaturaOnibusZeros.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAM_LEADING_ZEROS, m_savedNomenclaturaTremZeros.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_LEADING_ZEROS, m_savedNomenclaturaTremZeros.value);
 
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_MAIN, m_savedAutoColorPaletteMetro.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_MAIN, m_savedAutoColorPaletteTrem.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_MAIN, m_savedAutoColorPaletteOnibus.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_MAIN, m_savedAutoColorPaletteTrem.value);
+            globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_PALETTE_MAIN, m_savedAutoColorPaletteTrem.value);
 
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_SUBLINE, m_savedAutoColorPaletteMetro.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_SUBLINE, m_savedAutoColorPaletteTrem.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_SUBLINE, m_savedAutoColorPaletteOnibus.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_SUBLINE, m_savedAutoColorPaletteTrem.value);
+            globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_PALETTE_SUBLINE, m_savedAutoColorPaletteTrem.value);
 
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
 
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
 
 
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED, m_savedAutoColor.value);
@@ -260,6 +310,7 @@ namespace Klyte.TransportLinesManager
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP, m_savedShowTrainLinesOnLinearMap.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BUS_SHOW_IN_LINEAR_MAP, m_savedShowBusLinesOnLinearMap.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAM_SHOW_IN_LINEAR_MAP, m_savedShowTrainLinesOnLinearMap.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_SHOW_IN_LINEAR_MAP, m_savedShowTrainLinesOnLinearMap.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP, m_savedShowAirportsOnLinearMap.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP, m_savedShowTaxiStopsOnLinearMap.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP, m_savedShowPassengerPortsOnLinearMap.value);
@@ -289,7 +340,7 @@ namespace Klyte.TransportLinesManager
 
             configSelector = (UIDropDown)helper.AddDropdown("Show Configurations For", getOptionsForLoadConfig(), 0, reloadData);
             TLMUtils.doLog("Loading Group 1");
-            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG })
+            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG })
             {
                 UIHelperExtension group1 = helper.AddGroupExtended(TLMConfigWarehouse.getNameForTransportType(transportType) + " Config");
                 ((UIPanel)group1.self).autoLayoutDirection = LayoutDirection.Horizontal;
@@ -329,10 +380,10 @@ namespace Klyte.TransportLinesManager
             generateCheckboxConfig(group7, "Show metro line", TLMConfigWarehouse.ConfigIndex.METRO_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, "Show train lines", TLMConfigWarehouse.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, "Show trams lines", TLMConfigWarehouse.ConfigIndex.TRAM_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, "Show bullet train lines", TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, "Show seaports", TLMConfigWarehouse.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, "Show airports", TLMConfigWarehouse.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, "Show taxi stops (AD only)", TLMConfigWarehouse.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP);
-
 
             UIHelperExtension group8 = helper.AddGroupExtended("Automation");
             generateCheckboxConfig(group8, "Auto coloring enabled", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
@@ -342,7 +393,85 @@ namespace Klyte.TransportLinesManager
             TLMUtils.doLog("Loading Group 2");
 
 
-            UIHelperExtension group5 = helper.AddGroupExtended("Global Options");
+
+            UIHelperExtension group2 = helper.AddGroupExtended("Tram Assets Selection (Global)");
+            if (isCityLoaded)
+            {
+                ((UIPanel)group2.self).autoLayoutDirection = LayoutDirection.Horizontal;
+                ((UIPanel)group2.self).autoLayoutPadding = new RectOffset(5, 5, 0, 0);
+                ((UIPanel)group2.self).wrapLayout = true;
+                TLMTrainModifyRedirects.forceReload();
+                listTrains = group2.AddTextList("Trains as Trains", TLMTrainModifyRedirects.getTrainAssetDictionary(), delegate (string idx) { listTrams.unselect(); listBulletTrains.unselect(); listInactives.unselect(); }, 340, 250);
+                listTrams = group2.AddTextList("Trains as Trams", TLMTrainModifyRedirects.getTramAssetDictionary(), delegate (string idx) { listTrains.unselect(); listBulletTrains.unselect(); listInactives.unselect(); }, 340, 250);
+                listBulletTrains = group2.AddTextList("Trains as Bullet Trains", TLMTrainModifyRedirects.getBulletTrainAssetDictionary(), delegate (string idx) { listTrams.unselect(); listTrains.unselect(); listInactives.unselect(); }, 340, 250);
+                listInactives = group2.AddTextList("Trains Inactives", TLMTrainModifyRedirects.getInactiveTrainAssetDictionary(), delegate (string idx) { listTrams.unselect(); listBulletTrains.unselect(); listTrains.unselect(); }, 340, 250);
+                listTrains.root.backgroundSprite = "EmptySprite";
+                listTrains.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG);
+                listTrains.root.width = 340;
+                listTrams.root.backgroundSprite = "EmptySprite";
+                listTrams.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG);
+                listTrams.root.width = 340;
+                listBulletTrains.root.backgroundSprite = "EmptySprite";
+                listBulletTrains.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG);
+                listBulletTrains.root.width = 340;
+                listInactives.root.backgroundSprite = "EmptySprite";
+                listInactives.root.color = Color.gray;
+                listInactives.root.width = 340;
+                foreach (Transform t in ((UIPanel)group2.self).transform)
+                {
+                    var panel = t.gameObject.GetComponent<UIPanel>();
+                    if (panel)
+                    {
+                        panel.width = 340;
+                    }
+                }
+                group2.AddSpace(10);
+                OnButtonClicked reload = delegate
+                {
+                    listTrains.itemsList = TLMTrainModifyRedirects.getTrainAssetDictionary();
+                    listTrams.itemsList = TLMTrainModifyRedirects.getTramAssetDictionary();
+                    listBulletTrains.itemsList = TLMTrainModifyRedirects.getBulletTrainAssetDictionary();
+                    listInactives.itemsList = TLMTrainModifyRedirects.getInactiveTrainAssetDictionary();
+                };
+                group2.AddButton("Move to Train", delegate
+                {
+                    if (!listTrains.unselected) return;
+                    var selected = getSelectedIndex(listTrams, listBulletTrains, listInactives);
+                    if (selected == null || selected.Equals(default(string))) return;
+                    TLMTrainModifyRedirects.addAssetToTrainList(selected);
+                    reload();
+                });
+                group2.AddButton("Move to Tram", delegate
+                {
+                    if (!listTrams.unselected) return;
+                    var selected = getSelectedIndex(listBulletTrains, listTrains, listInactives);
+                    if (selected == null || selected.Equals(default(string))) return;
+                    TLMTrainModifyRedirects.addAssetToTramList(selected);
+                    reload();
+                });
+                group2.AddButton("Move to Bullet", delegate
+                {
+                    if (!listBulletTrains.unselected) return;
+                    var selected = getSelectedIndex(listTrams, listTrains, listInactives);
+                    if (selected == null || selected.Equals(default(string))) return;
+                    TLMTrainModifyRedirects.addAssetToBulletTrainList(selected);
+                    reload();
+                });
+                group2.AddButton("Move to Inactive", delegate
+                {
+                    if (!listInactives.unselected) return;
+                    var selected = getSelectedIndex(listTrams, listTrains, listBulletTrains);
+                    if (selected == null || selected.Equals(default(string))) return;
+                    TLMTrainModifyRedirects.addAssetToInactiveTrainList(selected);
+                    reload();
+                });
+            }
+            else
+            {
+                group2.AddLabel("Please load a city to get access to active trains!");
+            }
+
+            UIHelperExtension group5 = helper.AddGroupExtended("Other Global Options");
             group5.AddSpace(20);
             group5.AddCheckbox("Show near lines in public services buildings' world info panel", m_savedShowNearLinesInCityServicesWorldInfoPanel.value, toggleShowNearLinesInCityServicesWorldInfoPanel);
             group5.AddCheckbox("Show near lines in zoned buildings' world info panel", m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value, toggleShowNearLinesInZonedBuildingWorldInfoPanel);
@@ -421,6 +550,20 @@ namespace Klyte.TransportLinesManager
             colorList.Disable();
 
 
+        }
+
+        private T getSelectedIndex<T>(params TextList<T>[] boxes)
+        {
+            foreach (var box in boxes)
+            {
+                if (!box.unselected)
+                {
+                    TLMUtils.doLog("{0} is selected: {1}", box.name, box.selectedItem.ToString());
+                    return box.selectedItem;
+                }
+                TLMUtils.doLog("{0} isn't selected", box.name);
+            }
+            return default(T);
         }
 
         private UICheckBox generateCheckboxConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
@@ -535,10 +678,10 @@ namespace Klyte.TransportLinesManager
             if (TLMController.taLineNumber == null)
             {
                 TLMController.taLineNumber = CreateTextureAtlas("lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                    "BusIcon","SubwayIcon","TrainIcon","TramIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","TramImage"
+                    "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","TramIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","TramImage","BulletTrainImage"
                 });
-
             }
+            TLMTrainModifyRedirects.instance.EnableHooks();
             //			Log.debug ("LEVELLOAD");
         }
 

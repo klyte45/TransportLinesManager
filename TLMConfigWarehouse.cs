@@ -21,7 +21,9 @@ namespace Klyte.TransportLinesManager
          ConfigIndex.    TRAIN_PALETTE_SUBLINE,
         ConfigIndex.     TRAM_PALETTE_SUBLINE,
          ConfigIndex.    METRO_PALETTE_SUBLINE,
-         ConfigIndex.    BUS_PALETTE_SUBLINE
+         ConfigIndex.    BUS_PALETTE_SUBLINE,
+         ConfigIndex.    BULLET_TRAIN_PALETTE_MAIN ,
+         ConfigIndex.    BULLET_TRAIN_PALETTE_SUBLINE
         };
         private static Dictionary<string, TLMConfigWarehouse> loadedCities = new Dictionary<string, TLMConfigWarehouse>();
         public bool unsafeMode = false;
@@ -87,9 +89,18 @@ namespace Klyte.TransportLinesManager
             TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)i];
             ConfigIndex transportType = (ConfigIndex)((int)t.Info.m_transportType << 16);
             TLMUtils.doLog("t.Info.m_transportType = {0};transportType = {1} ", t.Info.m_transportType, transportType);
-            if (t.Info.m_transportType == TransportInfo.TransportType.Train && getCurrentConfigListInt(ConfigIndex.TRAM_LINES_IDS).Contains(i))
+            if (t.Info.m_transportType == TransportInfo.TransportType.Train)
             {
-                transportType = ConfigIndex.TRAM_CONFIG;
+                TLMUtils.doLog("isTram? {0}", getCurrentConfigListInt(ConfigIndex.TRAM_LINES_IDS).Contains(i));
+                TLMUtils.doLog("isBullet? {0}", getCurrentConfigListInt(ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains(i));
+                if (getCurrentConfigListInt(ConfigIndex.TRAM_LINES_IDS).Contains(i))
+                {
+                    transportType = ConfigIndex.TRAM_CONFIG;
+                }
+                else if (getCurrentConfigListInt(ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains(i))
+                {
+                    transportType = ConfigIndex.BULLET_TRAIN_CONFIG;
+                }
             }
             return transportType;
         }
@@ -229,6 +240,8 @@ namespace Klyte.TransportLinesManager
                     return new Color32(250, 104, 0, 255);
                 case ConfigIndex.TRAM_CONFIG:
                     return new Color32(73, 27, 137, 255);
+                case ConfigIndex.BULLET_TRAIN_CONFIG:
+                    return new Color32(127, 28, 7, 255);
                 case ConfigIndex.METRO_CONFIG:
                     return new Color32(58, 117, 50, 255);
                 case ConfigIndex.BUS_CONFIG:
@@ -253,6 +266,8 @@ namespace Klyte.TransportLinesManager
                     return "Train";
                 case ConfigIndex.TRAM_CONFIG:
                     return "Tram";
+                case ConfigIndex.BULLET_TRAIN_CONFIG:
+                    return "Bullet Train";
                 case ConfigIndex.METRO_CONFIG:
                     return "Metro";
                 case ConfigIndex.BUS_CONFIG:
@@ -280,10 +295,11 @@ namespace Klyte.TransportLinesManager
             AUTO_COLOR_ENABLED = 0x10002 | TYPE_BOOL,
             CIRCULAR_IN_SINGLE_DISTRICT_LINE = 0x10003 | TYPE_BOOL,
             AUTO_NAME_ENABLED = 0x10004 | TYPE_BOOL,
-
+            BULLET_TRAIN_LINES_IDS = 0x10005 | TYPE_LIST,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = 0xFF0000,
+            BULLET_TRAIN_CONFIG = 0xFE0000,
             METRO_CONFIG = TransportInfo.TransportType.Metro << 16,
             BUS_CONFIG = TransportInfo.TransportType.Bus << 16,
             PLANE_CONFIG = TransportInfo.TransportType.Airplane << 16,
@@ -309,41 +325,49 @@ namespace Klyte.TransportLinesManager
             TRAM_PREFIX = TRAM_CONFIG | PREFIX,
             METRO_PREFIX = METRO_CONFIG | PREFIX,
             BUS_PREFIX = BUS_CONFIG | PREFIX,
+            BULLET_TRAIN_PREFIX = BULLET_TRAIN_CONFIG | PREFIX,
 
             TRAIN_SEPARATOR = TRAIN_CONFIG | SEPARATOR,
             TRAM_SEPARATOR = TRAM_CONFIG | SEPARATOR,
             METRO_SEPARATOR = METRO_CONFIG | SEPARATOR,
             BUS_SEPARATOR = BUS_CONFIG | SEPARATOR,
+            BULLET_TRAIN_SEPARATOR = BULLET_TRAIN_CONFIG | SEPARATOR,
 
             TRAIN_SUFFIX = TRAIN_CONFIG | SUFFIX,
             TRAM_SUFFIX = TRAM_CONFIG | SUFFIX,
             METRO_SUFFIX = METRO_CONFIG | SUFFIX,
             BUS_SUFFIX = BUS_CONFIG | SUFFIX,
+            BULLET_TRAIN_SUFFIX = BULLET_TRAIN_CONFIG | SUFFIX,
 
             TRAIN_LEADING_ZEROS = TRAIN_CONFIG | LEADING_ZEROS,
             TRAM_LEADING_ZEROS = TRAM_CONFIG | LEADING_ZEROS,
             METRO_LEADING_ZEROS = METRO_CONFIG | LEADING_ZEROS,
             BUS_LEADING_ZEROS = BUS_CONFIG | LEADING_ZEROS,
+            BULLET_TRAIN_LEADING_ZEROS = BULLET_TRAIN_CONFIG | LEADING_ZEROS,
 
             TRAIN_PALETTE_MAIN = TRAIN_CONFIG | PALETTE_MAIN,
             TRAM_PALETTE_MAIN = TRAM_CONFIG | PALETTE_MAIN,
             METRO_PALETTE_MAIN = METRO_CONFIG | PALETTE_MAIN,
             BUS_PALETTE_MAIN = BUS_CONFIG | PALETTE_MAIN,
+            BULLET_TRAIN_PALETTE_MAIN = BULLET_TRAIN_CONFIG | PALETTE_MAIN,
 
             TRAIN_PALETTE_SUBLINE = TRAIN_CONFIG | PALETTE_SUBLINE,
             TRAM_PALETTE_SUBLINE = TRAM_CONFIG | PALETTE_SUBLINE,
             METRO_PALETTE_SUBLINE = METRO_CONFIG | PALETTE_SUBLINE,
             BUS_PALETTE_SUBLINE = BUS_CONFIG | PALETTE_SUBLINE,
+            BULLET_TRAIN_PALETTE_SUBLINE = BULLET_TRAIN_CONFIG | PALETTE_SUBLINE,
 
             TRAIN_PALETTE_RANDOM_ON_OVERFLOW = TRAIN_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             TRAM_PALETTE_RANDOM_ON_OVERFLOW = TRAM_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             METRO_PALETTE_RANDOM_ON_OVERFLOW = METRO_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             BUS_PALETTE_RANDOM_ON_OVERFLOW = BUS_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
+            BULLET_TRAIN_PALETTE_RANDOM_ON_OVERFLOW = BULLET_TRAIN_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
 
             TRAIN_PALETTE_PREFIX_BASED = TRAIN_CONFIG | PALETTE_PREFIX_BASED,
             TRAM_PALETTE_PREFIX_BASED = TRAM_CONFIG | PALETTE_PREFIX_BASED,
             METRO_PALETTE_PREFIX_BASED = METRO_CONFIG | PALETTE_PREFIX_BASED,
             BUS_PALETTE_PREFIX_BASED = BUS_CONFIG | PALETTE_PREFIX_BASED,
+            BULLET_TRAIN_PALETTE_PREFIX_BASED = BULLET_TRAIN_CONFIG | PALETTE_PREFIX_BASED,
 
             TRAIN_SHOW_IN_LINEAR_MAP = TRAIN_CONFIG | SHOW_IN_LINEAR_MAP,
             TRAM_SHOW_IN_LINEAR_MAP = TRAM_CONFIG | SHOW_IN_LINEAR_MAP,
@@ -352,6 +376,7 @@ namespace Klyte.TransportLinesManager
             PLANE_SHOW_IN_LINEAR_MAP = PLANE_CONFIG | SHOW_IN_LINEAR_MAP,
             TAXI_SHOW_IN_LINEAR_MAP = TAXI_CONFIG | SHOW_IN_LINEAR_MAP,
             SHIP_SHOW_IN_LINEAR_MAP = SHIP_CONFIG | SHOW_IN_LINEAR_MAP,
+            BULLET_TRAIN_SHOW_IN_LINEAR_MAP = BULLET_TRAIN_CONFIG | SHOW_IN_LINEAR_MAP,
         }
     }
 }

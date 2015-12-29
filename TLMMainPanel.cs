@@ -16,11 +16,13 @@ namespace Klyte.TransportLinesManager
         private Dictionary<Int32, UInt16> trensList;
         private Dictionary<Int32, UInt16> metroList;
         private Dictionary<Int32, UInt16> tramList;
+        private Dictionary<Int32, UInt16> bulletTrainList;
         private Dictionary<Int32, UInt16> onibusList;
         private UIButton trensLeg;
         private UIButton metroLeg;
         private UIButton onibusLeg;
         private UIButton tramLeg;
+        private UIButton bulletTrainLeg;
         private UIScrollablePanel linesListPanel;
 
         //botoes da parte das antigas configuraçoes		
@@ -86,6 +88,18 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public Dictionary<Int32, UInt16> bulletTrains
+        {
+            get
+            {
+                if (bulletTrainList == null)
+                {
+                    listaLinhas();
+                }
+                return bulletTrainList;
+            }
+        }
+
         public Dictionary<Int32, UInt16> trens
         {
             get
@@ -95,6 +109,17 @@ namespace Klyte.TransportLinesManager
                     listaLinhas();
                 }
                 return trensList;
+            }
+        }
+        public Dictionary<Int32, UInt16> trams
+        {
+            get
+            {
+                if (tramList == null)
+                {
+                    listaLinhas();
+                }
+                return tramList;
             }
         }
 
@@ -175,6 +200,7 @@ namespace Klyte.TransportLinesManager
             metroList = new Dictionary<int, ushort>();
             onibusList = new Dictionary<int, ushort>();
             tramList = new Dictionary<int, ushort>();
+            bulletTrainList = new Dictionary<int, ushort>();
 
             for (ushort i = 0; i < m_controller.tm.m_lines.m_size; i++)
             {
@@ -208,6 +234,14 @@ namespace Klyte.TransportLinesManager
                             }
                             tramList.Add(t.m_lineNumber, i);
                         }
+                        else if (TLMCW.getCurrentConfigListInt(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains(i))
+                        {
+                            while (bulletTrainList.ContainsKey(t.m_lineNumber))
+                            {
+                                t.m_lineNumber++;
+                            }
+                            bulletTrainList.Add(t.m_lineNumber, i);
+                        }
                         else {
                             while (trensList.ContainsKey(t.m_lineNumber))
                             {
@@ -221,6 +255,7 @@ namespace Klyte.TransportLinesManager
                 }
             }
             offset = 0;
+            offset += drawButtonsFromDictionary(bulletTrainList, offset);
             offset += drawButtonsFromDictionary(trensList, offset);
             offset += drawButtonsFromDictionary(tramList, offset);
             offset += drawButtonsFromDictionary(metroList, offset);
@@ -304,12 +339,26 @@ namespace Klyte.TransportLinesManager
 
             TLMUtils.createDragHandle(mainPanel, mainPanel, 35f);
 
+            TLMUtils.createUIElement<UIButton>(ref bulletTrainLeg, mainPanel.transform);
+            bulletTrainLeg.atlas = TLMController.taLineNumber;
+            bulletTrainLeg.width = 40;
+            bulletTrainLeg.height = 40;
+            bulletTrainLeg.name = "BulletTrain";
+            bulletTrainLeg.relativePosition = new Vector3(80, 45);
+            TLMUtils.initButtonSameSprite(bulletTrainLeg, "BulletTrainIcon");
+            UILabel bulletIcon = bulletTrainLeg.AddUIComponent<UILabel>();
+            bulletIcon.atlas = TLMController.taLineNumber;
+            bulletIcon.backgroundSprite = "BulletTrainImage";
+            bulletIcon.width = 27;
+            bulletIcon.height = 27;
+            bulletIcon.relativePosition = new Vector3(6f, 6);
+
             TLMUtils.createUIElement<UIButton>(ref trensLeg, mainPanel.transform);
             trensLeg.atlas = TLMController.taLineNumber;
             trensLeg.width = 40;
             trensLeg.height = 40;
             trensLeg.name = "TrainLegend";
-            trensLeg.relativePosition = new Vector3(110, 45);
+            trensLeg.relativePosition = new Vector3(140, 45);
             TLMUtils.initButtonSameSprite(trensLeg, "TrainIcon");
             UILabel tremIcon = trensLeg.AddUIComponent<UILabel>();
             tremIcon.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train);
@@ -322,7 +371,7 @@ namespace Klyte.TransportLinesManager
             tramLeg.atlas = TLMController.taLineNumber;
             tramLeg.width = 40;
             tramLeg.height = 40;
-            tramLeg.relativePosition = new Vector3(170, 45);
+            tramLeg.relativePosition = new Vector3(200, 45);
             tramLeg.name = "TramLegend";
             TLMUtils.initButtonSameSprite(tramLeg, "TramIcon");
             UILabel tramIcon = tramLeg.AddUIComponent<UILabel>();
@@ -336,7 +385,7 @@ namespace Klyte.TransportLinesManager
             metroLeg.atlas = TLMController.taLineNumber;
             metroLeg.width = 40;
             metroLeg.height = 40;
-            metroLeg.relativePosition = new Vector3(230, 45);
+            metroLeg.relativePosition = new Vector3(260, 45);
             metroLeg.name = "SubwayLegend";
             TLMUtils.initButtonSameSprite(metroLeg, "SubwayIcon");
             UILabel metroIcon = metroLeg.AddUIComponent<UILabel>();
@@ -350,7 +399,7 @@ namespace Klyte.TransportLinesManager
             onibusLeg.atlas = TLMController.taLineNumber;
             onibusLeg.width = 40;
             onibusLeg.height = 40;
-            onibusLeg.relativePosition = new Vector3(290, 45);
+            onibusLeg.relativePosition = new Vector3(320, 45);
             onibusLeg.name = "BusLegend";
             TLMUtils.initButtonSameSprite(onibusLeg, "BusIcon");
             UILabel onibusIcon = onibusLeg.AddUIComponent<UILabel>();
