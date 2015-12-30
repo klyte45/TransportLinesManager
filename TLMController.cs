@@ -215,10 +215,10 @@ namespace Klyte.TransportLinesManager
             {
                 ModoNomenclatura sufixo, prefixo;
                 Separador s;
-                bool z;
-                TLMLineUtils.getLineNamingParameters(lineIdx, out prefixo, out s, out sufixo, out z);
+                bool z,invert;
+                TLMLineUtils.getLineNamingParameters(lineIdx, out prefixo, out s, out sufixo, out z, out invert);
 
-                TLMUtils.setLineName((ushort)lineIdx, "[" + TLMUtils.getString(prefixo, s, sufixo, t.m_lineNumber, z).Replace('\n', ' ') + "] " + TLMUtils.calculateAutoName(lineIdx));
+                TLMUtils.setLineName((ushort)lineIdx, "[" + TLMUtils.getString(prefixo, s, sufixo, t.m_lineNumber, z, invert).Replace('\n', ' ') + "] " + TLMUtils.calculateAutoName(lineIdx));
             }
             catch (Exception e)
             {

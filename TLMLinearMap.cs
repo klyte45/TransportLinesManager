@@ -22,6 +22,7 @@ namespace Klyte.TransportLinesManager
         private ModoNomenclatura suffix;
         private Separador sep;
         private bool zerosEsquerda;
+        private bool invertPrefixSuffix;
 
         public bool isVisible
         {
@@ -57,7 +58,7 @@ namespace Klyte.TransportLinesManager
             {
                 ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
                 TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
-                return "[" + TLMUtils.getString(prefix, sep, suffix, t.m_lineNumber, zerosEsquerda).Replace('\n', ' ') + "] " + m_autoName;
+                return "[" + TLMUtils.getString(prefix, sep, suffix, t.m_lineNumber, zerosEsquerda, invertPrefixSuffix).Replace('\n', ' ') + "] " + m_autoName;
             }
         }
 
@@ -74,9 +75,9 @@ namespace Klyte.TransportLinesManager
             lineStationsPanel.color = c;
         }
 
-        public void setLineNumberCircle(int num, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, bool zeros)
+        public void setLineNumberCircle(int num, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, bool zeros, bool invertPrefixSuffix)
         {
-            TLMLineUtils.setLineNumberCircleOnRef(num, pre, s, mn, zeros, linearMapLineNumber);
+            TLMLineUtils.setLineNumberCircleOnRef(num, pre, s, mn, zeros, linearMapLineNumber, invertPrefixSuffix);
         }
 
 
@@ -89,7 +90,7 @@ namespace Klyte.TransportLinesManager
             setLinearMapColor(lineInfoPanel.controller.tm.GetLineColor(lineID));
             clearStations();
             String bgSprite;
-            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out zerosEsquerda, out bgSprite);
+            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
             linearMapLineNumberFormat.backgroundSprite = bgSprite;
             bool day, night;
             t.GetActive(out day, out night);
@@ -100,7 +101,7 @@ namespace Klyte.TransportLinesManager
             else {
                 linearMapLineTime.backgroundSprite = "";
             }
-            setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, zerosEsquerda);
+            setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, zerosEsquerda, invertPrefixSuffix);
 
             m_autoName = "";
             ushort[] stopBuildings = new ushort[stopsCount];

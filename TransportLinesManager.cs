@@ -31,18 +31,32 @@ namespace Klyte.TransportLinesManager
         }
         public static TransportLinesManagerMod instance;
 
+        //private PreviewRenderer m_previewRenderer;
+        //private UITextureSprite m_currentSelectionBus;
+        //private UITextureSprite m_currentSelectionTrain;
+
+
         private SavedBool m_savedOverrideDefaultLineInfoPanel;
         private SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel;
         private SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
         private SavedString m_tramAssets;
         private SavedString m_bulletTrainAssets;
         private SavedString m_inactiveTrains;
+        private SavedString m_lowBusAssets;
+        private SavedString m_highBusAssets;
+        private SavedString m_inactiveBuses;
         private SavedString m_savedPalettes;
 
         private TextList<string> listTrains = null;
         private TextList<string> listTrams = null;
         private TextList<string> listBulletTrains = null;
-        private TextList<string> listInactives = null;
+        private TextList<string> listInactivesTrains = null;
+
+
+        private TextList<string> listBus = null;
+        private TextList<string> listLowBus = null;
+        private TextList<string> listHighBus = null;
+        private TextList<string> listInactiveBuses = null;
 
         private UIDropDown editorSelector;
         private Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown> dropDowns = new Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown>();
@@ -76,6 +90,30 @@ namespace Klyte.TransportLinesManager
             get
             {
                 return TransportLinesManagerMod.instance.m_inactiveTrains;
+            }
+        }
+
+
+
+        public static SavedString lowBusAssets
+        {
+            get
+            {
+                return TransportLinesManagerMod.instance.m_lowBusAssets;
+            }
+        }
+        public static SavedString highBusAssets
+        {
+            get
+            {
+                return TransportLinesManagerMod.instance.m_highBusAssets;
+            }
+        }
+        public static SavedString inactiveBuses
+        {
+            get
+            {
+                return TransportLinesManagerMod.instance.m_inactiveBuses;
             }
         }
 
@@ -196,6 +234,9 @@ namespace Klyte.TransportLinesManager
             m_tramAssets = new SavedString("TLMTramAssets", Settings.gameSettingsFile, "", true);
             m_bulletTrainAssets = new SavedString("TLMBulletTrainAssets", Settings.gameSettingsFile, "", true);
             m_inactiveTrains = new SavedString("TLMInactiveTrains", Settings.gameSettingsFile, "", true);
+            m_lowBusAssets = new SavedString("TLMLowBusAssets", Settings.gameSettingsFile, "", true);
+            m_highBusAssets = new SavedString("TLMHighBusAssets", Settings.gameSettingsFile, "", true);
+            m_inactiveBuses = new SavedString("TLMInactiveBus", Settings.gameSettingsFile, "", true);
             m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
             m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
             //IPT Incompatible
@@ -256,48 +297,64 @@ namespace Klyte.TransportLinesManager
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.METRO_PREFIX, m_savedNomenclaturaMetroPrefixo.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAIN_PREFIX, m_savedNomenclaturaTremPrefixo.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BUS_PREFIX, m_savedNomenclaturaOnibusPrefixo.value);
+            globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.LOW_BUS_PREFIX, m_savedNomenclaturaOnibusPrefixo.value);
+            globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_PREFIX, m_savedNomenclaturaOnibusPrefixo.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAM_PREFIX, m_savedNomenclaturaTremPrefixo.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_PREFIX, m_savedNomenclaturaTremPrefixo.value);
 
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.METRO_SEPARATOR, m_savedNomenclaturaMetroSeparador.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAIN_SEPARATOR, m_savedNomenclaturaTremSeparador.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BUS_SEPARATOR, m_savedNomenclaturaOnibusSeparador.value);
+            globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.LOW_BUS_SEPARATOR, m_savedNomenclaturaOnibusSeparador.value);
+            globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_SEPARATOR, m_savedNomenclaturaOnibusSeparador.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAM_SEPARATOR, m_savedNomenclaturaTremSeparador.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_SEPARATOR, m_savedNomenclaturaTremSeparador.value);
 
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.METRO_SUFFIX, m_savedNomenclaturaMetro.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAIN_SUFFIX, m_savedNomenclaturaTrem.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BUS_SUFFIX, m_savedNomenclaturaOnibus.value);
+            globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.LOW_BUS_SUFFIX, m_savedNomenclaturaOnibus.value);
+            globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_SUFFIX, m_savedNomenclaturaOnibus.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.TRAM_SUFFIX, m_savedNomenclaturaTrem.value);
             globalConfigArray.setInt(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_SUFFIX, m_savedNomenclaturaTrem.value);
 
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.METRO_LEADING_ZEROS, m_savedNomenclaturaMetroZeros.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAIN_LEADING_ZEROS, m_savedNomenclaturaTremZeros.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BUS_LEADING_ZEROS, m_savedNomenclaturaOnibusZeros.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.LOW_BUS_LEADING_ZEROS, m_savedNomenclaturaOnibusZeros.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_LEADING_ZEROS, m_savedNomenclaturaOnibusZeros.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAM_LEADING_ZEROS, m_savedNomenclaturaTremZeros.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_LEADING_ZEROS, m_savedNomenclaturaTremZeros.value);
 
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_MAIN, m_savedAutoColorPaletteMetro.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_MAIN, m_savedAutoColorPaletteTrem.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_MAIN, m_savedAutoColorPaletteOnibus.value);
+            globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.LOW_BUS_PALETTE_MAIN, m_savedAutoColorPaletteOnibus.value);
+            globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_PALETTE_MAIN, m_savedAutoColorPaletteOnibus.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_MAIN, m_savedAutoColorPaletteTrem.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_PALETTE_MAIN, m_savedAutoColorPaletteTrem.value);
 
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_SUBLINE, m_savedAutoColorPaletteMetro.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_SUBLINE, m_savedAutoColorPaletteTrem.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_SUBLINE, m_savedAutoColorPaletteOnibus.value);
+            globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.LOW_BUS_PALETTE_SUBLINE, m_savedAutoColorPaletteOnibus.value);
+            globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_PALETTE_SUBLINE, m_savedAutoColorPaletteOnibus.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_SUBLINE, m_savedAutoColorPaletteTrem.value);
             globalConfigArray.setString(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_PALETTE_SUBLINE, m_savedAutoColorPaletteTrem.value);
 
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.LOW_BUS_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_PALETTE_PREFIX_BASED, m_savedAutoColorBasedOnPrefix.value);
 
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.METRO_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAIN_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BUS_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.LOW_BUS_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAM_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_PALETTE_RANDOM_ON_OVERFLOW, m_savedUseRandomColorOnPaletteOverflow.value);
 
@@ -309,6 +366,8 @@ namespace Klyte.TransportLinesManager
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.METRO_SHOW_IN_LINEAR_MAP, m_savedShowMetroLinesOnLinearMap.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP, m_savedShowTrainLinesOnLinearMap.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BUS_SHOW_IN_LINEAR_MAP, m_savedShowBusLinesOnLinearMap.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.LOW_BUS_SHOW_IN_LINEAR_MAP, m_savedShowBusLinesOnLinearMap.value);
+            globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_SHOW_IN_LINEAR_MAP, m_savedShowBusLinesOnLinearMap.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.TRAM_SHOW_IN_LINEAR_MAP, m_savedShowTrainLinesOnLinearMap.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_SHOW_IN_LINEAR_MAP, m_savedShowTrainLinesOnLinearMap.value);
             globalConfigArray.setBool(TLMConfigWarehouse.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP, m_savedShowAirportsOnLinearMap.value);
@@ -326,12 +385,16 @@ namespace Klyte.TransportLinesManager
                 "Number","Lower Latin","Upper Latin","Lower Greek", "Upper Greek", "Lower Cyrilic", "Upper Cyrilic"
             };
             string[] namingOptionsPrefixo = new string[] {
-                "Number","Lower Latin","Upper Latin","Lower Greek", "Upper Greek", "Lower Cyrilic", "Upper Cyrilic", "None"
+                "Number","Lower Latin","Upper Latin","Lower Greek", "Upper Greek", "Lower Cyrilic", "Upper Cyrilic", "None","Number + Lower Latin","Number + Upper Latin","Number + Lower Greek", "Number + Upper Greek", "Number + Lower Cyrilic", "Number + Upper Cyrilic"
             };
             string[] namingOptionsSeparador = new string[] {
                 "<None>","-",".","/", "<Blank Space>","<New Line>"
             };
             UIHelperExtension helper = new UIHelperExtension((UIHelper)helperDefault);
+            //m_previewRenderer = helper.self.gameObject.AddComponent<PreviewRenderer>();
+            //m_previewRenderer.cameraRotation = 120f;
+            //m_previewRenderer.zoom = 3f;
+            //m_previewRenderer.size = new Vector2(200, 200);
             helper.AddCheckbox("Override default line info panel (Always disabled with IPT!)", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
 
 
@@ -340,7 +403,7 @@ namespace Klyte.TransportLinesManager
 
             configSelector = (UIDropDown)helper.AddDropdown("Show Configurations For", getOptionsForLoadConfig(), 0, reloadData);
             TLMUtils.doLog("Loading Group 1");
-            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG })
+            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG })
             {
                 UIHelperExtension group1 = helper.AddGroupExtended(TLMConfigWarehouse.getNameForTransportType(transportType) + " Config");
                 ((UIPanel)group1.self).autoLayoutDirection = LayoutDirection.Horizontal;
@@ -355,6 +418,7 @@ namespace Klyte.TransportLinesManager
                 var prefixedPaletteContainer = generateDropdownStringValueConfig(group1, "Palette for Prefixed", TLMAutoColorPalettes.paletteList, transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_MAIN).transform.parent.GetComponent<UIPanel>();
                 var paletteLabel = generateDropdownStringValueConfig(group1, "Palette for Unprefixed", TLMAutoColorPalettes.paletteList, transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_SUBLINE).transform.parent.GetComponentInChildren<UILabel>();
                 var zerosContainer = generateCheckboxConfig(group1, "Leading zeros on suffix", transportType | TLMConfigWarehouse.ConfigIndex.LEADING_ZEROS);
+                var prefixAsSuffixContainer = generateCheckboxConfig(group1, "Invert prefix/suffix order (allow to put letters after a large number. Ex: 637A)", transportType | TLMConfigWarehouse.ConfigIndex.INVERT_PREFIX_SUFFIX);
                 generateCheckboxConfig(group1, "Random colors on palette overflow", transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
                 var autoColorBasedContainer = generateCheckboxConfig(group1, "Auto color based on prefix for prefixed lines", transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_PREFIX_BASED);
                 PropertyChangedEventHandler<int> updateFunction = delegate (UIComponent c, int sel)
@@ -363,6 +427,7 @@ namespace Klyte.TransportLinesManager
                     separatorContainer.isVisible = isPrefixed;
                     prefixedPaletteContainer.isVisible = isPrefixed;
                     zerosContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero;
+                    prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
                     autoColorBasedContainer.isVisible = isPrefixed;
                     paletteLabel.text = isPrefixed ? "Palette for Unprefixed" : "Palette";
                 };
@@ -371,12 +436,15 @@ namespace Klyte.TransportLinesManager
                 {
                     bool isPrefixed = (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Nenhum;
                     zerosContainer.isVisible = isPrefixed && (ModoNomenclatura)sel == ModoNomenclatura.Numero;
+                    prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)sel == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
                 };
                 updateFunction.Invoke(null, prefixDD.selectedIndex);
             }
 
             UIHelperExtension group7 = helper.AddGroupExtended("Near Lines Config");
-            generateCheckboxConfig(group7, "Show bus lines", TLMConfigWarehouse.ConfigIndex.BUS_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, "Show high capacity bus lines", TLMConfigWarehouse.ConfigIndex.HIGH_BUS_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, "Show regular bus lines", TLMConfigWarehouse.ConfigIndex.BUS_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, "Show low capacity bus lines", TLMConfigWarehouse.ConfigIndex.LOW_BUS_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, "Show metro line", TLMConfigWarehouse.ConfigIndex.METRO_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, "Show train lines", TLMConfigWarehouse.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, "Show trams lines", TLMConfigWarehouse.ConfigIndex.TRAM_SHOW_IN_LINEAR_MAP);
@@ -392,31 +460,45 @@ namespace Klyte.TransportLinesManager
 
             TLMUtils.doLog("Loading Group 2");
 
-
-
-            UIHelperExtension group2 = helper.AddGroupExtended("Tram Assets Selection (Global)");
+            UIHelperExtension group2 = helper.AddGroupExtended("Bus Assets Selection (Global)");
             if (isCityLoaded)
             {
                 ((UIPanel)group2.self).autoLayoutDirection = LayoutDirection.Horizontal;
                 ((UIPanel)group2.self).autoLayoutPadding = new RectOffset(5, 5, 0, 0);
                 ((UIPanel)group2.self).wrapLayout = true;
-                TLMTrainModifyRedirects.forceReload();
-                listTrains = group2.AddTextList("Trains as Trains", TLMTrainModifyRedirects.getTrainAssetDictionary(), delegate (string idx) { listTrams.unselect(); listBulletTrains.unselect(); listInactives.unselect(); }, 340, 250);
-                listTrams = group2.AddTextList("Trains as Trams", TLMTrainModifyRedirects.getTramAssetDictionary(), delegate (string idx) { listTrains.unselect(); listBulletTrains.unselect(); listInactives.unselect(); }, 340, 250);
-                listBulletTrains = group2.AddTextList("Trains as Bullet Trains", TLMTrainModifyRedirects.getBulletTrainAssetDictionary(), delegate (string idx) { listTrams.unselect(); listTrains.unselect(); listInactives.unselect(); }, 340, 250);
-                listInactives = group2.AddTextList("Trains Inactives", TLMTrainModifyRedirects.getInactiveTrainAssetDictionary(), delegate (string idx) { listTrams.unselect(); listBulletTrains.unselect(); listTrains.unselect(); }, 340, 250);
-                listTrains.root.backgroundSprite = "EmptySprite";
-                listTrains.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG);
-                listTrains.root.width = 340;
-                listTrams.root.backgroundSprite = "EmptySprite";
-                listTrams.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG);
-                listTrams.root.width = 340;
-                listBulletTrains.root.backgroundSprite = "EmptySprite";
-                listBulletTrains.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG);
-                listBulletTrains.root.width = 340;
-                listInactives.root.backgroundSprite = "EmptySprite";
-                listInactives.root.color = Color.gray;
-                listInactives.root.width = 340;
+                TLMBusModifyRedirects.forceReload();
+
+                OnTextChanged reloadTexture = delegate (string s)
+                {
+                    //if (!string.IsNullOrEmpty(s))
+                    //{
+                    //    var prefab = PrefabCollection<VehicleInfo>.FindLoaded(s);
+                    //    if (prefab != null)
+                    //    {
+                    //        m_previewRenderer.mesh = prefab.m_mesh;
+                    //        m_previewRenderer.material = prefab.m_material;
+                    //        m_previewRenderer.Render();
+                    //        m_currentSelectionBus.texture = m_previewRenderer.texture;
+                    //    }
+                    //}
+                };
+
+                listBus = group2.AddTextList("Bus as Regular Buses", TLMBusModifyRedirects.getBusAssetDictionary(), delegate (string idx) { listLowBus.unselect(); listHighBus.unselect(); listInactiveBuses.unselect(); reloadTexture(idx); }, 340, 250);
+                listLowBus = group2.AddTextList("Bus as Low Bus", TLMBusModifyRedirects.getLowBusAssetDictionary(), delegate (string idx) { listBus.unselect(); listHighBus.unselect(); listInactiveBuses.unselect(); reloadTexture(idx); }, 340, 250);
+                listHighBus = group2.AddTextList("Bus as High Bus", TLMBusModifyRedirects.getHighBusAssetDictionary(), delegate (string idx) { listLowBus.unselect(); listBus.unselect(); listInactiveBuses.unselect(); reloadTexture(idx); }, 340, 250);
+                listInactiveBuses = group2.AddTextList("Buses Inactives", TLMBusModifyRedirects.getInactiveBusAssetDictionary(), delegate (string idx) { listLowBus.unselect(); listHighBus.unselect(); listBus.unselect(); reloadTexture(idx); }, 340, 250);
+                listBus.root.backgroundSprite = "EmptySprite";
+                listBus.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.BUS_CONFIG);
+                listBus.root.width = 340;
+                listLowBus.root.backgroundSprite = "EmptySprite";
+                listLowBus.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG);
+                listLowBus.root.width = 340;
+                listHighBus.root.backgroundSprite = "EmptySprite";
+                listHighBus.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG);
+                listHighBus.root.width = 340;
+                listInactiveBuses.root.backgroundSprite = "EmptySprite";
+                listInactiveBuses.root.color = Color.gray;
+                listInactiveBuses.root.width = 340;
                 foreach (Transform t in ((UIPanel)group2.self).transform)
                 {
                     var panel = t.gameObject.GetComponent<UIPanel>();
@@ -428,48 +510,144 @@ namespace Klyte.TransportLinesManager
                 group2.AddSpace(10);
                 OnButtonClicked reload = delegate
                 {
-                    listTrains.itemsList = TLMTrainModifyRedirects.getTrainAssetDictionary();
-                    listTrams.itemsList = TLMTrainModifyRedirects.getTramAssetDictionary();
-                    listBulletTrains.itemsList = TLMTrainModifyRedirects.getBulletTrainAssetDictionary();
-                    listInactives.itemsList = TLMTrainModifyRedirects.getInactiveTrainAssetDictionary();
+                    listBus.itemsList = TLMBusModifyRedirects.getBusAssetDictionary();
+                    listLowBus.itemsList = TLMBusModifyRedirects.getLowBusAssetDictionary();
+                    listHighBus.itemsList = TLMBusModifyRedirects.getHighBusAssetDictionary();
+                    listInactiveBuses.itemsList = TLMBusModifyRedirects.getInactiveBusAssetDictionary();
                 };
-                group2.AddButton("Move to Train", delegate
+                group2.AddButton("Move to Regular", delegate
                 {
-                    if (!listTrains.unselected) return;
-                    var selected = getSelectedIndex(listTrams, listBulletTrains, listInactives);
+                    if (!listBus.unselected) return;
+                    var selected = getSelectedIndex(listLowBus, listHighBus, listInactiveBuses);
                     if (selected == null || selected.Equals(default(string))) return;
-                    TLMTrainModifyRedirects.addAssetToTrainList(selected);
+                    TLMBusModifyRedirects.addAssetToBusList(selected);
                     reload();
                 });
-                group2.AddButton("Move to Tram", delegate
+                group2.AddButton("Move to Low", delegate
                 {
-                    if (!listTrams.unselected) return;
-                    var selected = getSelectedIndex(listBulletTrains, listTrains, listInactives);
+                    if (!listLowBus.unselected) return;
+                    var selected = getSelectedIndex(listHighBus, listBus, listInactiveBuses);
                     if (selected == null || selected.Equals(default(string))) return;
-                    TLMTrainModifyRedirects.addAssetToTramList(selected);
+                    TLMBusModifyRedirects.addAssetToLowBusList(selected);
                     reload();
                 });
-                group2.AddButton("Move to Bullet", delegate
+                group2.AddButton("Move to High", delegate
                 {
-                    if (!listBulletTrains.unselected) return;
-                    var selected = getSelectedIndex(listTrams, listTrains, listInactives);
+                    if (!listHighBus.unselected) return;
+                    var selected = getSelectedIndex(listLowBus, listBus, listInactiveBuses);
                     if (selected == null || selected.Equals(default(string))) return;
-                    TLMTrainModifyRedirects.addAssetToBulletTrainList(selected);
+                    TLMBusModifyRedirects.addAssetToHighBusList(selected);
                     reload();
                 });
                 group2.AddButton("Move to Inactive", delegate
                 {
-                    if (!listInactives.unselected) return;
+                    if (!listInactiveBuses.unselected) return;
+                    var selected = getSelectedIndex(listLowBus, listBus, listHighBus);
+                    if (selected == null || selected.Equals(default(string))) return;
+                    TLMBusModifyRedirects.addAssetToInactiveBusList(selected);
+                    reload();
+                });
+                //m_currentSelectionBus = group2.AddNamedTexture("Current selection preview");
+            }
+            else
+            {
+                group2.AddLabel("Please load a city to get access to active buses!");
+            }
+
+            UIHelperExtension group3 = helper.AddGroupExtended("Trains Assets Selection (Global)");
+            if (isCityLoaded)
+            {
+                ((UIPanel)group3.self).autoLayoutDirection = LayoutDirection.Horizontal;
+                ((UIPanel)group3.self).autoLayoutPadding = new RectOffset(5, 5, 0, 0);
+                ((UIPanel)group3.self).wrapLayout = true;
+                TLMTrainModifyRedirects.forceReload();
+
+                OnTextChanged reloadTexture = delegate (string s)
+                {
+                    if (!string.IsNullOrEmpty(s))
+                    {
+                        var prefab = PrefabCollection<VehicleInfo>.FindLoaded(s);
+                        if (prefab != null)
+                        {
+                            //m_previewRenderer.mesh = prefab.m_mesh;
+                            //m_previewRenderer.material = prefab.m_material;
+                            //m_previewRenderer.Render();
+                            //m_currentSelectionTrain.texture = m_previewRenderer.texture;
+                        }
+                    }
+                };
+
+                listTrains = group3.AddTextList("Trains as Trains", TLMTrainModifyRedirects.getTrainAssetDictionary(), delegate (string idx) { listTrams.unselect(); listBulletTrains.unselect(); listInactivesTrains.unselect(); reloadTexture(idx); }, 340, 250);
+                listTrams = group3.AddTextList("Trains as Trams", TLMTrainModifyRedirects.getTramAssetDictionary(), delegate (string idx) { listTrains.unselect(); listBulletTrains.unselect(); listInactivesTrains.unselect(); reloadTexture(idx); }, 340, 250);
+                listBulletTrains = group3.AddTextList("Trains as Bullet Trains", TLMTrainModifyRedirects.getBulletTrainAssetDictionary(), delegate (string idx) { listTrams.unselect(); listTrains.unselect(); listInactivesTrains.unselect(); reloadTexture(idx); }, 340, 250);
+                listInactivesTrains = group3.AddTextList("Trains Inactives", TLMTrainModifyRedirects.getInactiveTrainAssetDictionary(), delegate (string idx) { listTrams.unselect(); listBulletTrains.unselect(); listTrains.unselect(); reloadTexture(idx); }, 340, 250);
+                listTrains.root.backgroundSprite = "EmptySprite";
+                listTrains.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG);
+                listTrains.root.width = 340;
+                listTrams.root.backgroundSprite = "EmptySprite";
+                listTrams.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG);
+                listTrams.root.width = 340;
+                listBulletTrains.root.backgroundSprite = "EmptySprite";
+                listBulletTrains.root.color = TLMConfigWarehouse.getColorForTransportType(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG);
+                listBulletTrains.root.width = 340;
+                listInactivesTrains.root.backgroundSprite = "EmptySprite";
+                listInactivesTrains.root.color = Color.gray;
+                listInactivesTrains.root.width = 340;
+                foreach (Transform t in ((UIPanel)group3.self).transform)
+                {
+                    var panel = t.gameObject.GetComponent<UIPanel>();
+                    if (panel)
+                    {
+                        panel.width = 340;
+                    }
+                }
+                group3.AddSpace(10);
+                OnButtonClicked reload = delegate
+                {
+                    listTrains.itemsList = TLMTrainModifyRedirects.getTrainAssetDictionary();
+                    listTrams.itemsList = TLMTrainModifyRedirects.getTramAssetDictionary();
+                    listBulletTrains.itemsList = TLMTrainModifyRedirects.getBulletTrainAssetDictionary();
+                    listInactivesTrains.itemsList = TLMTrainModifyRedirects.getInactiveTrainAssetDictionary();
+                };
+                group3.AddButton("Move to Train", delegate
+                {
+                    if (!listTrains.unselected) return;
+                    var selected = getSelectedIndex(listTrams, listBulletTrains, listInactivesTrains);
+                    if (selected == null || selected.Equals(default(string))) return;
+                    TLMTrainModifyRedirects.addAssetToTrainList(selected);
+                    reload();
+                });
+                group3.AddButton("Move to Tram", delegate
+                {
+                    if (!listTrams.unselected) return;
+                    var selected = getSelectedIndex(listBulletTrains, listTrains, listInactivesTrains);
+                    if (selected == null || selected.Equals(default(string))) return;
+                    TLMTrainModifyRedirects.addAssetToTramList(selected);
+                    reload();
+                });
+                group3.AddButton("Move to Bullet", delegate
+                {
+                    if (!listBulletTrains.unselected) return;
+                    var selected = getSelectedIndex(listTrams, listTrains, listInactivesTrains);
+                    if (selected == null || selected.Equals(default(string))) return;
+                    TLMTrainModifyRedirects.addAssetToBulletTrainList(selected);
+                    reload();
+                });
+                group3.AddButton("Move to Inactive", delegate
+                {
+                    if (!listInactivesTrains.unselected) return;
                     var selected = getSelectedIndex(listTrams, listTrains, listBulletTrains);
                     if (selected == null || selected.Equals(default(string))) return;
                     TLMTrainModifyRedirects.addAssetToInactiveTrainList(selected);
                     reload();
                 });
+                //m_currentSelectionTrain = group3.AddNamedTexture("Current selection preview");
             }
             else
             {
-                group2.AddLabel("Please load a city to get access to active trains!");
+                group3.AddLabel("Please load a city to get access to active trains!");
             }
+
 
             UIHelperExtension group5 = helper.AddGroupExtended("Other Global Options");
             group5.AddSpace(20);
@@ -647,9 +825,9 @@ namespace Klyte.TransportLinesManager
                 if (!paletteDD) continue;
                 idxSel = (paletteDD.selectedValue);
                 paletteDD.items = TLMAutoColorPalettes.paletteList;
-                if (!TLMAutoColorPalettes.paletteList.Contains(idxSel))
+                if (!paletteDD.items.Contains(idxSel))
                 {
-                    if (idxSel != oldName || !TLMAutoColorPalettes.paletteList.Contains(newName))
+                    if (idxSel != oldName || !paletteDD.items.Contains(newName))
                     {
                         idxSel = TLMAutoColorPalettes.PALETTE_RANDOM;
                     }
@@ -657,7 +835,7 @@ namespace Klyte.TransportLinesManager
                         idxSel = newName;
                     }
                 }
-                paletteDD.selectedIndex = TLMAutoColorPalettes.paletteList.ToList().IndexOf(idxSel);
+                paletteDD.selectedIndex = paletteDD.items.ToList().IndexOf(idxSel);
             }
         }
 
@@ -678,10 +856,11 @@ namespace Klyte.TransportLinesManager
             if (TLMController.taLineNumber == null)
             {
                 TLMController.taLineNumber = CreateTextureAtlas("lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                    "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","TramIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","TramImage","BulletTrainImage"
+                   "LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","TramIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","TramImage","BulletTrainImage","LowBusImage","HighBusImage"
                 });
             }
             TLMTrainModifyRedirects.instance.EnableHooks();
+            TLMBusModifyRedirects.instance.EnableHooks();
             //			Log.debug ("LEVELLOAD");
         }
 

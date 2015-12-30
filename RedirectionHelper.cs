@@ -104,6 +104,11 @@ namespace Klyte.TransportLinesManager
                 *(sitePtr + 12) = state.e;
             }
         }
+    }
+
+    public class Redirector
+    {
+
         public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
         public static void AddRedirect(Type type1, MethodInfo method, ref Dictionary<MethodInfo, RedirectCallsState> redirects)
         {

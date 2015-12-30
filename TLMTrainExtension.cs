@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Klyte.TransportLinesManager
 {
-    class TLMTrainModifyRedirects
+    class TLMTrainModifyRedirects : Redirector
     {
         private static TLMTrainModifyRedirects _instance;
         public static TLMTrainModifyRedirects instance
@@ -28,6 +28,8 @@ namespace Klyte.TransportLinesManager
 
         private const string SEPARATOR = "∂";
         private static List<string> trainsAssetsList;
+
+        private static Dictionary<string, int> capacities = new Dictionary<string, int>();
 
         private static List<string> cached_tramAssetsList;
         private static List<string> tramAssetsList
@@ -91,7 +93,7 @@ namespace Klyte.TransportLinesManager
             {
                 readVehicles();
             }
-            return tramAssetsList.ToDictionary(x => x);
+            return tramAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", capacities[x], x));
         }
 
         public static Dictionary<string, string> getBulletTrainAssetDictionary()
@@ -100,7 +102,7 @@ namespace Klyte.TransportLinesManager
             {
                 readVehicles();
             }
-            return bulletTrainAssetsList.ToDictionary(x => x);
+            return bulletTrainAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", capacities[x], x));
         }
 
         public static Dictionary<string, string> getInactiveTrainAssetDictionary()
@@ -109,7 +111,8 @@ namespace Klyte.TransportLinesManager
             {
                 readVehicles();
             }
-            return inactiveTrainAssetsList.ToDictionary(x => x);
+            return inactiveTrainAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", capacities[x], x));
+
         }
 
         public static Dictionary<string, string> getTrainAssetDictionary()
@@ -118,7 +121,7 @@ namespace Klyte.TransportLinesManager
             {
                 readVehicles();
             }
-            return trainsAssetsList.ToDictionary(x => x);
+            return trainsAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", capacities[x], x));
         }
 
         private static void removeFromAllLists(string assetId)
@@ -232,7 +235,7 @@ namespace Klyte.TransportLinesManager
         public static VehicleInfo getRandomTram()
         {
             if (tramAssetsList.Count == 0) return null;
-            Randomizer r = new Randomizer();
+            Randomizer r = new Randomizer(new Random().Next());
             return PrefabCollection<VehicleInfo>.FindLoaded(tramAssetsList[r.Int32(0, tramAssetsList.Count - 1)]);
         }
 
@@ -240,7 +243,7 @@ namespace Klyte.TransportLinesManager
         {
             if (trainsAssetsList.Count == 0) return null;
             var avaliableTrains = trainsAssetsList;
-            Randomizer r = new Randomizer();
+            Randomizer r = new Randomizer(new Random().Next());
             return PrefabCollection<VehicleInfo>.FindLoaded(avaliableTrains[r.Int32(0, avaliableTrains.Count - 1)]);
         }
 
@@ -248,7 +251,7 @@ namespace Klyte.TransportLinesManager
         {
             if (bulletTrainAssetsList.Count == 0) return null;
             var avaliableTrains = bulletTrainAssetsList;
-            Randomizer r = new Randomizer();
+            Randomizer r = new Randomizer(new Random().Next());
             return PrefabCollection<VehicleInfo>.FindLoaded(avaliableTrains[r.Int32(0, bulletTrainAssetsList.Count - 1)]);
         }
 
@@ -260,20 +263,41 @@ namespace Klyte.TransportLinesManager
         private static void readVehicles()
         {
             cached_tramAssetsList = null;
+            cached_bulletTrainAssetsList = null;
+            cached_inactiveTrainAssetsList = null;
+
+            capacities = new Dictionary<string, int>();
 
             trainsAssetsList = new List<string>();
+            var trailerTrainsList = new List<string>();
             uint num = 0u;
 
             TLMUtils.doLog("PrefabCount: {0} ({1})", PrefabCollection<VehicleInfo>.PrefabCount(), PrefabCollection<VehicleInfo>.LoadedCount());
             while ((ulong)num < (ulong)((long)PrefabCollection<VehicleInfo>.PrefabCount()))
             {
                 VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
-                if (!(prefab == null) && prefab.GetAI().GetType() == typeof(PassengerTrainAI) && prefab.m_trailers != null && prefab.m_trailers.Length > 0)
+                if (!(prefab == null) && prefab.GetAI().GetType() == typeof(PassengerTrainAI))
                 {
                     trainsAssetsList.Add(prefab.name);
+                    capacities[prefab.name] = (prefab.GetAI() as PassengerTrainAI).m_passengerCapacity;
+                    if (prefab.m_trailers != null && prefab.m_trailers.Length > 0)
+                    {
+                        foreach (var trailer in prefab.m_trailers)
+                        {
+                            if (trailer.m_info.name != prefab.name)
+                            {
+                                trailerTrainsList.Add(trailer.m_info.name);
+                                capacities[prefab.name] += (trailer.m_info.GetAI() as PassengerTrainAI).m_passengerCapacity;
+                            }
+                        }
+                    }
                 }
                 num += 1u;
             }
+            TLMUtils.doLog("Train List: {0}", string.Join(",", trainsAssetsList.ToArray()));
+            TLMUtils.doLog("trailerTrainsList: {0}", string.Join(",", trailerTrainsList.ToArray()));
+            TLMUtils.doLog("PrefabCount: {0} ({1})", PrefabCollection<VehicleInfo>.PrefabCount(), PrefabCollection<VehicleInfo>.LoadedCount());
+            trainsAssetsList.RemoveAll(x => trailerTrainsList.Contains(x) || x.Contains(".Trailer"));
             var tramListTemp = new List<string>();
             var bulletListTemp = new List<string>();
             var inactiveListTemp = new List<string>();
@@ -399,7 +423,7 @@ namespace Klyte.TransportLinesManager
 
         #region Hooking
         private static Dictionary<MethodInfo, RedirectCallsState> redirects = new Dictionary<MethodInfo, RedirectCallsState>();
-       
+
 
 
         public void EnableHooks()
@@ -409,9 +433,9 @@ namespace Klyte.TransportLinesManager
                 DisableHooks();
             }
             TLMUtils.doLog("Loading Tram Hooks!");
-            RedirectionHelper. AddRedirect(typeof(PassengerTrainAI), typeof(TLMTrainModifyRedirects).GetMethod("SetTransportLine", RedirectionHelper.allFlags),ref redirects);
-            RedirectionHelper.AddRedirect(typeof(TLMTrainModifyRedirects), typeof(PassengerTrainAI).GetMethod("StartPathFind", RedirectionHelper.allFlags), ref redirects); ;
-            RedirectionHelper.AddRedirect(typeof(TLMTrainModifyRedirects), typeof(PassengerTrainAI).GetMethod("RemoveLine", RedirectionHelper.allFlags), ref redirects);
+            AddRedirect(typeof(PassengerTrainAI), typeof(TLMTrainModifyRedirects).GetMethod("SetTransportLine", allFlags), ref redirects);
+            AddRedirect(typeof(TLMTrainModifyRedirects), typeof(PassengerTrainAI).GetMethod("StartPathFind", allFlags), ref redirects); ;
+            AddRedirect(typeof(TLMTrainModifyRedirects), typeof(PassengerTrainAI).GetMethod("RemoveLine", allFlags), ref redirects);
         }
 
         public void DisableHooks()

@@ -23,7 +23,11 @@ namespace Klyte.TransportLinesManager
          ConfigIndex.    METRO_PALETTE_SUBLINE,
          ConfigIndex.    BUS_PALETTE_SUBLINE,
          ConfigIndex.    BULLET_TRAIN_PALETTE_MAIN ,
-         ConfigIndex.    BULLET_TRAIN_PALETTE_SUBLINE
+         ConfigIndex.    BULLET_TRAIN_PALETTE_SUBLINE,
+         ConfigIndex.    LOW_BUS_PALETTE_MAIN ,
+         ConfigIndex.    LOW_BUS_PALETTE_SUBLINE,
+         ConfigIndex.    HIGH_BUS_PALETTE_MAIN ,
+         ConfigIndex.    HIGH_BUS_PALETTE_SUBLINE
         };
         private static Dictionary<string, TLMConfigWarehouse> loadedCities = new Dictionary<string, TLMConfigWarehouse>();
         public bool unsafeMode = false;
@@ -100,6 +104,17 @@ namespace Klyte.TransportLinesManager
                 else if (getCurrentConfigListInt(ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains(i))
                 {
                     transportType = ConfigIndex.BULLET_TRAIN_CONFIG;
+                }
+            }
+            else if (t.Info.m_transportType == TransportInfo.TransportType.Bus)
+            {
+                if (getCurrentConfigListInt(ConfigIndex.LOW_BUS_LINES_IDS).Contains(i))
+                {
+                    transportType = ConfigIndex.LOW_BUS_CONFIG;
+                }
+                else if (getCurrentConfigListInt(ConfigIndex.HIGH_BUS_LINES_IDS).Contains(i))
+                {
+                    transportType = ConfigIndex.HIGH_BUS_CONFIG;
                 }
             }
             return transportType;
@@ -246,6 +261,10 @@ namespace Klyte.TransportLinesManager
                     return new Color32(58, 117, 50, 255);
                 case ConfigIndex.BUS_CONFIG:
                     return new Color32(53, 121, 188, 255);
+                case ConfigIndex.LOW_BUS_CONFIG:
+                    return new Color32(13, 13, 50, 255);
+                case ConfigIndex.HIGH_BUS_CONFIG:
+                    return new Color32(53, 200, 200, 255);
                 case ConfigIndex.PLANE_CONFIG:
                     return new Color32(0xa8, 0x01, 0x7a, 255);
                 case ConfigIndex.SHIP_CONFIG:
@@ -271,7 +290,11 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.METRO_CONFIG:
                     return "Metro";
                 case ConfigIndex.BUS_CONFIG:
-                    return "Bus";
+                    return "Regular Bus";
+                case ConfigIndex.LOW_BUS_CONFIG:
+                    return "Low Capacity Bus";
+                case ConfigIndex.HIGH_BUS_CONFIG:
+                    return "High Capacity Bus";
                 case ConfigIndex.PLANE_CONFIG:
                     return "Plane";
                 case ConfigIndex.SHIP_CONFIG:
@@ -296,10 +319,14 @@ namespace Klyte.TransportLinesManager
             CIRCULAR_IN_SINGLE_DISTRICT_LINE = 0x10003 | TYPE_BOOL,
             AUTO_NAME_ENABLED = 0x10004 | TYPE_BOOL,
             BULLET_TRAIN_LINES_IDS = 0x10005 | TYPE_LIST,
+            HIGH_BUS_LINES_IDS = 0x10006 | TYPE_LIST,
+            LOW_BUS_LINES_IDS = 0x10007 | TYPE_LIST,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = 0xFF0000,
             BULLET_TRAIN_CONFIG = 0xFE0000,
+            HIGH_BUS_CONFIG = 0xFD0000,
+            LOW_BUS_CONFIG = 0xFC0000,
             METRO_CONFIG = TransportInfo.TransportType.Metro << 16,
             BUS_CONFIG = TransportInfo.TransportType.Bus << 16,
             PLANE_CONFIG = TransportInfo.TransportType.Airplane << 16,
@@ -320,59 +347,87 @@ namespace Klyte.TransportLinesManager
             PALETTE_RANDOM_ON_OVERFLOW = 0x7 | TYPE_BOOL,
             PALETTE_PREFIX_BASED = 0x8 | TYPE_BOOL,
             SHOW_IN_LINEAR_MAP = 0x9 | TYPE_BOOL,
+            INVERT_PREFIX_SUFFIX = 0xA | TYPE_BOOL,
 
             TRAIN_PREFIX = TRAIN_CONFIG | PREFIX,
             TRAM_PREFIX = TRAM_CONFIG | PREFIX,
             METRO_PREFIX = METRO_CONFIG | PREFIX,
             BUS_PREFIX = BUS_CONFIG | PREFIX,
+            LOW_BUS_PREFIX = LOW_BUS_CONFIG | PREFIX,
+            HIGH_BUS_PREFIX = BUS_CONFIG | PREFIX,
             BULLET_TRAIN_PREFIX = BULLET_TRAIN_CONFIG | PREFIX,
 
             TRAIN_SEPARATOR = TRAIN_CONFIG | SEPARATOR,
             TRAM_SEPARATOR = TRAM_CONFIG | SEPARATOR,
             METRO_SEPARATOR = METRO_CONFIG | SEPARATOR,
             BUS_SEPARATOR = BUS_CONFIG | SEPARATOR,
+            LOW_BUS_SEPARATOR = LOW_BUS_CONFIG | SEPARATOR,
+            HIGH_BUS_SEPARATOR = HIGH_BUS_CONFIG | SEPARATOR,
             BULLET_TRAIN_SEPARATOR = BULLET_TRAIN_CONFIG | SEPARATOR,
 
             TRAIN_SUFFIX = TRAIN_CONFIG | SUFFIX,
             TRAM_SUFFIX = TRAM_CONFIG | SUFFIX,
             METRO_SUFFIX = METRO_CONFIG | SUFFIX,
             BUS_SUFFIX = BUS_CONFIG | SUFFIX,
+            LOW_BUS_SUFFIX = LOW_BUS_CONFIG | SUFFIX,
+            HIGH_BUS_SUFFIX = HIGH_BUS_CONFIG | SUFFIX,
             BULLET_TRAIN_SUFFIX = BULLET_TRAIN_CONFIG | SUFFIX,
 
             TRAIN_LEADING_ZEROS = TRAIN_CONFIG | LEADING_ZEROS,
             TRAM_LEADING_ZEROS = TRAM_CONFIG | LEADING_ZEROS,
             METRO_LEADING_ZEROS = METRO_CONFIG | LEADING_ZEROS,
             BUS_LEADING_ZEROS = BUS_CONFIG | LEADING_ZEROS,
+            LOW_BUS_LEADING_ZEROS = LOW_BUS_CONFIG | LEADING_ZEROS,
+            HIGH_BUS_LEADING_ZEROS = HIGH_BUS_CONFIG | LEADING_ZEROS,
             BULLET_TRAIN_LEADING_ZEROS = BULLET_TRAIN_CONFIG | LEADING_ZEROS,
+
+
+            TRAIN_INVERT_PREFIX_SUFFIX = TRAIN_CONFIG | INVERT_PREFIX_SUFFIX,
+            TRAM_INVERT_PREFIX_SUFFIX = TRAM_CONFIG | INVERT_PREFIX_SUFFIX,
+            METRO_INVERT_PREFIX_SUFFIX = METRO_CONFIG | INVERT_PREFIX_SUFFIX,
+            BUS_INVERT_PREFIX_SUFFIX = BUS_CONFIG | INVERT_PREFIX_SUFFIX,
+            LOW_BUS_INVERT_PREFIX_SUFFIX = LOW_BUS_CONFIG | INVERT_PREFIX_SUFFIX,
+            HIGH_BUS_INVERT_PREFIX_SUFFIX = HIGH_BUS_CONFIG | INVERT_PREFIX_SUFFIX,
+            BULLET_TRAIN_INVERT_PREFIX_SUFFIX = BULLET_TRAIN_CONFIG | INVERT_PREFIX_SUFFIX,
 
             TRAIN_PALETTE_MAIN = TRAIN_CONFIG | PALETTE_MAIN,
             TRAM_PALETTE_MAIN = TRAM_CONFIG | PALETTE_MAIN,
             METRO_PALETTE_MAIN = METRO_CONFIG | PALETTE_MAIN,
             BUS_PALETTE_MAIN = BUS_CONFIG | PALETTE_MAIN,
+            LOW_BUS_PALETTE_MAIN = LOW_BUS_CONFIG | PALETTE_MAIN,
+            HIGH_BUS_PALETTE_MAIN = HIGH_BUS_CONFIG | PALETTE_MAIN,
             BULLET_TRAIN_PALETTE_MAIN = BULLET_TRAIN_CONFIG | PALETTE_MAIN,
 
             TRAIN_PALETTE_SUBLINE = TRAIN_CONFIG | PALETTE_SUBLINE,
             TRAM_PALETTE_SUBLINE = TRAM_CONFIG | PALETTE_SUBLINE,
             METRO_PALETTE_SUBLINE = METRO_CONFIG | PALETTE_SUBLINE,
             BUS_PALETTE_SUBLINE = BUS_CONFIG | PALETTE_SUBLINE,
+            LOW_BUS_PALETTE_SUBLINE = LOW_BUS_CONFIG | PALETTE_SUBLINE,
+            HIGH_BUS_PALETTE_SUBLINE = HIGH_BUS_CONFIG | PALETTE_SUBLINE,
             BULLET_TRAIN_PALETTE_SUBLINE = BULLET_TRAIN_CONFIG | PALETTE_SUBLINE,
 
             TRAIN_PALETTE_RANDOM_ON_OVERFLOW = TRAIN_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             TRAM_PALETTE_RANDOM_ON_OVERFLOW = TRAM_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             METRO_PALETTE_RANDOM_ON_OVERFLOW = METRO_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             BUS_PALETTE_RANDOM_ON_OVERFLOW = BUS_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
+            LOW_BUS_PALETTE_RANDOM_ON_OVERFLOW = LOW_BUS_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
+            HIGH_BUS_PALETTE_RANDOM_ON_OVERFLOW = HIGH_BUS_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             BULLET_TRAIN_PALETTE_RANDOM_ON_OVERFLOW = BULLET_TRAIN_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
 
             TRAIN_PALETTE_PREFIX_BASED = TRAIN_CONFIG | PALETTE_PREFIX_BASED,
             TRAM_PALETTE_PREFIX_BASED = TRAM_CONFIG | PALETTE_PREFIX_BASED,
             METRO_PALETTE_PREFIX_BASED = METRO_CONFIG | PALETTE_PREFIX_BASED,
             BUS_PALETTE_PREFIX_BASED = BUS_CONFIG | PALETTE_PREFIX_BASED,
+            LOW_BUS_PALETTE_PREFIX_BASED = LOW_BUS_CONFIG | PALETTE_PREFIX_BASED,
+            HIGH_BUS_PALETTE_PREFIX_BASED = HIGH_BUS_CONFIG | PALETTE_PREFIX_BASED,
             BULLET_TRAIN_PALETTE_PREFIX_BASED = BULLET_TRAIN_CONFIG | PALETTE_PREFIX_BASED,
 
             TRAIN_SHOW_IN_LINEAR_MAP = TRAIN_CONFIG | SHOW_IN_LINEAR_MAP,
             TRAM_SHOW_IN_LINEAR_MAP = TRAM_CONFIG | SHOW_IN_LINEAR_MAP,
             METRO_SHOW_IN_LINEAR_MAP = METRO_CONFIG | SHOW_IN_LINEAR_MAP,
             BUS_SHOW_IN_LINEAR_MAP = BUS_CONFIG | SHOW_IN_LINEAR_MAP,
+            LOW_BUS_SHOW_IN_LINEAR_MAP = LOW_BUS_CONFIG | SHOW_IN_LINEAR_MAP,
+            HIGH_BUS_SHOW_IN_LINEAR_MAP = HIGH_BUS_CONFIG | SHOW_IN_LINEAR_MAP,
             PLANE_SHOW_IN_LINEAR_MAP = PLANE_CONFIG | SHOW_IN_LINEAR_MAP,
             TAXI_SHOW_IN_LINEAR_MAP = TAXI_CONFIG | SHOW_IN_LINEAR_MAP,
             SHIP_SHOW_IN_LINEAR_MAP = SHIP_CONFIG | SHOW_IN_LINEAR_MAP,
