@@ -111,9 +111,8 @@ namespace Klyte.TransportLinesManager
             TransportLinesManagerMod.savedPalettes.value = string.Join(SERIALIZER_ITEM_SEPARATOR.ToString(), vals.ToArray());
         }
 
-        public static Color32 getColor(int number, string paletteName)
+        public static Color32 getColor(int number, string paletteName, bool randomOnPaletteOverflow)
         {
-            bool randomOnPaletteOverflow = TransportLinesManagerMod.savedUseRandomColorOnPaletteOverflow.value;
             if (m_palettes.ContainsKey(paletteName))
             {
                 AutoColorPalette palette = m_palettes[paletteName];

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
@@ -17,10 +18,11 @@ namespace Klyte.TransportLinesManager
         private UIPanel lineStationsPanel;
         private UIPanel mainContainer;
         private string m_autoName;
-        private ModoNomenclatura pre;
-        private ModoNomenclatura mn;
+        private ModoNomenclatura prefix;
+        private ModoNomenclatura suffix;
         private Separador sep;
         private bool zerosEsquerda;
+        private bool invertPrefixSuffix;
 
         public bool isVisible
         {
@@ -56,7 +58,7 @@ namespace Klyte.TransportLinesManager
             {
                 ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
                 TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
-                return "[" + TLMUtils.getString(pre, sep, mn, t.m_lineNumber, zerosEsquerda).Replace('\n', ' ') + "] " + m_autoName;
+                return "[" + TLMUtils.getString(prefix, sep, suffix, t.m_lineNumber, zerosEsquerda, invertPrefixSuffix).Replace('\n', ' ') + "] " + m_autoName;
             }
         }
 
@@ -73,9 +75,9 @@ namespace Klyte.TransportLinesManager
             lineStationsPanel.color = c;
         }
 
-        public void setLineNumberCircle(int num, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, bool zeros)
+        public void setLineNumberCircle(int num, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, bool zeros, bool invertPrefixSuffix)
         {
-            TLMLineUtils.setLineNumberCircleOnRef(num, pre, s, mn, zeros, linearMapLineNumber);
+            TLMLineUtils.setLineNumberCircleOnRef(num, pre, s, mn, zeros, linearMapLineNumber, invertPrefixSuffix);
         }
 
 
@@ -88,7 +90,7 @@ namespace Klyte.TransportLinesManager
             setLinearMapColor(lineInfoPanel.controller.tm.GetLineColor(lineID));
             clearStations();
             String bgSprite;
-            ItemClass.SubService ss = TLMLineUtils.setFormatBgByType(t, out bgSprite, out pre, out sep, out mn, out zerosEsquerda);
+            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
             linearMapLineNumberFormat.backgroundSprite = bgSprite;
             bool day, night;
             t.GetActive(out day, out night);
@@ -99,7 +101,7 @@ namespace Klyte.TransportLinesManager
             else {
                 linearMapLineTime.backgroundSprite = "";
             }
-            setLineNumberCircle(t.m_lineNumber, pre, sep, mn, zerosEsquerda);
+            setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, zerosEsquerda, invertPrefixSuffix);
 
             m_autoName = "";
             ushort[] stopBuildings = new ushort[stopsCount];
@@ -220,7 +222,7 @@ namespace Klyte.TransportLinesManager
                 int[] districtArray = districtList.ToArray();
                 if (districtArray.Length == 1)
                 {
-                    m_autoName = (TransportLinesManagerMod.savedCircularOnSingleDistrict.value ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
+                    m_autoName = (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
                 }
                 else if (TLMUtils.findSimetry(districtArray, out middle))
                 {
@@ -396,23 +398,7 @@ namespace Klyte.TransportLinesManager
 
 
 
-        private static ItemClass.Service[] seachOrder = new ItemClass.Service[]{
-            ItemClass.Service.Monument,
-            ItemClass.Service.Beautification,
-            ItemClass.Service.Government,
-            ItemClass.Service.HealthCare,
-            ItemClass.Service.FireDepartment,
-            ItemClass.Service.PoliceDepartment,
-            ItemClass.Service.Tourism,
-            ItemClass.Service.Education,
-            ItemClass.Service.Garbage,
-            ItemClass.Service.Office,
-            ItemClass.Service.Commercial,
-            ItemClass.Service.Industrial,
-            ItemClass.Service.Residential,
-            ItemClass.Service.Electricity,
-            ItemClass.Service.Water
-        };
+       
 
         Vector3 getStation(uint stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string passengerPort, out string taxiStand)
         {
@@ -423,19 +409,19 @@ namespace Klyte.TransportLinesManager
             bool transportBuilding = false;
             if (ss != ItemClass.SubService.None)
             {
-                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
+                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.CustomName, Building.Flags.Untouchable);
                 transportBuilding = true;
             }
 
             if (buildingId == 0)
             {
-                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active, Building.Flags.Untouchable);
+                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active | Building.Flags.CustomName, Building.Flags.Untouchable);
                 if (buildingId == 0)
                 {
                     int iterator = 0;
-                    while (buildingId == 0 && iterator < seachOrder.Count())
+                    while (buildingId == 0 && iterator < TLMUtils.seachOrder.Count())
                     {
-                        buildingId = bm.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
+                        buildingId = bm.FindBuilding(nn.m_position, 100f, TLMUtils.seachOrder[iterator], ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
                         iterator++;
                     }
                 }
@@ -482,7 +468,7 @@ namespace Klyte.TransportLinesManager
             passengerPort = String.Empty;
             taxiStand = String.Empty;
 
-            if (TransportLinesManagerMod.savedShowAirportsOnLinearMap.value)
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP))
             {
                 ushort airportId = bm.FindBuilding(sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane, Building.Flags.None, Building.Flags.Untouchable);
 
@@ -493,7 +479,7 @@ namespace Klyte.TransportLinesManager
                     airport = bm.GetBuildingName(airportId, iid);
                 }
             }
-            if (TransportLinesManagerMod.savedShowPassengerPortsOnLinearMap.value)
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP))
             {
                 ushort portId = bm.FindBuilding(sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip, Building.Flags.None, Building.Flags.Untouchable);
 
@@ -504,7 +490,7 @@ namespace Klyte.TransportLinesManager
                     passengerPort = bm.GetBuildingName(portId, iid);
                 }
             }
-            if (TransportLinesManagerMod.savedShowPassengerPortsOnLinearMap.value)
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP))
             {
                 ushort taxiId = bm.FindBuilding(sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 50f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTaxi, Building.Flags.None, Building.Flags.Untouchable);
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
@@ -23,6 +24,8 @@ namespace Klyte.TransportLinesManager
         private TLMMainPanel m_mainPanel;
         private TLMLineInfoPanel m_lineInfoPanel;
         private int lastLineCount = 0;
+
+
 
         public TLMMainPanel mainPanel
         {
@@ -143,7 +146,7 @@ namespace Klyte.TransportLinesManager
                 m_lineInfoPanel.updateBidings();
             }
 
-            if (lastLineCount != tm.m_lineCount && (TransportLinesManagerMod.savedAutoColor.value || TransportLinesManagerMod.savedAutoNaming.value))
+            if (lastLineCount != tm.m_lineCount && (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED) || TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_NAME_ENABLED)))
             {
                 CheckForAutoChanges();
                 if (mainPanel.isVisible)
@@ -159,16 +162,13 @@ namespace Klyte.TransportLinesManager
             for (ushort i = 0; i < tm.m_lines.m_size; i++)
             {
                 TransportLine t = tm.m_lines.m_buffer[(int)i];
-                if ((t.m_flags & (TransportLine.Flags.Created)) != TransportLine.Flags.None)
+                if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_NAME_ENABLED) && ((t.m_flags & (TransportLine.Flags.CustomName)) == TransportLine.Flags.None) && ((t.m_flags & (TransportLine.Flags.Complete)) != TransportLine.Flags.None))
                 {
-                    if (TransportLinesManagerMod.savedAutoNaming.value && ((t.m_flags & (TransportLine.Flags.CustomName)) == TransportLine.Flags.None))
-                    {
-                        AutoName(i);
-                    }
-                    if (TransportLinesManagerMod.savedAutoColor.value && ((t.m_flags & (TransportLine.Flags.CustomColor)) == TransportLine.Flags.None))
-                    {
-                        AutoColor(i);
-                    }
+                    AutoName(i);
+                }
+                if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED) && ((t.m_flags & (TransportLine.Flags.CustomColor)) == TransportLine.Flags.None) && ((t.m_flags & (TransportLine.Flags.Created)) != TransportLine.Flags.None))
+                {
+                    AutoColor(i);
                 }
             }
         }
@@ -178,36 +178,29 @@ namespace Klyte.TransportLinesManager
             TransportLine t = tm.m_lines.m_buffer[(int)i];
             try
             {
-                string pal = TLMAutoColorPalettes.PALETTE_RANDOM;
-                bool prefixBased = TransportLinesManagerMod.savedAutoColorBasedOnPrefix.value;
-                if (t.Info.m_transportType == TransportInfo.TransportType.Bus)
-                {
-                    pal = TransportLinesManagerMod.savedAutoColorPaletteOnibus.value;
-                    prefixBased &= (TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value != (int)ModoNomenclatura.Nenhum);
-                }
-                else if (t.Info.m_transportType == TransportInfo.TransportType.Metro)
-                {
-                    pal = TransportLinesManagerMod.savedAutoColorPaletteMetro.value;
-                    prefixBased &= (TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value != (int)ModoNomenclatura.Nenhum);
-                }
-                else if (t.Info.m_transportType == TransportInfo.TransportType.Train)
-                {
-                    pal = TransportLinesManagerMod.savedAutoColorPaletteTrem.value;
-                    prefixBased &= (TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value != (int)ModoNomenclatura.Nenhum);
-                }
+                TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(i);
+                bool prefixBased = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_PREFIX_BASED);
+
+                bool randomOnOverflow = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
+
+                string pal = TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_SUBLINE);
                 ushort num = t.m_lineNumber;
-                if (prefixBased && num >= 1000)
+                if (num >= 1000 && TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
                 {
-                    num /= 1000;
+                    pal = TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_MAIN);
+                    if (prefixBased)
+                    {
+                        num /= 1000;
+                    }
                 }
-                Color c = TLMAutoColorPalettes.getColor(num, pal);
+                Color c = TLMAutoColorPalettes.getColor(num, pal, randomOnOverflow);
                 TLMUtils.setLineColor(i, c);
                 return c;
             }
             catch (Exception e)
             {
                 DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "ERRO!!!!! " + e.Message);
-                TransportLinesManagerMod.savedAutoColor.value = false;
+                TLMCW.setCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
                 return Color.clear;
             }
         }
@@ -217,40 +210,22 @@ namespace Klyte.TransportLinesManager
             TransportLine t = tm.m_lines.m_buffer[(int)lineIdx];
             try
             {
-                int mn = (int)ModoNomenclatura.Numero;
-                int s = (int)Separador.Nenhum;
-                int pre = (int)ModoNomenclatura.Nenhum;
-                bool z = false;
-                if (t.Info.m_transportType == TransportInfo.TransportType.Bus)
-                {
-                    mn = TransportLinesManagerMod.savedNomenclaturaOnibus.value;
-                    pre = TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
-                    s = TransportLinesManagerMod.savedNomenclaturaOnibusSeparador.value;
-                    z = TransportLinesManagerMod.savedNomenclaturaOnibusZeros.value;
-                }
-                else if (t.Info.m_transportType == TransportInfo.TransportType.Metro)
-                {
-                    mn = TransportLinesManagerMod.savedNomenclaturaMetro.value;
-                    pre = TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
-                    s = TransportLinesManagerMod.savedNomenclaturaMetroSeparador.value;
-                    z = TransportLinesManagerMod.savedNomenclaturaMetroZeros.value;
-                }
-                else if (t.Info.m_transportType == TransportInfo.TransportType.Train)
-                {
-                    mn = TransportLinesManagerMod.savedNomenclaturaTrem.value;
-                    pre = TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
-                    s = TransportLinesManagerMod.savedNomenclaturaTremSeparador.value;
-                    z = TransportLinesManagerMod.savedNomenclaturaTremZeros.value;
-                }
-                TLMUtils.setLineName((ushort)lineIdx, "[" + TLMUtils.getString((ModoNomenclatura)pre, (Separador)s, (ModoNomenclatura)mn, t.m_lineNumber, z).Replace('\n', ' ') + "] " + TLMUtils.calculateAutoName(lineIdx));
+                ModoNomenclatura sufixo, prefixo;
+                Separador s;
+                bool z, invert;
+                TLMLineUtils.getLineNamingParameters(lineIdx, out prefixo, out s, out sufixo, out z, out invert);
+
+                TLMUtils.setLineName((ushort)lineIdx, "[" + TLMUtils.getString(prefixo, s, sufixo, t.m_lineNumber, z, invert).Replace('\n', ' ') + "] " + TLMUtils.calculateAutoName(lineIdx));
             }
             catch (Exception e)
             {
                 DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "ERRO!!!!! " + e.Message);
                 DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, e.StackTrace);
-                TransportLinesManagerMod.savedAutoNaming.value = false;
+                TLMCW.setCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
             }
         }
+
+
 
 
 

@@ -2,45 +2,80 @@ using ColossalFramework;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
     public class TLMLineUtils
     {
-
-        public static void GetLineNumberRules(out ModoNomenclatura mn, out ModoNomenclatura mnPrefixo, out Separador sep, out bool zeros, TransportInfo.TransportType tipoLinha)
+        public static void RemoveAllFromLine(ushort lineId)
         {
-            switch (tipoLinha)
+            var line = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineId];
+            VehicleManager instance = Singleton<VehicleManager>.instance;
+            ushort num2 = line.m_vehicles;
+            int num3 = 0;
+            while (num2 != 0)
             {
-                case TransportInfo.TransportType.Bus:
-                    mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
-                    sep = (Separador)TransportLinesManagerMod.savedNomenclaturaOnibusSeparador.value;
-                    zeros = TransportLinesManagerMod.savedNomenclaturaOnibusZeros.value;
+                ushort nextLineVehicle = instance.m_vehicles.m_buffer[(int)num2].m_nextLineVehicle;
+                VehicleInfo info2 = instance.m_vehicles.m_buffer[(int)num2].Info;
+                info2.m_vehicleAI.SetTransportLine(num2, ref instance.m_vehicles.m_buffer[(int)num2], 0);
+                num2 = nextLineVehicle;
+                if (++num3 > 16384)
+                {
+                    CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
                     break;
-                case TransportInfo.TransportType.Metro:
-                    mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
-                    sep = (Separador)TransportLinesManagerMod.savedNomenclaturaMetroSeparador.value;
-                    zeros = TransportLinesManagerMod.savedNomenclaturaMetroZeros.value;
-                    break;
-                case TransportInfo.TransportType.Train:
-                    mn = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
-                    sep = (Separador)TransportLinesManagerMod.savedNomenclaturaTremSeparador.value;
-                    zeros = TransportLinesManagerMod.savedNomenclaturaTremZeros.value;
-                    break;
+                }
+            }
+        }
+
+        public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out bool zeros, out bool invertPrefixSuffix)
+        {
+            string nil;
+            getLineNamingParameters(lineIdx, out prefix, out s, out suffix, out zeros, out invertPrefixSuffix, out nil);
+
+        }
+
+        public static ItemClass.SubService getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out bool zeros, out bool invertPrefixSuffix, out string icon)
+        {
+            TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(lineIdx);
+
+            suffix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
+            s = (Separador)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
+            prefix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+            zeros = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
+            invertPrefixSuffix = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
+            switch (transportType)
+            {
+                case TLMCW.ConfigIndex.TRAM_CONFIG:
+                    icon = "TramIcon";
+                    return ItemClass.SubService.PublicTransportTrain;
+                case TLMCW.ConfigIndex.BULLET_TRAIN_CONFIG:
+                    icon = "BulletTrainIcon";
+                    return ItemClass.SubService.PublicTransportTrain;
+                case TLMCW.ConfigIndex.TRAIN_CONFIG:
+                    icon = "TrainIcon";
+                    return ItemClass.SubService.PublicTransportTrain;
+                case TLMCW.ConfigIndex.METRO_CONFIG:
+                    icon = "SubwayIcon";
+                    return ItemClass.SubService.PublicTransportMetro;
+                case TLMCW.ConfigIndex.BUS_CONFIG:
+                    icon = "BusIcon";
+                    return ItemClass.SubService.PublicTransportBus;
+                case TLMCW.ConfigIndex.LOW_BUS_CONFIG:
+                    icon = "LowBusIcon";
+                    return ItemClass.SubService.PublicTransportBus;
+                case TLMCW.ConfigIndex.HIGH_BUS_CONFIG:
+                    icon = "HighBusIcon";
+                    return ItemClass.SubService.PublicTransportBus;
                 default:
-                    mn = ModoNomenclatura.Numero;
-                    mnPrefixo = ModoNomenclatura.Nenhum;
-                    sep = Separador.Nenhum;
-                    zeros = false;
-                    return;
+                    icon = "BusIcon";
+                    return ItemClass.SubService.None;
             }
         }
 
@@ -70,13 +105,10 @@ namespace Klyte.TransportLinesManager
                     {
                         NetInfo info = nm.m_nodes.m_buffer[(int)num6].Info;
 
-                        if ((info.m_class.m_service == ItemClass.Service.PublicTransport) &&
-                            ((info.m_class.m_subService == ItemClass.SubService.PublicTransportTrain && TransportLinesManagerMod.savedShowTrainLinesOnLinearMap.value)
-                            || (info.m_class.m_subService == ItemClass.SubService.PublicTransportMetro && TransportLinesManagerMod.savedShowMetroLinesOnLinearMap.value)
-                            || (info.m_class.m_subService == ItemClass.SubService.PublicTransportBus && TransportLinesManagerMod.savedShowBusLinesOnLinearMap.value)))
+                        if ((info.m_class.m_service == ItemClass.Service.PublicTransport))
                         {
                             ushort transportLine = nm.m_nodes.m_buffer[(int)num6].m_transportLine;
-                            if (transportLine != 0)
+                            if (transportLine != 0 && TLMCW.getCurrentConfigBool(TLMCW.getConfigIndexForLine(transportLine) | TLMConfigWarehouse.ConfigIndex.SHOW_IN_LINEAR_MAP))
                             {
                                 TransportInfo info2 = tm.m_lines.m_buffer[(int)transportLine].Info;
                                 if (!linesFound.Contains(transportLine) && (tm.m_lines.m_buffer[(int)transportLine].m_flags & TransportLine.Flags.Temporary) == TransportLine.Flags.None)
@@ -187,16 +219,28 @@ namespace Klyte.TransportLinesManager
                 if (t.Equals(default(TransportLine)) || tl.Info.GetSubService() != t.Info.GetSubService() || tl.m_lineNumber != t.m_lineNumber)
                 {
                     string transportTypeLetter = "";
-                    switch (tl.Info.m_transportType)
+                    switch (TLMCW.getConfigIndexForLine(s))
                     {
-                        case TransportInfo.TransportType.Bus:
+                        case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
+                            transportTypeLetter = "G";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG:
+                            transportTypeLetter = "F";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG:
+                            transportTypeLetter = "H";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
                             transportTypeLetter = "E";
                             break;
-                        case TransportInfo.TransportType.Metro:
-                            transportTypeLetter = "B";
-                            break;
-                        case TransportInfo.TransportType.Train:
+                        case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
                             transportTypeLetter = "C";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                            transportTypeLetter = "D";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG:
+                            transportTypeLetter = "B";
                             break;
                     }
                     otherLinesIntersections.Add(transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0'), s);
@@ -228,10 +272,11 @@ namespace Klyte.TransportLinesManager
             {
                 TransportLine intersectLine = tm.m_lines.m_buffer[(int)s.Value];
                 String bgSprite;
-                ModoNomenclatura nomenclatura, prefixo;
+                ModoNomenclatura sufixo, prefixo;
                 Separador separador;
                 bool zeros;
-                ItemClass.SubService ss = setFormatBgByType(intersectLine, out bgSprite, out prefixo, out separador, out nomenclatura, out zeros);
+                bool invertPrefixSuffix;
+                ItemClass.SubService ss = getLineNamingParameters(s.Value, out prefixo, out separador, out sufixo, out zeros, out invertPrefixSuffix, out bgSprite);
                 UIButtonLineInfo lineCircleIntersect = null;
                 TLMUtils.createUIElement<UIButtonLineInfo>(ref lineCircleIntersect, intersectionsPanel.transform);
                 lineCircleIntersect.autoSize = false;
@@ -280,7 +325,7 @@ namespace Klyte.TransportLinesManager
                     daytimeIndicator.atlas = TLMController.taLineNumber;
                     daytimeIndicator.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
                 }
-                setLineNumberCircleOnRef(intersectLine.m_lineNumber, prefixo, separador, nomenclatura, zeros, lineNumberIntersect);
+                setLineNumberCircleOnRef(intersectLine.m_lineNumber, prefixo, separador, sufixo, zeros, lineNumberIntersect, invertPrefixSuffix);
                 lineNumberIntersect.textScale *= multiplier;
                 lineNumberIntersect.relativePosition *= multiplier;
             }
@@ -314,9 +359,9 @@ namespace Klyte.TransportLinesManager
             lineCircleIntersect.tooltip = description;
         }
 
-        public static void setLineNumberCircleOnRef(int num, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, bool zeros, UILabel reference, float ratio = 1f)
+        public static void setLineNumberCircleOnRef(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros, UILabel reference, bool invertPrefixSuffix, float ratio = 1f)
         {
-            reference.text = TLMUtils.getString(pre, s, mn, num, zeros);
+            reference.text = TLMUtils.getString(prefix, s, sufix, num, zeros, invertPrefixSuffix);
             int lenght = reference.text.Length;
             if (lenght >= 4)
             {
@@ -339,42 +384,14 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static ItemClass.SubService setFormatBgByType(TransportLine line, out String bgSprite, out ModoNomenclatura prefixo, out Separador s, out ModoNomenclatura nomenclatura, out bool zerosEsquerda)
-        {
-            if (line.Info.m_transportType == TransportInfo.TransportType.Train)
-            {
-                bgSprite = "TrainIcon";
-                nomenclatura = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTrem.value;
-                prefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
-                s = (Separador)TransportLinesManagerMod.savedNomenclaturaTremSeparador.value;
-                zerosEsquerda = TransportLinesManagerMod.savedNomenclaturaTremZeros.value;
-                return ItemClass.SubService.PublicTransportTrain;
-            }
-            else if (line.Info.m_transportType == TransportInfo.TransportType.Metro)
-            {
-                bgSprite = "SubwayIcon";
-                nomenclatura = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetro.value;
-                prefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
-                s = (Separador)TransportLinesManagerMod.savedNomenclaturaMetroSeparador.value;
-                zerosEsquerda = TransportLinesManagerMod.savedNomenclaturaMetroZeros.value;
-                return ItemClass.SubService.PublicTransportMetro;
-            }
-            else {
-                bgSprite = "BusIcon";
-                nomenclatura = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibus.value;
-                prefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
-                s = (Separador)TransportLinesManagerMod.savedNomenclaturaOnibusSeparador.value;
-                zerosEsquerda = TransportLinesManagerMod.savedNomenclaturaOnibusZeros.value;
-                return ItemClass.SubService.None;
-            }
-        }
+
     }
 
     public class TLMUtils
     {
         public static void doLog(string format, params object[] args)
         {
-            Debug.LogWarningFormat(format, args);
+            //Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
         }
         public static void createUIElement<T>(ref T uiItem, Transform parent) where T : Component
         {
@@ -505,6 +522,7 @@ namespace Klyte.TransportLinesManager
         public static string[] getStringOptionsForPrefix(ModoNomenclatura m)
         {
             List<string> saida = new List<string>(new string[] { "" });
+
             switch (m)
             {
                 case ModoNomenclatura.GregoMaiusculo:
@@ -532,93 +550,89 @@ namespace Klyte.TransportLinesManager
                     }
                     break;
             }
+            if (TLMUtils.nomenclaturasComNumeros.Contains(m))
+            {
+                saida.AddRange(numeros.Select(x => x.ToString()));
+            }
             return saida.ToArray();
         }
 
-        public static string getString(ModoNomenclatura pre, Separador s, ModoNomenclatura m, int numero, bool zerosEsquerda)
+        public static string getString(ModoNomenclatura prefixo, Separador s, ModoNomenclatura sufixo, int numero, bool leadingZeros, bool invertPrefixSuffix)
         {
-            string prefixo = "";
-            if (pre != ModoNomenclatura.Nenhum)
+            string prefixoSaida = "";
+            string separadorSaida = "";
+            string sufixoSaida = "";
+            if (prefixo != ModoNomenclatura.Nenhum)
             {
-                switch (pre)
-                {
-                    case ModoNomenclatura.GregoMaiusculo:
-                        prefixo = getStringFromNumber(gregoMaiusculo, numero / 1000);
-                        break;
-                    case ModoNomenclatura.GregoMinusculo:
-                        prefixo = getStringFromNumber(gregoMinusculo, numero / 1000);
-                        break;
-                    case ModoNomenclatura.CirilicoMaiusculo:
-                        prefixo = getStringFromNumber(cirilicoMaiusculo, numero / 1000);
-                        break;
-                    case ModoNomenclatura.CirilicoMinusculo:
-                        prefixo = getStringFromNumber(cirilicoMinusculo, numero / 1000);
-                        break;
-                    case ModoNomenclatura.LatinoMaiusculo:
-                        prefixo = getStringFromNumber(latinoMaiusculo, numero / 1000);
-                        break;
-                    case ModoNomenclatura.LatinoMinusculo:
-                        prefixo = getStringFromNumber(latinoMinusculo, numero / 1000);
-                        break;
-                    default:
-                        if (numero >= 1000)
-                        {
-                            prefixo = "" + (numero / 1000);
-                        }
-                        break;
-                }
+                prefixoSaida = getStringFromNumber(getStringOptionsForPrefix(prefixo), numero / 1000 + 1);
                 numero = numero % 1000;
             }
 
             if (numero > 0)
             {
-                if (prefixo != "" && s != Separador.Nenhum)
+                if (prefixoSaida != "" && s != Separador.Nenhum)
                 {
                     switch (s)
                     {
                         case Separador.Barra:
-                            prefixo += "/";
+                            separadorSaida = "/";
                             break;
                         case Separador.Espaco:
-                            prefixo += " ";
+                            separadorSaida = " ";
                             break;
                         case Separador.Hifen:
-                            prefixo += "-";
+                            separadorSaida = "-";
                             break;
                         case Separador.Ponto:
-                            prefixo += ".";
+                            separadorSaida = ".";
                             break;
                         case Separador.QuebraLinha:
-                            prefixo += "\n";
+                            separadorSaida = "\n";
                             break;
                     }
                 }
-                switch (m)
+                switch (sufixo)
                 {
                     case ModoNomenclatura.GregoMaiusculo:
-                        return prefixo + getStringFromNumber(gregoMaiusculo, numero);
+                        sufixoSaida = getStringFromNumber(gregoMaiusculo, numero);
+                        break;
                     case ModoNomenclatura.GregoMinusculo:
-                        return prefixo + getStringFromNumber(gregoMinusculo, numero);
+                        sufixoSaida = getStringFromNumber(gregoMinusculo, numero);
+                        break;
                     case ModoNomenclatura.CirilicoMaiusculo:
-                        return prefixo + getStringFromNumber(cirilicoMaiusculo, numero);
+                        sufixoSaida = getStringFromNumber(cirilicoMaiusculo, numero);
+                        break;
                     case ModoNomenclatura.CirilicoMinusculo:
-                        return prefixo + getStringFromNumber(cirilicoMinusculo, numero);
+                        sufixoSaida = getStringFromNumber(cirilicoMinusculo, numero);
+                        break;
                     case ModoNomenclatura.LatinoMaiusculo:
-                        return prefixo + getStringFromNumber(latinoMaiusculo, numero);
+                        sufixoSaida = getStringFromNumber(latinoMaiusculo, numero);
+                        break;
                     case ModoNomenclatura.LatinoMinusculo:
-                        return prefixo + getStringFromNumber(latinoMinusculo, numero);
+                        sufixoSaida = getStringFromNumber(latinoMinusculo, numero);
+                        break;
                     default:
-                        if (zerosEsquerda && prefixo != "")
+                        if (leadingZeros && prefixoSaida != "")
                         {
-                            return prefixo + numero.ToString("D3");
+                            sufixoSaida = numero.ToString("D3");
                         }
                         else {
-                            return prefixo + numero;
+                            sufixoSaida = numero.ToString();
                         }
+                        break;
+                }
+
+                if (invertPrefixSuffix && sufixo == ModoNomenclatura.Numero)
+                {
+                    return sufixoSaida + separadorSaida + prefixoSaida;
+                }
+                else
+                {
+                    return prefixoSaida + separadorSaida + sufixoSaida;
                 }
             }
             else {
-                return prefixo;
+                return prefixoSaida;
             }
         }
 
@@ -644,7 +658,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static string getStringFromNumber(char[] array, int number)
+        public static string getStringFromNumber(string[] array, int number)
         {
             int arraySize = array.Length;
             string saida = "";
@@ -745,7 +759,7 @@ namespace Klyte.TransportLinesManager
                 int[] districtArray = districtList.ToArray();
                 if (districtArray.Length == 1)
                 {
-                    return (TransportLinesManagerMod.savedCircularOnSingleDistrict.value ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
+                    return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
                 }
                 else if (findSimetry(districtArray, out middle))
                 {
@@ -830,23 +844,59 @@ namespace Klyte.TransportLinesManager
             return true;
         }
 
+        public static readonly ItemClass.Service[] seachOrder = new ItemClass.Service[]{
+            ItemClass.Service.PublicTransport,
+            ItemClass.Service.Monument,
+            ItemClass.Service.Beautification,
+            ItemClass.Service.Government,
+            ItemClass.Service.HealthCare,
+            ItemClass.Service.FireDepartment,
+            ItemClass.Service.PoliceDepartment,
+            ItemClass.Service.Tourism,
+            ItemClass.Service.Education,
+            ItemClass.Service.Garbage,
+            ItemClass.Service.Office,
+            ItemClass.Service.Commercial,
+            ItemClass.Service.Industrial,
+            ItemClass.Service.Residential,
+            ItemClass.Service.Electricity,
+            ItemClass.Service.Water
+        };
+
+
         public static string getStationName(uint stopId, ItemClass.SubService ss)
         {
-            ushort buildingId = getStationBuilding(stopId, ss);
+            NetManager nm = Singleton<NetManager>.instance;
+            BuildingManager bm = Singleton<BuildingManager>.instance;
+            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+            ushort buildingId = 0;
+            if (ss != ItemClass.SubService.None)
+            {
+                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.CustomName, Building.Flags.Untouchable);
+            }
 
+            if (buildingId == 0)
+            {
+                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active | Building.Flags.CustomName, Building.Flags.Untouchable);
+                if (buildingId == 0)
+                {
+                    int iterator = 0;
+                    while (buildingId == 0 && iterator < seachOrder.Count())
+                    {
+                        buildingId = bm.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
+                        iterator++;
+                    }
+                }
+            }
+            Vector3 location = nn.m_position;
+            Building b = bm.m_buildings.m_buffer[buildingId];
             if (buildingId > 0)
             {
-                BuildingManager bm = Singleton<BuildingManager>.instance;
-                Building b = bm.m_buildings.m_buffer[buildingId];
                 InstanceID iid = default(InstanceID);
                 iid.Building = buildingId;
                 return bm.GetBuildingName(buildingId, iid);
             }
-            else
-            {
-                NetManager nm = Singleton<NetManager>.instance;
-                NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-                Vector3 location = nn.m_position;
+            else {
                 DistrictManager dm = Singleton<DistrictManager>.instance;
                 int dId = dm.GetDistrict(location);
                 if (dId > 0)
@@ -957,7 +1007,7 @@ namespace Klyte.TransportLinesManager
             }
             return buildingId;
 
-        }      
+        }
 
         public static bool findSimetry(int[] array, out int middle)
         {
@@ -999,185 +1049,208 @@ namespace Klyte.TransportLinesManager
             public ushort lineID;
         }
 
-        private static char[] latinoMaiusculo = {
-            'A',
-            'B',
-            'C',
-            'D',
-            'E',
-            'F',
-            'G',
-            'H',
-            'I',
-            'J',
-            'K',
-            'L',
-            'M',
-            'N',
-            'O',
-            'P',
-            'Q',
-            'R',
-            'S',
-            'T',
-            'U',
-            'V',
-            'W',
-            'X',
-            'Y',
-            'Z'
+        private static string[] latinoMaiusculo = {
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "H",
+            "I",
+            "J",
+            "K",
+            "L",
+            "M",
+            "N",
+            "O",
+            "P",
+            "Q",
+            "R",
+            "S",
+            "T",
+            "U",
+            "V",
+            "W",
+            "X",
+            "Y",
+            "Z"
         };
-        private static char[] latinoMinusculo = {
-            'a',
-            'b',
-            'c',
-            'd',
-            'e',
-            'f',
-            'g',
-            'h',
-            'i',
-            'j',
-            'k',
-            'l',
-            'm',
-            'n',
-            'o',
-            'p',
-            'q',
-            'r',
-            's',
-            't',
-            'u',
-            'v',
-            'w',
-            'x',
-            'y',
-            'z'
+        private static string[] latinoMinusculo = {
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j",
+            "k",
+            "l",
+            "m",
+            "n",
+            "o",
+            "p",
+            "q",
+            "r",
+            "s",
+            "t",
+            "u",
+            "v",
+            "w",
+            "x",
+            "y",
+            "z"
         };
-        private static char[] gregoMaiusculo = {
-            'Α',
-            'Β',
-            'Γ',
-            'Δ',
-            'Ε',
-            'Ζ',
-            'Η',
-            'Θ',
-            'Ι',
-            'Κ',
-            'Λ',
-            'Μ',
-            'Ν',
-            'Ξ',
-            'Ο',
-            'Π',
-            'Ρ',
-            'Σ',
-            'Τ',
-            'Υ',
-            'Φ',
-            'Χ',
-            'Ψ',
-            'Ω'
+        private static string[] gregoMaiusculo = {
+            "Α",
+            "Β",
+            "Γ",
+            "Δ",
+            "Ε",
+            "Ζ",
+            "Η",
+            "Θ",
+            "Ι",
+            "Κ",
+            "Λ",
+            "Μ",
+            "Ν",
+            "Ξ",
+            "Ο",
+            "Π",
+            "Ρ",
+            "Σ",
+            "Τ",
+            "Υ",
+            "Φ",
+            "Χ",
+            "Ψ",
+            "Ω"
         };
-        private static char[] gregoMinusculo = {
-            'α',
-            'β',
-            'γ',
-            'δ',
-            'ε',
-            'ζ',
-            'η',
-            'θ',
-            'ι',
-            'κ',
-            'λ',
-            'μ',
-            'ν',
-            'ξ',
-            'ο',
-            'π',
-            'ρ',
-            'σ',
-            'τ',
-            'υ',
-            'φ',
-            'χ',
-            'ψ',
-            'ω'
+        private static string[] gregoMinusculo = {
+            "α",
+            "β",
+            "γ",
+            "δ",
+            "ε",
+            "ζ",
+            "η",
+            "θ",
+            "ι",
+            "κ",
+            "λ",
+            "μ",
+            "ν",
+            "ξ",
+            "ο",
+            "π",
+            "ρ",
+            "σ",
+            "τ",
+            "υ",
+            "φ",
+            "χ",
+            "ψ",
+            "ω"
         };
-        private static char[] cirilicoMaiusculo = {
-            'А',
-            'Б',
-            'В',
-            'Г',
-            'Д',
-            'Е',
-            'Ё',
-            'Ж',
-            'З',
-            'И',
-            'Й',
-            'К',
-            'Л',
-            'М',
-            'Н',
-            'О',
-            'П',
-            'Р',
-            'С',
-            'Т',
-            'У',
-            'Ф',
-            'Х',
-            'Ц',
-            'Ч',
-            'Ш',
-            'Щ',
-            'Ъ',
-            'Ы',
-            'Ь',
-            'Э',
-            'Ю',
-            'Я'
+        private static string[] cirilicoMaiusculo = {
+            "А",
+            "Б",
+            "В",
+            "Г",
+            "Д",
+            "Е",
+            "Ё",
+            "Ж",
+            "З",
+            "И",
+            "Й",
+            "К",
+            "Л",
+            "М",
+            "Н",
+            "О",
+            "П",
+            "Р",
+            "С",
+            "Т",
+            "У",
+            "Ф",
+            "Х",
+            "Ц",
+            "Ч",
+            "Ш",
+            "Щ",
+            "Ъ",
+            "Ы",
+            "Ь",
+            "Э",
+            "Ю",
+            "Я"
         };
-        private static char[] cirilicoMinusculo = {
-            'а',
-            'б',
-            'в',
-            'г',
-            'д',
-            'е',
-            'ё',
-            'ж',
-            'з',
-            'и',
-            'й',
-            'к',
-            'л',
-            'м',
-            'н',
-            'о',
-            'п',
-            'р',
-            'с',
-            'т',
-            'у',
-            'ф',
-            'х',
-            'ц',
-            'ч',
-            'ш',
-            'щ',
-            'ъ',
-            'ы',
-            'ь',
-            'э',
-            'ю',
-            'я'
+        private static string[] cirilicoMinusculo = {
+            "а",
+            "б",
+            "в",
+            "г",
+            "д",
+            "е",
+            "ё",
+            "ж",
+            "з",
+            "и",
+            "й",
+            "к",
+            "л",
+            "м",
+            "н",
+            "о",
+            "п",
+            "р",
+            "с",
+            "т",
+            "у",
+            "ф",
+            "х",
+            "ц",
+            "ч",
+            "ш",
+            "щ",
+            "ъ",
+            "ы",
+            "ь",
+            "э",
+            "ю",
+            "я"
         };
 
+        private static string[] numeros = {
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"
+        };
+
+
+        public static readonly ModoNomenclatura[] nomenclaturasComNumeros = new ModoNomenclatura[]
+        {
+        ModoNomenclatura. LatinoMinusculoNumero ,
+        ModoNomenclatura. LatinoMaiusculoNumero ,
+        ModoNomenclatura. GregoMinusculoNumero,
+        ModoNomenclatura. GregoMaiusculoNumero,
+        ModoNomenclatura. CirilicoMinusculoNumero,
+        ModoNomenclatura. CirilicoMaiusculoNumero
+        };
     }
 
     public class ResourceLoader
@@ -1238,7 +1311,6 @@ namespace Klyte.TransportLinesManager
             return null;
         }
     }
-
     public enum ModoNomenclatura
     {
         Numero = 0,
@@ -1248,7 +1320,13 @@ namespace Klyte.TransportLinesManager
         GregoMaiusculo = 4,
         CirilicoMinusculo = 5,
         CirilicoMaiusculo = 6,
-        Nenhum = 7
+        Nenhum = 7,
+        LatinoMinusculoNumero = 8,
+        LatinoMaiusculoNumero = 9,
+        GregoMinusculoNumero = 10,
+        GregoMaiusculoNumero = 11,
+        CirilicoMinusculoNumero = 12,
+        CirilicoMaiusculoNumero = 13,
     }
 
     public enum Separador
@@ -1328,7 +1406,7 @@ namespace Klyte.TransportLinesManager
             return this.IsValid() && Range.IsValid() && Range.ContainsValue(this.Minimum) && Range.ContainsValue(this.Maximum);
         }
 
-      
+
 
         /// <summary>
         /// Determines if another range is inside the bounds of this range
@@ -1373,6 +1451,21 @@ namespace Klyte.TransportLinesManager
             else
             {
                 return Mathf.Atan(co / ca) * Mathf.Rad2Deg;
+            }
+        }
+    }
+
+    public static class Int32Extensions
+    {
+        public static int ParseOrDefault(string val, int defaultVal)
+        {
+            try
+            {
+                return int.Parse(val);
+            }
+            catch (Exception e)
+            {
+                return defaultVal;
             }
         }
     }

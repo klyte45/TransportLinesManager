@@ -5,6 +5,7 @@ using Klyte.Extensions;
 using System;
 using System.Linq;
 using UnityEngine;
+using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
@@ -27,6 +28,12 @@ namespace Klyte.TransportLinesManager
         private UIDropDown linePrefixDropDown;
         private UILabel lineTransportIconTypeLabel;
         private UILabel viagensEvitadasLabel;
+        private UICheckBox isTramCheck;
+        private UICheckBox isBulletTrainCheck;
+        private UICheckBox isTrainCheck;
+        private UICheckBox isLowBusCheck;
+        private UICheckBox isHighBusCheck;
+        private UICheckBox isRegularBusCheck;
         private UILabel passageirosEturistasLabel;
         private UILabel veiculosLinhaLabel;
         private UILabel autoNameLabel;
@@ -135,21 +142,35 @@ namespace Klyte.TransportLinesManager
             TLMUtils.setLineName(m_lineIdSelecionado.TransportLine, value);
         }
 
-        private bool isNumeroUsado(int numLinha, TransportInfo.TransportType tipo)
+        private bool isNumeroUsado(int numLinha, ushort lineIdx)
         {
+            TLMCW.ConfigIndex tipo = TLMCW.getConfigIndexForLine(lineIdx);
             bool numeroUsado = true;
-            switch (tipo)
+            switch (tipo & TLMConfigWarehouse.ConfigIndex.SYSTEM_PART)
             {
-                case TransportInfo.TransportType.Bus:
-                    numeroUsado = m_controller.mainPanel.onibus.Keys.Contains(numLinha) && m_controller.mainPanel.onibus[numLinha] != m_lineIdSelecionado.TransportLine;
+                case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
+                    numeroUsado = m_controller.mainPanel.bus.Keys.Contains(numLinha) && m_controller.mainPanel.bus[numLinha] != m_lineIdSelecionado.TransportLine;
                     break;
 
-                case TransportInfo.TransportType.Metro:
+                case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
                     numeroUsado = m_controller.mainPanel.metro.Keys.Contains(numLinha) && m_controller.mainPanel.metro[numLinha] != m_lineIdSelecionado.TransportLine;
                     break;
 
-                case TransportInfo.TransportType.Train:
-                    numeroUsado = m_controller.mainPanel.trens.Keys.Contains(numLinha) && m_controller.mainPanel.trens[numLinha] != m_lineIdSelecionado.TransportLine;
+                case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
+                    numeroUsado = m_controller.mainPanel.train.Keys.Contains(numLinha) && m_controller.mainPanel.train[numLinha] != m_lineIdSelecionado.TransportLine;
+                    break;
+
+                case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                    numeroUsado = m_controller.mainPanel.trams.Keys.Contains(numLinha) && m_controller.mainPanel.trams[numLinha] != m_lineIdSelecionado.TransportLine;
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG:
+                    numeroUsado = m_controller.mainPanel.bulletTrains.Keys.Contains(numLinha) && m_controller.mainPanel.bulletTrains[numLinha] != m_lineIdSelecionado.TransportLine;
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG:
+                    numeroUsado = m_controller.mainPanel.lowBus.Keys.Contains(numLinha) && m_controller.mainPanel.lowBus[numLinha] != m_lineIdSelecionado.TransportLine;
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG:
+                    numeroUsado = m_controller.mainPanel.highBus.Keys.Contains(numLinha) && m_controller.mainPanel.highBus[numLinha] != m_lineIdSelecionado.TransportLine;
                     break;
             }
             return numeroUsado;
@@ -169,18 +190,18 @@ namespace Klyte.TransportLinesManager
         {
             String value = "0" + lineNumberLabel.text;
             int valPrefixo = linePrefixDropDown.selectedIndex;
-            ModoNomenclatura mn;
-            ModoNomenclatura mnPrefixo;
+            ModoNomenclatura sufixo;
+            ModoNomenclatura prefixo;
             Separador sep;
             bool zeros;
-            var tipoLinha = m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine].Info.m_transportType;
-            TLMLineUtils.GetLineNumberRules(out mn, out mnPrefixo, out sep, out zeros, tipoLinha);
+            bool invertPrefixSuffix;
+            TLMLineUtils.getLineNamingParameters(m_lineIdSelecionado.TransportLine, out prefixo, out sep, out sufixo, out zeros, out invertPrefixSuffix);
             ushort num = ushort.Parse(value);
-            if (mnPrefixo != ModoNomenclatura.Nenhum)
+            if (prefixo != ModoNomenclatura.Nenhum)
             {
                 num = (ushort)(valPrefixo * 1000 + (num % 1000));
             }
-            bool numeroUsado = isNumeroUsado(num, tipoLinha);
+            bool numeroUsado = isNumeroUsado(num, m_lineIdSelecionado.TransportLine);
             if (num < 1)
             {
                 lineNumberLabel.textColor = new Color(1, 0, 0, 1);
@@ -194,10 +215,10 @@ namespace Klyte.TransportLinesManager
             else {
                 lineNumberLabel.textColor = new Color(1, 1, 1, 1);
                 m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine].m_lineNumber = num;
-                m_linearMap.setLineNumberCircle(num, mnPrefixo, sep, mn, zeros);
+                m_linearMap.setLineNumberCircle(num, prefixo, sep, sufixo, zeros, invertPrefixSuffix);
                 autoNameLabel.text = m_linearMap.autoName;
 
-                if (mnPrefixo != ModoNomenclatura.Nenhum)
+                if (prefixo != ModoNomenclatura.Nenhum)
                 {
                     lineNumberLabel.text = (num % 1000).ToString();
                     linePrefixDropDown.selectedIndex = (num / 1000);
@@ -305,7 +326,6 @@ namespace Klyte.TransportLinesManager
                 }
                 lineNameField.text = m_controller.tm.GetLineName(m_lineIdSelecionado.TransportLine);
             };
-            TLMUtils.createDragHandle(lineNameField, lineInfoPanel);
 
             TLMUtils.createUIElement<UILabel>(ref lineLenghtLabel, lineInfoPanel.transform);
             lineLenghtLabel.autoSize = false;
@@ -359,7 +379,133 @@ namespace Klyte.TransportLinesManager
             passageirosEturistasLabel.name = "TouristAndPassagersLabel";
             passageirosEturistasLabel.textScale = 0.8f;
 
+            isTramCheck = lineInfoPanel.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kCheckBoxTemplate)) as UICheckBox;
+            isTramCheck.text = "Tram";
+            isTramCheck.isChecked = false;
+            isTramCheck.relativePosition = new Vector3(10f, 135f);
+            isTramCheck.eventCheckChanged += delegate (UIComponent c, bool isChecked)
+            {
+                if (isChecked)
+                {
+                    isBulletTrainCheck.isChecked = false;
+                    isTrainCheck.isChecked = false;
+                    if (!TLMTrainModifyRedirects.isTramLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
+                }
+            };
 
+            isBulletTrainCheck = lineInfoPanel.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kCheckBoxTemplate)) as UICheckBox;
+            isBulletTrainCheck.text = "Bullet";
+            isBulletTrainCheck.isChecked = false;
+            isBulletTrainCheck.relativePosition = new Vector3(150f, 135f);
+            isBulletTrainCheck.eventCheckChanged += delegate (UIComponent c, bool isChecked)
+            {
+                if (isChecked)
+                {
+                    isTramCheck.isChecked = false;
+                    isTrainCheck.isChecked = false;
+                    if (!TLMTrainModifyRedirects.isBulletTrainLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
+                }
+            };
+
+            isTrainCheck = lineInfoPanel.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kCheckBoxTemplate)) as UICheckBox;
+            isTrainCheck.text = "Regional (Default)";
+            isTrainCheck.isChecked = false;
+            isTrainCheck.relativePosition = new Vector3(290f, 135f);
+            isTrainCheck.eventCheckChanged += delegate (UIComponent c, bool isChecked)
+            {
+                if (isChecked)
+                {
+                    isTramCheck.isChecked = false;
+                    isBulletTrainCheck.isChecked = false;
+                    if (!TLMTrainModifyRedirects.isTrainLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
+                }
+            };
+
+
+            isLowBusCheck = lineInfoPanel.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kCheckBoxTemplate)) as UICheckBox;
+            isLowBusCheck.text = "Low Capacity";
+            isLowBusCheck.isChecked = false;
+            isLowBusCheck.relativePosition = new Vector3(10f, 135f);
+            isLowBusCheck.eventCheckChanged += delegate (UIComponent c, bool isChecked)
+            {
+                if (isChecked)
+                {
+                    isHighBusCheck.isChecked = false;
+                    isRegularBusCheck.isChecked = false;
+                    if (!TLMBusModifyRedirects.isLowBusLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
+                }
+            };
+
+            isHighBusCheck = lineInfoPanel.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kCheckBoxTemplate)) as UICheckBox;
+            isHighBusCheck.text = "High Capacity";
+            isHighBusCheck.isChecked = false;
+            isHighBusCheck.relativePosition = new Vector3(150f, 135f);
+            isHighBusCheck.eventCheckChanged += delegate (UIComponent c, bool isChecked)
+            {
+                if (isChecked)
+                {
+                    isLowBusCheck.isChecked = false;
+                    isRegularBusCheck.isChecked = false;
+                    if (!TLMBusModifyRedirects.isHighBusLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
+                }
+            };
+
+            isRegularBusCheck = lineInfoPanel.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kCheckBoxTemplate)) as UICheckBox;
+            isRegularBusCheck.text = "Regular (Default)";
+            isRegularBusCheck.isChecked = false;
+            isRegularBusCheck.relativePosition = new Vector3(290f, 135f);
+            isRegularBusCheck.eventCheckChanged += delegate (UIComponent c, bool isChecked)
+            {
+                if (isChecked)
+                {
+                    isLowBusCheck.isChecked = false;
+                    isHighBusCheck.isChecked = false;
+                    if (!TLMBusModifyRedirects.isRegularBusLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
+                }
+            };
             //			TLMUtils.createUIElement<UILabel> (ref custosLabel, lineInfoPanel.transform);
             //			custosLabel.autoSize = false; 
             //			custosLabel.relativePosition = new Vector3 (10f, 135f);			 
@@ -420,6 +566,10 @@ namespace Klyte.TransportLinesManager
                 {
                     Singleton<TransportManager>.instance.ReleaseLine(m_lineIdSelecionado.TransportLine);
                 });
+                TLMConfigWarehouse.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                TLMConfigWarehouse.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                TLMConfigWarehouse.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                TLMConfigWarehouse.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
                 closeLineInfo(component, eventParam);
             };
             UIButton voltarButton2 = null;
@@ -596,22 +746,8 @@ namespace Klyte.TransportLinesManager
             TransportLine t = m_controller.tm.m_lines.m_buffer[(int)lineID];
             ushort lineNumber = t.m_lineNumber;
 
-            ModoNomenclatura mnPrefixo = ModoNomenclatura.Nenhum;
-            var tipoLinha = t.Info.m_transportType;
-            switch (tipoLinha)
-            {
-                case TransportInfo.TransportType.Bus:
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaOnibusPrefixo.value;
-                    break;
-
-                case TransportInfo.TransportType.Metro:
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaMetroPrefixo.value;
-                    break;
-
-                case TransportInfo.TransportType.Train:
-                    mnPrefixo = (ModoNomenclatura)TransportLinesManagerMod.savedNomenclaturaTremPrefixo.value;
-                    break;
-            }
+            TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(lineID);
+            ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMCW.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
             if (mnPrefixo != ModoNomenclatura.Nenhum)
             {
@@ -636,7 +772,58 @@ namespace Klyte.TransportLinesManager
 
             lineNumberLabel.color = m_controller.tm.GetLineColor(lineID);
             lineNameField.text = m_controller.tm.GetLineName(lineID);
-            lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(t.Info.m_transportType);
+            if (transportType == TLMCW.ConfigIndex.TRAM_CONFIG || transportType == TLMCW.ConfigIndex.BULLET_TRAIN_CONFIG || transportType == TLMCW.ConfigIndex.HIGH_BUS_CONFIG || transportType == TLMCW.ConfigIndex.LOW_BUS_CONFIG)
+            {
+
+                lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 5f);
+                lineTransportIconTypeLabel.atlas = TLMController.taLineNumber;
+                lineTransportIconTypeLabel.height = 30;
+                if (transportType == TLMCW.ConfigIndex.TRAM_CONFIG)
+                {
+                    lineTransportIconTypeLabel.backgroundSprite = "TramImage";
+                    isTramCheck.isChecked = true;
+                }
+                else if (transportType == TLMCW.ConfigIndex.BULLET_TRAIN_CONFIG)
+                {
+                    lineTransportIconTypeLabel.backgroundSprite = "BulletTrainImage";
+                    isBulletTrainCheck.isChecked = true;
+                }
+                else if (transportType == TLMCW.ConfigIndex.HIGH_BUS_CONFIG)
+                {
+                    lineTransportIconTypeLabel.backgroundSprite = "HighBusImage";
+                    isHighBusCheck.isChecked = true;
+                }
+                else if (transportType == TLMCW.ConfigIndex.LOW_BUS_CONFIG)
+                {
+                    lineTransportIconTypeLabel.backgroundSprite = "LowBusImage";
+                    isLowBusCheck.isChecked = true;
+                }
+            }
+            else
+            {
+                if (transportType == TLMCW.ConfigIndex.BUS_CONFIG)
+                {
+                    isRegularBusCheck.isChecked = true;
+                }
+                else if (transportType == TLMCW.ConfigIndex.TRAIN_CONFIG)
+                {
+                    isTrainCheck.isChecked = true;
+                }
+
+                lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 12f);
+                lineTransportIconTypeLabel.height = 20;
+                lineTransportIconTypeLabel.atlas = linePrefixDropDown.atlas;
+                lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(t.Info.m_transportType);
+            }
+
+            isTramCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Train;
+            isTrainCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Train;
+            isBulletTrainCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Train;
+
+            isLowBusCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Bus;
+            isRegularBusCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Bus;
+            isHighBusCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Bus;
+
             lineColorPicker.selectedColor = m_controller.tm.GetLineColor(lineID);
 
             bool day, night;
