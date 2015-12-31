@@ -398,24 +398,7 @@ namespace Klyte.TransportLinesManager
 
 
 
-        private static ItemClass.Service[] seachOrder = new ItemClass.Service[]{
-            ItemClass.Service.PublicTransport,
-            ItemClass.Service.Monument,
-            ItemClass.Service.Beautification,
-            ItemClass.Service.Government,
-            ItemClass.Service.HealthCare,
-            ItemClass.Service.FireDepartment,
-            ItemClass.Service.PoliceDepartment,
-            ItemClass.Service.Tourism,
-            ItemClass.Service.Education,
-            ItemClass.Service.Garbage,
-            ItemClass.Service.Office,
-            ItemClass.Service.Commercial,
-            ItemClass.Service.Industrial,
-            ItemClass.Service.Residential,
-            ItemClass.Service.Electricity,
-            ItemClass.Service.Water
-        };
+       
 
         Vector3 getStation(uint stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string passengerPort, out string taxiStand)
         {
@@ -436,9 +419,9 @@ namespace Klyte.TransportLinesManager
                 if (buildingId == 0)
                 {
                     int iterator = 0;
-                    while (buildingId == 0 && iterator < seachOrder.Count())
+                    while (buildingId == 0 && iterator < TLMUtils.seachOrder.Count())
                     {
-                        buildingId = bm.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
+                        buildingId = bm.FindBuilding(nn.m_position, 100f, TLMUtils.seachOrder[iterator], ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
                         iterator++;
                     }
                 }

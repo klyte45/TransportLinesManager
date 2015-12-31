@@ -381,9 +381,7 @@ namespace Klyte.TransportLinesManager
             {
                 data.Unspawn(vehicleID);
             }
-
-            this.RemoveLine(vehicleID, ref data);
-            data.m_transportLine = transportLine;
+            
         }
         private void RemoveLine(ushort vehicleID, ref Vehicle data)
         {

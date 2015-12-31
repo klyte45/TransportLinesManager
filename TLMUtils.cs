@@ -2,6 +2,7 @@ using ColossalFramework;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,23 @@ namespace Klyte.TransportLinesManager
 {
     public class TLMLineUtils
     {
+        public static IEnumerator RemoveAllFromLine(ushort lineId)
+        {
+            var line = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineId];
+            ushort index = line.m_vehicles;
+            if (index > 0)
+            {
+                do
+                {
+                    Vehicle v = (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[index]);
+                    ushort nextIndex = v.m_nextLineVehicle;
+                    line.RemoveVehicle(index, ref v);
+                    index = nextIndex;
+                } while (index > 0 && index < Singleton<VehicleManager>.instance.m_vehicles.m_buffer.Length);
+            }
+            yield break;
+        }
+
         public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out bool zeros, out bool invertPrefixSuffix)
         {
             string nil;
@@ -370,7 +388,7 @@ namespace Klyte.TransportLinesManager
     {
         public static void doLog(string format, params object[] args)
         {
-            Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+            //Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
         }
         public static void createUIElement<T>(ref T uiItem, Transform parent) where T : Component
         {
@@ -543,7 +561,7 @@ namespace Klyte.TransportLinesManager
             string sufixoSaida = "";
             if (prefixo != ModoNomenclatura.Nenhum)
             {
-                prefixoSaida = getStringFromNumber(getStringOptionsForPrefix(prefixo), numero / 1000+1);
+                prefixoSaida = getStringFromNumber(getStringOptionsForPrefix(prefixo), numero / 1000 + 1);
                 numero = numero % 1000;
             }
 
@@ -823,23 +841,59 @@ namespace Klyte.TransportLinesManager
             return true;
         }
 
+        public static readonly ItemClass.Service[] seachOrder = new ItemClass.Service[]{
+            ItemClass.Service.PublicTransport,
+            ItemClass.Service.Monument,
+            ItemClass.Service.Beautification,
+            ItemClass.Service.Government,
+            ItemClass.Service.HealthCare,
+            ItemClass.Service.FireDepartment,
+            ItemClass.Service.PoliceDepartment,
+            ItemClass.Service.Tourism,
+            ItemClass.Service.Education,
+            ItemClass.Service.Garbage,
+            ItemClass.Service.Office,
+            ItemClass.Service.Commercial,
+            ItemClass.Service.Industrial,
+            ItemClass.Service.Residential,
+            ItemClass.Service.Electricity,
+            ItemClass.Service.Water
+        };
+
+
         public static string getStationName(uint stopId, ItemClass.SubService ss)
         {
-            ushort buildingId = getStationBuilding(stopId, ss);
+            NetManager nm = Singleton<NetManager>.instance;
+            BuildingManager bm = Singleton<BuildingManager>.instance;
+            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+            ushort buildingId = 0;
+            if (ss != ItemClass.SubService.None)
+            {
+                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.CustomName, Building.Flags.Untouchable);
+            }
 
+            if (buildingId == 0)
+            {
+                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active | Building.Flags.CustomName, Building.Flags.Untouchable);
+                if (buildingId == 0)
+                {
+                    int iterator = 0;
+                    while (buildingId == 0 && iterator < seachOrder.Count())
+                    {
+                        buildingId = bm.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
+                        iterator++;
+                    }
+                }
+            }
+            Vector3 location = nn.m_position;
+            Building b = bm.m_buildings.m_buffer[buildingId];
             if (buildingId > 0)
             {
-                BuildingManager bm = Singleton<BuildingManager>.instance;
-                Building b = bm.m_buildings.m_buffer[buildingId];
                 InstanceID iid = default(InstanceID);
                 iid.Building = buildingId;
                 return bm.GetBuildingName(buildingId, iid);
             }
-            else
-            {
-                NetManager nm = Singleton<NetManager>.instance;
-                NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-                Vector3 location = nn.m_position;
+            else {
                 DistrictManager dm = Singleton<DistrictManager>.instance;
                 int dId = dm.GetDistrict(location);
                 if (dId > 0)

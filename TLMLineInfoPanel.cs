@@ -389,6 +389,7 @@ namespace Klyte.TransportLinesManager
                 {
                     TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
                     TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isBulletTrainCheck.isChecked = false;
                     isTrainCheck.isChecked = false;
                     Hide();
@@ -406,6 +407,7 @@ namespace Klyte.TransportLinesManager
                 {
                     TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
                     TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isTramCheck.isChecked = false;
                     isTrainCheck.isChecked = false;
                     Hide();
@@ -423,6 +425,7 @@ namespace Klyte.TransportLinesManager
                 {
                     TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
                     TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isTramCheck.isChecked = false;
                     isBulletTrainCheck.isChecked = false;
                     Hide();
@@ -441,6 +444,7 @@ namespace Klyte.TransportLinesManager
                 {
                     TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
                     TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isHighBusCheck.isChecked = false;
                     isRegularBusCheck.isChecked = false;
                     Hide();
@@ -458,6 +462,7 @@ namespace Klyte.TransportLinesManager
                 {
                     TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
                     TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isLowBusCheck.isChecked = false;
                     isRegularBusCheck.isChecked = false;
                     Hide();
@@ -475,6 +480,7 @@ namespace Klyte.TransportLinesManager
                 {
                     TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
                     TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isLowBusCheck.isChecked = false;
                     isHighBusCheck.isChecked = false;
                     Hide();
@@ -749,6 +755,8 @@ namespace Klyte.TransportLinesManager
             lineNameField.text = m_controller.tm.GetLineName(lineID);
             if (transportType == TLMCW.ConfigIndex.TRAM_CONFIG || transportType == TLMCW.ConfigIndex.BULLET_TRAIN_CONFIG || transportType == TLMCW.ConfigIndex.HIGH_BUS_CONFIG || transportType == TLMCW.ConfigIndex.LOW_BUS_CONFIG)
             {
+
+                lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 5f);
                 lineTransportIconTypeLabel.atlas = TLMController.taLineNumber;
                 lineTransportIconTypeLabel.height = 30;
                 if (transportType == TLMCW.ConfigIndex.TRAM_CONFIG)
@@ -782,7 +790,8 @@ namespace Klyte.TransportLinesManager
                 {
                     isTrainCheck.isChecked = true;
                 }
-                
+
+                lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 12f);
                 lineTransportIconTypeLabel.height = 20;
                 lineTransportIconTypeLabel.atlas = linePrefixDropDown.atlas;
                 lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(t.Info.m_transportType);
