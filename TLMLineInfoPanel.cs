@@ -387,13 +387,16 @@ namespace Klyte.TransportLinesManager
             {
                 if (isChecked)
                 {
-                    TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isBulletTrainCheck.isChecked = false;
                     isTrainCheck.isChecked = false;
-                    Hide();
-                    openLineInfo(m_lineIdSelecionado.TransportLine);
+                    if (!TLMTrainModifyRedirects.isTramLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
                 }
             };
 
@@ -405,13 +408,16 @@ namespace Klyte.TransportLinesManager
             {
                 if (isChecked)
                 {
-                    TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isTramCheck.isChecked = false;
                     isTrainCheck.isChecked = false;
-                    Hide();
-                    openLineInfo(m_lineIdSelecionado.TransportLine);
+                    if (!TLMTrainModifyRedirects.isBulletTrainLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
                 }
             };
 
@@ -423,13 +429,16 @@ namespace Klyte.TransportLinesManager
             {
                 if (isChecked)
                 {
-                    TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isTramCheck.isChecked = false;
                     isBulletTrainCheck.isChecked = false;
-                    Hide();
-                    openLineInfo(m_lineIdSelecionado.TransportLine);
+                    if (!TLMTrainModifyRedirects.isTrainLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
                 }
             };
 
@@ -442,13 +451,17 @@ namespace Klyte.TransportLinesManager
             {
                 if (isChecked)
                 {
-                    TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isHighBusCheck.isChecked = false;
                     isRegularBusCheck.isChecked = false;
-                    Hide();
-                    openLineInfo(m_lineIdSelecionado.TransportLine);
+                    if (!TLMBusModifyRedirects.isLowBusLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
                 }
             };
 
@@ -460,13 +473,16 @@ namespace Klyte.TransportLinesManager
             {
                 if (isChecked)
                 {
-                    TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isLowBusCheck.isChecked = false;
                     isRegularBusCheck.isChecked = false;
-                    Hide();
-                    openLineInfo(m_lineIdSelecionado.TransportLine);
+                    if (!TLMBusModifyRedirects.isHighBusLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
                 }
             };
 
@@ -478,13 +494,16 @@ namespace Klyte.TransportLinesManager
             {
                 if (isChecked)
                 {
-                    TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
-                    TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
                     isLowBusCheck.isChecked = false;
                     isHighBusCheck.isChecked = false;
-                    Hide();
-                    openLineInfo(m_lineIdSelecionado.TransportLine);
+                    if (!TLMBusModifyRedirects.isRegularBusLine(m_lineIdSelecionado.TransportLine))
+                    {
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
+                        TLMLineUtils.RemoveAllFromLine(m_lineIdSelecionado.TransportLine);
+                        Hide();
+                        openLineInfo(m_lineIdSelecionado.TransportLine);
+                    }
                 }
             };
             //			TLMUtils.createUIElement<UILabel> (ref custosLabel, lineInfoPanel.transform);

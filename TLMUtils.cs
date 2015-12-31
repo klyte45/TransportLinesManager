@@ -14,21 +14,24 @@ namespace Klyte.TransportLinesManager
 {
     public class TLMLineUtils
     {
-        public static IEnumerator RemoveAllFromLine(ushort lineId)
+        public static void RemoveAllFromLine(ushort lineId)
         {
             var line = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineId];
-            ushort index = line.m_vehicles;
-            if (index > 0)
+            VehicleManager instance = Singleton<VehicleManager>.instance;
+            ushort num2 = line.m_vehicles;
+            int num3 = 0;
+            while (num2 != 0)
             {
-                do
+                ushort nextLineVehicle = instance.m_vehicles.m_buffer[(int)num2].m_nextLineVehicle;
+                VehicleInfo info2 = instance.m_vehicles.m_buffer[(int)num2].Info;
+                info2.m_vehicleAI.SetTransportLine(num2, ref instance.m_vehicles.m_buffer[(int)num2], 0);
+                num2 = nextLineVehicle;
+                if (++num3 > 16384)
                 {
-                    Vehicle v = (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[index]);
-                    ushort nextIndex = v.m_nextLineVehicle;
-                    line.RemoveVehicle(index, ref v);
-                    index = nextIndex;
-                } while (index > 0 && index < Singleton<VehicleManager>.instance.m_vehicles.m_buffer.Length);
+                    CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                    break;
+                }
             }
-            yield break;
         }
 
         public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out bool zeros, out bool invertPrefixSuffix)

@@ -162,16 +162,13 @@ namespace Klyte.TransportLinesManager
             for (ushort i = 0; i < tm.m_lines.m_size; i++)
             {
                 TransportLine t = tm.m_lines.m_buffer[(int)i];
-                if ((t.m_flags & (TransportLine.Flags.Created)) != TransportLine.Flags.None)
+                if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_NAME_ENABLED) && ((t.m_flags & (TransportLine.Flags.CustomName)) == TransportLine.Flags.None) && ((t.m_flags & (TransportLine.Flags.Complete)) != TransportLine.Flags.None))
                 {
-                    if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_NAME_ENABLED) && ((t.m_flags & (TransportLine.Flags.CustomName)) == TransportLine.Flags.None))
-                    {
-                        AutoName(i);
-                    }
-                    if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED) && ((t.m_flags & (TransportLine.Flags.CustomColor)) == TransportLine.Flags.None))
-                    {
-                        AutoColor(i);
-                    }
+                    AutoName(i);
+                }
+                if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED) && ((t.m_flags & (TransportLine.Flags.CustomColor)) == TransportLine.Flags.None) && ((t.m_flags & (TransportLine.Flags.Created)) != TransportLine.Flags.None))
+                {
+                    AutoColor(i);
                 }
             }
         }
@@ -215,7 +212,7 @@ namespace Klyte.TransportLinesManager
             {
                 ModoNomenclatura sufixo, prefixo;
                 Separador s;
-                bool z,invert;
+                bool z, invert;
                 TLMLineUtils.getLineNamingParameters(lineIdx, out prefixo, out s, out sufixo, out z, out invert);
 
                 TLMUtils.setLineName((ushort)lineIdx, "[" + TLMUtils.getString(prefixo, s, sufixo, t.m_lineNumber, z, invert).Replace('\n', ' ') + "] " + TLMUtils.calculateAutoName(lineIdx));

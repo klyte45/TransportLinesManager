@@ -307,9 +307,9 @@ namespace Klyte.TransportLinesManager
             offset += drawButtonsFromDictionary(trainList, offset);
             offset += drawButtonsFromDictionary(tramList, offset);
             offset += drawButtonsFromDictionary(metroList, offset);
-            offset += drawButtonsFromDictionary(lowBusList, offset);
-            offset += drawButtonsFromDictionary(busList, offset);
             offset += drawButtonsFromDictionary(highBusList, offset);
+            offset += drawButtonsFromDictionary(busList, offset);
+            offset += drawButtonsFromDictionary(lowBusList, offset);
         }
 
         private float drawButtonsFromDictionary(Dictionary<Int32, UInt16> map, float offset)

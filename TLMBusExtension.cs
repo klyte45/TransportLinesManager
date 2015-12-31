@@ -213,6 +213,20 @@ namespace Klyte.TransportLinesManager
             return items;
         }
 
+        public static bool isLowBusLine(ushort line)
+        {
+            return TLMConfigWarehouse.getCurrentConfigListInt(TLMConfigWarehouse.ConfigIndex.LOW_BUS_LINES_IDS).Contains((int)line);
+        }
+        public static bool isHighBusLine(ushort line)
+        {
+            return TLMConfigWarehouse.getCurrentConfigListInt(TLMConfigWarehouse.ConfigIndex.HIGH_BUS_LINES_IDS).Contains((int)line);
+        }
+        public static bool isRegularBusLine(ushort line)
+        {
+            return !(isHighBusLine(line) ^ isLowBusLine(line));
+        }
+
+
         public static bool isLowBusAvaliable()
         {
             if (busAssetsList == null)
@@ -381,7 +395,7 @@ namespace Klyte.TransportLinesManager
             {
                 data.Unspawn(vehicleID);
             }
-            
+
         }
         private void RemoveLine(ushort vehicleID, ref Vehicle data)
         {

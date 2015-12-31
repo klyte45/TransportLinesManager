@@ -214,6 +214,19 @@ namespace Klyte.TransportLinesManager
             return items;
         }
 
+        public static bool isTramLine(ushort line)
+        {
+            return TLMConfigWarehouse.getCurrentConfigListInt(TLMConfigWarehouse.ConfigIndex.TRAM_LINES_IDS).Contains((int)line);
+        }
+        public static bool isBulletTrainLine(ushort line)
+        {
+            return TLMConfigWarehouse.getCurrentConfigListInt(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains((int)line);
+        }
+        public static bool isTrainLine(ushort line)
+        {
+            return !(isTramLine(line) ^ isBulletTrainLine(line));
+        }
+
         public static bool isTramAvaliable()
         {
             if (trainsAssetsList == null)
