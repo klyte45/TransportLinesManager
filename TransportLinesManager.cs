@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-[assembly: AssemblyVersion("4.0.*")]
+[assembly: AssemblyVersion("4.0.1.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -19,7 +19,7 @@ namespace Klyte.TransportLinesManager
         {
             get
             {
-                return typeof(TransportLinesManagerMod).Assembly.GetName().Version.Major + "." + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Minor + " b" + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Build;
+                return typeof(TransportLinesManagerMod).Assembly.GetName().Version.Major + "." + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Minor + "." + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Build;
             }
         }
         public static string majorVersion
@@ -39,6 +39,7 @@ namespace Klyte.TransportLinesManager
         private SavedBool m_savedOverrideDefaultLineInfoPanel;
         private SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel;
         private SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
+        private SavedBool m_IPTCompatibilityMode;
         private SavedString m_tramAssets;
         private SavedString m_bulletTrainAssets;
         private SavedString m_inactiveTrains;
@@ -61,7 +62,11 @@ namespace Klyte.TransportLinesManager
         private UIDropDown editorSelector;
         private Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown> dropDowns = new Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown>();
         private Dictionary<TLMConfigWarehouse.ConfigIndex, UICheckBox> checkBoxes = new Dictionary<TLMConfigWarehouse.ConfigIndex, UICheckBox>();
+        private Dictionary<TLMConfigWarehouse.ConfigIndex, UIPanel> lineTypesPanels = new Dictionary<TLMConfigWarehouse.ConfigIndex, UIPanel>();
         private UIDropDown configSelector;
+        private UIPanel busAssetSelections;
+        private UIPanel trainAssetSelections;
+        private UICheckBox overrideWorldInfoPanelLineOption;
 
         private string currentSelectedConfigEditor
         {
@@ -93,6 +98,13 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public static SavedBool IPTCompatibilityMode
+        {
+            get
+            {
+                return TransportLinesManagerMod.instance.m_IPTCompatibilityMode;
+            }
+        }
 
 
         public static SavedString lowBusAssets
@@ -141,11 +153,11 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static SavedBool savedOverrideDefaultLineInfoPanel
+        public static bool overrideWorldInfoPanelLine
         {
             get
             {
-                return TransportLinesManagerMod.instance.m_savedOverrideDefaultLineInfoPanel;
+                return TransportLinesManagerMod.instance.m_savedOverrideDefaultLineInfoPanel.value && !isIPTCompatibiltyMode;
             }
         }
 
@@ -205,6 +217,14 @@ namespace Klyte.TransportLinesManager
             else return new string[] { currentCityName, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
         }
 
+        public static bool isIPTCompatibiltyMode
+        {
+            get
+            {
+                return TransportLinesManagerMod.instance.m_IPTCompatibilityMode.value;
+            }
+        }
+
         public string Name
         {
             get
@@ -218,6 +238,7 @@ namespace Klyte.TransportLinesManager
         {
             get { return "A shortcut to manage all city's public transports lines."; }
         }
+
 
 
         public void OnCreated(ILoading loading)
@@ -237,11 +258,10 @@ namespace Klyte.TransportLinesManager
             m_lowBusAssets = new SavedString("TLMLowBusAssets", Settings.gameSettingsFile, "", true);
             m_highBusAssets = new SavedString("TLMHighBusAssets", Settings.gameSettingsFile, "", true);
             m_inactiveBuses = new SavedString("TLMInactiveBus", Settings.gameSettingsFile, "", true);
+            m_IPTCompatibilityMode = new SavedBool("TLM_IPTCompabilityMode", Settings.gameSettingsFile, false, true);
             m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
             m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
-            //IPT Incompatible
-            bool IPTEnabled = Singleton<PluginManager>.instance.GetPluginsInfo().FirstOrDefault(x => x.publishedFileID.AsUInt64 == 424106600L && x.isEnabled) != null;
-            m_savedOverrideDefaultLineInfoPanel = new SavedBool("TLMOverrideDefaultLineInfoPanel", Settings.gameSettingsFile, !IPTEnabled, true);
+            m_savedOverrideDefaultLineInfoPanel = new SavedBool("TLMOverrideDefaultLineInfoPanel", Settings.gameSettingsFile, true, true);
 
             var currentSaveVersion = new SavedString("TLMSaveVersion", Settings.gameSettingsFile, "null", true);
             if (currentSaveVersion.value == "null")
@@ -395,7 +415,21 @@ namespace Klyte.TransportLinesManager
             //m_previewRenderer.cameraRotation = 120f;
             //m_previewRenderer.zoom = 3f;
             //m_previewRenderer.size = new Vector2(200, 200);
-            helper.AddCheckbox("Override default line info panel (Always disabled with IPT!)", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
+
+            OnCheckChanged iptToggle = delegate (bool value)
+            {
+                lineTypesPanels[TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG].isVisible = !value;
+                lineTypesPanels[TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG].isVisible = !value;
+                lineTypesPanels[TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG].isVisible = !value;
+                lineTypesPanels[TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG].isVisible = !value;
+                busAssetSelections.isVisible = !value;
+                trainAssetSelections.isVisible = !value;
+                overrideWorldInfoPanelLineOption.isVisible = !value;
+                m_IPTCompatibilityMode.value = value;
+            };
+
+            helper.AddCheckbox("IPT compatibility mode (Needs restart)", m_IPTCompatibilityMode.value, iptToggle);
+            overrideWorldInfoPanelLineOption = (UICheckBox)helper.AddCheckbox("Override default line info panel", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
 
 
 
@@ -406,6 +440,7 @@ namespace Klyte.TransportLinesManager
             foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG })
             {
                 UIHelperExtension group1 = helper.AddGroupExtended(TLMConfigWarehouse.getNameForTransportType(transportType) + " Config");
+                lineTypesPanels[transportType] = group1.self.GetComponentInParent<UIPanel>();
                 ((UIPanel)group1.self).autoLayoutDirection = LayoutDirection.Horizontal;
                 ((UIPanel)group1.self).backgroundSprite = "EmptySprite";
                 ((UIPanel)group1.self).wrapLayout = true;
@@ -461,6 +496,7 @@ namespace Klyte.TransportLinesManager
             TLMUtils.doLog("Loading Group 2");
 
             UIHelperExtension group2 = helper.AddGroupExtended("Bus Assets Selection (Global)");
+            busAssetSelections = group2.self.GetComponentInParent<UIPanel>();
             if (isCityLoaded)
             {
                 ((UIPanel)group2.self).autoLayoutDirection = LayoutDirection.Horizontal;
@@ -555,6 +591,7 @@ namespace Klyte.TransportLinesManager
             }
 
             UIHelperExtension group3 = helper.AddGroupExtended("Trains Assets Selection (Global)");
+            trainAssetSelections = group3.self.GetComponentInParent<UIPanel>();
             if (isCityLoaded)
             {
                 ((UIPanel)group3.self).autoLayoutDirection = LayoutDirection.Horizontal;
@@ -726,7 +763,9 @@ namespace Klyte.TransportLinesManager
             paletteName.enabled = false;
             colorEditor.Disable();
             colorList.Disable();
+            iptToggle.Invoke(isIPTCompatibiltyMode);
 
+            helper.AddLabel("Version: "+version+" rev"+ typeof(TransportLinesManagerMod).Assembly.GetName().Version.Revision);
 
         }
 
@@ -859,8 +898,11 @@ namespace Klyte.TransportLinesManager
                    "LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","TramIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","TramImage","BulletTrainImage","LowBusImage","HighBusImage"
                 });
             }
-            TLMTrainModifyRedirects.instance.EnableHooks();
-            TLMBusModifyRedirects.instance.EnableHooks();
+            if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
+            {
+                TLMTrainModifyRedirects.instance.EnableHooks();
+                TLMBusModifyRedirects.instance.EnableHooks();
+            }
             //			Log.debug ("LEVELLOAD");
         }
 
@@ -912,9 +954,7 @@ namespace Klyte.TransportLinesManager
 
         private void toggleOverrideDefaultLineInfoPanel(bool b)
         {
-
-            bool IPTEnabled = Singleton<PluginManager>.instance.GetPluginsInfo().FirstOrDefault(x => x.publishedFileID.AsUInt64 == 424106600L && x.isEnabled) != null;
-            m_savedOverrideDefaultLineInfoPanel.value = b && !IPTEnabled;
+           m_savedOverrideDefaultLineInfoPanel.value = b;
         }
 
         private void toggleShowNearLinesInCityServicesWorldInfoPanel(bool b)

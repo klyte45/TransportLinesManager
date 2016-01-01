@@ -360,7 +360,7 @@ namespace Klyte.TransportLinesManager
 
                 parent3.eventVisibilityChanged += (component, value) =>
                 {
-                    if (TransportLinesManagerMod.savedOverrideDefaultLineInfoPanel.value && value)
+                    if (TransportLinesManagerMod.overrideWorldInfoPanelLine && value)
                     {
 
                         PublicTransportWorldInfoPanel ptwip = parent3.gameObject.GetComponent<PublicTransportWorldInfoPanel>();

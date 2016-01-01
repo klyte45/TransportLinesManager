@@ -389,7 +389,7 @@ namespace Klyte.TransportLinesManager
                 {
                     isBulletTrainCheck.isChecked = false;
                     isTrainCheck.isChecked = false;
-                    if (!TLMTrainModifyRedirects.isTramLine(m_lineIdSelecionado.TransportLine))
+                    if (!TransportLinesManagerMod.isIPTCompatibiltyMode && !TLMTrainModifyRedirects.isTramLine(m_lineIdSelecionado.TransportLine))
                     {
                         TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
                         TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
@@ -410,7 +410,7 @@ namespace Klyte.TransportLinesManager
                 {
                     isTramCheck.isChecked = false;
                     isTrainCheck.isChecked = false;
-                    if (!TLMTrainModifyRedirects.isBulletTrainLine(m_lineIdSelecionado.TransportLine))
+                    if (!TransportLinesManagerMod.isIPTCompatibiltyMode && !TLMTrainModifyRedirects.isBulletTrainLine(m_lineIdSelecionado.TransportLine))
                     {
                         TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
                         TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
@@ -431,7 +431,7 @@ namespace Klyte.TransportLinesManager
                 {
                     isTramCheck.isChecked = false;
                     isBulletTrainCheck.isChecked = false;
-                    if (!TLMTrainModifyRedirects.isTrainLine(m_lineIdSelecionado.TransportLine))
+                    if (!TransportLinesManagerMod.isIPTCompatibiltyMode && !TLMTrainModifyRedirects.isTrainLine(m_lineIdSelecionado.TransportLine))
                     {
                         TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.TRAM_LINES_IDS, m_lineIdSelecionado.TransportLine);
                         TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.BULLET_TRAIN_LINES_IDS, m_lineIdSelecionado.TransportLine);
@@ -453,7 +453,7 @@ namespace Klyte.TransportLinesManager
                 {
                     isHighBusCheck.isChecked = false;
                     isRegularBusCheck.isChecked = false;
-                    if (!TLMBusModifyRedirects.isLowBusLine(m_lineIdSelecionado.TransportLine))
+                    if (!TransportLinesManagerMod.isIPTCompatibiltyMode && !TLMBusModifyRedirects.isLowBusLine(m_lineIdSelecionado.TransportLine))
                     {
                         TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
                         TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
@@ -475,7 +475,7 @@ namespace Klyte.TransportLinesManager
                 {
                     isLowBusCheck.isChecked = false;
                     isRegularBusCheck.isChecked = false;
-                    if (!TLMBusModifyRedirects.isHighBusLine(m_lineIdSelecionado.TransportLine))
+                    if (!TransportLinesManagerMod.isIPTCompatibiltyMode && !TLMBusModifyRedirects.isHighBusLine(m_lineIdSelecionado.TransportLine))
                     {
                         TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
                         TLMCW.addToCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
@@ -496,7 +496,7 @@ namespace Klyte.TransportLinesManager
                 {
                     isLowBusCheck.isChecked = false;
                     isHighBusCheck.isChecked = false;
-                    if (!TLMBusModifyRedirects.isRegularBusLine(m_lineIdSelecionado.TransportLine))
+                    if (!TransportLinesManagerMod.isIPTCompatibiltyMode && !TLMBusModifyRedirects.isRegularBusLine(m_lineIdSelecionado.TransportLine))
                     {
                         TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.LOW_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
                         TLMCW.removeFromCurrentConfigListInt(TLMCW.ConfigIndex.HIGH_BUS_LINES_IDS, m_lineIdSelecionado.TransportLine);
@@ -772,7 +772,7 @@ namespace Klyte.TransportLinesManager
 
             lineNumberLabel.color = m_controller.tm.GetLineColor(lineID);
             lineNameField.text = m_controller.tm.GetLineName(lineID);
-            if (transportType == TLMCW.ConfigIndex.TRAM_CONFIG || transportType == TLMCW.ConfigIndex.BULLET_TRAIN_CONFIG || transportType == TLMCW.ConfigIndex.HIGH_BUS_CONFIG || transportType == TLMCW.ConfigIndex.LOW_BUS_CONFIG)
+            if (!TransportLinesManagerMod.isIPTCompatibiltyMode && transportType == TLMCW.ConfigIndex.TRAM_CONFIG || transportType == TLMCW.ConfigIndex.BULLET_TRAIN_CONFIG || transportType == TLMCW.ConfigIndex.HIGH_BUS_CONFIG || transportType == TLMCW.ConfigIndex.LOW_BUS_CONFIG)
             {
 
                 lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 5f);
@@ -816,13 +816,13 @@ namespace Klyte.TransportLinesManager
                 lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(t.Info.m_transportType);
             }
 
-            isTramCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Train;
-            isTrainCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Train;
-            isBulletTrainCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Train;
+            isTramCheck.isVisible = !TransportLinesManagerMod.isIPTCompatibiltyMode && t.Info.m_transportType == TransportInfo.TransportType.Train;
+            isTrainCheck.isVisible = !TransportLinesManagerMod.isIPTCompatibiltyMode && t.Info.m_transportType == TransportInfo.TransportType.Train;
+            isBulletTrainCheck.isVisible = !TransportLinesManagerMod.isIPTCompatibiltyMode && t.Info.m_transportType == TransportInfo.TransportType.Train;
 
-            isLowBusCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Bus;
-            isRegularBusCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Bus;
-            isHighBusCheck.isVisible = t.Info.m_transportType == TransportInfo.TransportType.Bus;
+            isLowBusCheck.isVisible = !TransportLinesManagerMod.isIPTCompatibiltyMode && t.Info.m_transportType == TransportInfo.TransportType.Bus;
+            isRegularBusCheck.isVisible = !TransportLinesManagerMod.isIPTCompatibiltyMode && t.Info.m_transportType == TransportInfo.TransportType.Bus;
+            isHighBusCheck.isVisible = !TransportLinesManagerMod.isIPTCompatibiltyMode && t.Info.m_transportType == TransportInfo.TransportType.Bus;
 
             lineColorPicker.selectedColor = m_controller.tm.GetLineColor(lineID);
 
