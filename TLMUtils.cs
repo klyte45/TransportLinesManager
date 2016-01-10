@@ -391,7 +391,10 @@ namespace Klyte.TransportLinesManager
     {
         public static void doLog(string format, params object[] args)
         {
-            //Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+            if (TransportLinesManagerMod.debugMode)
+            {
+                Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+            }
         }
         public static void createUIElement<T>(ref T uiItem, Transform parent) where T : Component
         {

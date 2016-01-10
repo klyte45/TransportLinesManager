@@ -345,7 +345,6 @@ namespace Klyte.TransportLinesManager
 
         public TLMTrainModifyRedirects()
         {
-            readVehicles();
         }
 
         #region Hooks for PassengerTrainAI

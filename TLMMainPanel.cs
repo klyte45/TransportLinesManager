@@ -215,7 +215,10 @@ namespace Klyte.TransportLinesManager
 
             createResetAllLinesNamingButton();
             createResetAllLinesColorButton();
-            //  createLinesDrawButton();
+            if (TransportLinesManagerMod.betaMapGen.value)
+            {
+                createLinesDrawButton();
+            }
 
         }
 
@@ -291,7 +294,7 @@ namespace Klyte.TransportLinesManager
                                 t.m_lineNumber++;
                             }
                             trainList.Add(t.m_lineNumber, i);
-                            
+
                         }
                         else
                         {
@@ -441,7 +444,7 @@ namespace Klyte.TransportLinesManager
                 tramIcon.width = 27;
                 tramIcon.height = 27;
                 tramIcon.relativePosition = new Vector3(6f, 6);
-                
+
                 TLMUtils.createUIElement<UIButton>(ref lowBusLeg, mainPanel.transform);
                 lowBusLeg.atlas = TLMController.taLineNumber;
                 lowBusLeg.width = 40;
@@ -455,7 +458,7 @@ namespace Klyte.TransportLinesManager
                 lowBusIcon.width = 27;
                 lowBusIcon.height = 27;
                 lowBusIcon.relativePosition = new Vector3(6f, 6);
-                
+
                 TLMUtils.createUIElement<UIButton>(ref highBusLeg, mainPanel.transform);
                 highBusLeg.atlas = TLMController.taLineNumber;
                 highBusLeg.width = 40;

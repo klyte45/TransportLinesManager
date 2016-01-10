@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-[assembly: AssemblyVersion("4.0.1.*")]
+[assembly: AssemblyVersion("4.0.4.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -40,6 +40,8 @@ namespace Klyte.TransportLinesManager
         private SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel;
         private SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
         private SavedBool m_IPTCompatibilityMode;
+        private SavedBool m_debugMode;
+        private SavedBool m_betaMapGen;
         private SavedString m_tramAssets;
         private SavedString m_bulletTrainAssets;
         private SavedString m_inactiveTrains;
@@ -105,7 +107,21 @@ namespace Klyte.TransportLinesManager
                 return TransportLinesManagerMod.instance.m_IPTCompatibilityMode;
             }
         }
+        public static SavedBool debugMode
+        {
+            get
+            {
+                return TransportLinesManagerMod.instance.m_debugMode;
+            }
+        }
 
+        public static SavedBool betaMapGen
+        {
+            get
+            {
+                return TransportLinesManagerMod.instance.m_betaMapGen;
+            }
+        }
 
         public static SavedString lowBusAssets
         {
@@ -247,9 +263,19 @@ namespace Klyte.TransportLinesManager
 
         public TransportLinesManagerMod()
         {
+            Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " LOADING TLM ");
             SettingsFile tlmSettings = new SettingsFile();
             tlmSettings.fileName = TLMConfigWarehouse.CONFIG_FILENAME;
-            GameSettings.AddSettingsFile(tlmSettings);
+            Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " SETTING FILES");
+            try {
+                GameSettings.AddSettingsFile(tlmSettings);
+            }catch (Exception e)
+            {
+                Debug.LogErrorFormat("TLMv" + TransportLinesManagerMod.majorVersion + " SETTING FILES FAIL!!! ");
+                Debug.LogError(e.Message);
+                Debug.LogError(e.StackTrace);
+            }
+            Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " LOADING VARS ");
 
             m_savedPalettes = new SavedString("savedPalettesTLM", Settings.gameSettingsFile, "", true);
             m_tramAssets = new SavedString("TLMTramAssets", Settings.gameSettingsFile, "", true);
@@ -262,11 +288,22 @@ namespace Klyte.TransportLinesManager
             m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
             m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
             m_savedOverrideDefaultLineInfoPanel = new SavedBool("TLMOverrideDefaultLineInfoPanel", Settings.gameSettingsFile, true, true);
+            m_debugMode = new SavedBool("TLMdebugMode", Settings.gameSettingsFile, false, true);
+            m_betaMapGen = new SavedBool("TLMbetaMapGen", Settings.gameSettingsFile, false, true);
 
             var currentSaveVersion = new SavedString("TLMSaveVersion", Settings.gameSettingsFile, "null", true);
-            if (currentSaveVersion.value == "null")
+            try
             {
-                convertSavegame3_0();
+                if (currentSaveVersion.value == "null")
+                {
+                    convertSavegame3_0();
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogErrorFormat("TLMv" + TransportLinesManagerMod.majorVersion + " CONVERT FILES FAIL!!! ");
+                Debug.LogError(e.Message);
+                Debug.LogError(e.StackTrace);
             }
             currentSaveVersion.value = majorVersion;
             toggleOverrideDefaultLineInfoPanel(m_savedOverrideDefaultLineInfoPanel.value);
@@ -583,7 +620,10 @@ namespace Klyte.TransportLinesManager
                     TLMBusModifyRedirects.addAssetToInactiveBusList(selected);
                     reload();
                 });
-                //m_currentSelectionBus = group2.AddNamedTexture("Current selection preview");
+                group2.AddButton("Reload", delegate
+                {
+                    reload();
+                });
             }
             else
             {
@@ -678,7 +718,10 @@ namespace Klyte.TransportLinesManager
                     TLMTrainModifyRedirects.addAssetToInactiveTrainList(selected);
                     reload();
                 });
-                //m_currentSelectionTrain = group3.AddNamedTexture("Current selection preview");
+                group3.AddButton("Reload", delegate
+                {
+                    reload();
+                });
             }
             else
             {
@@ -764,8 +807,10 @@ namespace Klyte.TransportLinesManager
             colorEditor.Disable();
             colorList.Disable();
             iptToggle.Invoke(isIPTCompatibiltyMode);
-
-            helper.AddLabel("Version: "+version+" rev"+ typeof(TransportLinesManagerMod).Assembly.GetName().Version.Revision);
+            UIHelperExtension group9 = helper.AddGroupExtended("Betas & Extra Info");
+            group9.AddCheckbox("[Alpha] Linear Map Exporter (Needs city reload)", m_betaMapGen.value, delegate (bool val) { m_betaMapGen.value = val; });
+            group9.AddCheckbox("Debug mode", m_debugMode.value, delegate (bool val) { m_debugMode.value = val; });
+            group9.AddLabel("Version: " + version + " rev" + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Revision);
 
         }
 
@@ -954,7 +999,7 @@ namespace Klyte.TransportLinesManager
 
         private void toggleOverrideDefaultLineInfoPanel(bool b)
         {
-           m_savedOverrideDefaultLineInfoPanel.value = b;
+            m_savedOverrideDefaultLineInfoPanel.value = b;
         }
 
         private void toggleShowNearLinesInCityServicesWorldInfoPanel(bool b)

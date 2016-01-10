@@ -339,7 +339,6 @@ namespace Klyte.TransportLinesManager
 
         public TLMBusModifyRedirects()
         {
-            readVehicles();
         }
 
         #region Hooks for BusAI
