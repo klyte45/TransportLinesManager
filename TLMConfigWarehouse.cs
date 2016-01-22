@@ -231,7 +231,7 @@ namespace Klyte.TransportLinesManager
 
         private bool getFromFileBool(ConfigIndex i)
         {
-            return new SavedBool(i.ToString(), thisFileName, false, false).value;
+            return new SavedBool(i.ToString(), thisFileName, getDefaultValueForProperty(i), false).value;
         }
 
         private void setToFile(ConfigIndex i, string value)
@@ -277,12 +277,40 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public static string getNameForServiceType(ConfigIndex i)
+        {
+            switch (i & ConfigIndex.DESC_DATA)
+            {
+                case ConfigIndex.RESIDENTIAL_SERVICE_CONFIG: return "Residential";
+                case ConfigIndex.COMMERCIAL_SERVICE_CONFIG: return "Commercial";
+                case ConfigIndex.INDUSTRIAL_SERVICE_CONFIG: return "Industrial";
+                case ConfigIndex.UNUSED1_SERVICE_CONFIG: return "Unused1";
+                case ConfigIndex.UNUSED2_SERVICE_CONFIG: return "Unused2";
+                case ConfigIndex.CITIZEN_SERVICE_CONFIG: return "Citizen";
+                case ConfigIndex.TOURISM_SERVICE_CONFIG: return "Tourism";
+                case ConfigIndex.OFFICE_SERVICE_CONFIG: return "Office";
+                case ConfigIndex.ROAD_SERVICE_CONFIG: return "Road";
+                case ConfigIndex.ELECTRICITY_SERVICE_CONFIG: return "Electricity";
+                case ConfigIndex.WATER_SERVICE_CONFIG: return "Water";
+                case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG: return "Beautification";
+                case ConfigIndex.GARBAGE_SERVICE_CONFIG: return "Garbage";
+                case ConfigIndex.HEALTHCARE_SERVICE_CONFIG: return "Healthcare";
+                case ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG: return "Police Department";
+                case ConfigIndex.EDUCATION_SERVICE_CONFIG: return "Education";
+                case ConfigIndex.MONUMENT_SERVICE_CONFIG: return "Monument";
+                case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG: return "Fire Department";
+                case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return "Public Transport";
+                case ConfigIndex.GOVERNMENT_SERVICE_CONFIG: return "Government";
+                default: return "???";
+
+            }
+        }
+
         public static string getNameForTransportType(ConfigIndex i)
         {
             switch (i & ConfigIndex.SYSTEM_PART)
             {
-                case ConfigIndex.TRAIN_CONFIG:
-                    return "Train";
+                case ConfigIndex.TRAIN_CONFIG: return "Train";
                 case ConfigIndex.TRAM_CONFIG:
                     return "Tram";
                 case ConfigIndex.BULLET_TRAIN_CONFIG:
@@ -307,20 +335,28 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public static bool getDefaultValueForProperty(ConfigIndex i)
+        {
+            return defaultTrueBoolProperties.Contains(i);
+        }
+
         public enum ConfigIndex
         {
             SYSTEM_PART = 0xFF0000,
             TYPE_PART = 0x00FF00,
             DESC_DATA = 0xFF,
 
-            GLOBAL_CONFIG = 0x10000,
-            TRAM_LINES_IDS = 0x10001 | TYPE_LIST,
-            AUTO_COLOR_ENABLED = 0x10002 | TYPE_BOOL,
-            CIRCULAR_IN_SINGLE_DISTRICT_LINE = 0x10003 | TYPE_BOOL,
-            AUTO_NAME_ENABLED = 0x10004 | TYPE_BOOL,
-            BULLET_TRAIN_LINES_IDS = 0x10005 | TYPE_LIST,
-            HIGH_BUS_LINES_IDS = 0x10006 | TYPE_LIST,
-            LOW_BUS_LINES_IDS = 0x10007 | TYPE_LIST,
+            GLOBAL_CONFIG = 0x1000000,
+            USE_FOR_AUTO_NAMING_REF = 0x2000000 | TYPE_BOOL,
+            AUTO_NAMING_REF_TEXT = 0x3000000 | TYPE_STRING,
+
+            TRAM_LINES_IDS = GLOBAL_CONFIG | 0x1 | TYPE_LIST,
+            AUTO_COLOR_ENABLED = GLOBAL_CONFIG | 0x2 | TYPE_BOOL,
+            CIRCULAR_IN_SINGLE_DISTRICT_LINE = GLOBAL_CONFIG | 0x3 | TYPE_BOOL,
+            AUTO_NAME_ENABLED = GLOBAL_CONFIG | 0x4 | TYPE_BOOL,
+            BULLET_TRAIN_LINES_IDS = GLOBAL_CONFIG | 0x5 | TYPE_LIST,
+            HIGH_BUS_LINES_IDS = GLOBAL_CONFIG | 0x6 | TYPE_LIST,
+            LOW_BUS_LINES_IDS = GLOBAL_CONFIG | 0x7 | TYPE_LIST,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = 0xFF0000,
@@ -332,6 +368,30 @@ namespace Klyte.TransportLinesManager
             PLANE_CONFIG = TransportInfo.TransportType.Airplane << 16,
             TAXI_CONFIG = TransportInfo.TransportType.Taxi << 16,
             SHIP_CONFIG = TransportInfo.TransportType.Ship << 16,
+
+
+            RESIDENTIAL_SERVICE_CONFIG = ItemClass.Service.Residential,
+            COMMERCIAL_SERVICE_CONFIG = ItemClass.Service.Commercial,
+            INDUSTRIAL_SERVICE_CONFIG = ItemClass.Service.Industrial,
+            UNUSED1_SERVICE_CONFIG = ItemClass.Service.Unused1,
+            UNUSED2_SERVICE_CONFIG = ItemClass.Service.Unused2,
+            CITIZEN_SERVICE_CONFIG = ItemClass.Service.Citizen,
+            TOURISM_SERVICE_CONFIG = ItemClass.Service.Tourism,
+            OFFICE_SERVICE_CONFIG = ItemClass.Service.Office,
+            ROAD_SERVICE_CONFIG = ItemClass.Service.Road,
+            ELECTRICITY_SERVICE_CONFIG = ItemClass.Service.Electricity,
+            WATER_SERVICE_CONFIG = ItemClass.Service.Water,
+            BEAUTIFICATION_SERVICE_CONFIG = ItemClass.Service.Beautification,
+            GARBAGE_SERVICE_CONFIG = ItemClass.Service.Garbage,
+            HEALTHCARE_SERVICE_CONFIG = ItemClass.Service.HealthCare,
+            POLICEDEPARTMENT_SERVICE_CONFIG = ItemClass.Service.PoliceDepartment,
+            EDUCATION_SERVICE_CONFIG = ItemClass.Service.Education,
+            MONUMENT_SERVICE_CONFIG = ItemClass.Service.Monument,
+            FIREDEPARTMENT_SERVICE_CONFIG = ItemClass.Service.FireDepartment,
+            PUBLICTRANSPORT_SERVICE_CONFIG = ItemClass.Service.PublicTransport,
+            GOVERNMENT_SERVICE_CONFIG = ItemClass.Service.Government,
+
+
 
             TYPE_STRING = 0x0100,
             TYPE_INT = 0x0200,
@@ -432,6 +492,93 @@ namespace Klyte.TransportLinesManager
             TAXI_SHOW_IN_LINEAR_MAP = TAXI_CONFIG | SHOW_IN_LINEAR_MAP,
             SHIP_SHOW_IN_LINEAR_MAP = SHIP_CONFIG | SHOW_IN_LINEAR_MAP,
             BULLET_TRAIN_SHOW_IN_LINEAR_MAP = BULLET_TRAIN_CONFIG | SHOW_IN_LINEAR_MAP,
+
+            RESIDENTIAL_USE_FOR_AUTO_NAMING_REF = RESIDENTIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            COMMERCIAL_USE_FOR_AUTO_NAMING_REF = COMMERCIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            INDUSTRIAL_USE_FOR_AUTO_NAMING_REF = INDUSTRIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            UNUSED1_USE_FOR_AUTO_NAMING_REF = UNUSED1_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            UNUSED2_USE_FOR_AUTO_NAMING_REF = UNUSED2_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            CITIZEN_USE_FOR_AUTO_NAMING_REF = CITIZEN_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            TOURISM_USE_FOR_AUTO_NAMING_REF = TOURISM_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            OFFICE_USE_FOR_AUTO_NAMING_REF = OFFICE_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            ROAD_USE_FOR_AUTO_NAMING_REF = ROAD_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            ELECTRICITY_USE_FOR_AUTO_NAMING_REF = ELECTRICITY_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            WATER_USE_FOR_AUTO_NAMING_REF = WATER_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            BEAUTIFICATION_USE_FOR_AUTO_NAMING_REF = BEAUTIFICATION_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            GARBAGE_USE_FOR_AUTO_NAMING_REF = GARBAGE_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            HEALTHCARE_USE_FOR_AUTO_NAMING_REF = HEALTHCARE_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            POLICEDEPARTMENT_USE_FOR_AUTO_NAMING_REF = POLICEDEPARTMENT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            EDUCATION_USE_FOR_AUTO_NAMING_REF = EDUCATION_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            MONUMENT_USE_FOR_AUTO_NAMING_REF = MONUMENT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            FIREDEPARTMENT_USE_FOR_AUTO_NAMING_REF = FIREDEPARTMENT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF = PUBLICTRANSPORT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            GOVERNMENT_USE_FOR_AUTO_NAMING_REF = GOVERNMENT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+
+            TRAIN_USE_FOR_AUTO_NAMING_REF = TRAIN_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
+            METRO_USE_FOR_AUTO_NAMING_REF = METRO_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
+            BUS_USE_FOR_AUTO_NAMING_REF = BUS_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
+            PLANE_USE_FOR_AUTO_NAMING_REF = PLANE_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
+            TAXI_USE_FOR_AUTO_NAMING_REF = TAXI_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
+            SHIP_USE_FOR_AUTO_NAMING_REF = SHIP_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
+
+            RESIDENTIAL_AUTO_NAMING_REF_TEXT = RESIDENTIAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            COMMERCIAL_AUTO_NAMING_REF_TEXT = COMMERCIAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            INDUSTRIAL_AUTO_NAMING_REF_TEXT = INDUSTRIAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            UNUSED1_AUTO_NAMING_REF_TEXT = UNUSED1_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            UNUSED2_AUTO_NAMING_REF_TEXT = UNUSED2_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            CITIZEN_AUTO_NAMING_REF_TEXT = CITIZEN_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            TOURISM_AUTO_NAMING_REF_TEXT = TOURISM_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            OFFICE_AUTO_NAMING_REF_TEXT = OFFICE_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            ROAD_AUTO_NAMING_REF_TEXT = ROAD_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            ELECTRICITY_AUTO_NAMING_REF_TEXT = ELECTRICITY_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            WATER_AUTO_NAMING_REF_TEXT = WATER_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            BEAUTIFICATION_AUTO_NAMING_REF_TEXT = BEAUTIFICATION_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            GARBAGE_AUTO_NAMING_REF_TEXT = GARBAGE_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            HEALTHCARE_AUTO_NAMING_REF_TEXT = HEALTHCARE_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            POLICEDEPARTMENT_AUTO_NAMING_REF_TEXT = POLICEDEPARTMENT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            EDUCATION_AUTO_NAMING_REF_TEXT = EDUCATION_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            MONUMENT_AUTO_NAMING_REF_TEXT = MONUMENT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            FIREDEPARTMENT_AUTO_NAMING_REF_TEXT = FIREDEPARTMENT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT = PUBLICTRANSPORT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            GOVERNMENT_AUTO_NAMING_REF_TEXT = GOVERNMENT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+
+            TRAIN_AUTO_NAMING_REF_TEXT = TRAIN_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
+            METRO_AUTO_NAMING_REF_TEXT = METRO_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
+            BUS_AUTO_NAMING_REF_TEXT = BUS_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
+            PLANE_AUTO_NAMING_REF_TEXT = PLANE_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
+            TAXI_AUTO_NAMING_REF_TEXT = TAXI_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
+            SHIP_AUTO_NAMING_REF_TEXT = SHIP_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
         }
+
+        public static readonly ConfigIndex[] configurableAutoNameTransportCategories = {
+            ConfigIndex.PLANE_CONFIG,
+            ConfigIndex.SHIP_CONFIG,
+            ConfigIndex.TRAIN_CONFIG,
+            ConfigIndex.METRO_CONFIG,
+            ConfigIndex.BUS_CONFIG,
+            ConfigIndex.TAXI_CONFIG,
+        };
+
+        public static readonly ConfigIndex[] configurableAutoNameCategories = {
+            ConfigIndex.MONUMENT_SERVICE_CONFIG,
+            ConfigIndex.TOURISM_SERVICE_CONFIG,
+            ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG,
+            ConfigIndex.HEALTHCARE_SERVICE_CONFIG,
+            ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG,
+            ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG,
+            ConfigIndex.EDUCATION_SERVICE_CONFIG,
+            ConfigIndex.GOVERNMENT_SERVICE_CONFIG,
+            ConfigIndex.GARBAGE_SERVICE_CONFIG,
+        };
+
+        public static readonly ConfigIndex[] defaultTrueBoolProperties = {
+             ConfigIndex.MONUMENT_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.FIREDEPARTMENT_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.TRAIN_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.METRO_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.BUS_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.PLANE_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.SHIP_USE_FOR_AUTO_NAMING_REF
+        };
     }
 }

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-[assembly: AssemblyVersion("4.0.4.*")]
+[assembly: AssemblyVersion("4.1.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -64,6 +64,7 @@ namespace Klyte.TransportLinesManager
         private UIDropDown editorSelector;
         private Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown> dropDowns = new Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown>();
         private Dictionary<TLMConfigWarehouse.ConfigIndex, UICheckBox> checkBoxes = new Dictionary<TLMConfigWarehouse.ConfigIndex, UICheckBox>();
+        private Dictionary<TLMConfigWarehouse.ConfigIndex, UITextField> textFields = new Dictionary<TLMConfigWarehouse.ConfigIndex, UITextField>();
         private Dictionary<TLMConfigWarehouse.ConfigIndex, UIPanel> lineTypesPanels = new Dictionary<TLMConfigWarehouse.ConfigIndex, UIPanel>();
         private UIDropDown configSelector;
         private UIPanel busAssetSelections;
@@ -267,9 +268,11 @@ namespace Klyte.TransportLinesManager
             SettingsFile tlmSettings = new SettingsFile();
             tlmSettings.fileName = TLMConfigWarehouse.CONFIG_FILENAME;
             Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " SETTING FILES");
-            try {
+            try
+            {
                 GameSettings.AddSettingsFile(tlmSettings);
-            }catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Debug.LogErrorFormat("TLMv" + TransportLinesManagerMod.majorVersion + " SETTING FILES FAIL!!! ");
                 Debug.LogError(e.Message);
@@ -728,6 +731,29 @@ namespace Klyte.TransportLinesManager
                 group3.AddLabel("Please load a city to get access to active trains!");
             }
 
+            UIHelperExtension group13 = helper.AddGroupExtended("Auto Naming Settings");
+            ((UIPanel)group13.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group13.self).wrapLayout = true;
+            ((UIPanel)group13.self).width = 730;
+            group13.AddLabel("Allow naming lines with buildings with below functions:");
+            group13.AddSpace(2);
+            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameTransportCategories)
+            {
+                generateCheckboxConfig(group13, TLMConfigWarehouse.getNameForTransportType(ci) + " Buildings", TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | ci).width = 300;
+                var textFieldPanel = generateTextFieldConfig(group13, "Prefix (optional):", TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | ci).GetComponentInParent<UIPanel>();
+                textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+                textFieldPanel.autoFitChildrenVertically = true;
+                group13.AddSpace(2);
+            }
+            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameCategories)
+            {
+                generateCheckboxConfig(group13, TLMConfigWarehouse.getNameForServiceType(ci), TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci).width = 300;
+                var textFieldPanel = generateTextFieldConfig(group13, "Prefix (optional):", TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci).GetComponentInParent<UIPanel>();
+                textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+                textFieldPanel.autoFitChildrenVertically = true;
+                group13.AddSpace(2);
+            }
+
 
             UIHelperExtension group5 = helper.AddGroupExtended("Other Global Options");
             group5.AddSpace(20);
@@ -845,6 +871,13 @@ namespace Klyte.TransportLinesManager
         {
             dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.getString(configIndex), delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, options[i]); });
             return dropDowns[configIndex];
+        }
+
+
+        private UITextField generateTextFieldConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
+        {
+            textFields[configIndex] = group.AddTextField(title, delegate (string s) { currentConfigWarehouseEditor.setString(configIndex, s); }, currentConfigWarehouseEditor.getString(configIndex));
+            return textFields[configIndex];
         }
 
         private void reloadData(int selection)
