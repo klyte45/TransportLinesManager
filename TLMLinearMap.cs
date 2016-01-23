@@ -103,155 +103,34 @@ namespace Klyte.TransportLinesManager
             }
             setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, zerosEsquerda, invertPrefixSuffix);
 
-            m_autoName = "";
+            m_autoName = TLMUtils.calculateAutoName(lineID);
             ushort[] stopBuildings = new ushort[stopsCount];
             MultiMap<ushort, Vector3> bufferToDraw = new MultiMap<ushort, Vector3>();
             int perfectSimetricLineStationsCount = (stopsCount + 2) / 2;
-            bool simetric = t.Info.m_transportType != TransportInfo.TransportType.Bus;
-            int j;
-            if (simetric)
+            string stationName = null;
+            Vector3 local;
+            string airport, port, taxi;
+            int middle;
+            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && TLMUtils.CalculateSimmetry(ss, stopsCount, t, out middle))
             {
-
-                NetManager nm = Singleton<NetManager>.instance;
-                BuildingManager bm = Singleton<BuildingManager>.instance;
-                //try to find the loop
-                int middle = -1;
-                for (j = -1; j < stopsCount / 2; j++)
-                {
-                    int offsetL = (j + stopsCount) % stopsCount;
-                    int offsetH = (j + 2) % stopsCount;
-                    NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
-                    NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
-                    ushort buildingId1 = bm.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.None);
-                    ushort buildingId2 = bm.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.None);
-                    //					DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"buildingId1="+buildingId1+"|buildingId2="+buildingId2);
-                    //					DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"offsetL="+offsetL+"|offsetH="+offsetH);
-
-                    if (buildingId1 == buildingId2)
-                    {
-                        middle = j + 1;
-                        break;
-                    }
-                }
-                //				DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"middle="+middle);
-                if (middle >= 0)
-                {
-                    for (j = 1; j <= stopsCount / 2; j++)
-                    {
-                        int offsetL = (-j + middle + stopsCount) % stopsCount;
-                        int offsetH = (j + middle) % stopsCount;
-                        //						DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"offsetL="+offsetL+"|offsetH="+offsetH);
-                        //						DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"t.GetStop (offsetL)="+t.GetStop (offsetH)+"|t.GetStop (offsetH)="+t.GetStop (offsetH));
-
-                        NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
-                        NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
-
-                        ushort buildingId1 = bm.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.None);
-                        ushort buildingId2 = bm.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.None);
-                        //						DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"buildingId1="+buildingId1+"|buildingId2="+buildingId2);
-
-                        //						DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"buildingId1="+buildingId1+"|buildingId2="+buildingId2);
-                        //						DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"offsetL="+offsetL+"|offsetH="+offsetH);
-
-                        if (buildingId1 != buildingId2)
-                        {
-                            simetric = false;
-                            break;
-                        }
-                    }
-                }
-                else {
-                    simetric = false;
-                }
-                if (simetric)
-                {
-                    lineStationsPanel.width = 5;
-                    for (j = 0; j <= stopsCount / 2; j++)
-                    {
-                        string stationName = null;
-                        List<ushort> intersections;
-                        string airport, port, taxi;
-                        Vector3 local = getStation(t.GetStop(middle + j), ss, out stationName, out intersections, out airport, out port, out taxi);
-                        lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi) + 5;
-                        if (j == 0)
-                        {
-                            m_autoName += stationName + " - ";
-                        }
-                        if (j == stopsCount / 2)
-                        {
-                            m_autoName += stationName;
-                        }
-                    }
-                }
-            }
-            if (!simetric)
-            {
-                DistrictManager dm = Singleton<DistrictManager>.instance;
-                byte lastDistrict = 0;
-                string stationName = null;
-                Vector3 local;
-                byte district;
-                List<int> districtList = new List<int>();
                 lineStationsPanel.width = 5;
-                string airport, port, taxi;
-                for (j = 0; j < stopsCount; j++)
+                for (int j = middle; j <= middle + stopsCount/2; j++)
                 {
                     List<ushort> intersections;
                     local = getStation(t.GetStop(j), ss, out stationName, out intersections, out airport, out port, out taxi);
-                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi);
-                    district = dm.GetDistrict(local);
-                    if ((district != lastDistrict) && district != 0)
-                    {
-                        districtList.Add(district);
-                    }
-                    if (district != 0)
-                    {
-                        lastDistrict = district;
-                    }
-                }
-
-                List<ushort> intersections2;
-                local = getStation(t.GetStop(0), ss, out stationName, out intersections2, out airport, out port, out taxi);
-                lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections2, airport, port, taxi) + 5;
-                district = dm.GetDistrict(local);
-                if ((district != lastDistrict) && district != 0)
-                {
-                    districtList.Add(district);
-                }
-                int middle;
-                int[] districtArray = districtList.ToArray();
-                if (districtArray.Length == 1)
-                {
-                    m_autoName = (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
-                }
-                else if (TLMUtils.findSimetry(districtArray, out middle))
-                {
-                    int firstIdx = middle;
-                    int lastIdx = middle + districtArray.Length / 2;
-
-                    m_autoName = dm.GetDistrictName(districtArray[firstIdx % districtArray.Length]) + " - " + dm.GetDistrictName(districtArray[lastIdx % districtArray.Length]);
-                    if (lastIdx - firstIdx > 1)
-                    {
-                        m_autoName += ", via ";
-                        for (int k = firstIdx + 1; k < lastIdx; k++)
-                        {
-                            m_autoName += dm.GetDistrictName(districtArray[k % districtArray.Length]);
-                            if (k + 1 != lastIdx)
-                            {
-                                m_autoName += ", ";
-                            }
-                        }
-                    }
-                }
-                else {
-                    bool inicio = true;
-                    foreach (int i in districtArray)
-                    {
-                        m_autoName += (inicio ? "" : " - ") + dm.GetDistrictName(i);
-                        inicio = false;
-                    }
+                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi) + (j == middle + stopsCount / 2 ? 5 : 0);
                 }
             }
+            else {
+                lineStationsPanel.width = 5;
+                for (int j = 0; j < stopsCount; j++)
+                {
+                    List<ushort> intersections;
+                    local = getStation(t.GetStop(j), ss, out stationName, out intersections, out airport, out port, out taxi);
+                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi) + (j == stopsCount-1?5:0);
+                }
+            }
+
         }
 
         private void clearStations()
@@ -398,7 +277,7 @@ namespace Klyte.TransportLinesManager
 
 
 
-       
+
 
         Vector3 getStation(uint stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string passengerPort, out string taxiStand)
         {

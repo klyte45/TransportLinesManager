@@ -57,7 +57,9 @@ namespace Klyte.TransportLinesManager
                     {
                         //						Debug.Log ("ULT POS:" + ultPos);
                         ushort nextStop = t.GetStop(j % stopsCount);
-                        string name = TLMUtils.getStationName(nextStop, t.Info.m_stationSubService);
+                        ItemClass.Service nil;
+                        ItemClass.SubService nil2;
+                        string name = TLMUtils.getStationName(nextStop, t.Info.m_stationSubService, out nil, out nil2);
 
                         Vector3 worldPos = TLMUtils.getStationBuildingPosition(nextStop, t.Info.m_stationSubService);
                         Vector2 pos2D = calc(worldPos);

@@ -717,82 +717,95 @@ namespace Klyte.TransportLinesManager
                 ss = ItemClass.SubService.PublicTransportMetro;
             }
             int stopsCount = t.CountStops(lineIdx);
-            string m_autoName = "";
             ushort[] stopBuildings = new ushort[stopsCount];
             MultiMap<ushort, Vector3> bufferToDraw = new MultiMap<ushort, Vector3>();
-            int perfectSimetricLineStationsCount = (stopsCount + 2) / 2;
-            bool simetric = t.Info.m_transportType != TransportInfo.TransportType.Bus;
-            int middle = -1;
-            if (simetric)
+            int middle;
+            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && CalculateSimmetry(ss, stopsCount, t, out middle))
             {
-                simetric = CalculateSimmetry(ss, stopsCount, t, out middle);
+                ItemClass.Service nil;
+                ItemClass.SubService nil2;
+                return getStationName(t.GetStop(middle), ss, out nil, out nil2) + " - " + getStationName(t.GetStop(middle + stopsCount / 2), ss, out nil, out nil2);
             }
-            if (simetric)
+            else
             {
-                return getStationName(t.GetStop(middle), ss) + " - " + getStationName(t.GetStop(middle + stopsCount / 2), ss);
-            }
-            else {
+                float autoNameSimmetryImprecision = 0.075f;
                 DistrictManager dm = Singleton<DistrictManager>.instance;
-                byte lastDistrict = 0;
-                Vector3 local;
-                byte district;
-                List<int> districtList = new List<int>();
+                Dictionary<int, KeyValuePair<TLMCW.ConfigIndex, String>> stationsList = new Dictionary<int, KeyValuePair<TLMCW.ConfigIndex, String>>();
                 NetManager nm = Singleton<NetManager>.instance;
                 for (int j = 0; j < stopsCount; j++)
                 {
-                    local = nm.m_nodes.m_buffer[(int)t.GetStop(j)].m_bounds.center;
-                    district = dm.GetDistrict(local);
-                    if ((district != lastDistrict) && district != 0)
-                    {
-                        districtList.Add(district);
-                    }
-                    if (district != 0)
-                    {
-                        lastDistrict = district;
-                    }
+                    ItemClass.Service service;
+                    ItemClass.SubService subservice;
+                    String value = getStationName(t.GetStop(j), ss, out service, out subservice, true);
+                    stationsList.Add(j, new KeyValuePair<TLMCW.ConfigIndex, string>(subservice.toConfigIndex() != 0 ? subservice.toConfigIndex() : service.toConfigIndex(), value));
                 }
+                uint mostImportantCategoryInLine = stationsList.Select(x => (x.Value.Key).getPriority()).Min();
+                var mostImportantPlaces = stationsList.Where(x => x.Value.Key.getPriority() == mostImportantCategoryInLine).ToList();
+                var destiny = mostImportantPlaces[0];
 
-                local = nm.m_nodes.m_buffer[(int)t.GetStop(0)].m_bounds.center;
-                district = dm.GetDistrict(local);
-                if ((district != lastDistrict) && district != 0)
+                var inverseIdxCenter = (destiny.Key + stopsCount / 2) % stopsCount;
+                int simmetryMargin = (int)Math.Ceiling(stopsCount * autoNameSimmetryImprecision);
+                int resultIdx = -1;
+                var destBuilding = getStationBuilding((uint)destiny.Key, ss);
+                BuildingManager bm = Singleton<BuildingManager>.instance;
+                for (int i = 0; i <= simmetryMargin; i++)
                 {
-                    districtList.Add(district);
-                }
-                middle = -1;
-                int[] districtArray = districtList.ToArray();
-                if (districtArray.Length == 1)
-                {
-                    return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
-                }
-                else if (findSimetry(districtArray, out middle))
-                {
-                    int firstIdx = middle;
-                    int lastIdx = middle + districtArray.Length / 2;
-
-                    m_autoName = dm.GetDistrictName(districtArray[firstIdx % districtArray.Length]) + " - " + dm.GetDistrictName(districtArray[lastIdx % districtArray.Length]);
-                    if (lastIdx - firstIdx > 1)
+                    int currentI = (inverseIdxCenter + i + stopsCount) % stopsCount;
+                    var iBuilding = getStationBuilding((uint)currentI, ss);
+                    if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority())
+                        && iBuilding != destBuilding
+                        && (!stationsList[currentI].Key.isPublicTransport() || bm.m_buildings.m_buffer[currentI].Info.GetAI().GetType() == typeof(TransportStationAI)))
                     {
-                        m_autoName += ", via ";
-                        for (int k = firstIdx + 1; k < lastIdx; k++)
-                        {
-                            m_autoName += dm.GetDistrictName(districtArray[k % districtArray.Length]);
-                            if (k + 1 != lastIdx)
-                            {
-                                m_autoName += ", ";
-                            }
-                        }
+                        resultIdx = currentI;
                     }
-                    return m_autoName;
-                }
-                else {
-                    bool inicio = true;
-                    foreach (int i in districtArray)
+                    if (i == 0) continue;
+                    currentI = (inverseIdxCenter - i + stopsCount) % stopsCount;
+                    iBuilding = getStationBuilding((uint)currentI, ss);
+                    if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority())
+                        && iBuilding != destBuilding
+                        && (!stationsList[currentI].Key.isPublicTransport() || bm.m_buildings.m_buffer[currentI].Info.GetAI().GetType() == typeof(TransportStationAI)))
                     {
-                        m_autoName += (inicio ? "" : " - ") + dm.GetDistrictName(i);
-                        inicio = false;
+                        resultIdx = currentI;
                     }
-                    return m_autoName;
                 }
+                string originName = "";
+                int districtOriginId = -1;
+                if (resultIdx >= 0 && stationsList[resultIdx].Key.isLineNamingEnabled())
+                {
+                    var origin = stationsList[resultIdx];
+                    originName = origin.Key.getPrefixTextNaming().Trim() + (origin.Key.getPrefixTextNaming().Trim() != string.Empty ? " " : "") + origin.Value + " - ";
+                }
+                else
+                {
+                    NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
+                    Vector3 location = nn.m_position;
+                    districtOriginId = dm.GetDistrict(location);
+                    if (districtOriginId > 0)
+                    {
+                        District d = dm.m_districts.m_buffer[districtOriginId];
+                        originName = dm.GetDistrictName(districtOriginId) + " - ";
+                    }
+                    else {
+                        originName = "";
+                    }
+                }
+                if (!destiny.Value.Key.isLineNamingEnabled())
+                {
+                    NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
+                    Vector3 location = nn.m_position;
+                    int districtDestinyId = dm.GetDistrict(location);
+                    if (districtDestinyId == districtOriginId)
+                    {
+                        District d = dm.m_districts.m_buffer[districtDestinyId];
+                        return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtDestinyId);
+                    }
+                    else if (districtDestinyId > 0)
+                    {
+                        District d = dm.m_districts.m_buffer[districtDestinyId];
+                        return originName + dm.GetDistrictName(districtDestinyId);
+                    }
+                }
+                return originName + destiny.Value.Key.getPrefixTextNaming().Trim() + (destiny.Value.Key.getPrefixTextNaming().Trim() != string.Empty ? " " : "") + destiny.Value.Value;
             }
         }
 
@@ -867,45 +880,40 @@ namespace Klyte.TransportLinesManager
         };
 
 
-        public static string getStationName(uint stopId, ItemClass.SubService ss)
+
+
+        public static string getStationName(uint stopId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, bool excludeCargo = false)
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-            ushort buildingId = 0;
-            if (ss != ItemClass.SubService.None)
-            {
-                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.CustomName, Building.Flags.Untouchable);
-            }
+            ushort buildingId = getStationBuilding(stopId, ss, excludeCargo);
 
-            if (buildingId == 0)
-            {
-                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active | Building.Flags.CustomName, Building.Flags.Untouchable);
-                if (buildingId == 0)
-                {
-                    int iterator = 0;
-                    while (buildingId == 0 && iterator < seachOrder.Count())
-                    {
-                        buildingId = bm.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                        iterator++;
-                    }
-                }
-            }
             Vector3 location = nn.m_position;
             Building b = bm.m_buildings.m_buffer[buildingId];
+            while (b.m_parentBuilding > 0)
+            {
+                doLog("getStationName(): building id {0} - parent = {1}", buildingId, b.m_parentBuilding);
+                buildingId = b.m_parentBuilding;
+                b = bm.m_buildings.m_buffer[buildingId];
+            }
             if (buildingId > 0)
             {
                 InstanceID iid = default(InstanceID);
                 iid.Building = buildingId;
+                serviceFound = b.Info.GetService();
+                subserviceFound = b.Info.GetSubService();
                 return bm.GetBuildingName(buildingId, iid);
             }
             else {
+                serviceFound = ItemClass.Service.None;
+                subserviceFound = ItemClass.SubService.None;
                 DistrictManager dm = Singleton<DistrictManager>.instance;
                 int dId = dm.GetDistrict(location);
                 if (dId > 0)
                 {
                     District d = dm.m_districts.m_buffer[dId];
-                    return "[D] " + dm.GetDistrictName(dId);
+                    return dm.GetDistrictName(dId);
                 }
                 else {
                     return "[X=" + location.x + "|Y=" + location.y + "|Z=" + location.z + "]";
@@ -935,77 +943,44 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static ushort getStationBuilding(uint stopId, ItemClass.SubService ss)
+        public static ushort getStationBuilding(uint stopId, ItemClass.SubService ss, bool excludeCargo = false)
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-            ushort buildingId;
+            ushort buildingId = 0, tempBuildingId;
+
             if (ss != ItemClass.SubService.None)
             {
-                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
+                tempBuildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
+                if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI().GetType() == typeof(TransportStationAI))
+                {
+                    buildingId = tempBuildingId;
+                }
             }
-            else {
-                buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active, Building.Flags.Untouchable);
-                if (buildingId == 0)
+            if (buildingId == 0)
+            {
+                tempBuildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active, Building.Flags.Untouchable);
+                if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI().GetType() == typeof(TransportStationAI))
                 {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Monument, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
+                    buildingId = tempBuildingId;
                 }
                 if (buildingId == 0)
                 {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Beautification, ItemClass.SubService.None, Building.Flags.Active, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Government, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.HealthCare, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.FireDepartment, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PoliceDepartment, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Tourism, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Education, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Garbage, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Office, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Commercial, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Industrial, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Water, ItemClass.SubService.None, Building.Flags.Active, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Electricity, ItemClass.SubService.None, Building.Flags.Active, Building.Flags.Untouchable);
-                }
-                if (buildingId == 0)
-                {
-                    buildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.Residential, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
+                    tempBuildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
+                    if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI().GetType() == typeof(TransportStationAI))
+                    {
+                        buildingId = tempBuildingId;
+                    }
+                    if (buildingId == 0)
+                    {
+                        int iterator = 1;
+                        while (buildingId == 0 && iterator < seachOrder.Count())
+                        {
+                            buildingId = bm.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
+                            iterator++;
+                        }
+                    }
                 }
             }
             return buildingId;

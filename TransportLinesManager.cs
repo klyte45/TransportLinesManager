@@ -531,7 +531,33 @@ namespace Klyte.TransportLinesManager
             UIHelperExtension group8 = helper.AddGroupExtended("Automation");
             generateCheckboxConfig(group8, "Auto coloring enabled", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
             generateCheckboxConfig(group8, "Auto naming enabled", TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED);
-            generateCheckboxConfig(group8, "Use 'Circular' word on single district lines", TLMConfigWarehouse.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE);
+
+            UIHelperExtension group13 = helper.AddGroupExtended("Auto Naming Settings");
+            ((UIPanel)group13.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group13.self).wrapLayout = true;
+            ((UIPanel)group13.self).width = 730;
+
+            generateCheckboxConfig(group13, "Use 'Circular' word on single district lines", TLMConfigWarehouse.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE);
+            group13.AddSpace(2);
+            group13.AddLabel("Allow naming lines using buildings with below functions:\n(District names are always the last choice)");
+            group13.AddSpace(2);
+            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameTransportCategories)
+            {
+                generateCheckboxConfig(group13, TLMConfigWarehouse.getNameForTransportType(ci) + " Buildings", TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | ci).width = 300;
+                var textFieldPanel = generateTextFieldConfig(group13, "Prefix (optional):", TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | ci).GetComponentInParent<UIPanel>();
+                textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+                textFieldPanel.autoFitChildrenVertically = true;
+                group13.AddSpace(2);
+            }
+            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameCategories)
+            {
+                generateCheckboxConfig(group13, TLMConfigWarehouse.getNameForServiceType(ci), TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci).width = 300;
+                var textFieldPanel = generateTextFieldConfig(group13, "Prefix (optional):", TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | ci).GetComponentInParent<UIPanel>();
+                textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+                textFieldPanel.autoFitChildrenVertically = true;
+                group13.AddSpace(2);
+            }
+
 
             TLMUtils.doLog("Loading Group 2");
 
@@ -731,29 +757,7 @@ namespace Klyte.TransportLinesManager
                 group3.AddLabel("Please load a city to get access to active trains!");
             }
 
-            UIHelperExtension group13 = helper.AddGroupExtended("Auto Naming Settings");
-            ((UIPanel)group13.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group13.self).wrapLayout = true;
-            ((UIPanel)group13.self).width = 730;
-            group13.AddLabel("Allow naming lines with buildings with below functions:");
-            group13.AddSpace(2);
-            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameTransportCategories)
-            {
-                generateCheckboxConfig(group13, TLMConfigWarehouse.getNameForTransportType(ci) + " Buildings", TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | ci).width = 300;
-                var textFieldPanel = generateTextFieldConfig(group13, "Prefix (optional):", TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | ci).GetComponentInParent<UIPanel>();
-                textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
-                textFieldPanel.autoFitChildrenVertically = true;
-                group13.AddSpace(2);
-            }
-            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameCategories)
-            {
-                generateCheckboxConfig(group13, TLMConfigWarehouse.getNameForServiceType(ci), TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci).width = 300;
-                var textFieldPanel = generateTextFieldConfig(group13, "Prefix (optional):", TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci).GetComponentInParent<UIPanel>();
-                textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
-                textFieldPanel.autoFitChildrenVertically = true;
-                group13.AddSpace(2);
-            }
-
+            
 
             UIHelperExtension group5 = helper.AddGroupExtended("Other Global Options");
             group5.AddSpace(20);
@@ -912,6 +916,11 @@ namespace Klyte.TransportLinesManager
             {
                 TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
                 i.Value.isChecked = currentConfigWarehouseEditor.getBool(i.Key);
+            }
+            foreach (var i in textFields)
+            {
+                TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
+                i.Value.text = currentConfigWarehouseEditor.getString(i.Key);
             }
         }
 
