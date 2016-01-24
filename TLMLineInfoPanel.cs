@@ -629,8 +629,9 @@ namespace Klyte.TransportLinesManager
             TransportInfo info = tl.Info;
             int turistas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_touristPassengers.m_averageCount;
             int residentes = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_residentPassengers.m_averageCount;
-            if (residentes == 0)
-                residentes = 1;
+            int residentesPorc = residentes;
+            if (residentesPorc == 0)
+                residentesPorc = 1;
             int criancas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_childPassengers.m_averageCount;
             int adolescentes = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_teenPassengers.m_averageCount;
             int jovens = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_youngPassengers.m_averageCount;
@@ -638,11 +639,11 @@ namespace Klyte.TransportLinesManager
             int idosos = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_seniorPassengers.m_averageCount;
             int motoristas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_carOwningPassengers.m_averageCount;
             int veiculosLinha = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].CountVehicles(lineID);
-            int porcCriancas = (criancas * 100 / residentes);
-            int porcAdolescentes = (adolescentes * 100 / residentes);
-            int porcJovens = (jovens * 100 / residentes);
-            int porcAdultos = (adultos * 100 / residentes);
-            int porcIdosos = (idosos * 100 / residentes);
+            int porcCriancas = (criancas * 100 / residentesPorc);
+            int porcAdolescentes = (adolescentes * 100 / residentesPorc);
+            int porcJovens = (jovens * 100 / residentesPorc);
+            int porcAdultos = (adultos * 100 / residentesPorc);
+            int porcIdosos = (idosos * 100 / residentesPorc);
             int soma = porcCriancas + porcAdolescentes + porcJovens + porcAdultos + porcIdosos;
             if (soma != 0 && soma != 100)
             {

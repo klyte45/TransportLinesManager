@@ -1,3 +1,4 @@
+using ColossalFramework;
 using ColossalFramework.UI;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Klyte.TransportLinesManager
     {
         private TLMController m_controller;
         private UIPanel mainPanel;
-        private List<GameObject> linesButtons = new List<GameObject>();
+        private List<GameObject> linesGameObjects = new List<GameObject>();
         private float offset;
         private Dictionary<Int32, UInt16> trainList;
         private Dictionary<Int32, UInt16> metroList;
@@ -27,7 +28,29 @@ namespace Klyte.TransportLinesManager
         private UIButton highBusLeg;
         private UIButton tramLeg;
         private UIButton bulletTrainLeg;
-        private UIScrollablePanel linesListPanel;
+        private UIScrollablePanel allLinesListPanel;
+        private UIScrollablePanel filteredLinesListPanel;
+        private CurrentFilterSelected _currentSelection = CurrentFilterSelected.NONE;
+        private CurrentFilterSelected currentSelection
+        {
+            get
+            {
+                return _currentSelection;
+            }
+
+            set
+            {
+                if (value == _currentSelection)
+                {
+                    _currentSelection = CurrentFilterSelected.NONE;
+                }
+                else
+                {
+                    _currentSelection = value;
+                }
+                listLines();
+            }
+        }
 
         //botoes da parte das antigas configuraçoes		
         private UIButton resetLineNames;
@@ -36,8 +59,8 @@ namespace Klyte.TransportLinesManager
         public void Show()
         {
             mainPanel.Show();
-            clearLinhas();
-            listaLinhas();
+            clearLines();
+            listLines();
         }
 
         public void Hide()
@@ -98,7 +121,7 @@ namespace Klyte.TransportLinesManager
             {
                 if (bulletTrainList == null)
                 {
-                    listaLinhas();
+                    listLines();
                 }
                 return bulletTrainList;
             }
@@ -110,7 +133,7 @@ namespace Klyte.TransportLinesManager
             {
                 if (trainList == null)
                 {
-                    listaLinhas();
+                    listLines();
                 }
                 return trainList;
             }
@@ -121,7 +144,7 @@ namespace Klyte.TransportLinesManager
             {
                 if (tramList == null)
                 {
-                    listaLinhas();
+                    listLines();
                 }
                 return tramList;
             }
@@ -133,7 +156,7 @@ namespace Klyte.TransportLinesManager
             {
                 if (metroList == null)
                 {
-                    listaLinhas();
+                    listLines();
                 }
                 return metroList;
             }
@@ -145,7 +168,7 @@ namespace Klyte.TransportLinesManager
             {
                 if (busList == null)
                 {
-                    listaLinhas();
+                    listLines();
                 }
                 return busList;
             }
@@ -156,7 +179,7 @@ namespace Klyte.TransportLinesManager
             {
                 if (lowBusList == null)
                 {
-                    listaLinhas();
+                    listLines();
                 }
                 return lowBusList;
             }
@@ -167,21 +190,28 @@ namespace Klyte.TransportLinesManager
             {
                 if (highBusList == null)
                 {
-                    listaLinhas();
+                    listLines();
                 }
                 return highBusList;
             }
         }
 
-        private void clearLinhas()
+        private void clearLines()
         {
 
-            foreach (GameObject o in linesButtons)
+            foreach (GameObject o in linesGameObjects)
             {
                 UnityEngine.Object.Destroy(o);
             }
-            linesButtons.Clear();
-            //			linesListPanel.ScrollToTop ();
+            linesGameObjects.Clear();
+            allLinesListPanel.ScrollToTop();
+            filteredLinesListPanel.ScrollToTop();
+
+            foreach (var x in new UIButton[] { bulletTrainLeg, highBusLeg, lowBusLeg, metroLeg, trainLeg, tramLeg, busLeg })
+            {
+                x.focusedColor = Color.white;
+                x.color = Color.white;
+            }
         }
 
         public TLMMainPanel(TLMController tli)
@@ -198,18 +228,31 @@ namespace Klyte.TransportLinesManager
             //			DebugOutputPanel.AddMessage (PluginManager.MessageType.Message, "LOADING SCROLL");
             GameObject scrollObj = new GameObject("Lines Listing Scroll", new Type[] { typeof(UIScrollablePanel) });
             //			DebugOutputPanel.AddMessage (PluginManager.MessageType.Message, "SCROLL LOADED");
-            linesListPanel = scrollObj.GetComponent<UIScrollablePanel>();
-            linesListPanel.autoLayout = false;
-            linesListPanel.width = mainPanel.width;
-            linesListPanel.height = 290;
-            linesListPanel.useTouchMouseScroll = true;
-            linesListPanel.scrollWheelAmount = 20;
-            linesListPanel.eventMouseWheel += (UIComponent component, UIMouseEventParameter eventParam) =>
+            allLinesListPanel = scrollObj.GetComponent<UIScrollablePanel>();
+            allLinesListPanel.autoLayout = false;
+            allLinesListPanel.width = mainPanel.width;
+            allLinesListPanel.height = 290;
+            allLinesListPanel.useTouchMouseScroll = true;
+            allLinesListPanel.scrollWheelAmount = 20;
+            panelListing.AttachUIComponent(allLinesListPanel.gameObject);
+            allLinesListPanel.relativePosition = new Vector3(0, 0);
+
+            filteredLinesListPanel = GameObject.Instantiate(allLinesListPanel.gameObject).GetComponent<UIScrollablePanel>();
+            filteredLinesListPanel.transform.SetParent(allLinesListPanel.transform.parent);
+            filteredLinesListPanel.autoLayout = true;
+            filteredLinesListPanel.autoLayoutDirection = LayoutDirection.Vertical;
+            filteredLinesListPanel.transform.localPosition = Vector3.zero;
+
+
+            allLinesListPanel.eventMouseWheel += (UIComponent component, UIMouseEventParameter eventParam) =>
             {
-                linesListPanel.scrollPosition -= new Vector2(0, eventParam.wheelDelta * linesListPanel.scrollWheelAmount);
+                allLinesListPanel.scrollPosition -= new Vector2(0, eventParam.wheelDelta * allLinesListPanel.scrollWheelAmount);
             };
-            panelListing.AttachUIComponent(linesListPanel.gameObject);
-            linesListPanel.relativePosition = new Vector3(0, 0);
+
+            filteredLinesListPanel.eventMouseWheel += (UIComponent component, UIMouseEventParameter eventParam) =>
+            {
+                filteredLinesListPanel.scrollPosition -= new Vector2(0, eventParam.wheelDelta * allLinesListPanel.scrollWheelAmount);
+            };
 
             //botoes da antiga parte extra 
 
@@ -222,9 +265,9 @@ namespace Klyte.TransportLinesManager
 
         }
 
-        private void listaLinhas()
+        private void listLines()
         {
-
+            clearLines();
             trainList = new Dictionary<int, ushort>();
             metroList = new Dictionary<int, ushort>();
             busList = new Dictionary<int, ushort>();
@@ -328,17 +371,65 @@ namespace Klyte.TransportLinesManager
                         continue;
                 }
             }
-            offset = 0;
-            offset += drawButtonsFromDictionary(bulletTrainList, offset);
-            offset += drawButtonsFromDictionary(trainList, offset);
-            offset += drawButtonsFromDictionary(tramList, offset);
-            offset += drawButtonsFromDictionary(metroList, offset);
-            offset += drawButtonsFromDictionary(highBusList, offset);
-            offset += drawButtonsFromDictionary(busList, offset);
-            offset += drawButtonsFromDictionary(lowBusList, offset);
+            if (currentSelection == CurrentFilterSelected.NONE)
+            {
+                allLinesListPanel.enabled = true;
+                filteredLinesListPanel.enabled = false;
+                offset = 0;
+                offset += drawButtonsFromDictionary(bulletTrainList, offset);
+                offset += drawButtonsFromDictionary(trainList, offset);
+                offset += drawButtonsFromDictionary(tramList, offset);
+                offset += drawButtonsFromDictionary(metroList, offset);
+                offset += drawButtonsFromDictionary(highBusList, offset);
+                offset += drawButtonsFromDictionary(busList, offset);
+                offset += drawButtonsFromDictionary(lowBusList, offset);
+            }
+            else
+            {
+                allLinesListPanel.enabled = false;
+                filteredLinesListPanel.enabled = true;
+                switch (currentSelection)
+                {
+                    case CurrentFilterSelected.BULLET:
+                        bulletTrainLeg.color = new Color32(0, 128, 0, 255);
+                        bulletTrainLeg.focusedColor = new Color32(0, 128, 0, 255);
+                        drawDetailedButtonFromDictionary(bulletTrainList);
+                        break;
+                    case CurrentFilterSelected.HIGH_BUS:
+                        highBusLeg.color = new Color32(0, 128, 0, 255);
+                        highBusLeg.focusedColor = new Color32(0, 128, 0, 255);
+                        drawDetailedButtonFromDictionary(highBusList);
+                        break;
+                    case CurrentFilterSelected.LOW_BUS:
+                        lowBusLeg.color = new Color32(0, 128, 0, 255);
+                        lowBusLeg.focusedColor = new Color32(0, 128, 0, 255);
+                        drawDetailedButtonFromDictionary(lowBusList);
+                        break;
+                    case CurrentFilterSelected.METRO:
+                        metroLeg.color = new Color32(0, 128, 0, 255);
+                        metroLeg.focusedColor = new Color32(0, 128, 0, 255);
+                        drawDetailedButtonFromDictionary(metroList);
+                        break;
+                    case CurrentFilterSelected.REGIONAL_TRAIN:
+                        trainLeg.color = new Color32(0, 128, 0, 255);
+                        trainLeg.focusedColor = new Color32(0, 128, 0, 255);
+                        drawDetailedButtonFromDictionary(trainList);
+                        break;
+                    case CurrentFilterSelected.REGULAR_BUS:
+                        busLeg.color = new Color32(0, 128, 0, 255);
+                        busLeg.focusedColor = new Color32(0, 128, 0, 255);
+                        drawDetailedButtonFromDictionary(busList);
+                        break;
+                    case CurrentFilterSelected.TLM_TRAM:
+                        tramLeg.color = new Color32(0, 128, 0, 255);
+                        tramLeg.focusedColor = new Color32(0, 128, 0, 255);
+                        drawDetailedButtonFromDictionary(tramList);
+                        break;
+                }
+            }
         }
 
-        private float drawButtonsFromDictionary(Dictionary<Int32, UInt16> map, float offset)
+        private float drawButtonsFromDictionary(Dictionary<Int32, UInt16> map, float offsetDraw)
         {
             int j = 0;
             List<Int32> keys = map.Keys.ToList();
@@ -349,12 +440,12 @@ namespace Klyte.TransportLinesManager
                 TransportLine t = m_controller.tm.m_lines.m_buffer[map[k]];
                 //				string item = "[" + t.Info.m_transportType + " | " + t.m_lineNumber + "] " + t.GetColor () + " " + tli.tm.GetLineName ( map [k]);
                 GameObject itemContainer = new GameObject();
-                linesButtons.Add(itemContainer);
+                linesGameObjects.Add(itemContainer);
 
-                itemContainer.transform.parent = linesListPanel.transform;
+                itemContainer.transform.parent = allLinesListPanel.transform;
                 UIButtonLineInfo itemButton = itemContainer.AddComponent<UIButtonLineInfo>();
 
-                itemButton.relativePosition = new Vector3(10.0f + (j % 10) * 40f, offset + 40 * (int)(j / 10));
+                itemButton.relativePosition = new Vector3(10.0f + (j % 10) * 40f, offsetDraw + 40 * (int)(j / 10));
                 itemButton.width = 35;
                 itemButton.height = 35;
                 TLMUtils.initButton(itemButton, true, "ButtonMenu");
@@ -401,6 +492,169 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        private void drawDetailedButtonFromDictionary(Dictionary<Int32, UInt16> map)
+        {
+            List<Int32> keys = map.Keys.ToList();
+            keys.Sort();
+            foreach (Int32 k in keys)
+            {
+                ushort lineId = map[k];
+
+                TransportLine t = m_controller.tm.m_lines.m_buffer[lineId];
+                GameObject itemContainer = new GameObject();
+                linesGameObjects.Add(itemContainer);
+
+                itemContainer.transform.parent = filteredLinesListPanel.transform;
+                UIPanel container = itemContainer.AddComponent<UIPanel>();
+                container.width = container.transform.GetComponentInParent<UIScrollablePanel>().width;
+                container.height = 55;
+                container.autoFitChildrenHorizontally = false;
+                container.autoFitChildrenVertically = false;
+                container.autoLayout = false;
+
+                UIButtonLineInfo itemButton = null;
+                TLMUtils.createUIElement<UIButtonLineInfo>(ref itemButton, container.transform);
+
+
+                itemButton.relativePosition = new Vector3(10.0f, 10f);
+                itemButton.width = 35;
+                itemButton.height = 35;
+                TLMUtils.initButton(itemButton, true, "ButtonMenu");
+                itemButton.atlas = TLMController.taLineNumber;
+                ModoNomenclatura mn, pre;
+                Separador s;
+                bool z;
+                bool invertPrefixSuffix;
+                string icon;
+                TLMLineUtils.getLineNamingParameters(lineId, out pre, out s, out mn, out z, out invertPrefixSuffix, out icon);
+                TLMUtils.initButtonSameSprite(itemButton, icon);
+
+                itemButton.color = m_controller.tm.GetLineColor(lineId);
+                itemButton.hoveredTextColor = itemButton.color;
+                itemButton.textColor = TLMUtils.contrastColor(t.GetColor());
+                itemButton.hoveredColor = itemButton.textColor;
+                itemButton.lineID = lineId;
+                itemButton.eventClick += m_controller.lineInfoPanel.openLineInfo;
+                string lineNum = setLineNumberMainListing(t.m_lineNumber, itemButton, pre, s, mn, z, invertPrefixSuffix);
+
+                bool day, night;
+                t.GetActive(out day, out night);
+                UILabel lineTime = null;
+                TLMUtils.createUIElement<UILabel>(ref lineTime, itemButton.transform);
+                lineTime.relativePosition = new Vector3(0, 0);
+                lineTime.width = 35;
+                lineTime.height = 35;
+                lineTime.atlas = TLMController.taLineNumber;
+                if (!day || !night)
+                {
+                    lineTime.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
+                }
+
+                itemButton.name = "TransportLinesManagerLineButton" + itemButton.text;
+                UILabel lineName = null;
+                TLMUtils.createUIElement<UILabel>(ref lineName, container.transform);
+                lineName.relativePosition = new Vector3(55f, 10f);
+                lineName.text = m_controller.tm.GetLineName(lineId); ;
+                lineName.tooltip = lineName.text;
+                lineName.textScale = 0.6f;
+
+                UILabel lineExtraInfo = null;
+                TLMUtils.createUIElement<UILabel>(ref lineExtraInfo, container.transform);
+                lineExtraInfo.relativePosition = new Vector3(55f, 25f);
+                uint totalPassengers = t.m_passengers.m_residentPassengers.m_averageCount + t.m_passengers.m_touristPassengers.m_averageCount;
+                lineExtraInfo.text = string.Format("Passengers (R + T = Total): {0} + {1} = {2}", t.m_passengers.m_residentPassengers.m_averageCount, t.m_passengers.m_touristPassengers.m_averageCount, totalPassengers);
+                lineExtraInfo.tooltip = lineExtraInfo.text;
+                lineExtraInfo.textScale = 0.6f;
+
+                UILabel lineExtraInfo2 = null;
+                TLMUtils.createUIElement<UILabel>(ref lineExtraInfo2, container.transform);
+                lineExtraInfo2.relativePosition = new Vector3(55f, 40f);
+                float vehicles = t.CountVehicles(lineId);
+                lineExtraInfo2.text = string.Format("{0} Stops - {1} Vehicles - {2} Passengers/Vehicle (avg)", t.CountStops(lineId), vehicles, (vehicles>0?totalPassengers / vehicles:0).ToString("0.00") );
+                lineExtraInfo2.tooltip = lineExtraInfo2.text;
+                lineExtraInfo2.textScale = 0.6f;
+
+
+                UIButton buttonCycleTime = null;
+                TLMUtils.createUIElement<UIButton>(ref buttonCycleTime, container.transform);
+                buttonCycleTime.pivot = UIPivotPoint.TopRight;
+                buttonCycleTime.relativePosition = new Vector3(container.width-10f, 5f);
+                buttonCycleTime.text = "Cycle Day/Night";
+                buttonCycleTime.textScale = 0.6f;
+                buttonCycleTime.width = 100;
+                buttonCycleTime.height = 15;
+                buttonCycleTime.tooltip = "Cycle the line work by day & night => day => night => disabled";
+                TLMUtils.initButton(buttonCycleTime, true, "ButtonMenu");
+                buttonCycleTime.name = "CycleTime";
+                buttonCycleTime.isVisible = true;
+                buttonCycleTime.eventClick += (component, eventParam) =>
+                {
+                    bool dayActive, nightActive;
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].GetActive(out dayActive, out nightActive);
+                    int selection = (dayActive ? 0 : 2) + (nightActive ? 0 : 1);
+                    Singleton<SimulationManager>.instance.AddAction(delegate
+                    {
+                        switch (selection)
+                        {
+                            case 3:
+                                Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].SetActive(true, true);
+                                lineTime.backgroundSprite = "";
+                                break;
+                            case 0:
+                                Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].SetActive(true, false);
+                                lineTime.backgroundSprite = "DayIcon";
+                                break;
+                            case 1:
+                                Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].SetActive(false, true);
+                                lineTime.backgroundSprite = "NightIcon";
+                                break;
+                            case 2:
+                                Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].SetActive(false, false);
+                                lineTime.backgroundSprite = "DisabledIcon";
+                                break;
+                        }
+                    });
+                };
+
+                UIButton buttonAutoName = null;
+                TLMUtils.createUIElement<UIButton>(ref buttonAutoName, container.transform);
+                buttonAutoName.pivot = UIPivotPoint.TopRight;
+                buttonAutoName.relativePosition = new Vector3(container.width - 10f, 20f);
+                buttonAutoName.text = "Use Auto Name";
+                buttonAutoName.textScale = 0.6f;
+                buttonAutoName.width = 100;
+                buttonAutoName.height = 15;
+                buttonAutoName.tooltip = "Use auto name in this line";
+                TLMUtils.initButton(buttonAutoName, true, "ButtonMenu");
+                buttonAutoName.name = "AutoName";
+                buttonAutoName.isVisible = true;
+                buttonAutoName.eventClick += (component, eventParam) =>
+                {
+                    lineName.text = string.Format("[{0}] {1}", lineNum, TLMUtils.calculateAutoName(lineId));
+                    TLMUtils.setLineName(lineId, lineName.text);
+                };
+
+                UIButton buttonAutoColor = null;
+                TLMUtils.createUIElement<UIButton>(ref buttonAutoColor, container.transform);
+                buttonAutoColor.pivot = UIPivotPoint.TopRight;
+                buttonAutoColor.relativePosition = new Vector3(container.width - 10f, 35f);
+                buttonAutoColor.text = "Use Auto Color";
+                buttonAutoColor.textScale = 0.6f;
+                buttonAutoColor.width = 100;
+                buttonAutoColor.height = 15;
+                buttonAutoColor.tooltip = "Pick a color from the palette for this line";
+                TLMUtils.initButton(buttonAutoColor, true, "ButtonMenu");
+                buttonAutoColor.name = "AutoColor";
+                buttonAutoColor.isVisible = true;
+                buttonAutoColor.eventClick += (component, eventParam) =>
+                {
+                    TLMUtils.setLineColor(lineId, TLMController.instance.AutoColor(lineId));
+                    itemButton.color = m_controller.tm.GetLineColor(lineId);
+                };
+
+            }
+        }
+
         private void createMainView()
         {
 
@@ -417,106 +671,21 @@ namespace Klyte.TransportLinesManager
             TLMUtils.createDragHandle(mainPanel, mainPanel, 35f);
             if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
             {
-                TLMUtils.createUIElement<UIButton>(ref bulletTrainLeg, mainPanel.transform);
-                bulletTrainLeg.atlas = TLMController.taLineNumber;
-                bulletTrainLeg.width = 40;
-                bulletTrainLeg.height = 40;
-                bulletTrainLeg.name = "BulletTrain";
-                bulletTrainLeg.relativePosition = new Vector3(10, 45);
-                TLMUtils.initButtonSameSprite(bulletTrainLeg, "BulletTrainIcon");
-                UILabel bulletIcon = bulletTrainLeg.AddUIComponent<UILabel>();
-                bulletIcon.atlas = TLMController.taLineNumber;
-                bulletIcon.backgroundSprite = "BulletTrainImage";
-                bulletIcon.width = 27;
-                bulletIcon.height = 27;
-                bulletIcon.relativePosition = new Vector3(6f, 6);
-
-                TLMUtils.createUIElement<UIButton>(ref tramLeg, mainPanel.transform);
-                tramLeg.atlas = TLMController.taLineNumber;
-                tramLeg.width = 40;
-                tramLeg.height = 40;
-                tramLeg.relativePosition = new Vector3(130, 45);
-                tramLeg.name = "TramLegend";
-                TLMUtils.initButtonSameSprite(tramLeg, "TramIcon");
-                UILabel tramIcon = tramLeg.AddUIComponent<UILabel>();
-                tramIcon.atlas = TLMController.taLineNumber;
-                tramIcon.backgroundSprite = "TramImage";
-                tramIcon.width = 27;
-                tramIcon.height = 27;
-                tramIcon.relativePosition = new Vector3(6f, 6);
-
-                TLMUtils.createUIElement<UIButton>(ref lowBusLeg, mainPanel.transform);
-                lowBusLeg.atlas = TLMController.taLineNumber;
-                lowBusLeg.width = 40;
-                lowBusLeg.height = 40;
-                lowBusLeg.relativePosition = new Vector3(370, 45);
-                lowBusLeg.name = "LowBusLegend";
-                TLMUtils.initButtonSameSprite(lowBusLeg, "LowBusIcon");
-                UILabel lowBusIcon = lowBusLeg.AddUIComponent<UILabel>();
-                lowBusIcon.atlas = TLMController.taLineNumber;
-                lowBusIcon.backgroundSprite = "LowBusImage";
-                lowBusIcon.width = 27;
-                lowBusIcon.height = 27;
-                lowBusIcon.relativePosition = new Vector3(6f, 6);
-
-                TLMUtils.createUIElement<UIButton>(ref highBusLeg, mainPanel.transform);
-                highBusLeg.atlas = TLMController.taLineNumber;
-                highBusLeg.width = 40;
-                highBusLeg.height = 40;
-                highBusLeg.relativePosition = new Vector3(250, 45);
-                highBusLeg.name = "HighBusLegend";
-                TLMUtils.initButtonSameSprite(highBusLeg, "HighBusIcon");
-                UILabel highBusIcon = highBusLeg.AddUIComponent<UILabel>();
-                highBusIcon.atlas = TLMController.taLineNumber;
-                highBusIcon.backgroundSprite = "HighBusImage";
-                highBusIcon.width = 27;
-                highBusIcon.height = 27;
-                highBusIcon.relativePosition = new Vector3(6f, 6);
+                addIcon(10, "BulletTrain", "BulletTrainImage", ref bulletTrainLeg, CurrentFilterSelected.BULLET, true);
+                addIcon(130, "Tram", "TramImage", ref tramLeg, CurrentFilterSelected.TLM_TRAM, true);
+                addIcon(370, "LowBus", "LowBusImage", ref lowBusLeg, CurrentFilterSelected.LOW_BUS, true);
+                addIcon(250, "HighBus", "HighBusImage", ref highBusLeg, CurrentFilterSelected.HIGH_BUS, true);
             }
-            TLMUtils.createUIElement<UIButton>(ref trainLeg, mainPanel.transform);
-            trainLeg.atlas = TLMController.taLineNumber;
-            trainLeg.width = 40;
-            trainLeg.height = 40;
-            trainLeg.name = "TrainLegend";
-            trainLeg.relativePosition = new Vector3(70, 45);
-            TLMUtils.initButtonSameSprite(trainLeg, "TrainIcon");
-            UILabel tremIcon = trainLeg.AddUIComponent<UILabel>();
-            tremIcon.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train);
-            tremIcon.width = 30;
-            tremIcon.height = 20;
-            tremIcon.relativePosition = new Vector3(5f, 10f);
 
-            TLMUtils.createUIElement<UIButton>(ref metroLeg, mainPanel.transform);
-            metroLeg.atlas = TLMController.taLineNumber;
-            metroLeg.width = 40;
-            metroLeg.height = 40;
-            metroLeg.relativePosition = new Vector3(190, 45);
-            metroLeg.name = "SubwayLegend";
-            TLMUtils.initButtonSameSprite(metroLeg, "SubwayIcon");
-            UILabel metroIcon = metroLeg.AddUIComponent<UILabel>();
-            metroIcon.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro);
-            metroIcon.width = 30;
-            metroIcon.height = 20;
-            metroIcon.relativePosition = new Vector3(5f, 10f);
-
-            TLMUtils.createUIElement<UIButton>(ref busLeg, mainPanel.transform);
-            busLeg.atlas = TLMController.taLineNumber;
-            busLeg.width = 40;
-            busLeg.height = 40;
-            busLeg.relativePosition = new Vector3(310, 45);
-            busLeg.name = "BusLegend";
-            TLMUtils.initButtonSameSprite(busLeg, "BusIcon");
-            UILabel onibusIcon = busLeg.AddUIComponent<UILabel>();
-            onibusIcon.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus);
-            onibusIcon.width = 30;
-            onibusIcon.height = 20;
-            onibusIcon.relativePosition = new Vector3(5f, 10f);
+            addIcon(70, "Train", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref trainLeg, CurrentFilterSelected.REGIONAL_TRAIN, false);
+            addIcon(190, "Subway", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metroLeg, CurrentFilterSelected.METRO, false);
+            addIcon(310, "Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busLeg, CurrentFilterSelected.REGULAR_BUS, false);
 
             UILabel titleLabel = null;
             TLMUtils.createUIElement<UILabel>(ref titleLabel, mainPanel.transform);
             titleLabel.relativePosition = new Vector3(0, 15f);
             titleLabel.textAlignment = UIHorizontalAlignment.Center;
-            titleLabel.text = "Transport Lines Manager v" + TransportLinesManagerMod.version + "";
+            titleLabel.text = "Transport Lines Manager v" + TransportLinesManagerMod.version;
             titleLabel.autoSize = false;
             titleLabel.width = mainPanel.width;
             titleLabel.height = 30;
@@ -524,7 +693,45 @@ namespace Klyte.TransportLinesManager
             TLMUtils.createDragHandle(titleLabel, mainPanel);
         }
 
-        private void setLineNumberMainListing(int num, UIButton button, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros, bool invertPrefixSuffix)
+        private void addIcon(int xpos, string namePrefix, string iconName, ref UIButton targetButton, CurrentFilterSelected onClick, bool alternativeIconAtlas)
+        {
+            TLMUtils.doLog("addIcon: init " + namePrefix);
+            TLMUtils.createUIElement<UIButton>(ref targetButton, mainPanel.transform);
+            TLMUtils.doLog("addIcon: targetButton created");
+
+            targetButton.atlas = TLMController.taLineNumber;
+            targetButton.width = 40;
+            targetButton.height = 40;
+            targetButton.relativePosition = new Vector3(xpos, 45);
+            targetButton.name = namePrefix + "Legend";
+            TLMUtils.initButtonSameSprite(targetButton, namePrefix + "Icon");
+            targetButton.hoveredColor = Color.gray;
+            targetButton.focusedColor = Color.white;
+            TLMUtils.doLog("addIcon: pre eventClick");
+            targetButton.eventClick += delegate (UIComponent component, UIMouseEventParameter eventParam)
+            {
+                currentSelection = onClick;
+            };
+            TLMUtils.doLog("addIcon: init label icon");
+            UILabel icon = targetButton.AddUIComponent<UILabel>();
+            if (alternativeIconAtlas)
+            {
+                icon.atlas = TLMController.taLineNumber;
+                icon.width = 27;
+                icon.height = 27;
+                icon.relativePosition = new Vector3(6f, 6);
+            }
+            else
+            {
+                icon.width = 30;
+                icon.height = 20;
+                icon.relativePosition = new Vector3(5f, 10f);
+            }
+            icon.backgroundSprite = iconName;
+            TLMUtils.doLog("addIcon: end");
+        }
+
+        private string setLineNumberMainListing(int num, UIButton button, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros, bool invertPrefixSuffix)
         {
 
             UILabel l = button.AddUIComponent<UILabel>();
@@ -540,6 +747,7 @@ namespace Klyte.TransportLinesManager
             l.text = TLMUtils.getString(prefix, s, sufix, num, zeros, invertPrefixSuffix);
             float ratio = l.width / 50;
             TLMLineUtils.setLineNumberCircleOnRef(num, prefix, s, sufix, zeros, l, invertPrefixSuffix, ratio);
+            return l.text;
         }
 
         //botoes da antiga parte extra
@@ -609,6 +817,18 @@ namespace Klyte.TransportLinesManager
                 }
                 Show();
             };
+        }
+
+        private enum CurrentFilterSelected
+        {
+            NONE,
+            BULLET,
+            REGIONAL_TRAIN,
+            TLM_TRAM,
+            METRO,
+            HIGH_BUS,
+            REGULAR_BUS,
+            LOW_BUS
         }
 
     }
