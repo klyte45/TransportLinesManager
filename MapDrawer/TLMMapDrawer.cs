@@ -674,7 +674,7 @@ namespace Klyte.TransportLinesManager
             return "<!DOCTYPE html>" +
              "<html><head> <meta charset=\"UTF-8\"> " +
              "<style>" +
-            ResourceLoader.loadResourceString("lineDrawBasicCss.css") +
+            ResourceLoader.loadResourceString("MapDrawer/lineDrawBasicCss.css") +
              "</style>" +
              "</head><body>" +
              string.Format("<svg height='{0}' width='{1}'>", height, width);

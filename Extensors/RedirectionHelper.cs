@@ -110,7 +110,8 @@ namespace Klyte.TransportLinesManager
     {
 
         public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
-        public static void AddRedirect(Type type1, MethodInfo method, ref Dictionary<MethodInfo, RedirectCallsState> redirects)
+        
+        public static void AddRedirect(Type type1, MethodInfo method, ref Dictionary<MethodInfo, RedirectCallsState> redirects, string type1MethodName = null)
         {
             var parameters = method.GetParameters();
 
@@ -120,7 +121,7 @@ namespace Klyte.TransportLinesManager
             else
                 types = parameters.Select(p => p.ParameterType).ToArray();
 
-            var originalMethod = type1.GetMethod(method.Name, allFlags, null, types, null);
+            var originalMethod = type1.GetMethod(type1MethodName != null? type1MethodName : method.Name, allFlags, null, types, null);
             if (originalMethod == null)
             {
                 TLMUtils.doLog("Cannot find " + method.Name);

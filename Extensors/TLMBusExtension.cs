@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager
 {
@@ -23,6 +24,90 @@ namespace Klyte.TransportLinesManager
                     _instance = new TLMBusModifyRedirects();
                 }
                 return _instance;
+            }
+        }
+
+        private static Dictionary<ushort, float> vehicleLastTravelAvgFill = new Dictionary<ushort, float>();
+        private static Dictionary<ushort, float> vehicleLastTravelAvgFillTemp = new Dictionary<ushort, float>();
+        private static Dictionary<ushort, ushort> vehicleLastTravelStopsPassedThisTravel = new Dictionary<ushort, ushort>();
+        private static Dictionary<ushort, long> vehicleLastTravelFramesLineLapTake = new Dictionary<ushort, long>();
+        private static Dictionary<ushort, long> vehicleLastTravelFrameNumberLineLapStarted = new Dictionary<ushort, long>();
+        private static Dictionary<ushort, ushort> vehicleLastTravelLine = new Dictionary<ushort, ushort>();
+
+        private static void addExtraStatsData(ushort vehicleId, float fillRate, ushort line)
+        {
+            if (!vehicleLastTravelLine.ContainsKey(vehicleId))
+            {
+                return;
+            }
+            else if (vehicleLastTravelLine[vehicleId] != line)
+            {
+                removeExtraStatsData(vehicleId);
+            }
+            else if (vehicleLastTravelAvgFillTemp.ContainsKey(vehicleId) && vehicleLastTravelStopsPassedThisTravel.ContainsKey(vehicleId))
+            {
+                vehicleLastTravelAvgFillTemp[vehicleId] = (vehicleLastTravelAvgFillTemp[vehicleId] * vehicleLastTravelStopsPassedThisTravel[vehicleId] + fillRate) / (++vehicleLastTravelStopsPassedThisTravel[vehicleId]);
+            }
+        }
+
+        private static void endLap(ushort vehicleId, ushort line)
+        {
+            if (!vehicleLastTravelLine.ContainsKey(vehicleId) || vehicleLastTravelLine[vehicleId] != line)
+            {
+                removeExtraStatsData(vehicleId);
+            }
+
+
+            if (vehicleLastTravelAvgFillTemp.ContainsKey(vehicleId))
+            {
+                vehicleLastTravelAvgFill[vehicleId] = vehicleLastTravelAvgFillTemp[vehicleId];
+            }
+            vehicleLastTravelAvgFillTemp[vehicleId] = 0;
+            vehicleLastTravelStopsPassedThisTravel[vehicleId] = 0;
+            if (vehicleLastTravelFrameNumberLineLapStarted.ContainsKey(vehicleId))
+            {
+                vehicleLastTravelFramesLineLapTake[vehicleId] = Singleton<SimulationManager>.instance.m_currentFrameIndex - vehicleLastTravelFrameNumberLineLapStarted[vehicleId];
+            }
+            vehicleLastTravelFrameNumberLineLapStarted[vehicleId] = Singleton<SimulationManager>.instance.m_currentFrameIndex;
+        }
+
+        private static void removeExtraStatsData(ushort vehicleId)
+        {
+            vehicleLastTravelAvgFill.Remove(vehicleId);
+            vehicleLastTravelAvgFillTemp.Remove(vehicleId);
+            vehicleLastTravelStopsPassedThisTravel.Remove(vehicleId);
+            vehicleLastTravelFramesLineLapTake.Remove(vehicleId);
+            vehicleLastTravelFrameNumberLineLapStarted.Remove(vehicleId);
+        }
+
+        public static Dictionary<ushort, ExtraData> getLineVehiclesData(ushort lineId)
+        {
+            Dictionary<ushort, ExtraData> result = new Dictionary<ushort, ExtraData>();
+            ushort[] vehiclesWithData = vehicleLastTravelLine.Where(x => x.Value == lineId).Select(x => x.Key).ToArray();
+            foreach (ushort vehicleId in vehiclesWithData)
+            {
+                result.Add(vehicleId, new ExtraData(vehicleLastTravelAvgFill[vehicleId], vehicleLastTravelFramesLineLapTake[vehicleId]));
+            }
+            return result;
+        }
+
+        public struct ExtraData
+        {
+            public float avgFill;
+            public long framesTakenLap;
+
+            public ExtraData(float v1, long v2)
+            {
+                avgFill = v1;
+                framesTakenLap = v2;
+            }
+
+            public TimeSpan timeTakenLap
+            {
+                get
+                {
+                    return new TimeSpan(Singleton<SimulationManager>.instance.m_timePerFrame.Ticks * framesTakenLap);
+                }
             }
         }
 
@@ -248,7 +333,7 @@ namespace Klyte.TransportLinesManager
         public static VehicleInfo getRandomLowBus()
         {
             if (lowBusAssetsList.Count == 0) return null;
-            Randomizer r = new Randomizer(new Random().Next());
+            Randomizer r = new Randomizer(new System.Random().Next());
             TLMUtils.doLog("POSSIBLE VALUES FOR LOW BUS: {0}", string.Join(",", lowBusAssetsList.ToArray()));
             return PrefabCollection<VehicleInfo>.FindLoaded(lowBusAssetsList[r.Int32(0, lowBusAssetsList.Count - 1)]);
         }
@@ -256,7 +341,7 @@ namespace Klyte.TransportLinesManager
         public static VehicleInfo getRandomBus()
         {
             if (busAssetsList.Count == 0) return null;
-            Randomizer r = new Randomizer(new Random().Next());
+            Randomizer r = new Randomizer(new System.Random().Next());
             TLMUtils.doLog("POSSIBLE VALUES FOR REG BUS: {0}", string.Join(",", busAssetsList.ToArray()));
             return PrefabCollection<VehicleInfo>.FindLoaded(busAssetsList[r.Int32(0, busAssetsList.Count - 1)]);
         }
@@ -264,7 +349,7 @@ namespace Klyte.TransportLinesManager
         public static VehicleInfo getRandomHighBus()
         {
             if (highBusAssetsList.Count == 0) return null;
-            Randomizer r = new Randomizer(new Random().Next());
+            Randomizer r = new Randomizer(new System.Random().Next());
             TLMUtils.doLog("POSSIBLE VALUES FOR HIGH BUS: {0}", string.Join(",", highBusAssetsList.ToArray()));
             return PrefabCollection<VehicleInfo>.FindLoaded(highBusAssetsList[r.Int32(0, highBusAssetsList.Count - 1)]);
         }
@@ -399,7 +484,7 @@ namespace Klyte.TransportLinesManager
             {
                 data.m_flags |= Vehicle.Flags.GoingBack;
             }
-            if (!this.StartPathFind(vehicleID, ref data))
+            if (!this.StartPathFindFake(vehicleID, ref data))
             {
                 data.Unspawn(vehicleID);
             }
@@ -416,11 +501,42 @@ namespace Klyte.TransportLinesManager
             }
         }
         protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData) { TLMUtils.doLog("StartPathFind??? WHYYYYYYY!?"); return false; }
-
         public void OnCreated(ILoading loading)
         {
             TLMUtils.doLog("TLMLowBusRedirects Criado!");
         }
+
+        protected bool StartPathFindFake(ushort vehicleID, ref Vehicle vehicleData)
+        {
+            if (vehicleData.m_transportLine != 0)
+            {
+                if (vehicleData.m_targetBuilding == Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine].m_stops)
+                {
+                    endLap(vehicleID, vehicleData.m_transportLine);
+                }
+                if (vehicleData.Info.GetAI().GetType() == typeof(BusAI))
+                {
+                    ushort firstVehicle = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)vehicleID].GetFirstVehicle(vehicleID);
+                    string text;
+                    int fill, cap;
+                    vehicleData.Info.m_vehicleAI.GetBufferStatus(firstVehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)firstVehicle], out text, out fill, out cap);
+                    float fillRate = (float)fill / cap;
+                    addExtraStatsData(vehicleID, fillRate, vehicleData.m_transportLine);
+                }
+                else
+                {
+                    removeExtraStatsData(vehicleID);
+                }
+            }
+            else
+            {
+                removeExtraStatsData(vehicleID);
+            }
+            return StartPathFind(vehicleID, ref vehicleData);
+        }
+
+        //info.m_vehicleAI.GetBufferStatus(firstVehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)firstVehicle], out text, out fill, out cap);
+
         #endregion
 
         //#region Hooks for PublicTransportVehicleWorldInfoPanel
@@ -448,10 +564,12 @@ namespace Klyte.TransportLinesManager
             {
                 DisableHooks();
             }
-            TLMUtils.doLog("Loading LowBus Hooks!");
+            TLMUtils.doLog("Loading Low/High Bus Hooks!");
             AddRedirect(typeof(BusAI), typeof(TLMBusModifyRedirects).GetMethod("SetTransportLine", allFlags), ref redirects);
-            AddRedirect(typeof(TLMBusModifyRedirects), typeof(BusAI).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null), ref redirects); ;
+            AddRedirect(typeof(TLMBusModifyRedirects), typeof(BusAI).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null), ref redirects);
             AddRedirect(typeof(TLMBusModifyRedirects), typeof(BusAI).GetMethod("RemoveLine", allFlags), ref redirects);
+
+
         }
 
         public void DisableHooks()
