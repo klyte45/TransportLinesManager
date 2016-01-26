@@ -740,72 +740,146 @@ namespace Klyte.TransportLinesManager
                     stationsList.Add(j, new KeyValuePair<TLMCW.ConfigIndex, string>(subservice.toConfigIndex() != 0 ? subservice.toConfigIndex() : service.toConfigIndex(), value));
                 }
                 uint mostImportantCategoryInLine = stationsList.Select(x => (x.Value.Key).getPriority()).Min();
-                var mostImportantPlaces = stationsList.Where(x => x.Value.Key.getPriority() == mostImportantCategoryInLine).ToList();
-                var destiny = mostImportantPlaces[0];
+                if (mostImportantCategoryInLine < int.MaxValue)
+                {
+                    var mostImportantPlaceIdx = stationsList.Where(x => x.Value.Key.getPriority() == mostImportantCategoryInLine).Min(x => x.Key);
+                    var destiny = stationsList[mostImportantPlaceIdx];
 
-                var inverseIdxCenter = (destiny.Key + stopsCount / 2) % stopsCount;
-                int simmetryMargin = (int)Math.Ceiling(stopsCount * autoNameSimmetryImprecision);
-                int resultIdx = -1;
-                var destBuilding = getStationBuilding((uint)destiny.Key, ss);
-                BuildingManager bm = Singleton<BuildingManager>.instance;
-                for (int i = 0; i <= simmetryMargin; i++)
-                {
-                    int currentI = (inverseIdxCenter + i + stopsCount) % stopsCount;
-                    var iBuilding = getStationBuilding((uint)currentI, ss);
-                    if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority())
-                        && iBuilding != destBuilding
-                        && (!stationsList[currentI].Key.isPublicTransport() || bm.m_buildings.m_buffer[currentI].Info.GetAI().GetType() == typeof(TransportStationAI)))
+                    var inverseIdxCenter = (mostImportantPlaceIdx + stopsCount / 2) % stopsCount;
+                    int simmetryMargin = (int)Math.Ceiling(stopsCount * autoNameSimmetryImprecision);
+                    int resultIdx = -1;
+                    var destBuilding = getStationBuilding((uint)mostImportantPlaceIdx, ss);
+                    BuildingManager bm = Singleton<BuildingManager>.instance;
+                    for (int i = 0; i <= simmetryMargin; i++)
                     {
-                        resultIdx = currentI;
+                        int currentI = (inverseIdxCenter + i + stopsCount) % stopsCount;
+                        var iBuilding = getStationBuilding((uint)currentI, ss);
+                        if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority())
+                            && iBuilding != destBuilding
+                            && (!stationsList[currentI].Key.isPublicTransport() || bm.m_buildings.m_buffer[currentI].Info.GetAI().GetType() == typeof(TransportStationAI)))
+                        {
+                            resultIdx = currentI;
+                        }
+                        if (i == 0) continue;
+                        currentI = (inverseIdxCenter - i + stopsCount) % stopsCount;
+                        iBuilding = getStationBuilding((uint)currentI, ss);
+                        if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority())
+                            && iBuilding != destBuilding
+                            && (!stationsList[currentI].Key.isPublicTransport() || bm.m_buildings.m_buffer[currentI].Info.GetAI().GetType() == typeof(TransportStationAI)))
+                        {
+                            resultIdx = currentI;
+                        }
                     }
-                    if (i == 0) continue;
-                    currentI = (inverseIdxCenter - i + stopsCount) % stopsCount;
-                    iBuilding = getStationBuilding((uint)currentI, ss);
-                    if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority())
-                        && iBuilding != destBuilding
-                        && (!stationsList[currentI].Key.isPublicTransport() || bm.m_buildings.m_buffer[currentI].Info.GetAI().GetType() == typeof(TransportStationAI)))
+                    string originName = "";
+                    int districtOriginId = -1;
+                    if (resultIdx >= 0 && stationsList[resultIdx].Key.isLineNamingEnabled())
                     {
-                        resultIdx = currentI;
+                        var origin = stationsList[resultIdx];
+                        originName = origin.Key.getPrefixTextNaming().Trim() + (origin.Key.getPrefixTextNaming().Trim() != string.Empty ? " " : "") + origin.Value + " - ";
                     }
-                }
-                string originName = "";
-                int districtOriginId = -1;
-                if (resultIdx >= 0 && stationsList[resultIdx].Key.isLineNamingEnabled())
-                {
-                    var origin = stationsList[resultIdx];
-                    originName = origin.Key.getPrefixTextNaming().Trim() + (origin.Key.getPrefixTextNaming().Trim() != string.Empty ? " " : "") + origin.Value + " - ";
+                    else
+                    {
+                        NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
+                        Vector3 location = nn.m_position;
+                        districtOriginId = dm.GetDistrict(location);
+                        if (districtOriginId > 0)
+                        {
+                            District d = dm.m_districts.m_buffer[districtOriginId];
+                            originName = dm.GetDistrictName(districtOriginId) + " - ";
+                        }
+                        else {
+                            originName = "";
+                        }
+                    }
+                    if (!destiny.Key.isLineNamingEnabled())
+                    {
+                        NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
+                        Vector3 location = nn.m_position;
+                        int districtDestinyId = dm.GetDistrict(location);
+                        if (districtDestinyId == districtOriginId)
+                        {
+                            District d = dm.m_districts.m_buffer[districtDestinyId];
+                            return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtDestinyId);
+                        }
+                        else if (districtDestinyId > 0)
+                        {
+                            District d = dm.m_districts.m_buffer[districtDestinyId];
+                            return originName + dm.GetDistrictName(districtDestinyId);
+                        }
+                    }
+                    return originName + destiny.Key.getPrefixTextNaming().Trim() + (destiny.Key.getPrefixTextNaming().Trim() != string.Empty ? " " : "") + destiny.Value;
                 }
                 else
                 {
-                    NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
-                    Vector3 location = nn.m_position;
-                    districtOriginId = dm.GetDistrict(location);
-                    if (districtOriginId > 0)
-                    {
-                        District d = dm.m_districts.m_buffer[districtOriginId];
-                        originName = dm.GetDistrictName(districtOriginId) + " - ";
-                    }
-                    else {
-                        originName = "";
-                    }
+                    return autoNameByDistrict(t, stopsCount, out middle);
                 }
-                if (!destiny.Value.Key.isLineNamingEnabled())
+            }
+        }
+
+        private static string autoNameByDistrict(TransportLine t, int stopsCount, out int middle)
+        {
+
+            DistrictManager dm = Singleton<DistrictManager>.instance;
+            NetManager nm = Singleton<NetManager>.instance;
+            string result = "";
+            byte lastDistrict = 0;
+            Vector3 local;
+            byte district;
+            List<int> districtList = new List<int>();
+            for (int j = 0; j < stopsCount; j++)
+            {
+                local = nm.m_nodes.m_buffer[(int)t.GetStop(j)].m_bounds.center;
+                district = dm.GetDistrict(local);
+                if ((district != lastDistrict) && district != 0)
                 {
-                    NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
-                    Vector3 location = nn.m_position;
-                    int districtDestinyId = dm.GetDistrict(location);
-                    if (districtDestinyId == districtOriginId)
+                    districtList.Add(district);
+                }
+                if (district != 0)
+                {
+                    lastDistrict = district;
+                }
+            }
+
+            local = nm.m_nodes.m_buffer[(int)t.GetStop(0)].m_bounds.center;
+            district = dm.GetDistrict(local);
+            if ((district != lastDistrict) && district != 0)
+            {
+                districtList.Add(district);
+            }
+            middle = -1;
+            int[] districtArray = districtList.ToArray();
+            if (districtArray.Length == 1)
+            {
+                return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
+            }
+            else if (findSimetry(districtArray, out middle))
+            {
+                int firstIdx = middle;
+                int lastIdx = middle + districtArray.Length / 2;
+
+                result = dm.GetDistrictName(districtArray[firstIdx % districtArray.Length]) + " - " + dm.GetDistrictName(districtArray[lastIdx % districtArray.Length]);
+                if (lastIdx - firstIdx > 1)
+                {
+                    result += ", via ";
+                    for (int k = firstIdx + 1; k < lastIdx; k++)
                     {
-                        District d = dm.m_districts.m_buffer[districtDestinyId];
-                        return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtDestinyId);
-                    }
-                    else if (districtDestinyId > 0)
-                    {
-                        District d = dm.m_districts.m_buffer[districtDestinyId];
-                        return originName + dm.GetDistrictName(districtDestinyId);
+                        result += dm.GetDistrictName(districtArray[k % districtArray.Length]);
+                        if (k + 1 != lastIdx)
+                        {
+                            result += ", ";
+                        }
                     }
                 }
-                return originName + destiny.Value.Key.getPrefixTextNaming().Trim() + (destiny.Value.Key.getPrefixTextNaming().Trim() != string.Empty ? " " : "") + destiny.Value.Value;
+                return result;
+            }
+            else {
+                bool inicio = true;
+                foreach (int i in districtArray)
+                {
+                    result += (inicio ? "" : " - ") + dm.GetDistrictName(i);
+                    inicio = false;
+                }
+                return result;
             }
         }
 

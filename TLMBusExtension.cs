@@ -360,27 +360,36 @@ namespace Klyte.TransportLinesManager
 
                     if (transportType == TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG && isLowBusAvaliable())
                     {
-                        var randomInfo = getRandomLowBus();
-
-                        if (randomInfo != null)
+                        if (!lowBusAssetsList.Contains(data.Info.name))
                         {
-                            data.Info = randomInfo;
+                            var randomInfo = getRandomLowBus();
+
+                            if (randomInfo != null)
+                            {
+                                data.Info = randomInfo;
+                            }
                         }
                     }
                     else if (transportType == TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG && isHighBusAvaliable())
                     {
-                        var randomInfo = getRandomHighBus();
-                        if (randomInfo != null)
+                        if (!highBusAssetsList.Contains(data.Info.name))
                         {
-                            data.Info = randomInfo;
+                            var randomInfo = getRandomHighBus();
+                            if (randomInfo != null)
+                            {
+                                data.Info = randomInfo;
+                            }
                         }
                     }
                     else
                     {
-                        var randomInfo = getRandomBus();
-                        if (randomInfo != null)
+                        if (!busAssetsList.Contains(data.Info.name))
                         {
-                            data.Info = randomInfo;
+                            var randomInfo = getRandomBus();
+                            if (randomInfo != null)
+                            {
+                                data.Info = randomInfo;
+                            }
                         }
                     }
                 }

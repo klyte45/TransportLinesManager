@@ -209,8 +209,11 @@ namespace Klyte.TransportLinesManager
 
             foreach (var x in new UIButton[] { bulletTrainLeg, highBusLeg, lowBusLeg, metroLeg, trainLeg, tramLeg, busLeg })
             {
-                x.focusedColor = Color.white;
-                x.color = Color.white;
+                if (x != null)
+                {
+                    x.focusedColor = Color.white;
+                    x.color = Color.white;
+                }
             }
         }
 
