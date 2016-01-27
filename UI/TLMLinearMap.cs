@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
-namespace Klyte.TransportLinesManager
+namespace Klyte.TransportLinesManager.UI
 {
     public class TLMLinearMap
     {

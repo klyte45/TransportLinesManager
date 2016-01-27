@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using Klyte.TransportLinesManager.Extensors;
 
 [assembly: AssemblyVersion("4.2.0.*")]
 namespace Klyte.TransportLinesManager
@@ -975,13 +976,13 @@ namespace Klyte.TransportLinesManager
 
             if (TLMController.taTLM == null)
             {
-                TLMController.taTLM = CreateTextureAtlas("UI/Images/sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 32, 32, new string[] {
+                TLMController.taTLM = CreateTextureAtlas("UI.Images.sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 32, 32, new string[] {
                     "TransportLinesManagerIcon","TransportLinesManagerIconHovered"
                 });
             }
             if (TLMController.taLineNumber == null)
             {
-                TLMController.taLineNumber = CreateTextureAtlas("UI/Images/lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
+                TLMController.taLineNumber = CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
                    "LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","TramIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","TramImage","BulletTrainImage","LowBusImage","HighBusImage"
                 });
             }
@@ -1070,7 +1071,7 @@ namespace Klyte.TransportLinesManager
         {
             if (TLMController.instance != null)
             {
-                TLMController.instance.init();
+                TLMController.instance.update();
             }
         }
     }

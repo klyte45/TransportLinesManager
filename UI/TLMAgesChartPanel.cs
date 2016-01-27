@@ -1,7 +1,7 @@
 using ColossalFramework.UI;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager
+namespace Klyte.TransportLinesManager.UI
 {
     public class TLMAgesChartPanel
     {

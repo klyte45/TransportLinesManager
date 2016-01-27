@@ -1,12 +1,13 @@
 using ColossalFramework;
 using ColossalFramework.UI;
+using Klyte.TransportLinesManager.MapDrawer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
-namespace Klyte.TransportLinesManager
+namespace Klyte.TransportLinesManager.UI
 {
     public class TLMMainPanel
     {

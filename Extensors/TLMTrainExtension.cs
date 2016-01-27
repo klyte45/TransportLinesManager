@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Klyte.TransportLinesManager
+namespace Klyte.TransportLinesManager.Extensors
 {
     class TLMTrainModifyRedirects : Redirector
     {

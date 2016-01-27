@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
+using Klyte.TransportLinesManager.UI;
 
 namespace Klyte.TransportLinesManager
 {
@@ -83,7 +84,7 @@ namespace Klyte.TransportLinesManager
             initializedWIP = false;
         }
 
-        public void init()
+        public void update()
         {
             if (!GameObject.FindGameObjectWithTag("GameController") || ((GameObject.FindGameObjectWithTag("GameController").GetComponent<ToolController>()).m_mode & ItemClass.Availability.Game) == ItemClass.Availability.None)
             {

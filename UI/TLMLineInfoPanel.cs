@@ -6,8 +6,10 @@ using System;
 using System.Linq;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
+using Klyte.TransportLinesManager.Extensors;
+using System.Collections.Generic;
 
-namespace Klyte.TransportLinesManager
+namespace Klyte.TransportLinesManager.UI
 {
     public class TLMLineInfoPanel
     {
@@ -23,7 +25,7 @@ namespace Klyte.TransportLinesManager
         private CameraController m_CameraController;
         private string lastLineName;
         private UILabel lineLenghtLabel;
-        private UILabel lineStopsLabel;
+        private UILabel detailedStatsLabel;
         private UITextField lineNumberLabel;
         private UIDropDown linePrefixDropDown;
         private UILabel lineTransportIconTypeLabel;
@@ -37,7 +39,7 @@ namespace Klyte.TransportLinesManager
         private UILabel passageirosEturistasLabel;
         private UILabel veiculosLinhaLabel;
         private UILabel autoNameLabel;
-        //		private  UILabel custosLabel;
+        //private UILabel generalDebugLabel;
         private UIDropDown lineTime;
         private UITextField lineNameField;
         private UIColorField lineColorPicker;
@@ -332,42 +334,41 @@ namespace Klyte.TransportLinesManager
             lineLenghtLabel.relativePosition = new Vector3(10f, 60f);
             lineLenghtLabel.textAlignment = UIHorizontalAlignment.Left;
             lineLenghtLabel.text = "";
-            lineLenghtLabel.width = 250;
+            lineLenghtLabel.width = 550;
             lineLenghtLabel.height = 25;
-            lineLenghtLabel.prefix = "Line lenght: ";
-            lineLenghtLabel.suffix = "m";
+            lineLenghtLabel.prefix = "";
+            lineLenghtLabel.suffix = "";
             lineLenghtLabel.name = "LineLenghtLabel";
             lineLenghtLabel.textScale = 0.8f;
 
-            TLMUtils.createUIElement<UILabel>(ref lineStopsLabel, lineInfoPanel.transform);
-            lineStopsLabel.autoSize = false;
-            lineStopsLabel.relativePosition = new Vector3(10f, 75f);
-            lineStopsLabel.textAlignment = UIHorizontalAlignment.Left;
-            lineStopsLabel.suffix = " Stops";
-            lineStopsLabel.width = 250;
-            lineStopsLabel.height = 25;
-            lineStopsLabel.name = "LineStopsLabel";
-            lineStopsLabel.textScale = 0.8f;
+            TLMUtils.createUIElement<UILabel>(ref detailedStatsLabel, lineInfoPanel.transform);
+            detailedStatsLabel.autoSize = false;
+            detailedStatsLabel.relativePosition = new Vector3(10f, 75f);
+            detailedStatsLabel.textAlignment = UIHorizontalAlignment.Left;
+            detailedStatsLabel.width = 550;
+            detailedStatsLabel.height = 25;
+            detailedStatsLabel.name = "ExtraInfoLabel";
+            detailedStatsLabel.textScale = 0.8f;
+
+            TLMUtils.createUIElement<UILabel>(ref veiculosLinhaLabel, lineInfoPanel.transform);
+            veiculosLinhaLabel.autoSize = false;
+            veiculosLinhaLabel.relativePosition = new Vector3(10f, 90);
+            veiculosLinhaLabel.textAlignment = UIHorizontalAlignment.Left;
+            veiculosLinhaLabel.text = "";
+            veiculosLinhaLabel.width = 550;
+            veiculosLinhaLabel.height = 25;
+            veiculosLinhaLabel.name = "VehiclesLineLabel";
+            veiculosLinhaLabel.textScale = 0.8f;
 
             TLMUtils.createUIElement<UILabel>(ref viagensEvitadasLabel, lineInfoPanel.transform);
             viagensEvitadasLabel.autoSize = false;
-            viagensEvitadasLabel.relativePosition = new Vector3(10f, 90f);
+            viagensEvitadasLabel.relativePosition = new Vector3(10f, 105);
             viagensEvitadasLabel.textAlignment = UIHorizontalAlignment.Left;
             viagensEvitadasLabel.text = "";
             viagensEvitadasLabel.width = 250;
             viagensEvitadasLabel.height = 25;
             viagensEvitadasLabel.name = "AvoidedTravelsLabel";
             viagensEvitadasLabel.textScale = 0.8f;
-
-            TLMUtils.createUIElement<UILabel>(ref veiculosLinhaLabel, lineInfoPanel.transform);
-            veiculosLinhaLabel.autoSize = false;
-            veiculosLinhaLabel.relativePosition = new Vector3(10f, 105f);
-            veiculosLinhaLabel.textAlignment = UIHorizontalAlignment.Left;
-            veiculosLinhaLabel.text = "";
-            veiculosLinhaLabel.width = 250;
-            veiculosLinhaLabel.height = 25;
-            veiculosLinhaLabel.name = "VehiclesLineLabel";
-            veiculosLinhaLabel.textScale = 0.8f;
 
             TLMUtils.createUIElement<UILabel>(ref passageirosEturistasLabel, lineInfoPanel.transform);
             passageirosEturistasLabel.autoSize = false;
@@ -506,17 +507,18 @@ namespace Klyte.TransportLinesManager
                     }
                 }
             };
-            //			TLMUtils.createUIElement<UILabel> (ref custosLabel, lineInfoPanel.transform);
-            //			custosLabel.autoSize = false; 
-            //			custosLabel.relativePosition = new Vector3 (10f, 135f);			 
-            //			custosLabel.textAlignment = UIHorizontalAlignment.Left;
-            //			custosLabel.prefix = "Costs (Vehicles + Stops): ";
-            //			custosLabel.width = 350;
-            //			custosLabel.height = 100;
-            //			custosLabel.name = "CustosLabel";
-            //			custosLabel.textScale = 0.8f;
-            //			custosLabel.wordWrap = true;
-            //			custosLabel.clipChildren = false;
+            //TLMUtils.createUIElement<UILabel>(ref generalDebugLabel, lineInfoPanel.transform);
+            //generalDebugLabel.autoSize = false;
+            //generalDebugLabel.relativePosition = new Vector3(10f, 185f);
+            //generalDebugLabel.textAlignment = UIHorizontalAlignment.Left;
+            //generalDebugLabel.prefix = "DEBUG: DATA AVAIL = ";
+            //generalDebugLabel.width = 350;
+            //generalDebugLabel.height = 100;
+            //generalDebugLabel.name = "CustosLabel";
+            //generalDebugLabel.textScale = 0.8f;
+            //generalDebugLabel.wordWrap = true;
+            //generalDebugLabel.clipChildren = false;
+            //generalDebugLabel.enabled = false && TransportLinesManagerMod.debugMode.value;
 
             TLMUtils.createUIElement<UILabel>(ref autoNameLabel, lineInfoPanel.transform);
             autoNameLabel.autoSize = false;
@@ -662,10 +664,7 @@ namespace Klyte.TransportLinesManager
                 residentes,
                 turistas
             });
-            veiculosLinhaLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[]
-                                                                     {
-                veiculosLinha
-            });
+
             int viagensSalvas = 0;
             int coeficienteViagens = 0;
             if (residentes + turistas != 0)
@@ -701,10 +700,54 @@ namespace Klyte.TransportLinesManager
                     Bezier3 bez = m_controller.tm.m_lineCurves[(int)lineID][i];
                     totalSize += TLMUtils.calcBezierLenght(bez.a, bez.b, bez.c, bez.d, 0.1f);
                 }
-                lineLenghtLabel.text = string.Format("{0:N2}", totalSize);
+                lineLenghtLabel.text = string.Format("{0:N2}m Length - {1} Stops", totalSize, stopsCount);
                 lastStopsCount = stopsCount;
             }
-            lineStopsLabel.text = "" + stopsCount;
+
+            //estatisticas novas
+            var lineVehicleExtraStats = ExtraVehiclesStats.instance.getLineVehiclesData(lineID);
+            veiculosLinhaLabel.text = string.Format("{0} ({1} w/ measured lap)", LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha }), lineVehicleExtraStats.Count);
+            if (lineVehicleExtraStats.Count > 0)
+            {
+                List<float> fill = new List<float>();
+                List<float> stdDevs = new List<float>();
+                List<long> lapTimes = new List<long>();
+                foreach (var kv in lineVehicleExtraStats)
+                {
+                    fill.Add(kv.Value.avgFill);
+                    stdDevs.Add(kv.Value.stdDevFill);
+                    lapTimes.Add(kv.Value.framesTakenLap);
+                }
+
+
+
+                detailedStatsLabel.text = string.Format("Avg Fill: {0} ± {1} - Avg Lap Time: {2}", fill.Average().ToString("0.00%"), stdDevs.Average().ToString("0.00%"), ExtraVehiclesStats.ExtraData.framesToTimeTakenLapFormated((long)lapTimes.Average()));
+            }
+            else
+            {
+                detailedStatsLabel.text = "Waiting lap end...";
+            }
+
+            //generalDebugLabel.enabled = TransportLinesManagerMod.debugMode.value;
+            //if (TransportLinesManagerMod.debugMode.value)
+            //{
+            //    string debugTxt = "!";
+            //    var extraDatas = ExtraVehiclesStats.instance.getLineVehiclesData(lineID);
+            //    if (extraDatas.Count == 0)
+            //    {
+            //        debugTxt = "none";
+            //    }
+            //    else
+            //    {
+            //        foreach (var item in extraDatas)
+            //        {
+            //            debugTxt += string.Format("BUS ID {0} - {1} Fill, {2} per lap ||", item.Key, item.Value.avgFill.ToString("0.00%"), string.Format("{0}d {1}h{2}m", item.Value.timeTakenLap.TotalDays, item.Value.timeTakenLap.Hours, item.Value.timeTakenLap.Minutes));
+            //        }
+            //    }
+
+            //    generalDebugLabel.text = debugTxt;
+            //}
+
             //			//custos da linha
             //			float costVehicles = 0;
             //			ushort nextVehId = tl.m_vehicles;

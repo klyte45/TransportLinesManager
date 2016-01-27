@@ -1,7 +1,7 @@
 //using ColossalFramework.Globalization;
 using System;
 using System.Collections.Generic;
-namespace Klyte.TransportLinesManager
+namespace Klyte.TransportLinesManager.Extensors
 {
 	public class VehiclePrefabs
 	{
