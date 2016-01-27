@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
@@ -248,7 +249,7 @@ namespace Klyte.TransportLinesManager.Extensors
         public static VehicleInfo getRandomTram()
         {
             if (tramAssetsList.Count == 0) return null;
-            Randomizer r = new Randomizer(new Random().Next());
+            Randomizer r = new Randomizer(new System.Random().Next());
             return PrefabCollection<VehicleInfo>.FindLoaded(tramAssetsList[r.Int32(0, tramAssetsList.Count - 1)]);
         }
 
@@ -256,7 +257,7 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             if (trainsAssetsList.Count == 0) return null;
             var avaliableTrains = trainsAssetsList;
-            Randomizer r = new Randomizer(new Random().Next());
+            Randomizer r = new Randomizer(new System.Random().Next());
             return PrefabCollection<VehicleInfo>.FindLoaded(avaliableTrains[r.Int32(0, avaliableTrains.Count - 1)]);
         }
 
@@ -264,7 +265,7 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             if (bulletTrainAssetsList.Count == 0) return null;
             var avaliableTrains = bulletTrainAssetsList;
-            Randomizer r = new Randomizer(new Random().Next());
+            Randomizer r = new Randomizer(new System.Random().Next());
             return PrefabCollection<VehicleInfo>.FindLoaded(avaliableTrains[r.Int32(0, bulletTrainAssetsList.Count - 1)]);
         }
 
@@ -403,6 +404,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 data.m_flags |= Vehicle.Flags.GoingBack;
             }
+            TLMUtils.doLog("GOTO StartPathFindFake?");
             if (!this.StartPathFind(vehicleID, ref data))
             {
                 data.Unspawn(vehicleID);
@@ -418,7 +420,51 @@ namespace Klyte.TransportLinesManager.Extensors
                 data.m_transportLine = 0;
             }
         }
-        protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData) { TLMUtils.doLog("StartPathFind??? WHYYYYYYY!?"); return false; }
+
+        protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData)
+        {
+            TLMUtils.doLog("StartPathFind!!!!!??? AEHOOO!");
+            ExtraVehiclesStats.OnVehicleStop(vehicleID, vehicleData);
+            //ORIGINAL
+            if (vehicleData.m_leadingVehicle == 0)
+            {
+                Vector3 startPos;
+                if ((vehicleData.m_flags & Vehicle.Flags.Reversed) != Vehicle.Flags.None)
+                {
+                    ushort lastVehicle = vehicleData.GetLastVehicle(vehicleID);
+                    startPos = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)lastVehicle].m_targetPos0;
+                }
+                else
+                {
+                    startPos = vehicleData.m_targetPos0;
+                }
+                if ((vehicleData.m_flags & Vehicle.Flags.GoingBack) != Vehicle.Flags.None)
+                {
+                    if (vehicleData.m_sourceBuilding != 0)
+                    {
+                        Vector3 position = Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)vehicleData.m_sourceBuilding].m_position;
+                        return this.StartPathFind(vehicleID, ref vehicleData, startPos, position);
+                    }
+                }
+                else if ((vehicleData.m_flags & Vehicle.Flags.DummyTraffic) != Vehicle.Flags.None)
+                {
+                    if (vehicleData.m_targetBuilding != 0)
+                    {
+                        Vector3 position2 = Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)vehicleData.m_targetBuilding].m_position;
+                        return this.StartPathFind(vehicleID, ref vehicleData, vehicleData.m_targetPos0, position2);
+                    }
+                }
+                else if (vehicleData.m_targetBuilding != 0)
+                {
+                    Vector3 position3 = Singleton<NetManager>.instance.m_nodes.m_buffer[(int)vehicleData.m_targetBuilding].m_position;
+                    return this.StartPathFind(vehicleID, ref vehicleData, startPos, position3);
+                }
+            }
+            return false;
+        }
+
+        protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData, Vector3 v4, Vector3 v3) { TLMUtils.doLog("StartPathFind??? WHYYYYYYY!?"); return false; }
+
 
         public void OnCreated(ILoading loading)
         {
@@ -455,7 +501,8 @@ namespace Klyte.TransportLinesManager.Extensors
             }
             TLMUtils.doLog("Loading Tram Hooks!");
             AddRedirect(typeof(PassengerTrainAI), typeof(TLMTrainModifyRedirects).GetMethod("SetTransportLine", allFlags), ref redirects);
-            AddRedirect(typeof(TLMTrainModifyRedirects), typeof(PassengerTrainAI).GetMethod("StartPathFind", allFlags), ref redirects); ;
+            AddRedirect(typeof(PassengerTrainAI), typeof(TLMTrainModifyRedirects).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null), ref redirects);
+            AddRedirect(typeof(TLMTrainModifyRedirects), typeof(TrainAI).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3) }, null), ref redirects);
             AddRedirect(typeof(TLMTrainModifyRedirects), typeof(PassengerTrainAI).GetMethod("RemoveLine", allFlags), ref redirects);
         }
 

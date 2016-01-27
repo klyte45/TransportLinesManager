@@ -65,7 +65,7 @@ namespace Klyte.TransportLinesManager.Extensors
         /// </summary>
         /// <param name="site"></param>
         /// <param name="target"></param>
-        private static RedirectCallsState PatchJumpTo(IntPtr site, IntPtr target)
+        public static RedirectCallsState PatchJumpTo(IntPtr site, IntPtr target)
         {
             RedirectCallsState state = new RedirectCallsState();
 
@@ -79,6 +79,42 @@ namespace Klyte.TransportLinesManager.Extensors
                 state.d = *(sitePtr + 11);
                 state.e = *(sitePtr + 12);
                 state.f = *((ulong*)(sitePtr + 2));
+
+                *sitePtr = 0x49; // mov r11, target
+                *(sitePtr + 1) = 0xBB;
+                *((ulong*)(sitePtr + 2)) = (ulong)target.ToInt64();
+                *(sitePtr + 10) = 0x41; // jmp r11
+                *(sitePtr + 11) = 0xFF;
+                *(sitePtr + 12) = 0xE3;
+            }
+
+            return state;
+        }
+
+
+        /// <summary>
+        /// Primitive patching. Inserts a jump to 'target' at 'site'. Works even if both methods'
+        /// callers have already been compiled.
+        /// </summary>
+        /// <param name="site"></param>
+        /// <param name="target"></param>
+        /// <param name="newSite"></param>
+        public static RedirectCallsState PatchJumpTo(IntPtr site, IntPtr target, IntPtr newSite)
+        {
+            RedirectCallsState state = new RedirectCallsState();
+
+            // R11 is volatile.
+            unsafe
+            {
+                byte* sitePtr = (byte*)site.ToPointer();
+                state.a = *sitePtr;
+                state.b = *(sitePtr + 1);
+                state.c = *(sitePtr + 10);
+                state.d = *(sitePtr + 11);
+                state.e = *(sitePtr + 12);
+                state.f = *((ulong*)(sitePtr + 2));
+
+                RevertJumpTo(newSite, state);
 
                 *sitePtr = 0x49; // mov r11, target
                 *(sitePtr + 1) = 0xBB;
@@ -110,7 +146,7 @@ namespace Klyte.TransportLinesManager.Extensors
     {
 
         public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
-        
+
         public static void AddRedirect(Type type1, MethodInfo method, ref Dictionary<MethodInfo, RedirectCallsState> redirects, string type1MethodName = null)
         {
             var parameters = method.GetParameters();
@@ -121,12 +157,20 @@ namespace Klyte.TransportLinesManager.Extensors
             else
                 types = parameters.Select(p => p.ParameterType).ToArray();
 
-            var originalMethod = type1.GetMethod(type1MethodName != null? type1MethodName : method.Name, allFlags, null, types, null);
+            var originalMethod = type1.GetMethod(type1MethodName != null ? type1MethodName : method.Name, allFlags, null, types, null);
             if (originalMethod == null)
             {
                 TLMUtils.doLog("Cannot find " + method.Name);
             }
             redirects.Add(originalMethod, RedirectionHelper.RedirectCalls(originalMethod, method));
+        }
+
+        public static void AddRedirectWithNewLocationForOldMethod(MethodInfo originalMethod, MethodInfo hookedMethod, MethodInfo newLocationForOriginalMethod, ref Dictionary<MethodInfo, RedirectCallsState> redirects)
+        {
+            var originalMethodPointer = originalMethod.MethodHandle.GetFunctionPointer();
+            var hookedMethodPointer = hookedMethod.MethodHandle.GetFunctionPointer();
+            var newLocationForOriginalMethodPointer = newLocationForOriginalMethod.MethodHandle.GetFunctionPointer();
+            redirects.Add(originalMethod, RedirectionHelper.PatchJumpTo(originalMethodPointer, hookedMethodPointer, newLocationForOriginalMethodPointer));
         }
     }
 }

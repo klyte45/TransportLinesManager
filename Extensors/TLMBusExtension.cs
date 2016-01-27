@@ -422,33 +422,11 @@ namespace Klyte.TransportLinesManager.Extensors
             TLMUtils.doLog("TLMLowBusRedirects Criado!");
         }
 
+
+
         protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData)
         {
-            if (vehicleData.m_transportLine != 0)
-            {
-                TLMUtils.doLog("StartPathFindFake vId={0}; stopTarget = {1}; 1st stop = {2}", vehicleID, vehicleData.m_targetBuilding, Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine].m_stops);
-                if (vehicleData.m_targetBuilding == Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine].m_stops)
-                {
-                    ExtraVehiclesStats.instance.endLap(vehicleID, vehicleData.m_transportLine);
-                }
-                if (vehicleData.Info.GetAI().GetType() == typeof(BusAI))
-                {
-                    ushort firstVehicle = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)vehicleID].GetFirstVehicle(vehicleID);
-                    string text;
-                    int fill, cap;
-                    vehicleData.Info.m_vehicleAI.GetBufferStatus(firstVehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)firstVehicle], out text, out fill, out cap);
-                    float fillRate = (float)fill / cap;
-                    ExtraVehiclesStats.instance.addExtraStatsData(vehicleID, fillRate, vehicleData.m_transportLine);
-                }
-                else
-                {
-                    ExtraVehiclesStats.instance.removeExtraStatsData(vehicleID);
-                }
-            }
-            else
-            {
-                ExtraVehiclesStats.instance.removeExtraStatsData(vehicleID);
-            }
+            ExtraVehiclesStats.OnVehicleStop(vehicleID, vehicleData);
             //ORIGINAL
             if ((vehicleData.m_flags & Vehicle.Flags.GoingBack) != Vehicle.Flags.None)
             {
@@ -464,6 +442,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 return this.StartPathFind(vehicleID, ref vehicleData, vehicleData.m_targetPos3, position);
             }
             return false;
+
         }
 
         //info.m_vehicleAI.GetBufferStatus(firstVehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)firstVehicle], out text, out fill, out cap);
