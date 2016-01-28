@@ -640,7 +640,7 @@ namespace Klyte.TransportLinesManager.UI
             int adultos = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_adultPassengers.m_averageCount;
             int idosos = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_seniorPassengers.m_averageCount;
             int motoristas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_carOwningPassengers.m_averageCount;
-            int veiculosLinha = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].CountVehicles(lineID);
+            int veiculosLinha = TLMLineUtils. GetVehiclesCount(lineID);
             int porcCriancas = (criancas * 100 / residentesPorc);
             int porcAdolescentes = (adolescentes * 100 / residentesPorc);
             int porcJovens = (jovens * 100 / residentesPorc);
@@ -691,15 +691,10 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             //lines info
-            int stopsCount = tl.CountStops(lineID);
+            int stopsCount = TLMLineUtils.GetStopsCount(lineID);
             if (lastStopsCount != stopsCount)
             {
-                float totalSize = 0f;
-                for (int i = 0; i < m_controller.tm.m_lineCurves[(int)lineID].Length; i++)
-                {
-                    Bezier3 bez = m_controller.tm.m_lineCurves[(int)lineID][i];
-                    totalSize += TLMUtils.calcBezierLenght(bez.a, bez.b, bez.c, bez.d, 0.1f);
-                }
+                float totalSize = TLMLineUtils.GetLineLength(lineID);
                 lineLenghtLabel.text = string.Format("{0:N2}m Length - {1} Stops", totalSize, stopsCount);
                 lastStopsCount = stopsCount;
             }
@@ -718,9 +713,6 @@ namespace Klyte.TransportLinesManager.UI
                     stdDevs.Add(kv.Value.stdDevFill);
                     lapTimes.Add(kv.Value.framesTakenLap);
                 }
-
-
-
                 detailedStatsLabel.text = string.Format("Avg Fill: {0} ± {1} - Avg Lap Time: {2}", fill.Average().ToString("0.00%"), stdDevs.Average().ToString("0.00%"), ExtraVehiclesStats.ExtraData.framesToTimeTakenLapFormated((long)lapTimes.Average()));
             }
             else
@@ -763,6 +755,8 @@ namespace Klyte.TransportLinesManager.UI
             //			custosLabel.text = String.Format (costsFormat, costVehicles, costStops, costVehicles + costStops);
 
         }
+
+
 
         public void closeLineInfo(UIComponent component, UIMouseEventParameter eventParam)
         {

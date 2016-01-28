@@ -386,6 +386,5 @@ namespace Klyte.TransportLinesManager.UI
         }
 
 
-
     }
 }

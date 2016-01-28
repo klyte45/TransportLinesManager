@@ -1,5 +1,6 @@
 using ColossalFramework;
 using ColossalFramework.UI;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.MapDrawer;
 using System;
 using System.Collections.Generic;
@@ -560,29 +561,32 @@ namespace Klyte.TransportLinesManager.UI
                 lineName.relativePosition = new Vector3(55f, 10f);
                 lineName.text = m_controller.tm.GetLineName(lineId); ;
                 lineName.tooltip = lineName.text;
-                lineName.textScale = 0.6f;
+                lineName.textScale = 0.7f;
+                lineName.name = "LineName";
 
                 UILabel lineExtraInfo = null;
                 TLMUtils.createUIElement<UILabel>(ref lineExtraInfo, container.transform);
                 lineExtraInfo.relativePosition = new Vector3(55f, 25f);
                 uint totalPassengers = t.m_passengers.m_residentPassengers.m_averageCount + t.m_passengers.m_touristPassengers.m_averageCount;
-                lineExtraInfo.text = string.Format("Passengers (R + T = Total): {0} + {1} = {2}", t.m_passengers.m_residentPassengers.m_averageCount, t.m_passengers.m_touristPassengers.m_averageCount, totalPassengers);
+                lineExtraInfo.text = "";
                 lineExtraInfo.tooltip = lineExtraInfo.text;
-                lineExtraInfo.textScale = 0.6f;
+                lineExtraInfo.textScale = 0.7f;
+                lineExtraInfo.name = "LineExtraInfo1";
 
                 UILabel lineExtraInfo2 = null;
                 TLMUtils.createUIElement<UILabel>(ref lineExtraInfo2, container.transform);
                 lineExtraInfo2.relativePosition = new Vector3(55f, 40f);
                 float vehicles = t.CountVehicles(lineId);
-                lineExtraInfo2.text = string.Format("{0} Stops - {1} Vehicles - {2} Passengers/Vehicle (avg)", t.CountStops(lineId), vehicles, (vehicles>0?totalPassengers / vehicles:0).ToString("0.00") );
+                lineExtraInfo2.text = "";
                 lineExtraInfo2.tooltip = lineExtraInfo2.text;
-                lineExtraInfo2.textScale = 0.6f;
+                lineExtraInfo2.textScale = 0.7f;
+                lineExtraInfo2.name = "LineExtraInfo2";
 
 
                 UIButton buttonCycleTime = null;
                 TLMUtils.createUIElement<UIButton>(ref buttonCycleTime, container.transform);
                 buttonCycleTime.pivot = UIPivotPoint.TopRight;
-                buttonCycleTime.relativePosition = new Vector3(container.width-10f, 5f);
+                buttonCycleTime.relativePosition = new Vector3(container.width - 10f, 5f);
                 buttonCycleTime.text = "Cycle Day/Night";
                 buttonCycleTime.textScale = 0.6f;
                 buttonCycleTime.width = 100;
@@ -821,6 +825,47 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 Show();
             };
+        }
+
+
+
+        internal void updateBidings()
+        {
+            if (filteredLinesListPanel.isVisible)
+            {
+                foreach (var lineGO in linesGameObjects)
+                {
+                    ushort lineId = lineGO.GetComponentInChildren<UIButtonLineInfo>().lineID;
+                    float lineLength = TLMLineUtils.GetLineLength(lineId);
+                    int stopsCount = TLMLineUtils.GetStopsCount(lineId);
+                    var vehicles = TLMLineUtils.GetVehiclesCount(lineId);
+                    TransportLine t = m_controller.tm.m_lines.m_buffer[lineId];
+
+                    string line1 = string.Format("{0} Stp | {1}m Len | {2} Res | {3} Tou", stopsCount, lineLength.ToString("#,##0.0"), t.m_passengers.m_residentPassengers.m_averageCount.ToString("#,##0"), t.m_passengers.m_touristPassengers.m_averageCount.ToString("#,##0"));
+                    string line2 = string.Format("{0} Vehicles | Waiting lap end for more stats...", vehicles);
+                    var stats = ExtraVehiclesStats.instance.getLineVehiclesData(lineId);
+                    if (stats.Count > 0)
+                    {
+                        List<float> fill = new List<float>();
+                        List<float> stdDevs = new List<float>();
+                        List<long> lapTimes = new List<long>();
+                        foreach (var kv in stats)
+                        {
+                            fill.Add(kv.Value.avgFill);
+                            stdDevs.Add(kv.Value.stdDevFill);
+                            lapTimes.Add(kv.Value.framesTakenLap);
+                        }
+                        line2 = string.Format("Avg Fill: {0} ± {1} | Avg Lap: {2} | {3}/{4} Veh", fill.Average().ToString("0.0%"), stdDevs.Average().ToString("0.0%"), ExtraVehiclesStats.ExtraData.framesToDaysTakenLapFormated((long)lapTimes.Average()), stats.Count, vehicles);
+                    }
+                    var lineExtraInfo1 = lineGO.transform.Find("LineExtraInfo1").GetComponent<UILabel>();
+                    var lineExtraInfo2 = lineGO.transform.Find("LineExtraInfo2").GetComponent<UILabel>();
+
+                    lineExtraInfo1.text = line1;
+                    lineExtraInfo2.text = line2;
+                    lineExtraInfo1.tooltip = line1;
+                    lineExtraInfo2.tooltip = line2;
+                }
+            }
         }
 
         private enum CurrentFilterSelected

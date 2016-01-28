@@ -1,4 +1,5 @@
 using ColossalFramework;
+using ColossalFramework.Math;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using System;
@@ -39,6 +40,26 @@ namespace Klyte.TransportLinesManager
             string nil;
             getLineNamingParameters(lineIdx, out prefix, out s, out suffix, out zeros, out invertPrefixSuffix, out nil);
 
+        }
+        public static int GetStopsCount(ushort lineID)
+        {
+            return Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].CountStops(lineID);
+        }
+
+        public static int GetVehiclesCount(ushort lineID)
+        {
+            return Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].CountVehicles(lineID);
+        }
+
+        public static float GetLineLength(ushort lineID)
+        {
+            float totalSize = 0f;
+            for (int i = 0; i < Singleton<TransportManager>.instance.m_lineCurves[(int)lineID].Length; i++)
+            {
+                Bezier3 bez = Singleton<TransportManager>.instance.m_lineCurves[(int)lineID][i];
+                totalSize += TLMUtils.calcBezierLenght(bez.a, bez.b, bez.c, bez.d, 0.1f);
+            }
+            return totalSize;
         }
 
         public static ItemClass.SubService getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out bool zeros, out bool invertPrefixSuffix, out string icon)

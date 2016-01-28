@@ -142,6 +142,10 @@ namespace Klyte.TransportLinesManager
                     im.SetCurrentMode(InfoManager.InfoMode.Transport, InfoManager.SubInfoMode.NormalTransport);
                 }
             }
+            if (m_mainPanel.isVisible)
+            {
+                m_mainPanel.updateBidings();
+            }
             if (m_lineInfoPanel.isVisible)
             {
                 m_lineInfoPanel.updateBidings();
