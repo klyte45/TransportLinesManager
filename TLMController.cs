@@ -428,7 +428,7 @@ namespace Klyte.TransportLinesManager
                             GameObject.Destroy(t.gameObject);
                         }
                     }
-                    Dictionary<string, ushort> lines = TLMLineUtils.IndexLines(nearLines);
+                    Dictionary<string, ushort> lines = TLMLineUtils.SortLines(nearLines);
                     TLMLineUtils.PrintIntersections("", "", "", linesPanelObj.GetComponent<UIPanel>(), lines, scale, perLine);
                 }
                 linesPanelObj.GetComponent<UIPanel>().isVisible = showPanel;

@@ -23,6 +23,17 @@ namespace Klyte.TransportLinesManager.UI
         private Separador sep;
         private bool zerosEsquerda;
         private bool invertPrefixSuffix;
+        private UIButton infoToggle;
+        private Dictionary<ushort, UILabel> residentCounters = new Dictionary<ushort, UILabel>();
+        private Dictionary<ushort, UILabel> touristCounters = new Dictionary<ushort, UILabel>();
+        private Dictionary<ushort, UILabel> lineVehicles = new Dictionary<ushort, UILabel>();
+        private Dictionary<ushort, float> stationOffsetX = new Dictionary<ushort, float>();
+        private Dictionary<ushort, int> vehiclesOnStation = new Dictionary<ushort, int>();
+        private const float vehicleYoffsetIncrement = -20f;
+        private const float vehicleYbaseOffset = -55f;
+
+        private bool showIntersections = true;
+        private bool showExtraStopInfo = false;
 
         public bool isVisible
         {
@@ -82,12 +93,14 @@ namespace Klyte.TransportLinesManager.UI
 
 
 
-        public void updateLine()
+        public void redrawLine()
         {
             ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
             TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
             int stopsCount = t.CountStops(lineID);
-            setLinearMapColor(lineInfoPanel.controller.tm.GetLineColor(lineID));
+            int vehicleCount = t.CountVehicles(lineID);
+            Color lineColor = lineInfoPanel.controller.tm.GetLineColor(lineID);
+            setLinearMapColor(lineColor);
             clearStations();
             String bgSprite;
             ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
@@ -104,38 +117,152 @@ namespace Klyte.TransportLinesManager.UI
             setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, zerosEsquerda, invertPrefixSuffix);
 
             m_autoName = TLMUtils.calculateAutoName(lineID);
-            ushort[] stopBuildings = new ushort[stopsCount];
-            MultiMap<ushort, Vector3> bufferToDraw = new MultiMap<ushort, Vector3>();
-            int perfectSimetricLineStationsCount = (stopsCount + 2) / 2;
             string stationName = null;
             Vector3 local;
             string airport, port, taxi;
             int middle;
-            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && TLMUtils.CalculateSimmetry(ss, stopsCount, t, out middle))
+            bool simmetric = TLMUtils.CalculateSimmetry(ss, stopsCount, t, out middle);
+            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && simmetric && !showExtraStopInfo)
             {
                 lineStationsPanel.width = 5;
-                for (int j = middle; j <= middle + stopsCount/2; j++)
+                for (int j = middle; j <= middle + stopsCount / 2; j++)
                 {
                     List<ushort> intersections;
-                    local = getStation(t.GetStop(j), ss, out stationName, out intersections, out airport, out port, out taxi);
-                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi) + (j == middle + stopsCount / 2 ? 5 : 0);
+                    ushort stationId = t.GetStop(j);
+                    local = getStation(stationId, ss, out stationName, out intersections, out airport, out port, out taxi);
+                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi, stationId) + (j == middle + stopsCount / 2 ? 5 : 0);
                 }
             }
             else {
                 lineStationsPanel.width = 5;
-                for (int j = 0; j < stopsCount; j++)
+                int minI = 0, maxI = stopsCount;
+                if (simmetric)
                 {
+                    minI = middle;
+                    maxI = stopsCount + middle;
+                }
+                if (showExtraStopInfo)
+                {
+                    int j = (minI - 1 + stopsCount) % stopsCount;
+                    ushort stationId = t.GetStop(j);
                     List<ushort> intersections;
-                    local = getStation(t.GetStop(j), ss, out stationName, out intersections, out airport, out port, out taxi);
-                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi) + (j == stopsCount-1?5:0);
+                    local = getStation(stationId, ss, out stationName, out intersections, out airport, out port, out taxi);
+                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi, stationId, true);
+                }
+                for (int i = minI; i < maxI; i++)
+                {
+                    int j = i % stopsCount;
+                    List<ushort> intersections;
+                    ushort stationId = t.GetStop(j);
+                    local = getStation(stationId, ss, out stationName, out intersections, out airport, out port, out taxi);
+                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi, stationId) + (j == stopsCount - 1 ? 5 : 0);
+                }
+            }
+            if (showExtraStopInfo)
+            {
+                vehiclesOnStation.Clear();
+                for (int v = 0; v < vehicleCount; v++)
+                {
+                    ushort vehicleId = t.GetVehicle(v);
+
+                    AddVehicleToLinearMap(lineColor, vehicleId);
                 }
             }
 
         }
 
+        private void AddVehicleToLinearMap(Color lineColor, ushort vehicleId)
+        {
+
+            UILabel vehicleLabel = null;
+            int fill, cap;
+            TLMLineUtils.GetVehicleCapacityAndFill(vehicleId, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId], out fill, out cap);
+
+            TLMUtils.createUIElement<UILabel>(ref vehicleLabel, lineStationsPanel.transform);
+            vehicleLabel.autoSize = false;
+            vehicleLabel.text = string.Format("{0}/{1}", fill, cap);
+            vehicleLabel.useOutline = true;
+            vehicleLabel.width = 40;
+            vehicleLabel.height = 33;
+            vehicleLabel.pivot = UIPivotPoint.TopCenter;
+            vehicleLabel.verticalAlignment = UIVerticalAlignment.Middle;
+            vehicleLabel.atlas = TLMController.taLineNumber;
+
+            vehicleLabel.padding = new RectOffset(0, 0, 2, 0);
+            vehicleLabel.textScale = 0.6f;
+            vehicleLabel.backgroundSprite = "VehicleLinearMap";
+            vehicleLabel.color = lineColor;
+            vehicleLabel.textAlignment = UIHorizontalAlignment.Center;
+            vehicleLabel.tooltip = Singleton<VehicleManager>.instance.GetVehicleName(vehicleId);
+
+            vehicleLabel.eventClick += (x, y) =>
+            {
+                InstanceID id = default(InstanceID);
+                id.Vehicle = vehicleId;
+                Camera.main.GetComponent<CameraController>().SetTarget(id, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].GetLastFramePosition(), true);
+            };
+            updateVehiclePosition(vehicleId, vehicleLabel);
+
+            lineVehicles.Add(vehicleId, vehicleLabel);
+        }
+
+        private void updateVehiclePosition(ushort vehicleId, UILabel vehicleLabel)
+        {
+            try
+            {
+                ushort stopId = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding;
+                var labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
+                float destX = stationOffsetX[stopId] - labelStation.width / 4 * 3;
+                if (Singleton<TransportManager>.instance.m_lines.m_buffer[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_transportLine].GetStop(0) == stopId && (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != Vehicle.Flags.None)
+                {
+                    destX = stationOffsetX[TransportLine.GetPrevStop(stopId)] + labelStation.width / 4;
+                }
+                float yOffset = vehicleYbaseOffset;
+                int busesOnStation = vehiclesOnStation.ContainsKey(stopId) ? vehiclesOnStation[stopId] : 0;
+                if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != Vehicle.Flags.None)
+                {
+                    destX -= labelStation.width / 2;
+                    ushort prevStop = TransportLine.GetPrevStop(stopId);
+                    busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(prevStop) ? vehiclesOnStation[prevStop] : 0);
+                    vehiclesOnStation[prevStop] = busesOnStation + 1;
+                }
+                else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Arriving) != Vehicle.Flags.None)
+                {
+                    destX += labelStation.width / 4;
+                    ushort nextStop = TransportLine.GetNextStop(stopId);
+                    busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(nextStop) ? vehiclesOnStation[nextStop] : 0);
+                    vehiclesOnStation[nextStop] = busesOnStation + 1;
+                }
+                else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Leaving) != Vehicle.Flags.None)
+                {
+                    destX -= labelStation.width / 4;
+                    ushort prevStop = TransportLine.GetPrevStop(stopId);
+                    busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(prevStop) ? vehiclesOnStation[prevStop] : 0);
+                    vehiclesOnStation[prevStop] = busesOnStation + 1;
+                }
+                else
+                {
+                    ushort prevStop = TransportLine.GetPrevStop(stopId);
+                    busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(prevStop) ? vehiclesOnStation[prevStop] : 0);
+                }
+                yOffset = vehicleYbaseOffset + busesOnStation * vehicleYoffsetIncrement;
+                vehiclesOnStation[stopId] = busesOnStation + 1;
+                vehicleLabel.position = new Vector3(destX, yOffset);
+            }
+            catch (Exception e)
+            {
+                TLMUtils.doLog("ERROR UPDATING VEHICLE!!!");
+                redrawLine();
+            }
+        }
+
         private void clearStations()
         {
             UnityEngine.Object.Destroy(lineStationsPanel.gameObject);
+            residentCounters.Clear();
+            touristCounters.Clear();
+            lineVehicles.Clear();
+            stationOffsetX.Clear();
             createLineStationsPanel();
         }
 
@@ -168,8 +295,6 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineNumber.textAlignment = UIHorizontalAlignment.Center;
             linearMapLineNumber.verticalAlignment = UIVerticalAlignment.Middle;
             linearMapLineNumber.name = "LineNumber";
-
-
             linearMapLineNumber.width = 50;
             linearMapLineNumber.height = 50;
             linearMapLineNumber.relativePosition = new Vector3(-0.5f, 0.5f);
@@ -188,7 +313,76 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineTime.atlas = TLMController.taLineNumber;
             TLMUtils.createDragHandle(linearMapLineTime, mainContainer);
 
+            TLMUtils.createUIElement<UIButton>(ref infoToggle, mainContainer.transform);
+            TLMUtils.initButton(infoToggle, true, "ButtonMenu");
+            infoToggle.relativePosition = new Vector3(0f, 60f);
+            infoToggle.width = 50;
+            infoToggle.height = 70;
+            infoToggle.wordWrap = true;
+            infoToggle.text = "Show Extra Info";
+            infoToggle.textScale = 0.8f;
+            infoToggle.eventClick += (x, y) =>
+            {
+                showIntersections = !showIntersections;
+                showExtraStopInfo = !showIntersections;
+                if (showIntersections)
+                {
+                    infoToggle.text = "Show Extra Info";
+                }
+                else
+                {
+                    infoToggle.text = "Show Line Integ.";
+                }
+                redrawLine();
+            };
+
             createLineStationsPanel();
+        }
+
+        public void updateBidings()
+        {
+            if (showExtraStopInfo)
+            {
+                foreach (var resLabel in residentCounters)
+                {
+                    int residents, tourists;
+                    TLMLineUtils.GetQuantityPassengerWaiting(resLabel.Key, out residents, out tourists);
+                    resLabel.Value.text = residents.ToString();
+                    touristCounters[resLabel.Key].text = tourists.ToString();
+                }
+                ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
+                TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
+                Color lineColor = lineInfoPanel.controller.tm.GetLineColor(lineID);
+                int vehicleCount = t.CountVehicles(lineID);
+                List<ushort> oldItems = lineVehicles.Keys.ToList();
+                vehiclesOnStation.Clear();
+                for (int v = 0; v < vehicleCount; v++)
+                {
+                    ushort vehicleId = t.GetVehicle(v);
+                    UILabel vehicleLabel = null;
+
+                    if (oldItems.Contains(vehicleId))
+                    {
+                        vehicleLabel = lineVehicles[vehicleId];
+                        int fill, cap;
+                        TLMLineUtils.GetVehicleCapacityAndFill(vehicleId, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId], out fill, out cap);
+                        vehicleLabel.text = string.Format("{0}/{1}", fill, cap);
+                        var labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
+                        updateVehiclePosition(vehicleId, vehicleLabel);
+                        oldItems.Remove(vehicleId);
+                    }
+                    else
+                    {
+                        AddVehicleToLinearMap(lineColor, vehicleId);
+                    }
+
+                }
+                foreach (ushort dead in oldItems)
+                {
+                    GameObject.Destroy(lineVehicles[dead].gameObject);
+                    lineVehicles.Remove(dead);
+                }
+            }
         }
 
         private void createLineStationsPanel()
@@ -207,14 +401,11 @@ namespace Klyte.TransportLinesManager.UI
             lineStationsPanel.color = lineInfoPanel.controller.tm.GetLineColor(lineInfoPanel.lineIdSelecionado.TransportLine);
         }
 
-        private float addStationToLinearMap(string stationName, Vector3 location, float offsetX, List<ushort> intersections, string airport, string port, string taxi)//, out float intersectionPanelHeight)
+        private float addStationToLinearMap(string stationName, Vector3 location, float offsetX, List<ushort> intersections, string airport, string port, string taxi, ushort stationNodeId, bool simple = false)//, out float intersectionPanelHeight)
         {
             ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
             TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
             TransportManager tm = Singleton<TransportManager>.instance;
-
-
-
 
             UIButton stationButton = null;
             TLMUtils.createUIElement<UIButton>(ref stationButton, lineStationsPanel.transform);
@@ -245,32 +436,99 @@ namespace Klyte.TransportLinesManager.UI
                 lineInfoPanel.cameraController.ClearTarget();
 
             };
-
-            var otherLinesIntersections = TLMLineUtils.IndexLines(intersections, t);
-
-            int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (port != string.Empty ? 1 : 0);
-            if (intersectionCount > 0)
+            if (!simple)
             {
-                UIPanel intersectionsPanel = null;
-                TLMUtils.createUIElement<UIPanel>(ref intersectionsPanel, stationButton.transform);
-                intersectionsPanel.autoSize = false;
-                intersectionsPanel.autoLayout = false;
-                intersectionsPanel.autoLayoutStart = LayoutStart.TopLeft;
-                intersectionsPanel.autoLayoutDirection = LayoutDirection.Horizontal;
-                intersectionsPanel.relativePosition = new Vector3(-20, 10);
-                intersectionsPanel.wrapLayout = false;
-                intersectionsPanel.autoFitChildrenVertically = true;
+                stationOffsetX.Add(stationNodeId, offsetX);
+                if (showIntersections)
+                {
+                    var otherLinesIntersections = TLMLineUtils.SortLines(intersections, t);
 
-                TLMLineUtils.PrintIntersections(airport, port, taxi, intersectionsPanel, otherLinesIntersections);
+                    int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (port != string.Empty ? 1 : 0);
+                    if (intersectionCount > 0)
+                    {
+                        UIPanel intersectionsPanel = null;
+                        TLMUtils.createUIElement<UIPanel>(ref intersectionsPanel, stationButton.transform);
+                        intersectionsPanel.autoSize = false;
+                        intersectionsPanel.autoLayout = false;
+                        intersectionsPanel.autoLayoutStart = LayoutStart.TopLeft;
+                        intersectionsPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+                        intersectionsPanel.relativePosition = new Vector3(-20, 10);
+                        intersectionsPanel.wrapLayout = false;
+                        intersectionsPanel.autoFitChildrenVertically = true;
 
-                intersectionsPanel.autoLayout = true;
-                intersectionsPanel.wrapLayout = true;
-                intersectionsPanel.width = 55;
-                //				
-                return 42f;
+                        TLMLineUtils.PrintIntersections(airport, port, taxi, intersectionsPanel, otherLinesIntersections);
+
+                        intersectionsPanel.autoLayout = true;
+                        intersectionsPanel.wrapLayout = true;
+                        intersectionsPanel.width = 55;
+                        //				
+                        return 42f;
+                    }
+                    else {
+                        return 25f;
+                    }
+                }
+                else if (showExtraStopInfo)
+                {
+                    float normalWidth = 35f;
+
+                    NetNode stopNode = Singleton<NetManager>.instance.m_nodes.m_buffer[(int)stationNodeId];
+
+                    int residents, tourists;
+                    TLMLineUtils.GetQuantityPassengerWaiting(stationNodeId, out residents, out tourists);
+
+                    UIPanel stationInfoStatsPanel = null;
+                    TLMUtils.createUIElement<UIPanel>(ref stationInfoStatsPanel, stationButton.transform);
+                    stationInfoStatsPanel.autoSize = false;
+                    stationInfoStatsPanel.autoLayout = false;
+                    stationInfoStatsPanel.autoLayoutStart = LayoutStart.TopLeft;
+                    stationInfoStatsPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+                    stationInfoStatsPanel.relativePosition = new Vector3(-20, 10);
+                    stationInfoStatsPanel.autoLayout = true;
+                    stationInfoStatsPanel.wrapLayout = true;
+                    stationInfoStatsPanel.width = normalWidth;
+
+                    UILabel residentsWaiting = null;
+                    TLMUtils.createUIElement<UILabel>(ref residentsWaiting, stationInfoStatsPanel.transform);
+                    residentsWaiting.autoSize = false;
+                    residentsWaiting.useOutline = true;
+                    residentsWaiting.text = residents.ToString();
+                    residentsWaiting.suffix = "R";
+                    residentsWaiting.backgroundSprite = "EmptySprite";
+                    residentsWaiting.color = new Color32(0x12, 0x68, 0x34, 255);
+                    residentsWaiting.width = normalWidth;
+                    residentsWaiting.padding = new RectOffset(0, 0, 4, 2);
+                    residentsWaiting.height = 20;
+                    residentsWaiting.textScale = 0.7f;
+                    residentsWaiting.textAlignment = UIHorizontalAlignment.Center;
+                    residentCounters[stationNodeId] = residentsWaiting;
+
+                    UILabel touristsWaiting = null;
+                    TLMUtils.createUIElement<UILabel>(ref touristsWaiting, stationInfoStatsPanel.transform);
+                    touristsWaiting.autoSize = false;
+                    touristsWaiting.text = tourists.ToString();
+                    touristsWaiting.suffix = "T";
+                    touristsWaiting.useOutline = true;
+                    touristsWaiting.text = tourists.ToString();
+                    touristsWaiting.width = normalWidth;
+                    touristsWaiting.height = 20;
+                    touristsWaiting.padding = new RectOffset(0, 0, 4, 2);
+                    touristsWaiting.textScale = 0.7f;
+                    touristsWaiting.backgroundSprite = "EmptySprite";
+                    touristsWaiting.color = new Color32(0x1f, 0x25, 0x68, 255);
+                    touristsWaiting.textAlignment = UIHorizontalAlignment.Center;
+                    touristCounters[stationNodeId] = touristsWaiting;
+                    //				
+                    return normalWidth;
+                }
+                else
+                {
+                    return 25f;
+                }
             }
-            else {
-                return 25f;
+            else
+            {
+                return 30f;
             }
 
         }

@@ -39,10 +39,8 @@ namespace Klyte.TransportLinesManager.Extensors
                 {
                     ExtraVehiclesStats.instance.endLap(vehicleID, vehicleData.m_transportLine);
                 }
-                ushort firstVehicle = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)vehicleID].GetFirstVehicle(vehicleID);
-                string text;
                 int fill, cap;
-                vehicleData.Info.m_vehicleAI.GetBufferStatus(firstVehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)firstVehicle], out text, out fill, out cap);
+                vehicleData = TLMLineUtils. GetVehicleCapacityAndFill(vehicleID, vehicleData, out fill, out cap);
                 float fillRate = (float)fill / cap;
                 ExtraVehiclesStats.instance.addExtraStatsData(vehicleID, fillRate, vehicleData.m_transportLine);
 
@@ -53,6 +51,8 @@ namespace Klyte.TransportLinesManager.Extensors
             }
 
         }
+
+        
 
         public void addExtraStatsData(ushort vehicleId, float fillRate, ushort line)
         {

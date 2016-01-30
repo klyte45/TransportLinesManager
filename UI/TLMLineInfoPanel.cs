@@ -640,7 +640,7 @@ namespace Klyte.TransportLinesManager.UI
             int adultos = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_adultPassengers.m_averageCount;
             int idosos = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_seniorPassengers.m_averageCount;
             int motoristas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_passengers.m_carOwningPassengers.m_averageCount;
-            int veiculosLinha = TLMLineUtils. GetVehiclesCount(lineID);
+            int veiculosLinha = TLMLineUtils.GetVehiclesCount(lineID);
             int porcCriancas = (criancas * 100 / residentesPorc);
             int porcAdolescentes = (adolescentes * 100 / residentesPorc);
             int porcJovens = (jovens * 100 / residentesPorc);
@@ -686,9 +686,14 @@ namespace Klyte.TransportLinesManager.UI
 
             if (daytimeChange != null && daytimeChange.completedOrFailed)
             {
-                linearMap.updateLine();
+                linearMap.redrawLine();
                 daytimeChange = null;
             }
+            else
+            {
+                linearMap.updateBidings();
+            }
+
 
             //lines info
             int stopsCount = TLMLineUtils.GetStopsCount(lineID);
@@ -882,7 +887,7 @@ namespace Klyte.TransportLinesManager.UI
                 lineTime.selectedIndex = 3;
             }
 
-            m_linearMap.updateLine();
+            m_linearMap.redrawLine();
             Show();
             m_controller.mainPanel.Hide();
 

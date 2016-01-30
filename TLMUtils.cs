@@ -15,6 +15,72 @@ namespace Klyte.TransportLinesManager
 {
     public class TLMLineUtils
     {
+        public static Vehicle GetVehicleCapacityAndFill(ushort vehicleID, Vehicle vehicleData, out int fill, out int cap)
+        {
+            ushort firstVehicle = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)vehicleID].GetFirstVehicle(vehicleID);
+            string text;
+            vehicleData.Info.m_vehicleAI.GetBufferStatus(firstVehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)firstVehicle], out text, out fill, out cap);
+            return vehicleData;
+        }
+
+        public static void GetQuantityPassengerWaiting(ushort currentStop, out int residents, out int tourists)
+        {
+            ushort nextStop = TransportLine.GetNextStop(currentStop);
+            CitizenManager cm = Singleton<CitizenManager>.instance;
+            NetManager nm = Singleton<NetManager>.instance;
+            Vector3 position = nm.m_nodes.m_buffer[(int)currentStop].m_position;
+            Vector3 position2 = nm.m_nodes.m_buffer[(int)nextStop].m_position;
+            nm.m_nodes.m_buffer[(int)currentStop].m_maxWaitTime = 0;
+            int minX = Mathf.Max((int)((position.x - 32f) / 8f + 1080f), 0);
+            int minZ = Mathf.Max((int)((position.z - 32f) / 8f + 1080f), 0);
+            int maxX = Mathf.Min((int)((position.x + 32f) / 8f + 1080f), 2159);
+            int maxZ = Mathf.Min((int)((position.z + 32f) / 8f + 1080f), 2159);
+            residents = 0;
+            tourists = 0;
+            int zIterator = minZ;
+            while (zIterator <= maxZ)
+            {
+                int xIterator = minX;
+                while (xIterator <= maxX)
+                {
+                    ushort citizenIterator = cm.m_citizenGrid[zIterator * 2160 + xIterator];
+                    int loopCounter = 0;
+                    while (citizenIterator != 0)
+                    {
+                        ushort nextGridInstance = cm.m_instances.m_buffer[(int)citizenIterator].m_nextGridInstance;
+                        if ((cm.m_instances.m_buffer[(int)citizenIterator].m_flags & CitizenInstance.Flags.WaitingTransport) != CitizenInstance.Flags.None)
+                        {
+                            Vector3 a = cm.m_instances.m_buffer[(int)citizenIterator].m_targetPos;
+                            float distance = Vector3.SqrMagnitude(a - position);
+                            if (distance < 1024f)
+                            {
+                                CitizenInfo info = cm.m_instances.m_buffer[(int)citizenIterator].Info;
+                                if (info.m_citizenAI.TransportArriveAtSource(citizenIterator, ref cm.m_instances.m_buffer[(int)citizenIterator], position, position2))
+                                {
+                                    if ((cm.m_citizens.m_buffer[(int)(citizenIterator)].m_flags & Citizen.Flags.Tourist) != Citizen.Flags.None)
+                                    {
+                                        tourists++;
+                                    }
+                                    else
+                                    {
+                                        residents++;
+                                    }
+                                }
+                            }
+                        }
+                        citizenIterator = nextGridInstance;
+                        if (++loopCounter > 65536)
+                        {
+                            CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                            break;
+                        }
+                    }
+                    xIterator++;
+                }
+                zIterator++;
+            }
+        }
+
         public static void RemoveAllFromLine(ushort lineId)
         {
             var line = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineId];
@@ -230,7 +296,7 @@ namespace Klyte.TransportLinesManager
         /// <returns>The lines indexed.</returns>
         /// <param name="intersections">Intersections.</param>
         /// <param name="t">Transport line to ignore.</param>
-        public static Dictionary<string, ushort> IndexLines(List<ushort> intersections, TransportLine t = default(TransportLine))
+        public static Dictionary<string, ushort> SortLines(List<ushort> intersections, TransportLine t = default(TransportLine))
         {
             TransportManager tm = Singleton<TransportManager>.instance;
             Dictionary<String, ushort> otherLinesIntersections = new Dictionary<String, ushort>();
