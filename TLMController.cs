@@ -25,6 +25,7 @@ namespace Klyte.TransportLinesManager
         private TLMMainPanel m_mainPanel;
         private TLMLineInfoPanel m_lineInfoPanel;
         private int lastLineCount = 0;
+        private static GameObject shipLineButton;
 
 
 
@@ -160,7 +161,74 @@ namespace Klyte.TransportLinesManager
                 }
             }
             lastLineCount = tm.m_lineCount;
+
+            if (shipLineButton == null)
+            {
+                TransportInfo linePrefab = PrefabCollection<TransportInfo>.FindLoaded("Ship");
+                if (linePrefab == null)
+                {
+                    TLMUtils.doErrorLog("Cannot load ship prefab!");
+                    goto ADD_ERROR_COUNT;
+                }
+                linePrefab.m_lineMaterial = linePrefab.m_pathMaterial;
+                linePrefab.m_lineMaterial2 = linePrefab.m_pathMaterial2;
+                GameObject originalGO = null;
+                try
+                {
+                    originalGO = GameObject.Find("PublicTransportBusPanel").transform.Find("ScrollablePanel").Find("Bus").gameObject;
+                }
+                catch (Exception e)
+                {
+                    TLMUtils.doErrorLog("Exception on try to find base ship Button: {0}", e.StackTrace);
+                    goto ADD_ERROR_COUNT;
+                }
+                if (originalGO == null)
+                {
+                    TLMUtils.doErrorLog("Cannot find ship base button!");
+                    goto ADD_ERROR_COUNT;
+                }
+                var originalButton = originalGO.GetComponent<UIButton>();
+                var parent = GameObject.Find("PublicTransportShipPanel").transform.Find("ScrollablePanel");
+                shipLineButton = GameObject.Instantiate(originalGO);
+                var button = shipLineButton.GetComponent<UIButton>();
+
+                if (button == null)
+                {
+                    TLMUtils.doErrorLog("Cannot find ship base button component on GO!");
+                    shipLineButton = null;
+                    goto ADD_ERROR_COUNT;
+                }
+                UIButton.Destroy(button);
+                button = shipLineButton.AddComponent<UIButton>();
+                button.width = originalButton.width;
+                button.height = originalButton.height;
+                button.atlas = originalButton.atlas;
+                button.disabledFgSprite = originalButton.disabledFgSprite;
+                button.focusedFgSprite = originalButton.focusedFgSprite;
+                button.hoveredFgSprite = originalButton.hoveredFgSprite;
+                button.normalFgSprite = originalButton.normalFgSprite;
+                button.pressedFgSprite = originalButton.pressedFgSprite;
+                button.group = parent.GetComponentInChildren<UIButton>().group;
+
+                button.eventClick += (x, y) =>
+                {
+                    Singleton<ToolController>.instance.GetComponent<TransportTool>().m_prefab = linePrefab;
+                    Singleton<ToolController>.instance.GetComponent<TransportTool>().enabled = true;
+                };
+                shipLineButton.transform.SetParent(parent);
+                shipLineButton.name = "ShipLine";
+                goto CONTINUE;
+                ADD_ERROR_COUNT:
+                if (++triedLoadShip >= maxTryLoads)
+                {
+                    shipLineButton = new GameObject();
+                }
+            }
+            CONTINUE:
+            return;
         }
+        const int maxTryLoads = 100;
+        int triedLoadShip = 0;
 
         void CheckForAutoChanges()
         {
@@ -429,7 +497,7 @@ namespace Klyte.TransportLinesManager
                         }
                     }
                     Dictionary<string, ushort> lines = TLMLineUtils.SortLines(nearLines);
-                    TLMLineUtils.PrintIntersections("",  "", linesPanelObj.GetComponent<UIPanel>(), lines, scale, perLine);
+                    TLMLineUtils.PrintIntersections("", "", linesPanelObj.GetComponent<UIPanel>(), lines, scale, perLine);
                 }
                 linesPanelObj.GetComponent<UIPanel>().isVisible = showPanel;
             }

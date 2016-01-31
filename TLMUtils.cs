@@ -482,6 +482,12 @@ namespace Klyte.TransportLinesManager
                 Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
             }
         }
+
+        public static void doErrorLog(string format, params object[] args)
+        {
+                Debug.LogErrorFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+            
+        }
         public static void createUIElement<T>(ref T uiItem, Transform parent) where T : Component
         {
             GameObject container = new GameObject();
