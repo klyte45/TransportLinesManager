@@ -10,7 +10,7 @@ using System.Reflection;
 using UnityEngine;
 using Klyte.TransportLinesManager.Extensors;
 
-[assembly: AssemblyVersion("4.2.0.*")]
+[assembly: AssemblyVersion("4.3.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -35,6 +35,8 @@ namespace Klyte.TransportLinesManager
         //private PreviewRenderer m_previewRenderer;
         //private UITextureSprite m_currentSelectionBus;
         //private UITextureSprite m_currentSelectionTrain;
+
+        private static GameObject shipLineButton;
 
 
         private SavedBool m_savedOverrideDefaultLineInfoPanel;
@@ -478,14 +480,15 @@ namespace Klyte.TransportLinesManager
 
             configSelector = (UIDropDown)helper.AddDropdown("Show Configurations For", getOptionsForLoadConfig(), 0, reloadData);
             TLMUtils.doLog("Loading Group 1");
-            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG })
+            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG, TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG })
             {
                 UIHelperExtension group1 = helper.AddGroupExtended(TLMConfigWarehouse.getNameForTransportType(transportType) + " Config");
                 lineTypesPanels[transportType] = group1.self.GetComponentInParent<UIPanel>();
                 ((UIPanel)group1.self).autoLayoutDirection = LayoutDirection.Horizontal;
                 ((UIPanel)group1.self).backgroundSprite = "EmptySprite";
                 ((UIPanel)group1.self).wrapLayout = true;
-                ((UIPanel)group1.self).color = TLMConfigWarehouse.getColorForTransportType(transportType);
+                var systemColor = TLMConfigWarehouse.getColorForTransportType(transportType); 
+                ((UIPanel)group1.self).color = new Color32((byte)(systemColor.r*0.7f), (byte)(systemColor.g * 0.7f), (byte)(systemColor.b * 0.7f), 0xff);
                 ((UIPanel)group1.self).width = 730;
                 group1.AddSpace(30);
                 UIDropDown prefixDD = generateDropdownConfig(group1, "Prefix", namingOptionsPrefixo, transportType | TLMConfigWarehouse.ConfigIndex.PREFIX);
@@ -758,7 +761,7 @@ namespace Klyte.TransportLinesManager
                 group3.AddLabel("Please load a city to get access to active trains!");
             }
 
-            
+
 
             UIHelperExtension group5 = helper.AddGroupExtended("Other Global Options");
             group5.AddSpace(20);
@@ -983,13 +986,45 @@ namespace Klyte.TransportLinesManager
             if (TLMController.taLineNumber == null)
             {
                 TLMController.taLineNumber = CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                   "LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","TramIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","TramImage","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap"
+                  "ShipLineIcon","LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","TramIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","TramImage","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap"
                 });
             }
             if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
             {
                 TLMTrainModifyRedirects.instance.EnableHooks();
                 TLMBusModifyRedirects.instance.EnableHooks();
+                TLMShipModifyRedirects.instance.EnableHooks();
+            }
+            if (shipLineButton == null)
+            {
+                TransportInfo linePrefab = PrefabCollection<TransportInfo>.FindLoaded("Ship");                
+                linePrefab.m_lineMaterial = linePrefab.m_pathMaterial;
+                linePrefab.m_lineMaterial2 = linePrefab.m_pathMaterial2;
+
+                var originalGO = GameObject.Find("Bus");
+                var originalButton = originalGO.GetComponent<UIButton>();
+                var parent = GameObject.Find("PublicTransportShipPanel").transform.Find("ScrollablePanel");
+                shipLineButton = GameObject.Instantiate(originalGO);
+                var button = shipLineButton.GetComponent<UIButton>();
+                UIButton.Destroy(button);
+                button = shipLineButton.AddComponent<UIButton>();
+                button.width = originalButton.width;
+                button.height = originalButton.height;
+                button.atlas = originalButton.atlas;
+                button.disabledFgSprite = originalButton.disabledFgSprite;
+                button.focusedFgSprite = originalButton.focusedFgSprite;
+                button.hoveredFgSprite = originalButton.hoveredFgSprite;
+                button.normalFgSprite = originalButton.normalFgSprite;
+                button.pressedFgSprite = originalButton.pressedFgSprite;
+                button.group = parent.GetComponentInChildren<UIButton>().group;
+
+                button.eventClick += (x, y) =>
+                {
+                    Singleton<ToolController>.instance.GetComponent<TransportTool>().m_prefab = linePrefab;
+                    Singleton<ToolController>.instance.GetComponent<TransportTool>().enabled = true;
+                };
+                shipLineButton.transform.SetParent(parent);
+                shipLineButton.name = "ShipLine";
             }
             //			Log.debug ("LEVELLOAD");
         }

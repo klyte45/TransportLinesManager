@@ -34,13 +34,13 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             if (vehicleData.m_transportLine != 0)
             {
-                //TLMUtils.doLog("StartPathFindFake vId={0}; stopTarget = {1}; 1st stop = {2}", vehicleID, vehicleData.m_targetBuilding, Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine].m_stops);
+                TLMUtils.doLog("StartPathFindFake vId={0}; stopTarget = {1}; 1st stop = {2}", vehicleID, vehicleData.m_targetBuilding, Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine].m_stops);
                 if (vehicleData.m_targetBuilding == Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine].m_stops)
                 {
                     ExtraVehiclesStats.instance.endLap(vehicleID, vehicleData.m_transportLine);
                 }
                 int fill, cap;
-                vehicleData = TLMLineUtils. GetVehicleCapacityAndFill(vehicleID, vehicleData, out fill, out cap);
+                vehicleData = TLMLineUtils.GetVehicleCapacityAndFill(vehicleID, vehicleData, out fill, out cap);
                 float fillRate = (float)fill / cap;
                 ExtraVehiclesStats.instance.addExtraStatsData(vehicleID, fillRate, vehicleData.m_transportLine);
 
@@ -52,7 +52,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         }
 
-        
+
 
         public void addExtraStatsData(ushort vehicleId, float fillRate, ushort line)
         {
@@ -116,7 +116,14 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 if (vehicleLastTravelAvgFill.ContainsKey(vehicleId) && vehicleLastTravelFramesLineLapTake.ContainsKey(vehicleId))
                 {
-                    result.Add(vehicleId, new ExtraData(vehicleLastTravelAvgFill[vehicleId], vehicleLastTravelStdDevFill[vehicleId], vehicleLastTravelFramesLineLapTake[vehicleId]));
+                    if (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_transportLine == lineId)
+                    {
+                        result.Add(vehicleId, new ExtraData(vehicleLastTravelAvgFill[vehicleId], vehicleLastTravelStdDevFill[vehicleId], vehicleLastTravelFramesLineLapTake[vehicleId]));
+                    }
+                    else
+                    {
+                        removeExtraStatsData(vehicleId);
+                    }
                 }
             }
             return result;

@@ -119,7 +119,7 @@ namespace Klyte.TransportLinesManager.UI
             m_autoName = TLMUtils.calculateAutoName(lineID);
             string stationName = null;
             Vector3 local;
-            string airport, port, taxi;
+            string airport, taxi;
             int middle;
             bool simmetric = TLMUtils.CalculateSimmetry(ss, stopsCount, t, out middle);
             if (t.Info.m_transportType != TransportInfo.TransportType.Bus && simmetric && !showExtraStopInfo)
@@ -129,8 +129,8 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
-                    local = getStation(stationId, ss, out stationName, out intersections, out airport, out port, out taxi);
-                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi, stationId) + (j == middle + stopsCount / 2 ? 5 : 0);
+                    local = getStation(stationId, ss, out stationName, out intersections, out airport, out taxi);
+                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, taxi, stationId) + (j == middle + stopsCount / 2 ? 5 : 0);
                 }
             }
             else {
@@ -138,24 +138,24 @@ namespace Klyte.TransportLinesManager.UI
                 int minI = 0, maxI = stopsCount;
                 if (simmetric)
                 {
-                    minI = middle;
-                    maxI = stopsCount + middle;
+                    minI = middle + 1;
+                    maxI = stopsCount + middle + 1;
                 }
                 if (showExtraStopInfo)
                 {
                     int j = (minI - 1 + stopsCount) % stopsCount;
                     ushort stationId = t.GetStop(j);
                     List<ushort> intersections;
-                    local = getStation(stationId, ss, out stationName, out intersections, out airport, out port, out taxi);
-                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi, stationId, true);
+                    local = getStation(stationId, ss, out stationName, out intersections, out airport, out taxi);
+                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, taxi, stationId, true);
                 }
                 for (int i = minI; i < maxI; i++)
                 {
                     int j = i % stopsCount;
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
-                    local = getStation(stationId, ss, out stationName, out intersections, out airport, out port, out taxi);
-                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, port, taxi, stationId) + (j == stopsCount - 1 ? 5 : 0);
+                    local = getStation(stationId, ss, out stationName, out intersections, out airport, out taxi);
+                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, taxi, stationId) + (j == stopsCount - 1 ? 5 : 0);
                 }
             }
             if (showExtraStopInfo)
@@ -182,7 +182,7 @@ namespace Klyte.TransportLinesManager.UI
             vehicleLabel.autoSize = false;
             vehicleLabel.text = string.Format("{0}/{1}", fill, cap);
             vehicleLabel.useOutline = true;
-            vehicleLabel.width = 40;
+            vehicleLabel.width = 50;
             vehicleLabel.height = 33;
             vehicleLabel.pivot = UIPivotPoint.TopCenter;
             vehicleLabel.verticalAlignment = UIVerticalAlignment.Middle;
@@ -401,7 +401,7 @@ namespace Klyte.TransportLinesManager.UI
             lineStationsPanel.color = lineInfoPanel.controller.tm.GetLineColor(lineInfoPanel.lineIdSelecionado.TransportLine);
         }
 
-        private float addStationToLinearMap(string stationName, Vector3 location, float offsetX, List<ushort> intersections, string airport, string port, string taxi, ushort stationNodeId, bool simple = false)//, out float intersectionPanelHeight)
+        private float addStationToLinearMap(string stationName, Vector3 location, float offsetX, List<ushort> intersections, string airport, string taxi, ushort stationNodeId, bool simple = false)//, out float intersectionPanelHeight)
         {
             ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
             TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
@@ -443,7 +443,7 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     var otherLinesIntersections = TLMLineUtils.SortLines(intersections, t);
 
-                    int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (port != string.Empty ? 1 : 0);
+                    int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0);
                     if (intersectionCount > 0)
                     {
                         UIPanel intersectionsPanel = null;
@@ -456,7 +456,7 @@ namespace Klyte.TransportLinesManager.UI
                         intersectionsPanel.wrapLayout = false;
                         intersectionsPanel.autoFitChildrenVertically = true;
 
-                        TLMLineUtils.PrintIntersections(airport, port, taxi, intersectionsPanel, otherLinesIntersections);
+                        TLMLineUtils.PrintIntersections(airport, taxi, intersectionsPanel, otherLinesIntersections);
 
                         intersectionsPanel.autoLayout = true;
                         intersectionsPanel.wrapLayout = true;
@@ -470,7 +470,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 else if (showExtraStopInfo)
                 {
-                    float normalWidth = 35f;
+                    float normalWidth = 42.5f;
 
                     NetNode stopNode = Singleton<NetManager>.instance.m_nodes.m_buffer[(int)stationNodeId];
 
@@ -481,6 +481,7 @@ namespace Klyte.TransportLinesManager.UI
                     TLMUtils.createUIElement<UIPanel>(ref stationInfoStatsPanel, stationButton.transform);
                     stationInfoStatsPanel.autoSize = false;
                     stationInfoStatsPanel.autoLayout = false;
+                    stationInfoStatsPanel.autoFitChildrenVertically = true;
                     stationInfoStatsPanel.autoLayoutStart = LayoutStart.TopLeft;
                     stationInfoStatsPanel.autoLayoutDirection = LayoutDirection.Horizontal;
                     stationInfoStatsPanel.relativePosition = new Vector3(-20, 10);
@@ -537,7 +538,7 @@ namespace Klyte.TransportLinesManager.UI
 
 
 
-        Vector3 getStation(uint stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string passengerPort, out string taxiStand)
+        Vector3 getStation(uint stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string taxiStand)
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
@@ -570,10 +571,9 @@ namespace Klyte.TransportLinesManager.UI
             Building b = bm.m_buildings.m_buffer[buildingId];
             if (buildingId > 0)
             {
-                InstanceID iid = default(InstanceID);
-                iid.Building = buildingId;
-                iid.TransportLine = lineInfoPanel.lineIdSelecionado.TransportLine;
-                stationName = bm.GetBuildingName(buildingId, iid);
+                ItemClass.Service serv;
+                ItemClass.SubService subserv;
+                stationName = TLMUtils.getBuildingName(buildingId, out serv, out subserv, true);
             }
             else {
                 DistrictManager dm = Singleton<DistrictManager>.instance;
@@ -602,7 +602,6 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             airport = String.Empty;
-            passengerPort = String.Empty;
             taxiStand = String.Empty;
 
             if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP))
@@ -614,17 +613,6 @@ namespace Klyte.TransportLinesManager.UI
                     InstanceID iid = default(InstanceID);
                     iid.Building = airportId;
                     airport = bm.GetBuildingName(airportId, iid);
-                }
-            }
-            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP))
-            {
-                ushort portId = bm.FindBuilding(sidewalkPosition != Vector3.zero ? sidewalkPosition : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip, Building.Flags.None, Building.Flags.Untouchable);
-
-                if (portId > 0)
-                {
-                    InstanceID iid = default(InstanceID);
-                    iid.Building = portId;
-                    passengerPort = bm.GetBuildingName(portId, iid);
                 }
             }
             if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP))

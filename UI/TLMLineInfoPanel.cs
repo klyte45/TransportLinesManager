@@ -174,6 +174,9 @@ namespace Klyte.TransportLinesManager.UI
                 case TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG:
                     numeroUsado = m_controller.mainPanel.highBus.Keys.Contains(numLinha) && m_controller.mainPanel.highBus[numLinha] != m_lineIdSelecionado.TransportLine;
                     break;
+                case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
+                    numeroUsado = m_controller.mainPanel.ships.Keys.Contains(numLinha) && m_controller.mainPanel.ships[numLinha] != m_lineIdSelecionado.TransportLine;
+                    break;
             }
             return numeroUsado;
         }

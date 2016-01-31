@@ -23,6 +23,7 @@ namespace Klyte.TransportLinesManager.UI
         private Dictionary<Int32, UInt16> busList;
         private Dictionary<Int32, UInt16> lowBusList;
         private Dictionary<Int32, UInt16> highBusList;
+        private Dictionary<Int32, UInt16> shipList;
         private UIButton trainLeg;
         private UIButton metroLeg;
         private UIButton busLeg;
@@ -30,6 +31,7 @@ namespace Klyte.TransportLinesManager.UI
         private UIButton highBusLeg;
         private UIButton tramLeg;
         private UIButton bulletTrainLeg;
+        private UIButton shipLeg;
         private UIScrollablePanel allLinesListPanel;
         private UIScrollablePanel filteredLinesListPanel;
         private CurrentFilterSelected _currentSelection = CurrentFilterSelected.NONE;
@@ -197,6 +199,17 @@ namespace Klyte.TransportLinesManager.UI
                 return highBusList;
             }
         }
+        public Dictionary<Int32, UInt16> ships
+        {
+            get
+            {
+                if (shipList == null)
+                {
+                    listLines();
+                }
+                return shipList;
+            }
+        }
 
         private void clearLines()
         {
@@ -209,7 +222,7 @@ namespace Klyte.TransportLinesManager.UI
             allLinesListPanel.ScrollToTop();
             filteredLinesListPanel.ScrollToTop();
 
-            foreach (var x in new UIButton[] { bulletTrainLeg, highBusLeg, lowBusLeg, metroLeg, trainLeg, tramLeg, busLeg })
+            foreach (var x in new UIButton[] { shipLeg, bulletTrainLeg, highBusLeg, lowBusLeg, metroLeg, trainLeg, tramLeg, busLeg })
             {
                 if (x != null)
                 {
@@ -280,6 +293,7 @@ namespace Klyte.TransportLinesManager.UI
             highBusList = new Dictionary<int, ushort>();
             tramList = new Dictionary<int, ushort>();
             bulletTrainList = new Dictionary<int, ushort>();
+            shipList = new Dictionary<int, ushort>();
 
             for (ushort i = 0; i < m_controller.tm.m_lines.m_size; i++)
             {
@@ -334,6 +348,14 @@ namespace Klyte.TransportLinesManager.UI
                         metroList.Add(t.m_lineNumber, i);
                         break;
 
+                    case TransportInfo.TransportType.Ship:
+                        while (shipList.ContainsKey(t.m_lineNumber))
+                        {
+                            t.m_lineNumber++;
+                        }
+                        shipList.Add(t.m_lineNumber, i);
+                        break;
+
                     case TransportInfo.TransportType.Train:
                         if (TransportLinesManagerMod.isIPTCompatibiltyMode)
                         {
@@ -381,6 +403,7 @@ namespace Klyte.TransportLinesManager.UI
                 allLinesListPanel.enabled = true;
                 filteredLinesListPanel.enabled = false;
                 offset = 0;
+                offset += drawButtonsFromDictionary(shipList, offset);
                 offset += drawButtonsFromDictionary(bulletTrainList, offset);
                 offset += drawButtonsFromDictionary(trainList, offset);
                 offset += drawButtonsFromDictionary(tramList, offset);
@@ -429,6 +452,11 @@ namespace Klyte.TransportLinesManager.UI
                         tramLeg.color = new Color32(0, 128, 0, 255);
                         tramLeg.focusedColor = new Color32(0, 128, 0, 255);
                         drawDetailedButtonFromDictionary(tramList);
+                        break;
+                    case CurrentFilterSelected.SHIP:
+                        shipLeg.color = new Color32(0, 128, 0, 255);
+                        shipLeg.focusedColor = new Color32(0, 128, 0, 255);
+                        drawDetailedButtonFromDictionary(shipList);
                         break;
                 }
             }
@@ -679,14 +707,15 @@ namespace Klyte.TransportLinesManager.UI
             TLMUtils.createDragHandle(mainPanel, mainPanel, 35f);
             if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
             {
-                addIcon(10, "BulletTrain", "BulletTrainImage", ref bulletTrainLeg, CurrentFilterSelected.BULLET, true);
-                addIcon(130, "Tram", "TramImage", ref tramLeg, CurrentFilterSelected.TLM_TRAM, true);
-                addIcon(370, "LowBus", "LowBusImage", ref lowBusLeg, CurrentFilterSelected.LOW_BUS, true);
-                addIcon(250, "HighBus", "HighBusImage", ref highBusLeg, CurrentFilterSelected.HIGH_BUS, true);
+                addIcon(60, "BulletTrain", "BulletTrainImage", ref bulletTrainLeg, CurrentFilterSelected.BULLET, true);
+                addIcon(160, "Tram", "TramImage", ref tramLeg, CurrentFilterSelected.TLM_TRAM, true);
+                addIcon(360, "LowBus", "LowBusImage", ref lowBusLeg, CurrentFilterSelected.LOW_BUS, true);
+                addIcon(260, "HighBus", "HighBusImage", ref highBusLeg, CurrentFilterSelected.HIGH_BUS, true);
             }
 
-            addIcon(70, "Train", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref trainLeg, CurrentFilterSelected.REGIONAL_TRAIN, false);
-            addIcon(190, "Subway", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metroLeg, CurrentFilterSelected.METRO, false);
+            addIcon(10, "ShipLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref shipLeg, CurrentFilterSelected.SHIP, false);
+            addIcon(110, "Train", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref trainLeg, CurrentFilterSelected.REGIONAL_TRAIN, false);
+            addIcon(210, "Subway", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metroLeg, CurrentFilterSelected.METRO, false);
             addIcon(310, "Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busLeg, CurrentFilterSelected.REGULAR_BUS, false);
 
             UILabel titleLabel = null;
@@ -877,7 +906,8 @@ namespace Klyte.TransportLinesManager.UI
             METRO,
             HIGH_BUS,
             REGULAR_BUS,
-            LOW_BUS
+            LOW_BUS,
+            SHIP
         }
 
     }

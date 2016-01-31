@@ -429,7 +429,7 @@ namespace Klyte.TransportLinesManager
                         }
                     }
                     Dictionary<string, ushort> lines = TLMLineUtils.SortLines(nearLines);
-                    TLMLineUtils.PrintIntersections("", "", "", linesPanelObj.GetComponent<UIPanel>(), lines, scale, perLine);
+                    TLMLineUtils.PrintIntersections("",  "", linesPanelObj.GetComponent<UIPanel>(), lines, scale, perLine);
                 }
                 linesPanelObj.GetComponent<UIPanel>().isVisible = showPanel;
             }
