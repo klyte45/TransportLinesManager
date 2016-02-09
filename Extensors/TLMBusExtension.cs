@@ -273,6 +273,7 @@ namespace Klyte.TransportLinesManager.Extensors
         public static void forceReload()
         {
             busAssetsList = null;
+            readVehicles();
         }
 
         private static void readVehicles()
@@ -281,11 +282,16 @@ namespace Klyte.TransportLinesManager.Extensors
             cached_highBusAssetsList = null;
             cached_inactiveBusAssetsList = null;
 
+
+            TLMUtils.doLog("PrefabCount: {0} ({1})", PrefabCollection<VehicleInfo>.PrefabCount(), PrefabCollection<VehicleInfo>.LoadedCount());
+            if (PrefabCollection<VehicleInfo>.LoadedCount() == 0)
+            {
+                throw new Exception("Prefabs not loaded!");
+            }
+
             busAssetsList = new List<string>();
             var trailerBusList = new List<string>();
             uint num = 0u;
-
-            TLMUtils.doLog("PrefabCount: {0} ({1})", PrefabCollection<VehicleInfo>.PrefabCount(), PrefabCollection<VehicleInfo>.LoadedCount());
             while ((ulong)num < (ulong)((long)PrefabCollection<VehicleInfo>.PrefabCount()))
             {
                 VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);

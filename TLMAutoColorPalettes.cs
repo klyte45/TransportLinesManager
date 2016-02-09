@@ -12,8 +12,8 @@ namespace Klyte.TransportLinesManager
         public const string PALETTE_RANDOM = "<RANDOM>";
         public const char SERIALIZER_ITEM_SEPARATOR = '∞';
         private static RandomPastelColorGenerator gen = new RandomPastelColorGenerator();
-        private static Dictionary<string, AutoColorPalette> m_palettes;
-        private static List<Color32> SaoPaulo2035 = new List<Color32>(new Color32[]{
+        private static Dictionary<string, AutoColorPalette> m_palettes = new Dictionary<string, AutoColorPalette>();
+        public readonly static List<Color32> SaoPaulo2035 = new List<Color32>(new Color32[]{
             new Color32 (117, 0, 0, 255),
             new Color32 (0, 13, 160, 255),
             new Color32 (0, 128, 27, 255),

@@ -22,21 +22,16 @@ namespace Klyte.TransportLinesManager.MapDrawer
             TLMController controller = TLMController.instance;
             List<Station> stations = new List<Station>();
             Dictionary<Segment2, Color32> svgLines = new Dictionary<Segment2, Color32>();
-            Dictionary<ushort, List<Station>> transportLines = new Dictionary<ushort, List<Station>>();
-            MultiMap<Vector2, Vector2> intersects = new MultiMap<Vector2, Vector2>();
+            Dictionary<ushort, MapTransportLine> transportLines = new Dictionary<ushort, MapTransportLine>();
+
             //			List<int> usedX = new List<int> ();
             //			List<int> usedY = new List<int> ();
-            float minX = float.PositiveInfinity;
-            float minY = float.PositiveInfinity;
-            float maxX = float.NegativeInfinity;
-            float maxY = float.NegativeInfinity;
             int nextStationId = 1;
             for (ushort i = 0; i < controller.tm.m_lines.m_size; i++)
             {
                 TransportLine t = controller.tm.m_lines.m_buffer[(int)i];
                 if (t.m_lineNumber > 0 && (t.Info.m_transportType == TransportInfo.TransportType.Metro || t.Info.m_transportType == TransportInfo.TransportType.Train))
                 {
-
                     int stopsCount = t.CountStops(i);
                     if (stopsCount == 0)
                     {
@@ -44,7 +39,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     }
                     Color color = t.m_color;
                     Vector2 ultPos = Vector2.zero;
-                    transportLines[i] = new List<Station>();
+                    bool day, night;
+                    t.GetActive(out day, out night);
+                    transportLines[i] = new MapTransportLine(color, day, night, i);
                     int startStop = 0;
                     int finalStop = stopsCount;
                     int middle = 0;
@@ -68,55 +65,67 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         var idx = stations.FirstOrDefault(x => x.stops.Contains(nextStop));
                         if (idx != null)
                         {
-                            transportLines[i].Add(idx);
+                            transportLines[i].addStation(ref idx);
                         }
                         else
                         {
                             List<ushort> nearStops = new List<ushort>();
                             TLMLineUtils.GetNearStopPoints(worldPos, 100f, ref nearStops);
                             TLMUtils.doLog("Station: ${0}; nearStops: ${1}", name, string.Join(",", nearStops.Select(x => x.ToString()).ToArray()));
-                            Station thisStation = new Station(name, pos2D, nearStops, nextStationId++);
+                            Station thisStation = new Station(name, pos2D, nearStops, nextStationId++, i);
                             stations.Add(thisStation);
-                            transportLines[i].Add(thisStation);
-                            if (pos2D.x > maxX)
-                            {
-                                maxX = pos2D.x;
-                            }
-                            if (pos2D.y > maxY)
-                            {
-                                maxY = pos2D.y;
-                            }
-                            if (pos2D.x < minX)
-                            {
-                                minX = pos2D.x;
-                            }
-                            if (pos2D.y < minY)
-                            {
-                                minY = pos2D.y;
-                            }
+                            transportLines[i].addStation(ref thisStation);
                         }
                         //						Debug.Log ("POS:" + pos);
                         ultPos = pos2D;
                     }
                 }
             }
+            printToSVG(stations, transportLines, Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd"));
+        }
 
+        public static string printToSVG(List<Station> stations, Dictionary<ushort, MapTransportLine> transportLines, string mapName)
+        {
+            float minX = float.PositiveInfinity;
+            float minY = float.PositiveInfinity;
+            float maxX = float.NegativeInfinity;
+            float maxY = float.NegativeInfinity;
+            foreach (var s in stations)
+            {
+                if (s.centralPos.x > maxX)
+                {
+                    maxX = s.centralPos.x;
+                }
+                if (s.centralPos.y > maxY)
+                {
+                    maxY = s.centralPos.y;
+                }
+                if (s.centralPos.x < minX)
+                {
+                    minX = s.centralPos.x;
+                }
+                if (s.centralPos.y < minY)
+                {
+                    minY = s.centralPos.y;
+                }
+            }
+            return drawSVG(stations, transportLines, mapName, minX, minY, maxX, maxY);
+        }
+
+        private static string drawSVG(List<Station> stations, Dictionary<ushort, MapTransportLine> transportLines, string mapName, float minX, float minY, float maxX, float maxY)
+        {
             SVGTemplate svg = new SVGTemplate((int)((maxY - minY + 16) * SVGTemplate.RADIUS), (int)((maxX - minX + 16) * SVGTemplate.RADIUS), SVGTemplate.RADIUS, minX - 8, minY - 8);
 
             var linesOrdened = transportLines.OrderBy(x => getLineUID(x.Key)).ToList();
             //ordena pela quantidade de linhas passando
-            stations = stations.OrderBy(x => x.linesPassing).ToList();
+            stations = stations.OrderBy(x => x.linesPassingCount).ToList();
 
-            foreach (var station in stations)
-            {
-                station.optimizeLines();
-            }
             //calcula as posições de todas as estações no mapa
             foreach (var line in linesOrdened)
             {
                 var station0 = line.Value[0];
                 var prevPos = station0.getPositionForLine(line.Key, line.Value[1].centralPos);
-                for (int i = 1; i < line.Value.Count; i++)
+                for (int i = 1; i < line.Value.stationsCount(); i++)
                 {
                     prevPos = line.Value[i].getPositionForLine(line.Key, prevPos);
                 }
@@ -128,18 +137,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 svg.addTransportLineOnMap(line.Value, line.Key);
             }
-            foreach (var intersectKey in intersects.Keys)
-            {
-                List<Vector2> intersections;
-                intersects.TryGetValue(intersectKey, out intersections);
-                foreach (var intersect in intersections)
-                {
-                    svg.addLineSegment(intersectKey, intersect, Color.gray);
-                }
-            }
             foreach (var station in stations)
             {
-                svg.addStation(station);
+                svg.addStation(station, transportLines);
             }
             String folder = "Transport Lines Manager";
             if (File.Exists(folder) && (File.GetAttributes(folder) & FileAttributes.Directory) != FileAttributes.Directory)
@@ -150,7 +150,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 Directory.CreateDirectory(folder);
             }
-            String filename = folder + Path.DirectorySeparatorChar + "TLM_MAP_" + Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd") + ".html";
+            String filename = folder + Path.DirectorySeparatorChar + "TLM_MAP_" + mapName + ".html";
             if (File.Exists(filename))
             {
                 File.Delete(filename);
@@ -158,137 +158,154 @@ namespace Klyte.TransportLinesManager.MapDrawer
             var sr = File.CreateText(filename);
             sr.WriteLine(svg.getResult());
             sr.Close();
+            return filename;
         }
 
         private static int getLineUID(ushort lineId)
         {
+            return lineId;
             var t = TLMController.instance.tm.m_lines.m_buffer[lineId];
             int result = ((int)t.Info.m_transportType << 16) | t.m_lineNumber;
             return result;
         }
 
-        public class Station
+
+        private delegate Vector2 CalculateCoords(Vector3 pos);
+    }
+
+    public class Station
+    {
+        public string name
         {
-            public string name
+            get; set;
+        }
+        private Vector2 originalCentralPos
+        {
+            get; set;
+        }
+        public Vector2 centralPos
+        {
+            get; set;
+        }
+        public Vector2 finalPos
+        {
+            get; set;
+        }
+        public int linesPassingCount
+        {
+            get
             {
-                get; set;
+                return linesPassing.Count;
             }
-            private Vector2 originalCentralPos
+        }
+        public List<ushort> stops
+        {
+            get; set;
+        }
+        public Vector2 writePoint
+        {
+            get
             {
-                get; set;
+                return centralPos + lastPoint;
             }
-            public Vector2 centralPos
+        }
+        public float writeAngle
+        {
+            get
             {
-                get; set;
-            }
-            public int linesPassing
-            {
-                get
+                if (lastPoint != Vector2.zero)
                 {
-                    return linesPos.Count;
-                }
-            }
-            public List<ushort> stops
-            {
-                get; set;
-            }
-            public Vector2 writePoint
-            {
-                get
-                {
-                    return centralPos + lastPoint;
-                }
-            }
-            public float writeAngle
-            {
-                get
-                {
-                    if (lastPoint != Vector2.zero)
-                    {
-                        return Vector2.zero.GetAngleToPoint(lastPoint);
-                    }
-                    else
-                    {
-                        return suggestedAngle;
-                    }
-                }
-            }
-
-            private float suggestedAngle = 0;
-            private Vector2 lastPoint = Vector2.zero;
-            private int id;
-            private List<int> optimizedWithStationsId = new List<int>();
-
-            public Station(string n, Vector2 pos, List<ushort> stops, int stationId)
-            {
-                name = n;
-                originalCentralPos = pos;
-                centralPos = pos;
-                this.stops = stops;
-                id = stationId;
-            }
-
-            private Dictionary<Vector2, ushort> linesPos = new Dictionary<Vector2, ushort>();
-
-            public Vector2 getPositionForLine(ushort lineIndex, Vector2 to)
-            {
-                Vector2 from = originalCentralPos;
-
-                TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() (STATION: {2}) lineIndex: {0}; from: {1}; stopPos: [{3}]", lineIndex, from, name, string.Join(",", linesPos.Select(x => x.Key.ToString() + " = " + x.Value).ToArray()));
-                if (linesPos.ContainsValue(lineIndex))
-                {
-                    return linesPos.First(x => x.Value == lineIndex).Key + originalCentralPos;
-                }
-                if (linesPos.Count == 0)
-                {
-                    suggestedAngle = 45 * (float)Math.Ceiling((from.GetAngleToPoint(to) - 22.5f) / 45f) + 90;
-                    linesPos.Add(Vector2.zero, lineIndex);
-                    return originalCentralPos;
+                    return Vector2.zero.GetAngleToPoint(lastPoint);
                 }
                 else
                 {
-                    var direction = to - from;
-                    direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
-                    var totalOffset = direction;
-                    TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() direction: {0}; from: {1}; to: ", direction, from, to);
-                    while (linesPos.ContainsKey(totalOffset))
-                    {
-                        totalOffset += direction;
-                    }
-                    lastPoint = totalOffset;
-                    linesPos.Add(totalOffset, lineIndex);
-                    return originalCentralPos + lastPoint;
+                    return suggestedAngle;
                 }
-            }
-
-            public string getIntegrationLinePath(Vector2 offset, float multiplier)
-            {
-                if (linesPos.Count <= 1) return string.Empty;
-                StringBuilder result = new StringBuilder();
-                Vector2 from = originalCentralPos - offset;
-                foreach (Vector2 point in linesPos.Keys)
-                {
-                    if (point != Vector2.zero)
-                    {
-                        Vector2 to = originalCentralPos + point - offset;
-                        result.Append(string.Format(" M {0},{1} L {2},{3} ", from.x * multiplier, from.y * multiplier, to.x * multiplier, to.y * multiplier));
-                    }
-                }
-                return result.ToString();
-            }
-
-
-            public Dictionary<Vector2, ushort> getAllStationOffsetPoints()
-            {
-                return linesPos;
-            }
-
-            internal void optimizeLines()
-            {
-
             }
         }
-        private delegate Vector2 CalculateCoords(Vector3 pos);
+
+        private List<ushort> linesPassing = new List<ushort>();
+        private float suggestedAngle = 0;
+        private Vector2 lastPoint = Vector2.zero;
+        private int id;
+        private List<int> optimizedWithStationsId = new List<int>();
+
+        public Station(string n, Vector2 pos, List<ushort> stops, int stationId, ushort lineId) : this(n, pos, stops, stationId)
+        {
+            addLine(lineId);
+        }
+        public Station(string n, Vector2 pos, List<ushort> stops, int stationId)
+        {
+            name = n;
+            originalCentralPos = pos;
+            centralPos = pos;
+            this.stops = stops;
+            id = stationId;
+        }
+
+        public void addLine(ushort lineId)
+        {
+            if (!linesPassing.Contains(lineId))
+            {
+                linesPassing.Add(lineId);
+            }
+        }
+
+        private Dictionary<Vector2, ushort> linesPos = new Dictionary<Vector2, ushort>();
+
+        public Vector2 getPositionForLine(ushort lineIndex, Vector2 to)
+        {
+            Vector2 from = originalCentralPos;
+
+            TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() (STATION: {2}) lineIndex: {0}; from: {1}; stopPos: [{3}]", lineIndex, from, name, string.Join(",", linesPos.Select(x => x.Key.ToString() + " = " + x.Value).ToArray()));
+            if (linesPos.ContainsValue(lineIndex))
+            {
+                return linesPos.First(x => x.Value == lineIndex).Key + originalCentralPos;
+            }
+            if (linesPos.Count == 0)
+            {
+                suggestedAngle = 45 * (float)Math.Ceiling((from.GetAngleToPoint(to) - 22.5f) / 45f) + 90;
+                linesPos.Add(Vector2.zero, lineIndex);
+                return originalCentralPos;
+            }
+            else
+            {
+                var direction = to - from;
+                direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
+                var totalOffset = direction;
+                TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() direction: {0}; from: {1}; to: ", direction, from, to);
+                while (linesPos.ContainsKey(totalOffset))
+                {
+                    totalOffset += direction;
+                }
+                lastPoint = totalOffset;
+                linesPos.Add(totalOffset, lineIndex);
+                return originalCentralPos + lastPoint;
+            }
+        }
+
+        public string getIntegrationLinePath(Vector2 offset, float multiplier)
+        {
+            if (linesPos.Count <= 1) return string.Empty;
+            StringBuilder result = new StringBuilder();
+            Vector2 from = originalCentralPos - offset;
+            foreach (Vector2 point in linesPos.Keys)
+            {
+                if (point != Vector2.zero)
+                {
+                    Vector2 to = originalCentralPos + point - offset;
+                    result.Append(string.Format(" M {0},{1} L {2},{3} ", from.x * multiplier, from.y * multiplier, to.x * multiplier, to.y * multiplier));
+                }
+            }
+            return result.ToString();
+        }
+
+
+        public Dictionary<Vector2, ushort> getAllStationOffsetPoints()
+        {
+            return linesPos;
+        }
+
     }
 
     public struct CardinalPoint
@@ -819,7 +836,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             return document.ToString();
         }
 
-        public void addStationsToExceptionMap(List<TLMMapDrawer.Station> stations)
+        public void addStationsToExceptionMap(List<Station> stations)
         {
             foreach (var s in stations)
             {
@@ -830,7 +847,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             }
         }
 
-        public void addStation(TLMMapDrawer.Station s)
+        public void addStation(Station s, Dictionary<ushort, MapTransportLine> lines)
         {
             bool inverse = false;
             string name = s.name;
@@ -852,19 +869,17 @@ namespace Klyte.TransportLinesManager.MapDrawer
             foreach (var pos in s.getAllStationOffsetPoints())
             {
                 var point = s.centralPos + pos.Key - offset;
-                var t = TLMController.instance.tm.m_lines.m_buffer[(int)pos.Value];
                 Color32 stationColor;
-                bool day, night;
-                t.GetActive(out day, out night);
-                if (day && night)
+                var line = lines[pos.Value];
+                if (line.activeDay && line.activeNight)
                 {
                     stationColor = Color.white;
                 }
-                else if (day)
+                else if (line.activeDay)
                 {
                     stationColor = Color.yellow;
                 }
-                else if (night)
+                else if (line.activeNight)
                 {
                     stationColor = Color.blue;
                 }
@@ -890,10 +905,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
             svgPart.AppendFormat(lineSegment, p1.x * multiplier, (p1.y * multiplier), p2.x * multiplier, (p2.y * multiplier), color.r, color.g, color.b);
         }
 
-        public void addTransportLineOnMap(List<TLMMapDrawer.Station> points, ushort transportLineIdx)
+        public void addTransportLineOnMap(MapTransportLine points, ushort transportLineIdx)
         {
-            TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)transportLineIdx];
-            Color32 color = new Color32(Math.Min(t.m_color.r, (byte)240), Math.Min(t.m_color.g, (byte)240), Math.Min(t.m_color.b, (byte)240), 255);
+            Color32 color = new Color32(Math.Min(points.lineColor.r, (byte)240), Math.Min(points.lineColor.g, (byte)240), Math.Min(points.lineColor.b, (byte)240), 255);
             StringBuilder path = new StringBuilder();
             Vector2 p0 = points[0].getPositionForLine(transportLineIdx, points[1].centralPos) - offset;
             path.Append("M " + p0.x * multiplier + "," + p0.y * multiplier);
@@ -901,7 +915,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             TLMUtils.doLog("SVGTEMPLATE:addPath():695 => offset = {0}; multiplier = {1}", offset, multiplier);
             Vector2 sPrevPrev = Vector2.zero;
             Vector2 sPrev = p0;
-            for (int i = 1; i < points.Count; i++)
+            for (int i = 1; i < points.stationsCount(); i++)
             {
                 var s = points[i].getPositionForLine(transportLineIdx, sPrev) - offset;
                 CardinalPoint fromDirection = CardinalPoint.ZERO;

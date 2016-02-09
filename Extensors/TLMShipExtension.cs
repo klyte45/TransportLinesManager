@@ -14,7 +14,6 @@ namespace Klyte.TransportLinesManager.Extensors
 {
     class TLMShipModifyRedirects : Redirector
     {
-        TransportInfo m_transportInfo;
         private static TLMShipModifyRedirects _instance;
         public static TLMShipModifyRedirects instance
         {
