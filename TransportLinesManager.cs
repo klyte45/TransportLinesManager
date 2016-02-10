@@ -10,7 +10,7 @@ using System.Reflection;
 using UnityEngine;
 using Klyte.TransportLinesManager.Extensors;
 
-[assembly: AssemblyVersion("4.3.3.*")] 
+[assembly: AssemblyVersion("4.3.4.*")] 
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
