@@ -31,22 +31,28 @@ namespace Klyte.TransportLinesManager.Extensors
         private static List<string> trainsAssetsList;
 
         private static Dictionary<string, int> capacities = new Dictionary<string, int>();
-
-        private static List<string> cached_tramAssetsList;
-        private static List<string> tramAssetsList
+        private static bool needReload
         {
             get
             {
-                if (cached_tramAssetsList == null)
+                return trainsAssetsList == null || bulletTrainAssetsList == null || surfaceMetroAssetsList == null || trainsAssetsList.Count + bulletTrainAssetsList.Count + surfaceMetroAssetsList.Count == 0;
+            }
+        }
+        private static List<string> cached_surfaceMetroAssetsList;
+        private static List<string> surfaceMetroAssetsList
+        {
+            get
+            {
+                if (cached_surfaceMetroAssetsList == null)
                 {
-                    cached_tramAssetsList = TransportLinesManagerMod.tramAssets.value.Split(SEPARATOR.ToCharArray()).ToList();
+                    cached_surfaceMetroAssetsList = TransportLinesManagerMod.surfaceMetroAssets.value.Split(SEPARATOR.ToCharArray()).ToList();
                 }
-                return cached_tramAssetsList;
+                return cached_surfaceMetroAssetsList;
             }
             set
             {
-                TransportLinesManagerMod.tramAssets.value = string.Join(SEPARATOR, value.Select(x => x.ToString()).ToArray());
-                cached_tramAssetsList = value;
+                TransportLinesManagerMod.surfaceMetroAssets.value = string.Join(SEPARATOR, value.Select(x => x.ToString()).ToArray());
+                cached_surfaceMetroAssetsList = value;
             }
         }
 
@@ -88,29 +94,29 @@ namespace Klyte.TransportLinesManager.Extensors
             }
         }
 
-        public static Dictionary<string, string> getTramAssetDictionary()
+        public static Dictionary<string, string> getSurfaceMetroAssetDictionary()
         {
-            if (trainsAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new Dictionary<string, string>();
             }
-            return tramAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", capacities[x], x));
+            return surfaceMetroAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", capacities[x], x));
         }
 
         public static Dictionary<string, string> getBulletTrainAssetDictionary()
         {
-            if (trainsAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new Dictionary<string, string>();
             }
             return bulletTrainAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", capacities[x], x));
         }
 
         public static Dictionary<string, string> getInactiveTrainAssetDictionary()
         {
-            if (trainsAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new Dictionary<string, string>();
             }
             return inactiveTrainAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", capacities[x], x));
 
@@ -118,9 +124,9 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public static Dictionary<string, string> getTrainAssetDictionary()
         {
-            if (trainsAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new Dictionary<string, string>();
             }
             return trainsAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", capacities[x], x));
         }
@@ -128,15 +134,15 @@ namespace Klyte.TransportLinesManager.Extensors
         private static void removeFromAllLists(string assetId)
         {
             TLMUtils.doLog("removingFromAllLists: {0}", assetId);
-            if (trainsAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return;
             }
-            List<string> items = tramAssetsList;
-            if (tramAssetsList.Contains(assetId))
+            List<string> items = surfaceMetroAssetsList;
+            if (surfaceMetroAssetsList.Contains(assetId))
             {
                 items.Remove(assetId);
-                tramAssetsList = items;
+                surfaceMetroAssetsList = items;
             }
 
             items = bulletTrainAssetsList;
@@ -157,24 +163,24 @@ namespace Klyte.TransportLinesManager.Extensors
         public static List<string> addAssetToTrainList(string assetId)
         {
             removeFromAllLists(assetId);
-            readVehicles();
+            readVehicles(); if (needReload) return new List<string>();
             return trainsAssetsList;
         }
 
-        public static List<string> addAssetToTramList(string assetId)
+        public static List<string> addAssetToSurfaceMetroList(string assetId)
         {
-            TLMUtils.doLog("addAssetToTramList: {0}", assetId);
-            if (trainsAssetsList == null)
+            TLMUtils.doLog("addAssetToSurfaceMetroList: {0}", assetId);
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new List<string>();
             }
-            List<string> items = tramAssetsList;
+            List<string> items = surfaceMetroAssetsList;
             if (!items.Contains(assetId))
             {
                 removeFromAllLists(assetId);
                 items.Add(assetId);
-                tramAssetsList = items;
-                readVehicles();
+                surfaceMetroAssetsList = items;
+                readVehicles(); if (needReload) return new List<string>();
             }
             return items;
         }
@@ -182,9 +188,9 @@ namespace Klyte.TransportLinesManager.Extensors
         public static List<string> addAssetToBulletTrainList(string assetId)
         {
             TLMUtils.doLog("addAssetToBulletTrainList: {0}", assetId);
-            if (trainsAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new List<string>();
             }
             List<string> items = bulletTrainAssetsList;
             if (!items.Contains(assetId))
@@ -200,9 +206,9 @@ namespace Klyte.TransportLinesManager.Extensors
         public static List<string> addAssetToInactiveTrainList(string assetId)
         {
             TLMUtils.doLog("addAssetToInactiveTrainList: {0}", assetId);
-            if (trainsAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new List<string>();
             }
             List<string> items = inactiveTrainAssetsList;
             if (!items.Contains(assetId))
@@ -215,9 +221,9 @@ namespace Klyte.TransportLinesManager.Extensors
             return items;
         }
 
-        public static bool isTramLine(ushort line)
+        public static bool isSurfaceMetroLine(ushort line)
         {
-            return TLMConfigWarehouse.getCurrentConfigListInt(TLMConfigWarehouse.ConfigIndex.TRAM_LINES_IDS).Contains((int)line);
+            return TLMConfigWarehouse.getCurrentConfigListInt(TLMConfigWarehouse.ConfigIndex.SURFACE_METRO_LINES_IDS).Contains((int)line);
         }
         public static bool isBulletTrainLine(ushort line)
         {
@@ -225,32 +231,32 @@ namespace Klyte.TransportLinesManager.Extensors
         }
         public static bool isTrainLine(ushort line)
         {
-            return !(isTramLine(line) ^ isBulletTrainLine(line));
+            return !(isSurfaceMetroLine(line) ^ isBulletTrainLine(line));
         }
 
-        public static bool isTramAvaliable()
+        public static bool isSurfaceMetroAvaliable()
         {
-            if (trainsAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return false;
             }
-            return tramAssetsList.Count != 0 && trainsAssetsList.Count != 0;
+            return surfaceMetroAssetsList.Count != 0 && trainsAssetsList.Count != 0;
         }
 
         public static bool isBulletTrainAvaliable()
         {
-            if (trainsAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return false;
             }
             return bulletTrainAssetsList.Count != 0 && trainsAssetsList.Count != 0;
         }
 
-        public static VehicleInfo getRandomTram()
+        public static VehicleInfo getRandomSurfaceMetro()
         {
-            if (tramAssetsList.Count == 0) return null;
+            if (surfaceMetroAssetsList.Count == 0) return null;
             Randomizer r = new Randomizer(new System.Random().Next());
-            return PrefabCollection<VehicleInfo>.FindLoaded(tramAssetsList[r.Int32(0, tramAssetsList.Count - 1)]);
+            return PrefabCollection<VehicleInfo>.FindLoaded(surfaceMetroAssetsList[r.Int32(0, surfaceMetroAssetsList.Count - 1)]);
         }
 
         public static VehicleInfo getRandomTrain()
@@ -272,12 +278,12 @@ namespace Klyte.TransportLinesManager.Extensors
         public static void forceReload()
         {
             trainsAssetsList = null;
-            readVehicles();
+            readVehicles(); if (needReload) return;
         }
 
         private static void readVehicles()
         {
-            cached_tramAssetsList = null;
+            cached_surfaceMetroAssetsList = null;
             cached_bulletTrainAssetsList = null;
             cached_inactiveTrainAssetsList = null;
 
@@ -285,7 +291,8 @@ namespace Klyte.TransportLinesManager.Extensors
             TLMUtils.doLog("PrefabCount: {0} ({1})", PrefabCollection<VehicleInfo>.PrefabCount(), PrefabCollection<VehicleInfo>.LoadedCount());
             if (PrefabCollection<VehicleInfo>.LoadedCount() == 0)
             {
-                throw new Exception("Prefabs not loaded!");
+                TLMUtils.doErrorLog("TLMTrainExtension.readVehicles(): Prefabs not loaded!");
+                return;
             }
 
             capacities = new Dictionary<string, int>();
@@ -318,18 +325,18 @@ namespace Klyte.TransportLinesManager.Extensors
             TLMUtils.doLog("trailerTrainsList: {0}", string.Join(",", trailerTrainsList.ToArray()));
             TLMUtils.doLog("PrefabCount: {0} ({1})", PrefabCollection<VehicleInfo>.PrefabCount(), PrefabCollection<VehicleInfo>.LoadedCount());
             trainsAssetsList.RemoveAll(x => trailerTrainsList.Contains(x) || x.Contains(".Trailer"));
-            var tramListTemp = new List<string>();
+            var surfaceMetroListTemp = new List<string>();
             var bulletListTemp = new List<string>();
             var inactiveListTemp = new List<string>();
-            foreach (string id in tramAssetsList)
+            foreach (string id in surfaceMetroAssetsList)
             {
                 if (trainsAssetsList.Contains(id))
                 {
-                    tramListTemp.Add(id);
+                    surfaceMetroListTemp.Add(id);
                     trainsAssetsList.Remove(id);
                 }
             }
-            tramAssetsList = tramListTemp;
+            surfaceMetroAssetsList = surfaceMetroListTemp;
             foreach (string id in bulletTrainAssetsList)
             {
                 if (trainsAssetsList.Contains(id))
@@ -360,7 +367,7 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             var t = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine];
             TLMUtils.doLog("SetTransportLine! Prefab id: {0} ({4}), For line: {1} {2} ({3})", data.Info.m_prefabDataIndex, t.Info.m_transportType, t.m_lineNumber, transportLine, data.Info.name);
-            TLMUtils.doLog("SetTransportLine! isTramAvaliable? {0}", isTramAvaliable());
+            TLMUtils.doLog("SetTransportLine! isSurfaceMetroAvaliable? {0}", isSurfaceMetroAvaliable());
             this.RemoveLine(vehicleID, ref data);
 
             data.m_transportLine = transportLine;
@@ -370,11 +377,11 @@ namespace Klyte.TransportLinesManager.Extensors
                 {
                     var transportType = TLMConfigWarehouse.getConfigIndexForLine(transportLine);
 
-                    if (transportType == TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG && isTramAvaliable())
+                    if (transportType == TLMConfigWarehouse.ConfigIndex.SURFACE_METRO_CONFIG && isSurfaceMetroAvaliable())
                     {
-                        if (!tramAssetsList.Contains(data.Info.name))
+                        if (!surfaceMetroAssetsList.Contains(data.Info.name))
                         {
-                            var randomInfo = getRandomTram();
+                            var randomInfo = getRandomSurfaceMetro();
                             if (randomInfo != null)
                             {
                                 data.Info = randomInfo;
@@ -474,7 +481,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public void OnCreated(ILoading loading)
         {
-            TLMUtils.doLog("TLMTramRedirects Criado!");
+            TLMUtils.doLog("TLMSurfaceMetroRedirects Criado!");
         }
         #endregion
 
@@ -505,7 +512,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 DisableHooks();
             }
-            TLMUtils.doLog("Loading Tram Hooks!");
+            TLMUtils.doLog("Loading SurfaceMetro Hooks!");
             AddRedirect(typeof(PassengerTrainAI), typeof(TLMTrainModifyRedirects).GetMethod("SetTransportLine", allFlags), ref redirects);
             AddRedirect(typeof(PassengerTrainAI), typeof(TLMTrainModifyRedirects).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null), ref redirects);
             AddRedirect(typeof(TLMTrainModifyRedirects), typeof(TrainAI).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3) }, null), ref redirects);

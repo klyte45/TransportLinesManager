@@ -139,8 +139,8 @@ namespace Klyte.TransportLinesManager
             invertPrefixSuffix = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
             switch (transportType)
             {
-                case TLMCW.ConfigIndex.TRAM_CONFIG:
-                    icon = "TramIcon";
+                case TLMCW.ConfigIndex.SURFACE_METRO_CONFIG:
+                    icon = "SurfaceMetroIcon";
                     return ItemClass.SubService.PublicTransportTrain;
                 case TLMCW.ConfigIndex.BULLET_TRAIN_CONFIG:
                     icon = "BulletTrainIcon";
@@ -330,7 +330,7 @@ namespace Klyte.TransportLinesManager
                         case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
                             transportTypeLetter = "C";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.SURFACE_METRO_CONFIG:
                             transportTypeLetter = "D";
                             break;
                         case TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG:
@@ -1446,6 +1446,7 @@ namespace Klyte.TransportLinesManager
             UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)
             {
+                TLMUtils.doErrorLog("Could not find resource: " + name);
                 DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "Could not find resource: " + name);
                 return null;
             }
@@ -1461,6 +1462,7 @@ namespace Klyte.TransportLinesManager
             UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)
             {
+                TLMUtils.doErrorLog("Could not find resource: " + name);
                 DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "Could not find resource: " + name);
                 return null;
             }

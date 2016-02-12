@@ -48,6 +48,14 @@ namespace Klyte.TransportLinesManager.Extensors
             }
         }
 
+        private static bool needReload
+        {
+            get
+            {
+                return busAssetsList == null || lowBusAssetsList == null || highBusAssetsList == null || lowBusAssetsList.Count + busAssetsList.Count + highBusAssetsList.Count == 0;
+            }
+        }
+
 
         private static List<string> cached_highBusAssetsList;
         private static List<string> highBusAssetsList
@@ -88,27 +96,27 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public static Dictionary<string, string> getLowBusAssetDictionary()
         {
-            if (busAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new Dictionary<string, string>();
             }
             return lowBusAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", (PrefabCollection<VehicleInfo>.FindLoaded(x).GetAI() as BusAI).m_passengerCapacity, x));
         }
 
         public static Dictionary<string, string> getHighBusAssetDictionary()
         {
-            if (busAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new Dictionary<string, string>();
             }
             return highBusAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", (PrefabCollection<VehicleInfo>.FindLoaded(x).GetAI() as BusAI).m_passengerCapacity, x));
         }
 
         public static Dictionary<string, string> getInactiveBusAssetDictionary()
         {
-            if (busAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new Dictionary<string, string>();
             }
             return inactiveBusAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", (PrefabCollection<VehicleInfo>.FindLoaded(x).GetAI() as BusAI).m_passengerCapacity, x));
 
@@ -116,9 +124,9 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public static Dictionary<string, string> getBusAssetDictionary()
         {
-            if (busAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new Dictionary<string, string>();
             }
             return busAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", (PrefabCollection<VehicleInfo>.FindLoaded(x).GetAI() as BusAI).m_passengerCapacity, x));
         }
@@ -126,9 +134,9 @@ namespace Klyte.TransportLinesManager.Extensors
         private static void removeFromAllLists(string assetId)
         {
             TLMUtils.doLog("removingFromAllLists: {0}", assetId);
-            if (busAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return;
             }
             List<string> items = lowBusAssetsList;
             if (lowBusAssetsList.Contains(assetId))
@@ -156,16 +164,16 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             TLMUtils.doLog("addAssetToBusList: {0}", assetId);
             removeFromAllLists(assetId);
-            readVehicles();
+            readVehicles(); if (needReload) return new List<string>();
             return busAssetsList;
         }
 
         public static List<string> addAssetToLowBusList(string assetId)
         {
             TLMUtils.doLog("addAssetToLowBusList: {0}", assetId);
-            if (busAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new List<string>();
             }
             List<string> items = lowBusAssetsList;
             if (!items.Contains(assetId))
@@ -181,9 +189,9 @@ namespace Klyte.TransportLinesManager.Extensors
         public static List<string> addAssetToHighBusList(string assetId)
         {
             TLMUtils.doLog("addAssetToHighBusList: {0}", assetId);
-            if (busAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new List<string>();
             }
             List<string> items = highBusAssetsList;
             if (!items.Contains(assetId))
@@ -199,9 +207,9 @@ namespace Klyte.TransportLinesManager.Extensors
         public static List<string> addAssetToInactiveBusList(string assetId)
         {
             TLMUtils.doLog("addAssetToInactiveBusList: {0}", assetId);
-            if (busAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return new List<string>();
             }
             List<string> items = inactiveBusAssetsList;
             if (!items.Contains(assetId))
@@ -230,18 +238,18 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public static bool isLowBusAvaliable()
         {
-            if (busAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return false;
             }
             return lowBusAssetsList.Count != 0 && busAssetsList.Count != 0;
         }
 
         public static bool isHighBusAvaliable()
         {
-            if (busAssetsList == null)
+            if (needReload)
             {
-                readVehicles();
+                readVehicles(); if (needReload) return false;
             }
             return highBusAssetsList.Count != 0 && busAssetsList.Count != 0;
         }
@@ -273,7 +281,15 @@ namespace Klyte.TransportLinesManager.Extensors
         public static void forceReload()
         {
             busAssetsList = null;
-            readVehicles();
+            try
+            {
+                readVehicles(); if (needReload) return;
+            }
+            catch (Exception e)
+            {
+                TLMUtils.doErrorLog(e.Message);
+                busAssetsList = new List<string>();
+            }
         }
 
         private static void readVehicles()
@@ -286,7 +302,8 @@ namespace Klyte.TransportLinesManager.Extensors
             TLMUtils.doLog("PrefabCount: {0} ({1})", PrefabCollection<VehicleInfo>.PrefabCount(), PrefabCollection<VehicleInfo>.LoadedCount());
             if (PrefabCollection<VehicleInfo>.LoadedCount() == 0)
             {
-                throw new Exception("Prefabs not loaded!");
+                TLMUtils.doErrorLog("Prefabs not loaded!");
+                return;
             }
 
             busAssetsList = new List<string>();

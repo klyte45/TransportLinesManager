@@ -18,7 +18,7 @@ namespace Klyte.TransportLinesManager.UI
         private float offset;
         private Dictionary<Int32, UInt16> trainList;
         private Dictionary<Int32, UInt16> metroList;
-        private Dictionary<Int32, UInt16> tramList;
+        private Dictionary<Int32, UInt16> surfaceMetroList;
         private Dictionary<Int32, UInt16> bulletTrainList;
         private Dictionary<Int32, UInt16> busList;
         private Dictionary<Int32, UInt16> lowBusList;
@@ -29,7 +29,7 @@ namespace Klyte.TransportLinesManager.UI
         private UIButton busLeg;
         private UIButton lowBusLeg;
         private UIButton highBusLeg;
-        private UIButton tramLeg;
+        private UIButton surfaceMetroLeg;
         private UIButton bulletTrainLeg;
         private UIButton shipLeg;
         private UIScrollablePanel allLinesListPanel;
@@ -62,6 +62,7 @@ namespace Klyte.TransportLinesManager.UI
 
         public void Show()
         {
+            TransportLinesManagerMod.instance.showVersionInfoPopup();
             mainPanel.Show();
             clearLines();
             listLines();
@@ -142,15 +143,15 @@ namespace Klyte.TransportLinesManager.UI
                 return trainList;
             }
         }
-        public Dictionary<Int32, UInt16> trams
+        public Dictionary<Int32, UInt16> surfaceMetros
         {
             get
             {
-                if (tramList == null)
+                if (surfaceMetroList == null)
                 {
                     listLines();
                 }
-                return tramList;
+                return surfaceMetroList;
             }
         }
 
@@ -222,7 +223,7 @@ namespace Klyte.TransportLinesManager.UI
             allLinesListPanel.ScrollToTop();
             filteredLinesListPanel.ScrollToTop();
 
-            foreach (var x in new UIButton[] { shipLeg, bulletTrainLeg, highBusLeg, lowBusLeg, metroLeg, trainLeg, tramLeg, busLeg })
+            foreach (var x in new UIButton[] { shipLeg, bulletTrainLeg, highBusLeg, lowBusLeg, metroLeg, trainLeg, surfaceMetroLeg, busLeg })
             {
                 if (x != null)
                 {
@@ -291,7 +292,7 @@ namespace Klyte.TransportLinesManager.UI
             busList = new Dictionary<int, ushort>();
             lowBusList = new Dictionary<int, ushort>();
             highBusList = new Dictionary<int, ushort>();
-            tramList = new Dictionary<int, ushort>();
+            surfaceMetroList = new Dictionary<int, ushort>();
             bulletTrainList = new Dictionary<int, ushort>();
             shipList = new Dictionary<int, ushort>();
 
@@ -368,13 +369,13 @@ namespace Klyte.TransportLinesManager.UI
                         }
                         else
                         {
-                            if (TLMCW.getCurrentConfigListInt(TLMConfigWarehouse.ConfigIndex.TRAM_LINES_IDS).Contains(i))
+                            if (TLMCW.getCurrentConfigListInt(TLMConfigWarehouse.ConfigIndex.SURFACE_METRO_LINES_IDS).Contains(i))
                             {
-                                while (tramList.ContainsKey(t.m_lineNumber))
+                                while (surfaceMetroList.ContainsKey(t.m_lineNumber))
                                 {
                                     t.m_lineNumber++;
                                 }
-                                tramList.Add(t.m_lineNumber, i);
+                                surfaceMetroList.Add(t.m_lineNumber, i);
                             }
                             else if (TLMCW.getCurrentConfigListInt(TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains(i))
                             {
@@ -406,7 +407,7 @@ namespace Klyte.TransportLinesManager.UI
                 offset += drawButtonsFromDictionary(shipList, offset);
                 offset += drawButtonsFromDictionary(bulletTrainList, offset);
                 offset += drawButtonsFromDictionary(trainList, offset);
-                offset += drawButtonsFromDictionary(tramList, offset);
+                offset += drawButtonsFromDictionary(surfaceMetroList, offset);
                 offset += drawButtonsFromDictionary(metroList, offset);
                 offset += drawButtonsFromDictionary(highBusList, offset);
                 offset += drawButtonsFromDictionary(busList, offset);
@@ -448,10 +449,10 @@ namespace Klyte.TransportLinesManager.UI
                         busLeg.focusedColor = new Color32(0, 128, 0, 255);
                         drawDetailedButtonFromDictionary(busList);
                         break;
-                    case CurrentFilterSelected.TLM_TRAM:
-                        tramLeg.color = new Color32(0, 128, 0, 255);
-                        tramLeg.focusedColor = new Color32(0, 128, 0, 255);
-                        drawDetailedButtonFromDictionary(tramList);
+                    case CurrentFilterSelected.SURFACE_METRO:
+                        surfaceMetroLeg.color = new Color32(0, 128, 0, 255);
+                        surfaceMetroLeg.focusedColor = new Color32(0, 128, 0, 255);
+                        drawDetailedButtonFromDictionary(surfaceMetroList);
                         break;
                     case CurrentFilterSelected.SHIP:
                         shipLeg.color = new Color32(0, 128, 0, 255);
@@ -708,7 +709,7 @@ namespace Klyte.TransportLinesManager.UI
             if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
             {
                 addIcon(60, "BulletTrain", "BulletTrainImage", ref bulletTrainLeg, CurrentFilterSelected.BULLET, true);
-                addIcon(160, "Tram", "TramImage", ref tramLeg, CurrentFilterSelected.TLM_TRAM, true);
+                addIcon(160, "SurfaceMetro", "SurfaceMetroImage", ref surfaceMetroLeg, CurrentFilterSelected.SURFACE_METRO, true);
                 addIcon(360, "LowBus", "LowBusImage", ref lowBusLeg, CurrentFilterSelected.LOW_BUS, true);
                 addIcon(260, "HighBus", "HighBusImage", ref highBusLeg, CurrentFilterSelected.HIGH_BUS, true);
             }
@@ -902,7 +903,7 @@ namespace Klyte.TransportLinesManager.UI
             NONE,
             BULLET,
             REGIONAL_TRAIN,
-            TLM_TRAM,
+            SURFACE_METRO,
             METRO,
             HIGH_BUS,
             REGULAR_BUS,

@@ -16,12 +16,12 @@ namespace Klyte.TransportLinesManager
         public static readonly ConfigIndex[] PALETTES_INDEXES = new ConfigIndex[] {
            ConfigIndex. SHIP_PALETTE_MAIN,
            ConfigIndex. TRAIN_PALETTE_MAIN,
-          ConfigIndex.   TRAM_PALETTE_MAIN,
+          ConfigIndex.   SURFACE_METRO_PALETTE_MAIN,
          ConfigIndex.    METRO_PALETTE_MAIN ,
          ConfigIndex.    BUS_PALETTE_MAIN ,
            ConfigIndex. SHIP_PALETTE_SUBLINE,
          ConfigIndex.    TRAIN_PALETTE_SUBLINE,
-        ConfigIndex.     TRAM_PALETTE_SUBLINE,
+        ConfigIndex.     SURFACE_METRO_PALETTE_SUBLINE,
          ConfigIndex.    METRO_PALETTE_SUBLINE,
          ConfigIndex.    BUS_PALETTE_SUBLINE,
          ConfigIndex.    BULLET_TRAIN_PALETTE_MAIN ,
@@ -97,11 +97,11 @@ namespace Klyte.TransportLinesManager
             TLMUtils.doLog("t.Info.m_transportType = {0};transportType = {1} ", t.Info.m_transportType, transportType);
             if (t.Info.m_transportType == TransportInfo.TransportType.Train)
             {
-                TLMUtils.doLog("isTram? {0}", getCurrentConfigListInt(ConfigIndex.TRAM_LINES_IDS).Contains(i));
+                TLMUtils.doLog("isSurfaceMetro? {0}", getCurrentConfigListInt(ConfigIndex.SURFACE_METRO_LINES_IDS).Contains(i));
                 TLMUtils.doLog("isBullet? {0}", getCurrentConfigListInt(ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains(i));
-                if (getCurrentConfigListInt(ConfigIndex.TRAM_LINES_IDS).Contains(i))
+                if (getCurrentConfigListInt(ConfigIndex.SURFACE_METRO_LINES_IDS).Contains(i))
                 {
-                    transportType = ConfigIndex.TRAM_CONFIG;
+                    transportType = ConfigIndex.SURFACE_METRO_CONFIG;
                 }
                 else if (getCurrentConfigListInt(ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains(i))
                 {
@@ -255,12 +255,12 @@ namespace Klyte.TransportLinesManager
             {
                 case ConfigIndex.TRAIN_CONFIG:
                     return new Color32(250, 104, 0, 255);
-                case ConfigIndex.TRAM_CONFIG:
-                    return new Color32(73, 27, 137, 255);
+                case ConfigIndex.SURFACE_METRO_CONFIG:
+                    return new Color32(23, 89, 10, 255);
                 case ConfigIndex.BULLET_TRAIN_CONFIG:
                     return new Color32(127, 28, 7, 255);
                 case ConfigIndex.METRO_CONFIG:
-                    return new Color32(58, 117, 50, 255);
+                    return new Color32(58, 224, 50, 255);
                 case ConfigIndex.BUS_CONFIG:
                     return new Color32(53, 121, 188, 255);
                 case ConfigIndex.LOW_BUS_CONFIG:
@@ -314,8 +314,8 @@ namespace Klyte.TransportLinesManager
             {
                 case ConfigIndex.TRAIN_CONFIG:
                     return "Train";
-                case ConfigIndex.TRAM_CONFIG:
-                    return "Tram";
+                case ConfigIndex.SURFACE_METRO_CONFIG:
+                    return "Surface Metro";
                 case ConfigIndex.BULLET_TRAIN_CONFIG:
                     return "Bullet Train";
                 case ConfigIndex.METRO_CONFIG:
@@ -375,7 +375,7 @@ namespace Klyte.TransportLinesManager
             USE_FOR_AUTO_NAMING_REF = 0x2000000 | TYPE_BOOL,
             AUTO_NAMING_REF_TEXT = 0x3000000 | TYPE_STRING,
 
-            TRAM_LINES_IDS = GLOBAL_CONFIG | 0x1 | TYPE_LIST,
+            SURFACE_METRO_LINES_IDS = GLOBAL_CONFIG | 0x1 | TYPE_LIST,
             AUTO_COLOR_ENABLED = GLOBAL_CONFIG | 0x2 | TYPE_BOOL,
             CIRCULAR_IN_SINGLE_DISTRICT_LINE = GLOBAL_CONFIG | 0x3 | TYPE_BOOL,
             AUTO_NAME_ENABLED = GLOBAL_CONFIG | 0x4 | TYPE_BOOL,
@@ -384,7 +384,7 @@ namespace Klyte.TransportLinesManager
             LOW_BUS_LINES_IDS = GLOBAL_CONFIG | 0x7 | TYPE_LIST,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
-            TRAM_CONFIG = 0xFF0000,
+            SURFACE_METRO_CONFIG = 0xFF0000,
             BULLET_TRAIN_CONFIG = 0xFE0000,
             HIGH_BUS_CONFIG = 0xFD0000,
             LOW_BUS_CONFIG = 0xFC0000,
@@ -435,7 +435,7 @@ namespace Klyte.TransportLinesManager
             INVERT_PREFIX_SUFFIX = 0xA | TYPE_BOOL,
 
             TRAIN_PREFIX = TRAIN_CONFIG | PREFIX,
-            TRAM_PREFIX = TRAM_CONFIG | PREFIX,
+            SURFACE_METRO_PREFIX = SURFACE_METRO_CONFIG | PREFIX,
             METRO_PREFIX = METRO_CONFIG | PREFIX,
             BUS_PREFIX = BUS_CONFIG | PREFIX,
             LOW_BUS_PREFIX = LOW_BUS_CONFIG | PREFIX,
@@ -444,7 +444,7 @@ namespace Klyte.TransportLinesManager
             SHIP_PREFIX = SHIP_CONFIG | PREFIX,
 
             TRAIN_SEPARATOR = TRAIN_CONFIG | SEPARATOR,
-            TRAM_SEPARATOR = TRAM_CONFIG | SEPARATOR,
+            SURFACE_METRO_SEPARATOR = SURFACE_METRO_CONFIG | SEPARATOR,
             METRO_SEPARATOR = METRO_CONFIG | SEPARATOR,
             BUS_SEPARATOR = BUS_CONFIG | SEPARATOR,
             LOW_BUS_SEPARATOR = LOW_BUS_CONFIG | SEPARATOR,
@@ -453,7 +453,7 @@ namespace Klyte.TransportLinesManager
             SHIP_SEPARATOR = SHIP_CONFIG | SEPARATOR,
 
             TRAIN_SUFFIX = TRAIN_CONFIG | SUFFIX,
-            TRAM_SUFFIX = TRAM_CONFIG | SUFFIX,
+            SURFACE_METRO_SUFFIX = SURFACE_METRO_CONFIG | SUFFIX,
             METRO_SUFFIX = METRO_CONFIG | SUFFIX,
             BUS_SUFFIX = BUS_CONFIG | SUFFIX,
             LOW_BUS_SUFFIX = LOW_BUS_CONFIG | SUFFIX,
@@ -462,7 +462,7 @@ namespace Klyte.TransportLinesManager
             SHIP_SUFFIX = SHIP_CONFIG | SUFFIX,
 
             TRAIN_LEADING_ZEROS = TRAIN_CONFIG | LEADING_ZEROS,
-            TRAM_LEADING_ZEROS = TRAM_CONFIG | LEADING_ZEROS,
+            SURFACE_METRO_LEADING_ZEROS = SURFACE_METRO_CONFIG | LEADING_ZEROS,
             METRO_LEADING_ZEROS = METRO_CONFIG | LEADING_ZEROS,
             BUS_LEADING_ZEROS = BUS_CONFIG | LEADING_ZEROS,
             LOW_BUS_LEADING_ZEROS = LOW_BUS_CONFIG | LEADING_ZEROS,
@@ -471,7 +471,7 @@ namespace Klyte.TransportLinesManager
             SHIP_LEADING_ZEROS = SHIP_CONFIG | LEADING_ZEROS,
 
             TRAIN_INVERT_PREFIX_SUFFIX = TRAIN_CONFIG | INVERT_PREFIX_SUFFIX,
-            TRAM_INVERT_PREFIX_SUFFIX = TRAM_CONFIG | INVERT_PREFIX_SUFFIX,
+            SURFACE_METRO_INVERT_PREFIX_SUFFIX = SURFACE_METRO_CONFIG | INVERT_PREFIX_SUFFIX,
             METRO_INVERT_PREFIX_SUFFIX = METRO_CONFIG | INVERT_PREFIX_SUFFIX,
             BUS_INVERT_PREFIX_SUFFIX = BUS_CONFIG | INVERT_PREFIX_SUFFIX,
             LOW_BUS_INVERT_PREFIX_SUFFIX = LOW_BUS_CONFIG | INVERT_PREFIX_SUFFIX,
@@ -480,7 +480,7 @@ namespace Klyte.TransportLinesManager
             SHIP_INVERT_PREFIX_SUFFIX = SHIP_CONFIG | INVERT_PREFIX_SUFFIX,
 
             TRAIN_PALETTE_MAIN = TRAIN_CONFIG | PALETTE_MAIN,
-            TRAM_PALETTE_MAIN = TRAM_CONFIG | PALETTE_MAIN,
+            SURFACE_METRO_PALETTE_MAIN = SURFACE_METRO_CONFIG | PALETTE_MAIN,
             METRO_PALETTE_MAIN = METRO_CONFIG | PALETTE_MAIN,
             BUS_PALETTE_MAIN = BUS_CONFIG | PALETTE_MAIN,
             LOW_BUS_PALETTE_MAIN = LOW_BUS_CONFIG | PALETTE_MAIN,
@@ -489,7 +489,7 @@ namespace Klyte.TransportLinesManager
             SHIP_PALETTE_MAIN = SHIP_CONFIG | PALETTE_MAIN,
 
             TRAIN_PALETTE_SUBLINE = TRAIN_CONFIG | PALETTE_SUBLINE,
-            TRAM_PALETTE_SUBLINE = TRAM_CONFIG | PALETTE_SUBLINE,
+            SURFACE_METRO_PALETTE_SUBLINE = SURFACE_METRO_CONFIG | PALETTE_SUBLINE,
             METRO_PALETTE_SUBLINE = METRO_CONFIG | PALETTE_SUBLINE,
             BUS_PALETTE_SUBLINE = BUS_CONFIG | PALETTE_SUBLINE,
             LOW_BUS_PALETTE_SUBLINE = LOW_BUS_CONFIG | PALETTE_SUBLINE,
@@ -498,7 +498,7 @@ namespace Klyte.TransportLinesManager
             SHIP_PALETTE_SUBLINE = SHIP_CONFIG | PALETTE_SUBLINE,
 
             TRAIN_PALETTE_RANDOM_ON_OVERFLOW = TRAIN_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
-            TRAM_PALETTE_RANDOM_ON_OVERFLOW = TRAM_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
+            SURFACE_METRO_PALETTE_RANDOM_ON_OVERFLOW = SURFACE_METRO_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             METRO_PALETTE_RANDOM_ON_OVERFLOW = METRO_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             BUS_PALETTE_RANDOM_ON_OVERFLOW = BUS_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             LOW_BUS_PALETTE_RANDOM_ON_OVERFLOW = LOW_BUS_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
@@ -507,7 +507,7 @@ namespace Klyte.TransportLinesManager
             SHIP_PALETTE_RANDOM_ON_OVERFLOW = SHIP_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
 
             TRAIN_PALETTE_PREFIX_BASED = TRAIN_CONFIG | PALETTE_PREFIX_BASED,
-            TRAM_PALETTE_PREFIX_BASED = TRAM_CONFIG | PALETTE_PREFIX_BASED,
+            SURFACE_METRO_PALETTE_PREFIX_BASED = SURFACE_METRO_CONFIG | PALETTE_PREFIX_BASED,
             METRO_PALETTE_PREFIX_BASED = METRO_CONFIG | PALETTE_PREFIX_BASED,
             BUS_PALETTE_PREFIX_BASED = BUS_CONFIG | PALETTE_PREFIX_BASED,
             LOW_BUS_PALETTE_PREFIX_BASED = LOW_BUS_CONFIG | PALETTE_PREFIX_BASED,
@@ -516,7 +516,7 @@ namespace Klyte.TransportLinesManager
             SHIP_PALETTE_PREFIX_BASED = SHIP_CONFIG | PALETTE_PREFIX_BASED,
 
             TRAIN_SHOW_IN_LINEAR_MAP = TRAIN_CONFIG | SHOW_IN_LINEAR_MAP,
-            TRAM_SHOW_IN_LINEAR_MAP = TRAM_CONFIG | SHOW_IN_LINEAR_MAP,
+            SURFACE_METRO_SHOW_IN_LINEAR_MAP = SURFACE_METRO_CONFIG | SHOW_IN_LINEAR_MAP,
             METRO_SHOW_IN_LINEAR_MAP = METRO_CONFIG | SHOW_IN_LINEAR_MAP,
             BUS_SHOW_IN_LINEAR_MAP = BUS_CONFIG | SHOW_IN_LINEAR_MAP,
             LOW_BUS_SHOW_IN_LINEAR_MAP = LOW_BUS_CONFIG | SHOW_IN_LINEAR_MAP,
