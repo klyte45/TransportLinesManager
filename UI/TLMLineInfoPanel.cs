@@ -61,7 +61,9 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     return lineInfoPanel.gameObject;
                 }
+#pragma warning disable CS0168 // Variable is declared but never used
                 catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
                 {
                     return null;
                 }
@@ -158,6 +160,10 @@ namespace Klyte.TransportLinesManager.UI
                     numeroUsado = m_controller.mainPanel.metro.Keys.Contains(numLinha) && m_controller.mainPanel.metro[numLinha] != m_lineIdSelecionado.TransportLine;
                     break;
 
+                case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                    numeroUsado = m_controller.mainPanel.trams.Keys.Contains(numLinha) && m_controller.mainPanel.trams[numLinha] != m_lineIdSelecionado.TransportLine;
+                    break;
+
                 case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
                     numeroUsado = m_controller.mainPanel.train.Keys.Contains(numLinha) && m_controller.mainPanel.train[numLinha] != m_lineIdSelecionado.TransportLine;
                     break;
@@ -243,6 +249,7 @@ namespace Klyte.TransportLinesManager.UI
             lineInfoPanel.relativePosition = new Vector3(394.0f, 0.0f);
             lineInfoPanel.width = 650;
             lineInfoPanel.height = 290;
+            lineInfoPanel.zOrder = 50;
             lineInfoPanel.color = new Color32(255, 255, 255, 255);
             lineInfoPanel.backgroundSprite = "MenuPanel2";
             lineInfoPanel.name = "LineInfoPanel";

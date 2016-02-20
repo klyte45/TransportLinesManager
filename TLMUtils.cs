@@ -160,6 +160,9 @@ namespace Klyte.TransportLinesManager
                 case TLMCW.ConfigIndex.HIGH_BUS_CONFIG:
                     icon = "HighBusIcon";
                     return ItemClass.SubService.PublicTransportBus;
+                case TLMCW.ConfigIndex.TRAM_CONFIG:
+                    icon = "TramIcon";
+                    return ItemClass.SubService.PublicTransportBus;
                 case TLMCW.ConfigIndex.SHIP_CONFIG:
                     icon = "ShipLineIcon";
                     return ItemClass.SubService.PublicTransportShip;
@@ -316,13 +319,16 @@ namespace Klyte.TransportLinesManager
                             transportTypeLetter = "A";
                             break;
                         case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
-                            transportTypeLetter = "G";
+                            transportTypeLetter = "H";
                             break;
                         case TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG:
-                            transportTypeLetter = "F";
+                            transportTypeLetter = "G";
                             break;
                         case TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG:
-                            transportTypeLetter = "H";
+                            transportTypeLetter = "I";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                            transportTypeLetter = "F";
                             break;
                         case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
                             transportTypeLetter = "E";
@@ -819,7 +825,7 @@ namespace Klyte.TransportLinesManager
             ushort[] stopBuildings = new ushort[stopsCount];
             MultiMap<ushort, Vector3> bufferToDraw = new MultiMap<ushort, Vector3>();
             int middle;
-            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && CalculateSimmetry(ss, stopsCount, t, out middle))
+            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && CalculateSimmetry(ss, stopsCount, t, out middle))
             {
                 ItemClass.Service nil;
                 ItemClass.SubService nil2;
@@ -1639,7 +1645,9 @@ namespace Klyte.TransportLinesManager
             {
                 return int.Parse(val);
             }
+#pragma warning disable CS0168 // Variable is declared but never used
             catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
             {
                 return defaultVal;
             }

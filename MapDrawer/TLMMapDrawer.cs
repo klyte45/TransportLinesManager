@@ -163,10 +163,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
         private static int getLineUID(ushort lineId)
         {
-            return lineId;
-            var t = TLMController.instance.tm.m_lines.m_buffer[lineId];
-            int result = ((int)t.Info.m_transportType << 16) | t.m_lineNumber;
-            return result;
+            return lineId;            
         }
 
 
@@ -557,6 +554,11 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 InternalValue = c1.InternalValue | c2.InternalValue
             };
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         public override bool Equals(object o)

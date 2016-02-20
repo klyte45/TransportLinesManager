@@ -55,7 +55,9 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     return mainContainer.gameObject;
                 }
+#pragma warning disable CS0168 // Variable is declared but never used
                 catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
                 {
                     return null;
                 }
@@ -122,7 +124,7 @@ namespace Klyte.TransportLinesManager.UI
             string airport, taxi;
             int middle;
             bool simmetric = TLMUtils.CalculateSimmetry(ss, stopsCount, t, out middle);
-            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && simmetric && !showExtraStopInfo)
+            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && simmetric && !showExtraStopInfo)
             {
                 lineStationsPanel.width = 5;
                 for (int j = middle; j <= middle + stopsCount / 2; j++)
@@ -249,7 +251,9 @@ namespace Klyte.TransportLinesManager.UI
                 vehiclesOnStation[stopId] = busesOnStation + 1;
                 vehicleLabel.position = new Vector3(destX, yOffset);
             }
+#pragma warning disable CS0168 // Variable is declared but never used
             catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
             {
                 TLMUtils.doLog("ERROR UPDATING VEHICLE!!!");
                 redrawLine();

@@ -1,17 +1,5 @@
-﻿**PREPARING MOD FOR SNOWFALL**
-    -Changed name of Tram system to Surface Metro system. Its color is dark green. The purple color is reserved to the Snowfall's Tram system;
-    -The models selected for TLM's Tram system now are back to Regional Train category. You can:
-        -Choose move they to Surface Metro again;
-        -Deactivate them, moving to gray box; or
-        -Keep in Regional Train category;
-    -The TLM's Tram lines are reseted to Regional category.
+﻿4.5.X
+- Added support to Trams
 
-<<<< ! >>>> ATTENTION! <<<< ! >>>>
-You can keep using the Surface Metro system as the Tram system was before. It just a different name for this category of train. ;)
-
-[[[[ i ]]]] INFO [[[[ i ]]]]
-The TLM's full compatible version for snowfall would be ready on weekend after the release (Feb 20th)
-
-**OTHER**
--Added handling to exceptions about loading prefabs;
--Added info popup showing what's new in TLM.
+BUG FIXING
+    - Now the number of line is used correctly in prefixed lines which doesn't use auto color by prefix.

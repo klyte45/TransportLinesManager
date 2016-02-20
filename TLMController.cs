@@ -265,6 +265,10 @@ namespace Klyte.TransportLinesManager
                     {
                         num /= 1000;
                     }
+                    else
+                    {
+                        num %= 1000;
+                    }
                 }
                 Color c = TLMAutoColorPalettes.getColor(num, pal, randomOnOverflow);
                 TLMUtils.setLineColor(i, c);

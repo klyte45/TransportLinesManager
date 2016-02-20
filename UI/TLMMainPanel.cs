@@ -21,10 +21,12 @@ namespace Klyte.TransportLinesManager.UI
         private Dictionary<Int32, UInt16> surfaceMetroList;
         private Dictionary<Int32, UInt16> bulletTrainList;
         private Dictionary<Int32, UInt16> busList;
+        private Dictionary<Int32, UInt16> tramList;
         private Dictionary<Int32, UInt16> lowBusList;
         private Dictionary<Int32, UInt16> highBusList;
         private Dictionary<Int32, UInt16> shipList;
         private UIButton trainLeg;
+        private UIButton tramLeg;
         private UIButton metroLeg;
         private UIButton busLeg;
         private UIButton lowBusLeg;
@@ -81,7 +83,9 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     return mainPanel.gameObject;
                 }
+#pragma warning disable CS0168 // Variable is declared but never used
                 catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
                 {
                     return null;
                 }
@@ -178,6 +182,19 @@ namespace Klyte.TransportLinesManager.UI
                 return busList;
             }
         }
+
+        public Dictionary<Int32, UInt16> trams
+        {
+            get
+            {
+                if (tramList == null)
+                {
+                    listLines();
+                }
+                return tramList;
+            }
+        }
+
         public Dictionary<Int32, UInt16> lowBus
         {
             get
@@ -223,7 +240,7 @@ namespace Klyte.TransportLinesManager.UI
             allLinesListPanel.ScrollToTop();
             filteredLinesListPanel.ScrollToTop();
 
-            foreach (var x in new UIButton[] { shipLeg, bulletTrainLeg, highBusLeg, lowBusLeg, metroLeg, trainLeg, surfaceMetroLeg, busLeg })
+            foreach (var x in new UIButton[] { shipLeg, bulletTrainLeg, highBusLeg, lowBusLeg, metroLeg, trainLeg, surfaceMetroLeg, busLeg, tramLeg })
             {
                 if (x != null)
                 {
@@ -295,6 +312,7 @@ namespace Klyte.TransportLinesManager.UI
             surfaceMetroList = new Dictionary<int, ushort>();
             bulletTrainList = new Dictionary<int, ushort>();
             shipList = new Dictionary<int, ushort>();
+            tramList = new Dictionary<int, ushort>();
 
             for (ushort i = 0; i < m_controller.tm.m_lines.m_size; i++)
             {
@@ -347,6 +365,13 @@ namespace Klyte.TransportLinesManager.UI
                             t.m_lineNumber++;
                         }
                         metroList.Add(t.m_lineNumber, i);
+                        break;
+                    case TransportInfo.TransportType.Tram:
+                        while (tramList.ContainsKey(t.m_lineNumber))
+                        {
+                            t.m_lineNumber++;
+                        }
+                        tramList.Add(t.m_lineNumber, i);
                         break;
 
                     case TransportInfo.TransportType.Ship:
@@ -409,6 +434,7 @@ namespace Klyte.TransportLinesManager.UI
                 offset += drawButtonsFromDictionary(trainList, offset);
                 offset += drawButtonsFromDictionary(surfaceMetroList, offset);
                 offset += drawButtonsFromDictionary(metroList, offset);
+                offset += drawButtonsFromDictionary(tramList, offset);
                 offset += drawButtonsFromDictionary(highBusList, offset);
                 offset += drawButtonsFromDictionary(busList, offset);
                 offset += drawButtonsFromDictionary(lowBusList, offset);
@@ -438,6 +464,11 @@ namespace Klyte.TransportLinesManager.UI
                         metroLeg.color = new Color32(0, 128, 0, 255);
                         metroLeg.focusedColor = new Color32(0, 128, 0, 255);
                         drawDetailedButtonFromDictionary(metroList);
+                        break;
+                    case CurrentFilterSelected.TRAM:
+                        tramLeg.color = new Color32(0, 128, 0, 255);
+                        tramLeg.focusedColor = new Color32(0, 128, 0, 255);
+                        drawDetailedButtonFromDictionary(tramList);
                         break;
                     case CurrentFilterSelected.REGIONAL_TRAIN:
                         trainLeg.color = new Color32(0, 128, 0, 255);
@@ -699,7 +730,7 @@ namespace Klyte.TransportLinesManager.UI
             TLMUtils.createUIElement<UIPanel>(ref mainPanel, m_controller.mainRef.transform);
             mainPanel.Hide();
             mainPanel.relativePosition = new Vector3(394.0f, 0.0f);
-            mainPanel.width = 420;
+            mainPanel.width = 480;
             mainPanel.height = 430;
             mainPanel.color = new Color32(255, 255, 255, 255);
             mainPanel.backgroundSprite = "MenuPanel2";
@@ -710,14 +741,15 @@ namespace Klyte.TransportLinesManager.UI
             {
                 addIcon(60, "BulletTrain", "BulletTrainImage", ref bulletTrainLeg, CurrentFilterSelected.BULLET, true);
                 addIcon(160, "SurfaceMetro", "SurfaceMetroImage", ref surfaceMetroLeg, CurrentFilterSelected.SURFACE_METRO, true);
-                addIcon(360, "LowBus", "LowBusImage", ref lowBusLeg, CurrentFilterSelected.LOW_BUS, true);
-                addIcon(260, "HighBus", "HighBusImage", ref highBusLeg, CurrentFilterSelected.HIGH_BUS, true);
+                addIcon(410, "LowBus", "LowBusImage", ref lowBusLeg, CurrentFilterSelected.LOW_BUS, true);
+                addIcon(310, "HighBus", "HighBusImage", ref highBusLeg, CurrentFilterSelected.HIGH_BUS, true);
             }
 
             addIcon(10, "ShipLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref shipLeg, CurrentFilterSelected.SHIP, false);
             addIcon(110, "Train", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref trainLeg, CurrentFilterSelected.REGIONAL_TRAIN, false);
             addIcon(210, "Subway", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metroLeg, CurrentFilterSelected.METRO, false);
-            addIcon(310, "Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busLeg, CurrentFilterSelected.REGULAR_BUS, false);
+            addIcon(260, "Tram", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tramLeg, CurrentFilterSelected.TRAM, false);
+            addIcon(360, "Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busLeg, CurrentFilterSelected.REGULAR_BUS, false);
 
             UILabel titleLabel = null;
             TLMUtils.createUIElement<UILabel>(ref titleLabel, mainPanel.transform);
@@ -905,6 +937,7 @@ namespace Klyte.TransportLinesManager.UI
             REGIONAL_TRAIN,
             SURFACE_METRO,
             METRO,
+            TRAM,
             HIGH_BUS,
             REGULAR_BUS,
             LOW_BUS,
