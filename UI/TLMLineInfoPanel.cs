@@ -519,7 +519,7 @@ namespace Klyte.TransportLinesManager.UI
             lineInfoPanel.AttachUIComponent(lineColorPicker.gameObject);
             lineColorPicker.name = "LineColorPicker";
             lineColorPicker.relativePosition = new Vector3(50f, 10f);
-
+            lineColorPicker.enabled = true;
             lineColorPicker.anchor = UIAnchorStyle.Top & UIAnchorStyle.Left;
             lineColorPicker.eventSelectedColorChanged += (UIComponent component, Color value) =>
             {

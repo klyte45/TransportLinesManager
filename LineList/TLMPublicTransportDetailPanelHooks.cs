@@ -31,6 +31,11 @@ namespace Klyte.TransportLinesManager.LineList
         private void OnTabChanged(UIComponent c, int idx) { }
         private void Awake() { }
         private void RefreshLines() { }
+        private void OnChangeVisibleAll(bool vb) { }
+        private void OnNameSort() { }
+        private void OnStopSort() { }
+        private void OnVehicleSort() { }
+        private void OnPassengerSort() { }
 
         #region Hooking
         private static Dictionary<MethodInfo, RedirectCallsState> redirects = new Dictionary<MethodInfo, RedirectCallsState>();
@@ -44,6 +49,11 @@ namespace Klyte.TransportLinesManager.LineList
             AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("RefreshLines", allFlags), ref redirects);
             AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("Awake", allFlags), ref redirects);
             AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnTabChanged", allFlags), ref redirects);
+            AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnChangeVisibleAll", allFlags), ref redirects);
+            AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnNameSort", allFlags), ref redirects);
+            AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnStopSort", allFlags), ref redirects);
+            AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnVehicleSort", allFlags), ref redirects);
+            AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnPassengerSort", allFlags), ref redirects);
             AddRedirect(typeof(PublicTransportLineInfo), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("RefreshData", allFlags), ref redirects);
 
             TLMUtils.doLog("Inverse TLMPublicTransportDetailPanelHooks Hooks!");
@@ -75,7 +85,8 @@ namespace Klyte.TransportLinesManager.LineList
             NAME,
             STOP,
             VEHICLE,
-            PASSENGER
+            PASSENGER,
+            LINE_NUMBER
         }
 
         private static readonly string kLineTemplate = "LineTemplate";
@@ -117,25 +128,32 @@ namespace Klyte.TransportLinesManager.LineList
             return NaturalCompare(component.lineName, component2.lineName);
         }
 
+        private static int CompareLineNumbers(UIComponent left, UIComponent right)
+        {
+            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
+            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
+            return component.lineNumber.CompareTo(component2.lineNumber);
+        }
+
         private static int CompareStops(UIComponent left, UIComponent right)
         {
             TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
             TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
-            return NaturalCompare(component.stopCounts, component2.stopCounts);
+            return NaturalCompare(component2.stopCounts, component.stopCounts);
         }
 
         private static int CompareVehicles(UIComponent left, UIComponent right)
         {
             TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
             TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
-            return NaturalCompare(component.vehicleCounts, component2.vehicleCounts);
+            return NaturalCompare(component2.vehicleCounts, component.vehicleCounts);
         }
 
         private static int ComparePassengers(UIComponent left, UIComponent right)
         {
             TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
             TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
-            return component.passengerCountsInt.CompareTo(component2.passengerCountsInt);
+            return component2.passengerCountsInt.CompareTo(component.passengerCountsInt);
         }
         private static int NaturalCompare(string left, string right)
         {
@@ -164,29 +182,19 @@ namespace Klyte.TransportLinesManager.LineList
             var train = m_Strip.tabs[3].GetComponent<UIButton>();
 
 
-            addIcon("LowBus", "LowBusImage", ref lowBus, true, 4, "Low Capacity Bus Lines");
-            addIcon("HighBus", "HighBusImage", ref highBus, true, 5, "High Capacity Bus Lines");
-            addIcon("BulletTrain", "BulletTrainImage", ref bulletTrain, true, 6, "Bullet Train Lines");
-            addIcon("SurfaceMetro", "SurfaceMetroImage", ref surfMetro, true, 7, "Surface Metro Lines");
-            addIcon("ShipLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ship, false, 8, "Ship Lines");
-            addIcon("Train", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref train, false, 3, "PUBLICTRANSPORT_TRAINLINES", true);
-            addIcon("Subway", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metro, false, 2, "PUBLICTRANSPORT_METROLINES", true);
-            addIcon("Tram", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tram, false, 1, "PUBLICTRANSPORT_TRAMLINES", true);
-            addIcon("Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref bus, false, 0, "PUBLICTRANSPORT_BUSLINES", true);
+            addIcon("ShipLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ship, false, 0, "Ship Lines");
+            addIcon("BulletTrain", "BulletTrainImage", ref bulletTrain, true, 1, "Bullet Train Lines");
+            addIcon("Train", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref train, false, 2, "PUBLICTRANSPORT_TRAINLINES", true);
+            addIcon("SurfaceMetro", "SurfaceMetroImage", ref surfMetro, true, 3, "Surface Metro Lines");
+            addIcon("Subway", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metro, false, 4, "PUBLICTRANSPORT_METROLINES", true);
+            addIcon("Tram", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tram, false, 5, "PUBLICTRANSPORT_TRAMLINES", true);
+            addIcon("HighBus", "HighBusImage", ref highBus, true, 6, "High Capacity Bus Lines");
+            addIcon("Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref bus, false, 7, "PUBLICTRANSPORT_BUSLINES", true);
+            addIcon("LowBus", "LowBusImage", ref lowBus, true, 8, "Low Capacity Bus Lines");
 
-            ship.transform.SetSiblingIndex(0);
-            bulletTrain.transform.SetSiblingIndex(1);
-            train.transform.SetSiblingIndex(2);
-            surfMetro.transform.SetSiblingIndex(3);
-            metro.transform.SetSiblingIndex(4);
-            tram.transform.SetSiblingIndex(5);
-            highBus.transform.SetSiblingIndex(6);
-            bus.transform.SetSiblingIndex(7);
-            lowBus.transform.SetSiblingIndex(8);
-            
 
             tram.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Tram);
-
+            
             this.m_BusLinesContainer = Find<UIComponent>("BusDetail").Find("Container");
             this.m_TramLinesContainer = Find<UIComponent>("TramDetail").Find("Container");
             this.m_MetroLinesContainer = Find<UIComponent>("MetroDetail").Find("Container");
@@ -202,9 +210,7 @@ namespace Klyte.TransportLinesManager.LineList
             CopyContainerFromBus(6, ref m_SurfaceMetroLinesContainer);
             CopyContainerFromBus(7, ref m_BulletTrainLinesContainer);
             CopyContainerFromBus(8, ref m_ShipLinesContainer);
-
-
-
+            
             RemoveExtraLines(0, ref m_BusLinesContainer);
             RemoveExtraLines(0, ref m_TramLinesContainer);
             RemoveExtraLines(0, ref m_MetroLinesContainer);
@@ -214,6 +220,30 @@ namespace Klyte.TransportLinesManager.LineList
             RemoveExtraLines(0, ref m_SurfaceMetroLinesContainer);
             RemoveExtraLines(0, ref m_BulletTrainLinesContainer);
             RemoveExtraLines(0, ref m_ShipLinesContainer);
+            
+
+            ship.zOrder = (0);
+            bulletTrain.zOrder = (1);
+            train.zOrder = (2);
+            surfMetro.zOrder = (3);
+            metro.zOrder = (4);
+            tram.zOrder = (5);
+            highBus.zOrder = (6);
+            bus.zOrder = (7);
+            lowBus.zOrder = (8);
+
+            m_ShipLinesContainer.GetComponentInParent<UIPanel>().zOrder = (0);
+            m_BulletTrainLinesContainer.GetComponentInParent<UIPanel>().zOrder = (1);
+            m_TrainLinesContainer.GetComponentInParent<UIPanel>().zOrder = (2);
+            m_SurfaceMetroLinesContainer.GetComponentInParent<UIPanel>().zOrder = (3);
+            m_MetroLinesContainer.GetComponentInParent<UIPanel>().zOrder = (4);
+            m_TramLinesContainer.GetComponentInParent<UIPanel>().zOrder = (5);
+            m_HighBusLinesContainer.GetComponentInParent<UIPanel>().zOrder = (6);
+            m_BusLinesContainer.GetComponentInParent<UIPanel>().zOrder = (7);
+            m_LowBusLinesContainer.GetComponentInParent<UIPanel>().zOrder = (8);
+
+            
+
 
             this.m_ToggleAllState = new bool[this.m_Strip.tabCount];
             this.m_Strip.eventSelectedIndexChanged += null;
@@ -222,7 +252,7 @@ namespace Klyte.TransportLinesManager.LineList
             this.m_ToggleAll.eventCheckChanged += new PropertyChangedEventHandler<bool>(this.CheckChangedFunction);
             for (int i = 0; i < this.m_ToggleAllState.Length; i++)
             {
-                this.m_ToggleAllState[i] = this.m_ToggleAll.isChecked;
+                this.m_ToggleAllState[i] = true;
             }
             Find<UIButton>("NameTitle").eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
@@ -240,7 +270,15 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 this.OnPassengerSort();
             };
+            var colorTitle = Find<UILabel>("ColorTitle");
+            colorTitle.suffix = "/Number";
+            colorTitle.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
+            {
+                this.OnLineNumberSort();
+            };
+
             this.m_LastSortCriterion = LineSortCriterion.DEFAULT;
+            this.SetActiveTab(1);
             this.SetActiveTab(0);
             m_Ready = true;
         }
@@ -313,7 +351,7 @@ namespace Klyte.TransportLinesManager.LineList
         private void OnNameSort()
         {
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
-            PublicTransportDetailPanel.Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareNames));
+            Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareNames));
             this.m_LastSortCriterion = LineSortCriterion.NAME;
             uIComponent.Invalidate();
         }
@@ -321,7 +359,7 @@ namespace Klyte.TransportLinesManager.LineList
         private void OnStopSort()
         {
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
-            PublicTransportDetailPanel.Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareStops));
+            Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareStops));
             this.m_LastSortCriterion = LineSortCriterion.STOP;
             uIComponent.Invalidate();
         }
@@ -329,7 +367,7 @@ namespace Klyte.TransportLinesManager.LineList
         private void OnVehicleSort()
         {
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
-            PublicTransportDetailPanel.Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareVehicles));
+            Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareVehicles));
             this.m_LastSortCriterion = LineSortCriterion.VEHICLE;
             uIComponent.Invalidate();
         }
@@ -337,9 +375,58 @@ namespace Klyte.TransportLinesManager.LineList
         private void OnPassengerSort()
         {
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
-            PublicTransportDetailPanel.Quicksort(uIComponent.components, new Comparison<UIComponent>(ComparePassengers));
+            Quicksort(uIComponent.components, new Comparison<UIComponent>(ComparePassengers));
             this.m_LastSortCriterion = LineSortCriterion.PASSENGER;
             uIComponent.Invalidate();
+        }
+
+        private void OnLineNumberSort()
+        {
+            UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
+            Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareLineNumbers));
+            this.m_LastSortCriterion = LineSortCriterion.LINE_NUMBER;
+            uIComponent.Invalidate();
+        }
+
+        public static void Quicksort(IList<UIComponent> elements, Comparison<UIComponent> comp)
+        {
+            Quicksort(elements, 0, elements.Count - 1, comp);
+        }
+
+        public static void Quicksort(IList<UIComponent> elements, int left, int right, Comparison<UIComponent> comp)
+        {
+            int i = left;
+            int num = right;
+            UIComponent y = elements[(left + right) / 2];
+            while (i <= num)
+            {
+                while (comp(elements[i], y) < 0)
+                {
+                    i++;
+                }
+                while (comp(elements[num], y) > 0)
+                {
+                    num--;
+                }
+                if (i <= num)
+                {
+                    UIComponent value = elements[i];
+                    elements[i] = elements[num];
+                    elements[i].forceZOrder = i;
+                    elements[num] = value;
+                    elements[num].forceZOrder = num;
+                    i++;
+                    num--;
+                }
+            }
+            if (left < num)
+            {
+                Quicksort(elements, left, num, comp);
+            }
+            if (i < right)
+            {
+                Quicksort(elements, i, right, comp);
+            }
         }
 
         public void SetActiveTab(int idx)
@@ -517,6 +604,14 @@ namespace Klyte.TransportLinesManager.LineList
                     {
                         this.OnVehicleSort();
                     }
+                    else if (this.m_LastSortCriterion == LineSortCriterion.LINE_NUMBER)
+                    {
+                        this.OnLineNumberSort();
+                    }
+                }
+                else
+                {
+                    this.OnLineNumberSort();
                 }
             }
         }

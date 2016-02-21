@@ -40,6 +40,8 @@ namespace Klyte.TransportLinesManager.LineList
 
         private int m_PassengerCount;
 
+        private int m_lineNumber;
+
         private bool m_mouseIsOver;
 
         private AsyncAction m_LineOperation;
@@ -80,6 +82,22 @@ namespace Klyte.TransportLinesManager.LineList
             }
         }
 
+        public int lineNumber
+        {
+            get
+            {
+                return this.m_lineNumber;
+            }
+        }
+
+        public string formattedLineNumber
+        {
+            get
+            {
+                return this.m_lineNumber.ToString();
+            }
+        }
+
         public int passengerCountsInt
         {
             get
@@ -113,6 +131,7 @@ namespace Klyte.TransportLinesManager.LineList
                     Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].GetActive(out dayActive, out nightActive);
                     this.m_LineTime.selectedIndex = ((dayActive ? 0 : 2) + (nightActive ? 0 : 1));
                 }
+                m_lineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_lineNumber;
                 this.m_LineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountStops(this.m_LineID).ToString("N0");
                 this.m_LineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountVehicles(this.m_LineID).ToString("N0");
                 int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_passengers.m_residentPassengers.m_averageCount;
@@ -132,6 +151,7 @@ namespace Klyte.TransportLinesManager.LineList
                 {
                     this.m_LineIsVisible.isChecked = ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_flags & TransportLine.Flags.Hidden) == TransportLine.Flags.None);
                 }
+
             }
         }
 
@@ -220,7 +240,7 @@ namespace Klyte.TransportLinesManager.LineList
                 "Day Only",
                 "Night Only",
                 "Disable (without delete)"
-            }, changeLineTime, gameObject.GetComponent<UIPanel>());           
+            }, changeLineTime, gameObject.GetComponent<UIPanel>());
 
             m_LineTime.area = new Vector4(630, 3, 140, 33);
 
