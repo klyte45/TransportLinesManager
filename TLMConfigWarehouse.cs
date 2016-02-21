@@ -97,28 +97,29 @@ namespace Klyte.TransportLinesManager
             TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)i];
             ConfigIndex transportType = (ConfigIndex)((int)t.Info.m_transportType << 16);
             TLMUtils.doLog("t.Info.m_transportType = {0};transportType = {1} ", t.Info.m_transportType, transportType);
-            if (t.Info.m_transportType == TransportInfo.TransportType.Train)
+            if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
             {
-                TLMUtils.doLog("isSurfaceMetro? {0}", getCurrentConfigListInt(ConfigIndex.SURFACE_METRO_LINES_IDS).Contains(i));
-                TLMUtils.doLog("isBullet? {0}", getCurrentConfigListInt(ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains(i));
-                if (getCurrentConfigListInt(ConfigIndex.SURFACE_METRO_LINES_IDS).Contains(i))
+                if (t.Info.m_transportType == TransportInfo.TransportType.Train)
                 {
-                    transportType = ConfigIndex.SURFACE_METRO_CONFIG;
+                    if (getCurrentConfigListInt(ConfigIndex.SURFACE_METRO_LINES_IDS).Contains(i))
+                    {
+                        transportType = ConfigIndex.SURFACE_METRO_CONFIG;
+                    }
+                    else if (getCurrentConfigListInt(ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains(i))
+                    {
+                        transportType = ConfigIndex.BULLET_TRAIN_CONFIG;
+                    }
                 }
-                else if (getCurrentConfigListInt(ConfigIndex.BULLET_TRAIN_LINES_IDS).Contains(i))
+                else if (t.Info.m_transportType == TransportInfo.TransportType.Bus)
                 {
-                    transportType = ConfigIndex.BULLET_TRAIN_CONFIG;
-                }
-            }
-            else if (t.Info.m_transportType == TransportInfo.TransportType.Bus)
-            {
-                if (getCurrentConfigListInt(ConfigIndex.LOW_BUS_LINES_IDS).Contains(i))
-                {
-                    transportType = ConfigIndex.LOW_BUS_CONFIG;
-                }
-                else if (getCurrentConfigListInt(ConfigIndex.HIGH_BUS_LINES_IDS).Contains(i))
-                {
-                    transportType = ConfigIndex.HIGH_BUS_CONFIG;
+                    if (getCurrentConfigListInt(ConfigIndex.LOW_BUS_LINES_IDS).Contains(i))
+                    {
+                        transportType = ConfigIndex.LOW_BUS_CONFIG;
+                    }
+                    else if (getCurrentConfigListInt(ConfigIndex.HIGH_BUS_LINES_IDS).Contains(i))
+                    {
+                        transportType = ConfigIndex.HIGH_BUS_CONFIG;
+                    }
                 }
             }
             return transportType;

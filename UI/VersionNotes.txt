@@ -1,5 +1,13 @@
-﻿4.5.X
-- Added support to Trams
+﻿5.0.0
+USING THE GAME DEFAULT LINE LISTING
+    - Added the TLM extra categories to default game line listing panel, using the transport system geometrical form
+    - Added sorting by Line Number
+    - Fixed order of stops/vehicles/Passengers sorting (now are higher to lower)
+    - Added shortcuts for Auto Name and Auto Color in each line row
+    - Added shortcuts for Auto Name and Auto Color all lines in selected category
+    - Added filter by line time
+    - Added filter by line prefix
+    - Still compatible with IPT
 
 BUG FIXING
     - Now the number of line is used correctly in prefixed lines which doesn't use auto color by prefix.

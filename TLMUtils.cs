@@ -451,28 +451,51 @@ namespace Klyte.TransportLinesManager
             lineCircleIntersect.tooltip = description;
         }
 
+        public static void setLineNumberCircleOnRef(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros, UIButton reference, bool invertPrefixSuffix, float ratio = 1f)
+        {
+            string text;
+            float textScale;
+            Vector3 relativePosition;
+            getLineNumberCircleOnRefParams(num, prefix, s, sufix, zeros, invertPrefixSuffix, ratio, out text, out textScale, out relativePosition);
+            reference.text = text;
+            reference.textScale = textScale;
+            reference.relativePosition = relativePosition;
+        }
+
         public static void setLineNumberCircleOnRef(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros, UILabel reference, bool invertPrefixSuffix, float ratio = 1f)
         {
-            reference.text = TLMUtils.getString(prefix, s, sufix, num, zeros, invertPrefixSuffix);
-            int lenght = reference.text.Length;
+            string text;
+            float textScale;
+            Vector3 relativePosition;
+            getLineNumberCircleOnRefParams(num, prefix, s, sufix, zeros, invertPrefixSuffix, ratio, out text, out textScale, out relativePosition);
+            reference.text = text;
+            reference.textScale = textScale;
+            reference.relativePosition = relativePosition;
+        }
+
+        private static void getLineNumberCircleOnRefParams(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros, bool invertPrefixSuffix, float ratio,
+            out string text, out float textScale, out Vector3 relativePosition)
+        {
+            text = TLMUtils.getString(prefix, s, sufix, num, zeros, invertPrefixSuffix);
+            int lenght = text.Length;
             if (lenght >= 4)
             {
-                reference.textScale = 1f * ratio;
-                reference.relativePosition = new Vector3(0f, 1f);
+                textScale = 1f * ratio;
+                relativePosition = new Vector3(0f, 1f);
             }
             else if (lenght == 3)
             {
-                reference.textScale = 1.25f * ratio;
-                reference.relativePosition = new Vector3(0f, 1.5f);
+                textScale = 1.25f * ratio;
+                relativePosition = new Vector3(0f, 1.5f);
             }
             else if (lenght == 2)
             {
-                reference.textScale = 1.75f * ratio;
-                reference.relativePosition = new Vector3(-0.5f, 0.5f);
+                textScale = 1.75f * ratio;
+                relativePosition = new Vector3(-0.5f, 0.5f);
             }
             else {
-                reference.textScale = 2.3f * ratio;
-                reference.relativePosition = new Vector3(-0.5f, 0f);
+                textScale = 2.3f * ratio;
+                relativePosition = new Vector3(-0.5f, 0f);
             }
         }
 
@@ -631,6 +654,46 @@ namespace Klyte.TransportLinesManager
         {
             List<string> saida = new List<string>(new string[] { "" });
 
+            switch (m)
+            {
+                case ModoNomenclatura.GregoMaiusculo:
+                    saida.AddRange(gregoMaiusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.GregoMinusculo:
+                    saida.AddRange(gregoMinusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.CirilicoMaiusculo:
+                    saida.AddRange(cirilicoMaiusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.CirilicoMinusculo:
+                    saida.AddRange(cirilicoMinusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.LatinoMaiusculo:
+                    saida.AddRange(latinoMaiusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.LatinoMinusculo:
+                    saida.AddRange(latinoMinusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.Numero:
+                    for (int i = 1; i <= 64; i++)
+                    {
+                        saida.Add(i.ToString());
+                    }
+                    break;
+            }
+            if (TLMUtils.nomenclaturasComNumeros.Contains(m))
+            {
+                saida.AddRange(numeros.Select(x => x.ToString()));
+            }
+            return saida.ToArray();
+        }
+
+
+        public static string[] getFilterPrefixesOptions(TLMCW.ConfigIndex transportType)
+        {
+            transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
+            var m = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+            List<string> saida = new List<string>(new string[] { "All", "Unprefixed" });
             switch (m)
             {
                 case ModoNomenclatura.GregoMaiusculo:

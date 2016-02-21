@@ -9,6 +9,7 @@ namespace Klyte.TransportLinesManager.LineList
     using ColossalFramework;
     using ColossalFramework.UI;
     using Extensions;
+    using Extensors;
     using System;
     using System.Collections;
     using System.Diagnostics;
@@ -33,6 +34,8 @@ namespace Klyte.TransportLinesManager.LineList
         private UILabel m_LineVehicles;
 
         private UILabel m_LinePassengers;
+
+        private UIButton m_LineNumberFormatted;
 
         private UIComponent m_Background;
 
@@ -90,11 +93,11 @@ namespace Klyte.TransportLinesManager.LineList
             }
         }
 
-        public string formattedLineNumber
+        public string lineNumberFormatted
         {
             get
             {
-                return this.m_lineNumber.ToString();
+                return this.m_LineNumberFormatted.text;
             }
         }
 
@@ -123,25 +126,78 @@ namespace Klyte.TransportLinesManager.LineList
         {
             if (Singleton<TransportManager>.exists)
             {
-                this.m_LineName.text = Singleton<TransportManager>.instance.GetLineName(this.m_LineID);
+
+                bool isRowVisible;
                 if (this.m_LineOperation == null || this.m_LineOperation.completedOrFailed)
                 {
                     bool dayActive;
                     bool nightActive;
                     Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].GetActive(out dayActive, out nightActive);
                     this.m_LineTime.selectedIndex = ((dayActive ? 0 : 2) + (nightActive ? 0 : 1));
+                    isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(dayActive, nightActive) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_lineNumber);
+                    if (!dayActive || !nightActive)
+                    {
+                        m_LineColor.normalBgSprite = dayActive ? "DayIcon" : nightActive ? "NightIcon" : "DisabledIcon";
+                    }
+                    else {
+                        m_LineColor.normalBgSprite = "";
+                    }
                 }
+                else
+                {
+                    m_LineColor.normalBgSprite = "DisabledIcon";
+                    isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(false, false) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_lineNumber);
+                }
+                if (!isRowVisible)
+                {
+                    GetComponent<UIComponent>().isVisible = false;
+                    return;
+                }
+                GetComponent<UIComponent>().isVisible = true;
+                this.m_LineName.text = Singleton<TransportManager>.instance.GetLineName(this.m_LineID);
                 m_lineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_lineNumber;
                 this.m_LineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountStops(this.m_LineID).ToString("N0");
                 this.m_LineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountVehicles(this.m_LineID).ToString("N0");
+
+                string vehTooltip = string.Format("{0} Vehicles | Waiting lap end for more stats...", this.m_LineVehicles.text);
+                var stats = ExtraVehiclesStats.instance.getLineVehiclesData(m_LineID);
+                if (stats.Count > 0)
+                {
+                    List<float> fill = new List<float>();
+                    List<float> stdDevs = new List<float>();
+                    List<long> lapTimes = new List<long>();
+                    foreach (var kv in stats)
+                    {
+                        fill.Add(kv.Value.avgFill);
+                        stdDevs.Add(kv.Value.stdDevFill);
+                        lapTimes.Add(kv.Value.framesTakenLap);
+                    }
+                    vehTooltip = string.Format("Avg Fill: {0} ± {1} \r\n Avg Lap: {2} \r\n {3}/{4} Veh", fill.Average().ToString("0.0%"), stdDevs.Average().ToString("0.0%"), ExtraVehiclesStats.ExtraData.framesToDaysTakenLapFormated((long)lapTimes.Average()), stats.Count, this.m_LineVehicles.text);
+                }
+                this.m_LineVehicles.tooltip = vehTooltip;
+
+
                 int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_passengers.m_residentPassengers.m_averageCount;
                 int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_passengers.m_touristPassengers.m_averageCount;
                 this.m_LinePassengers.text = (averageCount + averageCount2).ToString("N0");
-                this.m_LinePassengers.tooltip = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
+
+
+
+
+                this.m_LinePassengers.tooltip = string.Format("{0}", LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
                 {
                 averageCount,
                 averageCount2
-                });
+                }));
+                ModoNomenclatura prefix;
+                Separador sep;
+                ModoNomenclatura suffix;
+                bool zerosEsquerda;
+                bool invertPrefixSuffix;
+                string bgSprite;
+                TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
+                TLMLineUtils.setLineNumberCircleOnRef(lineNumber, prefix, sep, suffix, zerosEsquerda, m_LineNumberFormatted, invertPrefixSuffix, 0.8f);
+                m_LineColor.normalFgSprite = bgSprite;
                 this.m_PassengerCount = averageCount + averageCount2;
                 if (colors)
                 {
@@ -170,7 +226,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void LateUpdate()
         {
-            if (base.component.isVisible)
+            if (base.component.parent.isVisible)
             {
                 this.RefreshData(false, false);
             }
@@ -206,10 +262,20 @@ namespace Klyte.TransportLinesManager.LineList
                 }
             };
             this.m_LineColor = base.Find<UIColorField>("LineColor");
-            this.m_LineColor.eventSelectedColorReleased += new PropertyChangedEventHandler<Color>(this.OnColorChanged);
+            this.m_LineColor.normalBgSprite = "";
+            this.m_LineColor.focusedBgSprite = "";
+            this.m_LineColor.hoveredBgSprite = "";
+            this.m_LineColor.width = 40;
+            this.m_LineColor.height = 40;
+            this.m_LineColor.atlas = TLMController.taLineNumber;
+            this.m_LineNumberFormatted = this.m_LineColor.GetComponentInChildren<UIButton>();
+            m_LineNumberFormatted.textScale = 1.5f;
+            m_LineNumberFormatted.useOutline = true;
+            this.m_LineColor.eventSelectedColorChanged += new PropertyChangedEventHandler<Color>(this.OnColorChanged);
             this.m_LineName = base.Find<UILabel>("LineName");
             this.m_LineNameField = this.m_LineName.Find<UITextField>("LineNameField");
-            this.m_LineNameField.eventTextSubmitted += new PropertyChangedEventHandler<string>(this.OnRename);
+            this.m_LineNameField.maxLength = 256;
+            this.m_LineNameField.eventTextChanged += new PropertyChangedEventHandler<string>(this.OnRename);
             this.m_LineName.eventMouseEnter += delegate (UIComponent c, UIMouseEventParameter r)
             {
                 this.m_LineName.backgroundSprite = "TextFieldPanelHovered";
@@ -292,6 +358,53 @@ namespace Klyte.TransportLinesManager.LineList
                     this.RefreshData(true, true);
                 }
             };
+
+            //Auto color & Auto Name
+            UIButton buttonAutoName = null;
+            TLMUtils.createUIElement<UIButton>(ref buttonAutoName, transform);
+            buttonAutoName.pivot = UIPivotPoint.TopRight;
+            buttonAutoName.relativePosition = new Vector3(164, 2);
+            buttonAutoName.text = "A";
+            buttonAutoName.textScale = 0.6f;
+            buttonAutoName.width = 15;
+            buttonAutoName.height = 15;
+            buttonAutoName.tooltip = "Auto Name - Use auto name in this line";
+            TLMUtils.initButton(buttonAutoName, true, "ButtonMenu");
+            buttonAutoName.name = "AutoName";
+            buttonAutoName.isVisible = true;
+            buttonAutoName.eventClick += (component, eventParam) =>
+            {
+                DoAutoName();
+            };
+
+            UIButton buttonAutoColor = null;
+            TLMUtils.createUIElement<UIButton>(ref buttonAutoColor, transform);
+            buttonAutoColor.pivot = UIPivotPoint.TopRight;
+            buttonAutoColor.relativePosition = new Vector3(80, 2);
+            buttonAutoColor.text = "A";
+            buttonAutoColor.textScale = 0.6f;
+            buttonAutoColor.width = 15;
+            buttonAutoColor.height = 15;
+            buttonAutoColor.tooltip = "Auto Color - Pick a color from the palette for this line";
+            TLMUtils.initButton(buttonAutoColor, true, "ButtonMenu");
+            buttonAutoColor.name = "AutoColor";
+            buttonAutoColor.isVisible = true;
+            buttonAutoColor.eventClick += (component, eventParam) =>
+            {
+                DoAutoColor();
+            };
+
+
+        }
+
+        public void DoAutoColor()
+        {
+            m_LineColor.selectedColor = TLMController.instance.AutoColor(m_LineID);
+        }
+
+        public void DoAutoName()
+        {
+            TLMUtils.setLineName(m_LineID, string.Format("[{0}] {1}", lineNumberFormatted, TLMUtils.calculateAutoName(m_LineID)));
         }
 
         private void OnMouseEnter(UIComponent comp, UIMouseEventParameter param)

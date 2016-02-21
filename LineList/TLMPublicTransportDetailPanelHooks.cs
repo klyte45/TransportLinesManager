@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
+using Klyte.Extensions;
 using Klyte.TransportLinesManager.Extensors;
 using System;
 using System.Collections.Generic;
@@ -62,7 +63,7 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.doLog("Swap TLMPublicTransportDetailPanelHooks Hooks!");
             var go = GameObject.Find("UIView").GetComponentInChildren<PublicTransportDetailPanel>().gameObject;
             GameObject.Destroy(go.GetComponent<PublicTransportDetailPanel>());
-            go.AddComponent<TLMPublicTransportDetailPanel>();
+            TLMPublicTransportDetailPanel.instance = go.AddComponent<TLMPublicTransportDetailPanel>();
 
 
         }
@@ -89,6 +90,8 @@ namespace Klyte.TransportLinesManager.LineList
             LINE_NUMBER
         }
 
+        public static TLMPublicTransportDetailPanel instance;
+
         private static readonly string kLineTemplate = "LineTemplate";
 
         private int m_LastLineCount;
@@ -103,29 +106,73 @@ namespace Klyte.TransportLinesManager.LineList
 
         private UITabstrip m_Strip;
 
+        private readonly TLMCW.ConfigIndex[] tabSystemOrder =
+        {
+            TLMCW.ConfigIndex.SHIP_CONFIG,
+            TLMCW.ConfigIndex.BULLET_TRAIN_CONFIG,
+            TLMCW.ConfigIndex.TRAIN_CONFIG,
+            TLMCW.ConfigIndex.SURFACE_METRO_CONFIG,
+            TLMCW.ConfigIndex.METRO_CONFIG,
+            TLMCW.ConfigIndex.TRAM_CONFIG,
+            TLMCW.ConfigIndex.HIGH_BUS_CONFIG,
+            TLMCW.ConfigIndex.BUS_CONFIG,
+            TLMCW.ConfigIndex.LOW_BUS_CONFIG
+        };
+
         private UIComponent m_BusLinesContainer;
-
         private UIComponent m_TramLinesContainer;
-
         private UIComponent m_MetroLinesContainer;
-
         private UIComponent m_TrainLinesContainer;
-
         private UIComponent m_LowBusLinesContainer;
         private UIComponent m_HighBusLinesContainer;
-
         private UIComponent m_SurfaceMetroLinesContainer;
         private UIComponent m_BulletTrainLinesContainer;
-
         private UIComponent m_ShipLinesContainer;
 
         private UICheckBox m_ToggleAll;
+        private UISprite m_DayIcon;
+        private UISprite m_NightIcon;
+        private UISprite m_DayNightIcon;
+        private UISprite m_DisabledIcon;
+        private UIDropDown m_prefixFilter;
+
+        private bool m_showDayNightLines = true;
+        private bool m_showDayLines = true;
+        private bool m_showNightLines = true;
+        private bool m_showDisabledLines = true;
+
+        public bool isActivityVisible(bool day, bool night)
+        {
+            if (day && night)
+            {
+                return m_showDayNightLines;
+            }
+            else if (day)
+            {
+                return m_showDayLines;
+            }
+            else if (night)
+            {
+                return m_showNightLines;
+            }
+            else
+            {
+                return m_showDisabledLines;
+            }
+        }
+
+        public bool isOnCurrentPrefixFilter(int lineNumber)
+        {
+            return !m_prefixFilter.isVisible || m_prefixFilter.selectedIndex == 0 || m_prefixFilter.selectedIndex - 1 == (int)(lineNumber / 1000);
+        }
+
+
 
         private static int CompareNames(UIComponent left, UIComponent right)
         {
             TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
             TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
-            return NaturalCompare(component.lineName, component2.lineName);
+            return string.Compare(component.lineName, component2.lineName, false); //NaturalCompare(component.lineName, component2.lineName);
         }
 
         private static int CompareLineNumbers(UIComponent left, UIComponent right)
@@ -194,7 +241,11 @@ namespace Klyte.TransportLinesManager.LineList
 
 
             tram.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Tram);
-            
+            lowBus.isVisible = !TransportLinesManagerMod.isIPTCompatibiltyMode;
+            highBus.isVisible = !TransportLinesManagerMod.isIPTCompatibiltyMode;
+            surfMetro.isVisible = !TransportLinesManagerMod.isIPTCompatibiltyMode;
+            bulletTrain.isVisible = !TransportLinesManagerMod.isIPTCompatibiltyMode;
+
             this.m_BusLinesContainer = Find<UIComponent>("BusDetail").Find("Container");
             this.m_TramLinesContainer = Find<UIComponent>("TramDetail").Find("Container");
             this.m_MetroLinesContainer = Find<UIComponent>("MetroDetail").Find("Container");
@@ -210,7 +261,7 @@ namespace Klyte.TransportLinesManager.LineList
             CopyContainerFromBus(6, ref m_SurfaceMetroLinesContainer);
             CopyContainerFromBus(7, ref m_BulletTrainLinesContainer);
             CopyContainerFromBus(8, ref m_ShipLinesContainer);
-            
+
             RemoveExtraLines(0, ref m_BusLinesContainer);
             RemoveExtraLines(0, ref m_TramLinesContainer);
             RemoveExtraLines(0, ref m_MetroLinesContainer);
@@ -220,7 +271,7 @@ namespace Klyte.TransportLinesManager.LineList
             RemoveExtraLines(0, ref m_SurfaceMetroLinesContainer);
             RemoveExtraLines(0, ref m_BulletTrainLinesContainer);
             RemoveExtraLines(0, ref m_ShipLinesContainer);
-            
+
 
             ship.zOrder = (0);
             bulletTrain.zOrder = (1);
@@ -242,7 +293,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_BusLinesContainer.GetComponentInParent<UIPanel>().zOrder = (7);
             m_LowBusLinesContainer.GetComponentInParent<UIPanel>().zOrder = (8);
 
-            
+
 
 
             this.m_ToggleAllState = new bool[this.m_Strip.tabCount];
@@ -271,15 +322,109 @@ namespace Klyte.TransportLinesManager.LineList
                 this.OnPassengerSort();
             };
             var colorTitle = Find<UILabel>("ColorTitle");
-            colorTitle.suffix = "/Number";
+            colorTitle.suffix = "/Code";
             colorTitle.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
                 this.OnLineNumberSort();
             };
 
             this.m_LastSortCriterion = LineSortCriterion.DEFAULT;
+
+            //Auto color & Auto Name
+            UIButton buttonAutoName = null;
+            TLMUtils.createUIElement<UIButton>(ref buttonAutoName, transform);
+            buttonAutoName.pivot = UIPivotPoint.TopRight;
+            buttonAutoName.text = "Auto Name All";
+            buttonAutoName.textScale = 0.6f;
+            buttonAutoName.width = 105;
+            buttonAutoName.height = 15;
+            buttonAutoName.tooltip = "Use auto name in all lines";
+            TLMUtils.initButton(buttonAutoName, true, "ButtonMenu");
+            buttonAutoName.name = "AutoName";
+            buttonAutoName.isVisible = true;
+            buttonAutoName.eventClick += (component, eventParam) =>
+            {
+                OnAutoNameAll();
+            };
+
+            UIButton buttonAutoColor = null;
+            TLMUtils.createUIElement<UIButton>(ref buttonAutoColor, transform);
+            buttonAutoColor.pivot = UIPivotPoint.TopRight;
+            buttonAutoColor.text = "Auto Color All";
+            buttonAutoColor.textScale = 0.6f;
+            buttonAutoColor.width = 105;
+            buttonAutoColor.height = 15;
+            buttonAutoColor.tooltip = "Pick a color from the palette for each line";
+            TLMUtils.initButton(buttonAutoColor, true, "ButtonMenu");
+            buttonAutoColor.name = "AutoColor";
+            buttonAutoColor.isVisible = true;
+            buttonAutoColor.eventClick += (component, eventParam) =>
+            {
+                OnAutoColorAll();
+            };
+
+            //filters
+            m_DayIcon = Find<UISprite>("DaySprite");
+            m_NightIcon = Find<UISprite>("NightSprite");
+            m_DayNightIcon = Find<UISprite>("DayNightSprite");
+            m_DisabledIcon = GameObject.Instantiate(m_DayIcon.gameObject).GetComponent<UISprite>();
+            m_DisabledIcon.transform.SetParent(m_DayIcon.transform.parent);
+            m_NightIcon.relativePosition = new Vector3(670, 14);
+            m_DayNightIcon.relativePosition = new Vector3(695, 14);
+            m_DisabledIcon.spriteName = "Niet";
+
+            m_DayIcon.tooltip = "Click to show/hide day only lines";
+            m_NightIcon.tooltip = "Click to show/hide night only lines";
+            m_DayNightIcon.tooltip = "Click to show/hide 24h lines";
+            m_DisabledIcon.tooltip = "Click to show/hide disabled and broken lines";
+
+            m_DayIcon.eventClick += (x, y) =>
+            {
+                m_showDayLines = !m_showDayLines;
+                m_DayIcon.color = m_showDayLines ? Color.white : Color.black;
+            };
+            m_NightIcon.eventClick += (x, y) =>
+            {
+                m_showNightLines = !m_showNightLines;
+                m_NightIcon.color = m_showNightLines ? Color.white : Color.black;
+            };
+            m_DayNightIcon.eventClick += (x, y) =>
+            {
+                m_showDayNightLines = !m_showDayNightLines;
+                m_DayNightIcon.color = m_showDayNightLines ? Color.white : Color.black;
+            };
+            m_DisabledIcon.eventClick += (x, y) =>
+            {
+                m_showDisabledLines = !m_showDisabledLines;
+                m_DisabledIcon.color = m_showDisabledLines ? Color.white : Color.black;
+            };
+
+            m_prefixFilter = UIHelperExtension.CloneBasicDropDownNoLabel(new string[] {
+                "All"
+            }, (x) => { }, component);
+
+            m_prefixFilter.area = new Vector4(765, 80, 100, 35);
+
+            var prefixFilterLabel = m_prefixFilter.AddUIComponent<UILabel>();
+            prefixFilterLabel.text = "Prefix\nFilter";
+            prefixFilterLabel.relativePosition = new Vector3(27, -35);
+            prefixFilterLabel.textAlignment = UIHorizontalAlignment.Center;
+
             this.SetActiveTab(1);
             this.SetActiveTab(0);
+            m_DisabledIcon.relativePosition = new Vector3(736, 14);
+            buttonAutoColor.relativePosition = new Vector3(655, 61);
+            buttonAutoName.relativePosition = new Vector3(655, 43);
+
+            var icon = Find<UISprite>("Icon");
+            icon.spriteName = "TransportLinesManagerIconHovered";
+            icon.atlas = TLMController.taTLM;
+
+            var title = Find<UILabel>("Label");
+            title.suffix = " - TLM v" + TransportLinesManagerMod.version;
+
+            component.relativePosition = new Vector3(395, 58);
+
             m_Ready = true;
         }
 
@@ -543,6 +688,20 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_ToggleAll.isChecked = this.m_ToggleAllState[idx];
                 isChangingTab = false;
             }
+            string[] filterOptions = TLMUtils.getFilterPrefixesOptions(tabSystemOrder[idx]);
+            if (filterOptions.Length < 3)
+            {
+                m_prefixFilter.isVisible = false;
+            }
+            else
+            {
+                m_prefixFilter.isVisible = true;
+                m_prefixFilter.items = filterOptions;
+                m_prefixFilter.selectedIndex = 0;
+            }
+
+            m_DisabledIcon.relativePosition = new Vector3(736, 14);
+
         }
 
         private void CheckChangedFunction(UIComponent c, bool r)
@@ -575,6 +734,47 @@ namespace Klyte.TransportLinesManager.LineList
             }
         }
 
+        private void OnAutoNameAll()
+        {
+            if (this.m_Strip.selectedIndex > -1 && this.m_Strip.selectedIndex < this.m_Strip.tabContainer.components.Count)
+            {
+                UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
+                if (uIComponent != null)
+                {
+                    for (int i = 0; i < uIComponent.components.Count; i++)
+                    {
+                        TLMPublicTransportLineInfo uIComponent2 = uIComponent.components[i].GetComponent<TLMPublicTransportLineInfo>();
+                        if (uIComponent2 != null)
+                        {
+                            uIComponent2.DoAutoName();
+                        }
+                    }
+                }
+                this.RefreshLines();
+            }
+        }
+
+
+
+        private void OnAutoColorAll()
+        {
+            if (this.m_Strip.selectedIndex > -1 && this.m_Strip.selectedIndex < this.m_Strip.tabContainer.components.Count)
+            {
+                UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
+                if (uIComponent != null)
+                {
+                    for (int i = 0; i < uIComponent.components.Count; i++)
+                    {
+                        TLMPublicTransportLineInfo uIComponent2 = uIComponent.components[i].GetComponent<TLMPublicTransportLineInfo>();
+                        if (uIComponent2 != null)
+                        {
+                            uIComponent2.DoAutoColor();
+                        }
+                    }
+                }
+                this.RefreshLines();
+            }
+        }
 
         private void Update()
         {
