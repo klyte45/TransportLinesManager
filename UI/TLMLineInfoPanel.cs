@@ -149,42 +149,14 @@ namespace Klyte.TransportLinesManager.UI
         private bool isNumeroUsado(int numLinha, ushort lineIdx)
         {
             TLMCW.ConfigIndex tipo = TLMCW.getConfigIndexForLine(lineIdx);
-            bool numeroUsado = true;
-            switch (tipo & TLMConfigWarehouse.ConfigIndex.SYSTEM_PART)
+            for (ushort i = 0; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
             {
-                case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
-                    numeroUsado = m_controller.mainPanel.bus.Keys.Contains(numLinha) && m_controller.mainPanel.bus[numLinha] != m_lineIdSelecionado.TransportLine;
-                    break;
-
-                case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
-                    numeroUsado = m_controller.mainPanel.metro.Keys.Contains(numLinha) && m_controller.mainPanel.metro[numLinha] != m_lineIdSelecionado.TransportLine;
-                    break;
-
-                case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
-                    numeroUsado = m_controller.mainPanel.trams.Keys.Contains(numLinha) && m_controller.mainPanel.trams[numLinha] != m_lineIdSelecionado.TransportLine;
-                    break;
-
-                case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
-                    numeroUsado = m_controller.mainPanel.train.Keys.Contains(numLinha) && m_controller.mainPanel.train[numLinha] != m_lineIdSelecionado.TransportLine;
-                    break;
-
-                case TLMConfigWarehouse.ConfigIndex.SURFACE_METRO_CONFIG:
-                    numeroUsado = m_controller.mainPanel.surfaceMetros.Keys.Contains(numLinha) && m_controller.mainPanel.surfaceMetros[numLinha] != m_lineIdSelecionado.TransportLine;
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG:
-                    numeroUsado = m_controller.mainPanel.bulletTrains.Keys.Contains(numLinha) && m_controller.mainPanel.bulletTrains[numLinha] != m_lineIdSelecionado.TransportLine;
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG:
-                    numeroUsado = m_controller.mainPanel.lowBus.Keys.Contains(numLinha) && m_controller.mainPanel.lowBus[numLinha] != m_lineIdSelecionado.TransportLine;
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG:
-                    numeroUsado = m_controller.mainPanel.highBus.Keys.Contains(numLinha) && m_controller.mainPanel.highBus[numLinha] != m_lineIdSelecionado.TransportLine;
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
-                    numeroUsado = m_controller.mainPanel.ships.Keys.Contains(numLinha) && m_controller.mainPanel.ships[numLinha] != m_lineIdSelecionado.TransportLine;
-                    break;
+                if (i != lineIdx && TLMCW.getConfigIndexForLine(i) == tipo && Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber == numLinha)
+                {
+                    return true;
+                }
             }
-            return numeroUsado;
+            return false;
         }
 
         private void saveLineNumber(UIComponent c, object v)
@@ -777,7 +749,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             TransportLine t = m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine];
             Hide();
-            m_controller.mainPanel.Show();
+            m_controller.defaultListingLinesPanel.Show();
         }
 
         public void openLineInfo(UIComponent component, UIMouseEventParameter eventParam)
@@ -899,7 +871,7 @@ namespace Klyte.TransportLinesManager.UI
 
             m_linearMap.redrawLine();
             Show();
-            m_controller.mainPanel.Hide();
+            m_controller.defaultListingLinesPanel.Hide();
 
             autoNameLabel.text = m_linearMap.autoName;
 

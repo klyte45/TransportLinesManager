@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 using Klyte.TransportLinesManager.UI;
+using Klyte.TransportLinesManager.LineList;
 
 namespace Klyte.TransportLinesManager
 {
@@ -22,20 +23,25 @@ namespace Klyte.TransportLinesManager
         public UIButton abrePainelButton;
         public bool initialized = false;
         public bool initializedWIP = false;
-        private TLMMainPanel m_mainPanel;
+        //   private TLMMainPanel m_mainPasnel;
         private TLMLineInfoPanel m_lineInfoPanel;
         private int lastLineCount = 0;
         private static GameObject shipLineButton;
 
+        private UIPanel _cachedDefaultListingLinesPanel;
 
-
-        public TLMMainPanel mainPanel
+        public UIPanel defaultListingLinesPanel
         {
             get
             {
-                return m_mainPanel;
+                if (_cachedDefaultListingLinesPanel == null)
+                {
+                    _cachedDefaultListingLinesPanel = GameObject.Find("UIView").GetComponentInChildren<TLMPublicTransportDetailPanel>().GetComponent<UIPanel>();
+                }
+                return _cachedDefaultListingLinesPanel;
             }
         }
+
 
         public TLMLineInfoPanel lineInfoPanel
         {
@@ -59,14 +65,6 @@ namespace Klyte.TransportLinesManager
 
         public void destroy()
         {
-
-
-
-            if (m_mainPanel != null && m_mainPanel.gameObject != null)
-            {
-                UnityEngine.Object.Destroy(m_mainPanel.gameObject);
-            }
-
             if (abrePainelButton != null && abrePainelButton.gameObject != null)
             {
                 UnityEngine.Object.Destroy(abrePainelButton.gameObject);
@@ -132,21 +130,6 @@ namespace Klyte.TransportLinesManager
 
             initNearLinesOnWorldInfoPanel();
 
-            if (m_mainPanel.isVisible || m_lineInfoPanel.isVisible)
-            {
-                if (!tm.LinesVisible)
-                {
-                    tm.LinesVisible = true;
-                }
-                if (im.CurrentMode != InfoManager.InfoMode.Transport)
-                {
-                    im.SetCurrentMode(InfoManager.InfoMode.Transport, InfoManager.SubInfoMode.NormalTransport);
-                }
-            }
-            if (m_mainPanel.isVisible)
-            {
-                m_mainPanel.updateBidings();
-            }
             if (m_lineInfoPanel.isVisible)
             {
                 m_lineInfoPanel.updateBidings();
@@ -155,10 +138,6 @@ namespace Klyte.TransportLinesManager
             if (lastLineCount != tm.m_lineCount && (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED) || TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_NAME_ENABLED)))
             {
                 CheckForAutoChanges();
-                if (mainPanel.isVisible)
-                {
-                    mainPanel.Show();
-                }
             }
             lastLineCount = tm.m_lineCount;
 
@@ -311,7 +290,7 @@ namespace Klyte.TransportLinesManager
 
         private void swapWindow(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (m_lineInfoPanel.isVisible || m_mainPanel.isVisible)
+            if (m_lineInfoPanel.isVisible || defaultListingLinesPanel.isVisible)
             {
                 fecharTelaTransportes(component, eventParam);
             }
@@ -326,9 +305,8 @@ namespace Klyte.TransportLinesManager
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "ABRE1!");
             abrePainelButton.normalFgSprite = abrePainelButton.focusedFgSprite;
             m_lineInfoPanel.Hide();
-            m_mainPanel.Show();
+            defaultListingLinesPanel.Show();
             tm.LinesVisible = true;
-            im.SetCurrentMode(InfoManager.InfoMode.Transport, InfoManager.SubInfoMode.NormalTransport);
             //			MainMenu ();
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "ABRE2!");
         }
@@ -341,18 +319,16 @@ namespace Klyte.TransportLinesManager
         private void fecharTelaTransportes(UIComponent component, UIMouseEventParameter eventParam)
         {
             abrePainelButton.normalFgSprite = abrePainelButton.disabledFgSprite;
-            m_mainPanel.Hide();
+            defaultListingLinesPanel.Hide();
             m_lineInfoPanel.Hide();
             tm.LinesVisible = false;
             InfoManager im = Singleton<InfoManager>.instance;
-            im.SetCurrentMode(InfoManager.InfoMode.None, InfoManager.SubInfoMode.NormalPower);
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "FECHA!");
         }
 
         private void createViews()
         {
-            /////////////////////////////////////////////////////			
-            m_mainPanel = new TLMMainPanel(this);
+            /////////////////////////////////////////////////////	
             m_lineInfoPanel = new TLMLineInfoPanel(this);
         }
 

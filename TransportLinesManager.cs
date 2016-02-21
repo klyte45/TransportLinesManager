@@ -10,8 +10,9 @@ using System.Reflection;
 using UnityEngine;
 using Klyte.TransportLinesManager.Extensors;
 using ColossalFramework.DataBinding;
+using Klyte.TransportLinesManager.LineList;
 
-[assembly: AssemblyVersion("4.5.0.*")]
+[assembly: AssemblyVersion("5.0.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -1085,6 +1086,7 @@ namespace Klyte.TransportLinesManager
                 TLMBusModifyRedirects.instance.EnableHooks();
                 TLMShipModifyRedirects.instance.EnableHooks();
             }
+            TLMPublicTransportDetailPanelHooks.instance.EnableHooks();
 
             //			Log.debug ("LEVELLOAD");
         }

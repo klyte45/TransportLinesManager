@@ -1224,6 +1224,15 @@ namespace Klyte.TransportLinesManager
             return true;
         }
 
+        public static void clearAllVisibilityEvents(UIComponent u)
+        {
+            u.eventVisibilityChanged += null;
+            for (int i = 0; i < u.components.Count; i++)
+            {
+                clearAllVisibilityEvents(u.components[i]);
+            }
+        }
+
         public class UIButtonLineInfo : UIButton
         {
             public ushort lineID;
