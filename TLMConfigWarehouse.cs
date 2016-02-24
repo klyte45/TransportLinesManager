@@ -231,7 +231,7 @@ namespace Klyte.TransportLinesManager
 
         private int getFromFileInt(ConfigIndex i)
         {
-            return new SavedInt(i.ToString(), thisFileName, 0, false).value;
+            return new SavedInt(i.ToString(), thisFileName, getDefaultIntValueForProperty(i), false).value;
         }
 
         private bool getFromFileBool(ConfigIndex i)
@@ -280,6 +280,34 @@ namespace Klyte.TransportLinesManager
                     return new Color32(60, 184, 120, 255);
                 default:
                     return new Color();
+
+            }
+        }
+
+        public static float getCostPerPassengerCapacityLine(ConfigIndex i)
+        {
+            switch (i & ConfigIndex.SYSTEM_PART)
+            {
+                case ConfigIndex.TRAIN_CONFIG:
+                    return 50f / 400;
+                case ConfigIndex.SHIP_CONFIG:
+                    return 50f / 800;
+                case ConfigIndex.TRAM_CONFIG:
+                    return 50f / 90;
+                case ConfigIndex.SURFACE_METRO_CONFIG:
+                    return 50f / 290;
+                case ConfigIndex.BULLET_TRAIN_CONFIG:
+                    return 50f / 700;
+                case ConfigIndex.METRO_CONFIG:
+                    return 50f / 180;
+                case ConfigIndex.BUS_CONFIG:
+                    return 50f / 60;
+                case ConfigIndex.LOW_BUS_CONFIG:
+                    return 50f / 30;
+                case ConfigIndex.HIGH_BUS_CONFIG:
+                    return 50f / 110;
+                default:
+                    return 50f / 30;
 
             }
         }
@@ -350,6 +378,15 @@ namespace Klyte.TransportLinesManager
             return defaultTrueBoolProperties.Contains(i);
         }
 
+        public static int getDefaultIntValueForProperty(ConfigIndex i)
+        {
+            switch (i)
+            {
+                default:
+                    return 0;
+            }
+        }
+
         public static bool isServiceLineNameable(ItemClass.Service s)
         {
             return getCurrentConfigBool(ConfigIndex.USE_FOR_AUTO_NAMING_REF | s.toConfigIndex());
@@ -389,6 +426,8 @@ namespace Klyte.TransportLinesManager
             BULLET_TRAIN_LINES_IDS = GLOBAL_CONFIG | 0x5 | TYPE_LIST,
             HIGH_BUS_LINES_IDS = GLOBAL_CONFIG | 0x6 | TYPE_LIST,
             LOW_BUS_LINES_IDS = GLOBAL_CONFIG | 0x7 | TYPE_LIST,
+            ONLY_BULLET_FOR_INCOMING = GLOBAL_CONFIG | 0x8 | TYPE_BOOL,
+            ADD_LINE_NUMBER_IN_AUTONAME = GLOBAL_CONFIG | 0x9 | TYPE_BOOL,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = TransportInfo.TransportType.Tram << 16,
@@ -441,6 +480,7 @@ namespace Klyte.TransportLinesManager
             PALETTE_PREFIX_BASED = 0x8 | TYPE_BOOL,
             SHOW_IN_LINEAR_MAP = 0x9 | TYPE_BOOL,
             INVERT_PREFIX_SUFFIX = 0xA | TYPE_BOOL,
+            DEFAULT_COST_PER_PASSENGER_CAPACITY = 0xB | TYPE_INT,
 
             TRAIN_PREFIX = TRAIN_CONFIG | PREFIX,
             TRAM_PREFIX = TRAM_CONFIG | PREFIX,
@@ -544,6 +584,17 @@ namespace Klyte.TransportLinesManager
             SHIP_SHOW_IN_LINEAR_MAP = SHIP_CONFIG | SHOW_IN_LINEAR_MAP,
             BULLET_TRAIN_SHOW_IN_LINEAR_MAP = BULLET_TRAIN_CONFIG | SHOW_IN_LINEAR_MAP,
 
+
+            TRAIN_DEFAULT_COST_PER_PASSENGER_CAPACITY = TRAIN_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            TRAM_DEFAULT_COST_PER_PASSENGER_CAPACITY = TRAM_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            SURFACE_METRO_DEFAULT_COST_PER_PASSENGER_CAPACITY = SURFACE_METRO_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            METRO_DEFAULT_COST_PER_PASSENGER_CAPACITY = METRO_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            BUS_DEFAULT_COST_PER_PASSENGER_CAPACITY = BUS_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            LOW_BUS_DEFAULT_COST_PER_PASSENGER_CAPACITY = LOW_BUS_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            HIGH_BUS_DEFAULT_COST_PER_PASSENGER_CAPACITY = HIGH_BUS_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            BULLET_TRAIN_DEFAULT_COST_PER_PASSENGER_CAPACITY = BULLET_TRAIN_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            SHIP_DEFAULT_COST_PER_PASSENGER_CAPACITY = SHIP_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+
             RESIDENTIAL_USE_FOR_AUTO_NAMING_REF = RESIDENTIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             COMMERCIAL_USE_FOR_AUTO_NAMING_REF = COMMERCIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             INDUSTRIAL_USE_FOR_AUTO_NAMING_REF = INDUSTRIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
@@ -631,7 +682,8 @@ namespace Klyte.TransportLinesManager
              ConfigIndex.METRO_USE_FOR_AUTO_NAMING_REF,
              ConfigIndex.BUS_USE_FOR_AUTO_NAMING_REF,
              ConfigIndex.PLANE_USE_FOR_AUTO_NAMING_REF,
-             ConfigIndex.SHIP_USE_FOR_AUTO_NAMING_REF
+             ConfigIndex.SHIP_USE_FOR_AUTO_NAMING_REF,
+            ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME
         };
 
         public static readonly ConfigIndex[] namingOrder =

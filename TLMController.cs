@@ -27,6 +27,7 @@ namespace Klyte.TransportLinesManager
         private TLMLineInfoPanel m_lineInfoPanel;
         private int lastLineCount = 0;
         private static GameObject shipLineButton;
+        public static TransportInfo shipLinePrefab;
 
         private UIPanel _cachedDefaultListingLinesPanel;
 
@@ -143,14 +144,26 @@ namespace Klyte.TransportLinesManager
 
             if (shipLineButton == null)
             {
-                TransportInfo linePrefab = PrefabCollection<TransportInfo>.FindLoaded("Ship");
-                if (linePrefab == null)
+                TransportInfo busLinePrefab;
+                try {
+                    shipLinePrefab = PrefabCollection<TransportInfo>.FindLoaded("Ship");
+                    busLinePrefab= PrefabCollection<TransportInfo>.FindLoaded("Bus");
+                }
+                catch (Exception e)
+                {
+
+                    TLMUtils.doErrorLog("Cannot load ship prefab!");
+                    goto ADD_ERROR_COUNT;
+                }
+                if (shipLinePrefab == null || busLinePrefab == null)
                 {
                     TLMUtils.doErrorLog("Cannot load ship prefab!");
                     goto ADD_ERROR_COUNT;
                 }
-                linePrefab.m_lineMaterial = linePrefab.m_pathMaterial;
-                linePrefab.m_lineMaterial2 = linePrefab.m_pathMaterial2;
+                shipLinePrefab.m_lineMaterial2 = GameObject.Instantiate(busLinePrefab.m_lineMaterial2);
+                shipLinePrefab.m_lineMaterial2.shader = shipLinePrefab.m_pathMaterial.shader;
+                shipLinePrefab.m_lineMaterial = shipLinePrefab.m_lineMaterial2;
+                shipLinePrefab.m_prefabDataLayer = 0;
                 GameObject originalGO = null;
                 try
                 {
@@ -191,7 +204,7 @@ namespace Klyte.TransportLinesManager
 
                 button.eventClick += (x, y) =>
                 {
-                    Singleton<ToolController>.instance.GetComponent<TransportTool>().m_prefab = linePrefab;
+                    Singleton<ToolController>.instance.GetComponent<TransportTool>().m_prefab = shipLinePrefab;
                     Singleton<ToolController>.instance.GetComponent<TransportTool>().enabled = true;
                 };
                 shipLineButton.transform.SetParent(parent);

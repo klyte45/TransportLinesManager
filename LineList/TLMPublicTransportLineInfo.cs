@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.LineList
 {
@@ -35,6 +36,8 @@ namespace Klyte.TransportLinesManager.LineList
 
         private UILabel m_LinePassengers;
 
+        private UILabel m_LineCost;
+
         private UIButton m_LineNumberFormatted;
 
         private UIComponent m_Background;
@@ -43,7 +46,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private int m_PassengerCount;
 
-        private int m_lineNumber;
+        private int m_LineNumber;
 
         private bool m_mouseIsOver;
 
@@ -89,7 +92,7 @@ namespace Klyte.TransportLinesManager.LineList
         {
             get
             {
-                return this.m_lineNumber;
+                return this.m_LineNumber;
             }
         }
 
@@ -134,7 +137,7 @@ namespace Klyte.TransportLinesManager.LineList
                     bool nightActive;
                     Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].GetActive(out dayActive, out nightActive);
                     this.m_LineTime.selectedIndex = ((dayActive ? 0 : 2) + (nightActive ? 0 : 1));
-                    isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(dayActive, nightActive) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_lineNumber);
+                    isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(dayActive, nightActive) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber);
                     if (!dayActive || !nightActive)
                     {
                         m_LineColor.normalBgSprite = dayActive ? "DayIcon" : nightActive ? "NightIcon" : "DisabledIcon";
@@ -146,7 +149,7 @@ namespace Klyte.TransportLinesManager.LineList
                 else
                 {
                     m_LineColor.normalBgSprite = "DisabledIcon";
-                    isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(false, false) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_lineNumber);
+                    isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(false, false) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber);
                 }
                 if (!isRowVisible)
                 {
@@ -155,9 +158,11 @@ namespace Klyte.TransportLinesManager.LineList
                 }
                 GetComponent<UIComponent>().isVisible = true;
                 this.m_LineName.text = Singleton<TransportManager>.instance.GetLineName(this.m_LineID);
-                m_lineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_lineNumber;
+                m_LineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_lineNumber;
                 this.m_LineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountStops(this.m_LineID).ToString("N0");
                 this.m_LineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountVehicles(this.m_LineID).ToString("N0");
+                this.m_LineCost.text = string.Format("₡ {0:0.00}", TLMTransportLine.GetLineCost(m_LineID) / 25f * 4);//585+1/7 = frames/week
+                m_LineCost.relativePosition = m_LineVehicles.relativePosition + new Vector3(0, 20, 0);
 
                 string vehTooltip = string.Format("{0} Vehicles | Waiting lap end for more stats...", this.m_LineVehicles.text);
                 var stats = ExtraVehiclesStats.instance.getLineVehiclesData(m_LineID);
@@ -317,7 +322,12 @@ namespace Klyte.TransportLinesManager.LineList
             GameObject.Destroy(m_DayLine.gameObject);
 
             this.m_LineStops = base.Find<UILabel>("LineStops");
+            m_LineStops.relativePosition -= new Vector3(0, 6, 0);
+            m_LineCost = GameObject.Instantiate(this.m_LineStops);
+            m_LineCost.transform.SetParent(m_LineStops.transform.parent);
+            m_LineCost.color = Color.red;
             this.m_LineVehicles = base.Find<UILabel>("LineVehicles");
+            m_LineVehicles.relativePosition -= new Vector3(0, 6, 0);
             this.m_LinePassengers = base.Find<UILabel>("LinePassengers");
             this.m_Background = base.Find("Background");
             this.m_BackgroundColor = this.m_Background.color;
@@ -404,7 +414,8 @@ namespace Klyte.TransportLinesManager.LineList
 
         public void DoAutoName()
         {
-            TLMUtils.setLineName(m_LineID, string.Format("[{0}] {1}", lineNumberFormatted, TLMUtils.calculateAutoName(m_LineID)));
+            string format = (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME)) ? "[{0}] {1}" : "{1}";
+            TLMUtils.setLineName(m_LineID, string.Format(format, lineNumberFormatted, TLMUtils.calculateAutoName(m_LineID)));
         }
 
         private void OnMouseEnter(UIComponent comp, UIMouseEventParameter param)

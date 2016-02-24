@@ -8,6 +8,19 @@ USING THE GAME DEFAULT LINE LISTING
     - Added filter by line time
     - Added filter by line prefix
     - Still compatible with IPT
+OTHER NEW FEATURES
+    - Added option to choose if the line number in brackets will appear ahead of generated auto name
+    - Now ship lines appear in transportation view (in a weird way, but they are there)
+    - Fixed line cost - now is based on passenger capacity and line type:
+        -Low Bus: ₡ 1.6667/ps
+        -Reg Bus: ₡ 0.8333/ps
+        -High Bus: ₡ 0.4545/ps
+        -Tram: ₡ 0.5555/ps
+        -Metro: ₡ 0.2777/ps
+        -S. Metro: ₡ 0.1724/ps
+        -Train: ₡ 0.1250/ps
+        -Bullet: ₡ 0.0714/ps
+        -Ship: ₡ 0.0625/ps
 
 BUG FIXING
     - Now the number of line is used correctly in prefixed lines which doesn't use auto color by prefix.

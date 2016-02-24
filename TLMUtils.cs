@@ -499,6 +499,35 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public static int getVehicleCapacity(ushort vehicleId)
+        {
+            var ai = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].Info.GetAI();
+            if (ai as BusAI != null)
+            {
+                return (ai as BusAI).m_passengerCapacity;
+            }
+            if (ai as PassengerPlaneAI != null)
+            {
+                return (ai as PassengerPlaneAI).m_passengerCapacity;
+            }
+            if (ai as PassengerShipAI != null)
+            {
+                return (ai as PassengerShipAI).m_passengerCapacity;
+            }
+            if (ai as PassengerTrainAI != null)
+            {
+                return (ai as PassengerTrainAI).m_passengerCapacity;
+            }
+            if (ai as TaxiAI != null)
+            {
+                return (ai as TaxiAI).m_passengerCapacity;
+            }
+            if (ai as TramAI != null)
+            {
+                return (ai as TramAI).m_passengerCapacity;
+            }
+            return 0;
+        }
 
     }
 

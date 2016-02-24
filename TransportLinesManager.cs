@@ -613,13 +613,15 @@ namespace Klyte.TransportLinesManager
             UIHelperExtension group8 = helper.AddGroupExtended("Automation");
             generateCheckboxConfig(group8, "Auto coloring enabled", TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
             generateCheckboxConfig(group8, "Auto naming enabled", TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED);
+            generateCheckboxConfig(group8, "Use 'Circular' word on single district lines", TLMConfigWarehouse.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE);
+            generateCheckboxConfig(group8, "Add line number inside brackets in generated auto name", TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME);
+            generateCheckboxConfig(group8, "Only bullet train comes from other cities", TLMConfigWarehouse.ConfigIndex.ONLY_BULLET_FOR_INCOMING);
 
             UIHelperExtension group13 = helper.AddGroupExtended("Auto Naming Settings - Public Transport Buildings");
             ((UIPanel)group13.self).autoLayoutDirection = LayoutDirection.Horizontal;
             ((UIPanel)group13.self).wrapLayout = true;
             ((UIPanel)group13.self).width = 730;
 
-            generateCheckboxConfig(group13, "Use 'Circular' word on single district lines", TLMConfigWarehouse.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE);
             group13.AddSpace(1);
             group13.AddLabel("Allow naming lines using buildings with below functions:\n(District names are always the last choice)");
             group13.AddSpace(1);
@@ -1087,6 +1089,7 @@ namespace Klyte.TransportLinesManager
                 TLMShipModifyRedirects.instance.EnableHooks();
             }
             TLMPublicTransportDetailPanelHooks.instance.EnableHooks();
+            TLMTransportLineExtensionHooks.EnableHooks();
 
             //			Log.debug ("LEVELLOAD");
         }
@@ -1097,6 +1100,14 @@ namespace Klyte.TransportLinesManager
             {
                 TLMController.instance.destroy();
             }
+            if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
+            {
+                TLMTrainModifyRedirects.instance.DisableHooks();
+                TLMBusModifyRedirects.instance.DisableHooks();
+                TLMShipModifyRedirects.instance.DisableHooks();
+            }
+            TLMPublicTransportDetailPanelHooks.instance.DisableHooks();
+            TLMTransportLineExtensionHooks.DisableHooks();
             //			Log.debug ("LEVELUNLOAD");
         }
 

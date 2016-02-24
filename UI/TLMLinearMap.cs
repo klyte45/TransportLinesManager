@@ -71,7 +71,14 @@ namespace Klyte.TransportLinesManager.UI
             {
                 ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
                 TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
-                return "[" + TLMUtils.getString(prefix, sep, suffix, t.m_lineNumber, zerosEsquerda, invertPrefixSuffix).Replace('\n', ' ') + "] " + m_autoName;
+                if (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME))
+                {
+                    return "[" + TLMUtils.getString(prefix, sep, suffix, t.m_lineNumber, zerosEsquerda, invertPrefixSuffix).Replace('\n', ' ') + "] " + m_autoName;
+                }
+                else
+                {
+                    return m_autoName;
+                }
             }
         }
 
