@@ -100,32 +100,18 @@ namespace Klyte.TransportLinesManager
                 mainRef = uiView.FindUIComponent<UIPanel>("InfoPanel").Find<UITabContainer>("InfoViewsContainer").Find<UIPanel>("InfoViewsPanel");
                 if (!mainRef)
                     return;
-
+                mainRef.eventVisibilityChanged += delegate (UIComponent component, bool b)
+                 {
+                     if (b && TransportLinesManagerMod.instance.needShowPopup)
+                     {
+                         TransportLinesManagerMod.instance.showVersionInfoPopup();
+                     }
+                 };
 
                 tm = Singleton<TransportManager>.instance;
                 im = Singleton<InfoManager>.instance;
                 createViews();
-                mainRef.clipChildren = false;
-                UIPanel container = mainRef.Find<UIPanel>("Container");
-                abrePainelButton = container.Find<UIButton>("PublicTransport");
-                //				container.AttachUIComponent (abrePainelButton.gameObject);
-
-
-                abrePainelButton.atlas = taTLM;
-                abrePainelButton.tooltip = "Transport Lines Manager (v" + TransportLinesManagerMod.version + ")";
-                abrePainelButton.name = "TransportLinesManagerButton";
-                TLMUtils.initButtonFg(abrePainelButton, false, "TransportLinesManagerIcon");
-                abrePainelButton.eventClick += swapWindow;
-                abrePainelButton.eventVisibilityChanged += (UIComponent component, bool value) =>
-                {
-                    if (!value)
-                    {
-                        fecharTelaTransportes(component, (UIMouseEventParameter)null);
-                    }
-                };
-
-
-                container.height = 37 * ((int)((container.childCount + 1) / 2)) + 6;
+                mainRef.clipChildren = false;                
                 initialized = true;
             }
 
@@ -145,9 +131,10 @@ namespace Klyte.TransportLinesManager
             if (shipLineButton == null)
             {
                 TransportInfo busLinePrefab;
-                try {
+                try
+                {
                     shipLinePrefab = PrefabCollection<TransportInfo>.FindLoaded("Ship");
-                    busLinePrefab= PrefabCollection<TransportInfo>.FindLoaded("Bus");
+                    busLinePrefab = PrefabCollection<TransportInfo>.FindLoaded("Bus");
                 }
                 catch (Exception e)
                 {
@@ -279,12 +266,12 @@ namespace Klyte.TransportLinesManager
             TransportLine t = tm.m_lines.m_buffer[(int)lineIdx];
             try
             {
-                ModoNomenclatura sufixo, prefixo;
+                ModoNomenclatura sufixo, prefixo, naoPrefixo;
                 Separador s;
                 bool z, invert;
-                TLMLineUtils.getLineNamingParameters(lineIdx, out prefixo, out s, out sufixo, out z, out invert);
+                TLMLineUtils.getLineNamingParameters(lineIdx, out prefixo, out s, out sufixo, out naoPrefixo, out z, out invert);
 
-                TLMUtils.setLineName((ushort)lineIdx, "[" + TLMUtils.getString(prefixo, s, sufixo, t.m_lineNumber, z, invert).Replace('\n', ' ') + "] " + TLMUtils.calculateAutoName(lineIdx));
+                TLMUtils.setLineName((ushort)lineIdx, "[" + TLMUtils.getString(prefixo, s, sufixo, naoPrefixo, t.m_lineNumber, z, invert).Replace('\n', ' ') + "] " + TLMUtils.calculateAutoName(lineIdx));
             }
             catch (Exception e)
             {

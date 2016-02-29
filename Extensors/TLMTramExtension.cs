@@ -12,16 +12,16 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
-    class TLMTrainModifyRedirects : BasicTransportExtension<PassengerTrainAI>
+    class TLMTramModifyRedirects : BasicTransportExtension<TramAI>
     {
-        private static TLMTrainModifyRedirects _instance;
-        public static TLMTrainModifyRedirects instance
+        private static TLMTramModifyRedirects _instance;
+        public static TLMTramModifyRedirects instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new TLMTrainModifyRedirects();
+                    _instance = new TLMTramModifyRedirects();
                 }
                 return _instance;
             }
@@ -35,29 +35,21 @@ namespace Klyte.TransportLinesManager.Extensors
             var t = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine];
             TLMUtils.doLog("SetTransportLine! Prefab id: {0} ({4}), For line: {1} {2} ({3})", data.Info.m_prefabDataIndex, t.Info.m_transportType, t.m_lineNumber, transportLine, data.Info.name);
             this.RemoveLine(vehicleID, ref data);
-
             data.m_transportLine = transportLine;
             if (transportLine != 0)
             {
-
-                if (t.Info.m_transportType == TransportInfo.TransportType.Train && TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.TRAIN_PREFIX) != (int)ModoNomenclatura.Nenhum)
+                if (t.Info.m_transportType == TransportInfo.TransportType.Tram && TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.TRAM_PREFIX) != (int)ModoNomenclatura.Nenhum)
                 {
-
-                    TLMUtils.doLog("Get prefix");
                     uint prefix = t.m_lineNumber / 1000u;
 
-                    TLMUtils.doLog("pre getAssetListForPrefix");
-                    List<string> assetsList = TLMTrainModifyRedirects.instance.getAssetListForPrefix(prefix);
+                    List<string> assetsList = instance.getAssetListForPrefix(prefix);
 
 
                     if (!assetsList.Contains(data.Info.name))
                     {
-                        TLMUtils.doLog("pre getRandomModel");
                         var randomInfo = instance.getRandomModel(prefix);
-                        TLMUtils.doLog("pos getRandomModel");
                         if (randomInfo != null)
                         {
-                            TLMUtils.doLog("pre data.Info = randomInfo");
                             data.Info = randomInfo;
                         }
                     }
@@ -68,26 +60,15 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 data.m_flags |= Vehicle.Flags.GoingBack;
             }
-            TLMUtils.doLog("GOTO StartPathFindFake?");
             if (!this.StartPathFind(vehicleID, ref data))
             {
                 data.Unspawn(vehicleID);
             }
         }
-        private void RemoveLine(ushort vehicleID, ref Vehicle data)
-        {
-
-            TLMUtils.doLog("RemoveLine??? WHYYYYYYY!?");
-            if (data.m_transportLine != 0)
-            {
-                Singleton<TransportManager>.instance.m_lines.m_buffer[(int)data.m_transportLine].RemoveVehicle(vehicleID, ref data);
-                data.m_transportLine = 0;
-            }
-        }
+        private void RemoveLine(ushort vehicleID, ref Vehicle data) { TLMUtils.doLog("RemoveLine??? WHYYYYYYY!?"); }
 
         protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData)
         {
-            TLMUtils.doLog("StartPathFind!!!!!??? AEHOOO!");
             ExtraVehiclesStats.OnVehicleStop(vehicleID, vehicleData);
             //ORIGINAL
             if (vehicleData.m_leadingVehicle == 0)
@@ -106,22 +87,19 @@ namespace Klyte.TransportLinesManager.Extensors
                 {
                     if (vehicleData.m_sourceBuilding != 0)
                     {
-                        Vector3 position = Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)vehicleData.m_sourceBuilding].m_position;
-                        return this.StartPathFind(vehicleID, ref vehicleData, startPos, position);
-                    }
-                }
-                else if ((vehicleData.m_flags & Vehicle.Flags.DummyTraffic) != Vehicle.Flags.None)
-                {
-                    if (vehicleData.m_targetBuilding != 0)
-                    {
-                        Vector3 position2 = Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)vehicleData.m_targetBuilding].m_position;
-                        return this.StartPathFind(vehicleID, ref vehicleData, vehicleData.m_targetPos0, position2);
+                        BuildingManager instance = Singleton<BuildingManager>.instance;
+                        BuildingInfo info = instance.m_buildings.m_buffer[(int)vehicleData.m_sourceBuilding].Info;
+                        Randomizer randomizer = new Randomizer((int)vehicleID);
+                        Vector3 endPos;
+                        Vector3 vector;
+                        info.m_buildingAI.CalculateUnspawnPosition(vehicleData.m_sourceBuilding, ref instance.m_buildings.m_buffer[(int)vehicleData.m_sourceBuilding], ref randomizer, vehicleData.Info, out endPos, out vector);
+                        return this.StartPathFind(vehicleID, ref vehicleData, startPos, endPos);
                     }
                 }
                 else if (vehicleData.m_targetBuilding != 0)
                 {
-                    Vector3 position3 = Singleton<NetManager>.instance.m_nodes.m_buffer[(int)vehicleData.m_targetBuilding].m_position;
-                    return this.StartPathFind(vehicleID, ref vehicleData, startPos, position3);
+                    Vector3 position = Singleton<NetManager>.instance.m_nodes.m_buffer[(int)vehicleData.m_targetBuilding].m_position;
+                    return this.StartPathFind(vehicleID, ref vehicleData, startPos, position);
                 }
             }
             return false;
@@ -164,10 +142,10 @@ namespace Klyte.TransportLinesManager.Extensors
                 DisableHooks();
             }
             TLMUtils.doLog("Loading SurfaceMetro Hooks!");
-            AddRedirect(typeof(PassengerTrainAI), typeof(TLMTrainModifyRedirects).GetMethod("SetTransportLine", allFlags), ref redirects);
-            AddRedirect(typeof(PassengerTrainAI), typeof(TLMTrainModifyRedirects).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null), ref redirects);
-            AddRedirect(typeof(TLMTrainModifyRedirects), typeof(TrainAI).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3) }, null), ref redirects);
-            AddRedirect(typeof(TLMTrainModifyRedirects), typeof(PassengerTrainAI).GetMethod("RemoveLine", allFlags), ref redirects);
+            AddRedirect(typeof(TramAI), typeof(TLMTramModifyRedirects).GetMethod("SetTransportLine", allFlags), ref redirects);
+            AddRedirect(typeof(TramAI), typeof(TLMTramModifyRedirects).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null), ref redirects);
+            AddRedirect(typeof(TLMTramModifyRedirects), typeof(TramBaseAI).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3) }, null), ref redirects);
+            AddRedirect(typeof(TLMTramModifyRedirects), typeof(TramAI).GetMethod("RemoveLine", allFlags), ref redirects);
         }
 
         public void DisableHooks()

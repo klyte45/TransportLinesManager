@@ -1,6 +1,6 @@
 ﻿5.0.0
 USING THE GAME DEFAULT LINE LISTING
-    - Added the TLM extra categories to default game line listing panel, using the transport system geometrical form
+    - Added the TLM categories icons to default game line listing panel, using the transport system geometrical form
     - Added sorting by Line Number
     - Fixed order of stops/vehicles/Passengers sorting (now are higher to lower)
     - Added shortcuts for Auto Name and Auto Color in each line row
@@ -8,19 +8,16 @@ USING THE GAME DEFAULT LINE LISTING
     - Added filter by line time
     - Added filter by line prefix
     - Still compatible with IPT
+ASSET SELECTION BY LINE PREFIX
+    - Subcategories for train and buses were removed
+    - Now the assets for bus, trains, trams and ships can be selected by prefix    
+    - You can name prefix as you want (Ex: N = North Sector, J = Center, etc); the name will appear only in dropdowns which uses prefixes (filter and line editing)
 OTHER NEW FEATURES
     - Added option to choose if the line number in brackets will appear ahead of generated auto name
-    - Now ship lines appear in transportation view (in a weird way, but they are there)
-    - Fixed line cost - now is based on passenger capacity and line type:
-        -Low Bus: ₡ 1.6667/ps
-        -Reg Bus: ₡ 0.8333/ps
-        -High Bus: ₡ 0.4545/ps
-        -Tram: ₡ 0.5555/ps
-        -Metro: ₡ 0.2777/ps
-        -S. Metro: ₡ 0.1724/ps
-        -Train: ₡ 0.1250/ps
-        -Bullet: ₡ 0.0714/ps
-        -Ship: ₡ 0.0625/ps
-
+    - Now ship lines appear in transportation view (in a weird way, but they are there - should be improved soon)
+    - The suffix rule and the non-prefixed rule for coding lines were separated - now have a selection for unprefixed and other for suffix in prefix line
+    - Now the stats for tram are working
+    - Now the TLM icon isn't show in the Info Panel anymore
 BUG FIXING
     - Now the number of line is used correctly in prefixed lines which doesn't use auto color by prefix.
+    - Other minor bugs fixed.

@@ -145,7 +145,7 @@ namespace Klyte.TransportLinesManager.Extensors
     public class Redirector
     {
 
-        public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+        public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.GetField | BindingFlags.GetProperty;
 
         public static void AddRedirect(Type type1, MethodInfo method, ref Dictionary<MethodInfo, RedirectCallsState> redirects, string type1MethodName = null)
         {

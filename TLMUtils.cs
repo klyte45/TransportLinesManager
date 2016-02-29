@@ -2,6 +2,7 @@ using ColossalFramework;
 using ColossalFramework.Math;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
+using Klyte.TransportLinesManager.Extensors;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -101,10 +102,10 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out bool zeros, out bool invertPrefixSuffix)
+        public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix)
         {
             string nil;
-            getLineNamingParameters(lineIdx, out prefix, out s, out suffix, out zeros, out invertPrefixSuffix, out nil);
+            getLineNamingParameters(lineIdx, out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, out nil);
 
         }
         public static int GetStopsCount(ushort lineID)
@@ -128,23 +129,18 @@ namespace Klyte.TransportLinesManager
             return totalSize;
         }
 
-        public static ItemClass.SubService getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out bool zeros, out bool invertPrefixSuffix, out string icon)
+        public static ItemClass.SubService getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, out string icon)
         {
             TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(lineIdx);
 
             suffix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
             s = (Separador)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
             prefix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+            nonPrefix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
             zeros = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
             invertPrefixSuffix = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
             switch (transportType)
             {
-                case TLMCW.ConfigIndex.SURFACE_METRO_CONFIG:
-                    icon = "SurfaceMetroIcon";
-                    return ItemClass.SubService.PublicTransportTrain;
-                case TLMCW.ConfigIndex.BULLET_TRAIN_CONFIG:
-                    icon = "BulletTrainIcon";
-                    return ItemClass.SubService.PublicTransportTrain;
                 case TLMCW.ConfigIndex.TRAIN_CONFIG:
                     icon = "TrainIcon";
                     return ItemClass.SubService.PublicTransportTrain;
@@ -153,12 +149,6 @@ namespace Klyte.TransportLinesManager
                     return ItemClass.SubService.PublicTransportMetro;
                 case TLMCW.ConfigIndex.BUS_CONFIG:
                     icon = "BusIcon";
-                    return ItemClass.SubService.PublicTransportBus;
-                case TLMCW.ConfigIndex.LOW_BUS_CONFIG:
-                    icon = "LowBusIcon";
-                    return ItemClass.SubService.PublicTransportBus;
-                case TLMCW.ConfigIndex.HIGH_BUS_CONFIG:
-                    icon = "HighBusIcon";
                     return ItemClass.SubService.PublicTransportBus;
                 case TLMCW.ConfigIndex.TRAM_CONFIG:
                     icon = "TramIcon";
@@ -321,12 +311,6 @@ namespace Klyte.TransportLinesManager
                         case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
                             transportTypeLetter = "H";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.HIGH_BUS_CONFIG:
-                            transportTypeLetter = "G";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.LOW_BUS_CONFIG:
-                            transportTypeLetter = "I";
-                            break;
                         case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
                             transportTypeLetter = "F";
                             break;
@@ -335,12 +319,6 @@ namespace Klyte.TransportLinesManager
                             break;
                         case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
                             transportTypeLetter = "C";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.SURFACE_METRO_CONFIG:
-                            transportTypeLetter = "D";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.BULLET_TRAIN_CONFIG:
-                            transportTypeLetter = "B";
                             break;
                     }
                     otherLinesIntersections.Add(transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0'), s);
@@ -368,11 +346,11 @@ namespace Klyte.TransportLinesManager
             {
                 TransportLine intersectLine = tm.m_lines.m_buffer[(int)s.Value];
                 String bgSprite;
-                ModoNomenclatura sufixo, prefixo;
+                ModoNomenclatura sufixo, prefixo, naoPrefixado;
                 Separador separador;
                 bool zeros;
                 bool invertPrefixSuffix;
-                ItemClass.SubService ss = getLineNamingParameters(s.Value, out prefixo, out separador, out sufixo, out zeros, out invertPrefixSuffix, out bgSprite);
+                ItemClass.SubService ss = getLineNamingParameters(s.Value, out prefixo, out separador, out sufixo, out naoPrefixado, out zeros, out invertPrefixSuffix, out bgSprite);
                 UIButtonLineInfo lineCircleIntersect = null;
                 TLMUtils.createUIElement<UIButtonLineInfo>(ref lineCircleIntersect, intersectionsPanel.transform);
                 lineCircleIntersect.autoSize = false;
@@ -421,7 +399,7 @@ namespace Klyte.TransportLinesManager
                     daytimeIndicator.atlas = TLMController.taLineNumber;
                     daytimeIndicator.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
                 }
-                setLineNumberCircleOnRef(intersectLine.m_lineNumber, prefixo, separador, sufixo, zeros, lineNumberIntersect, invertPrefixSuffix);
+                setLineNumberCircleOnRef(intersectLine.m_lineNumber, prefixo, separador, sufixo, naoPrefixado, zeros, lineNumberIntersect, invertPrefixSuffix);
                 lineNumberIntersect.textScale *= multiplier;
                 lineNumberIntersect.relativePosition *= multiplier;
             }
@@ -451,32 +429,32 @@ namespace Klyte.TransportLinesManager
             lineCircleIntersect.tooltip = description;
         }
 
-        public static void setLineNumberCircleOnRef(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros, UIButton reference, bool invertPrefixSuffix, float ratio = 1f)
+        public static void setLineNumberCircleOnRef(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, ModoNomenclatura nonPrefix, bool zeros, UIButton reference, bool invertPrefixSuffix, float ratio = 1f)
         {
             string text;
             float textScale;
             Vector3 relativePosition;
-            getLineNumberCircleOnRefParams(num, prefix, s, sufix, zeros, invertPrefixSuffix, ratio, out text, out textScale, out relativePosition);
+            getLineNumberCircleOnRefParams(num, prefix, s, sufix, nonPrefix, zeros, invertPrefixSuffix, ratio, out text, out textScale, out relativePosition);
             reference.text = text;
             reference.textScale = textScale;
             reference.relativePosition = relativePosition;
         }
 
-        public static void setLineNumberCircleOnRef(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros, UILabel reference, bool invertPrefixSuffix, float ratio = 1f)
+        public static void setLineNumberCircleOnRef(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, ModoNomenclatura nonPrefix, bool zeros, UILabel reference, bool invertPrefixSuffix, float ratio = 1f)
         {
             string text;
             float textScale;
             Vector3 relativePosition;
-            getLineNumberCircleOnRefParams(num, prefix, s, sufix, zeros, invertPrefixSuffix, ratio, out text, out textScale, out relativePosition);
+            getLineNumberCircleOnRefParams(num, prefix, s, sufix, nonPrefix, zeros, invertPrefixSuffix, ratio, out text, out textScale, out relativePosition);
             reference.text = text;
             reference.textScale = textScale;
             reference.relativePosition = relativePosition;
         }
 
-        private static void getLineNumberCircleOnRefParams(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, bool zeros, bool invertPrefixSuffix, float ratio,
+        private static void getLineNumberCircleOnRefParams(int num, ModoNomenclatura prefix, Separador s, ModoNomenclatura sufix, ModoNomenclatura nonPrefix, bool zeros, bool invertPrefixSuffix, float ratio,
             out string text, out float textScale, out Vector3 relativePosition)
         {
-            text = TLMUtils.getString(prefix, s, sufix, num, zeros, invertPrefixSuffix);
+            text = TLMUtils.getString(prefix, s, sufix, nonPrefix, num, zeros, invertPrefixSuffix);
             int lenght = text.Length;
             if (lenght >= 4)
             {
@@ -679,10 +657,17 @@ namespace Klyte.TransportLinesManager
 
         }
 
-        public static string[] getStringOptionsForPrefix(ModoNomenclatura m)
+        public static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false)
         {
             List<string> saida = new List<string>(new string[] { "" });
-
+            if (m == ModoNomenclatura.Nenhum)
+            {
+                return saida.ToArray();
+            }
+            if (showUnprefixed)
+            {
+                saida.Add("Unprefixed");
+            }
             switch (m)
             {
                 case ModoNomenclatura.GregoMaiusculo:
@@ -715,6 +700,23 @@ namespace Klyte.TransportLinesManager
                 saida.AddRange(numeros.Select(x => x.ToString()));
             }
             return saida.ToArray();
+        }
+
+        public static string getTransportSystemPrefixName(TLMConfigWarehouse.ConfigIndex index, uint prefix, bool global = false)
+        {
+            switch (index)
+            {
+                case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
+                    return TLMShipModifyRedirects.instance.getPrefixName(prefix, global);
+                case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
+                    return TLMTrainModifyRedirects.instance.getPrefixName(prefix, global);
+                case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                    return TLMTramModifyRedirects.instance.getPrefixName(prefix, global);
+                case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
+                    return TLMBusModifyRedirects.instance.getPrefixName(prefix, global);
+                default:
+                    return null;
+            }
         }
 
 
@@ -754,10 +756,18 @@ namespace Klyte.TransportLinesManager
             {
                 saida.AddRange(numeros.Select(x => x.ToString()));
             }
+            for (uint i = 1; i < saida.Count; i++)
+            {
+                string prefixName = getTransportSystemPrefixName(transportType, i - 1);
+                if (prefixName != null && prefixName != string.Empty)
+                {
+                    saida[(int)i] += " (" + prefixName + ")";
+                }
+            }
             return saida.ToArray();
         }
 
-        public static string getString(ModoNomenclatura prefixo, Separador s, ModoNomenclatura sufixo, int numero, bool leadingZeros, bool invertPrefixSuffix)
+        public static string getString(ModoNomenclatura prefixo, Separador s, ModoNomenclatura sufixo, ModoNomenclatura naoPrefixado, int numero, bool leadingZeros, bool invertPrefixSuffix)
         {
             string prefixoSaida = "";
             string separadorSaida = "";
@@ -791,7 +801,7 @@ namespace Klyte.TransportLinesManager
                             break;
                     }
                 }
-                switch (sufixo)
+                switch (prefixo != ModoNomenclatura.Nenhum ? sufixo : naoPrefixado)
                 {
                     case ModoNomenclatura.GregoMaiusculo:
                         sufixoSaida = getStringFromNumber(gregoMaiusculo, numero);

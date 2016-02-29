@@ -20,6 +20,7 @@ namespace Klyte.TransportLinesManager.UI
         private string m_autoName;
         private ModoNomenclatura prefix;
         private ModoNomenclatura suffix;
+        private ModoNomenclatura nonPrefix;
         private Separador sep;
         private bool zerosEsquerda;
         private bool invertPrefixSuffix;
@@ -73,7 +74,7 @@ namespace Klyte.TransportLinesManager.UI
                 TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
                 if (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME))
                 {
-                    return "[" + TLMUtils.getString(prefix, sep, suffix, t.m_lineNumber, zerosEsquerda, invertPrefixSuffix).Replace('\n', ' ') + "] " + m_autoName;
+                    return "[" + TLMUtils.getString(prefix, sep, suffix, nonPrefix, t.m_lineNumber, zerosEsquerda, invertPrefixSuffix).Replace('\n', ' ') + "] " + m_autoName;
                 }
                 else
                 {
@@ -95,9 +96,9 @@ namespace Klyte.TransportLinesManager.UI
             lineStationsPanel.color = c;
         }
 
-        public void setLineNumberCircle(int num, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, bool zeros, bool invertPrefixSuffix)
+        public void setLineNumberCircle(int num, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, ModoNomenclatura np, bool zeros, bool invertPrefixSuffix)
         {
-            TLMLineUtils.setLineNumberCircleOnRef(num, pre, s, mn, zeros, linearMapLineNumber, invertPrefixSuffix);
+            TLMLineUtils.setLineNumberCircleOnRef(num, pre, s, mn, np, zeros, linearMapLineNumber, invertPrefixSuffix);
         }
 
 
@@ -112,7 +113,7 @@ namespace Klyte.TransportLinesManager.UI
             setLinearMapColor(lineColor);
             clearStations();
             String bgSprite;
-            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
+            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out nonPrefix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
             linearMapLineNumberFormat.backgroundSprite = bgSprite;
             bool day, night;
             t.GetActive(out day, out night);
@@ -123,7 +124,7 @@ namespace Klyte.TransportLinesManager.UI
             else {
                 linearMapLineTime.backgroundSprite = "";
             }
-            setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, zerosEsquerda, invertPrefixSuffix);
+            setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, nonPrefix, zerosEsquerda, invertPrefixSuffix);
 
             m_autoName = TLMUtils.calculateAutoName(lineID);
             string stationName = null;

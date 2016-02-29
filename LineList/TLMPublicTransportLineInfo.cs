@@ -36,7 +36,9 @@ namespace Klyte.TransportLinesManager.LineList
 
         private UILabel m_LinePassengers;
 
-        private UILabel m_LineCost;
+    //    private UILabel m_LineCost;
+
+    //    private UILabel m_LineEarnings;
 
         private UIButton m_LineNumberFormatted;
 
@@ -161,8 +163,8 @@ namespace Klyte.TransportLinesManager.LineList
                 m_LineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_lineNumber;
                 this.m_LineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountStops(this.m_LineID).ToString("N0");
                 this.m_LineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountVehicles(this.m_LineID).ToString("N0");
-                this.m_LineCost.text = string.Format("₡ {0:0.00}", TLMTransportLine.GetLineCost(m_LineID) / 25f * 4);//585+1/7 = frames/week
-                m_LineCost.relativePosition = m_LineVehicles.relativePosition + new Vector3(0, 20, 0);
+              //  this.m_LineCost.text = string.Format("₡ {0:0.00}", TLMTransportLine.GetLineCost(m_LineID) / 25f * 4);//585+1/7 = frames/week
+             //   m_LineCost.relativePosition = m_LineVehicles.relativePosition + new Vector3(0, 20, 0);
 
                 string vehTooltip = string.Format("{0} Vehicles | Waiting lap end for more stats...", this.m_LineVehicles.text);
                 var stats = ExtraVehiclesStats.instance.getLineVehiclesData(m_LineID);
@@ -187,6 +189,8 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_LinePassengers.text = (averageCount + averageCount2).ToString("N0");
 
 
+             //   this.m_LineEarnings.text = string.Format("~₡ {0:0.00}", (averageCount + averageCount2) / 50f);
+            //    m_LineEarnings.relativePosition = m_LinePassengers.relativePosition + new Vector3(0, 20, 0);
 
 
                 this.m_LinePassengers.tooltip = string.Format("{0}", LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
@@ -197,11 +201,12 @@ namespace Klyte.TransportLinesManager.LineList
                 ModoNomenclatura prefix;
                 Separador sep;
                 ModoNomenclatura suffix;
+                ModoNomenclatura nonPrefix;
                 bool zerosEsquerda;
                 bool invertPrefixSuffix;
                 string bgSprite;
-                TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
-                TLMLineUtils.setLineNumberCircleOnRef(lineNumber, prefix, sep, suffix, zerosEsquerda, m_LineNumberFormatted, invertPrefixSuffix, 0.8f);
+                TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out nonPrefix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
+                TLMLineUtils.setLineNumberCircleOnRef(lineNumber, prefix, sep, suffix, nonPrefix, zerosEsquerda, m_LineNumberFormatted, invertPrefixSuffix, 0.8f);
                 m_LineColor.normalFgSprite = bgSprite;
                 this.m_PassengerCount = averageCount + averageCount2;
                 if (colors)
@@ -322,13 +327,16 @@ namespace Klyte.TransportLinesManager.LineList
             GameObject.Destroy(m_DayLine.gameObject);
 
             this.m_LineStops = base.Find<UILabel>("LineStops");
-            m_LineStops.relativePosition -= new Vector3(0, 6, 0);
-            m_LineCost = GameObject.Instantiate(this.m_LineStops);
-            m_LineCost.transform.SetParent(m_LineStops.transform.parent);
-            m_LineCost.color = Color.red;
-            this.m_LineVehicles = base.Find<UILabel>("LineVehicles");
-            m_LineVehicles.relativePosition -= new Vector3(0, 6, 0);
             this.m_LinePassengers = base.Find<UILabel>("LinePassengers");
+            this.m_LineVehicles = base.Find<UILabel>("LineVehicles");
+            //m_LinePassengers.relativePosition -= new Vector3(0, 6, 0);
+            //m_LineVehicles.relativePosition -= new Vector3(0, 6, 0);
+            //m_LineCost = GameObject.Instantiate(this.m_LineStops);
+            //m_LineCost.transform.SetParent(m_LineStops.transform.parent);
+            //m_LineCost.textColor = Color.red;
+            //m_LineEarnings = GameObject.Instantiate(this.m_LinePassengers);
+            //m_LineEarnings.transform.SetParent(m_LineStops.transform.parent);
+            //m_LineEarnings.textColor = Color.green;
             this.m_Background = base.Find("Background");
             this.m_BackgroundColor = this.m_Background.color;
             this.m_mouseIsOver = false;
