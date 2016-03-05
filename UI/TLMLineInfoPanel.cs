@@ -145,7 +145,7 @@ namespace Klyte.TransportLinesManager.UI
             TLMCW.ConfigIndex tipo = TLMCW.getConfigIndexForLine(lineIdx);
             for (ushort i = 0; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
             {
-                if (i != lineIdx && TLMCW.getConfigIndexForLine(i) == tipo && Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber == numLinha)
+                if (i != lineIdx && TLMCW.getConfigIndexForLine(i) == tipo && Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber == numLinha && (Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None )
                 {
                     return true;
                 }

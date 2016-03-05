@@ -60,8 +60,7 @@ namespace Klyte.TransportLinesManager.Extensors
             TLMUtils.doLog("getAssetListForPrefix: pre  if (cached_subcategoryList.ContainsKey(prefix))");
             if (cached_subcategoryList.ContainsKey(prefix))
             {
-                TLMUtils.doLog("getAssetListForPrefix: IF! cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] = {0}", cached_subcategoryList[prefix][PrefixConfigIndex.MODELS]);
-                if (cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] == string.Empty)
+                if (!cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.MODELS) || cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] == string.Empty)
                 {
                     assetsList = new List<string>();
                 }

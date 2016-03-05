@@ -13,7 +13,7 @@ using ColossalFramework.DataBinding;
 using Klyte.TransportLinesManager.LineList;
 using Klyte.TransportLinesManager.MapDrawer;
 
-[assembly: AssemblyVersion("5.0.0.*")]
+[assembly: AssemblyVersion("5.0.2.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
