@@ -704,21 +704,18 @@ namespace Klyte.TransportLinesManager
 
         public static string getTransportSystemPrefixName(TLMConfigWarehouse.ConfigIndex index, uint prefix, bool global = false)
         {
-            switch (index)
-            {
-                case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
-                    return TLMShipModifyRedirects.instance.getPrefixName(prefix, global);
-                case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
-                    return TLMTrainModifyRedirects.instance.getPrefixName(prefix, global);
-                case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
-                    return TLMTramModifyRedirects.instance.getPrefixName(prefix, global);
-                case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
-                    return TLMBusModifyRedirects.instance.getPrefixName(prefix, global);
-                default:
-                    return null;
-            }
+            return getExtensionFromConfigIndex(index).getPrefixName(prefix, global);
         }
 
+        public static BasicTransportExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
+        {
+            return BasicTransportExtensionSingleton.instance(TLMUtils.getTypeFromTransportType(TLMConfigWarehouse.getTransportTypeForConfigTransport(index)));
+        }
+
+        public static BasicTransportExtension getExtensionFromTransportType(TransportInfo.TransportType index)
+        {
+            return BasicTransportExtensionSingleton.instance(TLMUtils.getTypeFromTransportType(index));
+        }
 
         public static string[] getFilterPrefixesOptions(TLMCW.ConfigIndex transportType)
         {
@@ -1335,9 +1332,27 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public class UIButtonLineInfo : UIButton
+        public static Type getTypeFromTransportType(TransportInfo.TransportType t)
         {
-            public ushort lineID;
+            switch (t)
+            {
+                case TransportInfo.TransportType.Bus:
+                    return typeof(BusAI);
+                case TransportInfo.TransportType.Train:
+                    return typeof(PassengerTrainAI);
+                case TransportInfo.TransportType.Tram:
+                    return typeof(TramAI);
+                case TransportInfo.TransportType.Metro:
+                    return typeof(MetroTrainAI);
+                case TransportInfo.TransportType.Ship:
+                    return typeof(PassengerShipAI);
+                case TransportInfo.TransportType.Airplane:
+                    return typeof(PassengerPlaneAI);
+                case TransportInfo.TransportType.Taxi:
+                    return typeof(TaxiAI);
+                default:
+                    return typeof(PrefabAI);
+            }
         }
 
         private static string[] latinoMaiusculo = {

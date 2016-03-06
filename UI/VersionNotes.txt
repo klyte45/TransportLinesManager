@@ -1,28 +1,5 @@
-﻿5.0.2
-    - Fixed line number use check.
-5.0.1
-    - Updated for Game Version 1.3.2
-    - "The given key was not present in the dictionary." error fixed
-5.0.0
-USING THE GAME DEFAULT LINE LISTING
-    - Added the TLM categories icons to default game line listing panel, using the transport system geometrical form
-    - Added sorting by Line Number
-    - Fixed order of stops/vehicles/Passengers sorting (now are higher to lower)
-    - Added shortcuts for Auto Name and Auto Color in each line row
-    - Added shortcuts for Auto Name and Auto Color all lines in selected category
-    - Added filter by line time
-    - Added filter by line prefix
-    - Still compatible with IPT
-ASSET SELECTION BY LINE PREFIX
-    - Subcategories for train and buses were removed
-    - Now the assets for bus, trains, trams and ships can be selected by prefix    
-    - You can name prefix as you want (Ex: N = North Sector, J = Center, etc); the name will appear only in dropdowns which uses prefixes (filter and line editing)
-OTHER NEW FEATURES
-    - Added option to choose if the line number in brackets will appear ahead of generated auto name
-    - Now ship lines appear in transportation view (in a weird way, but they are there - should be improved soon)
-    - The suffix rule and the non-prefixed rule for coding lines were separated - now have a selection for unprefixed and other for suffix in prefix line
-    - Now the stats for tram are working
-    - Now the TLM icon isn't show in the Info Panel anymore
+﻿5.1
+DEPOT SELECTION
 BUG FIXING
-    - Now the number of line is used correctly in prefixed lines which doesn't use auto color by prefix.
-    - Other minor bugs fixed.
+    - Now you can remove only one model when the prefix model selection was never done.
+    - Now the spawned vehicles in custom config prefix lines are right sized with the TLM draw model's capacity.

@@ -13,7 +13,7 @@ using ColossalFramework.DataBinding;
 using Klyte.TransportLinesManager.LineList;
 using Klyte.TransportLinesManager.MapDrawer;
 
-[assembly: AssemblyVersion("5.0.2.*")]
+[assembly: AssemblyVersion("5.1.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -76,7 +76,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-      
+
 
         public static SavedBool IPTCompatibilityMode
         {
@@ -99,7 +99,7 @@ namespace Klyte.TransportLinesManager
             {
                 return TransportLinesManagerMod.instance.m_betaMapGen;
             }
-        }       
+        }
 
         public static SavedString savedPalettes
         {
@@ -693,122 +693,37 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+
+
         private Dictionary<string, string> getBasicAssetListFromDropDownSelection(int index, bool global)
         {
-            switch (index)
-            {
-                case 1:
-                    return TLMShipModifyRedirects.instance.getBasicAssetsDictionary(global);
-                case 2:
-                    return TLMTrainModifyRedirects.instance.getBasicAssetsDictionary(global);
-                case 3:
-                    return TLMTramModifyRedirects.instance.getBasicAssetsDictionary(global);
-                case 4:
-                    return TLMBusModifyRedirects.instance.getBasicAssetsDictionary(global);
-                default:
-                    return null;
-            }
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBasicAssetsDictionary(global);
+
         }
 
         private Dictionary<string, string> getPrefixAssetListFromDropDownSelection(int index, uint prefix, bool global)
         {
-            switch (index)
-            {
-                case 1:
-                    return TLMShipModifyRedirects.instance.getBasicAssetsListForPrefix(prefix, global);
-                case 2:
-                    return TLMTrainModifyRedirects.instance.getBasicAssetsListForPrefix(prefix, global);
-                case 3:
-                    return TLMTramModifyRedirects.instance.getBasicAssetsListForPrefix(prefix, global);
-                case 4:
-                    return TLMBusModifyRedirects.instance.getBasicAssetsListForPrefix(prefix, global);
-                default:
-                    return null;
-            }
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBasicAssetsListForPrefix(prefix, global);
         }
 
         private void addAssetToPrefixDropDownSelection(int index, uint prefix, string assetId, bool global)
         {
-            switch (index)
-            {
-                case 1:
-                    TLMShipModifyRedirects.instance.addAssetToPrefixList(prefix, assetId, global);
-                    return;
-                case 2:
-                    TLMTrainModifyRedirects.instance.addAssetToPrefixList(prefix, assetId, global);
-                    return;
-                case 3:
-                    TLMTramModifyRedirects.instance.addAssetToPrefixList(prefix, assetId, global);
-                    return;
-                case 4:
-                    TLMBusModifyRedirects.instance.addAssetToPrefixList(prefix, assetId, global);
-                    return;
-                default:
-                    return;
-            }
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).addAssetToPrefixList(prefix, assetId, global);
         }
 
         private void removeAssetFromPrefixDropDownSelection(int index, uint prefix, string assetId, bool global)
         {
-            switch (index)
-            {
-                case 1:
-                    TLMShipModifyRedirects.instance.removeAssetFromPrefixList(prefix, assetId, global);
-                    return;
-                case 2:
-                    TLMTrainModifyRedirects.instance.removeAssetFromPrefixList(prefix, assetId, global);
-                    return;
-                case 3:
-                    TLMTramModifyRedirects.instance.removeAssetFromPrefixList(prefix, assetId, global);
-                    return;
-                case 4:
-                    TLMBusModifyRedirects.instance.removeAssetFromPrefixList(prefix, assetId, global);
-                    return;
-                default:
-                    return;
-            }
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).removeAssetFromPrefixList(prefix, assetId, global);
         }
 
         private void removeAllAssetsFromPrefixDropDownSelection(int index, uint prefix, bool global)
         {
-            switch (index)
-            {
-                case 1:
-                    TLMShipModifyRedirects.instance.removeAllAssetsFromPrefixList(prefix, global);
-                    return;
-                case 2:
-                    TLMTrainModifyRedirects.instance.removeAllAssetsFromPrefixList(prefix, global);
-                    return;
-                case 3:
-                    TLMTramModifyRedirects.instance.removeAllAssetsFromPrefixList(prefix, global);
-                    return;
-                case 4:
-                    TLMBusModifyRedirects.instance.removeAllAssetsFromPrefixList(prefix, global);
-                    return;
-                default:
-                    return;
-            }
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).removeAllAssetsFromPrefixList(prefix, global);
         }
 
         private void setPrefixNameDropDownSelection(int index, uint prefix, string name, bool global)
         {
-            switch (index)
-            {
-                case 1:
-                    TLMShipModifyRedirects.instance.setPrefixName(prefix, name, global);
-                    return;
-                case 2:
-                    TLMTrainModifyRedirects.instance.setPrefixName(prefix, name, global);
-                    return;
-                case 3:
-                    TLMTramModifyRedirects.instance.setPrefixName(prefix, name, global);
-                    return;
-                case 4:
-                    TLMBusModifyRedirects.instance.setPrefixName(prefix, name, global);
-                    return;
-                default:
-                    return;
-            }
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setPrefixName(prefix, name, global);
         }
 
         private string getPrefixNameFromDropDownSelection(int index, uint prefix, bool global)
@@ -968,7 +883,7 @@ namespace Klyte.TransportLinesManager
                 TLMBusModifyRedirects.instance.EnableHooks();
                 TLMShipModifyRedirects.instance.EnableHooks();
                 TLMTramModifyRedirects.instance.EnableHooks();
-            //    TLMTransportLineExtensionHooks.EnableHooks();
+                TLMDepotAI.instance.EnableHooks();
             }
             TLMPublicTransportDetailPanelHooks.instance.EnableHooks();
 

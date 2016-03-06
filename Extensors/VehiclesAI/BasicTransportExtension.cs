@@ -7,29 +7,48 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
-    abstract class BasicTransportExtension<T> : Redirector where T : PrefabAI
+    public class BasicTransportExtensionSingleton
     {
-        private static TLMConfigWarehouse.ConfigIndex configKeyForAssets
+        private static Dictionary<Type, BasicTransportExtension> _instances = new Dictionary<Type, BasicTransportExtension>();
+
+        public static BasicTransportExtension instance(Type T)
+        {
+            if (!_instances.ContainsKey(T))
+            {
+                _instances[T] = new BasicTransportExtension(T);
+            }
+            return _instances[T];
+        }
+    }
+
+    public class BasicTransportExtension
+    {
+        internal BasicTransportExtension(Type t)
+        {
+            type = t;
+        }
+
+        private TLMConfigWarehouse.ConfigIndex configKeyForAssets
         {
             get
             {
-                return TLMConfigWarehouse.getConfigAssetsForAI<T>();
+                return TLMConfigWarehouse.getConfigAssetsForAI(type);
             }
         }
 
-        public static TLMConfigWarehouse.ConfigIndex configKeyForAutoNamingPrefixRule
+        public TLMConfigWarehouse.ConfigIndex configKeyForAutoNamingPrefixRule
         {
             get
             {
-                return TLMConfigWarehouse.getConfigPrefixForAI<T>();
+                return TLMConfigWarehouse.getConfigPrefixForAI(type);
             }
         }
 
-        public static TLMConfigWarehouse.ConfigIndex configKeyForTransportSystem
+        public TLMConfigWarehouse.ConfigIndex configKeyForTransportSystem
         {
             get
             {
-                return TLMConfigWarehouse.getConfigTransportSystemForAI<T>();
+                return TLMConfigWarehouse.getConfigTransportSystemForAI(type);
             }
         }
 
@@ -40,13 +59,14 @@ namespace Klyte.TransportLinesManager.Extensors
         private const string SUBSUBCOMMA = "⅞";
         private List<string> basicAssetsList;
         private bool globalLoaded = false;
+        private Type type;
 
         private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_subcategoryList;
         private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_subcategoryListGlobal;
         private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_subcategoryListNonGlobal;
 
 
-        protected List<string> getAssetListForPrefix(uint prefix, bool global = false)
+        public List<string> getAssetListForPrefix(uint prefix, bool global = false)
         {
             TLMUtils.doLog("getAssetListForPrefix: pre loadSubcategoryList");
             loadSubcategoryList(global);
@@ -153,7 +173,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 if (file.Length > 0)
                 {
                     TLMUtils.doLog("loadAuxiliarVars: file.Length > 0");
-                    foreach(string s in file)
+                    foreach (string s in file)
                     {
                         uint key = getIndexFromStringArray(s);
                         var value = getValueFromStringArray(s);
@@ -174,7 +194,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 for (uint num = 0u; (ulong)num < (ulong)((long)PrefabCollection<VehicleInfo>.PrefabCount()); num += 1u)
                 {
                     VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
-                    if (!(prefab == null) && prefab.GetAI().GetType() == typeof(T))
+                    if (!(prefab == null) && prefab.GetAI().GetType() == type)
                     {
                         basicAssetsList.Add(prefab.name);
                         if (prefab.m_trailers != null && prefab.m_trailers.Length > 0)
@@ -235,7 +255,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
                 }
                 var value = string.Join(COMMA, cached_subcategoryList.Select(x => x.Key.ToString() + SEPARATOR + string.Join(SUBCOMMA, x.Value.Select(y => y.Key.ToString() + SUBSEPARATOR + y.Value).ToArray())).ToArray());
-                TLMUtils.doLog("NEW VALUE ({0}): {1}", typeof(T).ToString(), value);
+                TLMUtils.doLog("NEW VALUE ({0}): {1}", type.ToString(), value);
                 loadedConfig.setString(configKeyForAssets, value);
                 if (global)
                 {
@@ -280,7 +300,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public void setPrefixName(uint prefix, string name, bool global = false)
         {
-            TLMUtils.doLog("setPrefixName! {0} {1} {2} {3}", typeof(T).ToString(), prefix, name, global);
+            TLMUtils.doLog("setPrefixName! {0} {1} {2} {3}", type.ToString(), prefix, name, global);
             loadSubcategoryList(global);
             if (needReload)
             {
@@ -344,12 +364,16 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             loadSubcategoryList(global);
             TLMUtils.doLog("removeAssetFromPrefixList: {0} => {1}", assetId, prefix);
+            List<string> temp;
             if (!cached_subcategoryList.ContainsKey(prefix))
             {
                 cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
                 cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] = "";
+                temp = getAssetListForPrefix(0, global);
             }
-            var temp = cached_subcategoryList[prefix][PrefixConfigIndex.MODELS].Split(SUBSUBCOMMA.ToCharArray()).ToList();
+            else {
+                temp = cached_subcategoryList[prefix][PrefixConfigIndex.MODELS].Split(SUBSUBCOMMA.ToCharArray()).ToList();
+            }
             if (!temp.Contains(assetId)) return;
             temp.Remove(assetId);
             cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] = string.Join(SUBSUBCOMMA, temp.ToArray());
@@ -389,9 +413,9 @@ namespace Klyte.TransportLinesManager.Extensors
             var assetList = getAssetListForPrefix(prefix);
             if (assetList.Count == 0) return null;
             Randomizer r = new Randomizer(new System.Random().Next());
-            TLMUtils.doLog("POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", basicAssetsList.ToArray()), prefix, typeof(T).ToString());
+            TLMUtils.doLog("POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", assetList.ToArray()), prefix, type.ToString());
             string model = assetList[r.Int32(0, assetList.Count - 1)];
-            TLMUtils.doLog("MODEL FOR {2} PREFIX {1}: {0} ", model, prefix, typeof(T).ToString());
+            TLMUtils.doLog("MODEL FOR {2} PREFIX {1}: {0} ", model, prefix, type.ToString());
             var saida = PrefabCollection<VehicleInfo>.FindLoaded(model);
             if (saida == null)
             {
@@ -427,11 +451,11 @@ namespace Klyte.TransportLinesManager.Extensors
             loadSubcategoryList(global);
         }
 
-        public static int getCapacity(VehicleInfo info)
+        public int getCapacity(VehicleInfo info)
         {
             if (info == null) return -1;
-            var ai = info.GetAI() as T;
-            var field = ai.GetType().GetField("m_passengerCapacity", allFlags);
+            var ai = info.GetAI();
+            var field = type.GetField("m_passengerCapacity", Redirector.allFlags);
             TLMUtils.doLog("getCapacity FIELD: {0} ({1})", field, field != null ? field.GetType().ToString() : "null");
             if (field != null && field.GetType() == typeof(Int32))
             {

@@ -97,6 +97,12 @@ namespace Klyte.TransportLinesManager
             return transportType;
         }
 
+        public static ConfigIndex getConfigIndexForTransportType(TransportInfo.TransportType t)
+        {
+            ConfigIndex transportType = (ConfigIndex)((int)t << 16);
+            return transportType;
+        }
+
         private TLMConfigWarehouse(string cityId, string cityName)
         {
             this.cityId = cityId;
@@ -355,21 +361,21 @@ namespace Klyte.TransportLinesManager
             return getCurrentConfigString(ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | s.toConfigIndex());
         }
 
-        public static ConfigIndex getConfigAssetsForAI<T>() where T : PrefabAI
+        public static ConfigIndex getConfigAssetsForAI(Type T)
         {
-            if (typeof(T) == typeof(BusAI))
+            if (T == typeof(BusAI))
             {
                 return ConfigIndex.PREFIX_BASED_ASSETS_BUS;
             }
-            else if (typeof(T) == typeof(PassengerTrainAI))
+            else if (T == typeof(PassengerTrainAI))
             {
                 return ConfigIndex.PREFIX_BASED_ASSETS_TRAIN;
             }
-            else if (typeof(T) == typeof(TramAI))
+            else if (T == typeof(TramAI))
             {
                 return ConfigIndex.PREFIX_BASED_ASSETS_TRAM;
             }
-            else if (typeof(T) == typeof(PassengerShipAI))
+            else if (T == typeof(PassengerShipAI))
             {
                 return ConfigIndex.PREFIX_BASED_ASSETS_SHIP;
             }
@@ -380,21 +386,41 @@ namespace Klyte.TransportLinesManager
         }
 
 
-        public static ConfigIndex getConfigPrefixForAI<T>() where T : PrefabAI
+        public static ConfigIndex getConfigDepotPrefix(TransportInfo.TransportType t)
         {
-            if (typeof(T) == typeof(BusAI))
+            switch (t)
+            {
+                case TransportInfo.TransportType.Bus:
+                    return ConfigIndex.DEPOT_PREFIXES_BUS;
+                case TransportInfo.TransportType.Train:
+                    return ConfigIndex.DEPOT_PREFIXES_TRAIN;
+                case TransportInfo.TransportType.Tram:
+                    return ConfigIndex.DEPOT_PREFIXES_TRAM;
+                case TransportInfo.TransportType.Metro:
+                    return ConfigIndex.DEPOT_PREFIXES_METRO;
+                case TransportInfo.TransportType.Ship:
+                    return ConfigIndex.DEPOT_PREFIXES_SHIP;
+                default:
+                    return ConfigIndex.NIL;
+            }
+        }
+
+
+        public static ConfigIndex getConfigPrefixForAI(Type T)
+        {
+            if (T == typeof(BusAI))
             {
                 return ConfigIndex.BUS_PREFIX;
             }
-            else if (typeof(T) == typeof(TrainAI))
+            else if (T == typeof(TrainAI))
             {
                 return ConfigIndex.TRAIN_PREFIX;
             }
-            else if (typeof(T) == typeof(TramAI))
+            else if (T == typeof(TramAI))
             {
                 return ConfigIndex.TRAM_PREFIX;
             }
-            else if (typeof(T) == typeof(ShipAI))
+            else if (T == typeof(ShipAI))
             {
                 return ConfigIndex.SHIP_PREFIX;
             }
@@ -405,27 +431,60 @@ namespace Klyte.TransportLinesManager
         }
 
 
-        public static ConfigIndex getConfigTransportSystemForAI<T>() where T : PrefabAI
+        public static ConfigIndex getConfigTransportSystemForAI(Type T)
         {
-            if (typeof(T) == typeof(BusAI))
+            if (T == typeof(BusAI))
             {
                 return ConfigIndex.BUS_CONFIG;
             }
-            else if (typeof(T) == typeof(TrainAI))
+            else if (T == typeof(TrainAI))
             {
                 return ConfigIndex.TRAIN_CONFIG;
             }
-            else if (typeof(T) == typeof(TramAI))
+            else if (T == typeof(TramAI))
             {
                 return ConfigIndex.TRAM_CONFIG;
             }
-            else if (typeof(T) == typeof(ShipAI))
+            else if (T == typeof(ShipAI))
             {
                 return ConfigIndex.SHIP_CONFIG;
             }
             else
             {
                 return ConfigIndex.NIL;
+            }
+        }
+
+
+        public static TransportInfo.TransportType getTransportTypeForConfigTransport(ConfigIndex T)
+        {
+            if (T == ConfigIndex.BUS_CONFIG)
+            {
+                return TransportInfo.TransportType.Bus;
+            }
+            else if (T == ConfigIndex.TRAIN_CONFIG)
+            {
+                return TransportInfo.TransportType.Train;
+            }
+            else if (T == ConfigIndex.TRAM_CONFIG)
+            {
+                return TransportInfo.TransportType.Tram;
+            }
+            else if (T == ConfigIndex.SHIP_CONFIG)
+            {
+                return TransportInfo.TransportType.Ship;
+            }
+            else if (T == ConfigIndex.TAXI_CONFIG)
+            {
+                return TransportInfo.TransportType.Taxi;
+            }
+            else if (T == ConfigIndex.PLANE_CONFIG)
+            {
+                return TransportInfo.TransportType.Airplane;
+            }
+            else
+            {
+                return TransportInfo.TransportType.Unused2;
             }
         }
 
@@ -454,6 +513,15 @@ namespace Klyte.TransportLinesManager
             PREFIX_BASED_ASSETS_TRAM = GLOBAL_CONFIG | 0xB | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_TRAIN = GLOBAL_CONFIG | 0xC | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_SHIP = GLOBAL_CONFIG | 0xD | TYPE_DICTIONARY,
+            DEPOT_PREFIXES_BUS = GLOBAL_CONFIG | 0xE | TYPE_DICTIONARY,
+            DEPOT_PREFIXES_TRAM = GLOBAL_CONFIG | 0xF | TYPE_DICTIONARY,
+            DEPOT_PREFIXES_TRAIN = GLOBAL_CONFIG | 0x10 | TYPE_DICTIONARY,
+            DEPOT_PREFIXES_METRO = GLOBAL_CONFIG | 0x11 | TYPE_DICTIONARY,
+            DEPOT_PREFIXES_SHIP = GLOBAL_CONFIG | 0x12 | TYPE_DICTIONARY,
+            STATION_DISALLOW_EXTERNAL_PASSENGER_TRAIN = GLOBAL_CONFIG | 0x13 | TYPE_DICTIONARY,
+            STATION_DISALLOW_EXTERNAL_CARGO_TRAIN = GLOBAL_CONFIG | 0x14 | TYPE_DICTIONARY,
+            STATION_DISALLOW_EXTERNAL_PASSENGER_SHIP = GLOBAL_CONFIG | 0x15 | TYPE_DICTIONARY,
+            STATION_DISALLOW_EXTERNAL_CARGO_SHIP = GLOBAL_CONFIG | 0x16 | TYPE_DICTIONARY,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = TransportInfo.TransportType.Tram << 16,
@@ -568,6 +636,8 @@ namespace Klyte.TransportLinesManager
             PLANE_SHOW_IN_LINEAR_MAP = PLANE_CONFIG | SHOW_IN_LINEAR_MAP,
             TAXI_SHOW_IN_LINEAR_MAP = TAXI_CONFIG | SHOW_IN_LINEAR_MAP,
             SHIP_SHOW_IN_LINEAR_MAP = SHIP_CONFIG | SHOW_IN_LINEAR_MAP,
+
+
 
 
             TRAIN_DEFAULT_COST_PER_PASSENGER_CAPACITY = TRAIN_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
