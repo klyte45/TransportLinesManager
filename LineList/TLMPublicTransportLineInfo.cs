@@ -36,9 +36,9 @@ namespace Klyte.TransportLinesManager.LineList
 
         private UILabel m_LinePassengers;
 
-    //    private UILabel m_LineCost;
+        //    private UILabel m_LineCost;
 
-    //    private UILabel m_LineEarnings;
+        //    private UILabel m_LineEarnings;
 
         private UIButton m_LineNumberFormatted;
 
@@ -139,7 +139,7 @@ namespace Klyte.TransportLinesManager.LineList
                     bool nightActive;
                     Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].GetActive(out dayActive, out nightActive);
                     this.m_LineTime.selectedIndex = ((dayActive ? 0 : 2) + (nightActive ? 0 : 1));
-                    isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(dayActive, nightActive) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber);
+                    isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(dayActive, nightActive) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber) ;
                     if (!dayActive || !nightActive)
                     {
                         m_LineColor.normalBgSprite = dayActive ? "DayIcon" : nightActive ? "NightIcon" : "DisabledIcon";
@@ -163,8 +163,8 @@ namespace Klyte.TransportLinesManager.LineList
                 m_LineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_lineNumber;
                 this.m_LineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountStops(this.m_LineID).ToString("N0");
                 this.m_LineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountVehicles(this.m_LineID).ToString("N0");
-              //  this.m_LineCost.text = string.Format("₡ {0:0.00}", TLMTransportLine.GetLineCost(m_LineID) / 25f * 4);//585+1/7 = frames/week
-             //   m_LineCost.relativePosition = m_LineVehicles.relativePosition + new Vector3(0, 20, 0);
+                //  this.m_LineCost.text = string.Format("₡ {0:0.00}", TLMTransportLine.GetLineCost(m_LineID) / 25f * 4);//585+1/7 = frames/week
+                //   m_LineCost.relativePosition = m_LineVehicles.relativePosition + new Vector3(0, 20, 0);
 
                 string vehTooltip = string.Format("{0} Vehicles | Waiting lap end for more stats...", this.m_LineVehicles.text);
                 var stats = ExtraVehiclesStats.instance.getLineVehiclesData(m_LineID);
@@ -189,8 +189,8 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_LinePassengers.text = (averageCount + averageCount2).ToString("N0");
 
 
-             //   this.m_LineEarnings.text = string.Format("~₡ {0:0.00}", (averageCount + averageCount2) / 50f);
-            //    m_LineEarnings.relativePosition = m_LinePassengers.relativePosition + new Vector3(0, 20, 0);
+                //   this.m_LineEarnings.text = string.Format("~₡ {0:0.00}", (averageCount + averageCount2) / 50f);
+                //    m_LineEarnings.relativePosition = m_LinePassengers.relativePosition + new Vector3(0, 20, 0);
 
 
                 this.m_LinePassengers.tooltip = string.Format("{0}", LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]

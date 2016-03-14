@@ -1,5 +1,15 @@
 ﻿5.1
 DEPOT SELECTION
+    - Added button in lines panel to toggle between lines and depot views
+    - Now you can set which depot will spawn vehicles for each line
+        ** NOTE: You can now prevent Train Stations from spawning regional trains removing the Regional option on prefix selection **
+AIRPLANE SUPPORT
+    - Added options for rules to airplane lines
+    - Added airplane tab in the lines panel view
+    - Added color correction for airplanes for they show the current line color
+NEW DEFAULT PALETTE: LONDON 2016 by daniel2706
 BUG FIXING
     - Now you can remove only one model when the prefix model selection was never done.
     - Now the spawned vehicles in custom config prefix lines are right sized with the TLM draw model's capacity.
+    - Now the shortcuts in transport panel to detailed panel selects the right tab
+    - Now filters and others dropdowns with letter + numbers naming rules have its right options

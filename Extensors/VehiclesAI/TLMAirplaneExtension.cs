@@ -12,22 +12,22 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
-    class TLMShipModifyRedirects : Redirector
+    class TLMAirplaneModifyRedirects : Redirector
     {
-        private static TLMShipModifyRedirects _instance;
-        public static TLMShipModifyRedirects instance
+        private static TLMAirplaneModifyRedirects _instance;
+        public static TLMAirplaneModifyRedirects instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new TLMShipModifyRedirects();
+                    _instance = new TLMAirplaneModifyRedirects();
                 }
                 return _instance;
             }
         }
 
-        public TLMShipModifyRedirects()
+        public TLMAirplaneModifyRedirects()
         {
         }
 
@@ -42,7 +42,9 @@ namespace Klyte.TransportLinesManager.Extensors
         public Color GetColorBase(ushort vehicleID, ref Vehicle data, InfoManager.InfoMode infoMode)
         {
             return Color.black;
-        }       
+        }
+
+        
 
         // PassengerShipAI
         public Color GetColor(ushort vehicleID, ref Vehicle data, InfoManager.InfoMode infoMode)
@@ -137,13 +139,13 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 DisableHooks();
             }
-            TLMUtils.doLog("Loading Ship Hooks!");
-            AddRedirect(typeof(PassengerShipAI), typeof(TLMShipModifyRedirects).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null), ref redirects);
-            AddRedirect(typeof(TLMShipModifyRedirects), typeof(ShipAI).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3) }, null), ref redirects);
+            TLMUtils.doLog("Loading Airplane Hooks!");
+            AddRedirect(typeof(PassengerPlaneAI), typeof(TLMAirplaneModifyRedirects).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null), ref redirects);
+            AddRedirect(typeof(TLMAirplaneModifyRedirects), typeof(AircraftAI).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3) }, null), ref redirects);
 
 
-            AddRedirect(typeof(PassengerShipAI), typeof(TLMShipModifyRedirects).GetMethod("GetColor", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InfoManager.InfoMode) }, null), ref redirects);
-            AddRedirect(typeof(TLMShipModifyRedirects), typeof(VehicleAI).GetMethod("GetColor", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InfoManager.InfoMode) }, null), ref redirects, "GetColorBase");
+            AddRedirect(typeof(PassengerPlaneAI), typeof(TLMAirplaneModifyRedirects).GetMethod("GetColor", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InfoManager.InfoMode) }, null), ref redirects);
+            AddRedirect(typeof(TLMAirplaneModifyRedirects), typeof(VehicleAI).GetMethod("GetColor", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InfoManager.InfoMode) }, null), ref redirects, "GetColorBase");
 
 
         }

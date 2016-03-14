@@ -45,12 +45,27 @@ namespace Klyte.TransportLinesManager
             new Color32 (0, 255, 0, 255),
             new Color32 (255, 252, 186, 255)
         });
+        public readonly static List<Color32> London2016 = new List<Color32>(new Color32[]{
+            new Color32 (137,78,36,255),
+            new Color32 (220,36,31,255),
+            new Color32 (225,206,0,255),
+            new Color32 (0,114,41,255),
+            new Color32 (215,153,175,255),
+            new Color32 (134,143,152,255),
+            new Color32 (117,16,86,255),
+            new Color32 (0,0,0,255),
+            new Color32 (0,25,168,255),
+            new Color32 (0,160,226,255),
+            new Color32 (118,208,189,255),
+            new Color32 (102,204,0,255),
+            new Color32 (232,106,16,255)
+        });
 
         public static string defaultPaletteList
         {
             get
             {
-                return new AutoColorPalette("São Paulo 2035", SaoPaulo2035).serialize();
+                return ToString(new AutoColorPalette[] { new AutoColorPalette("São Paulo 2035", SaoPaulo2035), new AutoColorPalette("London 2016", London2016) });
             }
         }
 
@@ -103,17 +118,23 @@ namespace Klyte.TransportLinesManager
                 }
             }
             m_palettes["São Paulo 2035"] = new AutoColorPalette("São Paulo 2035", SaoPaulo2035);
+            m_palettes["London 2016"] = new AutoColorPalette("London 2016", London2016);
         }
 
-        public static void save()
+        public static string ToString(IEnumerable<AutoColorPalette> list)
         {
             List<string> vals = new List<string>();
-            foreach (AutoColorPalette item in m_palettes.Values)
+            foreach (AutoColorPalette item in list)
             {
                 string val = item.serialize();
                 vals.Add(val);
             }
-            TransportLinesManagerMod.savedPalettes.value = string.Join(SERIALIZER_ITEM_SEPARATOR.ToString(), vals.ToArray());
+            return string.Join(SERIALIZER_ITEM_SEPARATOR.ToString(), vals.ToArray());
+        }
+
+        public static void save()
+        {
+            TransportLinesManagerMod.savedPalettes.value = ToString(m_palettes.Values);
         }
 
         public static Color32 getColor(int number, string paletteName, bool randomOnPaletteOverflow)

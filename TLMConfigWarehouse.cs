@@ -19,6 +19,8 @@ namespace Klyte.TransportLinesManager
           ConfigIndex.   TRAM_PALETTE_MAIN,
          ConfigIndex.    METRO_PALETTE_MAIN ,
          ConfigIndex.    BUS_PALETTE_MAIN ,
+         ConfigIndex.   PLANE_PALETTE_MAIN ,
+           ConfigIndex. PLANE_PALETTE_SUBLINE,
            ConfigIndex. SHIP_PALETTE_SUBLINE,
          ConfigIndex.    TRAIN_PALETTE_SUBLINE,
         ConfigIndex.     TRAM_PALETTE_SUBLINE,
@@ -262,6 +264,8 @@ namespace Klyte.TransportLinesManager
                     return 50f / 400;
                 case ConfigIndex.SHIP_CONFIG:
                     return 50f / 800;
+                case ConfigIndex.PLANE_CONFIG:
+                    return 50f / 1000;
                 case ConfigIndex.TRAM_CONFIG:
                     return 50f / 90;
                 case ConfigIndex.METRO_CONFIG:
@@ -379,6 +383,10 @@ namespace Klyte.TransportLinesManager
             {
                 return ConfigIndex.PREFIX_BASED_ASSETS_SHIP;
             }
+            else if (T == typeof(PassengerPlaneAI))
+            {
+                return ConfigIndex.PREFIX_BASED_ASSETS_PLANE;
+            }
             else
             {
                 return ConfigIndex.NIL;
@@ -400,6 +408,8 @@ namespace Klyte.TransportLinesManager
                     return ConfigIndex.DEPOT_PREFIXES_METRO;
                 case TransportInfo.TransportType.Ship:
                     return ConfigIndex.DEPOT_PREFIXES_SHIP;
+                case TransportInfo.TransportType.Airplane:
+                    return ConfigIndex.DEPOT_PREFIXES_PLANE;
                 default:
                     return ConfigIndex.NIL;
             }
@@ -423,6 +433,10 @@ namespace Klyte.TransportLinesManager
             else if (T == typeof(ShipAI))
             {
                 return ConfigIndex.SHIP_PREFIX;
+            }
+            else if (T == typeof(AircraftAI))
+            {
+                return ConfigIndex.PLANE_CONFIG;
             }
             else
             {
@@ -448,6 +462,10 @@ namespace Klyte.TransportLinesManager
             else if (T == typeof(ShipAI))
             {
                 return ConfigIndex.SHIP_CONFIG;
+            }
+            else if (T == typeof(AircraftAI))
+            {
+                return ConfigIndex.PLANE_CONFIG;
             }
             else
             {
@@ -522,6 +540,9 @@ namespace Klyte.TransportLinesManager
             STATION_DISALLOW_EXTERNAL_CARGO_TRAIN = GLOBAL_CONFIG | 0x14 | TYPE_DICTIONARY,
             STATION_DISALLOW_EXTERNAL_PASSENGER_SHIP = GLOBAL_CONFIG | 0x15 | TYPE_DICTIONARY,
             STATION_DISALLOW_EXTERNAL_CARGO_SHIP = GLOBAL_CONFIG | 0x16 | TYPE_DICTIONARY,
+            STATION_DISALLOW_EXTERNAL_PASSENGER_PLANE = GLOBAL_CONFIG | 0x17 | TYPE_DICTIONARY,
+            DEPOT_PREFIXES_PLANE = GLOBAL_CONFIG | 0x18 | TYPE_DICTIONARY,
+            PREFIX_BASED_ASSETS_PLANE = GLOBAL_CONFIG | 0x19 | TYPE_DICTIONARY,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = TransportInfo.TransportType.Tram << 16,
@@ -573,18 +594,21 @@ namespace Klyte.TransportLinesManager
             METRO_PREFIX = METRO_CONFIG | PREFIX,
             BUS_PREFIX = BUS_CONFIG | PREFIX,
             SHIP_PREFIX = SHIP_CONFIG | PREFIX,
+            PLANE_PREFIX = PLANE_CONFIG | PREFIX,
 
             TRAIN_SEPARATOR = TRAIN_CONFIG | SEPARATOR,
             TRAM_SEPARATOR = TRAM_CONFIG | SEPARATOR,
             METRO_SEPARATOR = METRO_CONFIG | SEPARATOR,
             BUS_SEPARATOR = BUS_CONFIG | SEPARATOR,
             SHIP_SEPARATOR = SHIP_CONFIG | SEPARATOR,
+            PLANE_SEPARATOR = PLANE_CONFIG | SEPARATOR,
 
             TRAIN_SUFFIX = TRAIN_CONFIG | SUFFIX,
             TRAM_SUFFIX = TRAM_CONFIG | SUFFIX,
             METRO_SUFFIX = METRO_CONFIG | SUFFIX,
             BUS_SUFFIX = BUS_CONFIG | SUFFIX,
             SHIP_SUFFIX = SHIP_CONFIG | SUFFIX,
+            PLANE_SUFFIX = PLANE_CONFIG | SUFFIX,
 
 
             TRAIN_NON_PREFIX = TRAIN_CONFIG | NON_PREFIX,
@@ -592,42 +616,49 @@ namespace Klyte.TransportLinesManager
             METRO_NON_PREFIX = METRO_CONFIG | NON_PREFIX,
             BUS_NON_PREFIX = BUS_CONFIG | NON_PREFIX,
             SHIP_NON_PREFIX = SHIP_CONFIG | NON_PREFIX,
+            PLANE_NON_PREFIX = PLANE_CONFIG | NON_PREFIX,
 
             TRAIN_LEADING_ZEROS = TRAIN_CONFIG | LEADING_ZEROS,
             TRAM_LEADING_ZEROS = TRAM_CONFIG | LEADING_ZEROS,
             METRO_LEADING_ZEROS = METRO_CONFIG | LEADING_ZEROS,
             BUS_LEADING_ZEROS = BUS_CONFIG | LEADING_ZEROS,
             SHIP_LEADING_ZEROS = SHIP_CONFIG | LEADING_ZEROS,
+            PLANE_LEADING_ZEROS = PLANE_CONFIG | LEADING_ZEROS,
 
             TRAIN_INVERT_PREFIX_SUFFIX = TRAIN_CONFIG | INVERT_PREFIX_SUFFIX,
             TRAM_INVERT_PREFIX_SUFFIX = TRAM_CONFIG | INVERT_PREFIX_SUFFIX,
             METRO_INVERT_PREFIX_SUFFIX = METRO_CONFIG | INVERT_PREFIX_SUFFIX,
             BUS_INVERT_PREFIX_SUFFIX = BUS_CONFIG | INVERT_PREFIX_SUFFIX,
             SHIP_INVERT_PREFIX_SUFFIX = SHIP_CONFIG | INVERT_PREFIX_SUFFIX,
+            PLANE_INVERT_PREFIX_SUFFIX = PLANE_CONFIG | INVERT_PREFIX_SUFFIX,
 
             TRAIN_PALETTE_MAIN = TRAIN_CONFIG | PALETTE_MAIN,
             TRAM_PALETTE_MAIN = TRAM_CONFIG | PALETTE_MAIN,
             METRO_PALETTE_MAIN = METRO_CONFIG | PALETTE_MAIN,
             BUS_PALETTE_MAIN = BUS_CONFIG | PALETTE_MAIN,
             SHIP_PALETTE_MAIN = SHIP_CONFIG | PALETTE_MAIN,
+            PLANE_PALETTE_MAIN = PLANE_CONFIG | PALETTE_MAIN,
 
             TRAIN_PALETTE_SUBLINE = TRAIN_CONFIG | PALETTE_SUBLINE,
             TRAM_PALETTE_SUBLINE = TRAM_CONFIG | PALETTE_SUBLINE,
             METRO_PALETTE_SUBLINE = METRO_CONFIG | PALETTE_SUBLINE,
             BUS_PALETTE_SUBLINE = BUS_CONFIG | PALETTE_SUBLINE,
             SHIP_PALETTE_SUBLINE = SHIP_CONFIG | PALETTE_SUBLINE,
+            PLANE_PALETTE_SUBLINE = PLANE_CONFIG | PALETTE_SUBLINE,
 
             TRAIN_PALETTE_RANDOM_ON_OVERFLOW = TRAIN_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             TRAM_PALETTE_RANDOM_ON_OVERFLOW = TRAM_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             METRO_PALETTE_RANDOM_ON_OVERFLOW = METRO_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             BUS_PALETTE_RANDOM_ON_OVERFLOW = BUS_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             SHIP_PALETTE_RANDOM_ON_OVERFLOW = SHIP_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
+            PLANE_PALETTE_RANDOM_ON_OVERFLOW = PLANE_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
 
             TRAIN_PALETTE_PREFIX_BASED = TRAIN_CONFIG | PALETTE_PREFIX_BASED,
             TRAM_PALETTE_PREFIX_BASED = TRAM_CONFIG | PALETTE_PREFIX_BASED,
             METRO_PALETTE_PREFIX_BASED = METRO_CONFIG | PALETTE_PREFIX_BASED,
             BUS_PALETTE_PREFIX_BASED = BUS_CONFIG | PALETTE_PREFIX_BASED,
             SHIP_PALETTE_PREFIX_BASED = SHIP_CONFIG | PALETTE_PREFIX_BASED,
+            PLANE_PALETTE_PREFIX_BASED = PLANE_CONFIG | PALETTE_PREFIX_BASED,
 
             TRAIN_SHOW_IN_LINEAR_MAP = TRAIN_CONFIG | SHOW_IN_LINEAR_MAP,
             TRAM_SHOW_IN_LINEAR_MAP = TRAM_CONFIG | SHOW_IN_LINEAR_MAP,
@@ -645,6 +676,7 @@ namespace Klyte.TransportLinesManager
             METRO_DEFAULT_COST_PER_PASSENGER_CAPACITY = METRO_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             BUS_DEFAULT_COST_PER_PASSENGER_CAPACITY = BUS_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             SHIP_DEFAULT_COST_PER_PASSENGER_CAPACITY = SHIP_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            PLANE_DEFAULT_COST_PER_PASSENGER_CAPACITY = PLANE_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
 
             RESIDENTIAL_USE_FOR_AUTO_NAMING_REF = RESIDENTIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             COMMERCIAL_USE_FOR_AUTO_NAMING_REF = COMMERCIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,

@@ -351,7 +351,7 @@ namespace Klyte.TransportLinesManager
 
             configSelector = (UIDropDown)helper.AddDropdown("Show Configurations For", getOptionsForLoadConfig(), 0, reloadData);
             TLMUtils.doLog("Loading Group 1");
-            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG, TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG })
+            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG, TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG, TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG })
             {
                 UIHelperExtension group1 = helper.AddGroupExtended(TLMConfigWarehouse.getNameForTransportType(transportType) + " Config");
                 lineTypesPanels[transportType] = group1.self.GetComponentInParent<UIPanel>();
@@ -500,7 +500,7 @@ namespace Klyte.TransportLinesManager
                     prefixSelection.items = TLMUtils.getStringOptionsForPrefix(m, true);
                     prefixSelection.selectedIndex = 0;
                 };
-                systemTypeDropDown = (UIDropDown)group2.AddDropdown("Transport System", new string[] { "--Select--", "Ship", "Train", "Tram", "Bus" }, 0, loadPrefixes);
+                systemTypeDropDown = (UIDropDown)group2.AddDropdown("Transport System", new string[] { "--Select--", "Ship", "Train", "Tram", "Bus", "Plane" }, 0, loadPrefixes);
                 prefixSelection = (UIDropDown)group2.AddDropdown("Prefix", new string[] { "" }, 0, loadPrefixAssetList);
 
                 foreach (Transform t in ((UIPanel)group2.self).transform)
@@ -688,6 +688,8 @@ namespace Klyte.TransportLinesManager
                     return TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG;
                 case 4:
                     return TLMConfigWarehouse.ConfigIndex.BUS_CONFIG;
+                case 5:
+                    return TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG;
                 default:
                     return TLMConfigWarehouse.ConfigIndex.NIL;
             }
@@ -874,7 +876,7 @@ namespace Klyte.TransportLinesManager
             if (TLMController.taLineNumber == null)
             {
                 TLMController.taLineNumber = CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                  "TramIcon","ShipLineIcon","LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","SurfaceMetroIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","SurfaceMetroImage","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap"
+                  "DepotIcon","PlaneLineIcon","TramIcon","ShipLineIcon","LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","SurfaceMetroIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","SurfaceMetroImage","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap"
                 });
             }
             if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
@@ -882,6 +884,7 @@ namespace Klyte.TransportLinesManager
                 TLMTrainModifyRedirects.instance.EnableHooks();
                 TLMBusModifyRedirects.instance.EnableHooks();
                 TLMShipModifyRedirects.instance.EnableHooks();
+                TLMAirplaneModifyRedirects.instance.EnableHooks();
                 TLMTramModifyRedirects.instance.EnableHooks();
                 TLMDepotAI.instance.EnableHooks();
             }

@@ -23,11 +23,9 @@ namespace Klyte.TransportLinesManager
         public UIButton abrePainelButton;
         public bool initialized = false;
         public bool initializedWIP = false;
-        //   private TLMMainPanel m_mainPasnel;
         private TLMLineInfoPanel m_lineInfoPanel;
+        private TLMDepotInfoPanel m_depotInfoPanel;
         private int lastLineCount = 0;
-        private static GameObject shipLineButton;
-        public static TransportInfo shipLinePrefab;
 
         private UIPanel _cachedDefaultListingLinesPanel;
 
@@ -49,6 +47,14 @@ namespace Klyte.TransportLinesManager
             get
             {
                 return m_lineInfoPanel;
+            }
+        }
+
+        public TLMDepotInfoPanel depotInfoPanel
+        {
+            get
+            {
+                return m_depotInfoPanel;
             }
         }
 
@@ -78,6 +84,11 @@ namespace Klyte.TransportLinesManager
             if (m_lineInfoPanel != null && m_lineInfoPanel.gameObject != null)
             {
                 UnityEngine.Object.Destroy(m_lineInfoPanel.gameObject);
+            }
+
+            if (m_depotInfoPanel != null && m_depotInfoPanel.gameObject != null)
+            {
+                UnityEngine.Object.Destroy(m_depotInfoPanel.gameObject);
             }
 
             initialized = false;
@@ -111,7 +122,7 @@ namespace Klyte.TransportLinesManager
                 tm = Singleton<TransportManager>.instance;
                 im = Singleton<InfoManager>.instance;
                 createViews();
-                mainRef.clipChildren = false;                
+                mainRef.clipChildren = false;
                 initialized = true;
             }
 
@@ -122,92 +133,21 @@ namespace Klyte.TransportLinesManager
                 m_lineInfoPanel.updateBidings();
             }
 
+            if (m_depotInfoPanel.isVisible)
+            {
+                m_depotInfoPanel.updateBidings();
+            }
+
             if (lastLineCount != tm.m_lineCount && (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED) || TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_NAME_ENABLED)))
             {
                 CheckForAutoChanges();
             }
             lastLineCount = tm.m_lineCount;
 
-            if (shipLineButton == null)
-            {
-                TransportInfo busLinePrefab;
-                try
-                {
-                    shipLinePrefab = PrefabCollection<TransportInfo>.FindLoaded("Ship");
-                    busLinePrefab = PrefabCollection<TransportInfo>.FindLoaded("Bus");
-                }
-                catch (Exception e)
-                {
 
-                    TLMUtils.doErrorLog("Cannot load ship prefab!");
-                    goto ADD_ERROR_COUNT;
-                }
-                if (shipLinePrefab == null || busLinePrefab == null)
-                {
-                    TLMUtils.doErrorLog("Cannot load ship prefab!");
-                    goto ADD_ERROR_COUNT;
-                }
-                shipLinePrefab.m_lineMaterial2 = GameObject.Instantiate(busLinePrefab.m_lineMaterial2);
-                shipLinePrefab.m_lineMaterial2.shader = shipLinePrefab.m_pathMaterial.shader;
-                shipLinePrefab.m_lineMaterial = shipLinePrefab.m_lineMaterial2;
-                shipLinePrefab.m_prefabDataLayer = 0;
-                GameObject originalGO = null;
-                try
-                {
-                    originalGO = GameObject.Find("PublicTransportBusPanel").transform.Find("ScrollablePanel").Find("Bus").gameObject;
-                }
-                catch (Exception e)
-                {
-                    TLMUtils.doErrorLog("Exception on try to find base ship Button: {0}", e.StackTrace);
-                    goto ADD_ERROR_COUNT;
-                }
-                if (originalGO == null)
-                {
-                    TLMUtils.doErrorLog("Cannot find ship base button!");
-                    goto ADD_ERROR_COUNT;
-                }
-                var originalButton = originalGO.GetComponent<UIButton>();
-                var parent = GameObject.Find("PublicTransportShipPanel").transform.Find("ScrollablePanel");
-                shipLineButton = GameObject.Instantiate(originalGO);
-                var button = shipLineButton.GetComponent<UIButton>();
-
-                if (button == null)
-                {
-                    TLMUtils.doErrorLog("Cannot find ship base button component on GO!");
-                    shipLineButton = null;
-                    goto ADD_ERROR_COUNT;
-                }
-                UIButton.Destroy(button);
-                button = shipLineButton.AddComponent<UIButton>();
-                button.width = originalButton.width;
-                button.height = originalButton.height;
-                button.atlas = originalButton.atlas;
-                button.disabledFgSprite = originalButton.disabledFgSprite;
-                button.focusedFgSprite = originalButton.focusedFgSprite;
-                button.hoveredFgSprite = originalButton.hoveredFgSprite;
-                button.normalFgSprite = originalButton.normalFgSprite;
-                button.pressedFgSprite = originalButton.pressedFgSprite;
-                button.group = parent.GetComponentInChildren<UIButton>().group;
-
-                button.eventClick += (x, y) =>
-                {
-                    Singleton<ToolController>.instance.GetComponent<TransportTool>().m_prefab = shipLinePrefab;
-                    Singleton<ToolController>.instance.GetComponent<TransportTool>().enabled = true;
-                };
-                shipLineButton.transform.SetParent(parent);
-                shipLineButton.name = "ShipLine";
-                goto CONTINUE;
-                ADD_ERROR_COUNT:
-                if (++triedLoadShip >= maxTryLoads)
-                {
-                    shipLineButton = new GameObject();
-                }
-            }
-            CONTINUE:
             return;
         }
         const int maxTryLoads = 100;
-        int triedLoadShip = 0;
 
         void CheckForAutoChanges()
         {
@@ -290,7 +230,7 @@ namespace Klyte.TransportLinesManager
 
         private void swapWindow(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (m_lineInfoPanel.isVisible || defaultListingLinesPanel.isVisible)
+            if (m_lineInfoPanel.isVisible || defaultListingLinesPanel.isVisible || m_depotInfoPanel.isVisible)
             {
                 fecharTelaTransportes(component, eventParam);
             }
@@ -305,6 +245,7 @@ namespace Klyte.TransportLinesManager
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "ABRE1!");
             abrePainelButton.normalFgSprite = abrePainelButton.focusedFgSprite;
             m_lineInfoPanel.Hide();
+            m_depotInfoPanel.Hide();
             defaultListingLinesPanel.Show();
             tm.LinesVisible = true;
             //			MainMenu ();
@@ -321,6 +262,7 @@ namespace Klyte.TransportLinesManager
             abrePainelButton.normalFgSprite = abrePainelButton.disabledFgSprite;
             defaultListingLinesPanel.Hide();
             m_lineInfoPanel.Hide();
+            m_depotInfoPanel.Hide();
             tm.LinesVisible = false;
             InfoManager im = Singleton<InfoManager>.instance;
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "FECHA!");
@@ -330,6 +272,7 @@ namespace Klyte.TransportLinesManager
         {
             /////////////////////////////////////////////////////	
             m_lineInfoPanel = new TLMLineInfoPanel(this);
+            m_depotInfoPanel = new TLMDepotInfoPanel(this);
         }
 
         private void initNearLinesOnWorldInfoPanel()

@@ -156,6 +156,9 @@ namespace Klyte.TransportLinesManager
                 case TLMCW.ConfigIndex.SHIP_CONFIG:
                     icon = "ShipLineIcon";
                     return ItemClass.SubService.PublicTransportShip;
+                case TLMCW.ConfigIndex.PLANE_CONFIG:
+                    icon = "PlaneLineIcon";
+                    return ItemClass.SubService.PublicTransportShip;
                 default:
                     icon = "BusIcon";
                     return ItemClass.SubService.None;
@@ -538,6 +541,7 @@ namespace Klyte.TransportLinesManager
             uiItem = container.AddComponent<T>();
         }
 
+
         public static void uiTextFieldDefaults(UITextField uiItem)
         {
             uiItem.selectionSprite = "EmptySprite";
@@ -671,21 +675,27 @@ namespace Klyte.TransportLinesManager
             switch (m)
             {
                 case ModoNomenclatura.GregoMaiusculo:
+                case ModoNomenclatura.GregoMaiusculoNumero:
                     saida.AddRange(gregoMaiusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.GregoMinusculo:
+                case ModoNomenclatura.GregoMinusculoNumero:
                     saida.AddRange(gregoMinusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.CirilicoMaiusculo:
+                case ModoNomenclatura.CirilicoMaiusculoNumero:
                     saida.AddRange(cirilicoMaiusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.CirilicoMinusculo:
+                case ModoNomenclatura.CirilicoMinusculoNumero:
                     saida.AddRange(cirilicoMinusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.LatinoMaiusculo:
+                case ModoNomenclatura.LatinoMaiusculoNumero:
                     saida.AddRange(latinoMaiusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.LatinoMinusculo:
+                case ModoNomenclatura.LatinoMinusculoNumero:
                     saida.AddRange(latinoMinusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.Numero:
@@ -725,21 +735,27 @@ namespace Klyte.TransportLinesManager
             switch (m)
             {
                 case ModoNomenclatura.GregoMaiusculo:
+                case ModoNomenclatura.GregoMaiusculoNumero:
                     saida.AddRange(gregoMaiusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.GregoMinusculo:
+                case ModoNomenclatura.GregoMinusculoNumero:
                     saida.AddRange(gregoMinusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.CirilicoMaiusculo:
+                case ModoNomenclatura.CirilicoMaiusculoNumero:
                     saida.AddRange(cirilicoMaiusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.CirilicoMinusculo:
+                case ModoNomenclatura.CirilicoMinusculoNumero:
                     saida.AddRange(cirilicoMinusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.LatinoMaiusculo:
+                case ModoNomenclatura.LatinoMaiusculoNumero:
                     saida.AddRange(latinoMaiusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.LatinoMinusculo:
+                case ModoNomenclatura.LatinoMinusculoNumero:
                     saida.AddRange(latinoMinusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.Numero:
@@ -762,6 +778,52 @@ namespace Klyte.TransportLinesManager
                 }
             }
             return saida.ToArray();
+        }
+
+
+        public static List<string> getDepotPrefixesOptions(TLMCW.ConfigIndex transportType)
+        {
+            transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
+            var m = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+            List<string> saida = new List<string>(new string[] { "Unprefixed" });
+            switch (m)
+            {
+                case ModoNomenclatura.GregoMaiusculo:
+                case ModoNomenclatura.GregoMaiusculoNumero:
+                    saida.AddRange(gregoMaiusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.GregoMinusculo:
+                case ModoNomenclatura.GregoMinusculoNumero:
+                    saida.AddRange(gregoMinusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.CirilicoMaiusculo:
+                case ModoNomenclatura.CirilicoMaiusculoNumero:
+                    saida.AddRange(cirilicoMaiusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.CirilicoMinusculo:
+                case ModoNomenclatura.CirilicoMinusculoNumero:
+                    saida.AddRange(cirilicoMinusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.LatinoMaiusculo:
+                case ModoNomenclatura.LatinoMaiusculoNumero:
+                    saida.AddRange(latinoMaiusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.LatinoMinusculo:
+                case ModoNomenclatura.LatinoMinusculoNumero:
+                    saida.AddRange(latinoMinusculo.Select(x => x.ToString()));
+                    break;
+                case ModoNomenclatura.Numero:
+                    for (int i = 1; i <= 64; i++)
+                    {
+                        saida.Add(i.ToString());
+                    }
+                    break;
+            }
+            if (TLMUtils.nomenclaturasComNumeros.Contains(m))
+            {
+                saida.AddRange(numeros.Select(x => x.ToString()));
+            }
+            return saida;
         }
 
         public static string getString(ModoNomenclatura prefixo, Separador s, ModoNomenclatura sufixo, ModoNomenclatura naoPrefixado, int numero, bool leadingZeros, bool invertPrefixSuffix)
@@ -904,6 +966,20 @@ namespace Klyte.TransportLinesManager
             }
             else {
                 Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags &= ~TransportLine.Flags.CustomName;
+            }
+        }
+
+        public static void setBuildingName(ushort buildingID, string name)
+        {
+            InstanceID buildingIdSelect = default(InstanceID);
+            buildingIdSelect.Building = buildingID;
+            if (name.Length > 0)
+            {
+                Singleton<InstanceManager>.instance.SetName(buildingIdSelect, name);
+                Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)buildingID].m_flags |= Building.Flags.CustomName;
+            }
+            else {
+                Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)buildingID].m_flags &= ~Building.Flags.CustomName;
             }
         }
 
