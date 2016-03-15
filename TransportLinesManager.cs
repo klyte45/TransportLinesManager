@@ -861,7 +861,10 @@ namespace Klyte.TransportLinesManager
 
         public void OnLevelLoaded(LoadMode mode)
         {
-
+            if (mode != LoadMode.LoadGame)
+            {
+                return;
+            }
             if (TLMController.instance == null)
             {
                 TLMController.instance = new TLMController();
@@ -887,6 +890,7 @@ namespace Klyte.TransportLinesManager
                 TLMAirplaneModifyRedirects.instance.EnableHooks();
                 TLMTramModifyRedirects.instance.EnableHooks();
                 TLMDepotAI.instance.EnableHooks();
+                TLMTransportLineExtensionHooks.EnableHooks();
             }
             TLMPublicTransportDetailPanelHooks.instance.EnableHooks();
 

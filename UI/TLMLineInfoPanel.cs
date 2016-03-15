@@ -27,12 +27,14 @@ namespace Klyte.TransportLinesManager.UI
         private UILabel lineLenghtLabel;
         private UILabel detailedStatsLabel;
         private UITextField lineNumberLabel;
+        private UITextField vehicleQuantitySet;
         private UIDropDown linePrefixDropDown;
         private UILabel lineTransportIconTypeLabel;
         private UILabel viagensEvitadasLabel;
         private UILabel passageirosEturistasLabel;
         private UILabel veiculosLinhaLabel;
         private UILabel autoNameLabel;
+        private UILabel vehicleQuantitySetLabel;
         //private UILabel generalDebugLabel;
         private UIDropDown lineTime;
         private UITextField lineNameField;
@@ -145,7 +147,7 @@ namespace Klyte.TransportLinesManager.UI
             TLMCW.ConfigIndex tipo = TLMCW.getConfigIndexForLine(lineIdx);
             for (ushort i = 0; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
             {
-                if (i != lineIdx && TLMCW.getConfigIndexForLine(i) == tipo && Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber == numLinha && (Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None )
+                if (i != lineIdx && TLMCW.getConfigIndexForLine(i) == tipo && Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber == numLinha && (Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
                 {
                     return true;
                 }
@@ -369,10 +371,32 @@ namespace Klyte.TransportLinesManager.UI
             //generalDebugLabel.wordWrap = true;
             //generalDebugLabel.clipChildren = false;
             //generalDebugLabel.enabled = false && TransportLinesManagerMod.debugMode.value;
+            TLMUtils.createUIElement<UILabel>(ref vehicleQuantitySetLabel, lineInfoPanel.transform);
+            vehicleQuantitySetLabel.autoSize = false;
+            vehicleQuantitySetLabel.relativePosition = new Vector3(10f, 153f);
+            vehicleQuantitySetLabel.textAlignment = UIHorizontalAlignment.Left;
+            vehicleQuantitySetLabel.text = "Set fixed vehicles in this line (0 for auto):";
+            vehicleQuantitySetLabel.width = 250;
+            vehicleQuantitySetLabel.height = 40;
+            vehicleQuantitySetLabel.name = "AutoNameLabel";
+            vehicleQuantitySetLabel.textScale = 0.8f;
+            vehicleQuantitySetLabel.wordWrap = true;
+            vehicleQuantitySetLabel.clipChildren = false;
+
+            vehicleQuantitySet = UITextField.Instantiate(lineNumberLabel);
+            vehicleQuantitySet.transform.SetParent(lineInfoPanel.transform);
+            vehicleQuantitySet.relativePosition = new Vector3(120f, 165f);
+            vehicleQuantitySet.size = new Vector2(50, 30);
+            vehicleQuantitySet.textScale = 0.8f;
+            vehicleQuantitySet.numericalOnly = true;
+            vehicleQuantitySet.eventLostFocus += (x, y) =>
+            {
+                TLMVehiclesLineManager.instance[this.lineIdSelecionado.TransportLine] = int.Parse(vehicleQuantitySet.text);
+            };
 
             TLMUtils.createUIElement<UILabel>(ref autoNameLabel, lineInfoPanel.transform);
             autoNameLabel.autoSize = false;
-            autoNameLabel.relativePosition = new Vector3(10f, 165f);
+            autoNameLabel.relativePosition = new Vector3(10f, 180f);
             autoNameLabel.textAlignment = UIHorizontalAlignment.Left;
             autoNameLabel.prefix = "Generated Auto Name: ";
             autoNameLabel.width = 350;
@@ -702,8 +726,9 @@ namespace Klyte.TransportLinesManager.UI
             m_controller.defaultListingLinesPanel.Hide();
 
             autoNameLabel.text = m_linearMap.autoName;
-
-
+            vehicleQuantitySet.text = TLMVehiclesLineManager.instance[this.lineIdSelecionado.TransportLine].ToString();
+            vehicleQuantitySet.area = new Vector4(260, 150, 50, 20);
+            vehicleQuantitySet.color = Color.white;
             linePrefixDropDown.eventSelectedIndexChanged += saveLineNumber;
             lineNumberLabel.eventLostFocus += saveLineNumber;
         }

@@ -543,6 +543,7 @@ namespace Klyte.TransportLinesManager
             STATION_DISALLOW_EXTERNAL_PASSENGER_PLANE = GLOBAL_CONFIG | 0x17 | TYPE_DICTIONARY,
             DEPOT_PREFIXES_PLANE = GLOBAL_CONFIG | 0x18 | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_PLANE = GLOBAL_CONFIG | 0x19 | TYPE_DICTIONARY,
+            VEHICLE_LINE = GLOBAL_CONFIG | 0x1A | TYPE_DICTIONARY,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = TransportInfo.TransportType.Tram << 16,
@@ -587,7 +588,7 @@ namespace Klyte.TransportLinesManager
             SHOW_IN_LINEAR_MAP = 0x9 | TYPE_BOOL,
             INVERT_PREFIX_SUFFIX = 0xA | TYPE_BOOL,
             DEFAULT_COST_PER_PASSENGER_CAPACITY = 0xB | TYPE_INT,
-            NON_PREFIX = 0xC | TYPE_INT,
+            NON_PREFIX = 0xC | TYPE_INT,            
 
             TRAIN_PREFIX = TRAIN_CONFIG | PREFIX,
             TRAM_PREFIX = TRAM_CONFIG | PREFIX,

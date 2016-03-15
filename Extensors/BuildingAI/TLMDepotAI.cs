@@ -37,7 +37,7 @@ namespace Klyte.TransportLinesManager.Extensors
             var bm = Singleton<BuildingManager>.instance;
             foreach (string i in tempArray)
             {
-                var kv = i.Split(COMMA.ToCharArray());
+                var kv = i.Split(SEPARATOR.ToCharArray());
                 if (kv.Length == 2)
                 {
                     ushort key;
@@ -86,6 +86,7 @@ namespace Klyte.TransportLinesManager.Extensors
             if (!cached_lists.ContainsKey(t))
             {
                 string depotList = TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.getConfigDepotPrefix(t));
+                TLMUtils.doLog("getConfigForTransportType STRING FOR {0}: {1}", t.ToString(), depotList);
                 cached_lists[t] = getDictionaryFromConfigString(depotList, t);
             }
             return cached_lists[t];

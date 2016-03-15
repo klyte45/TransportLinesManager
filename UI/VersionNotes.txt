@@ -3,6 +3,8 @@ DEPOT SELECTION
     - Added button in lines panel to toggle between lines and depot views
     - Now you can set which depot will spawn vehicles for each line
         ** NOTE: You can now prevent Train Stations from spawning regional trains removing the Regional option on prefix selection **
+        ** BUT BE AWARE the cims not know which station can spawn regional trains yet... **
+LINE CONTROL: Now you can set a fixed number for vehicles in the line. Use 0 for default
 AIRPLANE SUPPORT
     - Added options for rules to airplane lines
     - Added airplane tab in the lines panel view
@@ -13,3 +15,7 @@ BUG FIXING
     - Now the spawned vehicles in custom config prefix lines are right sized with the TLM draw model's capacity.
     - Now the shortcuts in transport panel to detailed panel selects the right tab
     - Now filters and others dropdowns with letter + numbers naming rules have its right options
+    - This mod is not loaded in mode different of Game Mode
+
+KNOWN BUGS
+    - The depots don't have a shortcut to its config panel. Will be added later.
