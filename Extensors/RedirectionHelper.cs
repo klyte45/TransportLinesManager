@@ -160,7 +160,7 @@ namespace Klyte.TransportLinesManager.Extensors
             var originalMethod = type1.GetMethod(type1MethodName != null ? type1MethodName : method.Name, allFlags, null, types, null);
             if (originalMethod == null)
             {
-                TLMUtils.doLog("Cannot find " + method.Name);
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Cannot find " + method.Name);
             }
             redirects.Add(originalMethod, RedirectionHelper.RedirectCalls(originalMethod, method));
         }

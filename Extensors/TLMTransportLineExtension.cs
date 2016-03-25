@@ -19,7 +19,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 DisableHooks();
             }
-            TLMUtils.doLog("Loading TransportLine Hooks!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Loading TransportLine Hooks!");
             AddRedirect(typeof(TransportLine), typeof(TLMTransportLine).GetMethod("SimulationStep", allFlags), ref redirects);
             AddRedirect(typeof(TransportLine), typeof(TLMTransportLine).GetMethod("CheckPrevPath", allFlags), ref redirects);
 
@@ -65,9 +65,9 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public int getVehicleCountForLine(ushort lineId)
         {
-            TLMUtils.doLog("getAssetListForPrefix: pre loadSubcategoryList");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("getAssetListForPrefix: pre loadSubcategoryList");
             loadLinesConfig();
-            TLMUtils.doLog("getAssetListForPrefix: pos loadSubcategoryList");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("getAssetListForPrefix: pos loadSubcategoryList");
             if (!cached_list.ContainsKey(lineId))
             {
                 return 0;
@@ -121,7 +121,7 @@ namespace Klyte.TransportLinesManager.Extensors
             TLMConfigWarehouse loadedConfig;
             loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
             var value = string.Join(COMMA, cached_list.Select(x => x.Key.ToString() + SEPARATOR + x.Value.ToString()).ToArray());
-            TLMUtils.doLog("saveVehicles NEW VALUE: {0}", value);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("saveVehicles NEW VALUE: {0}", value);
             loadedConfig.setString(TLMConfigWarehouse.ConfigIndex.VEHICLE_LINE, value);
         }
     }
@@ -142,7 +142,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public void SimulationStep(ushort lineID)
         {
-            TLMUtils.doLog("LTLMTransportLine SimulationStep!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("LTLMTransportLine SimulationStep!");
             TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
             TransportInfo info = tl.Info;
             TLMCW.ConfigIndex lineType = TLMCW.getConfigIndexForLine(lineID);

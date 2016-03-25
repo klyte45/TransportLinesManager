@@ -263,7 +263,7 @@ namespace Klyte.TransportLinesManager.UI
             catch (Exception e)
 #pragma warning restore CS0168 // Variable is declared but never used
             {
-                TLMUtils.doLog("ERROR UPDATING VEHICLE!!!");
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("ERROR UPDATING VEHICLE!!!");
                 redrawLine();
             }
         }

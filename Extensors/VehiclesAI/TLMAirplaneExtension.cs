@@ -33,10 +33,10 @@ namespace Klyte.TransportLinesManager.Extensors
 
         #region Hooks for PassengerShipAI
 
-        protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData, Vector3 v4, Vector3 v3) { TLMUtils.doLog("StartPathFind??? WHYYYYYYY!?"); return false; }
+        protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData, Vector3 v4, Vector3 v3) {  if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("StartPathFind??? WHYYYYYYY!?"); return false; }
         public void OnCreated(ILoading loading)
         {
-            TLMUtils.doLog("TLMShipRedirects Criado!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("TLMShipRedirects Criado!");
         }
 
         public Color GetColorBase(ushort vehicleID, ref Vehicle data, InfoManager.InfoMode infoMode)
@@ -121,7 +121,7 @@ namespace Klyte.TransportLinesManager.Extensors
         //    PublicTransportVehicleWorldInfoPanel ptvwip = Singleton<PublicTransportVehicleWorldInfoPanel>.instance;
         //    ushort lineId = m_instance.TransportLine;
         //    UISprite iconSprite = ptvwip.gameObject.transform.Find("VehicleType").GetComponent<UISprite>();
-        //    TLMUtils.doLog("lineId == {0}", lineId);
+        //     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("lineId == {0}", lineId);
         //}
         //InstanceID m_instance;
         //#endregion
@@ -139,7 +139,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 DisableHooks();
             }
-            TLMUtils.doLog("Loading Airplane Hooks!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Loading Airplane Hooks!");
             AddRedirect(typeof(PassengerPlaneAI), typeof(TLMAirplaneModifyRedirects).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null), ref redirects);
             AddRedirect(typeof(TLMAirplaneModifyRedirects), typeof(AircraftAI).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3) }, null), ref redirects);
 

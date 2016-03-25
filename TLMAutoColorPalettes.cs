@@ -73,7 +73,7 @@ namespace Klyte.TransportLinesManager
         {
             get
             {
-                TLMUtils.doLog("TLMAutoColorPalettes paletteList");
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("TLMAutoColorPalettes paletteList");
                 if (m_palettes == null)
                 {
                     init();
@@ -86,7 +86,7 @@ namespace Klyte.TransportLinesManager
         {
             get
             {
-                TLMUtils.doLog("TLMAutoColorPalettes paletteListForEditing");
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("TLMAutoColorPalettes paletteListForEditing");
                 if (m_palettes == null)
                 {
                     init();
@@ -97,7 +97,7 @@ namespace Klyte.TransportLinesManager
 
         private static void init()
         {
-            TLMUtils.doLog("TLMAutoColorPalettes init()");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("TLMAutoColorPalettes init()");
             m_palettes = new Dictionary<string, AutoColorPalette>();
             load();
         }
@@ -106,11 +106,11 @@ namespace Klyte.TransportLinesManager
         {
             string serializedInfo = TransportLinesManagerMod.savedPalettes.value;
 
-            TLMUtils.doLog("Loading palettes - separator: {1} ; save Value: {0}", serializedInfo, SERIALIZER_ITEM_SEPARATOR);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Loading palettes - separator: {1} ; save Value: {0}", serializedInfo, SERIALIZER_ITEM_SEPARATOR);
             string[] items = serializedInfo.Split(SERIALIZER_ITEM_SEPARATOR);
             foreach (string item in items)
             {
-                TLMUtils.doLog("Loading palette {0}", items);
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Loading palette {0}", items);
                 AutoColorPalette acp = AutoColorPalette.parseFromString(item);
                 if (acp != null)
                 {

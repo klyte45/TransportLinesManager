@@ -243,7 +243,7 @@ namespace Klyte.TransportLinesManager.UI
                 uint j = i;
                 prefixesCheckboxes[i].eventCheckChanged += (x, y) =>
                 {
-                    TLMUtils.doLog("prefixesCheckboxes[i].eventCheckChanged; j = {0}; check = {1}; loading = {2}", j, y, isLoading);
+                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("prefixesCheckboxes[i].eventCheckChanged; j = {0}; check = {1}; loading = {2}", j, y, isLoading);
                     if (!isLoading)
                     {
                         togglePrefix(j, y);

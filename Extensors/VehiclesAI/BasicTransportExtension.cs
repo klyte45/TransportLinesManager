@@ -68,16 +68,16 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public List<string> getAssetListForPrefix(uint prefix, bool global = false)
         {
-            TLMUtils.doLog("getAssetListForPrefix: pre loadSubcategoryList");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getAssetListForPrefix: pre loadSubcategoryList");
             loadSubcategoryList(global);
-            TLMUtils.doLog("getAssetListForPrefix: pos loadSubcategoryList");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getAssetListForPrefix: pos loadSubcategoryList");
             if (!cached_subcategoryList.ContainsKey(prefix))
             {
                 prefix = 0;
             }
 
             List<string> assetsList;
-            TLMUtils.doLog("getAssetListForPrefix: pre  if (cached_subcategoryList.ContainsKey(prefix))");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getAssetListForPrefix: pre  if (cached_subcategoryList.ContainsKey(prefix))");
             if (cached_subcategoryList.ContainsKey(prefix))
             {
                 if (!cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.MODELS) || cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] == string.Empty)
@@ -91,7 +91,7 @@ namespace Klyte.TransportLinesManager.Extensors
             }
             else
             {
-                TLMUtils.doLog("getAssetListForPrefix: ELSE!");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getAssetListForPrefix: ELSE!");
                 assetsList = basicAssetsList;
             }
             return assetsList;
@@ -137,9 +137,9 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             if (cached_subcategoryList == null || globalLoaded != global)
             {
-                TLMUtils.doLog("loadSubcategoryList: pre loadAuxiliarVars");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadSubcategoryList: pre loadAuxiliarVars");
                 loadAuxiliarVars(global, force);
-                TLMUtils.doLog("loadSubcategoryList: pos loadAuxiliarVars");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadSubcategoryList: pos loadAuxiliarVars");
                 if (global)
                 {
                     cached_subcategoryList = cached_subcategoryListGlobal;
@@ -157,40 +157,40 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             if ((global && cached_subcategoryListGlobal == null) || (!global && cached_subcategoryListNonGlobal == null) || force)
             {
-                TLMUtils.doLog("loadAuxiliarVars: IN!");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: IN!");
                 string[] file;
                 if (global)
                 {
-                    TLMUtils.doLog("loadAuxiliarVars: IF!");
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: IF!");
                     file = TLMConfigWarehouse.getConfig(TLMConfigWarehouse.GLOBAL_CONFIG_INDEX, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX).getString(configKeyForAssets).Split(COMMA.ToCharArray());
                 }
                 else
                 {
-                    TLMUtils.doLog("loadAuxiliarVars: ELSE!");
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: ELSE!");
                     file = TLMConfigWarehouse.getCurrentConfigString(configKeyForAssets).Split(COMMA.ToCharArray());
                 }
                 cached_subcategoryList = new Dictionary<uint, Dictionary<PrefixConfigIndex, string>>();
                 if (file.Length > 0)
                 {
-                    TLMUtils.doLog("loadAuxiliarVars: file.Length > 0");
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: file.Length > 0");
                     foreach (string s in file)
                     {
                         uint key = getIndexFromStringArray(s);
                         var value = getValueFromStringArray(s);
                         cached_subcategoryList[key] = value;
                     }
-                    TLMUtils.doLog("loadAuxiliarVars: dic done");
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: dic done");
                     cached_subcategoryList.Remove(0xFFFFFFFF);
                 }
                 else
                 {
-                    TLMUtils.doLog("loadAuxiliarVars: file.Length == 0");
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: file.Length == 0");
                     cached_subcategoryList = new Dictionary<uint, Dictionary<PrefixConfigIndex, string>>();
                 }
                 basicAssetsList = new List<string>();
                 var trailerList = new List<string>();
 
-                TLMUtils.doLog("loadAuxiliarVars: pre prefab read");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: pre prefab read");
                 for (uint num = 0u; (ulong)num < (ulong)((long)PrefabCollection<VehicleInfo>.PrefabCount()); num += 1u)
                 {
                     VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
@@ -209,9 +209,9 @@ namespace Klyte.TransportLinesManager.Extensors
                         }
                     }
                 }
-                TLMUtils.doLog("loadAuxiliarVars: pos prefab read");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: pos prefab read");
                 basicAssetsList.RemoveAll(x => trailerList.Contains(x));
-                TLMUtils.doLog("loadAuxiliarVars: pre models Check");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: pre models Check");
                 foreach (uint prefix in cached_subcategoryList.Keys)
                 {
                     if (cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.MODELS))
@@ -229,7 +229,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] = string.Join(SUBSUBCOMMA, temp.ToArray());
                     }
                 }
-                TLMUtils.doLog("loadAuxiliarVars: pos models Check");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: pos models Check");
                 saveSubcategoryList(global);
             }
         }
@@ -255,7 +255,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
                 }
                 var value = string.Join(COMMA, cached_subcategoryList.Select(x => x.Key.ToString() + SEPARATOR + string.Join(SUBCOMMA, x.Value.Select(y => y.Key.ToString() + SUBSEPARATOR + y.Value).ToArray())).ToArray());
-                TLMUtils.doLog("NEW VALUE ({0}): {1}", type.ToString(), value);
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("NEW VALUE ({0}): {1}", type.ToString(), value);
                 loadedConfig.setString(configKeyForAssets, value);
                 if (global)
                 {
@@ -300,7 +300,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public void setPrefixName(uint prefix, string name, bool global = false)
         {
-            TLMUtils.doLog("setPrefixName! {0} {1} {2} {3}", type.ToString(), prefix, name, global);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setPrefixName! {0} {1} {2} {3}", type.ToString(), prefix, name, global);
             loadSubcategoryList(global);
             if (needReload)
             {
@@ -346,7 +346,7 @@ namespace Klyte.TransportLinesManager.Extensors
         public void addAssetToPrefixList(uint prefix, string assetId, bool global = false)
         {
             loadSubcategoryList(global);
-            TLMUtils.doLog("addAssetToPrefixList: {0} => {1}", assetId, prefix);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("addAssetToPrefixList: {0} => {1}", assetId, prefix);
 
             if (!cached_subcategoryList.ContainsKey(prefix))
             {
@@ -363,7 +363,7 @@ namespace Klyte.TransportLinesManager.Extensors
         public void removeAssetFromPrefixList(uint prefix, string assetId, bool global = false)
         {
             loadSubcategoryList(global);
-            TLMUtils.doLog("removeAssetFromPrefixList: {0} => {1}", assetId, prefix);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAssetFromPrefixList: {0} => {1}", assetId, prefix);
             List<string> temp;
             if (!cached_subcategoryList.ContainsKey(prefix))
             {
@@ -384,7 +384,7 @@ namespace Klyte.TransportLinesManager.Extensors
         public void removeAllAssetsFromPrefixList(uint prefix, bool global = false)
         {
             loadSubcategoryList(global);
-            TLMUtils.doLog("removeAssetFromPrefixList: {0}", prefix);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAssetFromPrefixList: {0}", prefix);
             if (!cached_subcategoryList.ContainsKey(prefix))
             {
                 cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
@@ -397,7 +397,7 @@ namespace Klyte.TransportLinesManager.Extensors
         public void useDefaultAssetsForPrefixList(uint prefix, bool global = false)
         {
             loadSubcategoryList(global);
-            TLMUtils.doLog("removeAssetFromPrefixList: {0}", prefix);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAssetFromPrefixList: {0}", prefix);
             if (!cached_subcategoryList.ContainsKey(prefix))
             {
                 cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
@@ -413,13 +413,13 @@ namespace Klyte.TransportLinesManager.Extensors
             var assetList = getAssetListForPrefix(prefix);
             if (assetList.Count == 0) return null;
             Randomizer r = new Randomizer(new System.Random().Next());
-            TLMUtils.doLog("POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", assetList.ToArray()), prefix, type.ToString());
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", assetList.ToArray()), prefix, type.ToString());
             string model = assetList[r.Int32(0, assetList.Count - 1)];
-            TLMUtils.doLog("MODEL FOR {2} PREFIX {1}: {0} ", model, prefix, type.ToString());
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("MODEL FOR {2} PREFIX {1}: {0} ", model, prefix, type.ToString());
             var saida = PrefabCollection<VehicleInfo>.FindLoaded(model);
             if (saida == null)
             {
-                TLMUtils.doLog("MODEL DOESN'T EXIST!");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("MODEL DOESN'T EXIST!");
                 removeAssetFromPrefixList(prefix, model);
                 return getRandomModel(prefix);
             }
@@ -442,7 +442,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         private void readVehicles(bool global, bool force = false)
         {
-            TLMUtils.doLog("PrefabCount: {0} ({1})", PrefabCollection<VehicleInfo>.PrefabCount(), PrefabCollection<VehicleInfo>.LoadedCount());
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("PrefabCount: {0} ({1})", PrefabCollection<VehicleInfo>.PrefabCount(), PrefabCollection<VehicleInfo>.LoadedCount());
             if (PrefabCollection<VehicleInfo>.LoadedCount() == 0)
             {
                 TLMUtils.doErrorLog("Prefabs not loaded!");
@@ -456,7 +456,7 @@ namespace Klyte.TransportLinesManager.Extensors
             if (info == null) return -1;
             var ai = info.GetAI();
             var field = type.GetField("m_passengerCapacity", Redirector.allFlags);
-            TLMUtils.doLog("getCapacity FIELD: {0} ({1})", field, field != null ? field.GetType().ToString() : "null");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getCapacity FIELD: {0} ({1})", field, field != null ? field.GetType().ToString() : "null");
             if (field != null && field.GetType() == typeof(Int32))
             {
                 return (int)field.GetValue(ai);

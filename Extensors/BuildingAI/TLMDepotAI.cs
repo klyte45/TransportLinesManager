@@ -86,7 +86,7 @@ namespace Klyte.TransportLinesManager.Extensors
             if (!cached_lists.ContainsKey(t))
             {
                 string depotList = TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.getConfigDepotPrefix(t));
-                TLMUtils.doLog("getConfigForTransportType STRING FOR {0}: {1}", t.ToString(), depotList);
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("getConfigForTransportType STRING FOR {0}: {1}", t.ToString(), depotList);
                 cached_lists[t] = getDictionaryFromConfigString(depotList, t);
             }
             return cached_lists[t];
@@ -241,19 +241,19 @@ namespace Klyte.TransportLinesManager.Extensors
             var allowedDepots = getAllowedDepotsForPrefix(tl, prefix);
             if (allowedDepots.Count == 0 || allowedDepots.Contains(currentId)) return;
             Randomizer r = new Randomizer(new System.Random().Next());
-            TLMUtils.doLog("DEPOT POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()), prefix, tl);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("DEPOT POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()), prefix, tl);
             currentId = allowedDepots[r.Int32(0, allowedDepots.Count - 1)];
-            TLMUtils.doLog("DEPOT FOR {2} PREFIX {1}: {0} ", currentId, prefix, tl);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("DEPOT FOR {2} PREFIX {1}: {0} ", currentId, prefix, tl);
         }
 
 
         public void StartTransfer(ushort buildingID, ref Building data, TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
-            TLMUtils.doLog("START TRANSFER!!!!!!!!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("START TRANSFER!!!!!!!!");
             DepotAI ai = ((DepotAI)data.Info.GetAI());
             TransportInfo m_transportInfo = ((DepotAI)data.Info.GetAI()).m_transportInfo;
             BuildingInfo m_info = ((DepotAI)data.Info.GetAI()).m_info;
-            TLMUtils.doLog("m_info {0} | m_transportInfo {1} | Line: {2}", m_info.name, m_transportInfo.name, offer.TransportLine);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("m_info {0} | m_transportInfo {1} | Line: {2}", m_info.name, m_transportInfo.name, offer.TransportLine);
 
             if (reason == m_transportInfo.m_vehicleReason)
             {
@@ -277,14 +277,14 @@ namespace Klyte.TransportLinesManager.Extensors
                     setRandomBuildingByPrefix(ai.m_transportInfo.m_transportType, 65, ref buildingID);
                 }
 
-                TLMUtils.doLog("randomVehicleInfo");
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("randomVehicleInfo");
                 if (randomVehicleInfo == null)
                 {
                     randomVehicleInfo = Singleton<VehicleManager>.instance.GetRandomVehicleInfo(ref Singleton<SimulationManager>.instance.m_randomizer, m_info.m_class.m_service, m_info.m_class.m_subService, m_info.m_class.m_level);
                 }
                 if (randomVehicleInfo != null)
                 {
-                    TLMUtils.doLog("randomVehicleInfo != null");
+                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("randomVehicleInfo != null");
                     Array16<Vehicle> vehicles = Singleton<VehicleManager>.instance.m_vehicles;
                     Vector3 position;
                     Vector3 vector;
@@ -292,7 +292,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     ushort num;
                     if (Singleton<VehicleManager>.instance.CreateVehicle(out num, ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, position, reason, false, true))
                     {
-                        TLMUtils.doLog("CreatedVehicle!!!");
+                         if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("CreatedVehicle!!!");
                         randomVehicleInfo.m_vehicleAI.SetSource(num, ref vehicles.m_buffer[(int)num], buildingID);
                         randomVehicleInfo.m_vehicleAI.StartTransfer(num, ref vehicles.m_buffer[(int)num], reason, offer);
                     }
@@ -300,7 +300,7 @@ namespace Klyte.TransportLinesManager.Extensors
             }
             else
             {
-                TLMUtils.doLog("nor StartTransferCommonBuildingAI");
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("nor StartTransferCommonBuildingAI");
                 StartTransferCommonBuildingAI(buildingID, ref data, reason, offer);
             }
         }
@@ -319,7 +319,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 DisableHooks();
             }
-            TLMUtils.doLog("Loading SurfaceMetro Hooks!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Loading SurfaceMetro Hooks!");
             AddRedirect(typeof(DepotAI), typeof(TLMDepotAI).GetMethod("StartTransfer", allFlags), ref redirects);
             AddRedirect(typeof(TLMDepotAI), typeof(CommonBuildingAI).GetMethod("StartTransfer", allFlags), ref redirects, "StartTransferCommonBuildingAI");
             AddRedirect(typeof(TLMDepotAI), typeof(DepotAI).GetMethod("CalculateSpawnPosition", allFlags), ref redirects);

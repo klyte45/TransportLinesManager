@@ -51,7 +51,7 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 DisableHooks();
             }
-            TLMUtils.doLog("Loading TLMPublicTransportDetailPanelHooks Hooks!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Loading TLMPublicTransportDetailPanelHooks Hooks!");
             AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("RefreshLines", allFlags), ref redirects);
             AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("Awake", allFlags), ref redirects);
             AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnTabChanged", allFlags), ref redirects);
@@ -63,10 +63,10 @@ namespace Klyte.TransportLinesManager.LineList
             AddRedirect(typeof(PublicTransportInfoViewPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OpenDetailPanel", allFlags), ref redirects);
             AddRedirect(typeof(PublicTransportLineInfo), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("RefreshData", allFlags), ref redirects);
 
-            TLMUtils.doLog("Inverse TLMPublicTransportDetailPanelHooks Hooks!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Inverse TLMPublicTransportDetailPanelHooks Hooks!");
             AddRedirect(typeof(TLMPublicTransportDetailPanel), typeof(PublicTransportDetailPanel).GetMethod("NaturalCompare", allFlags), ref redirects);
 
-            TLMUtils.doLog("Swap TLMPublicTransportDetailPanelHooks Hooks!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Swap TLMPublicTransportDetailPanelHooks Hooks!");
             var go = GameObject.Find("UIView").GetComponentInChildren<PublicTransportDetailPanel>().gameObject;
             GameObject.Destroy(go.GetComponent<PublicTransportDetailPanel>());
             TLMPublicTransportDetailPanel.instance = go.AddComponent<TLMPublicTransportDetailPanel>();
@@ -530,7 +530,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void addIcon(string namePrefix, string iconName, ref UIButton targetButton, bool alternativeIconAtlas, int tabIdx, string tooltipText, bool isTooltipLocale = false)
         {
-            TLMUtils.doLog("addIcon: init " + namePrefix);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("addIcon: init " + namePrefix);
 
             TLMUtils.initButtonFg(targetButton, false, "");
 
@@ -547,8 +547,8 @@ namespace Klyte.TransportLinesManager.LineList
            {
                SetActiveTab(tabIdx);
            };
-            TLMUtils.doLog("addIcon: pre eventClick");
-            TLMUtils.doLog("addIcon: init label icon");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("addIcon: pre eventClick");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("addIcon: init label icon");
             UILabel icon = targetButton.AddUIComponent<UILabel>();
             if (alternativeIconAtlas)
             {
@@ -574,7 +574,7 @@ namespace Klyte.TransportLinesManager.LineList
             }
 
             icon.backgroundSprite = iconName;
-            TLMUtils.doLog("addIcon: end");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("addIcon: end");
         }
 
 
@@ -830,11 +830,11 @@ namespace Klyte.TransportLinesManager.LineList
         private int AddToList(int count, ushort lineIdIterator, ref UIComponent component)
         {
             TLMPublicTransportLineInfo publicTransportLineInfo;
-            TLMUtils.doLog("PreIF");
-            TLMUtils.doLog("Count = {0}; Component = {1}; components count = {2}", count, component.ToString(), component.components.Count);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("PreIF");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Count = {0}; Component = {1}; components count = {2}", count, component.ToString(), component.components.Count);
             if (count >= component.components.Count)
             {
-                TLMUtils.doLog("IF TRUE");
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("IF TRUE");
                 var temp = UITemplateManager.Get<PublicTransportLineInfo>(kLineTemplate).gameObject;
                 GameObject.Destroy(temp.GetComponent<PublicTransportLineInfo>());
                 publicTransportLineInfo = temp.AddComponent<TLMPublicTransportLineInfo>();
@@ -842,8 +842,8 @@ namespace Klyte.TransportLinesManager.LineList
             }
             else
             {
-                TLMUtils.doLog("IF FALSE");
-                TLMUtils.doLog("component.components[count] = {0};", component.components[count]);
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("IF FALSE");
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("component.components[count] = {0};", component.components[count]);
                 publicTransportLineInfo = component.components[count].GetComponent<TLMPublicTransportLineInfo>();
             }
             publicTransportLineInfo.lineID = lineIdIterator;
@@ -855,11 +855,11 @@ namespace Klyte.TransportLinesManager.LineList
         private int AddDepotToList(int count, ushort buildingID, ref UIComponent component)
         {
             TLMPublicTransportDepotInfo publicTransportDepotInfo;
-            TLMUtils.doLog("PreIF");
-            TLMUtils.doLog("Count = {0}; Component = {1}; components count = {2}", count, component.ToString(), component.components.Count);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("PreIF");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Count = {0}; Component = {1}; components count = {2}", count, component.ToString(), component.components.Count);
             if (count >= component.components.Count)
             {
-                TLMUtils.doLog("IF TRUE");
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("IF TRUE");
                 var temp = UITemplateManager.Get<PublicTransportLineInfo>(kLineTemplate).gameObject;
                 GameObject.Destroy(temp.GetComponent<PublicTransportLineInfo>());
                 publicTransportDepotInfo = temp.AddComponent<TLMPublicTransportDepotInfo>();
@@ -867,10 +867,10 @@ namespace Klyte.TransportLinesManager.LineList
             }
             else
             {
-                TLMUtils.doLog("IF FALSE");
-                TLMUtils.doLog("component.components[count] = {0};", component.components[count]);
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("IF FALSE");
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("component.components[count] = {0};", component.components[count]);
                 publicTransportDepotInfo = component.components[count].GetComponent<TLMPublicTransportDepotInfo>();
-                TLMUtils.doLog("publicTransportDepotInfo = {0};", publicTransportDepotInfo);
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("publicTransportDepotInfo = {0};", publicTransportDepotInfo);
             }
             publicTransportDepotInfo.buildingId = buildingID;
             publicTransportDepotInfo.RefreshData();

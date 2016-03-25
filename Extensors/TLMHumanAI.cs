@@ -47,7 +47,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 DisableHooks();
             }
-            TLMUtils.doLog("Loading HumanAI Hooks!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Loading HumanAI Hooks!");
             AddRedirect(typeof(HumanAI), typeof(TLMHumanAI).GetMethod("EnterVehicle", allFlags), ref redirects);
           }
 

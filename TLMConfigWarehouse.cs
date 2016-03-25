@@ -95,7 +95,7 @@ namespace Klyte.TransportLinesManager
         {
             TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)i];
             ConfigIndex transportType = (ConfigIndex)((int)t.Info.m_transportType << 16);
-            TLMUtils.doLog("t.Info.m_transportType = {0};transportType = {1} ", t.Info.m_transportType, transportType);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("t.Info.m_transportType = {0};transportType = {1} ", t.Info.m_transportType, transportType);
             return transportType;
         }
 
@@ -905,7 +905,7 @@ namespace Klyte.TransportLinesManager
                     break;
                 default: saida = uint.MaxValue; break;
             }
-            TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
             return saida;
         }
 

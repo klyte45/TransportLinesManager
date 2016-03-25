@@ -34,7 +34,7 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             if (vehicleData.m_transportLine != 0)
             {
-                TLMUtils.doLog("StartPathFindFake vId={0}; stopTarget = {1}; 1st stop = {2}", vehicleID, vehicleData.m_targetBuilding, Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine].m_stops);
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("StartPathFindFake vId={0}; stopTarget = {1}; 1st stop = {2}", vehicleID, vehicleData.m_targetBuilding, Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine].m_stops);
                 if (vehicleData.m_targetBuilding == Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine].m_stops)
                 {
                     ExtraVehiclesStats.instance.endLap(vehicleID, vehicleData.m_transportLine);
@@ -56,7 +56,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public void addExtraStatsData(ushort vehicleId, float fillRate, ushort line)
         {
-            // TLMUtils.doLog("ExtraVehiclesStats.addExtraStatsData: vid={0}, lid={2}, fill={1}", vehicleId, fillRate, line);
+            //  if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("ExtraVehiclesStats.addExtraStatsData: vid={0}, lid={2}, fill={1}", vehicleId, fillRate, line);
             if (!vehicleLastTravelLine.ContainsKey(vehicleId))
             {
                 return;
@@ -73,7 +73,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public void endLap(ushort vehicleId, ushort line)
         {
-            TLMUtils.doLog("ExtraVehiclesStats.endLap: vid={0}, lid={1}", vehicleId, line);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("ExtraVehiclesStats.endLap: vid={0}, lid={1}", vehicleId, line);
             if (!vehicleLastTravelLine.ContainsKey(vehicleId) || vehicleLastTravelLine[vehicleId] != line)
             {
                 removeExtraStatsData(vehicleId);
@@ -85,7 +85,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 vehicleLastTravelAvgFill[vehicleId] = vehicleLastTravelFillPerStopFillTemp[vehicleId].Average();
                 vehicleLastTravelStdDevFill[vehicleId] = (float)CalculateStdDev(vehicleLastTravelFillPerStopFillTemp[vehicleId]);
                 vehicleLastTravelFillPerStopFillTemp[vehicleId].Clear();
-                TLMUtils.doLog("ExtraVehiclesStats.endLap: vid={0}, fill= {1} ± {2}", vehicleId, vehicleLastTravelAvgFill[vehicleId].ToString("0.00%"), vehicleLastTravelStdDevFill[vehicleId].ToString("0.00%"));
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("ExtraVehiclesStats.endLap: vid={0}, fill= {1} ± {2}", vehicleId, vehicleLastTravelAvgFill[vehicleId].ToString("0.00%"), vehicleLastTravelStdDevFill[vehicleId].ToString("0.00%"));
             }
             else {
                 vehicleLastTravelFillPerStopFillTemp[vehicleId] = new List<float>();
@@ -93,14 +93,14 @@ namespace Klyte.TransportLinesManager.Extensors
             if (vehicleLastTravelFrameNumberLineLapStarted.ContainsKey(vehicleId))
             {
                 vehicleLastTravelFramesLineLapTake[vehicleId] = Singleton<SimulationManager>.instance.m_currentFrameIndex - vehicleLastTravelFrameNumberLineLapStarted[vehicleId];
-                TLMUtils.doLog("ExtraVehiclesStats.endLap: vid={0}, time={1}", vehicleId, string.Format("{0} frames", vehicleLastTravelFramesLineLapTake[vehicleId]));
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("ExtraVehiclesStats.endLap: vid={0}, time={1}", vehicleId, string.Format("{0} frames", vehicleLastTravelFramesLineLapTake[vehicleId]));
             }
             vehicleLastTravelFrameNumberLineLapStarted[vehicleId] = Singleton<SimulationManager>.instance.m_currentFrameIndex;
         }
 
         public void removeExtraStatsData(ushort vehicleId)
         {
-            TLMUtils.doLog("ExtraVehiclesStats.removeExtraStatsData: vid={0}", vehicleId);
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("ExtraVehiclesStats.removeExtraStatsData: vid={0}", vehicleId);
             vehicleLastTravelAvgFill.Remove(vehicleId);
             vehicleLastTravelStdDevFill.Remove(vehicleId);
             vehicleLastTravelFillPerStopFillTemp.Remove(vehicleId);

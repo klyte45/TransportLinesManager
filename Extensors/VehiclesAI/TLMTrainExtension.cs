@@ -33,7 +33,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData)
         {
-            TLMUtils.doLog("StartPathFind!!!!!??? AEHOOO!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("StartPathFind!!!!!??? AEHOOO!");
             ExtraVehiclesStats.OnVehicleStop(vehicleID, vehicleData);
             //ORIGINAL
             if (vehicleData.m_leadingVehicle == 0)
@@ -73,12 +73,12 @@ namespace Klyte.TransportLinesManager.Extensors
             return false;
         }
 
-        protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData, Vector3 v4, Vector3 v3) { TLMUtils.doLog("StartPathFind??? WHYYYYYYY!?"); return false; }
+        protected bool StartPathFind(ushort vehicleID, ref Vehicle vehicleData, Vector3 v4, Vector3 v3) {  if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("StartPathFind??? WHYYYYYYY!?"); return false; }
 
 
         public void OnCreated(ILoading loading)
         {
-            TLMUtils.doLog("TLMSurfaceMetroRedirects Criado!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("TLMSurfaceMetroRedirects Criado!");
         }
 
 
@@ -91,7 +91,7 @@ namespace Klyte.TransportLinesManager.Extensors
         //    PublicTransportVehicleWorldInfoPanel ptvwip = Singleton<PublicTransportVehicleWorldInfoPanel>.instance;
         //    ushort lineId = m_instance.TransportLine;
         //    UISprite iconSprite = ptvwip.gameObject.transform.Find("VehicleType").GetComponent<UISprite>();
-        //    TLMUtils.doLog("lineId == {0}", lineId);
+        //     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("lineId == {0}", lineId);
         //}
         //InstanceID m_instance;
         //#endregion
@@ -111,7 +111,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 DisableHooks();
             }
-            TLMUtils.doLog("Loading Train Hooks!");
+             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Loading Train Hooks!");
             AddRedirect(typeof(PassengerTrainAI), typeof(TLMTrainModifyRedirects).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null), ref redirects);
             AddRedirect(typeof(TLMTrainModifyRedirects), typeof(TrainAI).GetMethod("StartPathFind", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3) }, null), ref redirects);
         }
