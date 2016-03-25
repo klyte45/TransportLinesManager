@@ -143,20 +143,19 @@ namespace Klyte.TransportLinesManager.Extensors
         public void SimulationStep(ushort lineID)
         {
              if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("LTLMTransportLine SimulationStep!");
-            TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
-            TransportInfo info = tl.Info;
+            TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info;
             TLMCW.ConfigIndex lineType = TLMCW.getConfigIndexForLine(lineID);
 
             float defaultCostPerPassengerCapacity = TLMCW.getCostPerPassengerCapacityLine(lineType);
 
-            if (tl.Complete)
+            if (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Complete)
             {
                 int vehicleCount = 0;
                 int installedCapacity = 0;
-                if (tl.m_vehicles != 0)
+                if (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_vehicles != 0)
                 {
                     VehicleManager instance = Singleton<VehicleManager>.instance;
-                    ushort nextId = tl.m_vehicles;
+                    ushort nextId = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_vehicles;
                     int loopCount = 0;
                     while (nextId != 0)
                     {
@@ -174,19 +173,19 @@ namespace Klyte.TransportLinesManager.Extensors
                 bool active;
                 if (Singleton<SimulationManager>.instance.m_isNightTime)
                 {
-                    active = ((tl.m_flags & TransportLine.Flags.DisabledNight) == TransportLine.Flags.None);
+                    active = ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.DisabledNight) == TransportLine.Flags.None);
                 }
                 else
                 {
-                    active = ((tl.m_flags & TransportLine.Flags.DisabledDay) == TransportLine.Flags.None);
+                    active = ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.DisabledDay) == TransportLine.Flags.None);
                 }
                 uint steps = 0u;
                 float distance = 0f;
                 bool broken = false;
-                if (tl.m_stops != 0)
+                if (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_stops != 0)
                 {
                     NetManager instance2 = Singleton<NetManager>.instance;
-                    ushort stops = tl.m_stops;
+                    ushort stops = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_stops;
                     ushort nextStop = stops;
                     int count = 0;
                     while (nextStop != 0)
@@ -262,7 +261,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 {
                     TransferManager.TransferReason vehicleReason = info.m_vehicleReason;
                     int index = Singleton<SimulationManager>.instance.m_randomizer.Int32(steps);
-                    ushort stop = tl.GetStop(index);
+                    ushort stop = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].GetStop(index);
                     if (vehicleReason != TransferManager.TransferReason.None && stop != 0)
                     {
                         TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
@@ -277,7 +276,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 else if (vehicleCount > necessaryVehicles)
                 {
                     int index2 = Singleton<SimulationManager>.instance.m_randomizer.Int32((uint)vehicleCount);
-                    ushort vehicle = tl.GetVehicle(index2);
+                    ushort vehicle = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].GetVehicle(index2);
                     if (vehicle != 0)
                     {
                         VehicleManager instance3 = Singleton<VehicleManager>.instance;
@@ -288,9 +287,9 @@ namespace Klyte.TransportLinesManager.Extensors
             }
             if ((Singleton<SimulationManager>.instance.m_currentFrameIndex & 4095u) >= 3840u)
             {
-                tl.m_passengers.Update();
-                Singleton<TransportManager>.instance.m_passengers[(int)info.m_transportType].Add(ref tl.m_passengers);
-                tl.m_passengers.Reset();
+                Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.Update();
+                Singleton<TransportManager>.instance.m_passengers[(int)info.m_transportType].Add(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers);
+                Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.Reset();
             }
         }
 

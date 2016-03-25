@@ -472,8 +472,6 @@ namespace Klyte.TransportLinesManager.LineList
             m_DisabledIcon.relativePosition = new Vector3(736, 14);
             m_buttonAutoColor.relativePosition = new Vector3(655, 61);
             m_buttonAutoName.relativePosition = new Vector3(655, 43);
-            this.SetActiveTab(1);
-            this.SetActiveTab(0);
 
             var icon = Find<UISprite>("Icon");
             icon.spriteName = "TransportLinesManagerIconHovered";
@@ -692,6 +690,8 @@ namespace Klyte.TransportLinesManager.LineList
         public void SetActiveTab(int idx)
         {
             this.m_Strip.selectedIndex = idx;
+
+            RefreshLines();
         }
 
         public void RefreshLines()

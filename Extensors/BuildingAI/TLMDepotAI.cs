@@ -86,7 +86,7 @@ namespace Klyte.TransportLinesManager.Extensors
             if (!cached_lists.ContainsKey(t))
             {
                 string depotList = TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.getConfigDepotPrefix(t));
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("getConfigForTransportType STRING FOR {0}: {1}", t.ToString(), depotList);
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getConfigForTransportType STRING FOR {0}: {1}", t.ToString(), depotList);
                 cached_lists[t] = getDictionaryFromConfigString(depotList, t);
             }
             return cached_lists[t];
@@ -210,12 +210,13 @@ namespace Klyte.TransportLinesManager.Extensors
         public static List<ushort> getAllowedDepotsForPrefix(TransportInfo.TransportType t, uint prefix)
         {
             var dic = getConfigForTransportType(t);
-            List<ushort> saida = new List<ushort>();
+            List<ushort> saida = getAllDepotsFromCity(t);
             foreach (ushort i in dic.Keys)
             {
-                if (dic[i].Contains(prefix))
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("dic[i]: {{{0}}} ||  prefix = {1} || contains = {2}  ",string.Join(",", dic[i].Select(x => x.ToString()).ToArray()),prefix, dic[i].Contains(prefix));
+                if (!dic[i].Contains(prefix))
                 {
-                    saida.Add(i);
+                    saida.Remove(i);
                 }
             }
             return saida;
@@ -239,21 +240,25 @@ namespace Klyte.TransportLinesManager.Extensors
         public void setRandomBuildingByPrefix(TransportInfo.TransportType tl, uint prefix, ref ushort currentId)
         {
             var allowedDepots = getAllowedDepotsForPrefix(tl, prefix);
-            if (allowedDepots.Count == 0 || allowedDepots.Contains(currentId)) return;
+            if (allowedDepots.Count == 0 || allowedDepots.Contains(currentId))
+            {
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("allowedDepots.Count --{0}-- == 0||  allowedDepots.Contains({1}): --{2}--  ", allowedDepots.Count, currentId, string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()));
+                return;
+            }
             Randomizer r = new Randomizer(new System.Random().Next());
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("DEPOT POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()), prefix, tl);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("DEPOT POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()), prefix, tl);
             currentId = allowedDepots[r.Int32(0, allowedDepots.Count - 1)];
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("DEPOT FOR {2} PREFIX {1}: {0} ", currentId, prefix, tl);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("DEPOT FOR {2} PREFIX {1}: {0} ", currentId, prefix, tl);
         }
 
 
         public void StartTransfer(ushort buildingID, ref Building data, TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("START TRANSFER!!!!!!!!");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("START TRANSFER!!!!!!!!");
             DepotAI ai = ((DepotAI)data.Info.GetAI());
             TransportInfo m_transportInfo = ((DepotAI)data.Info.GetAI()).m_transportInfo;
             BuildingInfo m_info = ((DepotAI)data.Info.GetAI()).m_info;
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("m_info {0} | m_transportInfo {1} | Line: {2}", m_info.name, m_transportInfo.name, offer.TransportLine);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("m_info {0} | m_transportInfo {1} | Line: {2}", m_info.name, m_transportInfo.name, offer.TransportLine);
 
             if (reason == m_transportInfo.m_vehicleReason)
             {
@@ -277,14 +282,14 @@ namespace Klyte.TransportLinesManager.Extensors
                     setRandomBuildingByPrefix(ai.m_transportInfo.m_transportType, 65, ref buildingID);
                 }
 
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("randomVehicleInfo");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("randomVehicleInfo");
                 if (randomVehicleInfo == null)
                 {
                     randomVehicleInfo = Singleton<VehicleManager>.instance.GetRandomVehicleInfo(ref Singleton<SimulationManager>.instance.m_randomizer, m_info.m_class.m_service, m_info.m_class.m_subService, m_info.m_class.m_level);
                 }
                 if (randomVehicleInfo != null)
                 {
-                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("randomVehicleInfo != null");
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("randomVehicleInfo != null");
                     Array16<Vehicle> vehicles = Singleton<VehicleManager>.instance.m_vehicles;
                     Vector3 position;
                     Vector3 vector;
@@ -292,7 +297,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     ushort num;
                     if (Singleton<VehicleManager>.instance.CreateVehicle(out num, ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, position, reason, false, true))
                     {
-                         if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("CreatedVehicle!!!");
+                        if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("CreatedVehicle!!!");
                         randomVehicleInfo.m_vehicleAI.SetSource(num, ref vehicles.m_buffer[(int)num], buildingID);
                         randomVehicleInfo.m_vehicleAI.StartTransfer(num, ref vehicles.m_buffer[(int)num], reason, offer);
                     }
@@ -300,7 +305,7 @@ namespace Klyte.TransportLinesManager.Extensors
             }
             else
             {
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("nor StartTransferCommonBuildingAI");
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("nor StartTransferCommonBuildingAI");
                 StartTransferCommonBuildingAI(buildingID, ref data, reason, offer);
             }
         }
@@ -319,7 +324,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 DisableHooks();
             }
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Loading SurfaceMetro Hooks!");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading Depot Hooks!");
             AddRedirect(typeof(DepotAI), typeof(TLMDepotAI).GetMethod("StartTransfer", allFlags), ref redirects);
             AddRedirect(typeof(TLMDepotAI), typeof(CommonBuildingAI).GetMethod("StartTransfer", allFlags), ref redirects, "StartTransferCommonBuildingAI");
             AddRedirect(typeof(TLMDepotAI), typeof(DepotAI).GetMethod("CalculateSpawnPosition", allFlags), ref redirects);

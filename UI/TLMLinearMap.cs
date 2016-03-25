@@ -165,7 +165,7 @@ namespace Klyte.TransportLinesManager.UI
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
                     local = getStation(stationId, ss, out stationName, out intersections, out airport, out taxi);
-                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, taxi, stationId) + (j == stopsCount - 1 ? 5 : 0);
+                    lineStationsPanel.width += addStationToLinearMap(stationName, local, lineStationsPanel.width, intersections, airport, taxi, stationId) + (j == stopsCount - (showExtraStopInfo ? 0 : 1) ? 5 : 0);
                 }
             }
             if (showExtraStopInfo)
@@ -231,8 +231,8 @@ namespace Klyte.TransportLinesManager.UI
                 int busesOnStation = vehiclesOnStation.ContainsKey(stopId) ? vehiclesOnStation[stopId] : 0;
                 if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != Vehicle.Flags.None)
                 {
-                    destX -= labelStation.width / 2;
                     ushort prevStop = TransportLine.GetPrevStop(stopId);
+                    destX = stationOffsetX[prevStop] - labelStation.width / 4;
                     busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(prevStop) ? vehiclesOnStation[prevStop] : 0);
                     vehiclesOnStation[prevStop] = busesOnStation + 1;
                 }
@@ -263,7 +263,7 @@ namespace Klyte.TransportLinesManager.UI
             catch (Exception e)
 #pragma warning restore CS0168 // Variable is declared but never used
             {
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("ERROR UPDATING VEHICLE!!!");
+                TLMUtils.doLog("ERROR UPDATING VEHICLE!!!");
                 redrawLine();
             }
         }
@@ -507,6 +507,7 @@ namespace Klyte.TransportLinesManager.UI
                     residentsWaiting.useOutline = true;
                     residentsWaiting.text = residents.ToString();
                     residentsWaiting.suffix = "R";
+                    residentsWaiting.tooltip = "Residents Waiting";
                     residentsWaiting.backgroundSprite = "EmptySprite";
                     residentsWaiting.color = new Color32(0x12, 0x68, 0x34, 255);
                     residentsWaiting.width = normalWidth;
@@ -521,6 +522,7 @@ namespace Klyte.TransportLinesManager.UI
                     touristsWaiting.autoSize = false;
                     touristsWaiting.text = tourists.ToString();
                     touristsWaiting.suffix = "T";
+                    touristsWaiting.tooltip = "Tourists Waiting";
                     touristsWaiting.useOutline = true;
                     touristsWaiting.text = tourists.ToString();
                     touristsWaiting.width = normalWidth;

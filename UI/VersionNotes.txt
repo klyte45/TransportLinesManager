@@ -1,5 +1,13 @@
-﻿5.1
-DEPOT SELECTION
+﻿5.1.1
+    -Removed extra stats
+    -Removed Airplane and Ship extra code, moved to airline and water line creator mods
+    -Added a tooltip legend on stops monitor
+    -Fixed bugged passenger count
+    -Fixed depot list not updated when a new depot is created (or an old is deleted)
+    -Fixed minor bugs on line vehicle monitor
+    -TLM DepotAI improved
+5.1
+DEPOT SELECTION BY PREFIX
     - Added button in lines panel to toggle between lines and depot views
     - Now you can set which depot will spawn vehicles for each line
         ** NOTE: You can now prevent Train Stations from spawning regional trains removing the Regional option on prefix selection **
@@ -19,3 +27,5 @@ BUG FIXING
 
 KNOWN BUGS
     - The depots don't have a shortcut to its config panel. Will be added later.
+
+    

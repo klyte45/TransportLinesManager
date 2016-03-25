@@ -166,21 +166,8 @@ namespace Klyte.TransportLinesManager.LineList
                 //  this.m_LineCost.text = string.Format("₡ {0:0.00}", TLMTransportLine.GetLineCost(m_LineID) / 25f * 4);//585+1/7 = frames/week
                 //   m_LineCost.relativePosition = m_LineVehicles.relativePosition + new Vector3(0, 20, 0);
 
-                string vehTooltip = string.Format("{0} Vehicles | Waiting lap end for more stats...", this.m_LineVehicles.text);
-                var stats = ExtraVehiclesStats.instance.getLineVehiclesData(m_LineID);
-                if (stats.Count > 0)
-                {
-                    List<float> fill = new List<float>();
-                    List<float> stdDevs = new List<float>();
-                    List<long> lapTimes = new List<long>();
-                    foreach (var kv in stats)
-                    {
-                        fill.Add(kv.Value.avgFill);
-                        stdDevs.Add(kv.Value.stdDevFill);
-                        lapTimes.Add(kv.Value.framesTakenLap);
-                    }
-                    vehTooltip = string.Format("Avg Fill: {0} ± {1} \r\n Avg Lap: {2} \r\n {3}/{4} Veh", fill.Average().ToString("0.0%"), stdDevs.Average().ToString("0.0%"), ExtraVehiclesStats.ExtraData.framesToDaysTakenLapFormated((long)lapTimes.Average()), stats.Count, this.m_LineVehicles.text);
-                }
+                string vehTooltip = string.Format("{0} Vehicles", this.m_LineVehicles.text);
+           
                 this.m_LineVehicles.tooltip = vehTooltip;
 
 

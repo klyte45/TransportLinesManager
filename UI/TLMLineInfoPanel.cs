@@ -575,25 +575,7 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             //estatisticas novas
-            var lineVehicleExtraStats = ExtraVehiclesStats.instance.getLineVehiclesData(lineID);
-            veiculosLinhaLabel.text = string.Format("{0} ({1} w/ measured lap)", LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha }), lineVehicleExtraStats.Count);
-            if (lineVehicleExtraStats.Count > 0)
-            {
-                List<float> fill = new List<float>();
-                List<float> stdDevs = new List<float>();
-                List<long> lapTimes = new List<long>();
-                foreach (var kv in lineVehicleExtraStats)
-                {
-                    fill.Add(kv.Value.avgFill);
-                    stdDevs.Add(kv.Value.stdDevFill);
-                    lapTimes.Add(kv.Value.framesTakenLap);
-                }
-                detailedStatsLabel.text = string.Format("Avg Fill: {0} ± {1} - Avg Lap Time: {2}", fill.Average().ToString("0.00%"), stdDevs.Average().ToString("0.00%"), ExtraVehiclesStats.ExtraData.framesToTimeTakenLapFormated((long)lapTimes.Average()));
-            }
-            else
-            {
-                detailedStatsLabel.text = "Waiting lap end...";
-            }
+            veiculosLinhaLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha });
 
             //generalDebugLabel.enabled = TransportLinesManagerMod.debugMode.value;
             //if (TransportLinesManagerMod.debugMode.value)
