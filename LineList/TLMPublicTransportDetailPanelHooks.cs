@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using ICities;
 using Klyte.Extensions;
 using Klyte.TransportLinesManager.Extensors;
 using System;
@@ -127,7 +128,8 @@ namespace Klyte.TransportLinesManager.LineList
             TLMCW.ConfigIndex.TRAIN_CONFIG,
             TLMCW.ConfigIndex.METRO_CONFIG,
             TLMCW.ConfigIndex.TRAM_CONFIG,
-            TLMCW.ConfigIndex.BUS_CONFIG
+            TLMCW.ConfigIndex.BUS_CONFIG,
+            TLMCW.ConfigIndex.NIL,
         };
 
         private UIComponent m_BusLinesContainer;
@@ -136,6 +138,8 @@ namespace Klyte.TransportLinesManager.LineList
         private UIComponent m_MetroLinesContainer;
         private UIComponent m_TrainLinesContainer;
         private UIComponent m_ShipLinesContainer;
+
+        private UIComponent m_PrefixEditor;
 
         private UIComponent m_BusDepotsContainer;
         private UIComponent m_PlaneDepotsContainer;
@@ -161,6 +165,9 @@ namespace Klyte.TransportLinesManager.LineList
         private bool m_showDayLines = true;
         private bool m_showNightLines = true;
         private bool m_showDisabledLines = true;
+
+
+        public UIDropDown m_systemTypeDropDown = null;
 
         public bool isActivityVisible(bool day, bool night)
         {
@@ -204,7 +211,21 @@ namespace Klyte.TransportLinesManager.LineList
         {
             get
             {
-                return m_Strip.selectedIndex >= m_Strip.tabCount / 2;
+                return m_Strip.selectedIndex >= 7;
+            }
+        }
+        public bool isLineView
+        {
+            get
+            {
+                return m_Strip.selectedIndex <= 5;
+            }
+        }
+        public bool isPrefixEditor
+        {
+            get
+            {
+                return m_Strip.selectedIndex == 6;
             }
         }
 
@@ -286,6 +307,9 @@ namespace Klyte.TransportLinesManager.LineList
             var metro = m_Strip.tabs[2].GetComponent<UIButton>();
             var train = m_Strip.tabs[3].GetComponent<UIButton>();
 
+            var prefixEditor = m_Strip.AddTab("*");
+            prefixEditor.textScale = 2.25f;
+            prefixEditor.useOutline = true;
 
             var planeDepot = m_Strip.AddTab("");
             var shipDepot = m_Strip.AddTab("");
@@ -302,13 +326,14 @@ namespace Klyte.TransportLinesManager.LineList
             addIcon("Tram", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tram, false, 4, "PUBLICTRANSPORT_TRAMLINES");
             addIcon("Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref bus, false, 5, "PUBLICTRANSPORT_BUSLINES");
 
+            addIcon("RoundSquare", "", ref prefixEditor, false, 6, "TLM_CITY_ASSETS_SELECTION");
 
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref planeDepot, false, 6, "TLM_PUBLICTRANSPORT_HANGARS");
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref shipDepot, false, 7, "TLM_PUBLICTRANSPORT_HARBORS");
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref trainDepot, false, 8, "TLM_PUBLICTRANSPORT_TRAINDEPOTS");
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metroDepot, false, 9, "TLM_PUBLICTRANSPORT_METRODEPOTS");
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tramDepot, false, 10, "TLM_PUBLICTRANSPORT_TRAMDEPOTS");
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busDepot, false, 11, "TLM_PUBLICTRANSPORT_BUSDEPOTS");
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref planeDepot, false, 7, "TLM_PUBLICTRANSPORT_HANGARS");
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref shipDepot, false, 8, "TLM_PUBLICTRANSPORT_HARBORS");
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref trainDepot, false, 9, "TLM_PUBLICTRANSPORT_TRAINDEPOTS");
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metroDepot, false, 10, "TLM_PUBLICTRANSPORT_METRODEPOTS");
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tramDepot, false, 11, "TLM_PUBLICTRANSPORT_TRAMDEPOTS");
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busDepot, false, 12, "TLM_PUBLICTRANSPORT_BUSDEPOTS");
 
 
             tram.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Tram);
@@ -326,13 +351,14 @@ namespace Klyte.TransportLinesManager.LineList
             CopyContainerFromBus(4, ref m_ShipLinesContainer);
             CopyContainerFromBus(5, ref m_PlaneLinesContainer);
 
+            CopyContainerFromBus(6, ref m_PrefixEditor);
 
-            CopyContainerFromBus(6, ref m_PlaneDepotsContainer);
-            CopyContainerFromBus(7, ref m_ShipDepotsContainer);
-            CopyContainerFromBus(8, ref m_TrainDepotsContainer);
-            CopyContainerFromBus(9, ref m_MetroDepotsContainer);
-            CopyContainerFromBus(10, ref m_TramDepotsContainer);
-            CopyContainerFromBus(11, ref m_BusDepotsContainer);
+            CopyContainerFromBus(7, ref m_PlaneDepotsContainer);
+            CopyContainerFromBus(8, ref m_ShipDepotsContainer);
+            CopyContainerFromBus(9, ref m_TrainDepotsContainer);
+            CopyContainerFromBus(10, ref m_MetroDepotsContainer);
+            CopyContainerFromBus(11, ref m_TramDepotsContainer);
+            CopyContainerFromBus(12, ref m_BusDepotsContainer);
 
 
             RemoveExtraLines(0, ref m_BusLinesContainer);
@@ -341,6 +367,7 @@ namespace Klyte.TransportLinesManager.LineList
             RemoveExtraLines(0, ref m_TrainLinesContainer);
             RemoveExtraLines(0, ref m_ShipLinesContainer);
             RemoveExtraLines(0, ref m_PlaneLinesContainer);
+            RemoveExtraLines(0, ref m_PrefixEditor);
             RemoveExtraLines(0, ref m_BusDepotsContainer);
             RemoveExtraLines(0, ref m_TramDepotsContainer);
             RemoveExtraLines(0, ref m_MetroDepotsContainer);
@@ -389,7 +416,7 @@ namespace Klyte.TransportLinesManager.LineList
                 this.OnPassengerSort();
             };
             var colorTitle = m_linesTitle.Find<UILabel>("ColorTitle");
-            colorTitle.suffix = "/Code";
+            colorTitle.suffix = "/" + Locale.Get("TLM_CODE_SHORT");
             colorTitle.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
                 this.OnLineNumberSort();
@@ -474,9 +501,9 @@ namespace Klyte.TransportLinesManager.LineList
             prefixFilterLabel.text = Locale.Get("TLM_PREFIX_FILTER");
             prefixFilterLabel.relativePosition = new Vector3(0, -35);
             prefixFilterLabel.textAlignment = UIHorizontalAlignment.Center;
-            prefixFilterLabel.width = 100;
             prefixFilterLabel.wordWrap = true;
             prefixFilterLabel.autoSize = false;
+            prefixFilterLabel.width = 100;
             prefixFilterLabel.height = 36;
 
             m_DisabledIcon.relativePosition = new Vector3(736, 14);
@@ -515,7 +542,9 @@ namespace Klyte.TransportLinesManager.LineList
             m_depotsTitle.Find<UIButton>("PassengersTitle").absolutePosition += new Vector3(100, 0);
             m_depotsTitle.Find<UIButton>("PassengersTitle").size += new Vector2(100, 0);
 
-            //infoView Shortcuts
+            //Prefix editor
+            initPrefixEditor();
+
             m_Ready = true;
         }
 
@@ -588,7 +617,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnNameSort()
         {
-            if (isDepotView) return;
+            if (!isLineView) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareNames));
@@ -618,7 +647,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnStopSort()
         {
-            if (isDepotView) return;
+            if (!isLineView) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareStops));
@@ -628,7 +657,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnVehicleSort()
         {
-            if (isDepotView) return;
+            if (!isLineView) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareVehicles));
@@ -638,7 +667,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnPassengerSort()
         {
-            if (isDepotView) return;
+            if (!isLineView) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(ComparePassengers));
@@ -648,7 +677,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnLineNumberSort()
         {
-            if (isDepotView) return;
+            if (!isLineView) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareLineNumbers));
@@ -897,26 +926,38 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_ToggleAll.isChecked = idx < m_Strip.tabCount / 2 ? this.m_ToggleAllState[idx] : false;
                 isChangingTab = false;
             }
-            string[] filterOptions = TLMUtils.getFilterPrefixesOptions(tabSystemOrder[idx % (m_Strip.tabCount / 2)]);
-            if (filterOptions.Length < 3)
+            if (isDepotView || isLineView)
             {
-                m_prefixFilter.isVisible = false;
+                string[] filterOptions = TLMUtils.getFilterPrefixesOptions(tabSystemOrder[idx % (m_Strip.tabCount / 2)]);
+                if (filterOptions.Length < 3)
+                {
+                    m_prefixFilter.isVisible = false;
+                }
+                else
+                {
+                    m_prefixFilter.isVisible = true;
+                    m_prefixFilter.items = filterOptions;
+                    m_prefixFilter.selectedIndex = 0;
+                }
             }
             else
             {
-                m_prefixFilter.isVisible = true;
-                m_prefixFilter.items = filterOptions;
-                m_prefixFilter.selectedIndex = 0;
+                m_prefixFilter.isVisible = false;
             }
 
             m_depotsTitle.isVisible = isDepotView;
-            m_linesTitle.isVisible = !isDepotView;
-            m_buttonAutoName.isVisible = !isDepotView;
-            m_buttonAutoColor.isVisible = !isDepotView;
+            m_linesTitle.isVisible = isLineView;
+            m_buttonAutoName.isVisible = isLineView;
+            m_buttonAutoColor.isVisible = isLineView;
 
             if (isDepotView)
             {
                 m_depotsTitle.Find<UIButton>("NameTitle").text = string.Format(Locale.Get("TLM_DEPOT_NAME_PATTERN"), Locale.Get("TLM_PUBLICTRANSPORT_OF_DEPOT", currentSelectedSystem.ToString()));
+            }
+
+            if (isPrefixEditor)
+            {
+                GetComponent<UIPanel>().height = 731;
             }
 
             m_depotsTitle.relativePosition = m_linesTitle.relativePosition;
@@ -1038,6 +1079,233 @@ namespace Klyte.TransportLinesManager.LineList
                 }
             }
         }
+        #region Asset Selection
+        private void initPrefixEditor()
+        {
+            UIHelperExtension group2 = new UIHelperExtension(m_PrefixEditor);
+            TLMUtils.doLog("INIT G2");
+            ((UIScrollablePanel)group2.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIScrollablePanel)group2.self).autoLayoutPadding = new RectOffset(5, 5, 0, 0);
+            ((UIScrollablePanel)group2.self).wrapLayout = true;
+            TLMUtils.doLog("INIT reloadTexture");
+            OnTextChanged reloadTexture = delegate (string s)
+            {
+                //if (!string.IsNullOrEmpty(s))
+                //{
+                //    var prefab = PrefabCollection<VehicleInfo>.FindLoaded(s);
+                //    if (prefab != null)
+                //    {
+                //        m_previewRenderer.mesh = prefab.m_mesh;
+                //        m_previewRenderer.material = prefab.m_material;
+                //        m_previewRenderer.Render();
+                //        m_currentSelectionBus.texture = m_previewRenderer.texture;
+                //    }
+                //}
+            };
+            UIDropDown prefixSelection = null;
+            TextList<string> defaultAssets = null;
+            TextList<string> prefixAssets = null;
+            UITextField prefixName = null;
+            UISlider budgetMultiplier = null;
+            UIHelperExtension group2sub = null;
+            TLMUtils.doLog("INIT loadPrefixAssetList");
+            OnDropdownSelectionChanged loadPrefixAssetList = (int sel) =>
+            {
+                if (sel == 0 || m_systemTypeDropDown.selectedIndex == 0)
+                {
+                    ((UIPanel)group2sub.self).enabled = false;
+                    return;
+                }
+                ((UIPanel)group2sub.self).enabled = true;
+                prefixName.text = getPrefixNameFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
+                budgetMultiplier.value = getPrefixBudgetMultiplierFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
+                budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_LABEL") + ": ";
+                budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().autoSize = true;
+                budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().wordWrap = false;
+                budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().text = string.Format("x{0:0.00}", budgetMultiplier.value);
+                prefixAssets.itemsList = getPrefixAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
+                var t = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
+                defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex).Where(k => !prefixAssets.itemsList.ContainsKey(k.Key)).ToDictionary(k => k.Key, k => k.Value);
+            };
+            TLMUtils.doLog("INIT loadPrefixes");
+            OnDropdownSelectionChanged loadPrefixes = (int sel) =>
+            {
+                if (sel == 0)
+                {
+                    prefixSelection.isVisible = false;
+                    prefixSelection.selectedIndex = 0;
+                    return;
+                }
+                prefixSelection.isVisible = true;
+                ((UIPanel)group2sub.self).enabled = false;
+                TLMConfigWarehouse.ConfigIndex transportIndex = getConfigIndexFromDropDownSelection(sel);
+                defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
+                defaultAssets.root.color = TLMConfigWarehouse.getColorForTransportType(transportIndex);
+                var m = (ModoNomenclatura)TLMConfigWarehouse.getCurrentConfigInt(transportIndex | TLMConfigWarehouse.ConfigIndex.PREFIX);
+                prefixSelection.items = TLMUtils.getStringOptionsForPrefix(m, true);
+                prefixSelection.selectedIndex = 0;
+            };
+            TLMUtils.doLog("INIT m_systemTypeDropDown");
+            m_systemTypeDropDown = (UIDropDown)group2.AddDropdown(Locale.Get("TLM_TRANSPORT_SYSTEM"), new string[] { "--"+Locale.Get("SELECT")+"--",
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG),
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG),
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG),
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.BUS_CONFIG),
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG) }, 0, loadPrefixes);
+            prefixSelection = (UIDropDown)group2.AddDropdown(Locale.Get("TLM_PREFIX"), new string[] { "" }, 0, loadPrefixAssetList);
+
+            foreach (Transform t in group2.self.transform)
+            {
+                var panel = t.gameObject.GetComponent<UIPanel>();
+                if (panel)
+                {
+                    panel.width = 340;
+                }
+            }
+            TLMUtils.doLog("INIT TLM_DETAILS");
+
+            group2sub = group2.AddGroupExtended(Locale.Get("TLM_DETAILS"));
+
+            ((UIPanel)group2sub.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group2sub.self).autoLayoutPadding = new RectOffset(2, 2, 0, 0);
+            ((UIPanel)group2sub.self).wrapLayout = true;
+            ((UIPanel)group2sub.self).width = 720;
+            ((UIPanel)group2sub.self).padding = new RectOffset(0, 0, 0, 0);
+
+            prefixName = group2sub.AddTextField(Locale.Get("TLM_PREFIX_NAME"), delegate (string s) { setPrefixNameDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), s); });
+            budgetMultiplier = (UISlider)group2sub.AddSlider(Locale.Get("TLM_BUDGET_MULTIPLIER_LABEL"), 0.25f, 5, 0.05f, 1, delegate (float f)
+            {
+                budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().text = string.Format("x{0:0.00}", f);
+                setBudgetMultiplierDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), f);
+            });
+
+            defaultAssets = group2sub.AddTextList(Locale.Get("TLM_DEFAULT_ASSETS"), new Dictionary<string, string>(), delegate (string idx) { reloadTexture(idx); }, 340, 250);
+            prefixAssets = group2sub.AddTextList(Locale.Get("TLM_ASSETS_FOR_PREFIX"), new Dictionary<string, string>(), delegate (string idx) { reloadTexture(idx); }, 340, 250);
+            foreach (Transform t in ((UIPanel)group2sub.self).transform)
+            {
+                var panel = t.gameObject.GetComponent<UIPanel>();
+                if (panel)
+                {
+                    panel.width = 340;
+                }
+            }
+
+            prefixAssets.root.backgroundSprite = "EmptySprite";
+            prefixAssets.root.color = Color.white;
+            prefixAssets.root.width = 340;
+            defaultAssets.root.backgroundSprite = "EmptySprite";
+            defaultAssets.root.width = 340;
+
+            prefixName.GetComponentInParent<UIPanel>().width = 300;
+            prefixName.GetComponentInParent<UIPanel>().autoLayoutDirection = LayoutDirection.Horizontal;
+            prefixName.GetComponentInParent<UIPanel>().autoLayoutPadding = new RectOffset(5, 5, 3, 3);
+            prefixName.GetComponentInParent<UIPanel>().wrapLayout = true;
+
+            budgetMultiplier.GetComponentInParent<UIPanel>().width = 300;
+            budgetMultiplier.GetComponentInParent<UIPanel>().autoLayoutDirection = LayoutDirection.Horizontal;
+            budgetMultiplier.GetComponentInParent<UIPanel>().autoLayoutPadding = new RectOffset(5, 5, 3, 3);
+            budgetMultiplier.GetComponentInParent<UIPanel>().wrapLayout = true;
+            group2sub.AddSpace(10);
+            OnButtonClicked reload = delegate
+            {
+                loadPrefixAssetList(prefixSelection.selectedIndex);
+            };
+            group2sub.AddButton(Locale.Get("TLM_ADD"), delegate
+            {
+                if (defaultAssets.unselected) return;
+                var selected = defaultAssets.selectedItem;
+                if (selected == null || selected.Equals(default(string))) return;
+                addAssetToPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), selected);
+                reload();
+            });
+            group2sub.AddButton(Locale.Get("TLM_REMOVE"), delegate
+            {
+                if (prefixAssets.unselected) return;
+                var selected = prefixAssets.selectedItem;
+                if (selected == null || selected.Equals(default(string))) return;
+                removeAssetFromPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), selected);
+                reload();
+            });
+
+            group2sub.AddButton(Locale.Get("TLM_REMOVE_ALL"), delegate
+            {
+                removeAllAssetsFromPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1));
+                reload();
+            });
+            group2sub.AddButton(Locale.Get("TLM_RELOAD"), delegate
+            {
+                reload();
+            });
+            ((UIPanel)group2sub.self).enabled = false;
+            prefixSelection.isVisible = false;
+
+        }
+
+
+
+        private Dictionary<string, string> getBasicAssetListFromDropDownSelection(int index, bool global = false)
+        {
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBasicAssetsDictionary(global);
+
+        }
+
+        private Dictionary<string, string> getPrefixAssetListFromDropDownSelection(int index, uint prefix, bool global = false)
+        {
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBasicAssetsListForPrefix(prefix, global);
+        }
+
+        private void addAssetToPrefixDropDownSelection(int index, uint prefix, string assetId, bool global = false)
+        {
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).addAssetToPrefixList(prefix, assetId, global);
+        }
+
+        private void removeAssetFromPrefixDropDownSelection(int index, uint prefix, string assetId, bool global = false)
+        {
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).removeAssetFromPrefixList(prefix, assetId, global);
+        }
+
+        private void removeAllAssetsFromPrefixDropDownSelection(int index, uint prefix, bool global = false)
+        {
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).removeAllAssetsFromPrefixList(prefix, global);
+        }
+
+        private void setPrefixNameDropDownSelection(int index, uint prefix, string name, bool global = false)
+        {
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setPrefixName(prefix, name, global);
+        }
+
+        private void setBudgetMultiplierDropDownSelection(int index, uint prefix, float value, bool global = false)
+        {
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setBudgetMultiplier(prefix, (uint)(value * 100), global);
+        }
+        private string getPrefixNameFromDropDownSelection(int index, uint prefix, bool global = false)
+        {
+            return TLMUtils.getTransportSystemPrefixName(getConfigIndexFromDropDownSelection(index), prefix, global);
+        }
+        private float getPrefixBudgetMultiplierFromDropDownSelection(int index, uint prefix, bool global = false)
+        {
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBudgetMultiplier(prefix, global) / 100f;
+        }
+        private TLMConfigWarehouse.ConfigIndex getConfigIndexFromDropDownSelection(int index)
+        {
+            switch (index)
+            {
+                case 1:
+                    return TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG;
+                case 2:
+                    return TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG;
+                case 3:
+                    return TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG;
+                case 4:
+                    return TLMConfigWarehouse.ConfigIndex.BUS_CONFIG;
+                case 5:
+                    return TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG;
+                default:
+                    return TLMConfigWarehouse.ConfigIndex.NIL;
+            }
+        }
+        #endregion
+
 
     }
 

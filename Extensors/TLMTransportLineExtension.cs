@@ -19,7 +19,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 DisableHooks();
             }
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Loading TransportLine Hooks!");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading TransportLine Hooks!");
             AddRedirect(typeof(TransportLine), typeof(TLMTransportLine).GetMethod("SimulationStep", allFlags), ref redirects);
             AddRedirect(typeof(TransportLine), typeof(TLMTransportLine).GetMethod("CheckPrevPath", allFlags), ref redirects);
 
@@ -65,9 +65,9 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public int getVehicleCountForLine(ushort lineId)
         {
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("getAssetListForPrefix: pre loadSubcategoryList");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getAssetListForPrefix: pre loadSubcategoryList");
             loadLinesConfig();
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("getAssetListForPrefix: pos loadSubcategoryList");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getAssetListForPrefix: pos loadSubcategoryList");
             if (!cached_list.ContainsKey(lineId))
             {
                 return 0;
@@ -121,7 +121,7 @@ namespace Klyte.TransportLinesManager.Extensors
             TLMConfigWarehouse loadedConfig;
             loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
             var value = string.Join(COMMA, cached_list.Select(x => x.Key.ToString() + SEPARATOR + x.Value.ToString()).ToArray());
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("saveVehicles NEW VALUE: {0}", value);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("saveVehicles NEW VALUE: {0}", value);
             loadedConfig.setString(TLMConfigWarehouse.ConfigIndex.VEHICLE_LINE, value);
         }
     }
@@ -142,7 +142,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public void SimulationStep(ushort lineID)
         {
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("LTLMTransportLine SimulationStep!");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("LTLMTransportLine SimulationStep!");
             TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info;
             TLMCW.ConfigIndex lineType = TLMCW.getConfigIndexForLine(lineID);
 
@@ -230,7 +230,13 @@ namespace Klyte.TransportLinesManager.Extensors
                         }
                     }
                 }
-                float lineCost = installedCapacity * info.m_maintenanceCostPerVehicle / 100;// * defaultCostPerPassengerCapacity;
+                uint prefix = 0;
+                if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+                {
+                    prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
+                }
+                float budgetMultiplierPrefix = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplier(prefix) / 100f;
+                float lineCost = vehicleCount * info.m_maintenanceCostPerVehicle / 100;// * defaultCostPerPassengerCapacity;
                 if (lineCost != 0)
                 {
                     Singleton<EconomyManager>.instance.FetchResource(EconomyManager.Resource.Maintenance, m_linesCost.m_buffer[lineID], info.m_class);
@@ -253,7 +259,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         }
                         else
                         {
-                            necessaryVehicles = Mathf.CeilToInt((float)budget * distance / (info.m_defaultVehicleDistance * 100f));
+                            necessaryVehicles = Mathf.CeilToInt(budget * budgetMultiplierPrefix * distance / (info.m_defaultVehicleDistance * 100f));
                         }
                     }
                 }

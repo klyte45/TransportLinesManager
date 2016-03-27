@@ -666,13 +666,13 @@ namespace Klyte.TransportLinesManager
         public static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false)
         {
             List<string> saida = new List<string>(new string[] { "" });
-            if (m == ModoNomenclatura.Nenhum)
-            {
-                return saida.ToArray();
-            }
             if (showUnprefixed)
             {
                 saida.Add(Locale.Get("TLM_UNPREFIXED"));
+            }
+            if (m == ModoNomenclatura.Nenhum)
+            {
+                return saida.ToArray();
             }
             switch (m)
             {

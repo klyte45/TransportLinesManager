@@ -65,7 +65,6 @@ namespace Klyte.TransportLinesManager
         private Dictionary<TLMConfigWarehouse.ConfigIndex, UITextField> textFields = new Dictionary<TLMConfigWarehouse.ConfigIndex, UITextField>();
         private Dictionary<TLMConfigWarehouse.ConfigIndex, UIPanel> lineTypesPanels = new Dictionary<TLMConfigWarehouse.ConfigIndex, UIPanel>();
         private UIDropDown configSelector;
-        private UIPanel assetSelection;
         private UICheckBox overrideWorldInfoPanelLineOption;
 
         public bool needShowPopup;
@@ -347,8 +346,6 @@ namespace Klyte.TransportLinesManager
                 Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 4)),
                 Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 5)),
             };
-            UIDropDown systemTypeDropDown = null;
-            UIHelperExtension group2sub = null;
             UIHelperExtension helper = new UIHelperExtension((UIHelper)helperDefault);
             //m_previewRenderer = helper.self.gameObject.AddComponent<PreviewRenderer>();
             //m_previewRenderer.cameraRotation = 120f;
@@ -365,7 +362,6 @@ namespace Klyte.TransportLinesManager
 
             OnCheckChanged iptToggle = delegate (bool value)
             {
-                assetSelection.isVisible = !value;
                 overrideWorldInfoPanelLineOption.isVisible = !value;
                 m_IPTCompatibilityMode.value = value;
             };
@@ -411,9 +407,9 @@ namespace Klyte.TransportLinesManager
                    prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
                    autoColorBasedContainer.isVisible = isPrefixed;
                    paletteLabel.text = isPrefixed ? Locale.Get("TLM_PALETTE_UNPREFIXED") : Locale.Get("TLM_PALETTE");
-                   if (systemTypeDropDown != null)
+                   if (TLMPublicTransportDetailPanel.instance != null && TLMPublicTransportDetailPanel.instance.m_systemTypeDropDown != null)
                    {
-                       systemTypeDropDown.selectedIndex = 0;
+                       TLMPublicTransportDetailPanel.instance.m_systemTypeDropDown.selectedIndex = 0;
                    }
                };
                 prefixDD.eventSelectedIndexChanged += updateFunction;
@@ -426,6 +422,7 @@ namespace Klyte.TransportLinesManager
                 updateFunction.Invoke(null, prefixDD.selectedIndex);
             }
 
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading Group 2");
             UIHelperExtension group7 = helper.AddGroupExtended(Locale.Get("TLM_NEAR_LINES_CONFIG"));
             group7.AddCheckbox(Locale.Get("TLM_NEAR_LINES_SHOW_IN_SERVICES_BUILDINGS"), m_savedShowNearLinesInCityServicesWorldInfoPanel.value, toggleShowNearLinesInCityServicesWorldInfoPanel);
             group7.AddCheckbox(Locale.Get("TLM_NEAR_LINES_SHOW_IN_ZONED_BUILDINGS"), m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value, toggleShowNearLinesInZonedBuildingWorldInfoPanel);
@@ -473,152 +470,6 @@ namespace Klyte.TransportLinesManager
                 group14.AddSpace(2);
             }
 
-
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading Group 2");
-
-            UIHelperExtension group2 = helper.AddGroupExtended(Locale.Get("TLM_CITY_ASSETS_SELECTION"));
-            assetSelection = group2.self.GetComponentInParent<UIPanel>();
-            if (isCityLoaded)
-            {
-                ((UIPanel)group2.self).autoLayoutDirection = LayoutDirection.Horizontal;
-                ((UIPanel)group2.self).autoLayoutPadding = new RectOffset(5, 5, 0, 0);
-                ((UIPanel)group2.self).wrapLayout = true;
-                OnTextChanged reloadTexture = delegate (string s)
-                {
-                    //if (!string.IsNullOrEmpty(s))
-                    //{
-                    //    var prefab = PrefabCollection<VehicleInfo>.FindLoaded(s);
-                    //    if (prefab != null)
-                    //    {
-                    //        m_previewRenderer.mesh = prefab.m_mesh;
-                    //        m_previewRenderer.material = prefab.m_material;
-                    //        m_previewRenderer.Render();
-                    //        m_currentSelectionBus.texture = m_previewRenderer.texture;
-                    //    }
-                    //}
-                };
-                UIDropDown prefixSelection = null;
-                TextList<string> defaultAssets = null;
-                TextList<string> prefixAssets = null;
-                UITextField prefixName = null;
-                OnDropdownSelectionChanged loadPrefixAssetList = (int sel) =>
-                {
-                    if (sel == 0 || systemTypeDropDown.selectedIndex == 0)
-                    {
-                        ((UIPanel)group2sub.self).enabled = false;
-                        return;
-                    }
-                    ((UIPanel)group2sub.self).enabled = true;
-                    prefixName.text = getPrefixNameFromDropDownSelection(systemTypeDropDown.selectedIndex, (uint)(sel - 1), configSelector.selectedIndex == 1);
-                    prefixAssets.itemsList = getPrefixAssetListFromDropDownSelection(systemTypeDropDown.selectedIndex, (uint)(sel - 1), configSelector.selectedIndex == 1);
-                    var t = getBasicAssetListFromDropDownSelection(systemTypeDropDown.selectedIndex, configSelector.selectedIndex == 1);
-                    defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(systemTypeDropDown.selectedIndex, configSelector.selectedIndex == 1).Where(k => !prefixAssets.itemsList.ContainsKey(k.Key)).ToDictionary(k => k.Key, k => k.Value);
-                };
-                OnDropdownSelectionChanged loadPrefixes = (int sel) =>
-                {
-                    if (sel == 0)
-                    {
-                        prefixSelection.isVisible = false;
-                        prefixSelection.selectedIndex = 0;
-                        return;
-                    }
-                    prefixSelection.isVisible = true;
-                    ((UIPanel)group2sub.self).enabled = false;
-                    TLMConfigWarehouse.ConfigIndex transportIndex = getConfigIndexFromDropDownSelection(sel);
-                    defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(systemTypeDropDown.selectedIndex, configSelector.selectedIndex == 1);
-                    defaultAssets.root.color = TLMConfigWarehouse.getColorForTransportType(transportIndex);
-                    var m = (ModoNomenclatura)TLMConfigWarehouse.getCurrentConfigInt(transportIndex | TLMConfigWarehouse.ConfigIndex.PREFIX);
-                    prefixSelection.items = TLMUtils.getStringOptionsForPrefix(m, true);
-                    prefixSelection.selectedIndex = 0;
-                };
-                systemTypeDropDown = (UIDropDown)group2.AddDropdown(Locale.Get("TLM_TRANSPORT_SYSTEM"), new string[] { "--"+Locale.Get("SELECT")+"--",
-                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG),
-                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG),
-                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG),
-                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.BUS_CONFIG),
-                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG) }, 0, loadPrefixes);
-                prefixSelection = (UIDropDown)group2.AddDropdown(Locale.Get("TLM_PREFIX"), new string[] { "" }, 0, loadPrefixAssetList);
-
-                foreach (Transform t in ((UIPanel)group2.self).transform)
-                {
-                    var panel = t.gameObject.GetComponent<UIPanel>();
-                    if (panel)
-                    {
-                        panel.width = 340;
-                    }
-                }
-
-                group2sub = group2.AddGroupExtended(Locale.Get("TLM_DETAILS"));
-
-                ((UIPanel)group2sub.self).autoLayoutDirection = LayoutDirection.Horizontal;
-                ((UIPanel)group2sub.self).autoLayoutPadding = new RectOffset(2, 2, 0, 0);
-                ((UIPanel)group2sub.self).wrapLayout = true;
-                ((UIPanel)group2sub.self).width = 720;
-                ((UIPanel)group2sub.self).padding = new RectOffset(0, 0, 0, 0);
-
-                prefixName = group2sub.AddTextField(Locale.Get("TLM_PREFIX_NAME"), delegate (string s) { setPrefixNameDropDownSelection(systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), s, configSelector.selectedIndex == 1); });
-
-                defaultAssets = group2sub.AddTextList(Locale.Get("TLM_DEFAULT_ASSETS"), new Dictionary<string, string>(), delegate (string idx) { reloadTexture(idx); }, 340, 250);
-                prefixAssets = group2sub.AddTextList(Locale.Get("TLM_ASSETS_FOR_PREFIX"), new Dictionary<string, string>(), delegate (string idx) { reloadTexture(idx); }, 340, 250);
-                foreach (Transform t in ((UIPanel)group2sub.self).transform)
-                {
-                    var panel = t.gameObject.GetComponent<UIPanel>();
-                    if (panel)
-                    {
-                        panel.width = 340;
-                    }
-                }
-
-                prefixAssets.root.backgroundSprite = "EmptySprite";
-                prefixAssets.root.color = Color.white;
-                prefixAssets.root.width = 340;
-                defaultAssets.root.backgroundSprite = "EmptySprite";
-                defaultAssets.root.width = 340;
-
-                prefixName.GetComponentInParent<UIPanel>().width = 720;
-                prefixName.GetComponentInParent<UIPanel>().autoLayoutDirection = LayoutDirection.Horizontal;
-                prefixName.GetComponentInParent<UIPanel>().autoLayoutPadding = new RectOffset(5, 5, 3, 3);
-                prefixName.GetComponentInParent<UIPanel>().wrapLayout = true;
-                group2sub.AddSpace(10);
-                OnButtonClicked reload = delegate
-                {
-                    loadPrefixAssetList(prefixSelection.selectedIndex);
-                };
-                group2sub.AddButton(Locale.Get("TLM_ADD"), delegate
-                {
-                    if (defaultAssets.unselected) return;
-                    var selected = defaultAssets.selectedItem;
-                    if (selected == null || selected.Equals(default(string))) return;
-                    addAssetToPrefixDropDownSelection(systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), selected, configSelector.selectedIndex == 1);
-                    reload();
-                });
-                group2sub.AddButton(Locale.Get("TLM_REMOVE"), delegate
-                {
-                    if (prefixAssets.unselected) return;
-                    var selected = prefixAssets.selectedItem;
-                    if (selected == null || selected.Equals(default(string))) return;
-                    removeAssetFromPrefixDropDownSelection(systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), selected, configSelector.selectedIndex == 1);
-                    reload();
-                });
-
-                group2sub.AddButton(Locale.Get("TLM_REMOVE_ALL"), delegate
-                {
-                    removeAllAssetsFromPrefixDropDownSelection(systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), configSelector.selectedIndex == 1);
-                    reload();
-                });
-                group2sub.AddButton(Locale.Get("TLM_RELOAD"), delegate
-                {
-                    reload();
-                });
-                ((UIPanel)group2sub.self).enabled = false;
-                prefixSelection.isVisible = false;
-            }
-            else
-            {
-                group2.AddLabel(Locale.Get("TLM_PLEASE_LOAD_CITY_FOR_ASSETS"));
-            }
-
-
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading Group 3");
             UIHelperExtension group6 = helper.AddGroupExtended(Locale.Get("TLM_CUSTOM_PALETTE_CONFIG") + " [" + UIHelperExtension.version + "]");
             ((group6.self) as UIPanel).autoLayoutDirection = LayoutDirection.Horizontal;
@@ -629,21 +480,21 @@ namespace Klyte.TransportLinesManager
             NumberedColorList colorList = null;
 
             editorSelector = group6.AddDropdown(Locale.Get("TLM_PALETTE_SELECT"), TLMAutoColorPalettes.paletteListForEditing, 0, delegate (int sel)
-            {
-                if (sel <= 0 || sel >= TLMAutoColorPalettes.paletteListForEditing.Length)
-                {
-                    paletteName.enabled = false;
-                    colorEditor.Disable();
-                    colorList.Disable();
-                }
-                else {
-                    paletteName.enabled = true;
-                    colorEditor.Disable();
-                    colorList.colorList = TLMAutoColorPalettes.getColors(TLMAutoColorPalettes.paletteListForEditing[sel]);
-                    colorList.Enable();
-                    paletteName.text = TLMAutoColorPalettes.paletteListForEditing[sel];
-                }
-            }) as UIDropDown;
+                    {
+                        if (sel <= 0 || sel >= TLMAutoColorPalettes.paletteListForEditing.Length)
+                        {
+                            paletteName.enabled = false;
+                            colorEditor.Disable();
+                            colorList.Disable();
+                        }
+                        else {
+                            paletteName.enabled = true;
+                            colorEditor.Disable();
+                            colorList.colorList = TLMAutoColorPalettes.getColors(TLMAutoColorPalettes.paletteListForEditing[sel]);
+                            colorList.Enable();
+                            paletteName.text = TLMAutoColorPalettes.paletteListForEditing[sel];
+                        }
+                    }) as UIDropDown;
 
             group6.AddButton(Locale.Get("CREATE"), delegate ()
             {
@@ -710,65 +561,7 @@ namespace Klyte.TransportLinesManager
         private void loadTLMLocale()
         {
             TLMLocaleUtils.loadLocale(LocaleManager.instance.language);
-        }
-
-        private TLMConfigWarehouse.ConfigIndex getConfigIndexFromDropDownSelection(int index)
-        {
-            switch (index)
-            {
-                case 1:
-                    return TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG;
-                case 2:
-                    return TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG;
-                case 3:
-                    return TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG;
-                case 4:
-                    return TLMConfigWarehouse.ConfigIndex.BUS_CONFIG;
-                case 5:
-                    return TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG;
-                default:
-                    return TLMConfigWarehouse.ConfigIndex.NIL;
-            }
-        }
-
-
-
-        private Dictionary<string, string> getBasicAssetListFromDropDownSelection(int index, bool global)
-        {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBasicAssetsDictionary(global);
-
-        }
-
-        private Dictionary<string, string> getPrefixAssetListFromDropDownSelection(int index, uint prefix, bool global)
-        {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBasicAssetsListForPrefix(prefix, global);
-        }
-
-        private void addAssetToPrefixDropDownSelection(int index, uint prefix, string assetId, bool global)
-        {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).addAssetToPrefixList(prefix, assetId, global);
-        }
-
-        private void removeAssetFromPrefixDropDownSelection(int index, uint prefix, string assetId, bool global)
-        {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).removeAssetFromPrefixList(prefix, assetId, global);
-        }
-
-        private void removeAllAssetsFromPrefixDropDownSelection(int index, uint prefix, bool global)
-        {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).removeAllAssetsFromPrefixList(prefix, global);
-        }
-
-        private void setPrefixNameDropDownSelection(int index, uint prefix, string name, bool global)
-        {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setPrefixName(prefix, name, global);
-        }
-
-        private string getPrefixNameFromDropDownSelection(int index, uint prefix, bool global)
-        {
-            return TLMUtils.getTransportSystemPrefixName(getConfigIndexFromDropDownSelection(index), prefix, global);
-        }
-
+        }  
 
         private T getSelectedIndex<T>(params TextList<T>[] boxes)
         {
@@ -915,7 +708,7 @@ namespace Klyte.TransportLinesManager
             if (TLMController.taLineNumber == null)
             {
                 TLMController.taLineNumber = CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                  "DepotIcon","PlaneLineIcon","TramIcon","ShipLineIcon","LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","SurfaceMetroIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","SurfaceMetroImage","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap"
+                  "DepotIcon","PlaneLineIcon","TramIcon","ShipLineIcon","LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","RoundSquareIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","SurfaceMetroImage","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap"
                 });
             }
             if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
@@ -1019,7 +812,7 @@ namespace Klyte.TransportLinesManager
     {
         public ushort lineID;
     }
-    
+
 
     public class UIRadialChartAge : UIRadialChart
     {

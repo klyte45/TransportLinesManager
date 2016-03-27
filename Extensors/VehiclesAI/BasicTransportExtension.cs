@@ -315,7 +315,40 @@ namespace Klyte.TransportLinesManager.Extensors
             cached_subcategoryList[prefix][PrefixConfigIndex.PREFIX_NAME] = name;
             saveSubcategoryList(global);
         }
+        public uint getBudgetMultiplier(uint prefix, bool global = false)
+        {
+            loadSubcategoryList(global);
+            if (needReload)
+            {
+                readVehicles(global); if (needReload) return 100;
+            }
+            if (cached_subcategoryList.ContainsKey(prefix) && cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.BUDGET_MULTIPLIER))
+            {
+                uint result;
+                if (uint.TryParse(cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER], out result))
+                {
+                    return result;
+                }
+            }
+            return 100;
+        }
 
+
+        public void setBudgetMultiplier(uint prefix, uint multiplier, bool global = false)
+        {
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setBudgetMultiplier! {0} {1} {2} {3}", type.ToString(), prefix, multiplier, global);
+            loadSubcategoryList(global);
+            if (needReload)
+            {
+                readVehicles(global); if (needReload) return;
+            }
+            if (!cached_subcategoryList.ContainsKey(prefix))
+            {
+                cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
+            }
+            cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER] = multiplier.ToString();
+            saveSubcategoryList(global);
+        }
 
         public Dictionary<string, string> getBasicAssetsListForPrefix(uint prefix, bool global = false)
         {
@@ -453,22 +486,31 @@ namespace Klyte.TransportLinesManager.Extensors
             loadSubcategoryList(global);
         }
 
-        public int getCapacity(VehicleInfo info)
+        public int getCapacity(VehicleInfo info, bool noLoop = false)
         {
             if (info == null) return -1;
             int capacity = TLMUtils.GetPrivateField<int>(info.GetAI(), "m_passengerCapacity");
-            int trailer = TLMUtils.GetPrivateField<int>(info.GetAI(), "m_passengerCapacity");
-            //if (trailer > 0)
-            //{
-            //    capacity += getCapacity(Singleton<VehicleManager>)
-            //}
+            try
+            {
+                if (!noLoop)
+                {
+                    foreach (var trailer in info.m_trailers)
+                    {
+                        capacity += getCapacity(trailer.m_info, true);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+            }
             return capacity;
         }
 
         public enum PrefixConfigIndex
         {
             MODELS,
-            PREFIX_NAME
+            PREFIX_NAME,
+            BUDGET_MULTIPLIER
         }
     }
 }

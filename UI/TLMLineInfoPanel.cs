@@ -330,6 +330,7 @@ namespace Klyte.TransportLinesManager.UI
             detailedStatsLabel.height = 25;
             detailedStatsLabel.name = "ExtraInfoLabel";
             detailedStatsLabel.textScale = 0.8f;
+            detailedStatsLabel.prefix = Locale.Get("TLM_LINE_EFFECTIVE_BUDGET") + ": ";
 
             TLMUtils.createUIElement<UILabel>(ref veiculosLinhaLabel, lineInfoPanel.transform);
             veiculosLinhaLabel.autoSize = false;
@@ -384,6 +385,7 @@ namespace Klyte.TransportLinesManager.UI
             vehicleQuantitySetLabel.name = "FixedVehiclesLabel";
             vehicleQuantitySetLabel.textScale = 0.8f;
             vehicleQuantitySetLabel.clipChildren = false;
+            vehicleQuantitySetLabel.zOrder = 0;
 
             vehicleQuantitySet = UITextField.Instantiate(lineNumberLabel);
             vehicleQuantitySet.transform.SetParent(lineInfoPanel.transform);
@@ -582,6 +584,22 @@ namespace Klyte.TransportLinesManager.UI
 
             //estatisticas novas
             veiculosLinhaLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha });
+
+            uint prefix = 0;
+            if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+            {
+                prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
+            }
+
+            float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
+            float prefixMultiplier = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplier(prefix) / 100f;
+
+            detailedStatsLabel.text = string.Format("{0:0%}", overallBudget * prefixMultiplier);
+            detailedStatsLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN"),
+                TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportType(info.m_transportType)),
+                TLMUtils.getStringOptionsForPrefix((ModoNomenclatura)TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX), true)[prefix + 1],
+                overallBudget, prefixMultiplier,
+                overallBudget * prefixMultiplier);
 
             //generalDebugLabel.enabled = TransportLinesManagerMod.debugMode.value;
             //if (TransportLinesManagerMod.debugMode.value)
