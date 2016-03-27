@@ -189,8 +189,6 @@ namespace Klyte.TransportLinesManager.UI
             vehiclesInUseLabel.text = "";
             vehiclesInUseLabel.width = 550;
             vehiclesInUseLabel.height = 25;
-            vehiclesInUseLabel.prefix = "Vehicles in use: ";
-            vehiclesInUseLabel.suffix = "";
             vehiclesInUseLabel.name = "VehiclesInUseLabel";
             vehiclesInUseLabel.textScale = 0.8f;
 
@@ -237,7 +235,7 @@ namespace Klyte.TransportLinesManager.UI
             for (uint i = 0; i <= 65; i++)
             {
                 prefixesCheckboxes[i] = prefixesPanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsCheckBoxTemplate")) as UICheckBox;
-                prefixesCheckboxes[i].text = i == 0 ? "Unprefixed" : i == 65 ? "Regional" : i.ToString();
+                prefixesCheckboxes[i].text = i == 0 ? Locale.Get("TLM_UNPREFIXED") : i == 65 ? Locale.Get("TLM_REGIONAL") : i.ToString();
                 prefixesCheckboxes[i].width = 50;
                 prefixesCheckboxes[i].GetComponentInChildren<UILabel>().relativePosition = new Vector3(20, 2);
                 uint j = i;
@@ -267,13 +265,14 @@ namespace Klyte.TransportLinesManager.UI
             workerChart = new TLMWorkerChartPanel(this, new Vector3(400f, 60f));
 
             UIButton addAllPrefixesButton = null;
-            TLMUtils.createUIElement<UIButton>(ref addAllPrefixesButton, transform);
+            TLMUtils.createUIElement(ref addAllPrefixesButton, transform);
             addAllPrefixesButton.relativePosition = new Vector3(200, 120f);
-            addAllPrefixesButton.text = "Add All";
+            addAllPrefixesButton.localeID = "TLM_ADD_ALL";
+            addAllPrefixesButton.isLocalized = true;
             addAllPrefixesButton.textScale = 0.6f;
             addAllPrefixesButton.width = 80;
             addAllPrefixesButton.height = 15;
-            addAllPrefixesButton.tooltip = "Add all prefixes to this Depot";
+            addAllPrefixesButton.tooltipLocaleID = "TLM_ADD_ALL_PREFIX_TOOLTIP";
             TLMUtils.initButton(addAllPrefixesButton, true, "ButtonMenu");
             addAllPrefixesButton.name = "AddAll";
             addAllPrefixesButton.isVisible = true;
@@ -286,11 +285,12 @@ namespace Klyte.TransportLinesManager.UI
             UIButton removeAllPrefixesButton = null;
             TLMUtils.createUIElement<UIButton>(ref removeAllPrefixesButton, transform);
             removeAllPrefixesButton.relativePosition = new Vector3(300, 120f);
-            removeAllPrefixesButton.text = "Remove All";
+            addAllPrefixesButton.localeID = "TLM_REMOVE_ALL";
+            addAllPrefixesButton.isLocalized = true;
             removeAllPrefixesButton.textScale = 0.6f;
             removeAllPrefixesButton.width = 80;
             removeAllPrefixesButton.height = 15;
-            removeAllPrefixesButton.tooltip = "Add this prefix to served prefixes list of this Depot.";
+            addAllPrefixesButton.tooltipLocaleID = "TLM_REMOVE_ALL_PREFIX_TOOLTIP";
             TLMUtils.initButton(removeAllPrefixesButton, true, "ButtonMenu");
             removeAllPrefixesButton.name = "RemoveAll";
             removeAllPrefixesButton.isVisible = true;
@@ -328,7 +328,7 @@ namespace Klyte.TransportLinesManager.UI
             HarborAI harborAI = basicInfo.GetAI() as HarborAI;
 
 
-            vehiclesInUseLabel.text = basicAI.GetVehicleCount(m_buildingIdSelecionado.Building, ref Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingIdSelecionado.Building]).ToString();
+            vehiclesInUseLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { basicAI.GetVehicleCount(m_buildingIdSelecionado.Building, ref Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingIdSelecionado.Building]).ToString()});
             if (stationAI != null)
             {
                 passengersLastWeek.isVisible = true;

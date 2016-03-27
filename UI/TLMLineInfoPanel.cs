@@ -8,6 +8,7 @@ using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 using Klyte.TransportLinesManager.Extensors;
 using System.Collections.Generic;
+using ColossalFramework.Globalization;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -375,12 +376,12 @@ namespace Klyte.TransportLinesManager.UI
             vehicleQuantitySetLabel.autoSize = false;
             vehicleQuantitySetLabel.relativePosition = new Vector3(10f, 153f);
             vehicleQuantitySetLabel.textAlignment = UIHorizontalAlignment.Left;
-            vehicleQuantitySetLabel.text = "Set fixed vehicles in this line (0 for auto):";
+            vehicleQuantitySetLabel.localeID = "TLM_SET_FIXED_VEHICLE_NUMBER_LINE";
+            vehicleQuantitySetLabel.isLocalized = true;
             vehicleQuantitySetLabel.width = 250;
             vehicleQuantitySetLabel.height = 40;
             vehicleQuantitySetLabel.name = "AutoNameLabel";
             vehicleQuantitySetLabel.textScale = 0.8f;
-            vehicleQuantitySetLabel.wordWrap = true;
             vehicleQuantitySetLabel.clipChildren = false;
 
             vehicleQuantitySet = UITextField.Instantiate(lineNumberLabel);
@@ -398,7 +399,7 @@ namespace Klyte.TransportLinesManager.UI
             autoNameLabel.autoSize = false;
             autoNameLabel.relativePosition = new Vector3(10f, 180f);
             autoNameLabel.textAlignment = UIHorizontalAlignment.Left;
-            autoNameLabel.prefix = "Generated Auto Name: ";
+            autoNameLabel.prefix = Locale.Get("TLM_GENERATED_AUTO_NAME") + ": ";
             autoNameLabel.width = 350;
             autoNameLabel.height = 100;
             autoNameLabel.name = "AutoNameLabel";
@@ -419,20 +420,21 @@ namespace Klyte.TransportLinesManager.UI
                 updateLineUI(value);
             };
 
-            lineTime = UIHelperExtension.CloneBasicDropDown("Line Operation", new string[] {
-                "Day & Night",
-                "Day Only",
-                "Night Only",
-                "Disable (without delete)"
+            lineTime = UIHelperExtension.CloneBasicDropDown(Locale.Get("TRANSPORT_LINE_ACTIVITY"), new string[] {
+                Locale.Get("TRANSPORT_LINE_DAYNNIGHT"),
+                 Locale.Get("TRANSPORT_LINE_DAY"),
+                 Locale.Get("TRANSPORT_LINE_NIGHT"),
+                 Locale.Get("TLM_TRANSPORT_LINE_DISABLED")
             }, changeLineTime, lineInfoPanel);
             lineTime.parent.relativePosition = new Vector3(120f, 220f);
 
             UIButton deleteLine = null;
             TLMUtils.createUIElement<UIButton>(ref deleteLine, lineInfoPanel.transform);
             deleteLine.relativePosition = new Vector3(10f, lineInfoPanel.height - 40f);
-            deleteLine.text = "Delete";
-            deleteLine.width = 70;
-            deleteLine.height = 30;
+            deleteLine.localeID = "LINE_DELETE";
+            deleteLine.isLocalized = true;
+            deleteLine.autoSize = true;
+            deleteLine.textPadding = new RectOffset(3, 3, 3, 3);
             TLMUtils.initButton(deleteLine, true, "ButtonMenu");
             deleteLine.name = "DeleteLineButton";
             deleteLine.color = new Color(1, 0, 0, 1);
@@ -447,7 +449,8 @@ namespace Klyte.TransportLinesManager.UI
             UIButton voltarButton2 = null;
             TLMUtils.createUIElement<UIButton>(ref voltarButton2, lineInfoPanel.transform);
             voltarButton2.relativePosition = new Vector3(lineInfoPanel.width - 250f, lineInfoPanel.height - 40f);
-            voltarButton2.text = "Close";
+            voltarButton2.localeID = "CLOSE";
+            voltarButton2.isLocalized = true;
             voltarButton2.width = 240;
             voltarButton2.height = 30;
             TLMUtils.initButton(voltarButton2, true, "ButtonMenu");
@@ -457,7 +460,8 @@ namespace Klyte.TransportLinesManager.UI
             UIButton autoName = null;
             TLMUtils.createUIElement<UIButton>(ref autoName, lineInfoPanel.transform);
             autoName.relativePosition = new Vector3(lineInfoPanel.width - 250f, lineInfoPanel.height - 80f);
-            autoName.text = "Use Auto Name";
+            autoName.localeID = "TLM_USE_AUTO_NAME";
+            autoName.isLocalized = true;
             autoName.width = 240;
             autoName.height = 30;
             TLMUtils.initButton(autoName, true, "ButtonMenu");
@@ -471,8 +475,9 @@ namespace Klyte.TransportLinesManager.UI
             UIButton autoColor = null;
             TLMUtils.createUIElement<UIButton>(ref autoColor, lineInfoPanel.transform);
             autoColor.relativePosition = new Vector3(lineInfoPanel.width - 250f, lineInfoPanel.height - 120f);
-            autoColor.text = "Pick color from palette";
-            autoColor.tooltip = "Redefine the line color using palette settings; Line number based";
+            autoColor.localeID = "TLM_PICK_COLOR_FROM_PALETTE";
+            autoColor.isLocalized = true;
+            autoColor.tooltipLocaleID = "TLM_PICK_COLOR_FROM_PALETTE_TOOLTIP";
             autoColor.width = 240;
             autoColor.height = 30;
             TLMUtils.initButton(autoColor, true, "ButtonMenu");
@@ -570,7 +575,7 @@ namespace Klyte.TransportLinesManager.UI
             if (lastStopsCount != stopsCount)
             {
                 float totalSize = TLMLineUtils.GetLineLength(lineID);
-                lineLenghtLabel.text = string.Format("{0:N2}m Length - {1} Stops", totalSize, stopsCount);
+                lineLenghtLabel.text = string.Format(Locale.Get("TLM_LENGHT_AND_STOPS"), totalSize, stopsCount);
                 lastStopsCount = stopsCount;
             }
 

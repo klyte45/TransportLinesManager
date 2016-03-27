@@ -331,7 +331,8 @@ namespace Klyte.TransportLinesManager.UI
             infoToggle.width = 50;
             infoToggle.height = 70;
             infoToggle.wordWrap = true;
-            infoToggle.text = "Show Extra Info";
+            infoToggle.localeID = "TLM_SHOW_EXTRA_INFO";
+            infoToggle.isLocalized = true;
             infoToggle.textScale = 0.8f;
             infoToggle.eventClick += (x, y) =>
             {
@@ -339,11 +340,11 @@ namespace Klyte.TransportLinesManager.UI
                 showExtraStopInfo = !showIntersections;
                 if (showIntersections)
                 {
-                    infoToggle.text = "Show Extra Info";
+                    infoToggle.localeID = "TLM_SHOW_EXTRA_INFO";
                 }
                 else
                 {
-                    infoToggle.text = "Show Line Integ.";
+                    infoToggle.localeID = "SHOW_LINE_INTEGRATION_SHORT";
                 }
                 redrawLine();
             };
@@ -506,8 +507,7 @@ namespace Klyte.TransportLinesManager.UI
                     residentsWaiting.autoSize = false;
                     residentsWaiting.useOutline = true;
                     residentsWaiting.text = residents.ToString();
-                    residentsWaiting.suffix = "R";
-                    residentsWaiting.tooltip = "Residents Waiting";
+                    residentsWaiting.tooltipLocaleID = "TLM_RESIDENTS_WAITING";
                     residentsWaiting.backgroundSprite = "EmptySprite";
                     residentsWaiting.color = new Color32(0x12, 0x68, 0x34, 255);
                     residentsWaiting.width = normalWidth;
@@ -521,10 +521,8 @@ namespace Klyte.TransportLinesManager.UI
                     TLMUtils.createUIElement<UILabel>(ref touristsWaiting, stationInfoStatsPanel.transform);
                     touristsWaiting.autoSize = false;
                     touristsWaiting.text = tourists.ToString();
-                    touristsWaiting.suffix = "T";
-                    touristsWaiting.tooltip = "Tourists Waiting";
+                    touristsWaiting.tooltipLocaleID = "TLM_TOURISTS_WAITING";
                     touristsWaiting.useOutline = true;
-                    touristsWaiting.text = tourists.ToString();
                     touristsWaiting.width = normalWidth;
                     touristsWaiting.height = 20;
                     touristsWaiting.padding = new RectOffset(0, 0, 4, 2);

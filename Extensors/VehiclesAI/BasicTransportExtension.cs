@@ -1,4 +1,5 @@
-﻿using ColossalFramework.Math;
+﻿using ColossalFramework.Globalization;
+using ColossalFramework.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -328,9 +329,9 @@ namespace Klyte.TransportLinesManager.Extensors
                 {
                     return new Dictionary<string, string>();
                 }
-                return cached_subcategoryList[prefix][PrefixConfigIndex.MODELS].Split(SUBSUBCOMMA.ToCharArray()).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), x));
+                return cached_subcategoryList[prefix][PrefixConfigIndex.MODELS].Split(SUBSUBCOMMA.ToCharArray()).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
             }
-            return basicAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), x));
+            return basicAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
 
 
@@ -340,7 +341,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 readVehicles(global); if (needReload) return new Dictionary<string, string>();
             }
-            return basicAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), x));
+            return basicAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
 
         public void addAssetToPrefixList(uint prefix, string assetId, bool global = false)
@@ -454,14 +455,7 @@ namespace Klyte.TransportLinesManager.Extensors
         public int getCapacity(VehicleInfo info)
         {
             if (info == null) return -1;
-            var ai = info.GetAI();
-            var field = type.GetField("m_passengerCapacity", Redirector.allFlags);
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getCapacity FIELD: {0} ({1})", field, field != null ? field.GetType().ToString() : "null");
-            if (field != null && field.GetType() == typeof(Int32))
-            {
-                return (int)field.GetValue(ai);
-            }
-            return 0;
+            return TLMUtils.GetPrivateField<int>(info.GetAI(), "m_passengerCapacity");
         }
 
         public enum PrefixConfigIndex

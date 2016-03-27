@@ -8,6 +8,7 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 namespace Klyte.TransportLinesManager.LineList
 {
     using ColossalFramework;
+    using ColossalFramework.Globalization;
     using ColossalFramework.UI;
     using Extensions;
     using Extensors;
@@ -150,14 +151,14 @@ namespace Klyte.TransportLinesManager.LineList
                 Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[this.m_buildingID];
                 this.m_depotName.text = Singleton<BuildingManager>.instance.GetBuildingName(this.m_buildingID, default(InstanceID));
                 byte districtID = Singleton<DistrictManager>.instance.GetDistrict(b.m_position);
-                string districtName = districtID == 0 ? "NONE" : Singleton<DistrictManager>.instance.GetDistrictName(districtID);
+                string districtName = districtID == 0 ? Locale.Get("TLM_DISTRICT_NONE") : Singleton<DistrictManager>.instance.GetDistrictName(districtID);
                 this.m_districtName.text = districtName;
 
                 //prefix
                 List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportType((b.Info.GetAI() as DepotAI).m_transportInfo.m_transportType));
                 this.m_prefixesServed.text = getPrefixesServedAbstract(m_prefixesServedList, prefixOptions);
 
-                prefixOptions.Add("Regional");
+                prefixOptions.Add(Locale.Get("TLM_REGIONAL"));
                 if (this.m_prefixOptions.items.Length != prefixOptions.Count)
                 {
                     this.m_prefixOptions.items = prefixOptions.ToArray();
@@ -285,11 +286,11 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.createUIElement<UIButton>(ref m_addPrefixButton, transform);
             m_addPrefixButton.pivot = UIPivotPoint.TopRight;
             m_addPrefixButton.relativePosition = new Vector3(730, 2);
-            m_addPrefixButton.text = "Add";
+            m_addPrefixButton.text = Locale.Get("TLM_ADD");
             m_addPrefixButton.textScale = 0.6f;
             m_addPrefixButton.width = 50;
             m_addPrefixButton.height = 15;
-            m_addPrefixButton.tooltip = "Add this prefix to served prefixes list of this Depot.";
+            m_addPrefixButton.tooltip = Locale.Get("TLM_ADD_PREFIX_TOOLTIP");
             TLMUtils.initButton(m_addPrefixButton, true, "ButtonMenu");
             m_addPrefixButton.name = "Add";
             m_addPrefixButton.isVisible = true;
@@ -304,11 +305,11 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.createUIElement<UIButton>(ref m_removePrefixButton, transform);
             m_removePrefixButton.pivot = UIPivotPoint.TopRight;
             m_removePrefixButton.relativePosition = new Vector3(780, 2);
-            m_removePrefixButton.text = "Remove";
+            m_removePrefixButton.text = Locale.Get("TLM_REMOVE");
             m_removePrefixButton.textScale = 0.6f;
             m_removePrefixButton.width = 50;
             m_removePrefixButton.height = 15;
-            m_removePrefixButton.tooltip = "Remove this prefix from served prefixes list of this Depot.";
+            m_removePrefixButton.tooltip = Locale.Get("TLM_REMOVE_PREFIX_TOOLTIP");
             TLMUtils.initButton(m_removePrefixButton, true, "ButtonMenu");
             m_removePrefixButton.name = "Remove";
             m_removePrefixButton.isVisible = true;
@@ -324,11 +325,11 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.createUIElement<UIButton>(ref m_addAllPrefixesButton, transform);
             m_addAllPrefixesButton.pivot = UIPivotPoint.TopRight;
             m_addAllPrefixesButton.relativePosition = new Vector3(730, 20);
-            m_addAllPrefixesButton.text = "Add All";
+            m_addAllPrefixesButton.text = Locale.Get("TLM_ADD_ALL"); ;
             m_addAllPrefixesButton.textScale = 0.6f;
             m_addAllPrefixesButton.width = 50;
             m_addAllPrefixesButton.height = 15;
-            m_addAllPrefixesButton.tooltip = "Add all prefixes to this Depot";
+            m_addAllPrefixesButton.tooltip = Locale.Get("TLM_ADD_ALL_PREFIX_TOOLTIP");
             TLMUtils.initButton(m_addAllPrefixesButton, true, "ButtonMenu");
             m_addAllPrefixesButton.name = "AddAll";
             m_addAllPrefixesButton.isVisible = true;
@@ -343,11 +344,11 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.createUIElement<UIButton>(ref m_removeAllPrefixesButton, transform);
             m_removeAllPrefixesButton.pivot = UIPivotPoint.TopRight;
             m_removeAllPrefixesButton.relativePosition = new Vector3(780, 20);
-            m_removeAllPrefixesButton.text = "Remove All";
+            m_removeAllPrefixesButton.text = Locale.Get("TLM_REMOVE_ALL"); 
             m_removeAllPrefixesButton.textScale = 0.6f;
             m_removeAllPrefixesButton.width = 50;
             m_removeAllPrefixesButton.height = 15;
-            m_removeAllPrefixesButton.tooltip = "Add this prefix to served prefixes list of this Depot.";
+            m_removeAllPrefixesButton.tooltip = Locale.Get("TLM_REMOVE_ALL_PREFIX_TOOLTIP");
             TLMUtils.initButton(m_removeAllPrefixesButton, true, "ButtonMenu");
             m_removeAllPrefixesButton.name = "RemoveAll";
             m_removeAllPrefixesButton.isVisible = true;

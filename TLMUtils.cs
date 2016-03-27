@@ -1,4 +1,5 @@
 using ColossalFramework;
+using ColossalFramework.Globalization;
 using ColossalFramework.Math;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
@@ -671,7 +672,7 @@ namespace Klyte.TransportLinesManager
             }
             if (showUnprefixed)
             {
-                saida.Add("Unprefixed");
+                saida.Add(Locale.Get("TLM_UNPREFIXED"));
             }
             switch (m)
             {
@@ -732,7 +733,7 @@ namespace Klyte.TransportLinesManager
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
             var m = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
-            List<string> saida = new List<string>(new string[] { "All", "Unprefixed" });
+            List<string> saida = new List<string>(new string[] { Locale.Get("TLM_ALL"), Locale.Get("TLM_UNPREFIXED") });
             switch (m)
             {
                 case ModoNomenclatura.GregoMaiusculo:
@@ -786,7 +787,7 @@ namespace Klyte.TransportLinesManager
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
             var m = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
-            List<string> saida = new List<string>(new string[] { "Unprefixed" });
+            List<string> saida = new List<string>(new string[] { Locale.Get("TLM_UNPREFIXED") });
             switch (m)
             {
                 case ModoNomenclatura.GregoMaiusculo:
@@ -1432,6 +1433,42 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public static T GetPrivateField<T>(object o, string fieldName)
+        {
+            var fields = o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo field = null;
+
+            foreach (var f in fields)
+            {
+                if (f.Name == fieldName)
+                {
+                    field = f;
+                    break;
+                }
+            }
+
+            return (T)field.GetValue(o);
+        }
+
+        public static void doLocaleDump()
+        {
+            string localeDump = "LOCALE DUMP:\r\n";
+            try
+            {
+                var locale = TLMUtils.GetPrivateField<Dictionary<Locale.Key, string>>(TLMUtils.GetPrivateField<Locale>(LocaleManager.instance, "m_Locale"), "m_LocalizedStrings");
+                foreach (Locale.Key k in locale.Keys)
+                {
+                    localeDump += string.Format("{0}  =>  {1}\n", k.ToString(), locale[k]);
+                }
+            }
+            catch (Exception e)
+            {
+
+                TLMUtils.doErrorLog("LOCALE DUMP FAIL: {0}", e.ToString());
+            }
+            Debug.LogWarning(localeDump);
+        }
+
         private static string[] latinoMaiusculo = {
             "A",
             "B",
@@ -1650,7 +1687,7 @@ namespace Klyte.TransportLinesManager
 
         public static byte[] loadResourceData(string name)
         {
-            name = "TransportLinesManager." + name;
+            name = "Klyte.TransportLinesManager." + name;
 
             UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)
@@ -1666,7 +1703,7 @@ namespace Klyte.TransportLinesManager
 
         public static string loadResourceString(string name)
         {
-            name = "TransportLinesManager." + name;
+            name = "Klyte.TransportLinesManager." + name;
 
             UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)

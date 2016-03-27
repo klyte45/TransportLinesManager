@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using ColossalFramework.Globalization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +96,7 @@ namespace Klyte.TransportLinesManager
         {
             TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)i];
             ConfigIndex transportType = (ConfigIndex)((int)t.Info.m_transportType << 16);
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("t.Info.m_transportType = {0};transportType = {1} ", t.Info.m_transportType, transportType);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("t.Info.m_transportType = {0};transportType = {1} ", t.Info.m_transportType, transportType);
             return transportType;
         }
 
@@ -280,28 +281,51 @@ namespace Klyte.TransportLinesManager
 
         public static string getNameForServiceType(ConfigIndex i)
         {
+            string key;
+            string id = getLocaleIdForIndex(i, out key);
+            return Locale.Get(id, key);
+        }
+        private static string getLocaleIdForIndex(ConfigIndex i, out string key)
+        {
             switch (i & ConfigIndex.DESC_DATA)
             {
-                case ConfigIndex.RESIDENTIAL_SERVICE_CONFIG: return "Residential";
-                case ConfigIndex.COMMERCIAL_SERVICE_CONFIG: return "Commercial";
-                case ConfigIndex.INDUSTRIAL_SERVICE_CONFIG: return "Industrial";
+                case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG: key = "Beautification"; break;
+                case ConfigIndex.ELECTRICITY_SERVICE_CONFIG: key = "Electricity"; break;
+                case ConfigIndex.WATER_SERVICE_CONFIG: key = "WaterAndSewage"; break;
+                case ConfigIndex.GARBAGE_SERVICE_CONFIG: key = "Garbage"; break;
+                case ConfigIndex.ROAD_SERVICE_CONFIG: key = "Roads"; break;
+                case ConfigIndex.HEALTHCARE_SERVICE_CONFIG: key = "Healthcare"; break;
+                case ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG: key = "Police"; break;
+                case ConfigIndex.EDUCATION_SERVICE_CONFIG: key = "Education"; break;
+                case ConfigIndex.MONUMENT_SERVICE_CONFIG: key = "Monuments"; break;
+                case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG: key = "FireDepartment"; break;
+                case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: key = "PublicTransport"; break;
+                case ConfigIndex.GOVERNMENT_SERVICE_CONFIG: key = "Government"; break;
+                default: key = ""; break;
+            }
+            switch (i & ConfigIndex.DESC_DATA)
+            {
+                case ConfigIndex.RESIDENTIAL_SERVICE_CONFIG: return "DISTRICT_RESIDENTIAL";
+                case ConfigIndex.COMMERCIAL_SERVICE_CONFIG: return "DISTRICT_COMMERCIAL";
+                case ConfigIndex.INDUSTRIAL_SERVICE_CONFIG: return "DISTRICT_INDUSTRIAL";
                 case ConfigIndex.UNUSED1_SERVICE_CONFIG: return "Unused1";
                 case ConfigIndex.UNUSED2_SERVICE_CONFIG: return "Unused2";
-                case ConfigIndex.CITIZEN_SERVICE_CONFIG: return "Citizen";
-                case ConfigIndex.TOURISM_SERVICE_CONFIG: return "Tourism";
-                case ConfigIndex.OFFICE_SERVICE_CONFIG: return "Office";
-                case ConfigIndex.ROAD_SERVICE_CONFIG: return "Road";
-                case ConfigIndex.ELECTRICITY_SERVICE_CONFIG: return "Electricity";
-                case ConfigIndex.WATER_SERVICE_CONFIG: return "Water";
-                case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG: return "Beautification";
-                case ConfigIndex.GARBAGE_SERVICE_CONFIG: return "Garbage";
-                case ConfigIndex.HEALTHCARE_SERVICE_CONFIG: return "Healthcare";
-                case ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG: return "Police Department";
-                case ConfigIndex.EDUCATION_SERVICE_CONFIG: return "Education";
-                case ConfigIndex.MONUMENT_SERVICE_CONFIG: return "Monument";
-                case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG: return "Fire Department";
-                case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return "Public Transport";
-                case ConfigIndex.GOVERNMENT_SERVICE_CONFIG: return "Government";
+                case ConfigIndex.CITIZEN_SERVICE_CONFIG: return "INCOME_CITIZEN";
+                case ConfigIndex.TOURISM_SERVICE_CONFIG: return "INCOME_TOURIST";
+                case ConfigIndex.OFFICE_SERVICE_CONFIG: return "DISTRICT_OFFICE";
+                case ConfigIndex.ROAD_SERVICE_CONFIG:
+                case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG:
+                case ConfigIndex.GARBAGE_SERVICE_CONFIG:
+                case ConfigIndex.ELECTRICITY_SERVICE_CONFIG:
+                case ConfigIndex.WATER_SERVICE_CONFIG:
+                case ConfigIndex.HEALTHCARE_SERVICE_CONFIG:
+                case ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG:
+                case ConfigIndex.EDUCATION_SERVICE_CONFIG:
+                case ConfigIndex.MONUMENT_SERVICE_CONFIG:
+                case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
+                case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                case ConfigIndex.GOVERNMENT_SERVICE_CONFIG:
+                    return "MAIN_TOOL"; 
                 default: return "???";
 
             }
@@ -312,19 +336,19 @@ namespace Klyte.TransportLinesManager
             switch (i & ConfigIndex.SYSTEM_PART)
             {
                 case ConfigIndex.TRAIN_CONFIG:
-                    return "Train";
+                    return Locale.Get("VEHICLE_TITLE", "Train Engine");
                 case ConfigIndex.TRAM_CONFIG:
-                    return "Tram";
+                    return Locale.Get("VEHICLE_TITLE", "Tram");
                 case ConfigIndex.METRO_CONFIG:
-                    return "Metro";
+                    return Locale.Get("VEHICLE_TITLE", "Metro");
                 case ConfigIndex.BUS_CONFIG:
-                    return "Regular Bus";
+                    return Locale.Get("VEHICLE_TITLE", "Bus");
                 case ConfigIndex.PLANE_CONFIG:
-                    return "Plane";
+                    return Locale.Get("TLM_VEHICLE", "Airplane");
                 case ConfigIndex.SHIP_CONFIG:
-                    return "Ship";
+                    return Locale.Get("TLM_VEHICLE", "Ship");
                 case ConfigIndex.TAXI_CONFIG:
-                    return "Taxi";
+                    return Locale.Get("VEHICLE_TITLE", "Taxi");
                 default:
                     return "???";
 
@@ -588,7 +612,7 @@ namespace Klyte.TransportLinesManager
             SHOW_IN_LINEAR_MAP = 0x9 | TYPE_BOOL,
             INVERT_PREFIX_SUFFIX = 0xA | TYPE_BOOL,
             DEFAULT_COST_PER_PASSENGER_CAPACITY = 0xB | TYPE_INT,
-            NON_PREFIX = 0xC | TYPE_INT,            
+            NON_PREFIX = 0xC | TYPE_INT,
 
             TRAIN_PREFIX = TRAIN_CONFIG | PREFIX,
             TRAM_PREFIX = TRAM_CONFIG | PREFIX,
@@ -749,7 +773,6 @@ namespace Klyte.TransportLinesManager
 
         public static readonly ConfigIndex[] configurableAutoNameCategories = {
             ConfigIndex.MONUMENT_SERVICE_CONFIG,
-            ConfigIndex.TOURISM_SERVICE_CONFIG,
             ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG,
             ConfigIndex.HEALTHCARE_SERVICE_CONFIG,
             ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG,
@@ -905,7 +928,7 @@ namespace Klyte.TransportLinesManager
                     break;
                 default: saida = uint.MaxValue; break;
             }
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
             return saida;
         }
 
