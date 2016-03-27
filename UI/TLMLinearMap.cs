@@ -344,7 +344,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 else
                 {
-                    infoToggle.localeID = "SHOW_LINE_INTEGRATION_SHORT";
+                    infoToggle.localeID = "TLM_SHOW_LINE_INTEGRATION_SHORT";
                 }
                 redrawLine();
             };

@@ -32,11 +32,11 @@ namespace Klyte.TransportLinesManager.i18n
             Locale.Key k;
 
 
-            foreach (var myString in load.Split(new string[] { lineSeparator }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var myString in load.Split(new string[] { lineSeparator },  StringSplitOptions.RemoveEmptyEntries))
             {
                 if (myString.StartsWith(commentChar)) continue;
                 if (!myString.Contains(kvSeparator)) continue;
-                var array = myString.Split(kvSeparator.ToCharArray());
+                var array = myString.Split(kvSeparator.ToCharArray(), 2);
                 string value = array[1];
                 int idx = 0;
                 string localeKey = null;

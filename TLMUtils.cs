@@ -1450,6 +1450,55 @@ namespace Klyte.TransportLinesManager
             return (T)field.GetValue(o);
         }
 
+        public static string getPrefixesServedAbstract(ushort m_buildingID)
+        {
+            Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];
+            if (b.Info.GetAI() as DepotAI == null) return "";
+            List<string> options = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportType((b.Info.GetAI() as DepotAI).m_transportInfo.m_transportType));
+            var prefixes = TLMDepotAI.getPrefixesServedByDepot(m_buildingID);
+            List<string> saida = new List<string>();
+            if (prefixes.Contains(0)) saida.Add(Locale.Get("TLM_UNPREFIXED_SHORT"));
+            uint sequenceInit = 0;
+            bool isInSequence = false;
+            for (uint i = 1; i < options.Count; i++)
+            {
+                if (prefixes.Contains(i))
+                {
+                    if (sequenceInit == 0 || !isInSequence)
+                    {
+                        sequenceInit = i;
+                        isInSequence = true;
+                    }
+                }
+                else if (sequenceInit != 0 && isInSequence)
+                {
+                    if (i - 1 == sequenceInit)
+                    {
+                        saida.Add(options[(int)sequenceInit]);
+                    }
+                    else
+                    {
+                        saida.Add(options[(int)sequenceInit] + "-" + options[(int)(i - 1)]);
+                    }
+                    isInSequence = false;
+                }
+            }
+            if (sequenceInit != 0 && isInSequence)
+            {
+                if (sequenceInit == options.Count - 1)
+                {
+                    saida.Add(options[(int)sequenceInit]);
+                }
+                else
+                {
+                    saida.Add(options[(int)sequenceInit] + "-" + options[(int)(options.Count - 1)]);
+                }
+                isInSequence = false;
+            }
+            if (prefixes.Contains(65)) saida.Add(Locale.Get("TLM_REGIONAL_SHORT"));
+            return string.Join(" ", saida.ToArray());
+        }
+
         public static void doLocaleDump()
         {
             string localeDump = "LOCALE DUMP:\r\n";

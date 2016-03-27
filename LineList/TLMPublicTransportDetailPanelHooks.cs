@@ -117,11 +117,10 @@ namespace Klyte.TransportLinesManager.LineList
         private bool[] m_ToggleAllState;
 
         private LineSortCriterion m_LastSortCriterionLines;
-        private DepotSortCriterion m_LastSortCriterionDepot;
 
         private UITabstrip m_Strip;
 
-        private readonly TLMCW.ConfigIndex[] tabSystemOrder =
+        public static readonly TLMCW.ConfigIndex[] tabSystemOrder =
         {
             TLMCW.ConfigIndex.PLANE_CONFIG,
             TLMCW.ConfigIndex.SHIP_CONFIG,
@@ -473,10 +472,12 @@ namespace Klyte.TransportLinesManager.LineList
 
             var prefixFilterLabel = m_prefixFilter.AddUIComponent<UILabel>();
             prefixFilterLabel.text = Locale.Get("TLM_PREFIX_FILTER");
-            prefixFilterLabel.relativePosition = new Vector3(27, -35);
+            prefixFilterLabel.relativePosition = new Vector3(0, -35);
             prefixFilterLabel.textAlignment = UIHorizontalAlignment.Center;
-            prefixFilterLabel.width = 35;
+            prefixFilterLabel.width = 100;
             prefixFilterLabel.wordWrap = true;
+            prefixFilterLabel.autoSize = false;
+            prefixFilterLabel.height = 36;
 
             m_DisabledIcon.relativePosition = new Vector3(736, 14);
             m_buttonAutoColor.relativePosition = new Vector3(655, 61);
@@ -601,7 +602,7 @@ namespace Klyte.TransportLinesManager.LineList
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareDepotNames));
-            this.m_LastSortCriterionDepot = DepotSortCriterion.NAME;
+            // m_LastSortCriterionDepot = DepotSortCriterion.NAME;
             uIComponent.Invalidate();
         }
 
@@ -611,7 +612,7 @@ namespace Klyte.TransportLinesManager.LineList
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareDepotDistricts));
-            this.m_LastSortCriterionDepot = DepotSortCriterion.DISTRICT;
+            //m_LastSortCriterionDepot = DepotSortCriterion.DISTRICT;
             uIComponent.Invalidate();
         }
 

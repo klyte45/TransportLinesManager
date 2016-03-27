@@ -1,4 +1,5 @@
-﻿using ColossalFramework.Globalization;
+﻿using ColossalFramework;
+using ColossalFramework.Globalization;
 using ColossalFramework.Math;
 using System;
 using System.Collections.Generic;
@@ -455,7 +456,13 @@ namespace Klyte.TransportLinesManager.Extensors
         public int getCapacity(VehicleInfo info)
         {
             if (info == null) return -1;
-            return TLMUtils.GetPrivateField<int>(info.GetAI(), "m_passengerCapacity");
+            int capacity = TLMUtils.GetPrivateField<int>(info.GetAI(), "m_passengerCapacity");
+            int trailer = TLMUtils.GetPrivateField<int>(info.GetAI(), "m_passengerCapacity");
+            //if (trailer > 0)
+            //{
+            //    capacity += getCapacity(Singleton<VehicleManager>)
+            //}
+            return capacity;
         }
 
         public enum PrefixConfigIndex

@@ -9,6 +9,7 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 using Klyte.TransportLinesManager.Extensors;
 using System.Collections.Generic;
 using ColossalFramework.Globalization;
+using Klyte.TransportLinesManager.LineList;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -374,13 +375,13 @@ namespace Klyte.TransportLinesManager.UI
             //generalDebugLabel.enabled = false && TransportLinesManagerMod.debugMode.value;
             TLMUtils.createUIElement<UILabel>(ref vehicleQuantitySetLabel, lineInfoPanel.transform);
             vehicleQuantitySetLabel.autoSize = false;
-            vehicleQuantitySetLabel.relativePosition = new Vector3(10f, 153f);
+            vehicleQuantitySetLabel.relativePosition = new Vector3(10f, 135f);
             vehicleQuantitySetLabel.textAlignment = UIHorizontalAlignment.Left;
             vehicleQuantitySetLabel.localeID = "TLM_SET_FIXED_VEHICLE_NUMBER_LINE";
             vehicleQuantitySetLabel.isLocalized = true;
-            vehicleQuantitySetLabel.width = 250;
+            vehicleQuantitySetLabel.width = 300;
             vehicleQuantitySetLabel.height = 40;
-            vehicleQuantitySetLabel.name = "AutoNameLabel";
+            vehicleQuantitySetLabel.name = "FixedVehiclesLabel";
             vehicleQuantitySetLabel.textScale = 0.8f;
             vehicleQuantitySetLabel.clipChildren = false;
 
@@ -625,6 +626,7 @@ namespace Klyte.TransportLinesManager.UI
             TransportLine t = m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine];
             Hide();
             m_controller.defaultListingLinesPanel.Show();
+            TLMPublicTransportDetailPanel.instance.SetActiveTab(Array.IndexOf(TLMPublicTransportDetailPanel.tabSystemOrder, TLMCW.getConfigIndexForTransportType(t.Info.m_transportType)));
         }
 
         public void openLineInfo(UIComponent component, UIMouseEventParameter eventParam)
@@ -714,8 +716,8 @@ namespace Klyte.TransportLinesManager.UI
 
             autoNameLabel.text = m_linearMap.autoName;
             vehicleQuantitySet.text = TLMVehiclesLineManager.instance[this.lineIdSelecionado.TransportLine].ToString();
-            vehicleQuantitySet.area = new Vector4(260, 150, 50, 20);
-            vehicleQuantitySet.color = Color.white;
+            vehicleQuantitySet.area = new Vector4(150, 150, 50, 20);
+            vehicleQuantitySet.color = Color.gray;
             linePrefixDropDown.eventSelectedIndexChanged += saveLineNumber;
             lineNumberLabel.eventLostFocus += saveLineNumber;
         }

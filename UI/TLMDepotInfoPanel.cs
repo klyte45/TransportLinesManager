@@ -9,6 +9,7 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 using Klyte.TransportLinesManager.Extensors;
 using System.Collections.Generic;
 using ColossalFramework.Globalization;
+using Klyte.TransportLinesManager.LineList;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -215,7 +216,8 @@ namespace Klyte.TransportLinesManager.UI
             prefixesSpawned.autoSize = false;
             prefixesSpawned.relativePosition = new Vector3(10f, 120f);
             prefixesSpawned.textAlignment = UIHorizontalAlignment.Left;
-            prefixesSpawned.text = "Spawned prefixes in this depot:";
+            prefixesSpawned.localeID = "TLM_PREFIXES_SPAWNED_DEPOT";
+            prefixesSpawned.suffix = ":";
             prefixesSpawned.width = 350;
             prefixesSpawned.height = 25;
             prefixesSpawned.name = "TouristAndPassagersLabel";
@@ -241,7 +243,7 @@ namespace Klyte.TransportLinesManager.UI
                 uint j = i;
                 prefixesCheckboxes[i].eventCheckChanged += (x, y) =>
                 {
-                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("prefixesCheckboxes[i].eventCheckChanged; j = {0}; check = {1}; loading = {2}", j, y, isLoading);
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("prefixesCheckboxes[i].eventCheckChanged; j = {0}; check = {1}; loading = {2}", j, y, isLoading);
                     if (!isLoading)
                     {
                         togglePrefix(j, y);
@@ -266,7 +268,7 @@ namespace Klyte.TransportLinesManager.UI
 
             UIButton addAllPrefixesButton = null;
             TLMUtils.createUIElement(ref addAllPrefixesButton, transform);
-            addAllPrefixesButton.relativePosition = new Vector3(200, 120f);
+            addAllPrefixesButton.relativePosition = new Vector3(300, 100f);
             addAllPrefixesButton.localeID = "TLM_ADD_ALL";
             addAllPrefixesButton.isLocalized = true;
             addAllPrefixesButton.textScale = 0.6f;
@@ -285,12 +287,12 @@ namespace Klyte.TransportLinesManager.UI
             UIButton removeAllPrefixesButton = null;
             TLMUtils.createUIElement<UIButton>(ref removeAllPrefixesButton, transform);
             removeAllPrefixesButton.relativePosition = new Vector3(300, 120f);
-            addAllPrefixesButton.localeID = "TLM_REMOVE_ALL";
-            addAllPrefixesButton.isLocalized = true;
+            removeAllPrefixesButton.localeID = "TLM_REMOVE_ALL";
+            removeAllPrefixesButton.isLocalized = true;
             removeAllPrefixesButton.textScale = 0.6f;
             removeAllPrefixesButton.width = 80;
             removeAllPrefixesButton.height = 15;
-            addAllPrefixesButton.tooltipLocaleID = "TLM_REMOVE_ALL_PREFIX_TOOLTIP";
+            removeAllPrefixesButton.tooltipLocaleID = "TLM_REMOVE_ALL_PREFIX_TOOLTIP";
             TLMUtils.initButton(removeAllPrefixesButton, true, "ButtonMenu");
             removeAllPrefixesButton.name = "RemoveAll";
             removeAllPrefixesButton.isVisible = true;
@@ -328,7 +330,7 @@ namespace Klyte.TransportLinesManager.UI
             HarborAI harborAI = basicInfo.GetAI() as HarborAI;
 
 
-            vehiclesInUseLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { basicAI.GetVehicleCount(m_buildingIdSelecionado.Building, ref Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingIdSelecionado.Building]).ToString()});
+            vehiclesInUseLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { basicAI.GetVehicleCount(m_buildingIdSelecionado.Building, ref Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingIdSelecionado.Building]).ToString() });
             if (stationAI != null)
             {
                 passengersLastWeek.isVisible = true;
@@ -395,9 +397,11 @@ namespace Klyte.TransportLinesManager.UI
 
         public void closeDepotInfo(UIComponent component, UIMouseEventParameter eventParam)
         {
-            TransportLine t = m_controller.tm.m_lines.m_buffer[(int)m_buildingIdSelecionado.TransportLine];
+            BuildingInfo basicInfo = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingIdSelecionado.Building].Info;
+            DepotAI basicAI = basicInfo.GetAI() as DepotAI;
             Hide();
             m_controller.defaultListingLinesPanel.Show();
+            TLMPublicTransportDetailPanel.instance.SetActiveTab(TLMPublicTransportDetailPanel.tabSystemOrder.Length + Array.IndexOf(TLMPublicTransportDetailPanel.tabSystemOrder, TLMCW.getConfigIndexForTransportType(basicAI.m_transportInfo.m_transportType)));
         }
 
         public void openDepotInfo(ushort buildingID)

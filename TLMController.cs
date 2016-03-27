@@ -8,6 +8,7 @@ using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.LineList;
+using ColossalFramework.Globalization;
 
 namespace Klyte.TransportLinesManager
 {
@@ -285,70 +286,30 @@ namespace Klyte.TransportLinesManager
                     return;
                 parent.eventVisibilityChanged += (component, value) =>
                 {
-                    if (TransportLinesManagerMod.savedShowNearLinesInCityServicesWorldInfoPanel.value)
-                    {
-                        loadNearLines(parent, true);
-                    }
-                    else {
-                        Transform linesPanelObj = parent.transform.Find("TLMLinesNear");
-                        if (!linesPanelObj)
-                        {
-                            return;
-                        }
-                        linesPanelObj.GetComponent<UIPanel>().isVisible = false;
-                    }
+                    updateNearLines(TransportLinesManagerMod.savedShowNearLinesInCityServicesWorldInfoPanel.value ? parent : null, true);
+                    updateDepotEditShortcutButton(parent);
                 };
                 parent.eventPositionChanged += (component, value) =>
                 {
-                    if (TransportLinesManagerMod.savedShowNearLinesInCityServicesWorldInfoPanel.value)
-                    {
-                        loadNearLines(parent);
-                    }
-                    else {
-                        Transform linesPanelObj = parent.transform.Find("TLMLinesNear");
-                        if (!linesPanelObj)
-                        {
-                            return;
-                        }
-                        linesPanelObj.GetComponent<UIPanel>().isVisible = false;
-                    }
+                    updateNearLines(TransportLinesManagerMod.savedShowNearLinesInCityServicesWorldInfoPanel.value ? parent : null, true);
+                    updateDepotEditShortcutButton(parent);
                 };
 
                 UIPanel parent2 = GameObject.Find("UIView").transform.GetComponentInChildren<ZonedBuildingWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
 
                 if (parent2 == null)
                     return;
+
                 parent2.eventVisibilityChanged += (component, value) =>
                 {
-                    if (TransportLinesManagerMod.savedShowNearLinesInZonedBuildingWorldInfoPanel.value)
-                    {
-                        loadNearLines(parent2, true);
-                    }
-                    else {
-                        Transform linesPanelObj = parent2.transform.Find("TLMLinesNear");
-                        if (!linesPanelObj)
-                        {
-                            return;
-                        }
-                        linesPanelObj.GetComponent<UIPanel>().isVisible = false;
-                    }
+                    updateNearLines(TransportLinesManagerMod.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
+                    updateDepotEditShortcutButton(parent2);
                 };
                 parent2.eventPositionChanged += (component, value) =>
                 {
-                    if (TransportLinesManagerMod.savedShowNearLinesInZonedBuildingWorldInfoPanel.value)
-                    {
-                        loadNearLines(parent2);
-                    }
-                    else {
-                        Transform linesPanelObj = parent2.transform.Find("TLMLinesNear");
-                        if (!linesPanelObj)
-                        {
-                            return;
-                        }
-                        linesPanelObj.GetComponent<UIPanel>().isVisible = false;
-                    }
+                    updateNearLines(TransportLinesManagerMod.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
+                    updateDepotEditShortcutButton(parent2);
                 };
-
                 UIPanel parent3 = GameObject.Find("UIView").transform.GetComponentInChildren<PublicTransportWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
 
                 if (parent3 == null)
@@ -384,7 +345,7 @@ namespace Klyte.TransportLinesManager
 
         private ushort lastBuildingSelected = 0;
 
-        private void loadNearLines(UIPanel parent, bool force = false)
+        private void updateNearLines(UIPanel parent, bool force = false)
         {
             if (parent != null)
             {
@@ -424,7 +385,41 @@ namespace Klyte.TransportLinesManager
                 }
                 linesPanelObj.GetComponent<UIPanel>().isVisible = showPanel;
             }
+            else
+            {
+                Transform linesPanelObj = GameObject.Find("TLMLinesNear").transform;
+                if (!linesPanelObj)
+                {
+                    return;
+                }
+                linesPanelObj.GetComponent<UIPanel>().isVisible = false;
+            }
+        }
 
+        private void updateDepotEditShortcutButton(UIPanel parent)
+        {
+            if (parent != null)
+            {
+                UIButton depotShortcut = parent.Find<UIButton>("TLMDepotShortcut");
+                if (!depotShortcut)
+                {
+                    depotShortcut = initDepotShortcutOnWorldInfoPanel(parent);
+                }
+                var prop = typeof(WorldInfoPanel).GetField("m_InstanceID", System.Reflection.BindingFlags.NonPublic
+                    | System.Reflection.BindingFlags.Instance);
+                ushort buildingId = ((InstanceID)(prop.GetValue(parent.gameObject.GetComponent<WorldInfoPanel>()))).Building;
+                if (Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId].Info.GetAI() as DepotAI != null)
+                {
+                    depotShortcut.isVisible = true;
+                    UILabel label = depotShortcut.GetComponentInChildren<UILabel>();
+                    label.text = TLMUtils.getPrefixesServedAbstract(buildingId);
+                }
+                else
+                {
+                    depotShortcut.isVisible = false;
+                }
+
+            }
         }
 
         private float scale = 1f;
@@ -448,10 +443,42 @@ namespace Klyte.TransportLinesManager
             title.autoSize = false;
             title.width = saida.width;
             title.textAlignment = UIHorizontalAlignment.Left;
-            title.text = "Near Lines";
+            title.localeID = "TLM_NEAR_LINES";
             title.useOutline = true;
             title.height = 18;
             return saida.transform;
+        }
+
+        private UIButton initDepotShortcutOnWorldInfoPanel(UIPanel parent)
+        {
+            UIButton saida = parent.AddUIComponent<UIButton>();
+            saida.relativePosition = new Vector3(10, parent.height - 50);
+            saida.atlas = taTLM;
+            saida.width = 30;
+            saida.height = 30;
+            saida.name = "TLMDepotShortcut";
+            saida.tooltipLocaleID = "TLM_GOTO_DEPOT_PREFIX_EDIT";
+            TLMUtils.initButton(saida, false, "TransportLinesManagerIcon");
+            saida.eventClick += (x, y) =>
+            {
+                var prop = typeof(WorldInfoPanel).GetField("m_InstanceID", System.Reflection.BindingFlags.NonPublic
+                       | System.Reflection.BindingFlags.Instance);
+                ushort buildingId = ((InstanceID)(prop.GetValue(parent.gameObject.GetComponent<WorldInfoPanel>()))).Building;
+                depotInfoPanel.openDepotInfo(buildingId);
+            };
+
+            UILabel prefixes = saida.AddUIComponent<UILabel>();
+            prefixes.autoSize = false;
+            prefixes.width = 200;
+            prefixes.wordWrap = true;
+            prefixes.textAlignment = UIHorizontalAlignment.Left;
+            prefixes.prefix = Locale.Get("TLM_PREFIXES_SERVED") + ":\n";
+            prefixes.useOutline = true;
+            prefixes.height = 60;
+            prefixes.textScale = 0.6f;
+            prefixes.relativePosition = new Vector3(40, 10);
+            prefixes.name = "Prefixes";
+            return saida;
         }
 
     }

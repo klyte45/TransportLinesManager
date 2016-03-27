@@ -2,6 +2,10 @@
 TRANSLATING!
     Translated to portuguese, russian translate in progress...
     You can help translating for other languages in the TLM discussion on Steam.
-
+DEPOT SELECTION
+    -Added a shortcut in the world info panel for depot prefixes selection screen.
+BUG FIXING
+    -Assets capacities are back!
+    -Now the vehicle asset names are shown correctly.
 
     

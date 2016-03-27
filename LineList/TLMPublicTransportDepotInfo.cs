@@ -86,56 +86,12 @@ namespace Klyte.TransportLinesManager.LineList
             this.m_buildingID = id;
         }
 
-        private string getPrefixesServedAbstract(List<uint> prefixes, List<string> options)
-        {
-            List<string> saida = new List<string>();
-            if (prefixes.Contains(0)) saida.Add("<U>");
-            uint sequenceInit = 0;
-            bool isInSequence = false;
-            for (uint i = 1; i < options.Count; i++)
-            {
-                if (prefixes.Contains(i))
-                {
-                    if (sequenceInit == 0 || !isInSequence)
-                    {
-                        sequenceInit = i;
-                        isInSequence = true;
-                    }
-                }
-                else if (sequenceInit != 0 && isInSequence)
-                {
-                    if (i - 1 == sequenceInit)
-                    {
-                        saida.Add(options[(int)sequenceInit]);
-                    }
-                    else
-                    {
-                        saida.Add(options[(int)sequenceInit] + "-" + options[(int)(i - 1)]);
-                    }
-                    isInSequence = false;
-                }
-            }
-            if (sequenceInit != 0 && isInSequence)
-            {
-                if (sequenceInit == options.Count - 1)
-                {
-                    saida.Add(options[(int)sequenceInit]);
-                }
-                else
-                {
-                    saida.Add(options[(int)sequenceInit] + "-" + options[(int)(options.Count - 1)]);
-                }
-                isInSequence = false;
-            }
-            if (prefixes.Contains(65)) saida.Add("<R>");
-            return string.Join(" ", saida.ToArray());
-        }
+       
 
         public void RefreshData()
         {
             if (Singleton<BuildingManager>.exists)
             {
-
                 m_prefixesServedList = TLMDepotAI.getPrefixesServedByDepot(m_buildingID);
                 if (m_prefixesServedList == null) { GameObject.Destroy(gameObject); return; }
                 bool isRowVisible;
@@ -155,9 +111,9 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_districtName.text = districtName;
 
                 //prefix
-                List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportType((b.Info.GetAI() as DepotAI).m_transportInfo.m_transportType));
-                this.m_prefixesServed.text = getPrefixesServedAbstract(m_prefixesServedList, prefixOptions);
+                this.m_prefixesServed.text = TLMUtils.getPrefixesServedAbstract(this.m_buildingID);
 
+                List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportType((b.Info.GetAI() as DepotAI).m_transportInfo.m_transportType));
                 prefixOptions.Add(Locale.Get("TLM_REGIONAL"));
                 if (this.m_prefixOptions.items.Length != prefixOptions.Count)
                 {
@@ -325,7 +281,7 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.createUIElement<UIButton>(ref m_addAllPrefixesButton, transform);
             m_addAllPrefixesButton.pivot = UIPivotPoint.TopRight;
             m_addAllPrefixesButton.relativePosition = new Vector3(730, 20);
-            m_addAllPrefixesButton.text = Locale.Get("TLM_ADD_ALL"); ;
+            m_addAllPrefixesButton.text = Locale.Get("TLM_ADD_ALL_SHORT"); ;
             m_addAllPrefixesButton.textScale = 0.6f;
             m_addAllPrefixesButton.width = 50;
             m_addAllPrefixesButton.height = 15;
@@ -344,7 +300,7 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.createUIElement<UIButton>(ref m_removeAllPrefixesButton, transform);
             m_removeAllPrefixesButton.pivot = UIPivotPoint.TopRight;
             m_removeAllPrefixesButton.relativePosition = new Vector3(780, 20);
-            m_removeAllPrefixesButton.text = Locale.Get("TLM_REMOVE_ALL"); 
+            m_removeAllPrefixesButton.text = Locale.Get("TLM_REMOVE_ALL_SHORT"); 
             m_removeAllPrefixesButton.textScale = 0.6f;
             m_removeAllPrefixesButton.width = 50;
             m_removeAllPrefixesButton.height = 15;
