@@ -728,9 +728,10 @@ namespace Klyte.TransportLinesManager.LineList
 
         public void SetActiveTab(int idx)
         {
-            this.m_Strip.selectedIndex = idx;
-
-            RefreshLines();
+            if (this.m_Strip.selectedIndex != idx)
+            {
+                this.m_Strip.selectedIndex = idx;
+            }
         }
 
         public void RefreshLines()
@@ -747,56 +748,59 @@ namespace Klyte.TransportLinesManager.LineList
                 int planeCount = 0;
 
                 UIComponent comp;
-                for (ushort lineIdIterator = 1; lineIdIterator < 256; lineIdIterator += 1)
+                if (isLineView)
                 {
-                    if ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdIterator].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created)
+                    for (ushort lineIdIterator = 1; lineIdIterator < 256; lineIdIterator += 1)
                     {
-                        switch (TLMCW.getConfigIndexForLine(lineIdIterator))
+                        if ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdIterator].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created)
                         {
-                            case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
-                                comp = m_BusLinesContainer;
-                                busCount = AddToList(busCount, lineIdIterator, ref comp);
-                                break;
-                            case TLMCW.ConfigIndex.TRAM_CONFIG:
-                                comp = m_TramLinesContainer;
-                                tramCount = AddToList(tramCount, lineIdIterator, ref comp);
-                                break;
-                            case TLMCW.ConfigIndex.METRO_CONFIG:
-                                comp = m_MetroLinesContainer;
-                                metroCount = AddToList(metroCount, lineIdIterator, ref comp);
-                                break;
-                            case TLMCW.ConfigIndex.TRAIN_CONFIG:
-                                comp = m_TrainLinesContainer;
-                                trainCount = AddToList(trainCount, lineIdIterator, ref comp);
-                                break;
-                            case TLMCW.ConfigIndex.SHIP_CONFIG:
-                                comp = m_ShipLinesContainer;
-                                shipCount = AddToList(shipCount, lineIdIterator, ref comp);
-                                break;
-                            case TLMCW.ConfigIndex.PLANE_CONFIG:
-                                comp = m_PlaneLinesContainer;
-                                planeCount = AddToList(planeCount, lineIdIterator, ref comp);
-                                break;
+                            switch (TLMCW.getConfigIndexForLine(lineIdIterator))
+                            {
+                                case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
+                                    comp = m_BusLinesContainer;
+                                    busCount = AddToList(busCount, lineIdIterator, ref comp);
+                                    break;
+                                case TLMCW.ConfigIndex.TRAM_CONFIG:
+                                    comp = m_TramLinesContainer;
+                                    tramCount = AddToList(tramCount, lineIdIterator, ref comp);
+                                    break;
+                                case TLMCW.ConfigIndex.METRO_CONFIG:
+                                    comp = m_MetroLinesContainer;
+                                    metroCount = AddToList(metroCount, lineIdIterator, ref comp);
+                                    break;
+                                case TLMCW.ConfigIndex.TRAIN_CONFIG:
+                                    comp = m_TrainLinesContainer;
+                                    trainCount = AddToList(trainCount, lineIdIterator, ref comp);
+                                    break;
+                                case TLMCW.ConfigIndex.SHIP_CONFIG:
+                                    comp = m_ShipLinesContainer;
+                                    shipCount = AddToList(shipCount, lineIdIterator, ref comp);
+                                    break;
+                                case TLMCW.ConfigIndex.PLANE_CONFIG:
+                                    comp = m_PlaneLinesContainer;
+                                    planeCount = AddToList(planeCount, lineIdIterator, ref comp);
+                                    break;
+                            }
                         }
                     }
-                }
-                comp = m_BusLinesContainer;
-                RemoveExtraLines(busCount, ref comp);
-                comp = m_TramLinesContainer;
-                RemoveExtraLines(tramCount, ref comp);
-                comp = m_MetroLinesContainer;
-                RemoveExtraLines(metroCount, ref comp);
-                comp = m_TrainLinesContainer;
-                RemoveExtraLines(trainCount, ref comp);
-                comp = m_ShipLinesContainer;
-                RemoveExtraLines(shipCount, ref comp);
-                comp = m_PlaneLinesContainer;
-                RemoveExtraLines(planeCount, ref comp);
+                    comp = m_BusLinesContainer;
+                    RemoveExtraLines(busCount, ref comp);
+                    comp = m_TramLinesContainer;
+                    RemoveExtraLines(tramCount, ref comp);
+                    comp = m_MetroLinesContainer;
+                    RemoveExtraLines(metroCount, ref comp);
+                    comp = m_TrainLinesContainer;
+                    RemoveExtraLines(trainCount, ref comp);
+                    comp = m_ShipLinesContainer;
+                    RemoveExtraLines(shipCount, ref comp);
+                    comp = m_PlaneLinesContainer;
+                    RemoveExtraLines(planeCount, ref comp);
 
-                this.m_LinesUpdated = true;
+                    this.m_LinesUpdated = true;
+                }
             }
 
-            if (Singleton<BuildingManager>.exists)
+            if (isDepotView && Singleton<BuildingManager>.exists)
             {
                 int busCount = 0;
                 int tramCount = 0;
@@ -953,6 +957,7 @@ namespace Klyte.TransportLinesManager.LineList
             if (isDepotView)
             {
                 m_depotsTitle.Find<UIButton>("NameTitle").text = string.Format(Locale.Get("TLM_DEPOT_NAME_PATTERN"), Locale.Get("TLM_PUBLICTRANSPORT_OF_DEPOT", currentSelectedSystem.ToString()));
+                RefreshLines();
             }
 
             if (isPrefixEditor)

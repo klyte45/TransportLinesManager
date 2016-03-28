@@ -1741,7 +1741,7 @@ namespace Klyte.TransportLinesManager
             UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)
             {
-                TLMUtils.doErrorLog("Could not find resource: " + name);
+                TLMUtils.doLog("Could not find resource: " + name);
                 DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "Could not find resource: " + name);
                 return null;
             }
@@ -1757,7 +1757,7 @@ namespace Klyte.TransportLinesManager
             UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)
             {
-                TLMUtils.doErrorLog("Could not find resource: " + name);
+                TLMUtils.doLog("Could not find resource: " + name);
                 DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "Could not find resource: " + name);
                 return null;
             }

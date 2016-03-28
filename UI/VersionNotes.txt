@@ -11,5 +11,6 @@ DEPOT SELECTION
 BUG FIXING
     -Assets capacities are back! And now shows the right capacity.
     -Now the vehicle asset names are shown correctly.
-
+5.2.1
+    -Fixed some bugs related to translating
     

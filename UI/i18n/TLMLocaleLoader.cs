@@ -22,7 +22,7 @@ namespace Klyte.TransportLinesManager.i18n
                 load = ResourceLoader.loadResourceString("UI.i18n.en.properties");
                 if (load == null)
                 {
-                    TLMUtils.doErrorLog("LOCALE NOT LOADED!!!!");
+                    TLMUtils.doLog("LOCALE NOT LOADED!!!!");
                     return;
                 }
                 localeId = "en";
