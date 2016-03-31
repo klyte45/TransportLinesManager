@@ -1,4 +1,8 @@
-﻿5.2
+﻿5.2.2
+    -Fixed some bugs related to translating
+    -Trailers will not be spawn in lines anymore
+    -Fixed bug about not initilize transport lines panel (and throw exception in some cases)
+5.2
 BUDGET CONTROL
     Now you can put a different budget for each prefix! Just set a budget multiplier in the prefix assets selection.
 PREFIX ASSETS SELECTIONS MOVED TO MAIN LISTING PANEL
@@ -11,6 +15,4 @@ DEPOT SELECTION
 BUG FIXING
     -Assets capacities are back! And now shows the right capacity.
     -Now the vehicle asset names are shown correctly.
-5.2.1
-    -Fixed some bugs related to translating
     

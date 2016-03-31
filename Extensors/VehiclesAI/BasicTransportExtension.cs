@@ -190,29 +190,16 @@ namespace Klyte.TransportLinesManager.Extensors
                     cached_subcategoryList = new Dictionary<uint, Dictionary<PrefixConfigIndex, string>>();
                 }
                 basicAssetsList = new List<string>();
-                var trailerList = new List<string>();
 
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: pre prefab read");
                 for (uint num = 0u; (ulong)num < (ulong)((long)PrefabCollection<VehicleInfo>.PrefabCount()); num += 1u)
                 {
                     VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
-                    if (!(prefab == null) && prefab.GetAI().GetType() == type)
+                    if (!(prefab == null) && prefab.GetAI().GetType() == type && !isTrailer(prefab))
                     {
                         basicAssetsList.Add(prefab.name);
-                        if (prefab.m_trailers != null && prefab.m_trailers.Length > 0)
-                        {
-                            foreach (var trailer in prefab.m_trailers)
-                            {
-                                if (trailer.m_info.name != prefab.name)
-                                {
-                                    trailerList.Add(trailer.m_info.name);
-                                }
-                            }
-                        }
                     }
                 }
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: pos prefab read");
-                basicAssetsList.RemoveAll(x => trailerList.Contains(x));
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: pre models Check");
                 foreach (uint prefix in cached_subcategoryList.Keys)
                 {
@@ -234,6 +221,12 @@ namespace Klyte.TransportLinesManager.Extensors
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: pos models Check");
                 saveSubcategoryList(global);
             }
+        }
+
+        private bool isTrailer(PrefabInfo prefab)
+        {
+            string @unchecked = Locale.GetUnchecked("VEHICLE_TITLE", prefab.name);
+            return @unchecked.StartsWith("VEHICLE_TITLE") || @unchecked.StartsWith("Trailer");
         }
 
 

@@ -144,7 +144,7 @@ namespace Klyte.TransportLinesManager
                 CheckForAutoChanges();
             }
             lastLineCount = tm.m_lineCount;
-
+            TLMPublicTransportDetailPanelHooks.instance.update();
 
             return;
         }

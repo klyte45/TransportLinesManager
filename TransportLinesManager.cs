@@ -15,7 +15,7 @@ using Klyte.TransportLinesManager.MapDrawer;
 using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.i18n;
 
-[assembly: AssemblyVersion("5.2.1.*")]
+[assembly: AssemblyVersion("5.2.2.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension

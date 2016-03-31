@@ -16,6 +16,8 @@ namespace Klyte.TransportLinesManager.LineList
 {
     class TLMPublicTransportDetailPanelHooks : Redirector
     {
+        private bool panelOverriden = false;
+        private int tryCount = 0;
 
         private static TLMPublicTransportDetailPanelHooks _instance;
         public static TLMPublicTransportDetailPanelHooks instance
@@ -69,11 +71,46 @@ namespace Klyte.TransportLinesManager.LineList
             AddRedirect(typeof(TLMPublicTransportDetailPanel), typeof(PublicTransportDetailPanel).GetMethod("NaturalCompare", allFlags), ref redirects);
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Swap TLMPublicTransportDetailPanelHooks Hooks!");
-            var go = GameObject.Find("UIView").GetComponentInChildren<PublicTransportDetailPanel>().gameObject;
-            GameObject.Destroy(go.GetComponent<PublicTransportDetailPanel>());
-            TLMPublicTransportDetailPanel.instance = go.AddComponent<TLMPublicTransportDetailPanel>();
+            update();
+        }
 
+        public void update()
+        {
+            if (tryCount < 100 && !panelOverriden)
+            {
+                try
+                {
+                    var go = GameObject.Find("UIView").GetComponentInChildren<PublicTransportDetailPanel>().gameObject;
+                    GameObject.Destroy(go.GetComponent<PublicTransportDetailPanel>());
+                    TLMPublicTransportDetailPanel.instance = go.AddComponent<TLMPublicTransportDetailPanel>();
+                    panelOverriden = true;
+                }
+                catch (Exception e)
+                {
+                    tryCount++;
+                    TLMUtils.doLog("Failed to load panel. Trying again a " + tryCount + getOrdinal(tryCount) + " time next frame");
+                }
+            }
+        }
 
+        private string getOrdinal(int nth)
+        {
+            if (nth % 10 == 1 && nth % 100 != 11)
+            {
+                return "st";
+            }
+            else if (nth % 10 == 2 && nth % 100 != 12)
+            {
+                return "nd";
+            }
+            else if (nth % 10 == 3 && nth % 100 != 13)
+            {
+                return "rd";
+            }
+            else
+            {
+                return "th";
+            }
         }
 
         public void DisableHooks()
