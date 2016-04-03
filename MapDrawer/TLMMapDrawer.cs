@@ -71,7 +71,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         {
                             List<ushort> nearStops = new List<ushort>();
                             TLMLineUtils.GetNearStopPoints(worldPos, 100f, ref nearStops);
-                             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Station: ${0}; nearStops: ${1}", name, string.Join(",", nearStops.Select(x => x.ToString()).ToArray()));
+                              TLMUtils.doLog("Station: ${0}; nearStops: ${1}", name, string.Join(",", nearStops.Select(x => x.ToString()).ToArray()));
                             Station thisStation = new Station(name, pos2D, nearStops, nextStationId++, i);
                             stations.Add(thisStation);
                             transportLines[i].addStation(ref thisStation);
@@ -254,7 +254,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
             Vector2 from = originalCentralPos;
 
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() (STATION: {2}) lineIndex: {0}; from: {1}; stopPos: [{3}]", lineIndex, from, name, string.Join(",", linesPos.Select(x => x.Key.ToString() + " = " + x.Value).ToArray()));
+              TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() (STATION: {2}) lineIndex: {0}; from: {1}; stopPos: [{3}]", lineIndex, from, name, string.Join(",", linesPos.Select(x => x.Key.ToString() + " = " + x.Value).ToArray()));
             if (linesPos.ContainsValue(lineIndex))
             {
                 return linesPos.First(x => x.Value == lineIndex).Key + originalCentralPos;
@@ -270,7 +270,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 var direction = to - from;
                 direction = new Vector2(Math.Sign(direction.x), Math.Sign(direction.y));
                 var totalOffset = direction;
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() direction: {0}; from: {1}; to: ", direction, from, to);
+                  TLMUtils.doLog("SVGTEMPLATE:getPositionForLine() direction: {0}; from: {1}; to: ", direction, from, to);
                 while (linesPos.ContainsKey(totalOffset))
                 {
                     totalOffset += direction;
@@ -913,7 +913,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             Vector2 p0 = points[0].getPositionForLine(transportLineIdx, points[1].centralPos) - offset;
             path.Append("M " + p0.x * multiplier + "," + p0.y * multiplier);
             CardinalPoint lastDirection = CardinalPoint.ZERO;
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath():695 => offset = {0}; multiplier = {1}", offset, multiplier);
+              TLMUtils.doLog("SVGTEMPLATE:addPath():695 => offset = {0}; multiplier = {1}", offset, multiplier);
             Vector2 sPrevPrev = Vector2.zero;
             Vector2 sPrev = p0;
             for (int i = 1; i < points.stationsCount(); i++)
@@ -924,7 +924,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 if (i > 1)
                 {
                     fromDirection = CardinalPoint.getCardinal2D(sPrevPrev, sPrev);
-                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath():752 => sPrevPrev = {0}; sPrev = {1}; s = {2}; direction = {3}; STATION= {4}", sPrevPrev, sPrev, s, fromDirection, points[i].name);
+                      TLMUtils.doLog("SVGTEMPLATE:addPath():752 => sPrevPrev = {0}; sPrev = {1}; s = {2}; direction = {3}; STATION= {4}", sPrevPrev, sPrev, s, fromDirection, points[i].name);
                     var sPrevPrevPrev = Vector2.zero;
                     switch (fromDirection.Value)
                     {
@@ -933,7 +933,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             CASE_S:
                             if (s.y > sPrev.y)
                             {
-                                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE Λ");
+                                  TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE Λ");
                                 var offsetX = Math.Sign(s.x - sPrevPrev.x);
                                 basicDirection = new Vector2(offsetX, 0);
                                 sPrevPrevPrev = sPrev;
@@ -952,7 +952,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             CASE_N:
                             if (s.y < sPrev.y)
                             {
-                                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE V");
+                                  TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE V");
                                 var offsetX = Math.Sign(s.x - sPrevPrev.x);
                                 basicDirection = new Vector2(offsetX, 0);
                                 sPrevPrevPrev = sPrev;
@@ -971,7 +971,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             CASE_E:
                             if (s.x < sPrev.x)
                             {
-                                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE <");
+                                  TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE <");
                                 var offsetY = Math.Sign(s.y - sPrevPrev.y);
                                 basicDirection = new Vector2(0, offsetY);
                                 sPrevPrevPrev = sPrev;
@@ -990,7 +990,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             CASE_W:
                             if (s.x > sPrev.x)
                             {
-                                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE >");
+                                  TLMUtils.doLog("SVGTEMPLATE:addPath():709 => CASE >");
                                 var offsetY = Math.Sign(s.y - sPrevPrev.y);
                                 basicDirection = new Vector2(0, offsetY);
                                 sPrevPrevPrev = sPrev;
@@ -1096,13 +1096,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         addToPathString(path, sPrevPrev, sPrev);
                         goto DiagCheck;
                     }
-                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath() => D1! STATIONS= {0} ({2}) a {1} ({3}); DIAG END: {5}; DIAG IDX: {6}; TARGETPOINT: {4}", points[i - 1].name, points[i].name, sPrev, s, targetPointD1, diagPointEnd, index);
+                      TLMUtils.doLog("SVGTEMPLATE:addPath() => D1! STATIONS= {0} ({2}) a {1} ({3}); DIAG END: {5}; DIAG IDX: {6}; TARGETPOINT: {4}", points[i - 1].name, points[i].name, sPrev, s, targetPointD1, diagPointEnd, index);
                     offsetRemove = diagPointEnd - targetPointD1;
                     if (isHorizontal)
                     {
                         calcBeginD1X:
                         var targetPointX = getFreeHorizontal(targetPointD1, s - offsetRemove);
-                         if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath() => HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s - offsetRemove).x != targetPointY.x && targetPointD1.x != sPrev.x: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x, targetPointD1.x, sPrev.x);
+                          TLMUtils.doLog("SVGTEMPLATE:addPath() => HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s - offsetRemove).x != targetPointY.x && targetPointD1.x != sPrev.x: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x, targetPointD1.x, sPrev.x);
                         if ((s - offsetRemove).x != (targetPointX).x && targetPointD1.x != sPrev.x)
                         {
                             var direction = (diagPointEnd - sPrev);
@@ -1117,7 +1117,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         calcBeginD1Y:
                         var targetPointY = getFreeVertical(targetPointD1, s - offsetRemove);
-                         if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath() => VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointX: {4}; (s - offsetRemove).y != targetPointX.y && targetPointD1.y != sPrev.y: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s - offsetRemove).y, targetPointY.y, targetPointD1.y, sPrev.y);
+                          TLMUtils.doLog("SVGTEMPLATE:addPath() => VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointX: {4}; (s - offsetRemove).y != targetPointX.y && targetPointD1.y != sPrev.y: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s - offsetRemove).y, targetPointY.y, targetPointD1.y, sPrev.y);
                         if ((s - offsetRemove).y != targetPointY.y && targetPointD1.y != sPrev.y)
                         {
                             var direction = (diagPointEnd - sPrev);
@@ -1141,13 +1141,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         addToPathString(path, sPrevPrev, sPrev);
                         goto DiagCheck;
                     }
-                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath() => D2! STATIONS= {0} ({2}) a {1} ({3}); DIAG END: {5}; DIAG IDX: {6}; TARGETPOINT: {4}", points[i - 1].name, points[i].name, sPrev, s, targetPointD2, diagPointEnd, index);
+                      TLMUtils.doLog("SVGTEMPLATE:addPath() => D2! STATIONS= {0} ({2}) a {1} ({3}); DIAG END: {5}; DIAG IDX: {6}; TARGETPOINT: {4}", points[i - 1].name, points[i].name, sPrev, s, targetPointD2, diagPointEnd, index);
                     offsetRemove = diagPointEnd - targetPointD2;
                     if (isHorizontal)
                     {
                         calcBeginD2X:
                         var targetPointX = getFreeHorizontal(targetPointD2, s - offsetRemove);
-                         if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath() => HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s - offsetRemove).x != targetPointY.x && targetPointD2.x != sPrev.x: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x, targetPointD2.x, sPrev.x);
+                          TLMUtils.doLog("SVGTEMPLATE:addPath() => HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s - offsetRemove).x != targetPointY.x && targetPointD2.x != sPrev.x: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x, targetPointD2.x, sPrev.x);
                         if (s - offsetRemove != targetPointX && targetPointD2.y != sPrev.y)
                         {
                             var direction = (diagPointEnd - sPrev);
@@ -1162,7 +1162,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         calcBeginD2Y:
                         var targetPointY = getFreeVertical(targetPointD2, s - offsetRemove);
-                         if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath() => VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointX: {4}; (s - offsetRemove).y != targetPointX.y && targetPointD2.y != sPrev.y: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s - offsetRemove).y, targetPointY.y, targetPointD2.y, sPrev.y);
+                          TLMUtils.doLog("SVGTEMPLATE:addPath() => VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointX: {4}; (s - offsetRemove).y != targetPointX.y && targetPointD2.y != sPrev.y: {5} != {6} && {7} != {8}", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s - offsetRemove).y, targetPointY.y, targetPointD2.y, sPrev.y);
                         if (s - offsetRemove != targetPointY && targetPointD2.x != sPrev.x)
                         {
                             var direction = (diagPointEnd - sPrev);
@@ -1177,7 +1177,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 else if (isHorizontal)
                 {
                     var targetPointX = getFreeHorizontal(sPrev, s);
-                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath() => SÓ HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s ).y != targetPointY.x && targetPointD2.x != sPrev.x: {5} != {6}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x);
+                      TLMUtils.doLog("SVGTEMPLATE:addPath() => SÓ HORIZONTAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s ).y != targetPointY.x && targetPointD2.x != sPrev.x: {5} != {6}", points[i - 1].name, points[i].name, sPrev, s, targetPointX, (s - offsetRemove).x, targetPointX.x);
                     if (s != targetPointX)
                     {
                         addToPathString(path, sPrev, targetPointX);
@@ -1191,7 +1191,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 else if (isVertical)
                 {
                     var targetPointY = getFreeVertical(sPrev, s);
-                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath() => SÓ VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s).y != targetPointY.y : {5} != {6} ", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s).y, targetPointY.y);
+                      TLMUtils.doLog("SVGTEMPLATE:addPath() => SÓ VERTICAL! STATIONS= {0} ({2}) a {1} ({3}); targetPointY: {4}; (s).y != targetPointY.y : {5} != {6} ", points[i - 1].name, points[i].name, sPrev, s, targetPointY, (s).y, targetPointY.y);
                     if (s != targetPointY)
                     {
                         addToPathString(path, sPrev, targetPointY);
@@ -1203,7 +1203,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     }
                 }
 
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath() => s - offsetRemove == sPrev : {0} - {1} == {2} = {3}", s, offsetRemove, sPrev, s - offsetRemove == sPrev);
+                  TLMUtils.doLog("SVGTEMPLATE:addPath() => s - offsetRemove == sPrev : {0} - {1} == {2} = {3}", s, offsetRemove, sPrev, s - offsetRemove == sPrev);
 
                 if (s - offsetRemove == sPrev && offsetRemove != Vector2.zero)
                 {
@@ -1229,7 +1229,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     addToPathString(path, sPrevPrev, sPrev);
                     goto DiagCheck;
                 }
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath():1095 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
+                  TLMUtils.doLog("SVGTEMPLATE:addPath():1095 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
                 if (sPrev == diagPointEnd && fromDirection.Value != CardinalPoint.CardinalInternal.ZERO && offsetRemove != Vector2.zero)
                 {
                     sPrevPrev = sPrev;
@@ -1243,7 +1243,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         offsetRemove -= direction;
                     }
                 }
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath():1108 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
+                  TLMUtils.doLog("SVGTEMPLATE:addPath():1108 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
 
                 if (isD1 || isD2)
                 {
@@ -1256,7 +1256,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             sPrev = diagPointEnd;
                         }
                     }
-                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath():1116 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
+                      TLMUtils.doLog("SVGTEMPLATE:addPath():1116 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
                     if (offsetRemove != Vector2.zero)
                     {
                         var diagCompl = s - offsetRemove;
@@ -1266,7 +1266,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             sPrevPrev = sPrev;
                             sPrev = diagCompl;
                         }
-                         if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("SVGTEMPLATE:addPath():1123 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
+                          TLMUtils.doLog("SVGTEMPLATE:addPath():1123 => sPrevPrev = {0} ; sPrev = {1}; s = {2} ", sPrevPrev, sPrev, s);
                     }
                 }
                 if (diagPointEnd + offsetRemove != s)
@@ -1290,12 +1290,12 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
             if (p1.y != p2.y) return p2;
             int targetX = (int)p2.x;
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog(" getFreeHorizontal idx: {0} hRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.y, hRanges.ContainsKey((int)p2.y), p1, p2);
+              TLMUtils.doLog(" getFreeHorizontal idx: {0} hRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.y, hRanges.ContainsKey((int)p2.y), p1, p2);
             if (hRanges.ContainsKey((int)p2.y))
             {
                 Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x) + 1, (int)Math.Max(p1.x, p2.x) - 1);
                 var searchResult = hRanges[(int)p2.y].FindAll(x => x.IntersectRange(lineXs));
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog(" getFreeHorizontal idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.y, lineXs, searchResult.Count, string.Join(",", hRanges[(int)p2.y].Select(x => x.ToString()).ToArray()));
+                  TLMUtils.doLog(" getFreeHorizontal idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.y, lineXs, searchResult.Count, string.Join(",", hRanges[(int)p2.y].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.x - p1.x)) > 0)
@@ -1319,12 +1319,12 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
             if (p1.x != p2.x) return p2;
             int targetY = (int)p2.y;
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog(" getFreeVertical idx: {0} vRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.x, vRanges.ContainsKey((int)p2.x), p1, p2);
+              TLMUtils.doLog(" getFreeVertical idx: {0} vRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.x, vRanges.ContainsKey((int)p2.x), p1, p2);
             if (vRanges.ContainsKey((int)p2.x))
             {
                 Range<int> lineYs = new Range<int>((int)Math.Min(p1.y, p2.y) + 1, (int)Math.Max(p1.y, p2.y) - 1);
                 var searchResult = vRanges[(int)p2.x].FindAll(x => x.IntersectRange(lineYs));
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog(" getFreeVertical idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.x, lineYs, searchResult.Count, string.Join(",", vRanges[(int)p2.x].Select(x => x.ToString()).ToArray()));
+                  TLMUtils.doLog(" getFreeVertical idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.x, lineYs, searchResult.Count, string.Join(",", vRanges[(int)p2.x].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.y - p1.y)) > 0)
@@ -1346,12 +1346,12 @@ namespace Klyte.TransportLinesManager.MapDrawer
             if (p1.x + p1.y != p2.x + p2.y) return p2;
             int targetX = (int)p2.x;
             int index = (int)(p2.x + p2.y);
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog(" getFreeHorizontalD1Point idx: {0} d1Ranges.ContainsKey(index)={1}", index, d1Ranges.ContainsKey(index));
+              TLMUtils.doLog(" getFreeHorizontalD1Point idx: {0} d1Ranges.ContainsKey(index)={1}", index, d1Ranges.ContainsKey(index));
             if (d1Ranges.ContainsKey(index))
             {
                 Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x) + 1, (int)Math.Max(p1.x, p2.x) - 1);
                 var searchResult = d1Ranges[index].FindAll(x => x.IntersectRange(lineXs));
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = {3} ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d1Ranges[index].Select(x => x.ToString()).ToArray()));
+                  TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = {3} ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d1Ranges[index].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.x - p1.x)) > 0)
@@ -1375,13 +1375,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
             if (p1.x - p1.y != p2.x - p2.y) return p2;
             int targetX = (int)p2.x;
             int index = (int)(p2.x - p2.y);
-             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0} d2Ranges.ContainsKey(index)={1}", index, d2Ranges.ContainsKey(index));
+              TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0} d2Ranges.ContainsKey(index)={1}", index, d2Ranges.ContainsKey(index));
 
             if (d2Ranges.ContainsKey(index))
             {
                 Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x) + 1, (int)Math.Max(p1.x, p2.x) - 1);
                 var searchResult = d2Ranges[index].FindAll(x => x.IntersectRange(lineXs));
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d2Ranges[index].Select(x => x.ToString()).ToArray()));
+                  TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d2Ranges[index].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.x - p1.x)) > 0)
