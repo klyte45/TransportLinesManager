@@ -79,7 +79,7 @@ namespace Klyte.TransportLinesManager
                 {
                     init();
                 }
-                return new string[] { "<"+Locale.Get("TLM_RANDOM")+">" }.Union(m_palettes.Keys).OrderBy(x => x).ToArray();
+                return new string[] { "<" + Locale.Get("TLM_RANDOM") + ">" }.Union(m_palettes.Keys).OrderBy(x => x).ToArray();
             }
         }
 
@@ -333,7 +333,7 @@ namespace Klyte.TransportLinesManager
                 string[] thisColorCompounds = thisColor.Split(COLOR_COMP_SEPARATOR);
                 if (thisColorCompounds.Length != 3)
                 {
-                    DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "[TLM Palette '" + name + "'] Corrupted serialized color: " + thisColor);
+                    TLMUtils.doErrorLog("[TLM Palette '" + name + "'] Corrupted serialized color: " + thisColor);
                     return null;
                 }
                 byte r, g, b;
@@ -342,7 +342,7 @@ namespace Klyte.TransportLinesManager
                 success &= byte.TryParse(thisColorCompounds[2], out b);
                 if (!success)
                 {
-                    DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "[TLM Palette '" + name + "'] Corrupted serialized color: invalid number in " + thisColor);
+                    TLMUtils.doErrorLog("[TLM Palette '" + name + "'] Corrupted serialized color: invalid number in " + thisColor);
                     return null;
                 }
                 colors.Add(new Color32(r, g, b, 255));
@@ -385,7 +385,7 @@ namespace Klyte.TransportLinesManager
             color.r = colorBytes[0];
             color.g = colorBytes[1];
             color.b = colorBytes[2];
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, color.ToString());
+            TLMUtils.doLog(color.ToString());
 
             return color;
         }

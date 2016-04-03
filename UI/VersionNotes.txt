@@ -1,18 +1,3 @@
-﻿5.2.2
-    -Fixed some bugs related to translating
-    -Trailers will not be spawn in lines anymore
-    -Fixed bug about not initilize transport lines panel (and throw exception in some cases)
-5.2
-BUDGET CONTROL
-    Now you can put a different budget for each prefix! Just set a budget multiplier in the prefix assets selection.
-PREFIX ASSETS SELECTIONS MOVED TO MAIN LISTING PANEL
-    Now it's easier to find...
-TRANSLATING!
-    Translated to portuguese, russian translate in progress...
-    You can help translating for other languages in the TLM discussion on Steam.
-DEPOT SELECTION
-    -Added a shortcut in the world info panel for depot prefixes selection screen.
-BUG FIXING
-    -Assets capacities are back! And now shows the right capacity.
-    -Now the vehicle asset names are shown correctly.
-    
+﻿5.3
+    -Added ticket price control
+    -Added a button to remove disallowed models from lines, based on models selected for prefix

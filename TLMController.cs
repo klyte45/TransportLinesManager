@@ -196,7 +196,7 @@ namespace Klyte.TransportLinesManager
             }
             catch (Exception e)
             {
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "ERRO!!!!! " + e.Message);
+                TLMUtils.doErrorLog( "ERRO!!!!! " + e.Message);
                 TLMCW.setCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
                 return Color.clear;
             }
@@ -216,8 +216,8 @@ namespace Klyte.TransportLinesManager
             }
             catch (Exception e)
             {
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "ERRO!!!!! " + e.Message);
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, e.StackTrace);
+                TLMUtils.doErrorLog( "ERRO!!!!! " + e.Message);
+                TLMUtils.doErrorLog( e.StackTrace);
                 TLMCW.setCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
             }
         }

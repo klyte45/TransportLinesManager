@@ -4,6 +4,8 @@ using ColossalFramework.UI;
 using ICities;
 using Klyte.Extensions;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensors.BuildingAI;
+using Klyte.TransportLinesManager.Extensors.VehicleAI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -197,6 +199,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private UIButton m_buttonAutoName;
         private UIButton m_buttonAutoColor;
+        private UIButton m_buttonRemoveUnwanted;
 
         private bool m_showDayNightLines = true;
         private bool m_showDayLines = true;
@@ -464,10 +467,9 @@ namespace Klyte.TransportLinesManager.LineList
             //Auto color & Auto Name
             TLMUtils.createUIElement<UIButton>(ref m_buttonAutoName, transform);
             m_buttonAutoName.pivot = UIPivotPoint.TopRight;
-            m_buttonAutoName.text = Locale.Get("TLM_AUTO_NAME_ALL");
             m_buttonAutoName.textScale = 0.6f;
-            m_buttonAutoName.width = 105;
-            m_buttonAutoName.height = 15;
+            m_buttonAutoName.width = 40;
+            m_buttonAutoName.height = 40;
             m_buttonAutoName.tooltip = Locale.Get("TLM_AUTO_NAME_ALL_TOOLTIP");
             TLMUtils.initButton(m_buttonAutoName, true, "ButtonMenu");
             m_buttonAutoName.name = "AutoName";
@@ -477,12 +479,18 @@ namespace Klyte.TransportLinesManager.LineList
                 OnAutoNameAll();
             };
 
+            var icon = m_buttonAutoName.AddUIComponent<UISprite>();
+            icon.relativePosition = new Vector3(2, 2);
+            icon.atlas = TLMController.taTLM;
+            icon.spriteName = "AutoNameIcon";
+            icon.width = 36;
+            icon.height = 36;
+
             TLMUtils.createUIElement<UIButton>(ref m_buttonAutoColor, transform);
             m_buttonAutoColor.pivot = UIPivotPoint.TopRight;
-            m_buttonAutoColor.text = Locale.Get("TLM_AUTO_COLOR_ALL");
             m_buttonAutoColor.textScale = 0.6f;
-            m_buttonAutoColor.width = 105;
-            m_buttonAutoColor.height = 15;
+            m_buttonAutoColor.width = 40;
+            m_buttonAutoColor.height = 40;
             m_buttonAutoColor.tooltip = Locale.Get("TLM_AUTO_COLOR_ALL_TOOLTIP");
             TLMUtils.initButton(m_buttonAutoColor, true, "ButtonMenu");
             m_buttonAutoColor.name = "AutoColor";
@@ -491,6 +499,34 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 OnAutoColorAll();
             };
+
+            icon = m_buttonAutoColor.AddUIComponent<UISprite>();
+            icon.relativePosition = new Vector3(2, 2);
+            icon.atlas = TLMController.taTLM;
+            icon.width = 36;
+            icon.height = 36;
+            icon.spriteName = "AutoColorIcon";
+
+            TLMUtils.createUIElement<UIButton>(ref m_buttonRemoveUnwanted, transform);
+            m_buttonRemoveUnwanted.pivot = UIPivotPoint.TopRight;
+            m_buttonRemoveUnwanted.textScale = 0.6f;
+            m_buttonRemoveUnwanted.width = 40;
+            m_buttonRemoveUnwanted.height = 40;
+            m_buttonRemoveUnwanted.tooltip = Locale.Get("TLM_REMOVE_UNWANTED_TOOLTIP");
+            TLMUtils.initButton(m_buttonRemoveUnwanted, true, "ButtonMenu");
+            m_buttonRemoveUnwanted.name = "RemoveUnwanted";
+            m_buttonRemoveUnwanted.isVisible = true;
+            m_buttonRemoveUnwanted.eventClick += (component, eventParam) =>
+            {
+                OnRemoveUnwanted();
+            };
+
+            icon = m_buttonRemoveUnwanted.AddUIComponent<UISprite>();
+            icon.relativePosition = new Vector3(2, 2);
+            icon.atlas = TLMController.taTLM;
+            icon.width = 36;
+            icon.height = 36;
+            icon.spriteName = "RemoveUnwantedIcon";
 
             //filters
             m_DayIcon = m_linesTitle.Find<UISprite>("DaySprite");
@@ -544,10 +580,11 @@ namespace Klyte.TransportLinesManager.LineList
             prefixFilterLabel.height = 36;
 
             m_DisabledIcon.relativePosition = new Vector3(736, 14);
-            m_buttonAutoColor.relativePosition = new Vector3(655, 61);
-            m_buttonAutoName.relativePosition = new Vector3(655, 43);
+            m_buttonRemoveUnwanted.relativePosition = new Vector3(630, 43);
+            m_buttonAutoColor.relativePosition = new Vector3(675, 43);
+            m_buttonAutoName.relativePosition = new Vector3(720, 43);
 
-            var icon = Find<UISprite>("Icon");
+            icon = Find<UISprite>("Icon");
             icon.spriteName = "TransportLinesManagerIconHovered";
             icon.atlas = TLMController.taTLM;
 
@@ -990,6 +1027,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_linesTitle.isVisible = isLineView;
             m_buttonAutoName.isVisible = isLineView;
             m_buttonAutoColor.isVisible = isLineView;
+            m_buttonRemoveUnwanted.isVisible = !isDepotView;
 
             if (isDepotView)
             {
@@ -999,7 +1037,7 @@ namespace Klyte.TransportLinesManager.LineList
 
             if (isPrefixEditor)
             {
-                GetComponent<UIPanel>().height = 731;
+                GetComponent<UIPanel>().height = 910;
             }
 
             m_depotsTitle.relativePosition = m_linesTitle.relativePosition;
@@ -1060,6 +1098,10 @@ namespace Klyte.TransportLinesManager.LineList
             }
         }
 
+        private void OnRemoveUnwanted()
+        {
+            BasicTransportExtension.removeAllUnwantedVehicles();
+        }
 
 
         private void OnAutoColorAll()
@@ -1149,13 +1191,16 @@ namespace Klyte.TransportLinesManager.LineList
             TextList<string> prefixAssets = null;
             UITextField prefixName = null;
             UISlider budgetMultiplier = null;
+            UISlider ticketPrice = null;
             UIHelperExtension group2sub = null;
+            UIHelperExtension assetSelectionGroup = null;
             TLMUtils.doLog("INIT loadPrefixAssetList");
             OnDropdownSelectionChanged loadPrefixAssetList = (int sel) =>
             {
                 if (sel == 0 || m_systemTypeDropDown.selectedIndex == 0)
                 {
                     ((UIPanel)group2sub.self).enabled = false;
+                    ((UIPanel)assetSelectionGroup.self).enabled = false;
                     return;
                 }
                 ((UIPanel)group2sub.self).enabled = true;
@@ -1165,9 +1210,22 @@ namespace Klyte.TransportLinesManager.LineList
                 budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().autoSize = true;
                 budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().wordWrap = false;
                 budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().text = string.Format("x{0:0.00}", budgetMultiplier.value);
-                prefixAssets.itemsList = getPrefixAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
-                var t = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
-                defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex).Where(k => !prefixAssets.itemsList.ContainsKey(k.Key)).ToDictionary(k => k.Key, k => k.Value);
+                ticketPrice.value = getTicketPriceFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
+                ticketPrice.transform.parent.GetComponentInChildren<UILabel>().prefix = Locale.Get("TLM_TICKET_PRICE_LABEL") + ": ";
+                ticketPrice.transform.parent.GetComponentInChildren<UILabel>().autoSize = true;
+                ticketPrice.transform.parent.GetComponentInChildren<UILabel>().wordWrap = false;
+                ticketPrice.transform.parent.GetComponentInChildren<UILabel>().text = ticketPrice.value.ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
+                if (getConfigIndexFromDropDownSelection(m_systemTypeDropDown.selectedIndex) != TLMCW.ConfigIndex.METRO_CONFIG)
+                {
+                    ((UIPanel)assetSelectionGroup.self).enabled = true;
+                    prefixAssets.itemsList = getPrefixAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
+                    var t = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
+                    defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex).Where(k => !prefixAssets.itemsList.ContainsKey(k.Key)).ToDictionary(k => k.Key, k => k.Value);
+                }
+                else
+                {
+                    ((UIPanel)assetSelectionGroup.self).enabled = false;
+                }
             };
             TLMUtils.doLog("INIT loadPrefixes");
             OnDropdownSelectionChanged loadPrefixes = (int sel) =>
@@ -1193,7 +1251,8 @@ namespace Klyte.TransportLinesManager.LineList
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.BUS_CONFIG),
-                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG) }, 0, loadPrefixes);
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG),
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.METRO_CONFIG) }, 0, loadPrefixes);
             prefixSelection = (UIDropDown)group2.AddDropdown(Locale.Get("TLM_PREFIX"), new string[] { "" }, 0, loadPrefixAssetList);
 
             foreach (Transform t in group2.self.transform)
@@ -1220,10 +1279,30 @@ namespace Klyte.TransportLinesManager.LineList
                 budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().text = string.Format("x{0:0.00}", f);
                 setBudgetMultiplierDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), f);
             });
+            ticketPrice = (UISlider)group2sub.AddSlider(Locale.Get("TLM_TICKET_PRICE_LABEL"), 0.05f, 40, 0.05f, 1, delegate (float f)
+            {
+                ticketPrice.transform.parent.GetComponentInChildren<UILabel>().text = f.ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
+                setTicketPriceDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), f);
+            });
 
-            defaultAssets = group2sub.AddTextList(Locale.Get("TLM_DEFAULT_ASSETS"), new Dictionary<string, string>(), delegate (string idx) { reloadTexture(idx); }, 340, 250);
-            prefixAssets = group2sub.AddTextList(Locale.Get("TLM_ASSETS_FOR_PREFIX"), new Dictionary<string, string>(), delegate (string idx) { reloadTexture(idx); }, 340, 250);
+            group2sub.AddSpace(10);
             foreach (Transform t in ((UIPanel)group2sub.self).transform)
+            {
+                var panel = t.gameObject.GetComponent<UIPanel>();
+                if (panel)
+                {
+                    panel.width = 340;
+                }
+            }
+            assetSelectionGroup = group2.AddGroupExtended(Locale.Get("TLM_CITY_ASSETS_SELECTION"));
+            ((UIPanel)assetSelectionGroup.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)assetSelectionGroup.self).autoLayoutPadding = new RectOffset(2, 2, 0, 0);
+            ((UIPanel)assetSelectionGroup.self).wrapLayout = true;
+            ((UIPanel)assetSelectionGroup.self).width = 720;
+            ((UIPanel)assetSelectionGroup.self).padding = new RectOffset(0, 0, 0, 0);
+            defaultAssets = assetSelectionGroup.AddTextList(Locale.Get("TLM_DEFAULT_ASSETS"), new Dictionary<string, string>(), delegate (string idx) { reloadTexture(idx); }, 340, 250);
+            prefixAssets = assetSelectionGroup.AddTextList(Locale.Get("TLM_ASSETS_FOR_PREFIX"), new Dictionary<string, string>(), delegate (string idx) { reloadTexture(idx); }, 340, 250);
+            foreach (Transform t in ((UIPanel)assetSelectionGroup.self).transform)
             {
                 var panel = t.gameObject.GetComponent<UIPanel>();
                 if (panel)
@@ -1247,12 +1326,12 @@ namespace Klyte.TransportLinesManager.LineList
             budgetMultiplier.GetComponentInParent<UIPanel>().autoLayoutDirection = LayoutDirection.Horizontal;
             budgetMultiplier.GetComponentInParent<UIPanel>().autoLayoutPadding = new RectOffset(5, 5, 3, 3);
             budgetMultiplier.GetComponentInParent<UIPanel>().wrapLayout = true;
-            group2sub.AddSpace(10);
+            assetSelectionGroup.AddSpace(10);
             OnButtonClicked reload = delegate
             {
                 loadPrefixAssetList(prefixSelection.selectedIndex);
             };
-            group2sub.AddButton(Locale.Get("TLM_ADD"), delegate
+            assetSelectionGroup.AddButton(Locale.Get("TLM_ADD"), delegate
             {
                 if (defaultAssets.unselected) return;
                 var selected = defaultAssets.selectedItem;
@@ -1260,7 +1339,7 @@ namespace Klyte.TransportLinesManager.LineList
                 addAssetToPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), selected);
                 reload();
             });
-            group2sub.AddButton(Locale.Get("TLM_REMOVE"), delegate
+            assetSelectionGroup.AddButton(Locale.Get("TLM_REMOVE"), delegate
             {
                 if (prefixAssets.unselected) return;
                 var selected = prefixAssets.selectedItem;
@@ -1269,18 +1348,18 @@ namespace Klyte.TransportLinesManager.LineList
                 reload();
             });
 
-            group2sub.AddButton(Locale.Get("TLM_REMOVE_ALL"), delegate
+            assetSelectionGroup.AddButton(Locale.Get("TLM_REMOVE_ALL"), delegate
             {
                 removeAllAssetsFromPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1));
                 reload();
             });
-            group2sub.AddButton(Locale.Get("TLM_RELOAD"), delegate
+            assetSelectionGroup.AddButton(Locale.Get("TLM_RELOAD"), delegate
             {
                 reload();
             });
             ((UIPanel)group2sub.self).enabled = false;
             prefixSelection.isVisible = false;
-
+            ((UIPanel)assetSelectionGroup.self).enabled = false;
         }
 
 
@@ -1320,6 +1399,10 @@ namespace Klyte.TransportLinesManager.LineList
         {
             TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setBudgetMultiplier(prefix, (uint)(value * 100), global);
         }
+        private void setTicketPriceDropDownSelection(int index, uint prefix, float value, bool global = false)
+        {
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setTicketPrice(prefix, (uint)(value * 100), global);
+        }
         private string getPrefixNameFromDropDownSelection(int index, uint prefix, bool global = false)
         {
             return TLMUtils.getTransportSystemPrefixName(getConfigIndexFromDropDownSelection(index), prefix, global);
@@ -1327,6 +1410,10 @@ namespace Klyte.TransportLinesManager.LineList
         private float getPrefixBudgetMultiplierFromDropDownSelection(int index, uint prefix, bool global = false)
         {
             return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBudgetMultiplier(prefix, global) / 100f;
+        }
+        private float getTicketPriceFromDropDownSelection(int index, uint prefix, bool global = false)
+        {
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getTicketPrice(prefix, global) / 100f;
         }
         private TLMConfigWarehouse.ConfigIndex getConfigIndexFromDropDownSelection(int index)
         {
@@ -1342,6 +1429,8 @@ namespace Klyte.TransportLinesManager.LineList
                     return TLMConfigWarehouse.ConfigIndex.BUS_CONFIG;
                 case 5:
                     return TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG;
+                case 6:
+                    return TLMConfigWarehouse.ConfigIndex.METRO_CONFIG;
                 default:
                     return TLMConfigWarehouse.ConfigIndex.NIL;
             }

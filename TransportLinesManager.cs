@@ -14,8 +14,10 @@ using Klyte.TransportLinesManager.LineList;
 using Klyte.TransportLinesManager.MapDrawer;
 using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.i18n;
+using Klyte.TransportLinesManager.Extensors.BuildingAI;
+using Klyte.TransportLinesManager.Extensors.VehicleAI;
 
-[assembly: AssemblyVersion("5.2.2.*")]
+[assembly: AssemblyVersion("5.3.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -556,6 +558,8 @@ namespace Klyte.TransportLinesManager
                 showVersionInfoPopup(true);
                 TLMUtils.doLocaleDump();
             });
+
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("End Loading Options");
         }
 
         private void loadTLMLocale()
@@ -701,8 +705,8 @@ namespace Klyte.TransportLinesManager
 
             if (TLMController.taTLM == null)
             {
-                TLMController.taTLM = CreateTextureAtlas("UI.Images.sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 32, 32, new string[] {
-                    "TransportLinesManagerIcon","TransportLinesManagerIconHovered"
+                TLMController.taTLM = CreateTextureAtlas("UI.Images.sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
+                    "TransportLinesManagerIcon","TransportLinesManagerIconHovered","AutoNameIcon","AutoColorIcon","RemoveUnwantedIcon"
                 });
             }
             if (TLMController.taLineNumber == null)
@@ -711,12 +715,13 @@ namespace Klyte.TransportLinesManager
                   "DepotIcon","PlaneLineIcon","TramIcon","ShipLineIcon","LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","RoundSquareIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","SurfaceMetroImage","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap"
                 });
             }
+            TLMPublicTransportDetailPanelHooks.instance.EnableHooks();
             if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
             {
                 TLMDepotAI.instance.EnableHooks();
                 TLMTransportLineExtensionHooks.EnableHooks();
+                TLMTicketOverride.EnableHooks();
             }
-            TLMPublicTransportDetailPanelHooks.instance.EnableHooks();
 
             //			Log.debug ("LEVELLOAD");
         }

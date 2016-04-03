@@ -862,7 +862,6 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     inverse = true;
                     break;
             }
-            //     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "STPUT: " + s.name + " => " + s.position);
             string integrationPath = s.getIntegrationLinePath(offset, multiplier);
             if (integrationPath != string.Empty)
             {

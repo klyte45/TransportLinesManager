@@ -12,6 +12,7 @@ namespace Klyte.TransportLinesManager.LineList
     using ColossalFramework.UI;
     using Extensions;
     using Extensors;
+    using Extensors.BuildingAI;
     using System;
     using System.Collections;
     using System.Diagnostics;

@@ -4,10 +4,11 @@ using ColossalFramework.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.Extensors
+namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 {
     public class BasicTransportExtensionSingleton
     {
@@ -308,6 +309,7 @@ namespace Klyte.TransportLinesManager.Extensors
             cached_subcategoryList[prefix][PrefixConfigIndex.PREFIX_NAME] = name;
             saveSubcategoryList(global);
         }
+
         public uint getBudgetMultiplier(uint prefix, bool global = false)
         {
             loadSubcategoryList(global);
@@ -340,6 +342,72 @@ namespace Klyte.TransportLinesManager.Extensors
                 cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
             }
             cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER] = multiplier.ToString();
+            saveSubcategoryList(global);
+        }
+
+        public uint getTicketPrice(uint prefix, bool global = false)
+        {
+            loadSubcategoryList(global);
+            if (needReload)
+            {
+                readVehicles(global); if (needReload) return 100;
+            }
+            if (cached_subcategoryList.ContainsKey(prefix) && cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.TICKET_PRICE))
+            {
+                uint result;
+                if (uint.TryParse(cached_subcategoryList[prefix][PrefixConfigIndex.TICKET_PRICE], out result))
+                {
+                    return result;
+                }
+            }
+            return getDefaultTicketPrice();
+        }
+
+        public uint getDefaultTicketPrice()
+        {
+            if (typeof(BusAI) == type)
+            {
+                return 100;
+            }
+            if (typeof(TramAI) == type)
+            {
+                return 200;
+            }
+            if (typeof(MetroTrainAI) == type)
+            {
+                return 200;
+            }
+            if (typeof(PassengerTrainAI) == type)
+            {
+                return 200;
+            }
+            if (typeof(PassengerShipAI) == type)
+            {
+                return 500;
+            }
+            if (typeof(PassengerPlaneAI) == type)
+            {
+                return 1000;
+            }
+            else
+            {
+                return 200;
+            }
+        }
+
+        public void setTicketPrice(uint prefix, uint price, bool global = false)
+        {
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setTicketPrice! {0} {1} {2} {3}", type.ToString(), prefix, price, global);
+            loadSubcategoryList(global);
+            if (needReload)
+            {
+                readVehicles(global); if (needReload) return;
+            }
+            if (!cached_subcategoryList.ContainsKey(prefix))
+            {
+                cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
+            }
+            cached_subcategoryList[prefix][PrefixConfigIndex.TICKET_PRICE] = price.ToString();
             saveSubcategoryList(global);
         }
 
@@ -499,11 +567,55 @@ namespace Klyte.TransportLinesManager.Extensors
             return capacity;
         }
 
+        public static void removeAllUnwantedVehicles()
+        {
+            for (ushort lineId = 1; lineId < Singleton<TransportManager>.instance.m_lines.m_size; lineId++)
+            {
+                if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
+                {
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: line #{0}", lineId);
+                    TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
+                    uint prefix = 0;
+                    if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(tl.Info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+                    {
+                        prefix = tl.m_lineNumber / 1000u;
+                    }
+                    VehicleManager instance3 = Singleton<VehicleManager>.instance;
+                    VehicleInfo info = instance3.m_vehicles.m_buffer[Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].GetVehicle(0)].Info;
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: pre model list; type = {0}", info.GetAI());
+                    var modelList = BasicTransportExtensionSingleton.instance(info.GetAI().GetType()).getAssetListForPrefix(prefix);
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
+                    if (modelList.Count > 0)
+                    {
+                        Dictionary<ushort, VehicleInfo> vehiclesToRemove = new Dictionary<ushort, VehicleInfo>();
+                        for (int i = 0; i < tl.CountVehicles(lineId); i++)
+                        {
+                            var vehicle = tl.GetVehicle(i);
+                            if (vehicle != 0)
+                            {
+                                VehicleInfo info2 = instance3.m_vehicles.m_buffer[(int)vehicle].Info;
+                                if (!modelList.Contains(info2.name))
+                                {
+                                    vehiclesToRemove[vehicle] = info2;
+                                }
+                            }
+                        }
+
+                        foreach (var item in vehiclesToRemove)
+                        {
+                            item.Value.m_vehicleAI.SetTransportLine(item.Key, ref instance3.m_vehicles.m_buffer[item.Key], 0);
+                        }
+                    }
+                }
+            }
+        }
+
         public enum PrefixConfigIndex
         {
             MODELS,
             PREFIX_NAME,
-            BUDGET_MULTIPLIER
+            BUDGET_MULTIPLIER,
+            TICKET_PRICE
         }
     }
 }

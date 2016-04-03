@@ -10,6 +10,7 @@ using Klyte.TransportLinesManager.Extensors;
 using System.Collections.Generic;
 using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.LineList;
+using Klyte.TransportLinesManager.Extensors.BuildingAI;
 
 namespace Klyte.TransportLinesManager.UI
 {

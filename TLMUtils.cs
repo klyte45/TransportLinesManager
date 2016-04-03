@@ -4,6 +4,8 @@ using ColossalFramework.Math;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensors.BuildingAI;
+using Klyte.TransportLinesManager.Extensors.VehicleAI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -1214,30 +1216,30 @@ namespace Klyte.TransportLinesManager
                 NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
                 ushort buildingId1 = bm.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
                 ushort buildingId2 = bm.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
-                //					DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"buildingId1="+buildingId1+"|buildingId2="+buildingId2);
-                //					DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"offsetL="+offsetL+"|offsetH="+offsetH);
+                //					TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
+                //					TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
                 if (buildingId1 == buildingId2)
                 {
                     middle = j + 1;
                     break;
                 }
             }
-            //				DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"middle="+middle);
+            //				TLMUtils.doLog("middle="+middle);
             if (middle >= 0)
             {
                 for (j = 1; j <= stopsCount / 2; j++)
                 {
                     int offsetL = (-j + middle + stopsCount) % stopsCount;
                     int offsetH = (j + middle) % stopsCount;
-                    //						DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"offsetL="+offsetL+"|offsetH="+offsetH);
-                    //						DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"t.GetStop (offsetL)="+t.GetStop (offsetH)+"|t.GetStop (offsetH)="+t.GetStop (offsetH));
+                    //						TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
+                    //						TLMUtils.doLog("t.GetStop (offsetL)="+t.GetStop (offsetH)+"|t.GetStop (offsetH)="+t.GetStop (offsetH));
                     NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
                     NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
                     ushort buildingId1 = bm.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
                     ushort buildingId2 = bm.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
-                    //						DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"buildingId1="+buildingId1+"|buildingId2="+buildingId2);
-                    //						DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"buildingId1="+buildingId1+"|buildingId2="+buildingId2);
-                    //						DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"offsetL="+offsetL+"|offsetH="+offsetH);
+                    //						TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
+                    //						TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
+                    //						TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
                     if (buildingId1 != buildingId2)
                     {
                         return false;
@@ -1382,7 +1384,7 @@ namespace Klyte.TransportLinesManager
                     break;
                 }
             }
-            //			DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning,"middle="+middle);
+            //			TLMUtils.doLog("middle="+middle);
             if (middle >= 0)
             {
                 for (int k = 1; k <= size / 2; k++)
@@ -1741,8 +1743,7 @@ namespace Klyte.TransportLinesManager
             UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)
             {
-                TLMUtils.doLog("Could not find resource: " + name);
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "Could not find resource: " + name);
+                TLMUtils.doErrorLog("Could not find resource: " + name);
                 return null;
             }
 
@@ -1757,8 +1758,7 @@ namespace Klyte.TransportLinesManager
             UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)
             {
-                TLMUtils.doLog("Could not find resource: " + name);
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "Could not find resource: " + name);
+                TLMUtils.doErrorLog("Could not find resource: " + name);                
                 return null;
             }
 
@@ -1776,7 +1776,7 @@ namespace Klyte.TransportLinesManager
             }
             catch (Exception e)
             {
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "The file could not be read:" + e.Message);
+                TLMUtils.doErrorLog( "The file could not be read:" + e.Message);
             }
 
             return null;
