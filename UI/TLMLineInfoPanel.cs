@@ -391,6 +391,7 @@ namespace Klyte.TransportLinesManager.UI
             vehicleQuantitySet.transform.SetParent(lineInfoPanel.transform);
             vehicleQuantitySet.relativePosition = new Vector3(120f, 165f);
             vehicleQuantitySet.size = new Vector2(50, 30);
+            vehicleQuantitySet.padding = new RectOffset(0, 0, 0, 0);
             vehicleQuantitySet.textScale = 0.8f;
             vehicleQuantitySet.numericalOnly = true;
             vehicleQuantitySet.eventLostFocus += (x, y) =>

@@ -1,3 +1,2 @@
-﻿5.3
-    -Added ticket price control
-    -Added a button to remove disallowed models from lines, based on models selected for prefix
+﻿5.4
+    -Added direct edit of station names from linear map - Includes bus and tram stops

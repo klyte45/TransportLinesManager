@@ -56,7 +56,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         ushort nextStop = t.GetStop(j % stopsCount);
                         ItemClass.Service nil;
                         ItemClass.SubService nil2;
-                        string name = TLMUtils.getStationName(nextStop, t.Info.m_stationSubService, out nil, out nil2);
+                        string prefix;
+                        ushort buildingId;
+                        string name = TLMUtils.getStationName(nextStop,i, t.Info.m_stationSubService, out nil, out nil2, out prefix, out buildingId);
 
                         Vector3 worldPos = TLMUtils.getStationBuildingPosition(nextStop, t.Info.m_stationSubService);
                         Vector2 pos2D = calc(worldPos);

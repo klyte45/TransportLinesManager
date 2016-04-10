@@ -125,7 +125,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             string value = u.text;
 
-            TLMUtils.setBuildingName(m_buildingIdSelecionado.Building, value);
+            TLMUtils.setBuildingName(m_buildingIdSelecionado.Building, value, () => { });
         }
 
         private void createInfoView()

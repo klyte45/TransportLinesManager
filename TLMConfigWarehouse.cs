@@ -568,6 +568,7 @@ namespace Klyte.TransportLinesManager
             DEPOT_PREFIXES_PLANE = GLOBAL_CONFIG | 0x18 | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_PLANE = GLOBAL_CONFIG | 0x19 | TYPE_DICTIONARY,
             VEHICLE_LINE = GLOBAL_CONFIG | 0x1A | TYPE_DICTIONARY,
+            STOPS_CONFIG = GLOBAL_CONFIG | 0x1B | TYPE_DICTIONARY,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = TransportInfo.TransportType.Tram << 16,

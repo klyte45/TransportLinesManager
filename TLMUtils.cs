@@ -333,6 +333,8 @@ namespace Klyte.TransportLinesManager
             return otherLinesIntersections;
         }
 
+
+
         public static void PrintIntersections(string airport, string taxi, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, float scale = 1.0f, int maxItemsForSizeSwap = 3)
         {
             TransportManager tm = Singleton<TransportManager>.instance;
@@ -973,19 +975,15 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static void setBuildingName(ushort buildingID, string name)
+        public static IEnumerator setBuildingName(ushort buildingID, string name, OnEndProcessingBuildingName function)
         {
             InstanceID buildingIdSelect = default(InstanceID);
             buildingIdSelect.Building = buildingID;
-            if (name.Length > 0)
-            {
-                Singleton<InstanceManager>.instance.SetName(buildingIdSelect, name);
-                Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)buildingID].m_flags |= Building.Flags.CustomName;
-            }
-            else {
-                Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)buildingID].m_flags &= ~Building.Flags.CustomName;
-            }
+            yield return Singleton<SimulationManager>.instance.AddAction<bool>(Singleton<BuildingManager>.instance.SetBuildingName(buildingID, name));
+            function();
         }
+
+        public delegate void OnEndProcessingBuildingName();
 
         public static string calculateAutoName(ushort lineIdx)
         {
@@ -1006,9 +1004,11 @@ namespace Klyte.TransportLinesManager
             int middle;
             if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && CalculateSimmetry(ss, stopsCount, t, out middle))
             {
-                ItemClass.Service nil;
-                ItemClass.SubService nil2;
-                return getStationName(t.GetStop(middle), ss, out nil, out nil2) + " - " + getStationName(t.GetStop(middle + stopsCount / 2), ss, out nil, out nil2);
+                string station1Name = getFullStationName(t.GetStop(middle), lineIdx, ss);
+
+                string station2Name = getFullStationName(t.GetStop(middle + stopsCount / 2), lineIdx, ss);
+
+                return station1Name + " - " + station2Name;
             }
             else
             {
@@ -1020,7 +1020,9 @@ namespace Klyte.TransportLinesManager
                 {
                     ItemClass.Service service;
                     ItemClass.SubService subservice;
-                    String value = getStationName(t.GetStop(j), ss, out service, out subservice, true);
+                    string prefix;
+                    ushort buidingId;
+                    String value = getStationName(t.GetStop(j), lineIdx, ss, out service, out subservice, out prefix, out buidingId, true);
                     stationsList.Add(j, new KeyValuePair<TLMCW.ConfigIndex, string>(subservice.toConfigIndex() != 0 ? subservice.toConfigIndex() : service.toConfigIndex(), value));
                 }
                 uint mostImportantCategoryInLine = stationsList.Select(x => (x.Value.Key).getPriority()).Min();
@@ -1103,7 +1105,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static string getBuildingName(ushort buildingId, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, bool usePrefix)
+        public static string getBuildingName(ushort buildingId, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix)
         {
 
             NetManager nm = Singleton<NetManager>.instance;
@@ -1125,7 +1127,9 @@ namespace Klyte.TransportLinesManager
             {
                 index = subserviceFound.toConfigIndex();
             }
-            return (usePrefix ? (index.getPrefixTextNaming().Trim() + (index.getPrefixTextNaming().Trim() != string.Empty ? " " : "")) : "") + bm.GetBuildingName(buildingId, iid);
+            prefix = index.getPrefixTextNaming().Trim();
+
+            return bm.GetBuildingName(buildingId, iid);
         }
 
 
@@ -1271,20 +1275,101 @@ namespace Klyte.TransportLinesManager
             ItemClass.Service.Water
         };
 
-
-
-
-        public static string getStationName(uint stopId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, bool excludeCargo = false, bool usePrefix = false)
+        public static Dictionary<T, string> getValueFromStringArray<T>(string x, string SEPARATOR, string SUBCOMMA, string SUBSEPARATOR)
         {
+            string[] array = x.Split(SEPARATOR.ToCharArray());
+            var saida = new Dictionary<T, string>();
+            if (array.Length != 2)
+            {
+                return saida;
+            }
+            var value = array[1];
+            foreach (string item in value.Split(SUBCOMMA.ToCharArray()))
+            {
+                var kv = item.Split(SUBSEPARATOR.ToCharArray());
+                if (kv.Length != 2)
+                {
+                    continue;
+                }
+                try
+                {
+                    T subkey = (T)Enum.Parse(typeof(T), kv[0]);
+                    saida[subkey] = kv[1];
+                }
+                catch (Exception e)
+                {
+                    continue;
+                }
+
+            }
+            return saida;
+        }
+
+        public static void setStopName(string newName, uint stopId, ushort lineId, OnEndProcessingBuildingName callback)
+        {
+            doLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
+            ushort buildingId = getStationBuilding(stopId, toSubService(Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_transportType), true, true);
+            if (buildingId == 0)
+            {
+                doLog("b=0");
+                TLMStopsExtension.instance.setStopName(newName, stopId, lineId);
+                callback();
+            }
+            else
+            {
+                doLog("b≠0 ({0})", buildingId);
+                Singleton<BuildingManager>.instance.StartCoroutine(setBuildingName(buildingId, newName, callback));
+            }
+        }
+
+        public static void cleanStopInfo(uint stopId, ushort lineId)
+        {
+            TLMStopsExtension.instance.cleanStopInfo(stopId, lineId);
+        }
+
+        private static ItemClass.SubService toSubService(TransportInfo.TransportType t)
+        {
+            switch (t)
+            {
+                case TransportInfo.TransportType.Airplane:
+                    return ItemClass.SubService.PublicTransportPlane;
+                case TransportInfo.TransportType.Bus:
+                    return ItemClass.SubService.PublicTransportBus;
+                case TransportInfo.TransportType.Metro:
+                    return ItemClass.SubService.PublicTransportMetro;
+                case TransportInfo.TransportType.Ship:
+                    return ItemClass.SubService.PublicTransportShip;
+                case TransportInfo.TransportType.Taxi:
+                    return ItemClass.SubService.PublicTransportTaxi;
+                case TransportInfo.TransportType.Train:
+                    return ItemClass.SubService.PublicTransportTrain;
+                case TransportInfo.TransportType.Tram:
+                    return ItemClass.SubService.PublicTransportTram;
+                default:
+                    return ItemClass.SubService.None;
+            }
+        }
+
+        public static string getStationName(uint stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, bool excludeCargo = false)
+        {
+            string savedName = TLMStopsExtension.instance.getStopName(stopId, lineId);
+            if (savedName != null)
+            {
+                serviceFound = ItemClass.Service.PublicTransport;
+                subserviceFound = toSubService(Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_transportType);
+                prefix = "";
+                buildingID = 0;
+                return savedName;
+            }
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-            ushort buildingId = getStationBuilding(stopId, ss, excludeCargo);
+            buildingID = getStationBuilding(stopId, ss, excludeCargo);
 
             Vector3 location = nn.m_position;
-            if (buildingId > 0)
+            if (buildingID > 0)
             {
-                return getBuildingName(buildingId, out serviceFound, out subserviceFound, usePrefix);
+                return getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix);
             }
             else {
                 serviceFound = ItemClass.Service.None;
@@ -1293,13 +1378,35 @@ namespace Klyte.TransportLinesManager
                 int dId = dm.GetDistrict(location);
                 if (dId > 0)
                 {
+                    prefix = "[D]";
                     District d = dm.m_districts.m_buffer[dId];
                     return dm.GetDistrictName(dId);
                 }
-                else {
+                else
+                {
+                    prefix = "";
                     return "[X=" + location.x + "|Y=" + location.y + "|Z=" + location.z + "]";
                 }
             }
+        }
+
+        public static string getStationName(ushort stopId, ushort lineId, ItemClass.SubService ss)
+        {
+            ItemClass.SubService subServ;
+            ItemClass.Service serv;
+            string prefix;
+            ushort buildingId;
+            return getStationName(stopId, lineId, ss, out serv, out subServ, out prefix, out buildingId, true);
+        }
+
+        public static string getFullStationName(ushort stopId, ushort lineId, ItemClass.SubService ss)
+        {
+            ItemClass.SubService subServ;
+            ItemClass.Service serv;
+            string prefix;
+            ushort buildingId;
+            string result = getStationName(stopId, lineId, ss, out serv, out subServ, out prefix, out buildingId, true);
+            return string.IsNullOrEmpty(prefix) ? result : prefix + " " + result;
         }
 
 
@@ -1324,7 +1431,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static ushort getStationBuilding(uint stopId, ItemClass.SubService ss, bool excludeCargo = false)
+        public static ushort getStationBuilding(uint stopId, ItemClass.SubService ss, bool excludeCargo = false, bool restrictToTransportType = false)
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
@@ -1339,7 +1446,7 @@ namespace Klyte.TransportLinesManager
                     buildingId = tempBuildingId;
                 }
             }
-            if (buildingId == 0)
+            if (buildingId == 0 && !restrictToTransportType)
             {
                 tempBuildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active, Building.Flags.Untouchable);
                 if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
@@ -1758,7 +1865,7 @@ namespace Klyte.TransportLinesManager
             UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)
             {
-                TLMUtils.doErrorLog("Could not find resource: " + name);                
+                TLMUtils.doErrorLog("Could not find resource: " + name);
                 return null;
             }
 
@@ -1776,7 +1883,7 @@ namespace Klyte.TransportLinesManager
             }
             catch (Exception e)
             {
-                TLMUtils.doErrorLog( "The file could not be read:" + e.Message);
+                TLMUtils.doErrorLog("The file could not be read:" + e.Message);
             }
 
             return null;
