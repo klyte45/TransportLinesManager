@@ -454,6 +454,8 @@ namespace Klyte.TransportLinesManager.UI
             {
                 TLMUtils.setStopName(y, stationNodeId, lineID, () => {
                     stationLabel.text = TLMUtils.getFullStationName(stationNodeId, lineID, ss);
+                    m_autoName = TLMUtils.calculateAutoName(lineID);
+                    lineInfoPanel.autoNameLabel.text = autoName;
                 });
             };
 

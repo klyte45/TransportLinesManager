@@ -35,13 +35,21 @@ namespace Klyte.TransportLinesManager.UI
         private UILabel viagensEvitadasLabel;
         private UILabel passageirosEturistasLabel;
         private UILabel veiculosLinhaLabel;
-        private UILabel autoNameLabel;
+        private UILabel m_autoNameLabel;
         private UILabel vehicleQuantitySetLabel;
         //private UILabel generalDebugLabel;
         private UIDropDown lineTime;
         private UITextField lineNameField;
         private UIColorField lineColorPicker;
         private AsyncAction daytimeChange;
+
+        public UILabel autoNameLabel
+        {
+            get
+            {
+                return m_autoNameLabel;
+            }
+        }
 
         public Transform transform
         {
@@ -198,7 +206,7 @@ namespace Klyte.TransportLinesManager.UI
                 lineNumberLabel.textColor = new Color(1, 1, 1, 1);
                 m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine].m_lineNumber = num;
                 m_linearMap.setLineNumberCircle(num, prefixo, sep, sufixo, nonPrefix, zeros, invertPrefixSuffix);
-                autoNameLabel.text = m_linearMap.autoName;
+                m_autoNameLabel.text = m_linearMap.autoName;
 
                 if (prefixo != ModoNomenclatura.Nenhum)
                 {
@@ -399,17 +407,17 @@ namespace Klyte.TransportLinesManager.UI
                 TLMVehiclesLineManager.instance[this.lineIdSelecionado.TransportLine] = int.Parse(vehicleQuantitySet.text);
             };
 
-            TLMUtils.createUIElement<UILabel>(ref autoNameLabel, lineInfoPanel.transform);
-            autoNameLabel.autoSize = false;
-            autoNameLabel.relativePosition = new Vector3(10f, 180f);
-            autoNameLabel.textAlignment = UIHorizontalAlignment.Left;
-            autoNameLabel.prefix = Locale.Get("TLM_GENERATED_AUTO_NAME") + ": ";
-            autoNameLabel.width = 350;
-            autoNameLabel.height = 100;
-            autoNameLabel.name = "AutoNameLabel";
-            autoNameLabel.textScale = 0.8f;
-            autoNameLabel.wordWrap = true;
-            autoNameLabel.clipChildren = false;
+            TLMUtils.createUIElement<UILabel>(ref m_autoNameLabel, lineInfoPanel.transform);
+            m_autoNameLabel.autoSize = false;
+            m_autoNameLabel.relativePosition = new Vector3(10f, 180f);
+            m_autoNameLabel.textAlignment = UIHorizontalAlignment.Left;
+            m_autoNameLabel.prefix = Locale.Get("TLM_GENERATED_AUTO_NAME") + ": ";
+            m_autoNameLabel.width = 350;
+            m_autoNameLabel.height = 100;
+            m_autoNameLabel.name = "AutoNameLabel";
+            m_autoNameLabel.textScale = 0.8f;
+            m_autoNameLabel.wordWrap = true;
+            m_autoNameLabel.clipChildren = false;
 
             lineColorPicker = GameObject.Instantiate(PublicTransportWorldInfoPanel.FindObjectOfType<UIColorField>().gameObject).GetComponent<UIColorField>();
             //				
@@ -733,7 +741,7 @@ namespace Klyte.TransportLinesManager.UI
             Show();
             m_controller.defaultListingLinesPanel.Hide();
 
-            autoNameLabel.text = m_linearMap.autoName;
+            m_autoNameLabel.text = m_linearMap.autoName;
             vehicleQuantitySet.text = TLMVehiclesLineManager.instance[this.lineIdSelecionado.TransportLine].ToString();
             vehicleQuantitySet.area = new Vector4(150, 150, 50, 20);
             vehicleQuantitySet.color = Color.gray;

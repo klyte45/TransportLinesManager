@@ -1004,9 +1004,9 @@ namespace Klyte.TransportLinesManager
             int middle;
             if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && CalculateSimmetry(ss, stopsCount, t, out middle))
             {
-                string station1Name = getFullStationName(t.GetStop(middle), lineIdx, ss);
+                string station1Name = getStationName(t.GetStop(middle), lineIdx, ss);
 
-                string station2Name = getFullStationName(t.GetStop(middle + stopsCount / 2), lineIdx, ss);
+                string station2Name = getStationName(t.GetStop(middle + stopsCount / 2), lineIdx, ss);
 
                 return station1Name + " - " + station2Name;
             }

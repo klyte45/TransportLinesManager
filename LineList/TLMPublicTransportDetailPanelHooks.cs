@@ -1191,7 +1191,7 @@ namespace Klyte.TransportLinesManager.LineList
             TextList<string> prefixAssets = null;
             UITextField prefixName = null;
             UISlider budgetMultiplier = null;
-            UISlider ticketPrice = null;
+            UITextField ticketPrice = null;
             UIHelperExtension group2sub = null;
             UIHelperExtension assetSelectionGroup = null;
             TLMUtils.doLog("INIT loadPrefixAssetList");
@@ -1210,11 +1210,7 @@ namespace Klyte.TransportLinesManager.LineList
                 budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().autoSize = true;
                 budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().wordWrap = false;
                 budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().text = string.Format("x{0:0.00}", budgetMultiplier.value);
-                ticketPrice.value = getTicketPriceFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
-                ticketPrice.transform.parent.GetComponentInChildren<UILabel>().prefix = Locale.Get("TLM_TICKET_PRICE_LABEL") + ": ";
-                ticketPrice.transform.parent.GetComponentInChildren<UILabel>().autoSize = true;
-                ticketPrice.transform.parent.GetComponentInChildren<UILabel>().wordWrap = false;
-                ticketPrice.transform.parent.GetComponentInChildren<UILabel>().text = ticketPrice.value.ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
+                ticketPrice.text = (getTicketPriceFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1))).ToString();
                 if (getConfigIndexFromDropDownSelection(m_systemTypeDropDown.selectedIndex) != TLMCW.ConfigIndex.METRO_CONFIG)
                 {
                     ((UIPanel)assetSelectionGroup.self).enabled = true;
@@ -1279,11 +1275,13 @@ namespace Klyte.TransportLinesManager.LineList
                 budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().text = string.Format("x{0:0.00}", f);
                 setBudgetMultiplierDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), f);
             });
-            ticketPrice = (UISlider)group2sub.AddSlider(Locale.Get("TLM_TICKET_PRICE_LABEL"), 0.05f, 40, 0.05f, 1, delegate (float f)
-            {
-                ticketPrice.transform.parent.GetComponentInChildren<UILabel>().text = f.ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
-                setTicketPriceDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), f);
-            });
+            ticketPrice = group2sub.AddTextField(Locale.Get("TLM_TICKET_PRICE_LABEL"), delegate (string s)
+           {
+               uint f = uint.Parse("0" + s);
+               setTicketPriceDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), f);
+           });
+            ticketPrice.numericalOnly = true;
+            ticketPrice.maxLength = 7;
 
             group2sub.AddSpace(10);
             foreach (Transform t in ((UIPanel)group2sub.self).transform)
@@ -1399,9 +1397,9 @@ namespace Klyte.TransportLinesManager.LineList
         {
             TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setBudgetMultiplier(prefix, (uint)(value * 100), global);
         }
-        private void setTicketPriceDropDownSelection(int index, uint prefix, float value, bool global = false)
+        private void setTicketPriceDropDownSelection(int index, uint prefix, uint value, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setTicketPrice(prefix, (uint)(value * 100), global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setTicketPrice(prefix, value, global);
         }
         private string getPrefixNameFromDropDownSelection(int index, uint prefix, bool global = false)
         {
@@ -1411,9 +1409,9 @@ namespace Klyte.TransportLinesManager.LineList
         {
             return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBudgetMultiplier(prefix, global) / 100f;
         }
-        private float getTicketPriceFromDropDownSelection(int index, uint prefix, bool global = false)
+        private uint getTicketPriceFromDropDownSelection(int index, uint prefix, bool global = false)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getTicketPrice(prefix, global) / 100f;
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getTicketPrice(prefix, global);
         }
         private TLMConfigWarehouse.ConfigIndex getConfigIndexFromDropDownSelection(int index)
         {
