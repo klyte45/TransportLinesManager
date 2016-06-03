@@ -39,7 +39,7 @@ namespace Klyte.TransportLinesManager.LineList
         private bool m_mouseIsOver;
 
         private List<uint> m_prefixesServedList;
-        
+
 
         private UIButton m_addPrefixButton;
         private UIButton m_removePrefixButton;
@@ -87,7 +87,7 @@ namespace Klyte.TransportLinesManager.LineList
             this.m_buildingID = id;
         }
 
-       
+
 
         public void RefreshData()
         {
@@ -201,7 +201,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_districtName.pivot = UIPivotPoint.MiddleCenter;
             m_districtName.wordWrap = true;
             m_districtName.autoHeight = true;
-            
+
 
 
             GameObject.Destroy(base.Find<UILabel>("LinePassengers").gameObject);
@@ -301,7 +301,7 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.createUIElement<UIButton>(ref m_removeAllPrefixesButton, transform);
             m_removeAllPrefixesButton.pivot = UIPivotPoint.TopRight;
             m_removeAllPrefixesButton.relativePosition = new Vector3(780, 20);
-            m_removeAllPrefixesButton.text = Locale.Get("TLM_REMOVE_ALL_SHORT"); 
+            m_removeAllPrefixesButton.text = Locale.Get("TLM_REMOVE_ALL_SHORT");
             m_removeAllPrefixesButton.textScale = 0.6f;
             m_removeAllPrefixesButton.width = 50;
             m_removeAllPrefixesButton.height = 15;
@@ -345,7 +345,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnRename(UIComponent comp, string text)
         {
-            Singleton<BuildingManager>.instance.SetBuildingName(this.m_buildingID, text);
+            TLMUtils.setBuildingName(this.m_buildingID, text, () => { });
         }
 
         private void OnLineChanged(ushort id)

@@ -183,7 +183,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAI
             foreach (ushort i in buildings)
             {
                 DepotAI buildingAI = bm.m_buildings.m_buffer[i].Info.GetAI() as DepotAI;
-                if (buildingAI != null)
+                TransportStationAI buildingAI2 = bm.m_buildings.m_buffer[i].Info.GetAI() as TransportStationAI;
+                if (buildingAI != null && (buildingAI2 == null || buildingAI2.m_transportInfo.m_transportType != TransportInfo.TransportType.Bus))
                 {
                     saida.Add(i);
                 }
@@ -214,7 +215,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAI
             List<ushort> saida = getAllDepotsFromCity(t);
             foreach (ushort i in dic.Keys)
             {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("dic[i]: {{{0}}} ||  prefix = {1} || contains = {2}  ",string.Join(",", dic[i].Select(x => x.ToString()).ToArray()),prefix, dic[i].Contains(prefix));
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("dic[i]: {{{0}}} ||  prefix = {1} || contains = {2}  ", string.Join(",", dic[i].Select(x => x.ToString()).ToArray()), prefix, dic[i].Contains(prefix));
                 if (!dic[i].Contains(prefix))
                 {
                     saida.Remove(i);
