@@ -105,6 +105,13 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public static string getLineStringId(ushort lineIdx)
+        {
+            ModoNomenclatura prefix; Separador s; ModoNomenclatura suffix; ModoNomenclatura nonPrefix; bool zeros; bool invertPrefixSuffix;
+            getLineNamingParameters(lineIdx, out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix);
+            return TLMUtils.getString(prefix, s, suffix, nonPrefix, Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_lineNumber, zeros, invertPrefixSuffix);
+        }
+
         public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix)
         {
             string nil;
@@ -226,9 +233,13 @@ namespace Klyte.TransportLinesManager
             return noneFound;
         }
         //GetNearStopPoints
-        public static bool GetNearStopPoints(Vector3 pos, float maxDistance, ref List<ushort> stopsFound, int depth = 0)
+        public static bool GetNearStopPoints(Vector3 pos, float maxDistance, ref List<ushort> stopsFound, ItemClass.SubService[] subservicesAllowed = null, int maxDepht = 4, int depth = 0)
         {
-            if (depth >= 4) return false;
+            if (depth >= maxDepht) return false;
+            if (subservicesAllowed == null)
+            {
+                subservicesAllowed = new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTrain, ItemClass.SubService.PublicTransportMetro };
+            }
             int num = Mathf.Max((int)((pos.x - maxDistance) / 64f + 135f), 0);
             int num2 = Mathf.Max((int)((pos.z - maxDistance) / 64f + 135f), 0);
             int num3 = Mathf.Min((int)((pos.x + maxDistance) / 64f + 135f), 269);
@@ -246,9 +257,7 @@ namespace Klyte.TransportLinesManager
                     {
                         NetInfo info = nm.m_nodes.m_buffer[(int)stopId].Info;
 
-                        if ((info.m_class.m_service == ItemClass.Service.PublicTransport) &&
-                            ((info.m_class.m_subService == ItemClass.SubService.PublicTransportTrain)
-                            || (info.m_class.m_subService == ItemClass.SubService.PublicTransportMetro)))
+                        if ((info.m_class.m_service == ItemClass.Service.PublicTransport) && subservicesAllowed.Contains(info.m_class.m_subService))
                         {
                             ushort transportLine = nm.m_nodes.m_buffer[(int)stopId].m_transportLine;
                             if (transportLine != 0)
@@ -259,7 +268,7 @@ namespace Klyte.TransportLinesManager
                                     if (num8 < maxDistance * maxDistance)
                                     {
                                         stopsFound.Add(stopId);
-                                        GetNearStopPoints(nm.m_nodes.m_buffer[(int)stopId].m_position, maxDistance, ref stopsFound, depth + 1);
+                                        GetNearStopPoints(nm.m_nodes.m_buffer[(int)stopId].m_position, maxDistance, ref stopsFound, subservicesAllowed, maxDepht, depth + 1);
                                         noneFound = false;
                                     }
                                 }
@@ -286,10 +295,10 @@ namespace Klyte.TransportLinesManager
         }
 
 
-        public static Vector2 gridPosition81Tiles(Vector3 pos)
+        public static Vector2 gridPosition81Tiles(Vector3 pos, float invResolution = 24f)
         {
-            int x = Mathf.Max((int)((pos.x) / 64f + 243f), 0);
-            int z = Mathf.Max((int)((-pos.z) / 64f + 243f), 0);
+            int x = Mathf.Max((int)((pos.x) / invResolution + 648), 0);
+            int z = Mathf.Max((int)((-pos.z) / invResolution + 648), 0);
             return new Vector2(x, z);
         }
 
@@ -536,7 +545,14 @@ namespace Klyte.TransportLinesManager
 
         public static void doErrorLog(string format, params object[] args)
         {
-            Debug.LogErrorFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+            if (TransportLinesManagerMod.instance != null)
+            {
+                Debug.LogErrorFormat("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+            }
+            else
+            {
+                Console.WriteLine("TLMv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+            }
 
         }
         public static void createUIElement<T>(ref T uiItem, Transform parent) where T : Component
@@ -1249,11 +1265,12 @@ namespace Klyte.TransportLinesManager
                         return false;
                     }
                 }
+                return true;
             }
             else {
                 return false;
             }
-            return true;
+
         }
 
         public static readonly ItemClass.Service[] seachOrder = new ItemClass.Service[]{

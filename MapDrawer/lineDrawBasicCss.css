@@ -1,35 +1,58 @@
-﻿* {
-    font-family: 'AvantGarde Md BT', Arial;
-    font-weight: bold;
+﻿
+* {
+    color: rgba(0, 0, 0, 0.5);
+    font-family: klytetica lt sss;
 }
 
 div.stationContainer {
-    position: absolute;
     display: table;
-    transform-origin: left center 0px;
-    transform: translate(8px, -17px);
+    position: absolute;
+    transform-origin: left top 0;
 }
 
     div.stationContainer > p {
         display: table-cell;
+        font-size: 9px;
+        height: auto;
+        left: 0;
+        padding: 0;
         position: relative;
-        vertical-align: middle;
-        line-height: 17px;
-        padding: 0px;
-        left: 0px;
-        width: 80px;
-        height: 50px;
         text-align: start;
-        transform-origin: left center 0px;
-        text-shadow: 1px 1px 1px white, -1px -1px 1px white, -1px 1px 1px white, 1px -1px 1px white;
+        text-shadow: 0.45px 0.45px 0 white, -0.45px 0.45px 0 white, -0.45px -0.45px 0 white, 0.45px -0.45px 0 white;
+        transform-origin: left top 0;
+        vertical-align: middle;
+        width: 20px;
     }
 
 svg path {
-    filter: drop-shadow(-1.5px 1.5px 0 #fff) drop-shadow(-1.5px -1.5px 0 #fff) drop-shadow(1.5px 1.5px 0 #fff) drop-shadow(1.5px -1.5px 0 #fff);
+    filter: drop-shadow(-0.25px 0.25px 0 #fff) drop-shadow(-0.25px -0.25px 0 #fff) drop-shadow(0.25px 0.25px 0 #fff) drop-shadow(0.25px -0.25px 0 #fff);
 }
+
 
 div.stationContainer > p > b {
     display: flex;
-    transform: scale(-1, -1);
     font-weight: inherit;
+    text-align: right;
+    transform: scale(-1, -1);
+}
+
+.pathMetro {
+    stroke-width: 2.5px;
+    fill: none;
+}
+
+.pathTrain {
+    stroke-width: 5px;
+    fill: none;
+}
+
+.pathTram {
+    stroke-width: 1px;
+    fill: none;
+}
+
+.pathShip {
+    stroke-width: 4px;
+    fill: none;
+    stroke-dasharray: 15,10;
 }
