@@ -1,4 +1,6 @@
-﻿5.4.1
+﻿5.4.2
+    -Solved: Not loading panel when creating a new game
+5.4.1
     -Removed bus stations from depot list.
 5.4
     -Added direct edit of station names from linear map - Includes bus and tram stops

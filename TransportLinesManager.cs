@@ -565,7 +565,7 @@ namespace Klyte.TransportLinesManager
         private void loadTLMLocale()
         {
             TLMLocaleUtils.loadLocale(LocaleManager.instance.language);
-        }  
+        }
 
         private T getSelectedIndex<T>(params TextList<T>[] boxes)
         {
@@ -694,13 +694,17 @@ namespace Klyte.TransportLinesManager
 
         public void OnLevelLoaded(LoadMode mode)
         {
-            if (mode != LoadMode.LoadGame)
+            TLMUtils.doLog("LEVEL LOAD");
+            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame)
             {
+                TLMUtils.doLog("NOT GAME ({0})", mode);
                 return;
             }
             if (TLMController.instance == null)
             {
+                TLMUtils.doLog("Load Controller");
                 TLMController.instance = new TLMController();
+                TLMUtils.doLog("Controller loaded? {0}", TLMController.instance != null);
             }
 
             if (TLMController.taTLM == null)
@@ -723,7 +727,7 @@ namespace Klyte.TransportLinesManager
                 TLMTicketOverride.EnableHooks();
             }
 
-            //			Log.debug ("LEVELLOAD");
+            //			
         }
 
         public void OnLevelUnloading()

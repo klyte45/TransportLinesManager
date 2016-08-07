@@ -224,27 +224,27 @@ namespace Klyte.TransportLinesManager.UI
                 ushort stopId = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding;
                 var labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
                 float destX = stationOffsetX[stopId] - labelStation.width / 4 * 3;
-                if (Singleton<TransportManager>.instance.m_lines.m_buffer[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_transportLine].GetStop(0) == stopId && (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != Vehicle.Flags.None)
+                if (Singleton<TransportManager>.instance.m_lines.m_buffer[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_transportLine].GetStop(0) == stopId && (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != 0)
                 {
                     destX = stationOffsetX[TransportLine.GetPrevStop(stopId)] + labelStation.width / 4;
                 }
                 float yOffset = vehicleYbaseOffset;
                 int busesOnStation = vehiclesOnStation.ContainsKey(stopId) ? vehiclesOnStation[stopId] : 0;
-                if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != Vehicle.Flags.None)
+                if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != 0)
                 {
                     ushort prevStop = TransportLine.GetPrevStop(stopId);
                     destX = stationOffsetX[prevStop] - labelStation.width / 4;
                     busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(prevStop) ? vehiclesOnStation[prevStop] : 0);
                     vehiclesOnStation[prevStop] = busesOnStation + 1;
                 }
-                else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Arriving) != Vehicle.Flags.None)
+                else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Arriving) != 0)
                 {
                     destX += labelStation.width / 4;
                     ushort nextStop = TransportLine.GetNextStop(stopId);
                     busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(nextStop) ? vehiclesOnStation[nextStop] : 0);
                     vehiclesOnStation[nextStop] = busesOnStation + 1;
                 }
-                else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Leaving) != Vehicle.Flags.None)
+                else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Leaving) != 0)
                 {
                     destX -= labelStation.width / 4;
                     ushort prevStop = TransportLine.GetPrevStop(stopId);

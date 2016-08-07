@@ -100,6 +100,7 @@ namespace Klyte.TransportLinesManager
         {
             if (!GameObject.FindGameObjectWithTag("GameController") || ((GameObject.FindGameObjectWithTag("GameController").GetComponent<ToolController>()).m_mode & ItemClass.Availability.Game) == ItemClass.Availability.None)
             {
+                TLMUtils.doErrorLog("GameController NOT FOUND!");
                 return;
             }
             if (!initialized)
