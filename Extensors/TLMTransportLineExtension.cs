@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using ColossalFramework.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,11 +22,6 @@ namespace Klyte.TransportLinesManager.Extensors
             }
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading TransportLine Hooks!");
             AddRedirect(typeof(TransportLine), typeof(TLMTransportLine).GetMethod("SimulationStep", allFlags), ref redirects);
-            AddRedirect(typeof(TransportLine), typeof(TLMTransportLine).GetMethod("CheckPrevPath", allFlags), ref redirects);
-
-            AddRedirect(typeof(TLMTransportLine), typeof(TransportLine).GetMethod("GetLastStop", allFlags), ref redirects);
-
-
         }
 
         public static void DisableHooks()
@@ -129,6 +125,8 @@ namespace Klyte.TransportLinesManager.Extensors
     class TLMTransportLine
     {
         private static Array16<int> m_linesCost = new Array16<int>(256);
+        private static TransportLine.Flags[] m_flagsLastState = new TransportLine.Flags[256];
+        private static bool m_initialized = false;
 
         ushort m_stops;
         TransportLine.Flags m_flags;
@@ -142,6 +140,28 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public void SimulationStep(ushort lineID)
         {
+            if (!m_initialized)
+            {
+                m_initialized = true;
+                for (int i = 0; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
+                {
+                    m_flagsLastState[i] = Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_flags;
+                }
+            }
+
+            var flagsChanged = (m_flagsLastState[lineID] ^ Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags);
+            m_flagsLastState[lineID] = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags;
+
+            if ((flagsChanged & TransportLine.Flags.Complete) != TransportLine.Flags.None && (m_flagsLastState[lineID] & TransportLine.Flags.CustomColor) == TransportLine.Flags.None)
+            {
+                TLMController.instance.AutoColor(lineID);
+            }
+
+            if ((flagsChanged & TransportLine.Flags.Complete) != TransportLine.Flags.None && (m_flagsLastState[lineID] & TransportLine.Flags.CustomName) == TransportLine.Flags.None)
+            {
+                TLMController.instance.AutoName(lineID);
+            }
+
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("LTLMTransportLine SimulationStep!");
             TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info;
             TLMCW.ConfigIndex lineType = TLMCW.getConfigIndexForLine(lineID);
@@ -297,68 +317,6 @@ namespace Klyte.TransportLinesManager.Extensors
                 Singleton<TransportManager>.instance.m_passengers[(int)info.m_transportType].Add(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers);
                 Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.Reset();
             }
-        }
-
-        public ushort GetLastStop() { return 0; }
-
-        public bool CheckPrevPath(int stopIndex, out bool failed)
-        {
-            failed = false;
-            if (this.m_stops != 0)
-            {
-                ushort num;
-                if (stopIndex == -1)
-                {
-                    if ((this.m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None)
-                    {
-                        num = this.GetLastStop();
-                    }
-                    else
-                    {
-                        num = this.m_stops;
-                    }
-                }
-                else
-                {
-                    num = this.m_stops;
-                    for (int i = 0; i < stopIndex; i++)
-                    {
-                        num = TransportLine.GetNextStop(num);
-                        if (num == this.m_stops)
-                        {
-                            break;
-                        }
-                    }
-                }
-                if (num == 0)
-                {
-                    return false;
-                }
-                ushort prevSegment = TransportLine.GetPrevSegment(num);
-                if (prevSegment == 0)
-                {
-                    return true;
-                }
-                if (this.Info.m_transportType != TransportInfo.TransportType.Ship)
-                {
-                    NetManager instance = Singleton<NetManager>.instance;
-                    if ((this.m_flags & TransportLine.Flags.Temporary) != TransportLine.Flags.None && (instance.m_segments.m_buffer[(int)prevSegment].m_flags & NetSegment.Flags.WaitingPath) != NetSegment.Flags.None)
-                    {
-                        return false;
-                    }
-                    if ((instance.m_segments.m_buffer[(int)prevSegment].m_flags & NetSegment.Flags.PathFailed) != NetSegment.Flags.None)
-                    {
-                        failed = true;
-                        return false;
-                    }
-                    if (instance.m_segments.m_buffer[(int)prevSegment].m_path == 0u)
-                    {
-                        failed = true;
-                        return false;
-                    }
-                }
-            }
-            return true;
         }
     }
 }

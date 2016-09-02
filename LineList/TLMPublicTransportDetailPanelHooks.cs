@@ -125,6 +125,7 @@ namespace Klyte.TransportLinesManager.LineList
         }
         #endregion
     }
+
     class TLMPublicTransportDetailPanel : UICustomControl
     {
         private enum LineSortCriterion
@@ -805,6 +806,7 @@ namespace Klyte.TransportLinesManager.LineList
             if (this.m_Strip.selectedIndex != idx)
             {
                 this.m_Strip.selectedIndex = idx;
+                RefreshLines();
             }
         }
 

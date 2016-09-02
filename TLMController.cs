@@ -140,32 +140,12 @@ namespace Klyte.TransportLinesManager
                 m_depotInfoPanel.updateBidings();
             }
 
-            if (lastLineCount != tm.m_lineCount && (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED) || TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_NAME_ENABLED)))
-            {
-                CheckForAutoChanges();
-            }
             lastLineCount = tm.m_lineCount;
             TLMPublicTransportDetailPanelHooks.instance.update();
 
             return;
         }
-        const int maxTryLoads = 100;
-
-        void CheckForAutoChanges()
-        {
-            for (ushort i = 0; i < tm.m_lines.m_size; i++)
-            {
-                TransportLine t = tm.m_lines.m_buffer[(int)i];
-                if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_NAME_ENABLED) && ((t.m_flags & (TransportLine.Flags.CustomName)) == TransportLine.Flags.None) && ((t.m_flags & (TransportLine.Flags.Complete)) != TransportLine.Flags.None))
-                {
-                    AutoName(i);
-                }
-                if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED) && ((t.m_flags & (TransportLine.Flags.CustomColor)) == TransportLine.Flags.None) && ((t.m_flags & (TransportLine.Flags.Created)) != TransportLine.Flags.None))
-                {
-                    AutoColor(i);
-                }
-            }
-        }
+        const int maxTryLoads = 100;        
 
         public Color AutoColor(ushort i)
         {

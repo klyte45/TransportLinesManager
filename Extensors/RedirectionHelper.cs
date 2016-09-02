@@ -147,22 +147,22 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.GetField | BindingFlags.GetProperty;
 
-        public static void AddRedirect(Type type1, MethodInfo method, ref Dictionary<MethodInfo, RedirectCallsState> redirects, string type1MethodName = null)
+        public static void AddRedirect(Type target, MethodInfo newMethod, ref Dictionary<MethodInfo, RedirectCallsState> redirects, string type1MethodName = null)
         {
-            var parameters = method.GetParameters();
+            var parameters = newMethod.GetParameters();
 
             Type[] types;
-            if (parameters.Length > 0 && parameters[0].ParameterType == type1)
+            if (parameters.Length > 0 && parameters[0].ParameterType == target)
                 types = parameters.Skip(1).Select(p => p.ParameterType).ToArray();
             else
                 types = parameters.Select(p => p.ParameterType).ToArray();
 
-            var originalMethod = type1.GetMethod(type1MethodName != null ? type1MethodName : method.Name, allFlags, null, types, null);
+            var originalMethod = target.GetMethod(type1MethodName != null ? type1MethodName : newMethod.Name, allFlags, null, types, null);
             if (originalMethod == null)
             {
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Cannot find " + method.Name);
+                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Cannot find " + newMethod.Name);
             }
-            redirects.Add(originalMethod, RedirectionHelper.RedirectCalls(originalMethod, method));
+            redirects.Add(originalMethod, RedirectionHelper.RedirectCalls(originalMethod, newMethod));
         }
 
         public static void AddRedirectWithNewLocationForOldMethod(MethodInfo originalMethod, MethodInfo hookedMethod, MethodInfo newLocationForOriginalMethod, ref Dictionary<MethodInfo, RedirectCallsState> redirects)
