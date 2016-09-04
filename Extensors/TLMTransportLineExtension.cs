@@ -152,14 +152,17 @@ namespace Klyte.TransportLinesManager.Extensors
             var flagsChanged = (m_flagsLastState[lineID] ^ Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags);
             m_flagsLastState[lineID] = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags;
 
-            if ((flagsChanged & TransportLine.Flags.Complete) != TransportLine.Flags.None && (m_flagsLastState[lineID] & TransportLine.Flags.CustomColor) == TransportLine.Flags.None)
+            if ((flagsChanged & TransportLine.Flags.Complete) != TransportLine.Flags.None)
             {
-                TLMController.instance.AutoColor(lineID);
-            }
+                if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
+                {
+                    TLMController.instance.AutoColor(lineID);
+                }
 
-            if ((flagsChanged & TransportLine.Flags.Complete) != TransportLine.Flags.None && (m_flagsLastState[lineID] & TransportLine.Flags.CustomName) == TransportLine.Flags.None)
-            {
-                TLMController.instance.AutoName(lineID);
+                if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
+                {
+                    TLMUtils.setLineName(lineID, TLMUtils.calculateAutoName(lineID));
+                }
             }
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("LTLMTransportLine SimulationStep!");

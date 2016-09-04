@@ -1,4 +1,11 @@
-﻿5.4.2
+﻿5.4.3
+    - Solved: New lines not shown in line detail listing panel
+    - Solved: Auto Name is working on line complete
+    - UI Issue: Line time is now checkboxes (as default also are)
+    - UI Issue: Line budget now isn't hiding on line's line info bottom
+    - UI Issue: Now the lines count changes in each tab
+    - UI Issue: Hide/show lines works again
+5.4.2
     -Solved: Not loading panel when creating a new game
 5.4.1
     -Removed bus stations from depot list.

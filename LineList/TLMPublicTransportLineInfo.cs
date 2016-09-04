@@ -29,7 +29,13 @@ namespace Klyte.TransportLinesManager.LineList
 
         private UITextField m_LineNameField;
 
-        private UIDropDown m_LineTime;
+        private UICheckBox m_DayLine;
+
+        private UICheckBox m_NightLine;
+
+        private UICheckBox m_DayNightLine;
+
+        private UICheckBox m_DisabledLine;
 
         private UILabel m_LineStops;
 
@@ -134,12 +140,12 @@ namespace Klyte.TransportLinesManager.LineList
             {
 
                 bool isRowVisible;
+
                 if (this.m_LineOperation == null || this.m_LineOperation.completedOrFailed)
                 {
                     bool dayActive;
                     bool nightActive;
                     Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].GetActive(out dayActive, out nightActive);
-                    this.m_LineTime.selectedIndex = ((dayActive ? 0 : 2) + (nightActive ? 0 : 1));
                     isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(dayActive, nightActive) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber);
                     if (!dayActive || !nightActive)
                     {
@@ -148,6 +154,11 @@ namespace Klyte.TransportLinesManager.LineList
                     else {
                         m_LineColor.normalBgSprite = "";
                     }
+                    this.m_DayLine.isChecked = (dayActive && !nightActive);
+                    this.m_NightLine.isChecked = (nightActive && !dayActive);
+                    this.m_DayNightLine.isChecked = (dayActive && nightActive);
+                    this.m_DisabledLine.isChecked = (!dayActive && !nightActive);
+                    m_DisabledLine.relativePosition = new Vector3(730, 8);
                 }
                 else
                 {
@@ -175,7 +186,6 @@ namespace Klyte.TransportLinesManager.LineList
                 float prefixMultiplier = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplier(prefix) / 100f;
 
                 this.m_budgetEffective.text = string.Format("{0:0%}", overallBudget * prefixMultiplier);//585+1/7 = frames/week                
-                m_budgetEffective.relativePosition = m_LineVehicles.relativePosition + new Vector3(0, 20, 0);
 
                 string vehTooltip = string.Format("{0} {1}", this.m_LineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
 
@@ -208,7 +218,7 @@ namespace Klyte.TransportLinesManager.LineList
                 TLMLineUtils.setLineNumberCircleOnRef(lineNumber, prefixMode, sep, suffix, nonPrefix, zerosEsquerda, m_LineNumberFormatted, invertPrefixSuffix, 0.8f);
                 m_LineColor.normalFgSprite = bgSprite;
 
-                m_budgetEffective.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN"), TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportType(info.m_transportType)), TLMUtils.getStringOptionsForPrefix(prefixMode, true)[prefix+1], overallBudget, prefixMultiplier, overallBudget * prefixMultiplier);
+                m_budgetEffective.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN"), TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportType(info.m_transportType)), TLMUtils.getStringOptionsForPrefix(prefixMode, true)[prefix + 1], overallBudget, prefixMultiplier, overallBudget * prefixMultiplier);
 
                 this.m_PassengerCount = averageCount + averageCount2;
                 if (colors)
@@ -219,7 +229,17 @@ namespace Klyte.TransportLinesManager.LineList
                 {
                     this.m_LineIsVisible.isChecked = ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_flags & TransportLine.Flags.Hidden) == TransportLine.Flags.None);
                 }
+                if (this.m_LineOperation == null || this.m_LineOperation.completedOrFailed)
+                {
+                    bool flag;
+                    bool flag2;
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].GetActive(out flag, out flag2);
+                    this.m_DayLine.isChecked = (flag && !flag2);
+                    this.m_NightLine.isChecked = (flag2 && !flag);
+                    this.m_DayNightLine.isChecked = (flag && flag2);
+                }
 
+                m_budgetEffective.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 19, 0);
             }
         }
 
@@ -308,31 +328,69 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_LineName.text = this.m_LineNameField.text;
             };
 
-            GameObject.Destroy(base.Find<UICheckBox>("DayLine").gameObject);
-            GameObject.Destroy(base.Find<UICheckBox>("NightLine").gameObject);
-            GameObject.Destroy(base.Find<UICheckBox>("DayNightLine").gameObject);
+
+            this.m_DayLine = base.Find<UICheckBox>("DayLine");
+            this.m_NightLine = base.Find<UICheckBox>("NightLine");
+            this.m_DayNightLine = base.Find<UICheckBox>("DayNightLine");
+            m_DisabledLine = GameObject.Instantiate(base.Find<UICheckBox>("DayLine"));
+            m_DisabledLine.transform.SetParent(m_DayLine.transform.parent);
+            this.m_DayLine.eventClicked += delegate (UIComponent comp, UIMouseEventParameter c)
+            {
+                ushort lineID = this.m_LineID;
+                if (Singleton<SimulationManager>.exists && lineID != 0)
+                {
+                    m_LineOperation = Singleton<SimulationManager>.instance.AddAction(delegate
+                    {
+                        changeLineTime(true, false);
+                    });
+                }
+            };
+            this.m_NightLine.eventClicked += delegate (UIComponent comp, UIMouseEventParameter c)
+            {
+                ushort lineID = this.m_LineID;
+                if (Singleton<SimulationManager>.exists && lineID != 0)
+                {
+                    m_LineOperation = Singleton<SimulationManager>.instance.AddAction(delegate
+                    {
+                        changeLineTime(false, true);
+                    });
+                }
+            };
+            this.m_DayNightLine.eventClicked += delegate (UIComponent comp, UIMouseEventParameter c)
+            {
+                ushort lineID = this.m_LineID;
+                if (Singleton<SimulationManager>.exists && lineID != 0)
+                {
+                    m_LineOperation = Singleton<SimulationManager>.instance.AddAction(delegate
+                    {
+                        changeLineTime(true, true);
+                    });
+                }
+            };
 
 
-            this.m_LineTime = UIHelperExtension.CloneBasicDropDownNoLabel(new string[] {
-                Locale.Get("TRANSPORT_LINE_DAYNNIGHT"),
-                 Locale.Get("TRANSPORT_LINE_DAY"),
-                 Locale.Get("TRANSPORT_LINE_NIGHT"),
-                 Locale.Get("TLM_TRANSPORT_LINE_DISABLED")
-            }, changeLineTime, gameObject.GetComponent<UIPanel>());
+            m_DisabledLine.eventClicked += delegate (UIComponent comp, UIMouseEventParameter c)
+            {
+                ushort lineID = this.m_LineID;
+                if (Singleton<SimulationManager>.exists && lineID != 0)
+                {
+                    m_LineOperation = Singleton<SimulationManager>.instance.AddAction(delegate
+                    {
+                        changeLineTime(false, false);
+                    });
+                }
+            };
 
-            m_LineTime.area = new Vector4(630, 3, 140, 33);
 
-            var m_DayLine = base.Find<UICheckBox>("DayLine");
+            m_NightLine.relativePosition = new Vector3(670,8);
+            m_DayNightLine.relativePosition = new Vector3(702,8);
 
-            GameObject.Destroy(base.Find<UICheckBox>("NightLine").gameObject);
-            GameObject.Destroy(base.Find<UICheckBox>("DayNightLine").gameObject);
-            GameObject.Destroy(m_DayLine.gameObject);
 
             this.m_LineStops = base.Find<UILabel>("LineStops");
             this.m_LinePassengers = base.Find<UILabel>("LinePassengers");
             this.m_LineVehicles = base.Find<UILabel>("LineVehicles");
             //m_LinePassengers.relativePosition -= new Vector3(0, 6, 0);
-            m_LineVehicles.relativePosition -= new Vector3(0, 6, 0);
+            m_LineVehicles.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 5, 0);
             m_budgetEffective = GameObject.Instantiate(this.m_LineStops);
             m_budgetEffective.transform.SetParent(m_LineStops.transform.parent);
             //m_LineEarnings = GameObject.Instantiate(this.m_LinePassengers);
@@ -404,7 +462,7 @@ namespace Klyte.TransportLinesManager.LineList
             buttonAutoColor.textScale = 0.6f;
             buttonAutoColor.width = 15;
             buttonAutoColor.height = 15;
-            buttonAutoColor.tooltip = Locale.Get("AUTO_COLOR_SIMPLE_BUTTON_TOOLTIP");
+            buttonAutoColor.tooltip = Locale.Get("TLM_AUTO_COLOR_SIMPLE_BUTTON_TOOLTIP");
             TLMUtils.initButton(buttonAutoColor, true, "ButtonMenu");
             buttonAutoColor.name = "AutoColor";
             buttonAutoColor.isVisible = true;
@@ -498,27 +556,12 @@ namespace Klyte.TransportLinesManager.LineList
         {
             TLMUtils.setLineColor(this.m_LineID, color);
         }
-
-        private void changeLineTime(int selection)
+        private void changeLineTime(bool day, bool night)
         {
             m_LineOperation = Singleton<SimulationManager>.instance.AddAction(delegate
-             {
-                 switch (selection)
-                 {
-                     case 0:
-                         Singleton<TransportManager>.instance.m_lines.m_buffer[(int)m_LineID].SetActive(true, true);
-                         break;
-                     case 1:
-                         Singleton<TransportManager>.instance.m_lines.m_buffer[(int)m_LineID].SetActive(true, false);
-                         break;
-                     case 2:
-                         Singleton<TransportManager>.instance.m_lines.m_buffer[(int)m_LineID].SetActive(false, true);
-                         break;
-                     case 3:
-                         Singleton<TransportManager>.instance.m_lines.m_buffer[(int)m_LineID].SetActive(false, false);
-                         break;
-                 }
-             });
+            {
+                Singleton<TransportManager>.instance.m_lines.m_buffer[(int)m_LineID].SetActive(day, night);
+            });
         }
     }
 }

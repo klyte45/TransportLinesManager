@@ -153,6 +153,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private bool m_Ready;
 
+
         private bool m_LinesUpdated;
 
         private bool[] m_ToggleAllState;
@@ -207,6 +208,20 @@ namespace Klyte.TransportLinesManager.LineList
         private bool m_showNightLines = true;
         private bool m_showDisabledLines = true;
 
+
+        private int m_busCount = 0;
+        private int m_tramCount = 0;
+        private int m_metroCount = 0;
+        private int m_trainCount = 0;
+
+        //TLM
+        private int m_shipCount = 0;
+        private int m_planeCount = 0;
+
+
+        private bool m_isChangingTab;
+
+        private UILabel m_LineCount;
 
         public UIDropDown m_systemTypeDropDown = null;
 
@@ -330,6 +345,8 @@ namespace Klyte.TransportLinesManager.LineList
             //this.m_Strip.tab
             enabled = true;
             TLMUtils.clearAllVisibilityEvents(this.GetComponent<UIPanel>());
+
+            this.m_LineCount = base.Find<UILabel>("LabelLineCount");
 
             m_linesTitle = Find<UIPanel>("LineTitle");
             m_depotsTitle = GameObject.Instantiate<UIPanel>(m_linesTitle);
@@ -814,18 +831,17 @@ namespace Klyte.TransportLinesManager.LineList
         {
             if (Singleton<TransportManager>.exists)
             {
-                int busCount = 0;
-                int tramCount = 0;
-                int metroCount = 0;
-                int trainCount = 0;
-
-                //TLM
-                int shipCount = 0;
-                int planeCount = 0;
-
                 UIComponent comp;
                 if (isLineView)
                 {
+                    m_busCount = 0;
+                    m_tramCount = 0;
+                    m_metroCount = 0;
+                    m_trainCount = 0;
+
+                    //TLM
+                    m_shipCount = 0;
+                    m_planeCount = 0;
                     for (ushort lineIdIterator = 1; lineIdIterator < 256; lineIdIterator += 1)
                     {
                         if ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdIterator].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created)
@@ -834,43 +850,43 @@ namespace Klyte.TransportLinesManager.LineList
                             {
                                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
                                     comp = m_BusLinesContainer;
-                                    busCount = AddToList(busCount, lineIdIterator, ref comp);
+                                    m_busCount = AddToList(m_busCount, lineIdIterator, ref comp);
                                     break;
                                 case TLMCW.ConfigIndex.TRAM_CONFIG:
                                     comp = m_TramLinesContainer;
-                                    tramCount = AddToList(tramCount, lineIdIterator, ref comp);
+                                    m_tramCount = AddToList(m_tramCount, lineIdIterator, ref comp);
                                     break;
                                 case TLMCW.ConfigIndex.METRO_CONFIG:
                                     comp = m_MetroLinesContainer;
-                                    metroCount = AddToList(metroCount, lineIdIterator, ref comp);
+                                    m_metroCount = AddToList(m_metroCount, lineIdIterator, ref comp);
                                     break;
                                 case TLMCW.ConfigIndex.TRAIN_CONFIG:
                                     comp = m_TrainLinesContainer;
-                                    trainCount = AddToList(trainCount, lineIdIterator, ref comp);
+                                    m_trainCount = AddToList(m_trainCount, lineIdIterator, ref comp);
                                     break;
                                 case TLMCW.ConfigIndex.SHIP_CONFIG:
                                     comp = m_ShipLinesContainer;
-                                    shipCount = AddToList(shipCount, lineIdIterator, ref comp);
+                                    m_shipCount = AddToList(m_shipCount, lineIdIterator, ref comp);
                                     break;
                                 case TLMCW.ConfigIndex.PLANE_CONFIG:
                                     comp = m_PlaneLinesContainer;
-                                    planeCount = AddToList(planeCount, lineIdIterator, ref comp);
+                                    m_planeCount = AddToList(m_planeCount, lineIdIterator, ref comp);
                                     break;
                             }
                         }
                     }
                     comp = m_BusLinesContainer;
-                    RemoveExtraLines(busCount, ref comp);
+                    RemoveExtraLines(m_busCount, ref comp);
                     comp = m_TramLinesContainer;
-                    RemoveExtraLines(tramCount, ref comp);
+                    RemoveExtraLines(m_tramCount, ref comp);
                     comp = m_MetroLinesContainer;
-                    RemoveExtraLines(metroCount, ref comp);
+                    RemoveExtraLines(m_metroCount, ref comp);
                     comp = m_TrainLinesContainer;
-                    RemoveExtraLines(trainCount, ref comp);
+                    RemoveExtraLines(m_trainCount, ref comp);
                     comp = m_ShipLinesContainer;
-                    RemoveExtraLines(shipCount, ref comp);
+                    RemoveExtraLines(m_shipCount, ref comp);
                     comp = m_PlaneLinesContainer;
-                    RemoveExtraLines(planeCount, ref comp);
+                    RemoveExtraLines(m_planeCount, ref comp);
 
                     this.m_LinesUpdated = true;
                 }
@@ -997,14 +1013,13 @@ namespace Klyte.TransportLinesManager.LineList
             return count;
         }
 
-        bool isChangingTab;
         private void OnTabChanged(UIComponent c, int idx)
         {
             if (this.m_ToggleAll != null)
             {
-                isChangingTab = true;
-                this.m_ToggleAll.isChecked = idx < m_Strip.tabCount / 2 ? this.m_ToggleAllState[idx] : false;
-                isChangingTab = false;
+                m_isChangingTab = true;
+                this.m_ToggleAll.isChecked = idx < this.m_ToggleAllState.Length ? this.m_ToggleAllState[idx] : false;
+                m_isChangingTab = false;
             }
             if (isDepotView || isLineView)
             {
@@ -1045,11 +1060,12 @@ namespace Klyte.TransportLinesManager.LineList
             m_depotsTitle.relativePosition = m_linesTitle.relativePosition;
             m_DisabledIcon.relativePosition = new Vector3(736, 14);
             this.OnLineNumberSort();
+            RefreshLineCount(m_Strip.selectedIndex);
         }
 
         private void CheckChangedFunction(UIComponent c, bool r)
         {
-            if (!isChangingTab)
+            if (!m_isChangingTab)
             {
                 this.OnChangeVisibleAll(r);
             }
@@ -1060,7 +1076,7 @@ namespace Klyte.TransportLinesManager.LineList
             if (this.m_Strip.selectedIndex > -1 && this.m_Strip.selectedIndex < this.m_Strip.tabContainer.components.Count)
             {
                 this.m_ToggleAllState[this.m_Strip.selectedIndex] = visible;
-                UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container").Find("LinesContainer");
+                UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
                 if (uIComponent != null)
                 {
                     for (int i = 0; i < uIComponent.components.Count; i++)
@@ -1132,6 +1148,7 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 this.RefreshLines();
                 this.m_LastLineCount = Singleton<TransportManager>.instance.m_lineCount;
+                RefreshLineCount(m_Strip.selectedIndex);
             }
             if (this.m_LinesUpdated)
             {
@@ -1437,6 +1454,26 @@ namespace Klyte.TransportLinesManager.LineList
         }
         #endregion
 
+
+        private void RefreshLineCount(int transportTabIndex)
+        {
+            if (transportTabIndex < 6)
+            {
+                string arg = Locale.Get("TLM_PUBLICTRANSPORT_LINECOUNT", transportTabIndex);
+                this.m_LineCount.text = arg + ": " + new int[] {
+                    m_planeCount,
+                    m_shipCount,
+                    m_trainCount,
+                    m_metroCount,
+                    m_tramCount,
+                    m_busCount
+                }[transportTabIndex];
+            }
+            else
+            {
+                this.m_LineCount.text = "";
+            }
+        }
 
     }
 

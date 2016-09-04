@@ -182,31 +182,7 @@ namespace Klyte.TransportLinesManager
                 return Color.clear;
             }
         }
-
-        public void AutoName(ushort lineIdx)
-        {
-            TransportLine t = tm.m_lines.m_buffer[(int)lineIdx];
-            try
-            {
-                ModoNomenclatura sufixo, prefixo, naoPrefixo;
-                Separador s;
-                bool z, invert;
-                TLMLineUtils.getLineNamingParameters(lineIdx, out prefixo, out s, out sufixo, out naoPrefixo, out z, out invert);
-
-                TLMUtils.setLineName((ushort)lineIdx, "[" + TLMUtils.getString(prefixo, s, sufixo, naoPrefixo, t.m_lineNumber, z, invert).Replace('\n', ' ') + "] " + TLMUtils.calculateAutoName(lineIdx));
-            }
-            catch (Exception e)
-            {
-                TLMUtils.doErrorLog( "ERRO!!!!! " + e.Message);
-                TLMUtils.doErrorLog( e.StackTrace);
-                TLMCW.setCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
-            }
-        }
-
-
-
-
-
+        
 
         //NAVEGACAO
 

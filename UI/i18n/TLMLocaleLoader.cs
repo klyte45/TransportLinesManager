@@ -10,7 +10,7 @@ namespace Klyte.TransportLinesManager.i18n
     {
         private const string lineSeparator = "\r\n";
         private const string kvSeparator = "=";
-        private const string idxSeparator = ":";
+        private const string idxSeparator = ">";
         private const string localeKeySeparator = "|";
         private const string commentChar = "#";
 
@@ -32,7 +32,7 @@ namespace Klyte.TransportLinesManager.i18n
             Locale.Key k;
 
 
-            foreach (var myString in load.Split(new string[] { lineSeparator },  StringSplitOptions.RemoveEmptyEntries))
+            foreach (var myString in load.Split(new string[] { lineSeparator }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (myString.StartsWith(commentChar)) continue;
                 if (!myString.Contains(kvSeparator)) continue;
@@ -42,11 +42,13 @@ namespace Klyte.TransportLinesManager.i18n
                 string localeKey = null;
                 if (array[0].Contains(idxSeparator))
                 {
-                    array = array[0].Split(idxSeparator.ToCharArray());
-                    if (!int.TryParse(array[1], out idx))
+                    var arrayIdx = array[0].Split(idxSeparator.ToCharArray());
+                    if (!int.TryParse(arrayIdx[1], out idx))
                     {
                         continue;
                     }
+                    array[0] = arrayIdx[0];
+
                 }
                 if (array[0].Contains(localeKeySeparator))
                 {
