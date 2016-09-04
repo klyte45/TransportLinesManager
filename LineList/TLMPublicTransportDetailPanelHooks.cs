@@ -285,61 +285,6 @@ namespace Klyte.TransportLinesManager.LineList
             }
         }
 
-        private static int CompareDepotNames(UIComponent left, UIComponent right)
-        {
-            TLMPublicTransportDepotInfo component = left.GetComponent<TLMPublicTransportDepotInfo>();
-            TLMPublicTransportDepotInfo component2 = right.GetComponent<TLMPublicTransportDepotInfo>();
-            return string.Compare(component.buidingName, component2.buidingName, StringComparison.InvariantCulture); //NaturalCompare(component.lineName, component2.lineName);
-        }
-
-        private static int CompareDepotDistricts(UIComponent left, UIComponent right)
-        {
-            TLMPublicTransportDepotInfo component = left.GetComponent<TLMPublicTransportDepotInfo>();
-            TLMPublicTransportDepotInfo component2 = right.GetComponent<TLMPublicTransportDepotInfo>();
-            return string.Compare(component.districtName, component2.districtName, StringComparison.InvariantCulture); //NaturalCompare(component.lineName, component2.lineName);
-        }
-
-        private static int CompareNames(UIComponent left, UIComponent right)
-        {
-            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
-            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
-            return string.Compare(component.lineName, component2.lineName, StringComparison.InvariantCulture); //NaturalCompare(component.lineName, component2.lineName);
-        }
-
-        private static int CompareLineNumbers(UIComponent left, UIComponent right)
-        {
-            if (left == null || right == null) return 0;
-            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
-            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
-            if (component == null || component2 == null) return 0;
-            return component.lineNumber.CompareTo(component2.lineNumber);
-        }
-
-        private static int CompareStops(UIComponent left, UIComponent right)
-        {
-            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
-            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
-            return NaturalCompare(component2.stopCounts, component.stopCounts);
-        }
-
-        private static int CompareVehicles(UIComponent left, UIComponent right)
-        {
-            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
-            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
-            return NaturalCompare(component2.vehicleCounts, component.vehicleCounts);
-        }
-
-        private static int ComparePassengers(UIComponent left, UIComponent right)
-        {
-            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
-            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
-            return component2.passengerCountsInt.CompareTo(component.passengerCountsInt);
-        }
-        private static int NaturalCompare(string left, string right)
-        {
-            return 0;
-        }
-
         private void Awake()
         {
             //this.m_Strip.tab
@@ -348,12 +293,77 @@ namespace Klyte.TransportLinesManager.LineList
 
             this.m_LineCount = base.Find<UILabel>("LabelLineCount");
 
-            m_linesTitle = Find<UIPanel>("LineTitle");
+            AwakeRearrangeTabs();
+            AwakeLinesTitleComponents();
+            AwakeTopButtons();
+            AwakeDayNightOptions();
+            AwakePrefixFilter();
+            AwakeDepotTitleComponents();
+            AwakePrefixEditor();
+
+            m_Ready = true;
+        }
+
+        private void AwakeDepotTitleComponents()
+        {
+            //depot title
+
             m_depotsTitle = GameObject.Instantiate<UIPanel>(m_linesTitle);
             m_depotsTitle.transform.SetParent(m_linesTitle.transform.parent);
             m_depotsTitle.relativePosition = m_linesTitle.relativePosition;
             m_depotsTitle.isVisible = false;
+            GameObject.Destroy(m_depotsTitle.Find<UISprite>("DaySprite").gameObject);
+            GameObject.Destroy(m_depotsTitle.Find<UISprite>("NightSprite").gameObject);
+            GameObject.Destroy(m_depotsTitle.Find<UISprite>("DayNightSprite").gameObject);
+            GameObject.Destroy(m_depotsTitle.Find<UICheckBox>("ToggleAll").gameObject);
+            GameObject.Destroy(m_depotsTitle.Find<UIButton>("StopsTitle").gameObject);
+            m_depotsTitle.Find<UILabel>("ColorTitle").text = Locale.Get("TUTORIAL_ADVISER_TITLE", "District");
+            m_depotsTitle.Find<UILabel>("ColorTitle").eventClick += delegate (UIComponent c, UIMouseEventParameter r)
+            {
+                this.OnDepotDistrictSort();
+            };
+            m_depotsTitle.Find<UIButton>("NameTitle").text = "Station/Depot Name";
+            m_depotsTitle.Find<UIButton>("NameTitle").eventClick += delegate (UIComponent c, UIMouseEventParameter r)
+            {
+                this.OnDepotNameSort();
+            };
+            m_depotsTitle.Find<UIButton>("VehiclesTitle").text = Locale.Get("TLM_PREFIXES_SERVED");
+            m_depotsTitle.Find<UIButton>("VehiclesTitle").size += new Vector2(100, 0);
+            m_depotsTitle.Find<UIButton>("PassengersTitle").text = Locale.Get("TLM_ADD_REMOVE");
+            m_depotsTitle.Find<UIButton>("PassengersTitle").absolutePosition += new Vector3(100, 0);
+            m_depotsTitle.Find<UIButton>("PassengersTitle").size += new Vector2(100, 0);
+        }
 
+        private void AwakePrefixFilter()
+        {
+            m_prefixFilter = UIHelperExtension.CloneBasicDropDownNoLabel(new string[] {
+                "All"
+            }, (x) => { }, component);
+
+            m_prefixFilter.area = new Vector4(765, 80, 100, 35);
+
+            var prefixFilterLabel = m_prefixFilter.AddUIComponent<UILabel>();
+            prefixFilterLabel.text = Locale.Get("TLM_PREFIX_FILTER");
+            prefixFilterLabel.relativePosition = new Vector3(0, -35);
+            prefixFilterLabel.textAlignment = UIHorizontalAlignment.Center;
+            prefixFilterLabel.wordWrap = true;
+            prefixFilterLabel.autoSize = false;
+            prefixFilterLabel.width = 100;
+            prefixFilterLabel.height = 36;
+
+
+            UISprite icon = Find<UISprite>("Icon");
+            icon.spriteName = "TransportLinesManagerIconHovered";
+            icon.atlas = TLMController.taTLM;
+
+            var title = Find<UILabel>("Label");
+            title.suffix = " - TLM v" + TransportLinesManagerMod.version;
+
+            component.relativePosition = new Vector3(395, 58);
+        }
+
+        private void AwakeRearrangeTabs()
+        {
             this.m_Strip = Find<UITabstrip>("Tabstrip");
 
             this.m_Strip.relativePosition = new Vector3(13, 45);
@@ -447,7 +457,12 @@ namespace Klyte.TransportLinesManager.LineList
             m_MetroLinesContainer.GetComponentInParent<UIPanel>().zOrder = (3);
             m_TramLinesContainer.GetComponentInParent<UIPanel>().zOrder = (4);
             m_BusLinesContainer.GetComponentInParent<UIPanel>().zOrder = (5);
+        }
 
+        private void AwakeLinesTitleComponents()
+        {
+
+            m_linesTitle = Find<UIPanel>("LineTitle");
             this.m_ToggleAllState = new bool[this.m_Strip.tabCount / 2];
             this.m_Strip.eventSelectedIndexChanged += null;
             this.m_Strip.eventSelectedIndexChanged += new PropertyChangedEventHandler<int>(this.OnTabChanged);
@@ -481,7 +496,10 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
             this.m_LastSortCriterionLines = LineSortCriterion.DEFAULT;
+        }
 
+        private void AwakeTopButtons()
+        {
             //Auto color & Auto Name
             TLMUtils.createUIElement<UIButton>(ref m_buttonAutoName, transform);
             m_buttonAutoName.pivot = UIPivotPoint.TopRight;
@@ -546,7 +564,14 @@ namespace Klyte.TransportLinesManager.LineList
             icon.height = 36;
             icon.spriteName = "RemoveUnwantedIcon";
 
-            //filters
+
+            m_buttonRemoveUnwanted.relativePosition = new Vector3(630, 43);
+            m_buttonAutoColor.relativePosition = new Vector3(675, 43);
+            m_buttonAutoName.relativePosition = new Vector3(720, 43);
+        }
+
+        private void AwakeDayNightOptions()
+        {
             m_DayIcon = m_linesTitle.Find<UISprite>("DaySprite");
             m_NightIcon = m_linesTitle.Find<UISprite>("NightSprite");
             m_DayNightIcon = m_linesTitle.Find<UISprite>("DayNightSprite");
@@ -582,62 +607,7 @@ namespace Klyte.TransportLinesManager.LineList
                 m_DisabledIcon.color = m_showDisabledLines ? Color.white : Color.black;
             };
 
-            m_prefixFilter = UIHelperExtension.CloneBasicDropDownNoLabel(new string[] {
-                "All"
-            }, (x) => { }, component);
-
-            m_prefixFilter.area = new Vector4(765, 80, 100, 35);
-
-            var prefixFilterLabel = m_prefixFilter.AddUIComponent<UILabel>();
-            prefixFilterLabel.text = Locale.Get("TLM_PREFIX_FILTER");
-            prefixFilterLabel.relativePosition = new Vector3(0, -35);
-            prefixFilterLabel.textAlignment = UIHorizontalAlignment.Center;
-            prefixFilterLabel.wordWrap = true;
-            prefixFilterLabel.autoSize = false;
-            prefixFilterLabel.width = 100;
-            prefixFilterLabel.height = 36;
-
             m_DisabledIcon.relativePosition = new Vector3(736, 14);
-            m_buttonRemoveUnwanted.relativePosition = new Vector3(630, 43);
-            m_buttonAutoColor.relativePosition = new Vector3(675, 43);
-            m_buttonAutoName.relativePosition = new Vector3(720, 43);
-
-            icon = Find<UISprite>("Icon");
-            icon.spriteName = "TransportLinesManagerIconHovered";
-            icon.atlas = TLMController.taTLM;
-
-            var title = Find<UILabel>("Label");
-            title.suffix = " - TLM v" + TransportLinesManagerMod.version;
-
-            component.relativePosition = new Vector3(395, 58);
-
-            //depot title
-
-            GameObject.Destroy(m_depotsTitle.Find<UISprite>("DaySprite").gameObject);
-            GameObject.Destroy(m_depotsTitle.Find<UISprite>("NightSprite").gameObject);
-            GameObject.Destroy(m_depotsTitle.Find<UISprite>("DayNightSprite").gameObject);
-            GameObject.Destroy(m_depotsTitle.Find<UICheckBox>("ToggleAll").gameObject);
-            GameObject.Destroy(m_depotsTitle.Find<UIButton>("StopsTitle").gameObject);
-            m_depotsTitle.Find<UILabel>("ColorTitle").text = Locale.Get("TUTORIAL_ADVISER_TITLE", "District");
-            m_depotsTitle.Find<UILabel>("ColorTitle").eventClick += delegate (UIComponent c, UIMouseEventParameter r)
-            {
-                this.OnDepotDistrictSort();
-            };
-            m_depotsTitle.Find<UIButton>("NameTitle").text = "Station/Depot Name";
-            m_depotsTitle.Find<UIButton>("NameTitle").eventClick += delegate (UIComponent c, UIMouseEventParameter r)
-            {
-                this.OnDepotNameSort();
-            };
-            m_depotsTitle.Find<UIButton>("VehiclesTitle").text = Locale.Get("TLM_PREFIXES_SERVED");
-            m_depotsTitle.Find<UIButton>("VehiclesTitle").size += new Vector2(100, 0);
-            m_depotsTitle.Find<UIButton>("PassengersTitle").text = Locale.Get("TLM_ADD_REMOVE");
-            m_depotsTitle.Find<UIButton>("PassengersTitle").absolutePosition += new Vector3(100, 0);
-            m_depotsTitle.Find<UIButton>("PassengersTitle").size += new Vector2(100, 0);
-
-            //Prefix editor
-            initPrefixEditor();
-
-            m_Ready = true;
         }
 
         private void CopyContainerFromBus(int idx, ref UIComponent item)
@@ -706,7 +676,62 @@ namespace Klyte.TransportLinesManager.LineList
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("addIcon: end");
         }
 
+        #region Sorting
+        
+        private static int CompareDepotNames(UIComponent left, UIComponent right)
+        {
+            TLMPublicTransportDepotInfo component = left.GetComponent<TLMPublicTransportDepotInfo>();
+            TLMPublicTransportDepotInfo component2 = right.GetComponent<TLMPublicTransportDepotInfo>();
+            return string.Compare(component.buidingName, component2.buidingName, StringComparison.InvariantCulture); //NaturalCompare(component.lineName, component2.lineName);
+        }
 
+        private static int CompareDepotDistricts(UIComponent left, UIComponent right)
+        {
+            TLMPublicTransportDepotInfo component = left.GetComponent<TLMPublicTransportDepotInfo>();
+            TLMPublicTransportDepotInfo component2 = right.GetComponent<TLMPublicTransportDepotInfo>();
+            return string.Compare(component.districtName, component2.districtName, StringComparison.InvariantCulture); //NaturalCompare(component.lineName, component2.lineName);
+        }
+
+        private static int CompareNames(UIComponent left, UIComponent right)
+        {
+            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
+            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
+            return string.Compare(component.lineName, component2.lineName, StringComparison.InvariantCulture); //NaturalCompare(component.lineName, component2.lineName);
+        }
+
+        private static int CompareLineNumbers(UIComponent left, UIComponent right)
+        {
+            if (left == null || right == null) return 0;
+            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
+            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
+            if (component == null || component2 == null) return 0;
+            return component.lineNumber.CompareTo(component2.lineNumber);
+        }
+
+        private static int CompareStops(UIComponent left, UIComponent right)
+        {
+            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
+            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
+            return NaturalCompare(component2.stopCounts, component.stopCounts);
+        }
+
+        private static int CompareVehicles(UIComponent left, UIComponent right)
+        {
+            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
+            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
+            return NaturalCompare(component2.vehicleCounts, component.vehicleCounts);
+        }
+
+        private static int ComparePassengers(UIComponent left, UIComponent right)
+        {
+            TLMPublicTransportLineInfo component = left.GetComponent<TLMPublicTransportLineInfo>();
+            TLMPublicTransportLineInfo component2 = right.GetComponent<TLMPublicTransportLineInfo>();
+            return component2.passengerCountsInt.CompareTo(component.passengerCountsInt);
+        }
+        private static int NaturalCompare(string left, string right)
+        {
+            return 0;
+        }
         private void OnNameSort()
         {
             if (!isLineView) return;
@@ -817,6 +842,7 @@ namespace Klyte.TransportLinesManager.LineList
                 Quicksort(elements, i, right, comp);
             }
         }
+        #endregion
 
         public void SetActiveTab(int idx)
         {
@@ -1120,8 +1146,7 @@ namespace Klyte.TransportLinesManager.LineList
         {
             BasicTransportExtension.removeAllUnwantedVehicles();
         }
-
-
+        
         private void OnAutoColorAll()
         {
             if (this.m_Strip.selectedIndex > -1 && this.m_Strip.selectedIndex < this.m_Strip.tabContainer.components.Count)
@@ -1182,8 +1207,9 @@ namespace Klyte.TransportLinesManager.LineList
                 }
             }
         }
+
         #region Asset Selection
-        private void initPrefixEditor()
+        private void AwakePrefixEditor()
         {
             UIHelperExtension group2 = new UIHelperExtension(m_PrefixEditor);
             TLMUtils.doLog("INIT G2");
