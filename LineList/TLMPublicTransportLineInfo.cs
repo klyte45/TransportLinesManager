@@ -183,7 +183,7 @@ namespace Klyte.TransportLinesManager.LineList
                 }
 
                 float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
-                float prefixMultiplier = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplier(prefix) / 100f;
+                float prefixMultiplier = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
 
                 this.m_budgetEffective.text = string.Format("{0:0%}", overallBudget * prefixMultiplier);//585+1/7 = frames/week                
 

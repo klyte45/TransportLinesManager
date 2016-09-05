@@ -258,7 +258,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 {
                     prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
                 }
-                float budgetMultiplierPrefix = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplier(prefix) / 100f;
+                float budgetMultiplierPrefix = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplierForHour(prefix, (int) Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
                 float lineCost = vehicleCount * info.m_maintenanceCostPerVehicle / 100;// * defaultCostPerPassengerCapacity;
                 if (lineCost != 0)
                 {

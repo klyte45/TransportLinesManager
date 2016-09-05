@@ -310,28 +310,68 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
             saveSubcategoryList(global);
         }
 
-        public uint getBudgetMultiplier(uint prefix, bool global = false)
+        public uint[] getBudgetsMultiplier(uint prefix, bool global = false)
         {
             loadSubcategoryList(global);
             if (needReload)
             {
-                readVehicles(global); if (needReload) return 100;
+                readVehicles(global); if (needReload) return new uint[] { 100 };
             }
             if (cached_subcategoryList.ContainsKey(prefix) && cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.BUDGET_MULTIPLIER))
             {
-                uint result;
-                if (uint.TryParse(cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER], out result))
+                string[] savedMultipliers = cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER].Split(COMMA.ToCharArray());
+
+                uint[] result = new uint[savedMultipliers.Length];
+                for (int i = 0; i < result.Length; i++)
                 {
-                    return result;
+                    uint parsed;
+                    if (uint.TryParse(savedMultipliers[i], out parsed))
+                    {
+                        result[i] = parsed;
+                    }
+                    else
+                    {
+                        return new uint[] { 100 };
+                    }
+                }
+                return result;
+            }
+            return new uint[] { 100 };
+        }
+
+        public uint getBudgetMultiplierForHour(uint prefix, int hour)
+        {
+            loadSubcategoryList(false);
+            if (needReload)
+            {
+                readVehicles(false); if (needReload) return 100;
+            }
+            uint result = 100;
+            if (cached_subcategoryList.ContainsKey(prefix) && cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.BUDGET_MULTIPLIER))
+            {
+                string[] savedMultipliers = cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER].Split(COMMA.ToCharArray());
+                if (savedMultipliers.Length == 1)
+                {
+                    if (uint.TryParse(savedMultipliers[0], out result))
+                    {
+                        return result;
+                    }
+                }
+                else if (savedMultipliers.Length == 8)
+                {
+                    if (uint.TryParse(savedMultipliers[((hour + 23) / 3) % 8], out result))
+                    {
+                        return result;
+                    }
                 }
             }
             return 100;
         }
 
 
-        public void setBudgetMultiplier(uint prefix, uint multiplier, bool global = false)
+        public void setBudgetMultiplier(uint prefix, uint[] multipliers, bool global = false)
         {
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setBudgetMultiplier! {0} {1} {2} {3}", type.ToString(), prefix, multiplier, global);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setBudgetMultiplier! {0} {1} {2} {3}", type.ToString(), prefix, multipliers, global);
             loadSubcategoryList(global);
             if (needReload)
             {
@@ -341,7 +381,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
             {
                 cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
             }
-            cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER] = multiplier.ToString();
+            cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER] = string.Join(COMMA, multipliers.Select(x => x.ToString()).ToArray());
             saveSubcategoryList(global);
         }
 

@@ -218,12 +218,27 @@ namespace Klyte.TransportLinesManager.LineList
         private int m_shipCount = 0;
         private int m_planeCount = 0;
 
+        //asset editor
+
+        TextList<string> m_defaultAssets;
+        TextList<string> m_prefixAssets;
+        UIDropDown m_prefixSelection;
+
+        //per hour budget
+        uint[] m_hourBudgets = new uint[8];
+        UICheckBox m_chkSingleBudget = null;
+        UICheckBox m_chkPerHourBudget = null;
+        UISlider[] m_budgetSliders;
+        bool m_isLoadingPrefixData;
 
         private bool m_isChangingTab;
 
         private UILabel m_LineCount;
 
         public UIDropDown m_systemTypeDropDown = null;
+
+
+        private UITabstrip m_StripAsteriskTab;
 
         public bool isActivityVisible(bool day, bool night)
         {
@@ -365,7 +380,6 @@ namespace Klyte.TransportLinesManager.LineList
         private void AwakeRearrangeTabs()
         {
             this.m_Strip = Find<UITabstrip>("Tabstrip");
-
             this.m_Strip.relativePosition = new Vector3(13, 45);
 
             var ship = m_Strip.AddTab("");
@@ -677,7 +691,7 @@ namespace Klyte.TransportLinesManager.LineList
         }
 
         #region Sorting
-        
+
         private static int CompareDepotNames(UIComponent left, UIComponent right)
         {
             TLMPublicTransportDepotInfo component = left.GetComponent<TLMPublicTransportDepotInfo>();
@@ -1146,7 +1160,7 @@ namespace Klyte.TransportLinesManager.LineList
         {
             BasicTransportExtension.removeAllUnwantedVehicles();
         }
-        
+
         private void OnAutoColorAll()
         {
             if (this.m_Strip.selectedIndex > -1 && this.m_Strip.selectedIndex < this.m_Strip.tabContainer.components.Count)
@@ -1208,83 +1222,80 @@ namespace Klyte.TransportLinesManager.LineList
             }
         }
 
-        #region Asset Selection
+        private void reloadAssetsList(int idx)
+        {
+            if (getConfigIndexFromDropDownSelection(m_systemTypeDropDown.selectedIndex) != TLMCW.ConfigIndex.METRO_CONFIG)
+            {
+                m_prefixAssets.itemsList = getPrefixAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(idx - 1));
+                var t = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
+                m_defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex).Where(k => !m_prefixAssets.itemsList.ContainsKey(k.Key)).ToDictionary(k => k.Key, k => k.Value);
+                m_StripAsteriskTab.EnableTab(1);
+            }
+            else
+            {
+                m_StripAsteriskTab.DisableTab(1);
+            }
+        }
+
         private void AwakePrefixEditor()
         {
             UIHelperExtension group2 = new UIHelperExtension(m_PrefixEditor);
+
+
             TLMUtils.doLog("INIT G2");
             ((UIScrollablePanel)group2.self).autoLayoutDirection = LayoutDirection.Horizontal;
             ((UIScrollablePanel)group2.self).autoLayoutPadding = new RectOffset(5, 5, 0, 0);
             ((UIScrollablePanel)group2.self).wrapLayout = true;
+            ((UIScrollablePanel)group2.self).autoLayout = true;
             TLMUtils.doLog("INIT reloadTexture");
-            OnTextChanged reloadTexture = delegate (string s)
-            {
-                //if (!string.IsNullOrEmpty(s))
-                //{
-                //    var prefab = PrefabCollection<VehicleInfo>.FindLoaded(s);
-                //    if (prefab != null)
-                //    {
-                //        m_previewRenderer.mesh = prefab.m_mesh;
-                //        m_previewRenderer.material = prefab.m_material;
-                //        m_previewRenderer.Render();
-                //        m_currentSelectionBus.texture = m_previewRenderer.texture;
-                //    }
-                //}
-            };
-            UIDropDown prefixSelection = null;
-            TextList<string> defaultAssets = null;
-            TextList<string> prefixAssets = null;
             UITextField prefixName = null;
-            UISlider budgetMultiplier = null;
             UITextField ticketPrice = null;
-            UIHelperExtension group2sub = null;
-            UIHelperExtension assetSelectionGroup = null;
             TLMUtils.doLog("INIT loadPrefixAssetList");
-            OnDropdownSelectionChanged loadPrefixAssetList = (int sel) =>
+            OnDropdownSelectionChanged selectPrefixAction = (int sel) =>
             {
+                m_isLoadingPrefixData = true;
                 if (sel == 0 || m_systemTypeDropDown.selectedIndex == 0)
                 {
-                    ((UIPanel)group2sub.self).enabled = false;
-                    ((UIPanel)assetSelectionGroup.self).enabled = false;
+                    ((UIScrollablePanel)group2.self).autoLayout = false;
+                    m_StripAsteriskTab.tabPages.enabled = false;
+
+                    m_StripAsteriskTab.enabled = false;
                     return;
                 }
-                ((UIPanel)group2sub.self).enabled = true;
                 prefixName.text = getPrefixNameFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
-                budgetMultiplier.value = getPrefixBudgetMultiplierFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
-                budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_LABEL") + ": ";
-                budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().autoSize = true;
-                budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().wordWrap = false;
-                budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().text = string.Format("x{0:0.00}", budgetMultiplier.value);
+                var hourBudgetsSaved = getPrefixBudgetMultiplierFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
+                m_chkPerHourBudget.isChecked = hourBudgetsSaved.Length == 8;
+                m_chkSingleBudget.isChecked = hourBudgetsSaved.Length == 1;
+                for (int i = 0; i < 8; i++)
+                {
+                    m_hourBudgets[i] = hourBudgetsSaved[i % hourBudgetsSaved.Length];
+                }                
+                updateBudgetSliders();
                 ticketPrice.text = (getTicketPriceFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1))).ToString();
-                if (getConfigIndexFromDropDownSelection(m_systemTypeDropDown.selectedIndex) != TLMCW.ConfigIndex.METRO_CONFIG)
-                {
-                    ((UIPanel)assetSelectionGroup.self).enabled = true;
-                    prefixAssets.itemsList = getPrefixAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1));
-                    var t = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
-                    defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex).Where(k => !prefixAssets.itemsList.ContainsKey(k.Key)).ToDictionary(k => k.Key, k => k.Value);
-                }
-                else
-                {
-                    ((UIPanel)assetSelectionGroup.self).enabled = false;
-                }
+                reloadAssetsList(sel);
+                m_StripAsteriskTab.tabPages.enabled = true;
+                m_StripAsteriskTab.enabled = true;
+                m_StripAsteriskTab.selectedIndex = 0;
+                m_isLoadingPrefixData = false;
             };
             TLMUtils.doLog("INIT loadPrefixes");
             OnDropdownSelectionChanged loadPrefixes = (int sel) =>
             {
                 if (sel == 0)
                 {
-                    prefixSelection.isVisible = false;
-                    prefixSelection.selectedIndex = 0;
+                    m_prefixSelection.isVisible = false;
+                    m_prefixSelection.selectedIndex = 0;
+                    m_StripAsteriskTab.tabPages.enabled = false;
                     return;
                 }
-                prefixSelection.isVisible = true;
-                ((UIPanel)group2sub.self).enabled = false;
+                m_prefixSelection.isVisible = true;
+                m_StripAsteriskTab.tabPages.enabled = false;
                 TLMConfigWarehouse.ConfigIndex transportIndex = getConfigIndexFromDropDownSelection(sel);
-                defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
-                defaultAssets.root.color = TLMConfigWarehouse.getColorForTransportType(transportIndex);
+                m_defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
+                m_defaultAssets.root.color = TLMConfigWarehouse.getColorForTransportType(transportIndex);
                 var m = (ModoNomenclatura)TLMConfigWarehouse.getCurrentConfigInt(transportIndex | TLMConfigWarehouse.ConfigIndex.PREFIX);
-                prefixSelection.items = TLMUtils.getStringOptionsForPrefix(m, true);
-                prefixSelection.selectedIndex = 0;
+                m_prefixSelection.items = TLMUtils.getStringOptionsForPrefix(m, true);
+                m_prefixSelection.selectedIndex = 0;
             };
             TLMUtils.doLog("INIT m_systemTypeDropDown");
             m_systemTypeDropDown = (UIDropDown)group2.AddDropdown(Locale.Get("TLM_TRANSPORT_SYSTEM"), new string[] { "--"+Locale.Get("SELECT")+"--",
@@ -1294,7 +1305,8 @@ namespace Klyte.TransportLinesManager.LineList
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.BUS_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.METRO_CONFIG) }, 0, loadPrefixes);
-            prefixSelection = (UIDropDown)group2.AddDropdown(Locale.Get("TLM_PREFIX"), new string[] { "" }, 0, loadPrefixAssetList);
+            m_prefixSelection = (UIDropDown)group2.AddDropdown(Locale.Get("TLM_PREFIX"), new string[] { "" }, 0, selectPrefixAction);
+
 
             foreach (Transform t in group2.self.transform)
             {
@@ -1304,115 +1316,191 @@ namespace Klyte.TransportLinesManager.LineList
                     panel.width = 340;
                 }
             }
-            TLMUtils.doLog("INIT TLM_DETAILS");
 
-            group2sub = group2.AddGroupExtended(Locale.Get("TLM_DETAILS"));
 
-            ((UIPanel)group2sub.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group2sub.self).autoLayoutPadding = new RectOffset(2, 2, 0, 0);
-            ((UIPanel)group2sub.self).wrapLayout = true;
-            ((UIPanel)group2sub.self).width = 720;
-            ((UIPanel)group2sub.self).padding = new RectOffset(0, 0, 0, 0);
 
-            prefixName = group2sub.AddTextField(Locale.Get("TLM_PREFIX_NAME"), delegate (string s) { setPrefixNameDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), s); });
-            budgetMultiplier = (UISlider)group2sub.AddSlider(Locale.Get("TLM_BUDGET_MULTIPLIER_LABEL"), 0.25f, 5, 0.05f, 1, delegate (float f)
+            TLMUtils.doLog("INIT TLM_TABS");
+            m_StripAsteriskTab = group2.self.AddUIComponent<UITabstrip>();
+            m_StripAsteriskTab.width = 840;
+            m_StripAsteriskTab.height = 50;
+
+            m_StripAsteriskTab.tabPages = group2.self.AddUIComponent<UITabContainer>(); ;
+            m_StripAsteriskTab.tabPages.width = 840;
+            m_StripAsteriskTab.tabPages.height = 630;
+
+            UIHelperExtension detailsTabContainer = createNewAsteriskTab(Locale.Get("TLM_DETAILS"));
+            prefixName = detailsTabContainer.AddTextField(Locale.Get("TLM_PREFIX_NAME"), delegate (string s) { setPrefixNameDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(m_prefixSelection.selectedIndex - 1), s); });
+            ticketPrice = detailsTabContainer.AddTextField(Locale.Get("TLM_TICKET_PRICE_LABEL"), delegate (string s)
             {
-                budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().text = string.Format("x{0:0.00}", f);
-                setBudgetMultiplierDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), f);
+                uint f = uint.Parse("0" + s);
+                setTicketPriceDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(m_prefixSelection.selectedIndex - 1), f);
             });
-            ticketPrice = group2sub.AddTextField(Locale.Get("TLM_TICKET_PRICE_LABEL"), delegate (string s)
-           {
-               uint f = uint.Parse("0" + s);
-               setTicketPriceDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), f);
-           });
-            ticketPrice.numericalOnly = true;
-            ticketPrice.maxLength = 7;
-
-            group2sub.AddSpace(10);
-            foreach (Transform t in ((UIPanel)group2sub.self).transform)
-            {
-                var panel = t.gameObject.GetComponent<UIPanel>();
-                if (panel)
-                {
-                    panel.width = 340;
-                }
-            }
-            assetSelectionGroup = group2.AddGroupExtended(Locale.Get("TLM_CITY_ASSETS_SELECTION"));
-            ((UIPanel)assetSelectionGroup.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)assetSelectionGroup.self).autoLayoutPadding = new RectOffset(2, 2, 0, 0);
-            ((UIPanel)assetSelectionGroup.self).wrapLayout = true;
-            ((UIPanel)assetSelectionGroup.self).width = 720;
-            ((UIPanel)assetSelectionGroup.self).padding = new RectOffset(0, 0, 0, 0);
-            defaultAssets = assetSelectionGroup.AddTextList(Locale.Get("TLM_DEFAULT_ASSETS"), new Dictionary<string, string>(), delegate (string idx) { reloadTexture(idx); }, 340, 250);
-            prefixAssets = assetSelectionGroup.AddTextList(Locale.Get("TLM_ASSETS_FOR_PREFIX"), new Dictionary<string, string>(), delegate (string idx) { reloadTexture(idx); }, 340, 250);
-            foreach (Transform t in ((UIPanel)assetSelectionGroup.self).transform)
-            {
-                var panel = t.gameObject.GetComponent<UIPanel>();
-                if (panel)
-                {
-                    panel.width = 340;
-                }
-            }
-
-            prefixAssets.root.backgroundSprite = "EmptySprite";
-            prefixAssets.root.color = Color.white;
-            prefixAssets.root.width = 340;
-            defaultAssets.root.backgroundSprite = "EmptySprite";
-            defaultAssets.root.width = 340;
-
             prefixName.GetComponentInParent<UIPanel>().width = 300;
             prefixName.GetComponentInParent<UIPanel>().autoLayoutDirection = LayoutDirection.Horizontal;
             prefixName.GetComponentInParent<UIPanel>().autoLayoutPadding = new RectOffset(5, 5, 3, 3);
             prefixName.GetComponentInParent<UIPanel>().wrapLayout = true;
 
+            ticketPrice.numericalOnly = true;
+            ticketPrice.maxLength = 7;
+
+            foreach (Transform t in ((UIPanel)detailsTabContainer.self).transform)
+            {
+                var panel = t.gameObject.GetComponent<UIPanel>();
+                if (panel)
+                {
+                    panel.width = 340;
+                }
+            }
+
+            UIHelperExtension assetSelectionTabContainer = createNewAsteriskTab(Locale.Get("TLM_CITY_ASSETS_SELECTION"));
+            m_defaultAssets = assetSelectionTabContainer.AddTextList(Locale.Get("TLM_DEFAULT_ASSETS"), new Dictionary<string, string>(), delegate (string idx) { }, 340, 250);
+            m_prefixAssets = assetSelectionTabContainer.AddTextList(Locale.Get("TLM_ASSETS_FOR_PREFIX"), new Dictionary<string, string>(), delegate (string idx) { }, 340, 250);
+            foreach (Transform t in ((UIPanel)assetSelectionTabContainer.self).transform)
+            {
+                var panel = t.gameObject.GetComponent<UIPanel>();
+                if (panel)
+                {
+                    panel.width = 340;
+                }
+            }
+
+            m_prefixAssets.root.backgroundSprite = "EmptySprite";
+            m_prefixAssets.root.color = Color.white;
+            m_prefixAssets.root.width = 340;
+            m_defaultAssets.root.backgroundSprite = "EmptySprite";
+            m_defaultAssets.root.width = 340;
+            assetSelectionTabContainer.AddSpace(10);
+            OnButtonClicked reload = delegate
+            {
+                reloadAssetsList(m_prefixSelection.selectedIndex);
+            };
+            assetSelectionTabContainer.AddButton(Locale.Get("TLM_ADD"), delegate
+            {
+                if (m_defaultAssets.unselected) return;
+                var selected = m_defaultAssets.selectedItem;
+                if (selected == null || selected.Equals(default(string))) return;
+                addAssetToPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(m_prefixSelection.selectedIndex - 1), selected);
+                reload();
+            });
+            assetSelectionTabContainer.AddButton(Locale.Get("TLM_REMOVE"), delegate
+            {
+                if (m_prefixAssets.unselected) return;
+                var selected = m_prefixAssets.selectedItem;
+                if (selected == null || selected.Equals(default(string))) return;
+                removeAssetFromPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(m_prefixSelection.selectedIndex - 1), selected);
+                reload();
+            });
+
+            assetSelectionTabContainer.AddButton(Locale.Get("TLM_REMOVE_ALL"), delegate
+            {
+                removeAllAssetsFromPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(m_prefixSelection.selectedIndex - 1));
+                reload();
+            });
+            assetSelectionTabContainer.AddButton(Locale.Get("TLM_RELOAD"), delegate
+            {
+                reload();
+            });
+
+            UIHelperExtension perPeriodBudgetContainer = createNewAsteriskTab(Locale.Get("TLM_PREFIX_BUDGET"));
+            m_budgetSliders = new UISlider[8];
+            m_chkPerHourBudget = (UICheckBox)perPeriodBudgetContainer.AddCheckbox(Locale.Get("TLM_USE_PER_PERIOD_BUDGET"), false, delegate (bool val)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    m_hourBudgets[i] = m_hourBudgets[0];
+                }
+                updateBudgetSliders();
+            });
+            m_chkSingleBudget = (UICheckBox)perPeriodBudgetContainer.AddCheckbox(Locale.Get("TLM_USE_SINGLE_BUDGET"), true, delegate (bool val) { updateBudgetSliders(); });
+            m_chkPerHourBudget.group = m_chkPerHourBudget.parent;
+            m_chkSingleBudget.group = m_chkPerHourBudget.parent;
+            for (int i = 0; i < 8; i++)
+            {
+                var j = i;
+                m_budgetSliders[i] = GenerateBudgetMultiplierField(perPeriodBudgetContainer, Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", i) + ":", delegate (float f)
+                {
+                    m_budgetSliders[j].transform.parent.GetComponentInChildren<UILabel>().text = string.Format(" x{0:0.00}", f);
+                    if (!m_isLoadingPrefixData)
+                    {
+                        m_hourBudgets[j] = (uint)(f * 100);
+                        setBudgetMultiplierDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(m_prefixSelection.selectedIndex - 1));
+                    }
+                });
+            }
+
+            //------
+            m_prefixSelection.isVisible = false;
+            m_StripAsteriskTab.tabPages.enabled = false;
+            m_StripAsteriskTab.enabled = false;
+
+
+        }
+
+        private void updateBudgetSliders()
+        {
+            if (m_chkSingleBudget.isChecked)
+            {
+                m_budgetSliders[0].parent.GetComponentInChildren<UILabel>().prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_LABEL") + ":";
+            }
+            else
+            {
+                m_budgetSliders[0].parent.GetComponentInChildren<UILabel>().prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", 0) + ":";
+            }
+            for (int i = 0; i < 8; i++)
+            {
+                m_budgetSliders[i].parent.isVisible = i == 0 || !m_chkSingleBudget.isChecked;
+                m_budgetSliders[i].value = m_hourBudgets[i] / 100f;
+                m_budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>().text = string.Format(" x{0:0.00}", m_budgetSliders[i].value);
+            }
+        }
+
+        private UIHelperExtension createNewAsteriskTab(string title)
+        {
+            formatTabButton(m_StripAsteriskTab.AddTab(title));
+            UIHelperExtension newTab = new UIHelperExtension(m_StripAsteriskTab.tabContainer.components[m_StripAsteriskTab.tabContainer.components.Count - 1]);
+            ((UIPanel)newTab.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)newTab.self).autoLayoutPadding = new RectOffset(2, 2, 0, 0);
+            ((UIPanel)newTab.self).wrapLayout = true;
+            ((UIPanel)newTab.self).autoSize = true;
+            ((UIPanel)newTab.self).autoLayout = true;
+            ((UIPanel)newTab.self).width = 680;
+            ((UIPanel)newTab.self).isVisible = false;
+            ((UIPanel)newTab.self).padding = new RectOffset(0, 0, 0, 0);
+            return newTab;
+        }
+
+        private UISlider GenerateBudgetMultiplierField(UIHelperExtension uiHelper, string title, OnValueChanged action)
+        {
+            UISlider budgetMultiplier = (UISlider)uiHelper.AddSlider(Locale.Get("TLM_BUDGET_MULTIPLIER_LABEL"), 0f, 5, 0.05f, 1, action);
+            budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().prefix = title;
+            budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().autoSize = true;
+            budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().wordWrap = false;
+            budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>().text = string.Format(" x{0:0.00}", 0);
             budgetMultiplier.GetComponentInParent<UIPanel>().width = 300;
             budgetMultiplier.GetComponentInParent<UIPanel>().autoLayoutDirection = LayoutDirection.Horizontal;
             budgetMultiplier.GetComponentInParent<UIPanel>().autoLayoutPadding = new RectOffset(5, 5, 3, 3);
             budgetMultiplier.GetComponentInParent<UIPanel>().wrapLayout = true;
-            assetSelectionGroup.AddSpace(10);
-            OnButtonClicked reload = delegate
-            {
-                loadPrefixAssetList(prefixSelection.selectedIndex);
-            };
-            assetSelectionGroup.AddButton(Locale.Get("TLM_ADD"), delegate
-            {
-                if (defaultAssets.unselected) return;
-                var selected = defaultAssets.selectedItem;
-                if (selected == null || selected.Equals(default(string))) return;
-                addAssetToPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), selected);
-                reload();
-            });
-            assetSelectionGroup.AddButton(Locale.Get("TLM_REMOVE"), delegate
-            {
-                if (prefixAssets.unselected) return;
-                var selected = prefixAssets.selectedItem;
-                if (selected == null || selected.Equals(default(string))) return;
-                removeAssetFromPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1), selected);
-                reload();
-            });
-
-            assetSelectionGroup.AddButton(Locale.Get("TLM_REMOVE_ALL"), delegate
-            {
-                removeAllAssetsFromPrefixDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(prefixSelection.selectedIndex - 1));
-                reload();
-            });
-            assetSelectionGroup.AddButton(Locale.Get("TLM_RELOAD"), delegate
-            {
-                reload();
-            });
-            ((UIPanel)group2sub.self).enabled = false;
-            prefixSelection.isVisible = false;
-            ((UIPanel)assetSelectionGroup.self).enabled = false;
+            return budgetMultiplier;
         }
 
+        private void formatTabButton(UIButton tabButton)
+        {
+            tabButton.textPadding = new RectOffset(10, 10, 5, 0);
+            tabButton.autoSize = true;
+            tabButton.normalBgSprite = "GenericTab";
+            tabButton.focusedBgSprite = "GenericTabFocused";
+            tabButton.hoveredBgSprite = "GenericTabHovered";
+            tabButton.pressedBgSprite = "GenericTabPressed";
+            tabButton.disabledBgSprite = "GenericTabDisabled";
+        }
 
+        #region Asset Selection & details functions
 
         private Dictionary<string, string> getBasicAssetListFromDropDownSelection(int index, bool global = false)
         {
             return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBasicAssetsDictionary(global);
 
         }
-
         private Dictionary<string, string> getPrefixAssetListFromDropDownSelection(int index, uint prefix, bool global = false)
         {
             return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBasicAssetsListForPrefix(prefix, global);
@@ -1438,9 +1526,19 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setPrefixName(prefix, name, global);
         }
 
-        private void setBudgetMultiplierDropDownSelection(int index, uint prefix, float value, bool global = false)
+        private void setBudgetMultiplierDropDownSelection(int index, uint prefix, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setBudgetMultiplier(prefix, (uint)(value * 100), global);
+            uint[] saveData;
+            if (m_chkSingleBudget.isChecked)
+            {
+                saveData = new uint[] { m_hourBudgets[0] };
+            }
+            else
+            {
+                saveData = m_hourBudgets;
+            }
+
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setBudgetMultiplier(prefix, saveData, global);
         }
         private void setTicketPriceDropDownSelection(int index, uint prefix, uint value, bool global = false)
         {
@@ -1450,9 +1548,9 @@ namespace Klyte.TransportLinesManager.LineList
         {
             return TLMUtils.getTransportSystemPrefixName(getConfigIndexFromDropDownSelection(index), prefix, global);
         }
-        private float getPrefixBudgetMultiplierFromDropDownSelection(int index, uint prefix, bool global = false)
+        private uint[] getPrefixBudgetMultiplierFromDropDownSelection(int index, uint prefix, bool global = false)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBudgetMultiplier(prefix, global) / 100f;
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBudgetsMultiplier(prefix, global);
         }
         private uint getTicketPriceFromDropDownSelection(int index, uint prefix, bool global = false)
         {
@@ -1483,7 +1581,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void RefreshLineCount(int transportTabIndex)
         {
-            if (transportTabIndex < 6)
+            if (isLineView)
             {
                 string arg = Locale.Get("TLM_PUBLICTRANSPORT_LINECOUNT", transportTabIndex);
                 this.m_LineCount.text = arg + ": " + new int[] {

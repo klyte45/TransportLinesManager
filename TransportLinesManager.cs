@@ -17,7 +17,7 @@ using Klyte.TransportLinesManager.i18n;
 using Klyte.TransportLinesManager.Extensors.BuildingAI;
 using Klyte.TransportLinesManager.Extensors.VehicleAI;
 
-[assembly: AssemblyVersion("5.4.3.*")]
+[assembly: AssemblyVersion("5.5.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension

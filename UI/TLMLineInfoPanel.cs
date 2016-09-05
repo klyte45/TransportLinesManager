@@ -601,7 +601,7 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
-            float prefixMultiplier = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplier(prefix) / 100f;
+            float prefixMultiplier = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
 
             detailedStatsLabel.text = string.Format("{0:0%}", overallBudget * prefixMultiplier);
             detailedStatsLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN"),
