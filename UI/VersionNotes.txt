@@ -3,6 +3,7 @@
     - Now using tabs on asterisk tab for organize options
     - Solved: New lines not shown in line detail listing panel
     - Solved: Auto Name is working on line complete
+    - Solved: Crash on load language translation
     - UI Issue: Line time is now checkboxes (as default also are)
     - UI Issue: Line budget now isn't hiding on line's line info bottom
     - UI Issue: Now the lines count changes in each tab

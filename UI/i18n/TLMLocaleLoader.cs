@@ -13,8 +13,22 @@ namespace Klyte.TransportLinesManager.i18n
         private const string idxSeparator = ">";
         private const string localeKeySeparator = "|";
         private const string commentChar = "#";
+        private static string language = "";
+
+        public static string loadedLanguage
+        {
+            get
+            {
+                return language;
+            }
+        }
 
         public static void loadLocale(string localeId)
+        {
+            loadLocale(localeId, true);
+
+        }
+        private static void loadLocale(string localeId, bool setLocale = false)
         {
             string load = ResourceLoader.loadResourceString("UI.i18n." + localeId + ".properties");
             if (load == null)
@@ -22,12 +36,11 @@ namespace Klyte.TransportLinesManager.i18n
                 load = ResourceLoader.loadResourceString("UI.i18n.en.properties");
                 if (load == null)
                 {
-                    TLMUtils.doLog("LOCALE NOT LOADED!!!!");
+                    TLMUtils.doErrorLog("LOCALE NOT LOADED!!!!");
                     return;
                 }
                 localeId = "en";
             }
-
             var locale = TLMUtils.GetPrivateField<Locale>(LocaleManager.instance, "m_Locale");
             Locale.Key k;
 
@@ -72,6 +85,11 @@ namespace Klyte.TransportLinesManager.i18n
             {
                 loadLocale("en");
             }
+            if (setLocale)
+            {
+                language = localeId;
+            }
+
         }
     }
 }

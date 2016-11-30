@@ -300,7 +300,7 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.MONUMENT_SERVICE_CONFIG: key = "Monuments"; break;
                 case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG: key = "FireDepartment"; break;
                 case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: key = "PublicTransport"; break;
-                case ConfigIndex.GOVERNMENT_SERVICE_CONFIG: key = "Government"; break;
+                case ConfigIndex.DISASTER_SERVICE_CONFIG: key = "Government"; break;
                 default: key = ""; break;
             }
             switch (i & ConfigIndex.DESC_DATA)
@@ -308,7 +308,7 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.RESIDENTIAL_SERVICE_CONFIG: return "DISTRICT_RESIDENTIAL";
                 case ConfigIndex.COMMERCIAL_SERVICE_CONFIG: return "DISTRICT_COMMERCIAL";
                 case ConfigIndex.INDUSTRIAL_SERVICE_CONFIG: return "DISTRICT_INDUSTRIAL";
-                case ConfigIndex.UNUSED1_SERVICE_CONFIG: return "Unused1";
+                case ConfigIndex.NATURAL_SERVICE_CONFIG: return "Unused1";
                 case ConfigIndex.UNUSED2_SERVICE_CONFIG: return "Unused2";
                 case ConfigIndex.CITIZEN_SERVICE_CONFIG: return "INCOME_CITIZEN";
                 case ConfigIndex.TOURISM_SERVICE_CONFIG: return "INCOME_TOURIST";
@@ -324,8 +324,8 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.MONUMENT_SERVICE_CONFIG:
                 case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                case ConfigIndex.GOVERNMENT_SERVICE_CONFIG:
-                    return "MAIN_TOOL"; 
+                case ConfigIndex.DISASTER_SERVICE_CONFIG:
+                    return "MAIN_TOOL";
                 default: return "???";
 
             }
@@ -524,9 +524,13 @@ namespace Klyte.TransportLinesManager
             {
                 return TransportInfo.TransportType.Airplane;
             }
+            else if (T == ConfigIndex.EVACUATION_BUS_CONFIG)
+            {
+                return TransportInfo.TransportType.EvacuationBus;
+            }
             else
             {
-                return TransportInfo.TransportType.Unused2;
+                return TransportInfo.TransportType.Bus;
             }
         }
 
@@ -577,12 +581,13 @@ namespace Klyte.TransportLinesManager
             PLANE_CONFIG = TransportInfo.TransportType.Airplane << 16,
             TAXI_CONFIG = TransportInfo.TransportType.Taxi << 16,
             SHIP_CONFIG = TransportInfo.TransportType.Ship << 16,
+            EVACUATION_BUS_CONFIG = TransportInfo.TransportType.EvacuationBus << 16,
 
 
             RESIDENTIAL_SERVICE_CONFIG = ItemClass.Service.Residential,
             COMMERCIAL_SERVICE_CONFIG = ItemClass.Service.Commercial,
             INDUSTRIAL_SERVICE_CONFIG = ItemClass.Service.Industrial,
-            UNUSED1_SERVICE_CONFIG = ItemClass.Service.Unused1,
+            NATURAL_SERVICE_CONFIG = ItemClass.Service.Natural,
             UNUSED2_SERVICE_CONFIG = ItemClass.Service.Unused2,
             CITIZEN_SERVICE_CONFIG = ItemClass.Service.Citizen,
             TOURISM_SERVICE_CONFIG = ItemClass.Service.Tourism,
@@ -598,7 +603,7 @@ namespace Klyte.TransportLinesManager
             MONUMENT_SERVICE_CONFIG = ItemClass.Service.Monument,
             FIREDEPARTMENT_SERVICE_CONFIG = ItemClass.Service.FireDepartment,
             PUBLICTRANSPORT_SERVICE_CONFIG = ItemClass.Service.PublicTransport,
-            GOVERNMENT_SERVICE_CONFIG = ItemClass.Service.Government,
+            DISASTER_SERVICE_CONFIG = ItemClass.Service.Disaster,
 
 
 
@@ -707,7 +712,7 @@ namespace Klyte.TransportLinesManager
             RESIDENTIAL_USE_FOR_AUTO_NAMING_REF = RESIDENTIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             COMMERCIAL_USE_FOR_AUTO_NAMING_REF = COMMERCIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             INDUSTRIAL_USE_FOR_AUTO_NAMING_REF = INDUSTRIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
-            UNUSED1_USE_FOR_AUTO_NAMING_REF = UNUSED1_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            UNUSED1_USE_FOR_AUTO_NAMING_REF = NATURAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             UNUSED2_USE_FOR_AUTO_NAMING_REF = UNUSED2_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             CITIZEN_USE_FOR_AUTO_NAMING_REF = CITIZEN_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             TOURISM_USE_FOR_AUTO_NAMING_REF = TOURISM_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
@@ -723,7 +728,7 @@ namespace Klyte.TransportLinesManager
             MONUMENT_USE_FOR_AUTO_NAMING_REF = MONUMENT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             FIREDEPARTMENT_USE_FOR_AUTO_NAMING_REF = FIREDEPARTMENT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF = PUBLICTRANSPORT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
-            GOVERNMENT_USE_FOR_AUTO_NAMING_REF = GOVERNMENT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            GOVERNMENT_USE_FOR_AUTO_NAMING_REF = DISASTER_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
 
             TRAIN_USE_FOR_AUTO_NAMING_REF = TRAIN_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
             METRO_USE_FOR_AUTO_NAMING_REF = METRO_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
@@ -735,7 +740,7 @@ namespace Klyte.TransportLinesManager
             RESIDENTIAL_AUTO_NAMING_REF_TEXT = RESIDENTIAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             COMMERCIAL_AUTO_NAMING_REF_TEXT = COMMERCIAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             INDUSTRIAL_AUTO_NAMING_REF_TEXT = INDUSTRIAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
-            UNUSED1_AUTO_NAMING_REF_TEXT = UNUSED1_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            UNUSED1_AUTO_NAMING_REF_TEXT = NATURAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             UNUSED2_AUTO_NAMING_REF_TEXT = UNUSED2_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             CITIZEN_AUTO_NAMING_REF_TEXT = CITIZEN_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             TOURISM_AUTO_NAMING_REF_TEXT = TOURISM_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
@@ -751,7 +756,7 @@ namespace Klyte.TransportLinesManager
             MONUMENT_AUTO_NAMING_REF_TEXT = MONUMENT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             FIREDEPARTMENT_AUTO_NAMING_REF_TEXT = FIREDEPARTMENT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT = PUBLICTRANSPORT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
-            GOVERNMENT_AUTO_NAMING_REF_TEXT = GOVERNMENT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            GOVERNMENT_AUTO_NAMING_REF_TEXT = DISASTER_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
 
             TRAIN_AUTO_NAMING_REF_TEXT = TRAIN_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
             METRO_AUTO_NAMING_REF_TEXT = METRO_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
@@ -779,7 +784,7 @@ namespace Klyte.TransportLinesManager
             ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG,
             ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG,
             ConfigIndex.EDUCATION_SERVICE_CONFIG,
-            ConfigIndex.GOVERNMENT_SERVICE_CONFIG,
+            ConfigIndex.DISASTER_SERVICE_CONFIG,
             ConfigIndex.GARBAGE_SERVICE_CONFIG,
         };
 
@@ -808,7 +813,7 @@ namespace Klyte.TransportLinesManager
             TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG ,
             TLMConfigWarehouse.ConfigIndex.BUS_CONFIG   ,
             TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG  ,
-            TLMConfigWarehouse.ConfigIndex.GOVERNMENT_SERVICE_CONFIG    ,
+            TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.HEALTHCARE_SERVICE_CONFIG    ,
@@ -825,7 +830,7 @@ namespace Klyte.TransportLinesManager
             TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG   ,
-            TLMConfigWarehouse.ConfigIndex.UNUSED1_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG   ,
             TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG
         };
     }
@@ -838,7 +843,7 @@ namespace Klyte.TransportLinesManager
                 case ItemClass.Service.Residential: return TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG;
                 case ItemClass.Service.Commercial: return TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG;
                 case ItemClass.Service.Industrial: return TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG;
-                case ItemClass.Service.Unused1: return TLMConfigWarehouse.ConfigIndex.UNUSED1_SERVICE_CONFIG;
+                case ItemClass.Service.Natural: return TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG;
                 case ItemClass.Service.Unused2: return TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG;
                 case ItemClass.Service.Citizen: return TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG;
                 case ItemClass.Service.Tourism: return TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG;
@@ -854,7 +859,7 @@ namespace Klyte.TransportLinesManager
                 case ItemClass.Service.Monument: return TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG;
                 case ItemClass.Service.FireDepartment: return TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG;
                 case ItemClass.Service.PublicTransport: return TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
-                case ItemClass.Service.Government: return TLMConfigWarehouse.ConfigIndex.GOVERNMENT_SERVICE_CONFIG;
+                case ItemClass.Service.Disaster: return TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG;
                 default: return 0;
             }
         }
@@ -897,7 +902,7 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.UNUSED1_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG:
@@ -913,7 +918,7 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.GOVERNMENT_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
                     saida = TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | idx) ? (uint)Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
                     break;
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
@@ -942,7 +947,7 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.UNUSED1_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG:
@@ -958,7 +963,7 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.GOVERNMENT_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
                     return TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | idx);
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
@@ -979,7 +984,7 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.UNUSED1_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG:
@@ -995,7 +1000,7 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.GOVERNMENT_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
                     return TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | idx);
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
@@ -1015,7 +1020,7 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.UNUSED1_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG:
@@ -1031,7 +1036,7 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.GOVERNMENT_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
                     return false;
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:

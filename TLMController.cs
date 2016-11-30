@@ -105,7 +105,7 @@ namespace Klyte.TransportLinesManager
             }
             if (!initialized)
             {
-
+                TransportLinesManagerMod.instance.loadTLMLocale();
 
                 uiView = GameObject.FindObjectOfType<UIView>();
                 if (!uiView)
@@ -115,7 +115,7 @@ namespace Klyte.TransportLinesManager
                     return;
                 mainRef.eventVisibilityChanged += delegate (UIComponent component, bool b)
                  {
-                     if (b && TransportLinesManagerMod.instance.needShowPopup)
+                     if (b)
                      {
                          TransportLinesManagerMod.instance.showVersionInfoPopup();
                      }
@@ -205,7 +205,7 @@ namespace Klyte.TransportLinesManager
             m_lineInfoPanel.Hide();
             m_depotInfoPanel.Hide();
             defaultListingLinesPanel.Show();
-            tm.LinesVisible = true;
+            tm.LinesVisible =0x7FFFFFFF;
             //			MainMenu ();
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "ABRE2!");
         }
@@ -221,7 +221,7 @@ namespace Klyte.TransportLinesManager
             defaultListingLinesPanel.Hide();
             m_lineInfoPanel.Hide();
             m_depotInfoPanel.Hide();
-            tm.LinesVisible = false;
+            tm.LinesVisible = 0;
             InfoManager im = Singleton<InfoManager>.instance;
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "FECHA!");
         }

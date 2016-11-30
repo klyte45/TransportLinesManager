@@ -1277,7 +1277,7 @@ namespace Klyte.TransportLinesManager
             ItemClass.Service.PublicTransport,
             ItemClass.Service.Monument,
             ItemClass.Service.Beautification,
-            ItemClass.Service.Government,
+            ItemClass.Service.Disaster,
             ItemClass.Service.HealthCare,
             ItemClass.Service.FireDepartment,
             ItemClass.Service.PoliceDepartment,

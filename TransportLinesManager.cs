@@ -46,11 +46,6 @@ namespace Klyte.TransportLinesManager
         }
         public static TransportLinesManagerMod instance;
 
-        //private PreviewRenderer m_previewRenderer;
-        //private UITextureSprite m_currentSelectionBus;
-        //private UITextureSprite m_currentSelectionTrain;
-
-
 
         private SavedBool m_savedOverrideDefaultLineInfoPanel;
         private SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel;
@@ -219,7 +214,10 @@ namespace Klyte.TransportLinesManager
 
         public string Description
         {
-            get { return "A shortcut to manage all city's public transports lines."; }
+            get
+            {
+                return "A shortcut to manage all city's public transports lines.";
+            }
         }
 
 
@@ -230,6 +228,7 @@ namespace Klyte.TransportLinesManager
 
         public TransportLinesManagerMod()
         {
+
             Debug.LogWarningFormat("TLMv" + TransportLinesManagerMod.majorVersion + " LOADING TLM ");
             SettingsFile tlmSettings = new SettingsFile();
             tlmSettings.fileName = TLMConfigWarehouse.CONFIG_FILENAME;
@@ -260,12 +259,13 @@ namespace Klyte.TransportLinesManager
                 needShowPopup = true;
             }
             toggleOverrideDefaultLineInfoPanel(m_savedOverrideDefaultLineInfoPanel.value);
+            this.loadTLMLocale();
+            LocaleManager.eventLocaleChanged += new LocaleManager.LocaleChangedHandler(this.loadTLMLocale);
             instance = this;
         }
 
         public bool showVersionInfoPopup(bool force = false)
         {
-            // TLMUtils.doLocaleDump();
             if (needShowPopup || force)
             {
                 try
@@ -313,8 +313,9 @@ namespace Klyte.TransportLinesManager
 
         public void OnSettingsUI(UIHelperBase helperDefault)
         {
-            loadTLMLocale();
+
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading Options");
+            loadTLMLocale();
             string[] namingOptionsSufixo = new string[] {
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 0)),
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 1)),
@@ -349,14 +350,10 @@ namespace Klyte.TransportLinesManager
                 Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 5)),
             };
             UIHelperExtension helper = new UIHelperExtension((UIHelper)helperDefault);
-            //m_previewRenderer = helper.self.gameObject.AddComponent<PreviewRenderer>();
-            //m_previewRenderer.cameraRotation = 120f;
-            //m_previewRenderer.zoom = 3f;
-            //m_previewRenderer.size = new Vector2(200, 200);
 
             helper.self.eventVisibilityChanged += delegate (UIComponent component, bool b)
             {
-                if (b && needShowPopup)
+                if (b)
                 {
                     showVersionInfoPopup();
                 }
@@ -370,8 +367,6 @@ namespace Klyte.TransportLinesManager
 
             helper.AddCheckboxLocalized("TLM_IPT_COMP_MODE_DESC", m_IPTCompatibilityMode.value, iptToggle);
             overrideWorldInfoPanelLineOption = (UICheckBox)helper.AddCheckboxLocalized("TLM_OVERRIDE_DEFAULT_LINE_INFO", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
-
-
 
             helper.AddSpace(10);
 
@@ -556,15 +551,17 @@ namespace Klyte.TransportLinesManager
             group9.AddButton(Locale.Get("TLM_RELEASE_NOTES"), delegate ()
             {
                 showVersionInfoPopup(true);
-                TLMUtils.doLocaleDump();
             });
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("End Loading Options");
         }
 
-        private void loadTLMLocale()
+        public void loadTLMLocale()
         {
-            TLMLocaleUtils.loadLocale(LocaleManager.instance.language);
+            if (SingletonLite<LocaleManager>.exists)
+            {
+                TLMLocaleUtils.loadLocale(SingletonLite<LocaleManager>.instance.language);
+            }
         }
 
         private T getSelectedIndex<T>(params TextList<T>[] boxes)
@@ -690,13 +687,14 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-
+        private bool m_loaded = false;
 
         public void OnLevelLoaded(LoadMode mode)
         {
             TLMUtils.doLog("LEVEL LOAD");
             if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame)
             {
+                m_loaded = false;
                 TLMUtils.doLog("NOT GAME ({0})", mode);
                 return;
             }
@@ -726,22 +724,29 @@ namespace Klyte.TransportLinesManager
                 TLMTransportLineExtensionHooks.EnableHooks();
                 TLMTicketOverride.EnableHooks();
             }
+            loadTLMLocale();
+            m_loaded = true;
 
             //			
         }
 
         public void OnLevelUnloading()
         {
+            if (!m_loaded) { return; }
             if (TLMController.instance != null)
             {
                 TLMController.instance.destroy();
+                TLMController.instance = null;
             }
             if (!TransportLinesManagerMod.isIPTCompatibiltyMode)
             {
-                //TLMTransportLineExtensionHooks.DisableHooks();
+                TLMTicketOverride.DisableHooks();
+                TLMTransportLineExtensionHooks.DisableHooks();
+                TLMDepotAI.instance.DisableHooks();
             }
             TLMPublicTransportDetailPanelHooks.instance.DisableHooks();
             //			Log.debug ("LEVELUNLOAD");
+            m_loaded = false;
         }
 
         public void OnReleased()
@@ -815,6 +820,14 @@ namespace Klyte.TransportLinesManager
                 TLMController.instance.update();
             }
         }
+        public override void OnReleased()
+        {
+            if (TLMController.instance != null)
+            {
+                TLMController.instance.destroy();
+            }
+        }
+
     }
 
     public class UIButtonLineInfo : UIButton
