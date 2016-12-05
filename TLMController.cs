@@ -344,11 +344,12 @@ namespace Klyte.TransportLinesManager
             }
             else
             {
-                Transform linesPanelObj = GameObject.Find("TLMLinesNear").transform;
-                if (!linesPanelObj)
+                var go = GameObject.Find("TLMLinesNear");
+                if (!go)
                 {
                     return;
                 }
+                Transform linesPanelObj = go.transform;
                 linesPanelObj.GetComponent<UIPanel>().isVisible = false;
             }
         }

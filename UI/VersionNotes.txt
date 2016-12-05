@@ -1,4 +1,7 @@
-﻿5.5
+﻿5.5.1
+    - Fixed: Building info not appearing when "Show Near Lines" option is disabled
+
+5.5
     - Added budget by time of day, in groups of 3 hours
     - Now using tabs on asterisk tab for organize options
     - Solved: New lines not shown in line detail listing panel
