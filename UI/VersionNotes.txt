@@ -1,4 +1,7 @@
-﻿5.5.1
+﻿5.5.2
+    - Added translation to Korean (thanks Toothless FLY!)
+
+5.5.1
     - Fixed: Building info not appearing when "Show Near Lines" option is disabled
 
 5.5
