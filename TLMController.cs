@@ -105,7 +105,7 @@ namespace Klyte.TransportLinesManager
             }
             if (!initialized)
             {
-                TransportLinesManagerMod.instance.loadTLMLocale();
+                TransportLinesManagerMod.instance.loadTLMLocale(false);
 
                 uiView = GameObject.FindObjectOfType<UIView>();
                 if (!uiView)

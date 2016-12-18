@@ -14,6 +14,7 @@ namespace Klyte.TransportLinesManager.i18n
         private const string localeKeySeparator = "|";
         private const string commentChar = "#";
         private static string language = "";
+        private static string[] locales = new string[] { "en", "pt", "ko" };
 
         public static string loadedLanguage
         {
@@ -23,12 +24,35 @@ namespace Klyte.TransportLinesManager.i18n
             }
         }
 
-        public static void loadLocale(string localeId)
+        public static string[] getLanguageIndex()
         {
-            loadLocale(localeId, true);
-
+            Array8<string> saida = new Array8<string>((uint)locales.Length + 1);
+            saida.m_buffer[0] = Locale.Get("TLM_GAME_DEFAULT_LANGUAGE");
+            for (int i = 0; i < locales.Length; i++)
+            {
+                saida.m_buffer[i + 1] = Locale.Get("TLM_LANG", locales[i]);
+            }
+            return saida.m_buffer;
         }
-        private static void loadLocale(string localeId, bool setLocale = false)
+
+        public static string getSelectedLocaleByIndex(int idx)
+        {
+            if (idx <= 0 || idx > locales.Length)
+            {
+                return "en";
+            }
+            return locales[idx - 1];
+        }
+
+        public static void loadLocale(string localeId, bool force)
+        {
+            if (force)
+            {
+                LocaleManager.ForceReload();
+            }
+            loadLocaleIntern(localeId, true);
+        }
+        private static void loadLocaleIntern(string localeId, bool setLocale = false)
         {
             string load = ResourceLoader.loadResourceString("UI.i18n." + localeId + ".properties");
             if (load == null)
@@ -83,7 +107,7 @@ namespace Klyte.TransportLinesManager.i18n
 
             if (localeId != "en")
             {
-                loadLocale("en");
+                loadLocaleIntern("en");
             }
             if (setLocale)
             {

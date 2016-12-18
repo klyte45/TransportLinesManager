@@ -55,41 +55,41 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
             }
         }
 
-        private const string SEPARATOR = "∂";
-        private const string COMMA = "∞";
-        private const string SUBSEPARATOR = "∫";
-        private const string SUBCOMMA = "≠";
-        private const string SUBSUBCOMMA = "⅞";
+        private const string PREFIX_SEPARATOR = "∂";
+        private const string PREFIX_COMMA = "∞";
+        private const string PROPERTY_SEPARATOR = "∫";
+        private const string PROPERTY_COMMA = "≠";
+        private const string PROPERTY_VALUE_COMMA = "⅞";
         private List<string> basicAssetsList;
         private bool globalLoaded = false;
         private Type type;
 
-        private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_subcategoryList;
-        private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_subcategoryListGlobal;
-        private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_subcategoryListNonGlobal;
+        private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_prefixConfigList;
+        private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_prefixConfigListGlobal;
+        private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_prefixConfigListNonGlobal;
 
 
         public List<string> getAssetListForPrefix(uint prefix, bool global = false)
         {
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getAssetListForPrefix: pre loadSubcategoryList");
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getAssetListForPrefix: pos loadSubcategoryList");
-            if (!cached_subcategoryList.ContainsKey(prefix))
+            if (!cached_prefixConfigList.ContainsKey(prefix))
             {
                 prefix = 0;
             }
 
             List<string> assetsList;
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getAssetListForPrefix: pre  if (cached_subcategoryList.ContainsKey(prefix))");
-            if (cached_subcategoryList.ContainsKey(prefix))
+            if (cached_prefixConfigList.ContainsKey(prefix))
             {
-                if (!cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.MODELS) || cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] == string.Empty)
+                if (!cached_prefixConfigList[prefix].ContainsKey(PrefixConfigIndex.MODELS) || cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS] == string.Empty)
                 {
                     assetsList = new List<string>();
                 }
                 else
                 {
-                    assetsList = cached_subcategoryList[prefix][PrefixConfigIndex.MODELS].Split(SUBSUBCOMMA.ToCharArray()).ToList();
+                    assetsList = cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS].Split(PROPERTY_VALUE_COMMA.ToCharArray()).ToList();
                 }
             }
             else
@@ -103,7 +103,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
         private uint getIndexFromStringArray(string x)
         {
             uint saida;
-            if (uint.TryParse(x.Split(SEPARATOR.ToCharArray())[0], out saida))
+            if (uint.TryParse(x.Split(PREFIX_SEPARATOR.ToCharArray())[0], out saida))
             {
                 return saida;
             }
@@ -112,15 +112,15 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
         private Dictionary<PrefixConfigIndex, string> getValueFromStringArray(string x)
         {
-            string[] array = x.Split(SEPARATOR.ToCharArray());
+            string[] array = x.Split(PREFIX_SEPARATOR.ToCharArray());
             var saida = new Dictionary<PrefixConfigIndex, string>();
             if (array.Length != 2)
             {
                 return saida;
             }
-            foreach (string s in array[1].Split(SUBCOMMA.ToCharArray()))
+            foreach (string s in array[1].Split(PROPERTY_COMMA.ToCharArray()))
             {
-                var items = s.Split(SUBSEPARATOR.ToCharArray());
+                var items = s.Split(PROPERTY_SEPARATOR.ToCharArray());
                 if (items.Length != 2) continue;
                 try
                 {
@@ -136,20 +136,20 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
             return saida;
         }
 
-        private void loadSubcategoryList(bool global, bool force = false)
+        private void loadPrefixConfigList(bool global, bool force = false)
         {
-            if (cached_subcategoryList == null || globalLoaded != global)
+            if (cached_prefixConfigList == null || globalLoaded != global)
             {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadSubcategoryList: pre loadAuxiliarVars");
                 loadAuxiliarVars(global, force);
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadSubcategoryList: pos loadAuxiliarVars");
                 if (global)
                 {
-                    cached_subcategoryList = cached_subcategoryListGlobal;
+                    cached_prefixConfigList = cached_prefixConfigListGlobal;
                 }
                 else
                 {
-                    cached_subcategoryList = cached_subcategoryListNonGlobal;
+                    cached_prefixConfigList = cached_prefixConfigListNonGlobal;
                 }
 
                 globalLoaded = global;
@@ -158,21 +158,21 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
         private void loadAuxiliarVars(bool global, bool force = false)
         {
-            if ((global && cached_subcategoryListGlobal == null) || (!global && cached_subcategoryListNonGlobal == null) || force)
+            if ((global && cached_prefixConfigListGlobal == null) || (!global && cached_prefixConfigListNonGlobal == null) || force)
             {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: IN!");
                 string[] file;
                 if (global)
                 {
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: IF!");
-                    file = TLMConfigWarehouse.getConfig(TLMConfigWarehouse.GLOBAL_CONFIG_INDEX, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX).getString(configKeyForAssets).Split(COMMA.ToCharArray());
+                    file = TLMConfigWarehouse.getConfig(TLMConfigWarehouse.GLOBAL_CONFIG_INDEX, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX).getString(configKeyForAssets).Split(PREFIX_COMMA.ToCharArray());
                 }
                 else
                 {
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: ELSE!");
-                    file = TLMConfigWarehouse.getCurrentConfigString(configKeyForAssets).Split(COMMA.ToCharArray());
+                    file = TLMConfigWarehouse.getCurrentConfigString(configKeyForAssets).Split(PREFIX_COMMA.ToCharArray());
                 }
-                cached_subcategoryList = new Dictionary<uint, Dictionary<PrefixConfigIndex, string>>();
+                cached_prefixConfigList = new Dictionary<uint, Dictionary<PrefixConfigIndex, string>>();
                 if (file.Length > 0)
                 {
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: file.Length > 0");
@@ -180,15 +180,15 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
                     {
                         uint key = getIndexFromStringArray(s);
                         var value = getValueFromStringArray(s);
-                        cached_subcategoryList[key] = value;
+                        cached_prefixConfigList[key] = value;
                     }
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: dic done");
-                    cached_subcategoryList.Remove(0xFFFFFFFF);
+                    cached_prefixConfigList.Remove(0xFFFFFFFF);
                 }
                 else
                 {
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: file.Length == 0");
-                    cached_subcategoryList = new Dictionary<uint, Dictionary<PrefixConfigIndex, string>>();
+                    cached_prefixConfigList = new Dictionary<uint, Dictionary<PrefixConfigIndex, string>>();
                 }
                 basicAssetsList = new List<string>();
 
@@ -202,11 +202,11 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
                     }
                 }
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: pre models Check");
-                foreach (uint prefix in cached_subcategoryList.Keys)
+                foreach (uint prefix in cached_prefixConfigList.Keys)
                 {
-                    if (cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.MODELS))
+                    if (cached_prefixConfigList[prefix].ContainsKey(PrefixConfigIndex.MODELS))
                     {
-                        var temp = cached_subcategoryList[prefix][PrefixConfigIndex.MODELS].Split(SUBSUBCOMMA.ToCharArray()).ToList();
+                        var temp = cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS].Split(PROPERTY_VALUE_COMMA.ToCharArray()).ToList();
                         for (int i = 0; i < temp.Count; i++)
                         {
                             string assetId = temp[i];
@@ -216,7 +216,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
                                 i--;
                             }
                         }
-                        cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] = string.Join(SUBSUBCOMMA, temp.ToArray());
+                        cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS] = string.Join(PROPERTY_VALUE_COMMA, temp.ToArray());
                     }
                 }
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("loadAuxiliarVars: pos models Check");
@@ -233,7 +233,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
         private void setSubcategoryList(Dictionary<uint, Dictionary<PrefixConfigIndex, string>> value, bool global)
         {
-            cached_subcategoryList = value;
+            cached_prefixConfigList = value;
             globalLoaded = global;
             saveSubcategoryList(global);
         }
@@ -250,16 +250,16 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
                 {
                     loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
                 }
-                var value = string.Join(COMMA, cached_subcategoryList.Select(x => x.Key.ToString() + SEPARATOR + string.Join(SUBCOMMA, x.Value.Select(y => y.Key.ToString() + SUBSEPARATOR + y.Value).ToArray())).ToArray());
+                var value = string.Join(PREFIX_COMMA, cached_prefixConfigList.Select(x => x.Key.ToString() + PREFIX_SEPARATOR + string.Join(PROPERTY_COMMA, x.Value.Select(y => y.Key.ToString() + PROPERTY_SEPARATOR + y.Value).ToArray())).ToArray());
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("NEW VALUE ({0}): {1}", type.ToString(), value);
                 loadedConfig.setString(configKeyForAssets, value);
                 if (global)
                 {
-                    cached_subcategoryListGlobal = cached_subcategoryList;
+                    cached_prefixConfigListGlobal = cached_prefixConfigList;
                 }
                 else
                 {
-                    cached_subcategoryListNonGlobal = cached_subcategoryList;
+                    cached_prefixConfigListNonGlobal = cached_prefixConfigList;
                 }
             }
             else
@@ -281,14 +281,14 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
         public string getPrefixName(uint prefix, bool global = false)
         {
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (needReload)
             {
                 readVehicles(global); if (needReload) return "";
             }
-            if (cached_subcategoryList.ContainsKey(prefix) && cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.PREFIX_NAME))
+            if (cached_prefixConfigList.ContainsKey(prefix) && cached_prefixConfigList[prefix].ContainsKey(PrefixConfigIndex.PREFIX_NAME))
             {
-                return cached_subcategoryList[prefix][PrefixConfigIndex.PREFIX_NAME];
+                return cached_prefixConfigList[prefix][PrefixConfigIndex.PREFIX_NAME];
             }
             return "";
         }
@@ -297,29 +297,29 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
         public void setPrefixName(uint prefix, string name, bool global = false)
         {
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setPrefixName! {0} {1} {2} {3}", type.ToString(), prefix, name, global);
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (needReload)
             {
                 readVehicles(global); if (needReload) return;
             }
-            if (!cached_subcategoryList.ContainsKey(prefix))
+            if (!cached_prefixConfigList.ContainsKey(prefix))
             {
-                cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
+                cached_prefixConfigList[prefix] = new Dictionary<PrefixConfigIndex, string>();
             }
-            cached_subcategoryList[prefix][PrefixConfigIndex.PREFIX_NAME] = name;
+            cached_prefixConfigList[prefix][PrefixConfigIndex.PREFIX_NAME] = name;
             saveSubcategoryList(global);
         }
 
         public uint[] getBudgetsMultiplier(uint prefix, bool global = false)
         {
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (needReload)
             {
                 readVehicles(global); if (needReload) return new uint[] { 100 };
             }
-            if (cached_subcategoryList.ContainsKey(prefix) && cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.BUDGET_MULTIPLIER))
+            if (cached_prefixConfigList.ContainsKey(prefix) && cached_prefixConfigList[prefix].ContainsKey(PrefixConfigIndex.BUDGET_MULTIPLIER))
             {
-                string[] savedMultipliers = cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER].Split(COMMA.ToCharArray());
+                string[] savedMultipliers = cached_prefixConfigList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER].Split(PROPERTY_VALUE_COMMA.ToCharArray());
 
                 uint[] result = new uint[savedMultipliers.Length];
                 for (int i = 0; i < result.Length; i++)
@@ -334,6 +334,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
                         return new uint[] { 100 };
                     }
                 }
+                TLMUtils.doLog("LENGTH SIZE BG PFX= {0}", result.Length);
                 return result;
             }
             return new uint[] { 100 };
@@ -341,15 +342,11 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
         public uint getBudgetMultiplierForHour(uint prefix, int hour)
         {
-            loadSubcategoryList(false);
-            if (needReload)
-            {
-                readVehicles(false); if (needReload) return 100;
-            }
+            loadPrefixConfigList(false);
             uint result = 100;
-            if (cached_subcategoryList.ContainsKey(prefix) && cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.BUDGET_MULTIPLIER))
+            if (cached_prefixConfigList.ContainsKey(prefix) && cached_prefixConfigList[prefix].ContainsKey(PrefixConfigIndex.BUDGET_MULTIPLIER))
             {
-                string[] savedMultipliers = cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER].Split(COMMA.ToCharArray());
+                string[] savedMultipliers = cached_prefixConfigList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER].Split(PROPERTY_VALUE_COMMA.ToCharArray());
                 if (savedMultipliers.Length == 1)
                 {
                     if (uint.TryParse(savedMultipliers[0], out result))
@@ -372,30 +369,30 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
         public void setBudgetMultiplier(uint prefix, uint[] multipliers, bool global = false)
         {
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setBudgetMultiplier! {0} {1} {2} {3}", type.ToString(), prefix, multipliers, global);
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (needReload)
             {
                 readVehicles(global); if (needReload) return;
             }
-            if (!cached_subcategoryList.ContainsKey(prefix))
+            if (!cached_prefixConfigList.ContainsKey(prefix))
             {
-                cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
+                cached_prefixConfigList[prefix] = new Dictionary<PrefixConfigIndex, string>();
             }
-            cached_subcategoryList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER] = string.Join(COMMA, multipliers.Select(x => x.ToString()).ToArray());
+            cached_prefixConfigList[prefix][PrefixConfigIndex.BUDGET_MULTIPLIER] = string.Join(PROPERTY_VALUE_COMMA, multipliers.Select(x => x.ToString()).ToArray());
             saveSubcategoryList(global);
         }
 
         public uint getTicketPrice(uint prefix, bool global = false)
         {
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (needReload)
             {
                 readVehicles(global); if (needReload) return 100;
             }
-            if (cached_subcategoryList.ContainsKey(prefix) && cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.TICKET_PRICE))
+            if (cached_prefixConfigList.ContainsKey(prefix) && cached_prefixConfigList[prefix].ContainsKey(PrefixConfigIndex.TICKET_PRICE))
             {
                 uint result;
-                if (uint.TryParse(cached_subcategoryList[prefix][PrefixConfigIndex.TICKET_PRICE], out result))
+                if (uint.TryParse(cached_prefixConfigList[prefix][PrefixConfigIndex.TICKET_PRICE], out result))
                 {
                     return result;
                 }
@@ -438,33 +435,33 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
         public void setTicketPrice(uint prefix, uint price, bool global = false)
         {
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setTicketPrice! {0} {1} {2} {3}", type.ToString(), prefix, price, global);
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (needReload)
             {
                 readVehicles(global); if (needReload) return;
             }
-            if (!cached_subcategoryList.ContainsKey(prefix))
+            if (!cached_prefixConfigList.ContainsKey(prefix))
             {
-                cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
+                cached_prefixConfigList[prefix] = new Dictionary<PrefixConfigIndex, string>();
             }
-            cached_subcategoryList[prefix][PrefixConfigIndex.TICKET_PRICE] = price.ToString();
+            cached_prefixConfigList[prefix][PrefixConfigIndex.TICKET_PRICE] = price.ToString();
             saveSubcategoryList(global);
         }
 
         public Dictionary<string, string> getBasicAssetsListForPrefix(uint prefix, bool global = false)
         {
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (needReload)
             {
                 readVehicles(global); if (needReload) return new Dictionary<string, string>();
             }
-            if (cached_subcategoryList.ContainsKey(prefix) && cached_subcategoryList[prefix].ContainsKey(PrefixConfigIndex.MODELS))
+            if (cached_prefixConfigList.ContainsKey(prefix) && cached_prefixConfigList[prefix].ContainsKey(PrefixConfigIndex.MODELS))
             {
-                if (cached_subcategoryList[prefix][PrefixConfigIndex.MODELS].Trim() == string.Empty)
+                if (cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS].Trim() == string.Empty)
                 {
                     return new Dictionary<string, string>();
                 }
-                return cached_subcategoryList[prefix][PrefixConfigIndex.MODELS].Split(SUBSUBCOMMA.ToCharArray()).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
+                return cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS].Split(PROPERTY_VALUE_COMMA.ToCharArray()).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
             }
             return basicAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
@@ -481,65 +478,65 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
         public void addAssetToPrefixList(uint prefix, string assetId, bool global = false)
         {
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("addAssetToPrefixList: {0} => {1}", assetId, prefix);
 
-            if (!cached_subcategoryList.ContainsKey(prefix))
+            if (!cached_prefixConfigList.ContainsKey(prefix))
             {
-                cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
-                cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] = "";
+                cached_prefixConfigList[prefix] = new Dictionary<PrefixConfigIndex, string>();
+                cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS] = "";
             }
-            var temp = cached_subcategoryList[prefix][PrefixConfigIndex.MODELS].Split(SUBSUBCOMMA.ToCharArray()).ToList();
+            var temp = cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS].Split(PROPERTY_VALUE_COMMA.ToCharArray()).ToList();
             temp.Add(assetId);
-            cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] = string.Join(SUBSUBCOMMA, temp.ToArray());
+            cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS] = string.Join(PROPERTY_VALUE_COMMA, temp.ToArray());
             saveSubcategoryList(global);
             readVehicles(global);
         }
 
         public void removeAssetFromPrefixList(uint prefix, string assetId, bool global = false)
         {
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAssetFromPrefixList: {0} => {1}", assetId, prefix);
             List<string> temp;
-            if (!cached_subcategoryList.ContainsKey(prefix))
+            if (!cached_prefixConfigList.ContainsKey(prefix))
             {
-                cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
-                cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] = "";
+                cached_prefixConfigList[prefix] = new Dictionary<PrefixConfigIndex, string>();
+                cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS] = "";
                 temp = getAssetListForPrefix(0, global);
             }
             else {
-                temp = cached_subcategoryList[prefix][PrefixConfigIndex.MODELS].Split(SUBSUBCOMMA.ToCharArray()).ToList();
+                temp = cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS].Split(PROPERTY_VALUE_COMMA.ToCharArray()).ToList();
             }
             if (!temp.Contains(assetId)) return;
             temp.Remove(assetId);
-            cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] = string.Join(SUBSUBCOMMA, temp.ToArray());
+            cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS] = string.Join(PROPERTY_VALUE_COMMA, temp.ToArray());
             saveSubcategoryList(global);
             readVehicles(global);
         }
 
         public void removeAllAssetsFromPrefixList(uint prefix, bool global = false)
         {
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAssetFromPrefixList: {0}", prefix);
-            if (!cached_subcategoryList.ContainsKey(prefix))
+            if (!cached_prefixConfigList.ContainsKey(prefix))
             {
-                cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
+                cached_prefixConfigList[prefix] = new Dictionary<PrefixConfigIndex, string>();
             }
-            cached_subcategoryList[prefix][PrefixConfigIndex.MODELS] = "";
+            cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS] = "";
             saveSubcategoryList(global);
             readVehicles(global);
         }
 
         public void useDefaultAssetsForPrefixList(uint prefix, bool global = false)
         {
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAssetFromPrefixList: {0}", prefix);
-            if (!cached_subcategoryList.ContainsKey(prefix))
+            if (!cached_prefixConfigList.ContainsKey(prefix))
             {
-                cached_subcategoryList[prefix] = new Dictionary<PrefixConfigIndex, string>();
+                cached_prefixConfigList[prefix] = new Dictionary<PrefixConfigIndex, string>();
                 return;
             }
-            cached_subcategoryList[prefix].Remove(PrefixConfigIndex.MODELS);
+            cached_prefixConfigList[prefix].Remove(PrefixConfigIndex.MODELS);
             saveSubcategoryList(global);
             readVehicles(global);
         }
@@ -584,7 +581,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
                 TLMUtils.doErrorLog("Prefabs not loaded!");
                 return;
             }
-            loadSubcategoryList(global);
+            loadPrefixConfigList(global);
         }
 
         public int getCapacity(VehicleInfo info, bool noLoop = false)

@@ -17,7 +17,7 @@ using Klyte.TransportLinesManager.i18n;
 using Klyte.TransportLinesManager.Extensors.BuildingAI;
 using Klyte.TransportLinesManager.Extensors.VehicleAI;
 
-[assembly: AssemblyVersion("5.5.2.*")]
+[assembly: AssemblyVersion("5.5.3.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -128,6 +128,14 @@ namespace Klyte.TransportLinesManager
             get
             {
                 return new SavedString("TLMSaveVersion", Settings.gameSettingsFile, "null", true);
+            }
+        }
+
+        private SavedInt currentLanguageId
+        {
+            get
+            {
+                return new SavedInt("TLMLanguage", Settings.gameSettingsFile, 0, true);
             }
         }
 
@@ -259,8 +267,8 @@ namespace Klyte.TransportLinesManager
                 needShowPopup = true;
             }
             toggleOverrideDefaultLineInfoPanel(m_savedOverrideDefaultLineInfoPanel.value);
-            this.loadTLMLocale();
-            LocaleManager.eventLocaleChanged += new LocaleManager.LocaleChangedHandler(this.loadTLMLocale);
+            loadTLMLocale(false);
+            LocaleManager.eventLocaleChanged += new LocaleManager.LocaleChangedHandler(this.autoLoadTLMLocale);
             instance = this;
         }
 
@@ -315,7 +323,7 @@ namespace Klyte.TransportLinesManager
         {
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading Options");
-            loadTLMLocale();
+            loadTLMLocale(false);
             string[] namingOptionsSufixo = new string[] {
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 0)),
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 1)),
@@ -544,7 +552,11 @@ namespace Klyte.TransportLinesManager
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading Group 4");
             UIHelperExtension group9 = helper.AddGroupExtended(Locale.Get("TLM_BETAS_EXTRA_INFO"));
-
+            group9.AddDropdownLocalized("TLM_MOD_LANG", TLMLocaleUtils.getLanguageIndex(), currentLanguageId.value, delegate (int idx)
+            {
+                currentLanguageId.value = idx;
+                loadTLMLocale(true);
+            });
             group9.AddButton(Locale.Get("TLM_DRAW_CITY_MAP"), TLMMapDrawer.drawCityMap);
             group9.AddCheckbox(Locale.Get("TLM_DEBUG_MODE"), m_debugMode.value, delegate (bool val) { m_debugMode.value = val; });
             group9.AddLabel("Version: " + version + " rev" + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Revision);
@@ -556,11 +568,18 @@ namespace Klyte.TransportLinesManager
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("End Loading Options");
         }
 
-        public void loadTLMLocale()
+        public void autoLoadTLMLocale()
+        {
+            if (currentLanguageId.value == 0)
+            {
+                loadTLMLocale(false);
+            }
+        }
+        public void loadTLMLocale(bool force)
         {
             if (SingletonLite<LocaleManager>.exists)
             {
-                TLMLocaleUtils.loadLocale(SingletonLite<LocaleManager>.instance.language);
+                TLMLocaleUtils.loadLocale(currentLanguageId.value == 0 ? SingletonLite<LocaleManager>.instance.language : TLMLocaleUtils.getSelectedLocaleByIndex(currentLanguageId.value), force);
             }
         }
 
@@ -724,7 +743,7 @@ namespace Klyte.TransportLinesManager
                 TLMTransportLineExtensionHooks.EnableHooks();
                 TLMTicketOverride.EnableHooks();
             }
-            loadTLMLocale();
+            loadTLMLocale(false);
             m_loaded = true;
 
             //			

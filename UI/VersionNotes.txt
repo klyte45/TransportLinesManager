@@ -1,4 +1,7 @@
-﻿5.5.2
+﻿5.5.3
+    - Added option to select the current language of TLM
+    - Fixed per hour budget control on load game
+5.5.2
     - Added translation to Korean (thanks Toothless FLY!)
 
 5.5.1
