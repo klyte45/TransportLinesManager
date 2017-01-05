@@ -1,19 +1,7 @@
-﻿5.5.3
-    - Added option to select the current language of TLM
-    - Fixed per hour budget control on load game
-5.5.2
-    - Added translation to Korean (thanks Toothless FLY!)
-
-5.5.1
-    - Fixed: Building info not appearing when "Show Near Lines" option is disabled
-
-5.5
-    - Added budget by time of day, in groups of 3 hours
-    - Now using tabs on asterisk tab for organize options
-    - Solved: New lines not shown in line detail listing panel
-    - Solved: Auto Name is working on line complete
-    - Solved: Crash on load language translation
-    - UI Issue: Line time is now checkboxes (as default also are)
-    - UI Issue: Line budget now isn't hiding on line's line info bottom
-    - UI Issue: Now the lines count changes in each tab
-    - UI Issue: Hide/show lines works again
+﻿5.6.1
+    - NEW: Added german support (thanks weoiss!)
+    - Fixed: Lines with 0% budget are seen by the cims as enabled - now they will be disabled (temporary, if using per hour budget, and reactivated when the budget is raised again)
+    ----NOTE: The fix above allows create express lines in the rush hours!
+    - Fixed: Unprefixed lines numbering form is respected now.
+5.6
+    - Added support for select metro models for each prefix

@@ -528,6 +528,10 @@ namespace Klyte.TransportLinesManager
             {
                 return TransportInfo.TransportType.EvacuationBus;
             }
+            else if (T == ConfigIndex.METRO_CONFIG)
+            {
+                return TransportInfo.TransportType.Metro;
+            }
             else
             {
                 return TransportInfo.TransportType.Bus;

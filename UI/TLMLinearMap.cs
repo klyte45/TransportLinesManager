@@ -115,15 +115,24 @@ namespace Klyte.TransportLinesManager.UI
             String bgSprite;
             ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out nonPrefix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
             linearMapLineNumberFormat.backgroundSprite = bgSprite;
-            bool day, night;
-            t.GetActive(out day, out night);
-            if (!day || !night)
+
+
+            bool day, night, zeroed;
+            TLMLineUtils.getLineActive(ref t, out day, out night, out zeroed);
+            if (zeroed)
             {
-                linearMapLineTime.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
+                linearMapLineTime.backgroundSprite = "NoBudgetIcon";
             }
             else {
-                linearMapLineTime.backgroundSprite = "";
+                if (!day || !night)
+                {
+                    linearMapLineTime.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
+                }
+                else {
+                    linearMapLineTime.backgroundSprite = "";
+                }
             }
+
             setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, nonPrefix, zerosEsquerda, invertPrefixSuffix);
 
             m_autoName = TLMUtils.calculateAutoName(lineID);
@@ -452,7 +461,8 @@ namespace Klyte.TransportLinesManager.UI
             };
             stationLabel.eventTextSubmitted += (x, y) =>
             {
-                TLMUtils.setStopName(y, stationNodeId, lineID, () => {
+                TLMUtils.setStopName(y, stationNodeId, lineID, () =>
+                {
                     stationLabel.text = TLMUtils.getFullStationName(stationNodeId, lineID, ss);
                     m_autoName = TLMUtils.calculateAutoName(lineID);
                     lineInfoPanel.autoNameLabel.text = autoName;

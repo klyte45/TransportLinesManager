@@ -34,6 +34,13 @@ namespace Klyte.TransportLinesManager.Extensors
         }
     }
 
+    enum TLMTransportLineFlags
+    {
+        ZERO_BUDGET_DAY = 0x40000000,
+        ZERO_BUDGET_NIGHT = 0x20000000,
+        ZERO_BUDGET_SETTED = 0x10000000
+    }
+
     class TLMVehiclesLineManager
     {
         private static TLMVehiclesLineManager _instance;
@@ -193,6 +200,39 @@ namespace Klyte.TransportLinesManager.Extensors
                         }
                     }
                 }
+                uint prefix = 0;
+                if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+                {
+                    prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
+                }
+                float budgetMultiplierPrefix = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
+
+                var flagToCheck = (TransportLine.Flags.DisabledNight | TransportLine.Flags.DisabledDay);
+
+                if (budgetMultiplierPrefix == 0 && (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & flagToCheck) == TransportLine.Flags.None)
+                {
+                    int flagsToAdd = (int)(TransportLine.Flags.DisabledDay | TransportLine.Flags.DisabledNight) | (int)(TLMTransportLineFlags.ZERO_BUDGET_SETTED);
+                    if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_SETTED) == TransportLine.Flags.None)
+                    {
+                        if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.DisabledDay) == TransportLine.Flags.None)
+                        {
+                            flagsToAdd |= (int)TLMTransportLineFlags.ZERO_BUDGET_DAY;
+                        }
+                        if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.DisabledNight) == TransportLine.Flags.None)
+                        {
+                            flagsToAdd |= (int)TLMTransportLineFlags.ZERO_BUDGET_NIGHT;
+                        }
+                    }
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags |= (TransportLine.Flags)flagsToAdd;
+                }
+                else if ((budgetMultiplierPrefix > 0 && (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags)(TLMTransportLineFlags.ZERO_BUDGET_SETTED)) != TransportLine.Flags.None))
+                {
+                    bool actDay = (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_DAY) != TransportLine.Flags.None;
+                    bool actNight = (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_NIGHT) != TransportLine.Flags.None;
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= (TransportLine.Flags)~(TLMTransportLineFlags.ZERO_BUDGET_DAY | TLMTransportLineFlags.ZERO_BUDGET_NIGHT | TLMTransportLineFlags.ZERO_BUDGET_SETTED);
+                    TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], actDay, actNight);
+                }
+
                 bool active;
                 if (Singleton<SimulationManager>.instance.m_isNightTime)
                 {
@@ -253,12 +293,6 @@ namespace Klyte.TransportLinesManager.Extensors
                         }
                     }
                 }
-                uint prefix = 0;
-                if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
-                {
-                    prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
-                }
-                float budgetMultiplierPrefix = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplierForHour(prefix, (int) Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
                 float lineCost = vehicleCount * info.m_maintenanceCostPerVehicle / 100;// * defaultCostPerPassengerCapacity;
                 if (lineCost != 0)
                 {
@@ -321,5 +355,6 @@ namespace Klyte.TransportLinesManager.Extensors
                 Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.Reset();
             }
         }
+
     }
 }

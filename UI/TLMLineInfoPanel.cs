@@ -39,6 +39,7 @@ namespace Klyte.TransportLinesManager.UI
         private UILabel vehicleQuantitySetLabel;
         //private UILabel generalDebugLabel;
         private UIDropDown lineTime;
+        private UILabel lineTimeTitle;
         private UITextField lineNameField;
         private UIColorField lineColorPicker;
         private AsyncAction daytimeChange;
@@ -437,7 +438,7 @@ namespace Klyte.TransportLinesManager.UI
                  Locale.Get("TRANSPORT_LINE_DAY"),
                  Locale.Get("TRANSPORT_LINE_NIGHT"),
                  Locale.Get("TLM_TRANSPORT_LINE_DISABLED")
-            }, changeLineTime, lineInfoPanel);
+            }, changeLineTime, lineInfoPanel, out lineTimeTitle);
             lineTime.parent.relativePosition = new Vector3(120f, 220f);
 
             UIButton deleteLine = null;
@@ -610,6 +611,19 @@ namespace Klyte.TransportLinesManager.UI
                 overallBudget, prefixMultiplier,
                 overallBudget * prefixMultiplier);
 
+            //bool isZeroed = ((int)tl.m_flags & (int)TLMTransportLineFlags.ZERO_BUDGET_SETTED) > 0;
+            //lineTime.isVisible = !isZeroed;
+            //if (isZeroed)
+            //{
+            //    lineTimeTitle.localeID = ("TLM_LINE_DISABLED_NO_BUDGET");
+            //    lineTimeTitle.tooltipLocaleID = ("TLM_LINE_DISABLED_NO_BUDGET_DESC");
+            //}
+            //else
+            //{
+            //    lineTimeTitle.localeID = ("TRANSPORT_LINE_ACTIVITY");
+            //    lineTimeTitle.tooltipLocaleID = ("");
+            //}
+
             //generalDebugLabel.enabled = TransportLinesManagerMod.debugMode.value;
             //if (TransportLinesManagerMod.debugMode.value)
             //{
@@ -719,8 +733,8 @@ namespace Klyte.TransportLinesManager.UI
 
             lineColorPicker.selectedColor = m_controller.tm.GetLineColor(lineID);
 
-            bool day, night;
-            t.GetActive(out day, out night);
+            bool day, night, zeroed;
+            TLMLineUtils.getLineActive(ref t, out day, out night, out zeroed);
             if (day && night)
             {
                 lineTime.selectedIndex = 0;
@@ -754,21 +768,7 @@ namespace Klyte.TransportLinesManager.UI
             daytimeChange = Singleton<SimulationManager>.instance.AddAction(delegate
             {
                 ushort lineID = m_lineIdSelecionado.TransportLine;
-                switch (selection)
-                {
-                    case 0:
-                        Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].SetActive(true, true);
-                        break;
-                    case 1:
-                        Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].SetActive(true, false);
-                        break;
-                    case 2:
-                        Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].SetActive(false, true);
-                        break;
-                    case 3:
-                        Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].SetActive(false, false);
-                        break;
-                }
+                TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID], ((selection & 0x2) == 0), ((selection & 0x1) == 0));
             });
 
         }

@@ -399,8 +399,8 @@ namespace Klyte.TransportLinesManager
                 lineNumberIntersect.textColor = Color.white;
                 lineNumberIntersect.outlineColor = Color.black;
                 lineNumberIntersect.useOutline = true;
-                bool day, night;
-                intersectLine.GetActive(out day, out night);
+                bool day, night, zeroed;
+                getLineActive(ref intersectLine, out day, out night, out zeroed);
                 if (!day || !night)
                 {
                     UILabel daytimeIndicator = null;
@@ -414,7 +414,13 @@ namespace Klyte.TransportLinesManager
                     daytimeIndicator.name = "LineTime";
                     daytimeIndicator.relativePosition = new Vector3(0f, 0f);
                     daytimeIndicator.atlas = TLMController.taLineNumber;
-                    daytimeIndicator.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
+                    if (zeroed)
+                    {
+                        daytimeIndicator.backgroundSprite = "NoBudgetIcon";
+                    }
+                    else {
+                        daytimeIndicator.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
+                    }
                 }
                 setLineNumberCircleOnRef(intersectLine.m_lineNumber, prefixo, separador, sufixo, naoPrefixado, zeros, lineNumberIntersect, invertPrefixSuffix);
                 lineNumberIntersect.textScale *= multiplier;
@@ -427,6 +433,42 @@ namespace Klyte.TransportLinesManager
             if (taxi != string.Empty)
             {
                 addExtraStationBuildingIntersection(intersectionsPanel, size, "TaxiIcon", taxi);
+            }
+        }
+
+
+        public static void getLineActive(ref TransportLine t, out bool day, out bool night, out bool zeroed)
+        {
+            zeroed = ((t.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_SETTED) != TransportLine.Flags.None);
+            day = (zeroed && ((t.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_DAY) != TransportLine.Flags.None)) || ((t.m_flags & TransportLine.Flags.DisabledDay) == TransportLine.Flags.None);
+            night = (zeroed && ((t.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_NIGHT) != TransportLine.Flags.None)) || ((t.m_flags & TransportLine.Flags.DisabledNight) == TransportLine.Flags.None);
+        }
+
+        public static void setLineActive(ref TransportLine t, bool day, bool night)
+        {
+            bool zeroed = ((t.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_SETTED) != TransportLine.Flags.None);
+            if (zeroed)
+            {
+                if (day)
+                {
+                    t.m_flags |= (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_DAY;
+                }
+                else
+                {
+                    t.m_flags &= (TransportLine.Flags)~TLMTransportLineFlags.ZERO_BUDGET_DAY;
+                }
+                if (night)
+                {
+                    t.m_flags |= (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_NIGHT;
+                }
+                else
+                {
+                    t.m_flags &= (TransportLine.Flags)~TLMTransportLineFlags.ZERO_BUDGET_NIGHT;
+                }
+            }
+            else
+            {
+                t.SetActive(day, night);
             }
         }
 
@@ -853,9 +895,11 @@ namespace Klyte.TransportLinesManager
             string prefixoSaida = "";
             string separadorSaida = "";
             string sufixoSaida = "";
+            int prefixNum = 0;
             if (prefixo != ModoNomenclatura.Nenhum)
             {
-                prefixoSaida = getStringFromNumber(getStringOptionsForPrefix(prefixo), numero / 1000 + 1);
+                prefixNum = numero / 1000;
+                prefixoSaida = getStringFromNumber(getStringOptionsForPrefix(prefixo), prefixNum + 1);
                 numero = numero % 1000;
             }
 
@@ -882,7 +926,7 @@ namespace Klyte.TransportLinesManager
                             break;
                     }
                 }
-                switch (prefixo != ModoNomenclatura.Nenhum ? sufixo : naoPrefixado)
+                switch (prefixo != ModoNomenclatura.Nenhum && prefixNum > 0 ? sufixo : naoPrefixado)
                 {
                     case ModoNomenclatura.GregoMaiusculo:
                         sufixoSaida = getStringFromNumber(gregoMaiusculo, numero);
@@ -1147,7 +1191,6 @@ namespace Klyte.TransportLinesManager
 
             return bm.GetBuildingName(buildingId, iid);
         }
-
 
         private static string GetStationNameWithPrefix(TLMCW.ConfigIndex transportType, string name)
         {

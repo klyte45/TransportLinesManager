@@ -1224,17 +1224,17 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void reloadAssetsList(int idx)
         {
-            if (getConfigIndexFromDropDownSelection(m_systemTypeDropDown.selectedIndex) != TLMCW.ConfigIndex.METRO_CONFIG)
-            {
+            //if (true)
+            //{
                 m_prefixAssets.itemsList = getPrefixAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(idx - 1));
                 var t = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
                 m_defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex).Where(k => !m_prefixAssets.itemsList.ContainsKey(k.Key)).ToDictionary(k => k.Key, k => k.Value);
                 m_StripAsteriskTab.EnableTab(1);
-            }
-            else
-            {
-                m_StripAsteriskTab.DisableTab(1);
-            }
+            //}
+            //else
+            //{
+            //    m_StripAsteriskTab.DisableTab(1);
+            //}
         }
 
         private void AwakePrefixEditor()

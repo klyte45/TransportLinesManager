@@ -14,7 +14,7 @@ namespace Klyte.TransportLinesManager.i18n
         private const string localeKeySeparator = "|";
         private const string commentChar = "#";
         private static string language = "";
-        private static string[] locales = new string[] { "en", "pt", "ko" };
+        private static string[] locales = new string[] { "en", "pt", "ko", "de" };
 
         public static string loadedLanguage
         {
