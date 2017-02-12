@@ -131,7 +131,7 @@ namespace Klyte.TransportLinesManager
         public static float GetLineLength(ushort lineID)
         {
             float totalSize = 0f;
-            for (int i = 0; i < Singleton<TransportManager>.instance.m_lineCurves[(int)lineID].Length; i++)
+            for (int i = 0; i < Singleton<TransportManager>.instance.m_lineSegments[(int)lineID].Length; i++)
             {
                 Bezier3 bez = Singleton<TransportManager>.instance.m_lineCurves[(int)lineID][i];
                 totalSize += TLMUtils.calcBezierLenght(bez.a, bez.b, bez.c, bez.d, 0.1f);
@@ -566,6 +566,22 @@ namespace Klyte.TransportLinesManager
             {
                 return (ai as PassengerShipAI).m_passengerCapacity;
             }
+            if (ai as PassengerFerryAI != null)
+            {
+                return (ai as PassengerFerryAI).m_passengerCapacity;
+            }
+            if (ai as PassengerBlimpAI != null)
+            {
+                return (ai as PassengerBlimpAI).m_passengerCapacity;
+            }
+            if (ai as CableCarAI != null)
+            {
+                return (ai as CableCarAI).m_passengerCapacity;
+            }
+            //if (ai as MonorailAI != null)
+            //{
+            //    return (ai as MonorailAI).m_passengerCapacity;
+            //}
             if (ai as PassengerTrainAI != null)
             {
                 return (ai as PassengerTrainAI).m_passengerCapacity;
@@ -1607,9 +1623,13 @@ namespace Klyte.TransportLinesManager
                 case TransportInfo.TransportType.Metro:
                     return typeof(MetroTrainAI);
                 case TransportInfo.TransportType.Ship:
-                    return typeof(PassengerShipAI);
+                    return typeof(PassengerFerryAI);
                 case TransportInfo.TransportType.Airplane:
-                    return typeof(PassengerPlaneAI);
+                    return typeof(PassengerBlimpAI);
+                //case TransportInfo.TransportType.Monorail:
+                //    return typeof(MonorailAI);
+                case TransportInfo.TransportType.CableCar:
+                    return typeof(CableCarAI);
                 case TransportInfo.TransportType.Taxi:
                     return typeof(TaxiAI);
                 default:

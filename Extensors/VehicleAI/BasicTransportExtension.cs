@@ -426,6 +426,22 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
             {
                 return 1000;
             }
+            if (typeof(PassengerFerryAI) == type)
+            {
+                return 100;
+            }
+            if (typeof(PassengerBlimpAI) == type)
+            {
+                return 100;
+            }
+            if (typeof(CableCarAI) == type)
+            {
+                return 100;
+            }
+            //if (typeof(MonorailAI) == type)
+            //{
+            //    return 1000;
+            //}
             else
             {
                 return 200;

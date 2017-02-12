@@ -46,10 +46,12 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
             }
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading Ticket Price Hooks!");
             AddRedirect(typeof(BusAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
-            AddRedirect(typeof(PassengerPlaneAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
-            AddRedirect(typeof(PassengerShipAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
+            AddRedirect(typeof(PassengerBlimpAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
+            AddRedirect(typeof(PassengerFerryAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
             AddRedirect(typeof(PassengerTrainAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
             AddRedirect(typeof(TramAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
+            AddRedirect(typeof(CableCarAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
+            //AddRedirect(typeof(MonorailAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
         }
 
         public static void DisableHooks()

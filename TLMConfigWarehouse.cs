@@ -21,12 +21,16 @@ namespace Klyte.TransportLinesManager
          ConfigIndex.    METRO_PALETTE_MAIN ,
          ConfigIndex.    BUS_PALETTE_MAIN ,
          ConfigIndex.   PLANE_PALETTE_MAIN ,
+         ConfigIndex.    CABLE_CAR_PALETTE_MAIN ,
+         ConfigIndex.   MONORAIL_PALETTE_MAIN ,
            ConfigIndex. PLANE_PALETTE_SUBLINE,
            ConfigIndex. SHIP_PALETTE_SUBLINE,
          ConfigIndex.    TRAIN_PALETTE_SUBLINE,
         ConfigIndex.     TRAM_PALETTE_SUBLINE,
          ConfigIndex.    METRO_PALETTE_SUBLINE,
          ConfigIndex.    BUS_PALETTE_SUBLINE,
+        ConfigIndex.     CABLE_CAR_PALETTE_SUBLINE,
+         ConfigIndex.    MONORAIL_PALETTE_SUBLINE,
         };
         private static Dictionary<string, TLMConfigWarehouse> loadedCities = new Dictionary<string, TLMConfigWarehouse>();
         public bool unsafeMode = false;
@@ -250,9 +254,9 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.SHIP_CONFIG:
                     return new Color32(0xe3, 0xf0, 0, 255);
                 case ConfigIndex.MONORAIL_CONFIG:
-                    return new Color32(0xe3, 0xf0, 0, 255);
+                    return new Color32(217, 51, 89, 255);
                 case ConfigIndex.CABLE_CAR_CONFIG:
-                    return new Color32(0xe3, 0xf0, 0, 255);
+                    return new Color32(31, 96, 225, 255);
                 case ConfigIndex.TAXI_CONFIG:
                     return new Color32(60, 184, 120, 255);
                 default:
@@ -352,11 +356,11 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.BUS_CONFIG:
                     return Locale.Get("VEHICLE_TITLE", "Bus");
                 case ConfigIndex.PLANE_CONFIG:
-                    return Locale.Get("VEHICLE_TITLE", "Airplane");
+                    return Locale.Get("VEHICLE_TITLE", "Blimp");
                 case ConfigIndex.SHIP_CONFIG:
-                    return Locale.Get("VEHICLE_TITLE", "Ship");
+                    return Locale.Get("VEHICLE_TITLE", "Ferry");
                 case ConfigIndex.MONORAIL_CONFIG:
-                    return Locale.Get("VEHICLE_TITLE", "Monorail");
+                    return Locale.Get("VEHICLE_TITLE", "Monorail Front");
                 case ConfigIndex.CABLE_CAR_CONFIG:
                     return Locale.Get("VEHICLE_TITLE", "Cable Car");
                 case ConfigIndex.TAXI_CONFIG:
@@ -423,6 +427,22 @@ namespace Klyte.TransportLinesManager
             {
                 return ConfigIndex.PREFIX_BASED_ASSETS_PLANE;
             }
+            else if (T == typeof(PassengerFerryAI))
+            {
+                return ConfigIndex.PREFIX_BASED_ASSETS_SHIP;
+            }
+            else if (T == typeof(PassengerBlimpAI))
+            {
+                return ConfigIndex.PREFIX_BASED_ASSETS_PLANE;
+            }
+            else if (T == typeof(CableCarAI))
+            {
+                return ConfigIndex.PREFIX_BASED_ASSETS_CABLE_CAR;
+            }
+            //else if (T == typeof(MonorailAI))
+            //{
+            //    return ConfigIndex.PREFIX_BASED_ASSETS_MONORAIL;
+            //}
             else
             {
                 return ConfigIndex.NIL;
@@ -602,6 +622,10 @@ namespace Klyte.TransportLinesManager
             PREFIX_BASED_ASSETS_PLANE = GLOBAL_CONFIG | 0x19 | TYPE_DICTIONARY,
             VEHICLE_LINE = GLOBAL_CONFIG | 0x1A | TYPE_DICTIONARY,
             STOPS_CONFIG = GLOBAL_CONFIG | 0x1B | TYPE_DICTIONARY,
+            PREFIX_BASED_ASSETS_CABLE_CAR = GLOBAL_CONFIG | 0x1C | TYPE_DICTIONARY,
+            PREFIX_BASED_ASSETS_MONORAIL = GLOBAL_CONFIG | 0x1D | TYPE_DICTIONARY,
+            DEPOT_PREFIXES_CABLE_CAR = GLOBAL_CONFIG | 0x1E | TYPE_DICTIONARY,
+            DEPOT_PREFIXES_MONORAIL = GLOBAL_CONFIG | 0x1F | TYPE_DICTIONARY,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = TransportInfo.TransportType.Tram << 16,
@@ -612,7 +636,7 @@ namespace Klyte.TransportLinesManager
             SHIP_CONFIG = TransportInfo.TransportType.Ship << 16,
             MONORAIL_CONFIG = TransportInfo.TransportType.Monorail << 16,
             CABLE_CAR_CONFIG = TransportInfo.TransportType.CableCar << 16,
-            
+
 
 
             RESIDENTIAL_SERVICE_CONFIG = ItemClass.Service.Residential,
@@ -1118,6 +1142,8 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
                     return true;
                 default: return false;
             }
