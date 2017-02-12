@@ -166,7 +166,9 @@ namespace Klyte.TransportLinesManager.LineList
         {
             TLMCW.ConfigIndex.PLANE_CONFIG,
             TLMCW.ConfigIndex.SHIP_CONFIG,
+            TLMCW.ConfigIndex.CABLE_CAR_CONFIG,
             TLMCW.ConfigIndex.TRAIN_CONFIG,
+            TLMCW.ConfigIndex.MONORAIL_CONFIG,
             TLMCW.ConfigIndex.METRO_CONFIG,
             TLMCW.ConfigIndex.TRAM_CONFIG,
             TLMCW.ConfigIndex.BUS_CONFIG,
@@ -179,6 +181,8 @@ namespace Klyte.TransportLinesManager.LineList
         private UIComponent m_MetroLinesContainer;
         private UIComponent m_TrainLinesContainer;
         private UIComponent m_ShipLinesContainer;
+        private UIComponent m_CableCarLinesContainer;
+        private UIComponent m_MonorailLinesContainer;
 
         private UIComponent m_PrefixEditor;
 
@@ -217,6 +221,8 @@ namespace Klyte.TransportLinesManager.LineList
         //TLM
         private int m_shipCount = 0;
         private int m_planeCount = 0;
+        private int m_cableCarCount = 0;
+        private int m_monorailCount = 0;
 
         //asset editor
 
@@ -912,6 +918,14 @@ namespace Klyte.TransportLinesManager.LineList
                                     comp = m_PlaneLinesContainer;
                                     m_planeCount = AddToList(m_planeCount, lineIdIterator, ref comp);
                                     break;
+                                case TLMCW.ConfigIndex.MONORAIL_CONFIG:
+                                    comp = m_MonorailLinesContainer;
+                                    m_planeCount = AddToList(m_planeCount, lineIdIterator, ref comp);
+                                    break;
+                                case TLMCW.ConfigIndex.CABLE_CAR_CONFIG:
+                                    comp = m_CableCarLinesContainer;
+                                    m_planeCount = AddToList(m_planeCount, lineIdIterator, ref comp);
+                                    break;
                             }
                         }
                     }
@@ -1304,7 +1318,9 @@ namespace Klyte.TransportLinesManager.LineList
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.BUS_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG),
-                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.METRO_CONFIG) }, 0, loadPrefixes);
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.METRO_CONFIG),
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG),
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG) }, 0, loadPrefixes);
             m_prefixSelection = (UIDropDown)group2.AddDropdown(Locale.Get("TLM_PREFIX"), new string[] { "" }, 0, selectPrefixAction);
 
 
@@ -1572,6 +1588,10 @@ namespace Klyte.TransportLinesManager.LineList
                     return TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG;
                 case 6:
                     return TLMConfigWarehouse.ConfigIndex.METRO_CONFIG;
+                case 7:
+                    return TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG;
+                case 8:
+                    return TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG;
                 default:
                     return TLMConfigWarehouse.ConfigIndex.NIL;
             }

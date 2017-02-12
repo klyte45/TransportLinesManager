@@ -380,7 +380,7 @@ namespace Klyte.TransportLinesManager
 
             configSelector = (UIDropDown)helper.AddDropdownLocalized("TLM_SHOW_CONFIG_FOR", getOptionsForLoadConfig(), 0, reloadData);
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading Group 1");
-            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG, TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG, TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG })
+            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG, TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG, TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG, TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG })
             {
                 UIHelperExtension group1 = helper.AddGroupExtended(string.Format(Locale.Get("TLM_CONFIGS_FOR"), TLMConfigWarehouse.getNameForTransportType(transportType)));
                 lineTypesPanels[transportType] = group1.self.GetComponentInParent<UIPanel>();
@@ -733,7 +733,7 @@ namespace Klyte.TransportLinesManager
             if (TLMController.taLineNumber == null)
             {
                 TLMController.taLineNumber = CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                  "DepotIcon","PlaneLineIcon","TramIcon","ShipLineIcon","LowBusIcon","HighBusIcon", "BulletTrainIcon","BusIcon","SubwayIcon","TrainIcon","RoundSquareIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","NoBudgetIcon","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap"
+                  "DepotIcon","PlaneLineIcon","TramIcon","ShipLineIcon","FerryIcon","CableCarIcon", "BlimpIcon","BusIcon","SubwayIcon","TrainIcon","RoundSquareIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","NoBudgetIcon","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap"
                 });
             }
             TLMPublicTransportDetailPanelHooks.instance.EnableHooks();

@@ -162,13 +162,19 @@ namespace Klyte.TransportLinesManager
                     return ItemClass.SubService.PublicTransportBus;
                 case TLMCW.ConfigIndex.TRAM_CONFIG:
                     icon = "TramIcon";
-                    return ItemClass.SubService.PublicTransportBus;
+                    return ItemClass.SubService.PublicTransportTram;
                 case TLMCW.ConfigIndex.SHIP_CONFIG:
                     icon = "ShipLineIcon";
                     return ItemClass.SubService.PublicTransportShip;
+                case TLMCW.ConfigIndex.CABLE_CAR_CONFIG:
+                    icon = "CableCarIcon";
+                    return ItemClass.SubService.PublicTransportCableCar;
+                case TLMCW.ConfigIndex.MONORAIL_CONFIG:
+                    icon = "MonorailIcon";
+                    return ItemClass.SubService.PublicTransportMonorail;
                 case TLMCW.ConfigIndex.PLANE_CONFIG:
                     icon = "PlaneLineIcon";
-                    return ItemClass.SubService.PublicTransportShip;
+                    return ItemClass.SubService.PublicTransportPlane;
                 default:
                     icon = "BusIcon";
                     return ItemClass.SubService.None;
@@ -320,20 +326,29 @@ namespace Klyte.TransportLinesManager
                     string transportTypeLetter = "";
                     switch (TLMCW.getConfigIndexForLine(s))
                     {
-                        case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                             transportTypeLetter = "A";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
-                            transportTypeLetter = "H";
+                        case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
+                            transportTypeLetter = "B";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
-                            transportTypeLetter = "F";
+                        case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
+                            transportTypeLetter = "C";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
+                            transportTypeLetter = "D";
                             break;
                         case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
                             transportTypeLetter = "E";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
-                            transportTypeLetter = "C";
+                        case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
+                            transportTypeLetter = "F";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                            transportTypeLetter = "G";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
+                            transportTypeLetter = "H";
                             break;
                     }
                     otherLinesIntersections.Add(transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0'), s);
