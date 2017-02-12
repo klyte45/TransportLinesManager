@@ -885,6 +885,8 @@ namespace Klyte.TransportLinesManager
             ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP ,
           ConfigIndex.  METRO_SHOW_IN_LINEAR_MAP ,
           ConfigIndex.  BUS_SHOW_IN_LINEAR_MAP ,
+          ConfigIndex.  MONORAIL_SHOW_IN_LINEAR_MAP ,
+          ConfigIndex.  CABLE_CAR_SHOW_IN_LINEAR_MAP ,
          ConfigIndex.   PLANE_SHOW_IN_LINEAR_MAP ,
           ConfigIndex.  SHIP_SHOW_IN_LINEAR_MAP ,
         };

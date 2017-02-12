@@ -238,6 +238,9 @@ namespace Klyte.TransportLinesManager
             }
             return noneFound;
         }
+
+
+
         //GetNearStopPoints
         public static bool GetNearStopPoints(Vector3 pos, float maxDistance, ref List<ushort> stopsFound, ItemClass.SubService[] subservicesAllowed = null, int maxDepht = 4, int depth = 0)
         {
@@ -359,12 +362,16 @@ namespace Klyte.TransportLinesManager
 
 
 
-        public static void PrintIntersections(string airport, string taxi, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, float scale = 1.0f, int maxItemsForSizeSwap = 3)
+        public static void PrintIntersections(string airport, string harbor, string taxi, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, float scale = 1.0f, int maxItemsForSizeSwap = 3)
         {
             TransportManager tm = Singleton<TransportManager>.instance;
 
             int intersectionCount = otherLinesIntersections.Count;
             if (!String.IsNullOrEmpty(airport))
+            {
+                intersectionCount++;
+            }
+            if (!String.IsNullOrEmpty(harbor))
             {
                 intersectionCount++;
             }
@@ -444,6 +451,10 @@ namespace Klyte.TransportLinesManager
             if (airport != string.Empty)
             {
                 addExtraStationBuildingIntersection(intersectionsPanel, size, "AirplaneIcon", airport);
+            }
+            if (harbor != string.Empty)
+            {
+                addExtraStationBuildingIntersection(intersectionsPanel, size, "ShipIcon", harbor);
             }
             if (taxi != string.Empty)
             {
@@ -601,6 +612,17 @@ namespace Klyte.TransportLinesManager
 
     public class TLMUtils
     {
+        public static readonly TransferManager.TransferReason[] defaultAllowedVehicleTypes = {
+            TransferManager.TransferReason.Blimp ,
+            TransferManager.TransferReason.CableCar ,
+            TransferManager.TransferReason.Ferry ,
+            TransferManager.TransferReason.MetroTrain ,
+            TransferManager.TransferReason.Monorail ,
+            TransferManager.TransferReason.PassengerTrain ,
+            TransferManager.TransferReason.Tram ,
+            TransferManager.TransferReason.Bus
+        };
+
         public static void doLog(string format, params object[] args)
         {
             if (TransportLinesManagerMod.instance != null)
@@ -1308,8 +1330,8 @@ namespace Klyte.TransportLinesManager
                 int offsetH = (j + 2) % stopsCount;
                 NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
                 NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
-                ushort buildingId1 = bm.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
-                ushort buildingId2 = bm.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
+                ushort buildingId1 = TLMUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                ushort buildingId2 = TLMUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                 //					TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
                 //					TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
                 if (buildingId1 == buildingId2)
@@ -1329,8 +1351,8 @@ namespace Klyte.TransportLinesManager
                     //						TLMUtils.doLog("t.GetStop (offsetL)="+t.GetStop (offsetH)+"|t.GetStop (offsetH)="+t.GetStop (offsetH));
                     NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
                     NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
-                    ushort buildingId1 = bm.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
-                    ushort buildingId2 = bm.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
+                    ushort buildingId1 = TLMUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                    ushort buildingId2 = TLMUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                     //						TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
                     //						TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
                     //						TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
@@ -1465,6 +1487,16 @@ namespace Klyte.TransportLinesManager
             else {
                 serviceFound = ItemClass.Service.None;
                 subserviceFound = ItemClass.SubService.None;
+
+                //if (nn.CountSegments() >= 0)
+                //{
+                //    nm.GetClosestSeg
+                //    for(int i = 0; i < 8; i++)
+                //    {
+
+                //    }
+                //}
+                //else {
                 DistrictManager dm = Singleton<DistrictManager>.instance;
                 int dId = dm.GetDistrict(location);
                 if (dId > 0)
@@ -1479,6 +1511,7 @@ namespace Klyte.TransportLinesManager
                     return "[X=" + location.x + "|Y=" + location.y + "|Z=" + location.z + "]";
                 }
             }
+            //}
         }
 
         public static string getStationName(ushort stopId, ushort lineId, ItemClass.SubService ss)
@@ -1531,7 +1564,7 @@ namespace Klyte.TransportLinesManager
 
             if (ss != ItemClass.SubService.None)
             {
-                tempBuildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, Building.Flags.None, Building.Flags.Untouchable);
+                tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                 if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
                 {
                     buildingId = tempBuildingId;
@@ -1539,14 +1572,14 @@ namespace Klyte.TransportLinesManager
             }
             if (buildingId == 0 && !restrictToTransportType)
             {
-                tempBuildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.Active, Building.Flags.Untouchable);
+                tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, defaultAllowedVehicleTypes, Building.Flags.Active, Building.Flags.Untouchable);
                 if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
                 {
                     buildingId = tempBuildingId;
                 }
                 if (buildingId == 0)
                 {
-                    tempBuildingId = bm.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
+                    tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                     if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
                     {
                         buildingId = tempBuildingId;
@@ -1556,7 +1589,7 @@ namespace Klyte.TransportLinesManager
                         int iterator = 1;
                         while (buildingId == 0 && iterator < seachOrder.Count())
                         {
-                            buildingId = bm.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, Building.Flags.None, Building.Flags.Untouchable);
+                            buildingId = TLMUtils.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                             iterator++;
                         }
                     }
@@ -1703,6 +1736,57 @@ namespace Klyte.TransportLinesManager
             return string.Join(" ", saida.ToArray());
         }
 
+
+        public static ushort FindBuilding(Vector3 pos, float maxDistance, ItemClass.Service service, ItemClass.SubService subService, TransferManager.TransferReason[] allowedTypes, Building.Flags flagsRequired, Building.Flags flagsForbidden)
+        {
+            BuildingManager bm = Singleton<BuildingManager>.instance;
+            if (allowedTypes == null || allowedTypes.Length == 0)
+            {
+                return bm.FindBuilding(pos, maxDistance, service, subService, flagsRequired, flagsForbidden);
+            }
+            int num = Mathf.Max((int)((pos.x - maxDistance) / 64f + 135f), 0);
+            int num2 = Mathf.Max((int)((pos.z - maxDistance) / 64f + 135f), 0);
+            int num3 = Mathf.Min((int)((pos.x + maxDistance) / 64f + 135f), 269);
+            int num4 = Mathf.Min((int)((pos.z + maxDistance) / 64f + 135f), 269);
+            ushort result = 0;
+            float num5 = maxDistance * maxDistance;
+            for (int i = num2; i <= num4; i++)
+            {
+                for (int j = num; j <= num3; j++)
+                {
+                    ushort num6 = bm.m_buildingGrid[i * 270 + j];
+                    int num7 = 0;
+                    while (num6 != 0)
+                    {
+                        BuildingInfo info = bm.m_buildings.m_buffer[(int)num6].Info;
+                        if ((info.m_class.m_service == service || service == ItemClass.Service.None) && (info.m_class.m_subService == subService || subService == ItemClass.SubService.None))
+                        {
+                            Building.Flags flags = bm.m_buildings.m_buffer[(int)num6].m_flags;
+                            if ((flags & (flagsRequired | flagsForbidden)) == flagsRequired)
+                            {
+                                DepotAI depotAI = info.GetAI() as DepotAI;
+                                if (depotAI != null && allowedTypes.Contains(depotAI.m_transportInfo.m_vehicleReason))
+                                {
+                                    float num8 = Vector3.SqrMagnitude(pos - bm.m_buildings.m_buffer[(int)num6].m_position);
+                                    if (num8 < num5)
+                                    {
+                                        result = num6;
+                                        num5 = num8;
+                                    }
+                                }
+                            }
+                        }
+                        num6 = bm.m_buildings.m_buffer[(int)num6].m_nextGridBuilding;
+                        if (++num7 >= 49152)
+                        {
+                            CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                            break;
+                        }
+                    }
+                }
+            }
+            return result;
+        }
         public static void doLocaleDump()
         {
             string localeDump = "LOCALE DUMP:\r\n";
@@ -1924,6 +2008,7 @@ namespace Klyte.TransportLinesManager
         ModoNomenclatura. CirilicoMinusculoNumero,
         ModoNomenclatura. CirilicoMaiusculoNumero
         };
+
     }
 
     public class ResourceLoader
