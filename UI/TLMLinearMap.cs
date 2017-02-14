@@ -113,7 +113,7 @@ namespace Klyte.TransportLinesManager.UI
             setLinearMapColor(lineColor);
             clearStations();
             String bgSprite;
-            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out nonPrefix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
+            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out nonPrefix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite).subService;
             linearMapLineNumberFormat.backgroundSprite = bgSprite;
 
 
@@ -138,7 +138,7 @@ namespace Klyte.TransportLinesManager.UI
             m_autoName = TLMUtils.calculateAutoName(lineID);
             string stationName = null;
             Vector3 local;
-            string airport, taxi, harbor;
+            string airport, taxi, harbor, regionalStation;
             int middle;
             string namePrefix;
             bool simmetric = TLMUtils.CalculateSimmetry(ss, stopsCount, t, out middle);
@@ -149,8 +149,8 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
-                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out namePrefix);
-                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, stationId, ss) + (j == middle + stopsCount / 2 ? 5 : 0);
+                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out namePrefix);
+                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss) + (j == middle + stopsCount / 2 ? 5 : 0);
                 }
             }
             else {
@@ -166,16 +166,16 @@ namespace Klyte.TransportLinesManager.UI
                     int j = (minI - 1 + stopsCount) % stopsCount;
                     ushort stationId = t.GetStop(j);
                     List<ushort> intersections;
-                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out namePrefix);
-                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, stationId, ss, true);
+                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out namePrefix);
+                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss, true);
                 }
                 for (int i = minI; i < maxI; i++)
                 {
                     int j = i % stopsCount;
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
-                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out namePrefix);
-                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, stationId, ss) + (j == stopsCount - (showExtraStopInfo ? 0 : 1) ? 5 : 0);
+                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out namePrefix);
+                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss) + (j == stopsCount - (showExtraStopInfo ? 0 : 1) ? 5 : 0);
                 }
             }
             if (showExtraStopInfo)
@@ -424,7 +424,7 @@ namespace Klyte.TransportLinesManager.UI
             lineStationsPanel.color = lineInfoPanel.controller.tm.GetLineColor(lineInfoPanel.lineIdSelecionado.TransportLine);
         }
 
-        private float addStationToLinearMap(string stationPrefix, string stationName, Vector3 location, float offsetX, List<ushort> intersections, string airport, string harbor, string taxi, ushort stationNodeId, ItemClass.SubService ss, bool simple = false)//, out float intersectionPanelHeight)
+        private float addStationToLinearMap(string stationPrefix, string stationName, Vector3 location, float offsetX, List<ushort> intersections, string airport, string harbor, string taxi, string regionalTrainStation, ushort stationNodeId, ItemClass.SubService ss, bool simple = false)//, out float intersectionPanelHeight)
         {
             ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
             TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
@@ -484,7 +484,7 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     var otherLinesIntersections = TLMLineUtils.SortLines(intersections, t);
 
-                    int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0);
+                    int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0) ;
                     if (intersectionCount > 0)
                     {
                         UIPanel intersectionsPanel = null;
@@ -497,7 +497,7 @@ namespace Klyte.TransportLinesManager.UI
                         intersectionsPanel.wrapLayout = false;
                         intersectionsPanel.autoFitChildrenVertically = true;
 
-                        TLMLineUtils.PrintIntersections(airport, harbor, taxi, intersectionsPanel, otherLinesIntersections);
+                        TLMLineUtils.PrintIntersections(airport, harbor, taxi, regionalTrainStation, intersectionsPanel, otherLinesIntersections);
 
                         intersectionsPanel.autoLayout = true;
                         intersectionsPanel.wrapLayout = true;
@@ -578,7 +578,7 @@ namespace Klyte.TransportLinesManager.UI
 
 
 
-        Vector3 getStation(ushort lineId, ushort stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string harbor, out string taxiStand, out string prefix)
+        Vector3 getStation(ushort lineId, ushort stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string harbor, out string taxiStand, out string regionalTrainStation, out string prefix)
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
@@ -598,11 +598,24 @@ namespace Klyte.TransportLinesManager.UI
             {
                 location = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId].CalculateSidewalkPosition();
             }
-            TLMLineUtils.GetNearLines(location, 100f, ref linhas);
+            TLMLineUtils.GetNearLines(location, 120f, ref linhas);
 
             airport = String.Empty;
             taxiStand = String.Empty;
             harbor = String.Empty;
+            regionalTrainStation = String.Empty;
+
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP))
+            {
+                ushort trainStation = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain, null, Building.Flags.None, Building.Flags.Untouchable | Building.Flags.Downgrading);
+
+                if (trainStation > 0)
+                {
+                    InstanceID iid = default(InstanceID);
+                    iid.Building = trainStation;
+                    regionalTrainStation = bm.GetBuildingName(trainStation, iid);
+                }
+            }
 
             if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP))
             {

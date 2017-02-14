@@ -174,7 +174,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("LTLMTransportLine SimulationStep!");
             TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info;
-            TLMCW.ConfigIndex lineType = TLMCW.getConfigIndexForLine(lineID);
+            TLMCW.ConfigIndex lineType = TLMCW.getDefinitionForLine(lineID).toConfigIndex();
 
             float defaultCostPerPassengerCapacity = TLMCW.getCostPerPassengerCapacityLine(lineType);
 
@@ -201,11 +201,11 @@ namespace Klyte.TransportLinesManager.Extensors
                     }
                 }
                 uint prefix = 0;
-                if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+                if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
                 {
                     prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
                 }
-                float budgetMultiplierPrefix = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
+                float budgetMultiplierPrefix = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).getBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
 
                 var flagToCheck = (TransportLine.Flags.DisabledNight | TransportLine.Flags.DisabledDay);
 

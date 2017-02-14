@@ -8,13 +8,13 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.Extensors.VehicleAI
+namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
 {
     public class BasicTransportExtensionSingleton
     {
-        private static Dictionary<Type, BasicTransportExtension> _instances = new Dictionary<Type, BasicTransportExtension>();
+        private static Dictionary<TransportSystemDefinition, BasicTransportExtension> _instances = new Dictionary<TransportSystemDefinition, BasicTransportExtension>();
 
-        public static BasicTransportExtension instance(Type T)
+        public static BasicTransportExtension instance(TransportSystemDefinition T)
         {
             if (!_instances.ContainsKey(T))
             {
@@ -26,16 +26,16 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
     public class BasicTransportExtension
     {
-        internal BasicTransportExtension(Type t)
+        internal BasicTransportExtension(TransportSystemDefinition t)
         {
-            type = t;
+            definition = t;
         }
 
         private TLMConfigWarehouse.ConfigIndex configKeyForAssets
         {
             get
             {
-                return TLMConfigWarehouse.getConfigAssetsForAI(type);
+                return TLMConfigWarehouse.getConfigAssetsForAI(definition);
             }
         }
 
@@ -43,7 +43,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
         {
             get
             {
-                return TLMConfigWarehouse.getConfigPrefixForAI(type);
+                return TLMConfigWarehouse.getConfigPrefixForAI(definition);
             }
         }
 
@@ -51,7 +51,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
         {
             get
             {
-                return TLMConfigWarehouse.getConfigTransportSystemForAI(type);
+                return TLMConfigWarehouse.getConfigTransportSystemForDefinition(definition);
             }
         }
 
@@ -62,7 +62,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
         private const string PROPERTY_VALUE_COMMA = "⅞";
         private List<string> basicAssetsList;
         private bool globalLoaded = false;
-        private Type type;
+        private TransportSystemDefinition definition;
 
         private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_prefixConfigList;
         private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_prefixConfigListGlobal;
@@ -196,7 +196,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
                 for (uint num = 0u; (ulong)num < (ulong)((long)PrefabCollection<VehicleInfo>.PrefabCount()); num += 1u)
                 {
                     VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
-                    if (!(prefab == null) && prefab.GetAI().GetType() == type && !isTrailer(prefab))
+                    if (!(prefab == null) && definition.isFromSystem(prefab) && !isTrailer(prefab))
                     {
                         basicAssetsList.Add(prefab.name);
                     }
@@ -251,7 +251,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
                     loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
                 }
                 var value = string.Join(PREFIX_COMMA, cached_prefixConfigList.Select(x => x.Key.ToString() + PREFIX_SEPARATOR + string.Join(PROPERTY_COMMA, x.Value.Select(y => y.Key.ToString() + PROPERTY_SEPARATOR + y.Value).ToArray())).ToArray());
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("NEW VALUE ({0}): {1}", type.ToString(), value);
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("NEW VALUE ({0}): {1}", definition.ToString(), value);
                 loadedConfig.setString(configKeyForAssets, value);
                 if (global)
                 {
@@ -296,7 +296,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
         public void setPrefixName(uint prefix, string name, bool global = false)
         {
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setPrefixName! {0} {1} {2} {3}", type.ToString(), prefix, name, global);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setPrefixName! {0} {1} {2} {3}", definition.ToString(), prefix, name, global);
             loadPrefixConfigList(global);
             if (needReload)
             {
@@ -368,7 +368,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
         public void setBudgetMultiplier(uint prefix, uint[] multipliers, bool global = false)
         {
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setBudgetMultiplier! {0} {1} {2} {3}", type.ToString(), prefix, multipliers, global);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setBudgetMultiplier! {0} {1} {2} {3}", definition.ToString(), prefix, multipliers, global);
             loadPrefixConfigList(global);
             if (needReload)
             {
@@ -402,55 +402,45 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
         public uint getDefaultTicketPrice()
         {
-            if (typeof(BusAI) == type)
+
+            switch (definition.subService)
             {
-                return 100;
+                case ItemClass.SubService.PublicTransportCableCar:
+                case ItemClass.SubService.PublicTransportBus:
+                case ItemClass.SubService.PublicTransportMonorail:
+                    return 100;
+                case ItemClass.SubService.PublicTransportMetro:
+                case ItemClass.SubService.PublicTransportTaxi:
+                case ItemClass.SubService.PublicTransportTrain:
+                case ItemClass.SubService.PublicTransportTram:
+                    return 200;
+                case ItemClass.SubService.PublicTransportPlane:
+                    if (definition.vehicleType == VehicleInfo.VehicleType.Blimp)
+                    {
+                        return 100;
+                    }
+                    else
+                    {
+                        return 1000;
+                    }
+                case ItemClass.SubService.PublicTransportShip:
+                    if (definition.vehicleType == VehicleInfo.VehicleType.Ferry)
+                    {
+                        return 100;
+                    }
+                    else
+                    {
+                        return 500;
+                    }
+                default:
+                    return 100;
             }
-            if (typeof(TramAI) == type)
-            {
-                return 200;
-            }
-            if (typeof(MetroTrainAI) == type)
-            {
-                return 200;
-            }
-            if (typeof(PassengerTrainAI) == type)
-            {
-                return 200;
-            }
-            if (typeof(PassengerShipAI) == type)
-            {
-                return 500;
-            }
-            if (typeof(PassengerPlaneAI) == type)
-            {
-                return 1000;
-            }
-            if (typeof(PassengerFerryAI) == type)
-            {
-                return 100;
-            }
-            if (typeof(PassengerBlimpAI) == type)
-            {
-                return 100;
-            }
-            if (typeof(CableCarAI) == type)
-            {
-                return 100;
-            }
-            //if (typeof(MonorailAI) == type)
-            //{
-            //    return 1000;
-            //}
-            else
-            {
-                return 200;
-            }
+
         }
 
         public void setTicketPrice(uint prefix, uint price, bool global = false)
         {
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setTicketPrice! {0} {1} {2} {3}", type.ToString(), prefix, price, global);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setTicketPrice! {0} {1} {2} {3}", definition.ToString(), prefix, price, global);
             loadPrefixConfigList(global);
             if (needReload)
             {
@@ -562,9 +552,9 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
             var assetList = getAssetListForPrefix(prefix);
             if (assetList.Count == 0) return null;
             Randomizer r = new Randomizer(new System.Random().Next());
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", assetList.ToArray()), prefix, type.ToString());
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", assetList.ToArray()), prefix, definition.ToString());
             string model = assetList[r.Int32(0, assetList.Count - 1)];
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("MODEL FOR {2} PREFIX {1}: {0} ", model, prefix, type.ToString());
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("MODEL FOR {2} PREFIX {1}: {0} ", model, prefix, definition.ToString());
             var saida = PrefabCollection<VehicleInfo>.FindLoaded(model);
             if (saida == null)
             {
@@ -629,14 +619,20 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: line #{0}", lineId);
                     TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
                     uint prefix = 0;
-                    if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(tl.Info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+                    if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(tl.Info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
                     {
                         prefix = tl.m_lineNumber / 1000u;
                     }
                     VehicleManager instance3 = Singleton<VehicleManager>.instance;
                     VehicleInfo info = instance3.m_vehicles.m_buffer[Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].GetVehicle(0)].Info;
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: pre model list; type = {0}", info.GetAI());
-                    var modelList = BasicTransportExtensionSingleton.instance(info.GetAI().GetType()).getAssetListForPrefix(prefix);
+                    var def = TransportSystemDefinition.from(info);
+                    if (def == default(TransportSystemDefinition))
+                    {
+                        if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("NULL TSysDef! {0}+{1}+{2}", info.GetAI().GetType(), info.m_class.m_subService, info.m_vehicleType);
+                        continue;
+                    }
+                    var modelList = BasicTransportExtensionSingleton.instance(def).getAssetListForPrefix(prefix);
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
                     if (modelList.Count > 0)
                     {

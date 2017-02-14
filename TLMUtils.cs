@@ -4,8 +4,8 @@ using ColossalFramework.Math;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.BuildingAI;
-using Klyte.TransportLinesManager.Extensors.VehicleAI;
+using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
+using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -139,9 +139,10 @@ namespace Klyte.TransportLinesManager
             return totalSize;
         }
 
-        public static ItemClass.SubService getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, out string icon)
+        public static TransportSystemDefinition getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, out string icon)
         {
-            TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(lineIdx);
+            var tsd = TLMCW.getDefinitionForLine(lineIdx);
+            TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
 
             suffix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
             s = (Separador)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
@@ -153,32 +154,39 @@ namespace Klyte.TransportLinesManager
             {
                 case TLMCW.ConfigIndex.TRAIN_CONFIG:
                     icon = "TrainIcon";
-                    return ItemClass.SubService.PublicTransportTrain;
+                    break;
                 case TLMCW.ConfigIndex.METRO_CONFIG:
                     icon = "SubwayIcon";
-                    return ItemClass.SubService.PublicTransportMetro;
+                    break;
                 case TLMCW.ConfigIndex.BUS_CONFIG:
                     icon = "BusIcon";
-                    return ItemClass.SubService.PublicTransportBus;
+                    break;
                 case TLMCW.ConfigIndex.TRAM_CONFIG:
                     icon = "TramIcon";
-                    return ItemClass.SubService.PublicTransportTram;
+                    break;
                 case TLMCW.ConfigIndex.SHIP_CONFIG:
                     icon = "ShipLineIcon";
-                    return ItemClass.SubService.PublicTransportShip;
+                    break;
                 case TLMCW.ConfigIndex.CABLE_CAR_CONFIG:
                     icon = "CableCarIcon";
-                    return ItemClass.SubService.PublicTransportCableCar;
+                    break;
                 case TLMCW.ConfigIndex.MONORAIL_CONFIG:
                     icon = "MonorailIcon";
-                    return ItemClass.SubService.PublicTransportMonorail;
+                    break;
                 case TLMCW.ConfigIndex.PLANE_CONFIG:
                     icon = "PlaneLineIcon";
-                    return ItemClass.SubService.PublicTransportPlane;
+                    break;
+                case TLMCW.ConfigIndex.FERRY_CONFIG:
+                    icon = "FerryIcon";
+                    break;
+                case TLMCW.ConfigIndex.BLIMP_CONFIG:
+                    icon = "BlimpIcon";
+                    break;
                 default:
                     icon = "BusIcon";
-                    return ItemClass.SubService.None;
+                    break;
             }
+            return tsd;
         }
 
 
@@ -211,7 +219,7 @@ namespace Klyte.TransportLinesManager
                         if ((info.m_class.m_service == ItemClass.Service.PublicTransport))
                         {
                             ushort transportLine = nm.m_nodes.m_buffer[(int)num6].m_transportLine;
-                            if (transportLine != 0 && TLMCW.getCurrentConfigBool(TLMCW.getConfigIndexForLine(transportLine) | TLMConfigWarehouse.ConfigIndex.SHOW_IN_LINEAR_MAP))
+                            if (transportLine != 0 && TLMCW.getCurrentConfigBool(TLMCW.getDefinitionForLine(transportLine).toConfigIndex() | TLMConfigWarehouse.ConfigIndex.SHOW_IN_LINEAR_MAP))
                             {
                                 TransportInfo info2 = tm.m_lines.m_buffer[(int)transportLine].Info;
                                 if (!linesFound.Contains(transportLine) && (tm.m_lines.m_buffer[(int)transportLine].m_flags & TransportLine.Flags.Temporary) == TransportLine.Flags.None)
@@ -327,7 +335,7 @@ namespace Klyte.TransportLinesManager
                 if (t.Equals(default(TransportLine)) || tl.Info.GetSubService() != t.Info.GetSubService() || tl.m_lineNumber != t.m_lineNumber)
                 {
                     string transportTypeLetter = "";
-                    switch (TLMCW.getConfigIndexForLine(s))
+                    switch (TLMCW.getDefinitionForLine(s).toConfigIndex())
                     {
                         case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                             transportTypeLetter = "A";
@@ -335,23 +343,29 @@ namespace Klyte.TransportLinesManager
                         case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
                             transportTypeLetter = "B";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG:
                             transportTypeLetter = "C";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
                             transportTypeLetter = "D";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG:
                             transportTypeLetter = "E";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
                             transportTypeLetter = "F";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
                             transportTypeLetter = "G";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
                             transportTypeLetter = "H";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                            transportTypeLetter = "I";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
+                            transportTypeLetter = "J";
                             break;
                     }
                     otherLinesIntersections.Add(transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0'), s);
@@ -362,7 +376,7 @@ namespace Klyte.TransportLinesManager
 
 
 
-        public static void PrintIntersections(string airport, string harbor, string taxi, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, float scale = 1.0f, int maxItemsForSizeSwap = 3)
+        public static void PrintIntersections(string airport, string harbor, string taxi, string regionalTrainStation, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, float scale = 1.0f, int maxItemsForSizeSwap = 3)
         {
             TransportManager tm = Singleton<TransportManager>.instance;
 
@@ -379,6 +393,10 @@ namespace Klyte.TransportLinesManager
             {
                 intersectionCount++;
             }
+            if (!String.IsNullOrEmpty(regionalTrainStation))
+            {
+                intersectionCount++;
+            }
             float size = scale * (intersectionCount > maxItemsForSizeSwap ? 20 : 40);
             float multiplier = scale * (intersectionCount > maxItemsForSizeSwap ? 0.4f : 0.8f);
             foreach (var s in otherLinesIntersections.OrderBy(x => x.Key))
@@ -389,7 +407,7 @@ namespace Klyte.TransportLinesManager
                 Separador separador;
                 bool zeros;
                 bool invertPrefixSuffix;
-                ItemClass.SubService ss = getLineNamingParameters(s.Value, out prefixo, out separador, out sufixo, out naoPrefixado, out zeros, out invertPrefixSuffix, out bgSprite);
+                ItemClass.SubService ss = getLineNamingParameters(s.Value, out prefixo, out separador, out sufixo, out naoPrefixado, out zeros, out invertPrefixSuffix, out bgSprite).subService;
                 UIButtonLineInfo lineCircleIntersect = null;
                 TLMUtils.createUIElement<UIButtonLineInfo>(ref lineCircleIntersect, intersectionsPanel.transform);
                 lineCircleIntersect.autoSize = false;
@@ -459,6 +477,10 @@ namespace Klyte.TransportLinesManager
             if (taxi != string.Empty)
             {
                 addExtraStationBuildingIntersection(intersectionsPanel, size, "TaxiIcon", taxi);
+            }
+            if (regionalTrainStation != string.Empty)
+            {
+                addExtraStationBuildingIntersection(intersectionsPanel, size, "RegionalTrainIcon", regionalTrainStation);
             }
         }
 
@@ -619,6 +641,8 @@ namespace Klyte.TransportLinesManager
             TransferManager.TransferReason.MetroTrain ,
             TransferManager.TransferReason.Monorail ,
             TransferManager.TransferReason.PassengerTrain ,
+            TransferManager.TransferReason.PassengerPlane ,
+            TransferManager.TransferReason.PassengerShip ,
             TransferManager.TransferReason.Tram ,
             TransferManager.TransferReason.Bus
         };
@@ -836,12 +860,12 @@ namespace Klyte.TransportLinesManager
 
         public static BasicTransportExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
         {
-            return BasicTransportExtensionSingleton.instance(TLMUtils.getTypeFromTransportType(TLMConfigWarehouse.getTransportTypeForConfigTransport(index)));
+            return BasicTransportExtensionSingleton.instance(TLMConfigWarehouse.getTransportSystemDefinitionForConfigTransport(index));
         }
 
-        public static BasicTransportExtension getExtensionFromTransportType(TransportInfo.TransportType index)
+        public static BasicTransportExtension getExtensionFromTransportSystemDefinition(TransportSystemDefinition def)
         {
-            return BasicTransportExtensionSingleton.instance(TLMUtils.getTypeFromTransportType(index));
+            return BasicTransportExtensionSingleton.instance(def);
         }
 
         public static string[] getFilterPrefixesOptions(TLMCW.ConfigIndex transportType)
@@ -1136,7 +1160,8 @@ namespace Klyte.TransportLinesManager
                     string prefix;
                     ushort buidingId;
                     String value = getStationName(t.GetStop(j), lineIdx, ss, out service, out subservice, out prefix, out buidingId, true);
-                    stationsList.Add(j, new KeyValuePair<TLMCW.ConfigIndex, string>(subservice.toConfigIndex() != 0 ? subservice.toConfigIndex() : service.toConfigIndex(), value));
+                    var tsd = TransportSystemDefinition.from(Singleton<BuildingManager>.instance.m_buildings.m_buffer[buidingId].Info.GetAI());
+                    stationsList.Add(j, new KeyValuePair<TLMCW.ConfigIndex, string>(tsd != null ? tsd.toConfigIndex() : service.toConfigIndex(), value));
                 }
                 uint mostImportantCategoryInLine = stationsList.Select(x => (x.Value.Key).getPriority()).Min();
                 if (mostImportantCategoryInLine < int.MaxValue)
@@ -1238,7 +1263,8 @@ namespace Klyte.TransportLinesManager
             TLMCW.ConfigIndex index = serviceFound.toConfigIndex();
             if (index == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
             {
-                index = subserviceFound.toConfigIndex();
+                var tsd = TransportSystemDefinition.from(b.Info.GetAI());
+                index = tsd.toConfigIndex();
             }
             prefix = index.getPrefixTextNaming().Trim();
 
@@ -1643,33 +1669,6 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static Type getTypeFromTransportType(TransportInfo.TransportType t)
-        {
-            switch (t)
-            {
-                case TransportInfo.TransportType.Bus:
-                    return typeof(BusAI);
-                case TransportInfo.TransportType.Train:
-                    return typeof(PassengerTrainAI);
-                case TransportInfo.TransportType.Tram:
-                    return typeof(TramAI);
-                case TransportInfo.TransportType.Metro:
-                    return typeof(MetroTrainAI);
-                case TransportInfo.TransportType.Ship:
-                    return typeof(PassengerFerryAI);
-                case TransportInfo.TransportType.Airplane:
-                    return typeof(PassengerBlimpAI);
-                //case TransportInfo.TransportType.Monorail:
-                //    return typeof(MonorailAI);
-                case TransportInfo.TransportType.CableCar:
-                    return typeof(CableCarAI);
-                case TransportInfo.TransportType.Taxi:
-                    return typeof(TaxiAI);
-                default:
-                    return typeof(PrefabAI);
-            }
-        }
-
         public static T GetPrivateField<T>(object o, string fieldName)
         {
             var fields = o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -1683,15 +1682,34 @@ namespace Klyte.TransportLinesManager
                     break;
                 }
             }
+            if (field != null)
+            {
+                return (T)field.GetValue(o);
+            }
+            else
+            {
+                return default(T);
+            }
+        }
 
-            return (T)field.GetValue(o);
+        public static bool HasField(object o, string fieldName)
+        {
+            var fields = o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var f in fields)
+            {
+                if (f.Name == fieldName)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public static string getPrefixesServedAbstract(ushort m_buildingID)
         {
             Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];
             if (b.Info.GetAI() as DepotAI == null) return "";
-            List<string> options = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportType((b.Info.GetAI() as DepotAI).m_transportInfo.m_transportType));
+            List<string> options = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportInfo((b.Info.GetAI() as DepotAI).m_transportInfo));
             var prefixes = TLMDepotAI.getPrefixesServedByDepot(m_buildingID);
             List<string> saida = new List<string>();
             if (prefixes.Contains(0)) saida.Add(Locale.Get("TLM_UNPREFIXED_SHORT"));

@@ -145,14 +145,14 @@ namespace Klyte.TransportLinesManager
 
             return;
         }
-        const int maxTryLoads = 100;        
+        const int maxTryLoads = 100;
 
         public Color AutoColor(ushort i)
         {
             TransportLine t = tm.m_lines.m_buffer[(int)i];
             try
             {
-                TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(i);
+                TLMCW.ConfigIndex transportType = TLMCW.getDefinitionForLine(i).toConfigIndex();
                 bool prefixBased = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_PREFIX_BASED);
 
                 bool randomOnOverflow = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
@@ -177,12 +177,12 @@ namespace Klyte.TransportLinesManager
             }
             catch (Exception e)
             {
-                TLMUtils.doErrorLog( "ERRO!!!!! " + e.Message);
+                TLMUtils.doErrorLog("ERRO!!!!! " + e.Message);
                 TLMCW.setCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
                 return Color.clear;
             }
         }
-        
+
 
         //NAVEGACAO
 
@@ -205,7 +205,7 @@ namespace Klyte.TransportLinesManager
             m_lineInfoPanel.Hide();
             m_depotInfoPanel.Hide();
             defaultListingLinesPanel.Show();
-            tm.LinesVisible =0x7FFFFFFF;
+            tm.LinesVisible = 0x7FFFFFFF;
             //			MainMenu ();
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "ABRE2!");
         }
@@ -325,7 +325,7 @@ namespace Klyte.TransportLinesManager
 
                 List<ushort> nearLines = new List<ushort>();
 
-                TLMLineUtils.GetNearLines(b.CalculateSidewalkPosition(), 100f, ref nearLines);
+                TLMLineUtils.GetNearLines(b.CalculateSidewalkPosition(), 120f, ref nearLines);
                 bool showPanel = nearLines.Count > 0;
                 //				DebugOutputPanel.AddMessage (PluginManager.MessageType.Warning, "nearLines.Count = " + nearLines.Count);
                 if (showPanel)
@@ -338,7 +338,7 @@ namespace Klyte.TransportLinesManager
                         }
                     }
                     Dictionary<string, ushort> lines = TLMLineUtils.SortLines(nearLines);
-                    TLMLineUtils.PrintIntersections("", "", "",linesPanelObj.GetComponent<UIPanel>(), lines, scale, perLine);
+                    TLMLineUtils.PrintIntersections("", "", "", "", linesPanelObj.GetComponent<UIPanel>(), lines, scale, perLine);
                 }
                 linesPanelObj.GetComponent<UIPanel>().isVisible = showPanel;
             }

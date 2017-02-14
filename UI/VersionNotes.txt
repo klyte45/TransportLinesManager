@@ -1,7 +1,4 @@
-﻿5.6.1
-    - NEW: Added german support (thanks weoiss!)
-    - Fixed: Lines with 0% budget are seen by the cims as enabled - now they will be disabled (temporary, if using per hour budget, and reactivated when the budget is raised again)
-    ----NOTE: The fix above allows create express lines in the rush hours!
-    - Fixed: Unprefixed lines numbering form is respected now.
-5.6
-    - Added support for select metro models for each prefix
+﻿6.0
+    - Adapted for the In Motion expansion
+    - Added support to Monorail (round square), Cable Cars (Cone), Blimp (Inverse Cone - replaces airlines) and Ferry (Diamond - replaces the old ship lines)
+    -
