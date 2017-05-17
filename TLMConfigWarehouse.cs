@@ -400,12 +400,12 @@ namespace Klyte.TransportLinesManager
 
         public static bool isServiceLineNameable(ItemClass.Service s)
         {
-            return getCurrentConfigBool(ConfigIndex.USE_FOR_AUTO_NAMING_REF | s.toConfigIndex());
+            return getCurrentConfigBool(ConfigIndex.USE_FOR_AUTO_NAMING_REF | GameServiceExtensions.toConfigIndex(s, ItemClass.SubService.None));
         }
 
         public static string getPrefixForServiceLineNameable(ItemClass.Service s)
         {
-            return getCurrentConfigString(ConfigIndex.AUTO_NAMING_REF_TEXT | s.toConfigIndex());
+            return getCurrentConfigString(ConfigIndex.AUTO_NAMING_REF_TEXT | GameServiceExtensions.toConfigIndex(s, ItemClass.SubService.None));
         }
 
         public static bool isPublicTransportLineNameable(TransportSystemDefinition tsd)
@@ -671,6 +671,7 @@ namespace Klyte.TransportLinesManager
             FIREDEPARTMENT_SERVICE_CONFIG = ItemClass.Service.FireDepartment,
             PUBLICTRANSPORT_SERVICE_CONFIG = ItemClass.Service.PublicTransport,
             DISASTER_SERVICE_CONFIG = ItemClass.Service.Disaster,
+            ROAD_NAME_CONFIG = 0xff,
 
 
 
@@ -969,7 +970,7 @@ namespace Klyte.TransportLinesManager
     }
     public static class GameServiceExtensions
     {
-        public static TLMConfigWarehouse.ConfigIndex toConfigIndex(this ItemClass.Service s)
+        public static TLMConfigWarehouse.ConfigIndex toConfigIndex(ItemClass.Service s, ItemClass.SubService ss)
         {
             switch (s)
             {
@@ -981,7 +982,15 @@ namespace Klyte.TransportLinesManager
                 case ItemClass.Service.Citizen: return TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG;
                 case ItemClass.Service.Tourism: return TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG;
                 case ItemClass.Service.Office: return TLMConfigWarehouse.ConfigIndex.OFFICE_SERVICE_CONFIG;
-                case ItemClass.Service.Road: return TLMConfigWarehouse.ConfigIndex.ROAD_SERVICE_CONFIG;
+                case ItemClass.Service.Road:
+                    if (ss == ItemClass.SubService.PublicTransportBus)
+                    {
+                        return TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG;
+                    }
+                    else {
+                        return TLMConfigWarehouse.ConfigIndex.ROAD_SERVICE_CONFIG;
+                    }
+
                 case ItemClass.Service.Electricity: return TLMConfigWarehouse.ConfigIndex.ELECTRICITY_SERVICE_CONFIG;
                 case ItemClass.Service.Water: return TLMConfigWarehouse.ConfigIndex.WATER_SERVICE_CONFIG;
                 case ItemClass.Service.Beautification: return TLMConfigWarehouse.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG;
@@ -996,13 +1005,15 @@ namespace Klyte.TransportLinesManager
                 default: return 0;
             }
         }
-        
+
 
         public static uint getPriority(this TLMConfigWarehouse.ConfigIndex idx)
         {
             uint saida;
             switch (idx)
             {
+                case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
+                    return (uint)TLMConfigWarehouse.namingOrder.Length;
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
@@ -1052,6 +1063,8 @@ namespace Klyte.TransportLinesManager
         {
             switch (idx)
             {
+                case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
+                    return "";
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
@@ -1093,6 +1106,8 @@ namespace Klyte.TransportLinesManager
         {
             switch (idx)
             {
+                case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
+                    return true;
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
@@ -1133,6 +1148,7 @@ namespace Klyte.TransportLinesManager
         {
             switch (idx)
             {
+                case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:

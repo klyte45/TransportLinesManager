@@ -1,4 +1,4 @@
 ﻿6.0
-    - Adapted for the In Motion expansion
+    - Adapted for the Mass Transport expansion
     - Added support to Monorail (round square), Cable Cars (Cone), Blimp (Inverse Cone - replaces airlines) and Ferry (Diamond - replaces the old ship lines)
     -

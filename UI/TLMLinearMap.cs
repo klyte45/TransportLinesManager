@@ -441,7 +441,7 @@ namespace Klyte.TransportLinesManager.UI
             UITextField stationLabel = null;
             TLMUtils.createUIElement<UITextField>(ref stationLabel, stationButton.transform);
             stationLabel.autoSize = true;
-            stationLabel.width = 200;
+            stationLabel.width = 220;
             stationLabel.height = 20;
             stationLabel.useOutline = true;
             stationLabel.pivot = UIPivotPoint.MiddleLeft;
@@ -449,7 +449,9 @@ namespace Klyte.TransportLinesManager.UI
             stationLabel.verticalAlignment = UIVerticalAlignment.Middle;
             stationLabel.name = "Station [" + stationName + "] Name";
             stationLabel.relativePosition = new Vector3(23f, -13f);
-            stationLabel.text = (!string.IsNullOrEmpty(stationPrefix) ? stationPrefix + " " : "") + stationName;
+            stationLabel.text = (!string.IsNullOrEmpty(stationPrefix) ? stationPrefix.Trim() + " " : "") + stationName.Trim();
+            stationLabel.textScale = Math.Max(0.5f, Math.Min(1, 24f / stationLabel.text.Length));
+
             TLMUtils.uiTextFieldDefaults(stationLabel);
             stationLabel.color = new Color(0.3f, 0.3f, 0.3f, 1);
             stationLabel.textColor = Color.white;
@@ -484,7 +486,7 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     var otherLinesIntersections = TLMLineUtils.SortLines(intersections, t);
 
-                    int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0) ;
+                    int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0);
                     if (intersectionCount > 0)
                     {
                         UIPanel intersectionsPanel = null;

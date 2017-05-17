@@ -46,7 +46,33 @@ namespace Klyte.TransportLinesManager.LineList
         private void OpenDetailPanel(int idx)
         {
             TLMPublicTransportDetailPanel publicTransportDetailPanel = UIView.library.Show<TLMPublicTransportDetailPanel>("PublicTransportDetailPanel", true, false);
-            publicTransportDetailPanel.SetActiveTab(7 - idx);
+            int idxRes = idx;
+            switch (idx)
+            {
+                case 0:
+                    idxRes = 8;
+                    break;
+                case 1:
+                    idxRes = 7;
+                    break;
+                case 2:
+                    idxRes = 6;
+                    break;
+                case 3:
+                    idxRes = 4;
+                    break;
+                case 4:
+                    idxRes = 3;
+                    break;
+                case 5:
+                    idxRes = 1;
+                    break;
+                case 6:
+                    idxRes = 5;
+                    break;
+            }
+
+            publicTransportDetailPanel.SetActiveTab(idxRes);
         }
 
         #region Hooking
@@ -145,7 +171,7 @@ namespace Klyte.TransportLinesManager.LineList
             DISTRICT
         }
 
-        private const int NUM_TRANSPORT_SYSTEMS = 10;
+        private const int NUM_TRANSPORT_SYSTEMS = 9;
 
         public static TLMPublicTransportDetailPanel instance;
 
@@ -171,7 +197,6 @@ namespace Klyte.TransportLinesManager.LineList
             TLMCW.ConfigIndex.PLANE_CONFIG,
             TLMCW.ConfigIndex.BLIMP_CONFIG,
             TLMCW.ConfigIndex.SHIP_CONFIG,
-            TLMCW.ConfigIndex.CABLE_CAR_CONFIG,
             TLMCW.ConfigIndex.FERRY_CONFIG,
             TLMCW.ConfigIndex.TRAIN_CONFIG,
             TLMCW.ConfigIndex.MONORAIL_CONFIG,
@@ -187,7 +212,6 @@ namespace Klyte.TransportLinesManager.LineList
         private UIComponent m_MetroLinesContainer;
         private UIComponent m_TrainLinesContainer;
         private UIComponent m_ShipLinesContainer;
-        private UIComponent m_CableCarLinesContainer;
         private UIComponent m_MonorailLinesContainer;
         private UIComponent m_BlimpLinesContainer;
         private UIComponent m_FerryLinesContainer;
@@ -200,7 +224,6 @@ namespace Klyte.TransportLinesManager.LineList
         private UIComponent m_TrainDepotsContainer;
         private UIComponent m_ShipDepotsContainer;
         private UIComponent m_MonorailDepotsContainer;
-        private UIComponent m_CableCarDepotsContainer;
         private UIComponent m_BusDepotsContainer;
         private UIComponent m_BlimpDepotsContainer;
         private UIComponent m_FerryDepotsContainer;
@@ -235,7 +258,6 @@ namespace Klyte.TransportLinesManager.LineList
         private int m_trainCount = 0;
         private int m_blimpCount = 0;
         private int m_ferryCount = 0;
-        private int m_cableCarCount = 0;
         private int m_monorailCount = 0;
 
         //TLM
@@ -400,25 +422,27 @@ namespace Klyte.TransportLinesManager.LineList
             this.m_Strip = Find<UITabstrip>("Tabstrip");
             this.m_Strip.relativePosition = new Vector3(13, 45);
 
-            var ship = m_Strip.AddTab("");
-            var plane = m_Strip.AddTab("");
-            var blimp = m_Strip.AddTab("");
-            var ferry = m_Strip.AddTab("");
-            var monorail = m_Strip.AddTab("");
-            var cablecar = m_Strip.AddTab("");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Strips Lines");
             var bus = m_Strip.tabs[0].GetComponent<UIButton>();
             var tram = m_Strip.tabs[1].GetComponent<UIButton>();
             var metro = m_Strip.tabs[2].GetComponent<UIButton>();
             var train = m_Strip.tabs[3].GetComponent<UIButton>();
+            var ferry = m_Strip.tabs[4].GetComponent<UIButton>();
+            var blimp = m_Strip.tabs[5].GetComponent<UIButton>();
+            var monorail = m_Strip.tabs[6].GetComponent<UIButton>();
+            var ship = m_Strip.AddTab("");
+            var plane = m_Strip.AddTab("");
 
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Mid Tab");
             var prefixEditor = m_Strip.AddTab("");
             prefixEditor.textScale = 2.25f;
             prefixEditor.useOutline = true;
 
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Strips Depots");
+
             var planeDepot = m_Strip.AddTab("");
             var blimpDepot = m_Strip.AddTab("");
             var shipDepot = m_Strip.AddTab("");
-            var cablecarDepot = m_Strip.AddTab("");
             var ferryDepot = m_Strip.AddTab("");
             var trainDepot = m_Strip.AddTab("");
             var monorailDepot = m_Strip.AddTab("");
@@ -426,63 +450,71 @@ namespace Klyte.TransportLinesManager.LineList
             var tramDepot = m_Strip.AddTab("");
             var busDepot = m_Strip.AddTab("");
 
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Tab init - lines");
+            int tabIt = 0;
 
-            addIcon("PlaneLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref plane, false, 0, "TLM_PUBLICTRANSPORT_AIRPLANELINES");
-            addIcon("Blimp", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref blimp, false, 1, "TLM_PUBLICTRANSPORT_BLIMPLINES");
-            addIcon("ShipLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ship, false, 2, "TLM_PUBLICTRANSPORT_SHIPLINES");
-            addIcon("CableCar", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.CableCar), ref cablecar, false, 3, "PUBLICTRANSPORT_CABLECARLINES");
-            addIcon("Ferry", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ferry, false, 4, "TLM_PUBLICTRANSPORT_FERRYLINES");
-            addIcon("Train", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref train, false, 5, "PUBLICTRANSPORT_TRAINLINES");
-            addIcon("Monorail", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Monorail), ref monorail, false, 6, "PUBLICTRANSPORT_MONORAILLINES");
-            addIcon("Subway", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metro, false, 7, "PUBLICTRANSPORT_METROLINES");
-            addIcon("Tram", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tram, false, 8, "PUBLICTRANSPORT_TRAMLINES");
-            addIcon("Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref bus, false, 9, "PUBLICTRANSPORT_BUSLINES");
+            addIcon("PlaneLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref plane, false, tabIt++, "TLM_PUBLICTRANSPORT_AIRPLANELINES");
+            addIcon("Blimp", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref blimp, false, tabIt++, "TLM_PUBLICTRANSPORT_BLIMPLINES");
+            addIcon("ShipLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ship, false, tabIt++, "TLM_PUBLICTRANSPORT_SHIPLINES");
+            addIcon("Ferry", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ferry, false, tabIt++, "TLM_PUBLICTRANSPORT_FERRYLINES");
+            addIcon("Train", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref train, false, tabIt++, "PUBLICTRANSPORT_TRAINLINES");
+            addIcon("Monorail", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Monorail), ref monorail, false, tabIt++, "PUBLICTRANSPORT_MONORAILLINES");
+            addIcon("Subway", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metro, false, tabIt++, "PUBLICTRANSPORT_METROLINES");
+            addIcon("Tram", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tram, false, tabIt++, "PUBLICTRANSPORT_TRAMLINES");
+            addIcon("Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref bus, false, tabIt++, "PUBLICTRANSPORT_BUSLINES");
 
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref planeDepot, false, NUM_TRANSPORT_SYSTEMS);
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref blimpDepot, false, NUM_TRANSPORT_SYSTEMS + 1);
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref shipDepot, false, NUM_TRANSPORT_SYSTEMS + 2);
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.CableCar), ref cablecarDepot, false, NUM_TRANSPORT_SYSTEMS + 3);
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ferryDepot, false, NUM_TRANSPORT_SYSTEMS + 4);
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref trainDepot, false, NUM_TRANSPORT_SYSTEMS + 5);
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Monorail), ref monorailDepot, false, NUM_TRANSPORT_SYSTEMS + 6);
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metroDepot, false, NUM_TRANSPORT_SYSTEMS + 7);
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tramDepot, false, NUM_TRANSPORT_SYSTEMS + 8);
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busDepot, false, NUM_TRANSPORT_SYSTEMS + 9);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Tab init - depots");
+            tabIt = 0;
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref planeDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref blimpDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref shipDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ferryDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref trainDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Monorail), ref monorailDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metroDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tramDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
 
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Tab init - star");
             addIcon("Star", "", ref prefixEditor, false, NUM_TRANSPORT_SYSTEMS * 2);
 
 
             tram.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Tram);
+            ferry.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Monorail);
+            monorail.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Monorail);
+            blimp.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Monorail);
 
             this.m_BusLinesContainer = Find<UIComponent>("BusDetail").Find("Container");
             this.m_TramLinesContainer = Find<UIComponent>("TramDetail").Find("Container");
             this.m_MetroLinesContainer = Find<UIComponent>("MetroDetail").Find("Container");
             this.m_TrainLinesContainer = Find<UIComponent>("TrainDetail").Find("Container");
+            this.m_BlimpLinesContainer = Find<UIComponent>("BlimpDetail").Find("Container");
+            this.m_MonorailLinesContainer = Find<UIComponent>("MonorailDetail").Find("Container");
+            this.m_FerryLinesContainer = Find<UIComponent>("FerryDetail").Find("Container");
 
             m_BusLinesContainer.eventVisibilityChanged += null;
             m_TramLinesContainer.eventVisibilityChanged += null;
             m_MetroLinesContainer.eventVisibilityChanged += null;
             m_TrainLinesContainer.eventVisibilityChanged += null;
+            m_BlimpLinesContainer.eventVisibilityChanged += null;
+            m_MonorailLinesContainer.eventVisibilityChanged += null;
+            m_FerryLinesContainer.eventVisibilityChanged += null;
 
-            CopyContainerFromBus(4, ref m_BlimpLinesContainer);
-            CopyContainerFromBus(5, ref m_ShipLinesContainer);
-            CopyContainerFromBus(6, ref m_MonorailLinesContainer);
-            CopyContainerFromBus(7, ref m_FerryLinesContainer);
-            CopyContainerFromBus(8, ref m_PlaneLinesContainer);
-            CopyContainerFromBus(9, ref m_CableCarLinesContainer);
+            CopyContainerFromBus(NUM_TRANSPORT_SYSTEMS - 2, ref m_ShipLinesContainer);
+            CopyContainerFromBus(NUM_TRANSPORT_SYSTEMS - 1, ref m_PlaneLinesContainer);
 
-            CopyContainerFromBus(10, ref m_PlaneDepotsContainer);
-            CopyContainerFromBus(11, ref m_BlimpDepotsContainer);
-            CopyContainerFromBus(12, ref m_ShipDepotsContainer);
-            CopyContainerFromBus(13, ref m_CableCarDepotsContainer);
-            CopyContainerFromBus(14, ref m_FerryDepotsContainer);
-            CopyContainerFromBus(15, ref m_TrainDepotsContainer);
-            CopyContainerFromBus(16, ref m_MonorailDepotsContainer);
-            CopyContainerFromBus(17, ref m_MetroDepotsContainer);
-            CopyContainerFromBus(18, ref m_TramDepotsContainer);
-            CopyContainerFromBus(19, ref m_BusDepotsContainer);
+            tabIt = NUM_TRANSPORT_SYSTEMS;
+            CopyContainerFromBus(tabIt++, ref m_PlaneDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_BlimpDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_ShipDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_FerryDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_TrainDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_MonorailDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_MetroDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_TramDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_BusDepotsContainer);
 
-            CopyContainerFromBus(20, ref m_PrefixEditor);
+            CopyContainerFromBus(tabIt, ref m_PrefixEditor);
 
 
             RemoveExtraLines(0, ref m_BusLinesContainer);
@@ -490,7 +522,6 @@ namespace Klyte.TransportLinesManager.LineList
             RemoveExtraLines(0, ref m_MetroLinesContainer);
             RemoveExtraLines(0, ref m_TrainLinesContainer);
             RemoveExtraLines(0, ref m_MonorailLinesContainer);
-            RemoveExtraLines(0, ref m_CableCarLinesContainer);
             RemoveExtraLines(0, ref m_ShipLinesContainer);
             RemoveExtraLines(0, ref m_PlaneLinesContainer);
             RemoveExtraLines(0, ref m_PrefixEditor);
@@ -500,35 +531,33 @@ namespace Klyte.TransportLinesManager.LineList
             RemoveExtraLines(0, ref m_TrainDepotsContainer);
             RemoveExtraLines(0, ref m_ShipDepotsContainer);
             RemoveExtraLines(0, ref m_PlaneDepotsContainer);
-            RemoveExtraLines(0, ref m_CableCarDepotsContainer);
             RemoveExtraLines(0, ref m_MonorailDepotsContainer);
             RemoveExtraLines(0, ref m_FerryLinesContainer);
             RemoveExtraLines(0, ref m_BlimpLinesContainer);
             RemoveExtraLines(0, ref m_BlimpDepotsContainer);
             RemoveExtraLines(0, ref m_FerryDepotsContainer);
 
+            tabIt = 0;
+            plane.zOrder = tabIt++;
+            blimp.zOrder = (tabIt++);
+            ship.zOrder = (tabIt++);
+            ferry.zOrder = (tabIt++);
+            train.zOrder = (tabIt++);
+            monorail.zOrder = (tabIt++);
+            metro.zOrder = (tabIt++);
+            tram.zOrder = (tabIt++);
+            bus.zOrder = (tabIt++);
 
-            plane.zOrder = 0;
-            blimp.zOrder = (1);
-            ship.zOrder = (2);
-            cablecar.zOrder = (3);
-            ferry.zOrder = (4);
-            train.zOrder = (5);
-            monorail.zOrder = (6);
-            metro.zOrder = (7);
-            tram.zOrder = (8);
-            bus.zOrder = (9);
-
-            m_PlaneLinesContainer.GetComponentInParent<UIPanel>().zOrder = (0);
-            m_BlimpLinesContainer.GetComponentInParent<UIPanel>().zOrder = (1);
-            m_ShipLinesContainer.GetComponentInParent<UIPanel>().zOrder = (2);
-            m_CableCarLinesContainer.GetComponentInParent<UIPanel>().zOrder = (3);
-            m_FerryLinesContainer.GetComponentInParent<UIPanel>().zOrder = (4);
-            m_TrainLinesContainer.GetComponentInParent<UIPanel>().zOrder = (5);
-            m_MonorailLinesContainer.GetComponentInParent<UIPanel>().zOrder = (6);
-            m_MetroLinesContainer.GetComponentInParent<UIPanel>().zOrder = (7);
-            m_TramLinesContainer.GetComponentInParent<UIPanel>().zOrder = (8);
-            m_BusLinesContainer.GetComponentInParent<UIPanel>().zOrder = (9);
+            tabIt = 0;
+            m_PlaneLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_BlimpLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_ShipLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_FerryLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_TrainLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_MonorailLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_MetroLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_TramLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_BusLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
         }
 
         private void AwakeLinesTitleComponents()
@@ -1026,7 +1055,6 @@ namespace Klyte.TransportLinesManager.LineList
                     m_ferryCount = 0;
                     m_blimpCount = 0;
                     m_monorailCount = 0;
-                    m_cableCarCount = 0;
 
                     for (ushort lineIdIterator = 1; lineIdIterator < 256; lineIdIterator += 1)
                     {
@@ -1070,10 +1098,6 @@ namespace Klyte.TransportLinesManager.LineList
                                     comp = m_MonorailLinesContainer;
                                     m_monorailCount = AddToList(m_monorailCount, lineIdIterator, ref comp);
                                     break;
-                                case TLMCW.ConfigIndex.CABLE_CAR_CONFIG:
-                                    comp = m_CableCarLinesContainer;
-                                    m_cableCarCount = AddToList(m_cableCarCount, lineIdIterator, ref comp);
-                                    break;
                             }
                         }
                     }
@@ -1089,8 +1113,6 @@ namespace Klyte.TransportLinesManager.LineList
                     RemoveExtraLines(m_shipCount, ref comp);
                     comp = m_PlaneLinesContainer;
                     RemoveExtraLines(m_planeCount, ref comp);
-                    comp = m_CableCarLinesContainer;
-                    RemoveExtraLines(m_cableCarCount, ref comp);
                     comp = m_MonorailLinesContainer;
                     RemoveExtraLines(m_monorailCount, ref comp);
                     comp = m_BlimpLinesContainer;
@@ -1111,7 +1133,6 @@ namespace Klyte.TransportLinesManager.LineList
                 int shipCount = 0;
                 int planeCount = 0;
                 int monorailCount = 0;
-                int cablecarCount = 0;
                 int blimpCount = 0;
                 int ferryCount = 0;
 
@@ -1148,10 +1169,6 @@ namespace Klyte.TransportLinesManager.LineList
                             comp = m_MonorailDepotsContainer;
                             monorailCount = AddDepotToList(monorailCount, buildingID, ref comp);
                             break;
-                        case TLMCW.ConfigIndex.CABLE_CAR_CONFIG:
-                            comp = m_CableCarDepotsContainer;
-                            cablecarCount = AddDepotToList(cablecarCount, buildingID, ref comp);
-                            break;
                         case TLMCW.ConfigIndex.BLIMP_CONFIG:
                             comp = m_BlimpDepotsContainer;
                             blimpCount = AddDepotToList(blimpCount, buildingID, ref comp);
@@ -1176,8 +1193,6 @@ namespace Klyte.TransportLinesManager.LineList
                 RemoveExtraLines(planeCount, ref comp);
                 comp = m_MonorailDepotsContainer;
                 RemoveExtraLines(monorailCount, ref comp);
-                comp = m_CableCarDepotsContainer;
-                RemoveExtraLines(cablecarCount, ref comp);
                 comp = m_FerryDepotsContainer;
                 RemoveExtraLines(ferryCount, ref comp);
                 comp = m_BlimpDepotsContainer;
@@ -1500,7 +1515,6 @@ namespace Klyte.TransportLinesManager.LineList
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.BUS_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.METRO_CONFIG),
-                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG) ,
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG) ,
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG) }, 0, loadPrefixes);
@@ -1772,12 +1786,10 @@ namespace Klyte.TransportLinesManager.LineList
                 case 6:
                     return TLMConfigWarehouse.ConfigIndex.METRO_CONFIG;
                 case 7:
-                    return TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG;
-                case 8:
                     return TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG;
-                case 9:
+                case 8:
                     return TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG;
-                case 10:
+                case 9:
                     return TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG;
                 default:
                     return TLMConfigWarehouse.ConfigIndex.NIL;
@@ -1795,7 +1807,6 @@ namespace Klyte.TransportLinesManager.LineList
                     m_planeCount,
                     m_blimpCount,
                     m_shipCount,
-                    m_cableCarCount,
                     m_ferryCount,
                     m_trainCount,
                     m_monorailCount,

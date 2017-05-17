@@ -673,12 +673,19 @@ namespace Klyte.TransportLinesManager.UI
         public void openLineInfo(UIComponent component, UIMouseEventParameter eventParam)
         {
             ushort lineID = (component as UIButtonLineInfo).lineID;
-            openLineInfo(lineID);
+            if (lineID > 0)
+            {
+                openLineInfo(lineID);
+            }
 
         }
 
         public void openLineInfo(ushort lineID)
         {
+            if (lineID <= 0)
+            {
+                return;
+            }
             WorldInfoPanel.HideAllWorldInfoPanels();
             linePrefixDropDown.eventSelectedIndexChanged -= saveLineNumber;
             lineNumberLabel.eventLostFocus -= saveLineNumber;

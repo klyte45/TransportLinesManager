@@ -1161,7 +1161,7 @@ namespace Klyte.TransportLinesManager
                     ushort buidingId;
                     String value = getStationName(t.GetStop(j), lineIdx, ss, out service, out subservice, out prefix, out buidingId, true);
                     var tsd = TransportSystemDefinition.from(Singleton<BuildingManager>.instance.m_buildings.m_buffer[buidingId].Info.GetAI());
-                    stationsList.Add(j, new KeyValuePair<TLMCW.ConfigIndex, string>(tsd != null ? tsd.toConfigIndex() : service.toConfigIndex(), value));
+                    stationsList.Add(j, new KeyValuePair<TLMCW.ConfigIndex, string>(tsd != null ? tsd.toConfigIndex() : GameServiceExtensions.toConfigIndex(service, subservice), value));
                 }
                 uint mostImportantCategoryInLine = stationsList.Select(x => (x.Value.Key).getPriority()).Min();
                 if (mostImportantCategoryInLine < int.MaxValue)
@@ -1170,32 +1170,31 @@ namespace Klyte.TransportLinesManager
                     var destiny = stationsList[mostImportantPlaceIdx];
 
                     var inverseIdxCenter = (mostImportantPlaceIdx + stopsCount / 2) % stopsCount;
-                    int simmetryMargin = (int)Math.Ceiling(stopsCount * autoNameSimmetryImprecision);
-                    int resultIdx = -1;
-                    var destBuilding = getStationBuilding((uint)mostImportantPlaceIdx, ss);
-                    BuildingManager bm = Singleton<BuildingManager>.instance;
-                    for (int i = 0; i <= simmetryMargin; i++)
-                    {
-                        int currentI = (inverseIdxCenter + i + stopsCount) % stopsCount;
-                        var iBuilding = getStationBuilding((uint)currentI, ss);
-                        if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority())
-                            && iBuilding != destBuilding
-                            && (!stationsList[currentI].Key.isPublicTransport() || bm.m_buildings.m_buffer[currentI].Info.GetAI().GetType() == typeof(TransportStationAI)))
-                        {
-                            resultIdx = currentI;
-                        }
-                        if (i == 0) continue;
-                        currentI = (inverseIdxCenter - i + stopsCount) % stopsCount;
-                        iBuilding = getStationBuilding((uint)currentI, ss);
-                        if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority())
-                            && iBuilding != destBuilding
-                            && (!stationsList[currentI].Key.isPublicTransport() || bm.m_buildings.m_buffer[currentI].Info.GetAI().GetType() == typeof(TransportStationAI)))
-                        {
-                            resultIdx = currentI;
-                        }
-                    }
+                    int resultIdx = inverseIdxCenter;
+                    //int simmetryMargin = (int)Math.Ceiling(stopsCount * autoNameSimmetryImprecision);
+                    //int resultIdx = -1;
+                    //var destBuilding = getStationBuilding((uint)mostImportantPlaceIdx, ss);
+                    //BuildingManager bm = Singleton<BuildingManager>.instance;
+                    //for (int i = 0; i <= simmetryMargin; i++)
+                    //{
+                    //    int currentI = (inverseIdxCenter + i + stopsCount) % stopsCount;
+
+
+                    //    var iBuilding = getStationBuilding((uint)currentI, ss);
+                    //    if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority()) && iBuilding != destBuilding)
+                    //    {
+                    //        resultIdx = currentI;
+                    //    }
+                    //    if (i == 0) continue;
+                    //    currentI = (inverseIdxCenter - i + stopsCount) % stopsCount;
+                    //    iBuilding = getStationBuilding((uint)currentI, ss);
+                    //    if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority()) && iBuilding != destBuilding)
+                    //    {
+                    //        resultIdx = currentI;
+                    //    }
+                    //}
                     string originName = "";
-                    int districtOriginId = -1;
+                    //int districtOriginId = -1;
                     if (resultIdx >= 0 && stationsList[resultIdx].Key.isLineNamingEnabled())
                     {
                         var origin = stationsList[resultIdx];
@@ -1204,31 +1203,32 @@ namespace Klyte.TransportLinesManager
                         originName = GetStationNameWithPrefix(transportType, name);
                         originName += " - ";
                     }
-                    else
-                    {
-                        NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
-                        Vector3 location = nn.m_position;
-                        districtOriginId = dm.GetDistrict(location);
-                        if (districtOriginId > 0)
-                        {
-                            District d = dm.m_districts.m_buffer[districtOriginId];
-                            originName = dm.GetDistrictName(districtOriginId) + " - ";
-                        }
-                        else {
-                            originName = "";
-                        }
-                    }
+                    //else
+                    //{
+                    //    NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
+                    //    Vector3 location = nn.m_position;
+                    //    districtOriginId = dm.GetDistrict(location);
+                    //    if (districtOriginId > 0)
+                    //    {
+                    //        District d = dm.m_districts.m_buffer[districtOriginId];
+                    //        originName = dm.GetDistrictName(districtOriginId) + " - ";
+                    //    }
+                    //    else {
+                    //        originName = "";
+                    //    }
+                    //}
                     if (!destiny.Key.isLineNamingEnabled())
                     {
                         NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
                         Vector3 location = nn.m_position;
                         int districtDestinyId = dm.GetDistrict(location);
-                        if (districtDestinyId == districtOriginId)
-                        {
-                            District d = dm.m_districts.m_buffer[districtDestinyId];
-                            return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtDestinyId);
-                        }
-                        else if (districtDestinyId > 0)
+                        //if (districtDestinyId == districtOriginId)
+                        //{
+                        //    District d = dm.m_districts.m_buffer[districtDestinyId];
+                        //    return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtDestinyId);
+                        //}
+                        //else
+                        if (districtDestinyId > 0)
                         {
                             District d = dm.m_districts.m_buffer[districtDestinyId];
                             return originName + dm.GetDistrictName(districtDestinyId);
@@ -1260,7 +1260,7 @@ namespace Klyte.TransportLinesManager
             iid.Building = buildingId;
             serviceFound = b.Info.GetService();
             subserviceFound = b.Info.GetSubService();
-            TLMCW.ConfigIndex index = serviceFound.toConfigIndex();
+            TLMCW.ConfigIndex index = GameServiceExtensions.toConfigIndex(serviceFound, subserviceFound);
             if (index == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
             {
                 var tsd = TransportSystemDefinition.from(b.Info.GetAI());
@@ -1510,34 +1510,182 @@ namespace Klyte.TransportLinesManager
             {
                 return getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix);
             }
-            else {
-                serviceFound = ItemClass.Service.None;
-                subserviceFound = ItemClass.SubService.None;
 
-                //if (nn.CountSegments() >= 0)
-                //{
-                //    nm.GetClosestSeg
-                //    for(int i = 0; i < 8; i++)
-                //    {
 
-                //    }
-                //}
-                //else {
-                DistrictManager dm = Singleton<DistrictManager>.instance;
-                int dId = dm.GetDistrict(location);
-                if (dId > 0)
+
+            NetNode nextNode = nm.m_nodes.m_buffer[nn.m_nextGridNode];
+            //return nm.GetSegmentName(segId);
+            ushort segId = FindNearNamedRoad(nn.m_position);
+            string segName = nm.GetSegmentName(segId);
+            NetSegment seg = nm.m_segments.m_buffer[segId];
+            ushort cross1nodeId = seg.m_startNode;
+            ushort cross2nodeId = seg.m_endNode;
+
+            string crossSegName = string.Empty;
+
+            NetNode cross1node = nm.m_nodes.m_buffer[cross1nodeId];
+            for (int i = 0; i < 8; i++)
+            {
+                var iSegId = cross1node.GetSegment(i);
+                if (iSegId > 0 && iSegId != segId)
                 {
-                    prefix = "[D]";
-                    District d = dm.m_districts.m_buffer[dId];
-                    return dm.GetDistrictName(dId);
+                    string iSegName = nm.GetSegmentName(iSegId);
+                    if (iSegName != string.Empty && segName != iSegName)
+                    {
+                        crossSegName = iSegName;
+                        break;
+                    }
+                }
+            }
+            if (crossSegName == string.Empty)
+            {
+                NetNode cross2node = nm.m_nodes.m_buffer[cross2nodeId];
+                for (int i = 0; i < 8; i++)
+                {
+                    var iSegId = cross2node.GetSegment(i);
+                    if (iSegId > 0 && iSegId != segId)
+                    {
+                        string iSegName = nm.GetSegmentName(iSegId);
+                        if (iSegName != string.Empty && segName != iSegName)
+                        {
+                            crossSegName = iSegName;
+                            break;
+                        }
+                    }
+                }
+            }
+            prefix = "";
+            if (segName != string.Empty)
+            {
+                serviceFound = ItemClass.Service.Road;
+                subserviceFound = ItemClass.SubService.PublicTransportBus;
+                if (crossSegName == string.Empty)
+                {
+                    return segName;
                 }
                 else
                 {
-                    prefix = "";
-                    return "[X=" + location.x + "|Y=" + location.y + "|Z=" + location.z + "]";
+                    prefix = segName + " x ";
+                    return crossSegName;
                 }
+
+            }
+            else
+            {
+                serviceFound = ItemClass.Service.None;
+                subserviceFound = ItemClass.SubService.None;
+                return "????????";
             }
             //}
+
+            //}
+        }
+
+
+        public static ushort FindNearNamedRoad(Vector3 position)
+        {
+            PathUnit.Position pathPosA, pathPosB;
+            float distanceSqrA, distanceSqrB;
+            return FindNearNamedRoad(position, ItemClass.Service.Road, NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle,
+                    VehicleInfo.VehicleType.Car, false, false, 256f,
+                    out pathPosA, out pathPosB, out distanceSqrA, out distanceSqrB);
+        }
+
+
+        public static ushort FindNearNamedRoad(Vector3 position, ItemClass.Service service, NetInfo.LaneType laneType, VehicleInfo.VehicleType vehicleType,
+            bool allowUnderground, bool requireConnect, float maxDistance,
+            out PathUnit.Position pathPosA, out PathUnit.Position pathPosB, out float distanceSqrA, out float distanceSqrB)
+        {
+            return FindNearNamedRoad(position, service, service, laneType,
+                vehicleType, VehicleInfo.VehicleType.None, allowUnderground,
+                requireConnect, maxDistance,
+                out pathPosA, out pathPosB, out distanceSqrA, out distanceSqrB);
+        }
+
+
+        public static ushort FindNearNamedRoad(Vector3 position, ItemClass.Service service, ItemClass.Service service2, NetInfo.LaneType laneType,
+            VehicleInfo.VehicleType vehicleType, VehicleInfo.VehicleType stopType, bool allowUnderground,
+            bool requireConnect, float maxDistance,
+            out PathUnit.Position pathPosA, out PathUnit.Position pathPosB, out float distanceSqrA, out float distanceSqrB)
+        {
+
+
+            Bounds bounds = new Bounds(position, new Vector3(maxDistance * 2f, maxDistance * 2f, maxDistance * 2f));
+            int num = Mathf.Max((int)((bounds.min.x - 64f) / 64f + 135f), 0);
+            int num2 = Mathf.Max((int)((bounds.min.z - 64f) / 64f + 135f), 0);
+            int num3 = Mathf.Min((int)((bounds.max.x + 64f) / 64f + 135f), 269);
+            int num4 = Mathf.Min((int)((bounds.max.z + 64f) / 64f + 135f), 269);
+            NetManager instance = Singleton<NetManager>.instance;
+            pathPosA.m_segment = 0;
+            pathPosA.m_lane = 0;
+            pathPosA.m_offset = 0;
+            distanceSqrA = 1E+10f;
+            pathPosB.m_segment = 0;
+            pathPosB.m_lane = 0;
+            pathPosB.m_offset = 0;
+            distanceSqrB = 1E+10f;
+            float num5 = maxDistance * maxDistance;
+            for (int i = num2; i <= num4; i++)
+            {
+                for (int j = num; j <= num3; j++)
+                {
+                    ushort num6 = instance.m_segmentGrid[i * 270 + j];
+                    int num7 = 0;
+                    while (num6 != 0)
+                    {
+                        NetInfo info = instance.m_segments.m_buffer[(int)num6].Info;
+                        if (info != null && (info.m_class.m_service == service || info.m_class.m_service == service2) && (instance.m_segments.m_buffer[(int)num6].m_flags & (NetSegment.Flags.Collapsed | NetSegment.Flags.Flooded)) == NetSegment.Flags.None && (allowUnderground || !info.m_netAI.IsUnderground()))
+                        {
+                            ushort startNode = instance.m_segments.m_buffer[(int)num6].m_startNode;
+                            ushort endNode = instance.m_segments.m_buffer[(int)num6].m_endNode;
+                            Vector3 position2 = instance.m_nodes.m_buffer[(int)startNode].m_position;
+                            Vector3 position3 = instance.m_nodes.m_buffer[(int)endNode].m_position;
+                            float num8 = Mathf.Max(Mathf.Max(bounds.min.x - 64f - position2.x, bounds.min.z - 64f - position2.z), Mathf.Max(position2.x - bounds.max.x - 64f, position2.z - bounds.max.z - 64f));
+                            float num9 = Mathf.Max(Mathf.Max(bounds.min.x - 64f - position3.x, bounds.min.z - 64f - position3.z), Mathf.Max(position3.x - bounds.max.x - 64f, position3.z - bounds.max.z - 64f));
+                            Vector3 b;
+                            int num10;
+                            float num11;
+                            Vector3 b2;
+                            int num12;
+                            float num13;
+                            if ((num8 < 0f || num9 < 0f) && instance.m_segments.m_buffer[(int)num6].m_bounds.Intersects(bounds) && instance.m_segments.m_buffer[(int)num6].GetClosestLanePosition(position, laneType, vehicleType, stopType, requireConnect, out b, out num10, out num11, out b2, out num12, out num13))
+                            {
+                                float num14 = Vector3.SqrMagnitude(position - b);
+                                if (num14 < num5)
+                                {
+                                    num5 = num14;
+                                    pathPosA.m_segment = num6;
+                                    pathPosA.m_lane = (byte)num10;
+                                    pathPosA.m_offset = (byte)Mathf.Clamp(Mathf.RoundToInt(num11 * 255f), 0, 255);
+                                    distanceSqrA = num14;
+                                    num14 = Vector3.SqrMagnitude(position - b2);
+                                    if (num12 == -1 || num14 >= maxDistance * maxDistance)
+                                    {
+                                        pathPosB.m_segment = 0;
+                                        pathPosB.m_lane = 0;
+                                        pathPosB.m_offset = 0;
+                                        distanceSqrB = 1E+10f;
+                                    }
+                                    else
+                                    {
+                                        pathPosB.m_segment = num6;
+                                        pathPosB.m_lane = (byte)num12;
+                                        pathPosB.m_offset = (byte)Mathf.Clamp(Mathf.RoundToInt(num13 * 255f), 0, 255);
+                                        distanceSqrB = num14;
+                                    }
+                                }
+                            }
+                        }
+                        num6 = instance.m_segments.m_buffer[(int)num6].m_nextGridSegment;
+                        if (++num7 >= 36864)
+                        {
+                            CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                            break;
+                        }
+                    }
+                }
+            }
+            return pathPosA.m_segment;
         }
 
         public static string getStationName(ushort stopId, ushort lineId, ItemClass.SubService ss)
