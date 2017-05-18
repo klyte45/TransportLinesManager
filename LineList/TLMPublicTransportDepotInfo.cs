@@ -12,7 +12,7 @@ namespace Klyte.TransportLinesManager.LineList
     using ColossalFramework.UI;
     using Extensions;
     using Extensors;
-    using Extensors.BuildingAI;
+    using Extensors.BuildingAIExt;
     using System;
     using System.Collections;
     using System.Diagnostics;
@@ -114,7 +114,7 @@ namespace Klyte.TransportLinesManager.LineList
                 //prefix
                 this.m_prefixesServed.text = TLMUtils.getPrefixesServedAbstract(this.m_buildingID);
 
-                List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportType((b.Info.GetAI() as DepotAI).m_transportInfo.m_transportType));
+                List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportInfo((b.Info.GetAI() as DepotAI).m_transportInfo));
                 prefixOptions.Add(Locale.Get("TLM_REGIONAL"));
                 if (this.m_prefixOptions.items.Length != prefixOptions.Count)
                 {

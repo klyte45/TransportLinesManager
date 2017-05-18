@@ -4,8 +4,8 @@ using ColossalFramework.UI;
 using ICities;
 using Klyte.Extensions;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.BuildingAI;
-using Klyte.TransportLinesManager.Extensors.VehicleAI;
+using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
+using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +46,33 @@ namespace Klyte.TransportLinesManager.LineList
         private void OpenDetailPanel(int idx)
         {
             TLMPublicTransportDetailPanel publicTransportDetailPanel = UIView.library.Show<TLMPublicTransportDetailPanel>("PublicTransportDetailPanel", true, false);
-            publicTransportDetailPanel.SetActiveTab(5 - idx);
+            int idxRes = idx;
+            switch (idx)
+            {
+                case 0:
+                    idxRes = 8;
+                    break;
+                case 1:
+                    idxRes = 7;
+                    break;
+                case 2:
+                    idxRes = 6;
+                    break;
+                case 3:
+                    idxRes = 4;
+                    break;
+                case 4:
+                    idxRes = 3;
+                    break;
+                case 5:
+                    idxRes = 1;
+                    break;
+                case 6:
+                    idxRes = 5;
+                    break;
+            }
+
+            publicTransportDetailPanel.SetActiveTab(idxRes);
         }
 
         #region Hooking
@@ -145,6 +171,8 @@ namespace Klyte.TransportLinesManager.LineList
             DISTRICT
         }
 
+        private const int NUM_TRANSPORT_SYSTEMS = 9;
+
         public static TLMPublicTransportDetailPanel instance;
 
         private static readonly string kLineTemplate = "LineTemplate";
@@ -162,11 +190,16 @@ namespace Klyte.TransportLinesManager.LineList
 
         private UITabstrip m_Strip;
 
+        private bool m_isDepotView = false;
+
         public static readonly TLMCW.ConfigIndex[] tabSystemOrder =
         {
             TLMCW.ConfigIndex.PLANE_CONFIG,
+            TLMCW.ConfigIndex.BLIMP_CONFIG,
             TLMCW.ConfigIndex.SHIP_CONFIG,
+            TLMCW.ConfigIndex.FERRY_CONFIG,
             TLMCW.ConfigIndex.TRAIN_CONFIG,
+            TLMCW.ConfigIndex.MONORAIL_CONFIG,
             TLMCW.ConfigIndex.METRO_CONFIG,
             TLMCW.ConfigIndex.TRAM_CONFIG,
             TLMCW.ConfigIndex.BUS_CONFIG,
@@ -179,15 +212,21 @@ namespace Klyte.TransportLinesManager.LineList
         private UIComponent m_MetroLinesContainer;
         private UIComponent m_TrainLinesContainer;
         private UIComponent m_ShipLinesContainer;
+        private UIComponent m_MonorailLinesContainer;
+        private UIComponent m_BlimpLinesContainer;
+        private UIComponent m_FerryLinesContainer;
 
         private UIComponent m_PrefixEditor;
 
-        private UIComponent m_BusDepotsContainer;
         private UIComponent m_PlaneDepotsContainer;
         private UIComponent m_TramDepotsContainer;
         private UIComponent m_MetroDepotsContainer;
         private UIComponent m_TrainDepotsContainer;
         private UIComponent m_ShipDepotsContainer;
+        private UIComponent m_MonorailDepotsContainer;
+        private UIComponent m_BusDepotsContainer;
+        private UIComponent m_BlimpDepotsContainer;
+        private UIComponent m_FerryDepotsContainer;
 
         private UICheckBox m_ToggleAll;
         private UISprite m_DayIcon;
@@ -196,12 +235,16 @@ namespace Klyte.TransportLinesManager.LineList
         private UISprite m_DisabledIcon;
         private UIDropDown m_prefixFilter;
 
+        private UISprite m_depotIcon;
+
         private UIPanel m_linesTitle;
         private UIPanel m_depotsTitle;
 
         private UIButton m_buttonAutoName;
         private UIButton m_buttonAutoColor;
         private UIButton m_buttonRemoveUnwanted;
+        private UIButton m_buttonDepotToggle;
+        private UIButton m_buttonPrefixConfig;
 
         private bool m_showDayNightLines = true;
         private bool m_showDayLines = true;
@@ -213,6 +256,9 @@ namespace Klyte.TransportLinesManager.LineList
         private int m_tramCount = 0;
         private int m_metroCount = 0;
         private int m_trainCount = 0;
+        private int m_blimpCount = 0;
+        private int m_ferryCount = 0;
+        private int m_monorailCount = 0;
 
         //TLM
         private int m_shipCount = 0;
@@ -278,25 +324,19 @@ namespace Klyte.TransportLinesManager.LineList
             return !m_prefixFilter.isVisible || m_prefixFilter.selectedIndex == 0 || prefixes.Contains((uint)(m_prefixFilter.selectedIndex - 1));
         }
 
-        public bool isDepotView
+
+        public bool m_isLineView
         {
             get
             {
-                return m_Strip.selectedIndex >= 7;
+                return !m_isDepotView && !m_isPrefixEditor;
             }
         }
-        public bool isLineView
+        public bool m_isPrefixEditor
         {
             get
             {
-                return m_Strip.selectedIndex <= 5;
-            }
-        }
-        public bool isPrefixEditor
-        {
-            get
-            {
-                return m_Strip.selectedIndex == 6;
+                return m_Strip.selectedIndex == NUM_TRANSPORT_SYSTEMS * 2;
             }
         }
 
@@ -382,71 +422,106 @@ namespace Klyte.TransportLinesManager.LineList
             this.m_Strip = Find<UITabstrip>("Tabstrip");
             this.m_Strip.relativePosition = new Vector3(13, 45);
 
-            var ship = m_Strip.AddTab("");
-            var plane = m_Strip.AddTab("");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Strips Lines");
             var bus = m_Strip.tabs[0].GetComponent<UIButton>();
             var tram = m_Strip.tabs[1].GetComponent<UIButton>();
             var metro = m_Strip.tabs[2].GetComponent<UIButton>();
             var train = m_Strip.tabs[3].GetComponent<UIButton>();
+            var ferry = m_Strip.tabs[4].GetComponent<UIButton>();
+            var blimp = m_Strip.tabs[5].GetComponent<UIButton>();
+            var monorail = m_Strip.tabs[6].GetComponent<UIButton>();
+            var ship = m_Strip.AddTab("");
+            var plane = m_Strip.AddTab("");
 
-            var prefixEditor = m_Strip.AddTab("*");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Mid Tab");
+            var prefixEditor = m_Strip.AddTab("");
             prefixEditor.textScale = 2.25f;
             prefixEditor.useOutline = true;
 
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Strips Depots");
+
             var planeDepot = m_Strip.AddTab("");
+            var blimpDepot = m_Strip.AddTab("");
             var shipDepot = m_Strip.AddTab("");
+            var ferryDepot = m_Strip.AddTab("");
             var trainDepot = m_Strip.AddTab("");
+            var monorailDepot = m_Strip.AddTab("");
             var metroDepot = m_Strip.AddTab("");
             var tramDepot = m_Strip.AddTab("");
             var busDepot = m_Strip.AddTab("");
 
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Tab init - lines");
+            int tabIt = 0;
 
-            addIcon("PlaneLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref plane, false, 0, "TLM_PUBLICTRANSPORT_AIRPLANELINES");
-            addIcon("ShipLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ship, false, 1, "TLM_PUBLICTRANSPORT_WATERLINES");
-            addIcon("Train", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref train, false, 2, "PUBLICTRANSPORT_TRAINLINES");
-            addIcon("Subway", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metro, false, 3, "PUBLICTRANSPORT_METROLINES");
-            addIcon("Tram", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tram, false, 4, "PUBLICTRANSPORT_TRAMLINES");
-            addIcon("Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref bus, false, 5, "PUBLICTRANSPORT_BUSLINES");
+            addIcon("PlaneLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref plane, false, tabIt++, "TLM_PUBLICTRANSPORT_AIRPLANELINES");
+            addIcon("Blimp", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref blimp, false, tabIt++, "TLM_PUBLICTRANSPORT_BLIMPLINES");
+            addIcon("ShipLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ship, false, tabIt++, "TLM_PUBLICTRANSPORT_SHIPLINES");
+            addIcon("Ferry", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ferry, false, tabIt++, "TLM_PUBLICTRANSPORT_FERRYLINES");
+            addIcon("Train", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref train, false, tabIt++, "PUBLICTRANSPORT_TRAINLINES");
+            addIcon("Monorail", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Monorail), ref monorail, false, tabIt++, "PUBLICTRANSPORT_MONORAILLINES");
+            addIcon("Subway", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metro, false, tabIt++, "PUBLICTRANSPORT_METROLINES");
+            addIcon("Tram", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tram, false, tabIt++, "PUBLICTRANSPORT_TRAMLINES");
+            addIcon("Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref bus, false, tabIt++, "PUBLICTRANSPORT_BUSLINES");
 
-            addIcon("RoundSquare", "", ref prefixEditor, false, 6, "TLM_CITY_ASSETS_SELECTION");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Tab init - depots");
+            tabIt = 0;
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref planeDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref blimpDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref shipDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref ferryDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref trainDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Monorail), ref monorailDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metroDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tramDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
+            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busDepot, false, NUM_TRANSPORT_SYSTEMS + tabIt++);
 
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref planeDepot, false, 7, "TLM_PUBLICTRANSPORT_HANGARS");
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Ship), ref shipDepot, false, 8, "TLM_PUBLICTRANSPORT_HARBORS");
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Train), ref trainDepot, false, 9, "TLM_PUBLICTRANSPORT_TRAINDEPOTS");
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Metro), ref metroDepot, false, 10, "TLM_PUBLICTRANSPORT_METRODEPOTS");
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Tram), ref tramDepot, false, 11, "TLM_PUBLICTRANSPORT_TRAMDEPOTS");
-            addIcon("Depot", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busDepot, false, 12, "TLM_PUBLICTRANSPORT_BUSDEPOTS");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Tab init - star");
+            addIcon("Star", "", ref prefixEditor, false, NUM_TRANSPORT_SYSTEMS * 2);
 
 
             tram.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Tram);
+            ferry.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Monorail);
+            monorail.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Monorail);
+            blimp.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Monorail);
 
             this.m_BusLinesContainer = Find<UIComponent>("BusDetail").Find("Container");
             this.m_TramLinesContainer = Find<UIComponent>("TramDetail").Find("Container");
             this.m_MetroLinesContainer = Find<UIComponent>("MetroDetail").Find("Container");
             this.m_TrainLinesContainer = Find<UIComponent>("TrainDetail").Find("Container");
+            this.m_BlimpLinesContainer = Find<UIComponent>("BlimpDetail").Find("Container");
+            this.m_MonorailLinesContainer = Find<UIComponent>("MonorailDetail").Find("Container");
+            this.m_FerryLinesContainer = Find<UIComponent>("FerryDetail").Find("Container");
 
             m_BusLinesContainer.eventVisibilityChanged += null;
             m_TramLinesContainer.eventVisibilityChanged += null;
             m_MetroLinesContainer.eventVisibilityChanged += null;
             m_TrainLinesContainer.eventVisibilityChanged += null;
+            m_BlimpLinesContainer.eventVisibilityChanged += null;
+            m_MonorailLinesContainer.eventVisibilityChanged += null;
+            m_FerryLinesContainer.eventVisibilityChanged += null;
 
-            CopyContainerFromBus(4, ref m_ShipLinesContainer);
-            CopyContainerFromBus(5, ref m_PlaneLinesContainer);
+            CopyContainerFromBus(NUM_TRANSPORT_SYSTEMS - 2, ref m_ShipLinesContainer);
+            CopyContainerFromBus(NUM_TRANSPORT_SYSTEMS - 1, ref m_PlaneLinesContainer);
 
-            CopyContainerFromBus(6, ref m_PrefixEditor);
+            tabIt = NUM_TRANSPORT_SYSTEMS;
+            CopyContainerFromBus(tabIt++, ref m_PlaneDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_BlimpDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_ShipDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_FerryDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_TrainDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_MonorailDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_MetroDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_TramDepotsContainer);
+            CopyContainerFromBus(tabIt++, ref m_BusDepotsContainer);
 
-            CopyContainerFromBus(7, ref m_PlaneDepotsContainer);
-            CopyContainerFromBus(8, ref m_ShipDepotsContainer);
-            CopyContainerFromBus(9, ref m_TrainDepotsContainer);
-            CopyContainerFromBus(10, ref m_MetroDepotsContainer);
-            CopyContainerFromBus(11, ref m_TramDepotsContainer);
-            CopyContainerFromBus(12, ref m_BusDepotsContainer);
+            CopyContainerFromBus(tabIt, ref m_PrefixEditor);
 
 
             RemoveExtraLines(0, ref m_BusLinesContainer);
             RemoveExtraLines(0, ref m_TramLinesContainer);
             RemoveExtraLines(0, ref m_MetroLinesContainer);
             RemoveExtraLines(0, ref m_TrainLinesContainer);
+            RemoveExtraLines(0, ref m_MonorailLinesContainer);
             RemoveExtraLines(0, ref m_ShipLinesContainer);
             RemoveExtraLines(0, ref m_PlaneLinesContainer);
             RemoveExtraLines(0, ref m_PrefixEditor);
@@ -456,21 +531,33 @@ namespace Klyte.TransportLinesManager.LineList
             RemoveExtraLines(0, ref m_TrainDepotsContainer);
             RemoveExtraLines(0, ref m_ShipDepotsContainer);
             RemoveExtraLines(0, ref m_PlaneDepotsContainer);
+            RemoveExtraLines(0, ref m_MonorailDepotsContainer);
+            RemoveExtraLines(0, ref m_FerryLinesContainer);
+            RemoveExtraLines(0, ref m_BlimpLinesContainer);
+            RemoveExtraLines(0, ref m_BlimpDepotsContainer);
+            RemoveExtraLines(0, ref m_FerryDepotsContainer);
 
+            tabIt = 0;
+            plane.zOrder = tabIt++;
+            blimp.zOrder = (tabIt++);
+            ship.zOrder = (tabIt++);
+            ferry.zOrder = (tabIt++);
+            train.zOrder = (tabIt++);
+            monorail.zOrder = (tabIt++);
+            metro.zOrder = (tabIt++);
+            tram.zOrder = (tabIt++);
+            bus.zOrder = (tabIt++);
 
-            plane.zOrder = 0;
-            ship.zOrder = (1);
-            train.zOrder = (2);
-            metro.zOrder = (3);
-            tram.zOrder = (4);
-            bus.zOrder = (5);
-
-            m_PlaneLinesContainer.GetComponentInParent<UIPanel>().zOrder = (0);
-            m_ShipLinesContainer.GetComponentInParent<UIPanel>().zOrder = (1);
-            m_TrainLinesContainer.GetComponentInParent<UIPanel>().zOrder = (2);
-            m_MetroLinesContainer.GetComponentInParent<UIPanel>().zOrder = (3);
-            m_TramLinesContainer.GetComponentInParent<UIPanel>().zOrder = (4);
-            m_BusLinesContainer.GetComponentInParent<UIPanel>().zOrder = (5);
+            tabIt = 0;
+            m_PlaneLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_BlimpLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_ShipLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_FerryLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_TrainLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_MonorailLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_MetroLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_TramLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
+            m_BusLinesContainer.GetComponentInParent<UIPanel>().zOrder = (tabIt++);
         }
 
         private void AwakeLinesTitleComponents()
@@ -578,7 +665,52 @@ namespace Klyte.TransportLinesManager.LineList
             icon.height = 36;
             icon.spriteName = "RemoveUnwantedIcon";
 
+            TLMUtils.createUIElement<UIButton>(ref m_buttonDepotToggle, transform);
+            m_buttonDepotToggle.pivot = UIPivotPoint.TopRight;
+            m_buttonDepotToggle.textScale = 0.6f;
+            m_buttonDepotToggle.width = 40;
+            m_buttonDepotToggle.height = 40;
+            m_buttonDepotToggle.tooltip = Locale.Get("TLM_TOGGLE_LINES_DEPOT_TOOLTIP");
+            TLMUtils.initButton(m_buttonDepotToggle, true, "ButtonMenu");
+            m_buttonDepotToggle.name = "DepotToggleButton";
+            m_buttonDepotToggle.isVisible = true;
+            m_buttonDepotToggle.eventClick += (component, eventParam) =>
+            {
+                toggleDepotView();
+            };
 
+            m_depotIcon = m_buttonDepotToggle.AddUIComponent<UISprite>();
+            m_depotIcon.relativePosition = new Vector3(2, 2);
+            m_depotIcon.atlas = TLMController.taLineNumber;
+            m_depotIcon.width = 36;
+            m_depotIcon.height = 36;
+            m_depotIcon.spriteName = "DepotIcon";
+
+
+            TLMUtils.createUIElement<UIButton>(ref m_buttonPrefixConfig, transform);
+            m_buttonPrefixConfig.pivot = UIPivotPoint.TopRight;
+            m_buttonPrefixConfig.textScale = 0.6f;
+            m_buttonPrefixConfig.width = 40;
+            m_buttonPrefixConfig.height = 40;
+            m_buttonPrefixConfig.tooltip = Locale.Get("TLM_CITY_ASSETS_SELECTION");
+            TLMUtils.initButton(m_buttonPrefixConfig, true, "ButtonMenu");
+            m_buttonPrefixConfig.name = "DepotToggleButton";
+            m_buttonPrefixConfig.isVisible = true;
+            m_buttonPrefixConfig.eventClick += (component, eventParam) =>
+            {
+                SetActiveTab(NUM_TRANSPORT_SYSTEMS * 2);
+            };
+
+            icon = m_buttonPrefixConfig.AddUIComponent<UISprite>();
+            icon.relativePosition = new Vector3(2, 2);
+            icon.atlas = TLMController.taTLM;
+            icon.width = 36;
+            icon.height = 36;
+            icon.spriteName = "ConfigIcon";
+
+
+            m_buttonDepotToggle.relativePosition = new Vector3(540, 43);
+            m_buttonPrefixConfig.relativePosition = new Vector3(585, 43);
             m_buttonRemoveUnwanted.relativePosition = new Vector3(630, 43);
             m_buttonAutoColor.relativePosition = new Vector3(675, 43);
             m_buttonAutoName.relativePosition = new Vector3(720, 43);
@@ -641,25 +773,34 @@ namespace Klyte.TransportLinesManager.LineList
 
 
 
-        private void addIcon(string namePrefix, string iconName, ref UIButton targetButton, bool alternativeIconAtlas, int tabIdx, string tooltipText, bool isTooltipLocale = true)
+        private void addIcon(string namePrefix, string iconName, ref UIButton targetButton, bool alternativeIconAtlas, int tabIdx, string tooltipText = "", bool isTooltipLocale = true)
         {
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("addIcon: init " + namePrefix);
 
             TLMUtils.initButtonFg(targetButton, false, "");
 
             targetButton.atlas = TLMController.taLineNumber;
-            targetButton.width = 40;
-            targetButton.height = 40;
-            targetButton.name = namePrefix + "Legend";
-            TLMUtils.initButtonSameSprite(targetButton, namePrefix + "Icon");
-            targetButton.color = new Color32(20, 20, 20, 255);
-            targetButton.hoveredColor = Color.gray;
-            targetButton.focusedColor = Color.green / 2;
-            targetButton.eventClick += null;
-            targetButton.eventClick += (x, y) =>
-           {
-               SetActiveTab(tabIdx);
-           };
+            if (tooltipText == "")
+            {
+                targetButton.width = 01;
+                targetButton.height = 01;
+                TLMUtils.initButtonSameSprite(targetButton, "");
+                targetButton.isVisible = false;
+            }
+            else {
+                targetButton.width = 40;
+                targetButton.height = 40;
+                targetButton.name = namePrefix + "Legend";
+                TLMUtils.initButtonSameSprite(targetButton, namePrefix + "Icon");
+                targetButton.color = new Color32(20, 20, 20, 255);
+                targetButton.hoveredColor = Color.gray;
+                targetButton.focusedColor = Color.green / 2;
+                targetButton.eventClick += null;
+                targetButton.eventClick += (x, y) =>
+                {
+                    SetActiveTab(tabIdx);
+                };
+            }
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("addIcon: pre eventClick");
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("addIcon: init label icon");
             UILabel icon = targetButton.AddUIComponent<UILabel>();
@@ -748,7 +889,7 @@ namespace Klyte.TransportLinesManager.LineList
         }
         private void OnNameSort()
         {
-            if (!isLineView) return;
+            if (!m_isLineView) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareNames));
@@ -758,7 +899,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnDepotNameSort()
         {
-            if (!isDepotView) return;
+            if (!m_isDepotView || m_isPrefixEditor) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareDepotNames));
@@ -768,7 +909,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnDepotDistrictSort()
         {
-            if (!isDepotView) return;
+            if (!m_isDepotView || m_isPrefixEditor) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareDepotDistricts));
@@ -778,7 +919,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnStopSort()
         {
-            if (!isLineView) return;
+            if (!m_isLineView) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareStops));
@@ -788,7 +929,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnVehicleSort()
         {
-            if (!isLineView) return;
+            if (!m_isLineView) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareVehicles));
@@ -798,7 +939,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnPassengerSort()
         {
-            if (!isLineView) return;
+            if (!m_isLineView) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(ComparePassengers));
@@ -808,7 +949,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnLineNumberSort()
         {
-            if (!isLineView) return;
+            if (!m_isLineView) return;
             UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
             if (uIComponent.components.Count == 0) return;
             Quicksort(uIComponent.components, new Comparison<UIComponent>(CompareLineNumbers));
@@ -860,10 +1001,39 @@ namespace Klyte.TransportLinesManager.LineList
 
         public void SetActiveTab(int idx)
         {
-            if (this.m_Strip.selectedIndex != idx)
+            var selIdx = idx;
+            if (this.m_isDepotView || idx == NUM_TRANSPORT_SYSTEMS * 2)
             {
-                this.m_Strip.selectedIndex = idx;
+                selIdx += NUM_TRANSPORT_SYSTEMS;
+            }
+
+            if (this.m_Strip.selectedIndex != selIdx)
+            {
+                this.m_Strip.selectedIndex = selIdx;
+                m_Strip.tabs[idx].GetComponentInChildren<UIButton>().state = UIButton.ButtonState.Focused;
                 RefreshLines();
+            }
+        }
+
+
+        public void toggleDepotView()
+        {
+            this.m_isDepotView = !this.m_isDepotView;
+
+            if (m_isDepotView)
+            {
+                m_buttonDepotToggle.tooltip = Locale.Get("TLM_LIST_LINES_TOOLTIP");
+                m_depotIcon.spriteName = "BusIcon";
+            }
+            else
+            {
+                m_buttonDepotToggle.tooltip = Locale.Get("TLM_LIST_DEPOT_TOOLTIP");
+                m_depotIcon.spriteName = "DepotIcon";
+            }
+
+            if (this.m_Strip.selectedIndex != NUM_TRANSPORT_SYSTEMS * 2)
+            {
+                SetActiveTab(this.m_Strip.selectedIndex % NUM_TRANSPORT_SYSTEMS);
             }
         }
 
@@ -872,7 +1042,7 @@ namespace Klyte.TransportLinesManager.LineList
             if (Singleton<TransportManager>.exists)
             {
                 UIComponent comp;
-                if (isLineView)
+                if (m_isLineView)
                 {
                     m_busCount = 0;
                     m_tramCount = 0;
@@ -882,11 +1052,15 @@ namespace Klyte.TransportLinesManager.LineList
                     //TLM
                     m_shipCount = 0;
                     m_planeCount = 0;
+                    m_ferryCount = 0;
+                    m_blimpCount = 0;
+                    m_monorailCount = 0;
+
                     for (ushort lineIdIterator = 1; lineIdIterator < 256; lineIdIterator += 1)
                     {
                         if ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdIterator].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created)
                         {
-                            switch (TLMCW.getConfigIndexForLine(lineIdIterator))
+                            switch (TLMCW.getDefinitionForLine(lineIdIterator).toConfigIndex())
                             {
                                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
                                     comp = m_BusLinesContainer;
@@ -912,6 +1086,18 @@ namespace Klyte.TransportLinesManager.LineList
                                     comp = m_PlaneLinesContainer;
                                     m_planeCount = AddToList(m_planeCount, lineIdIterator, ref comp);
                                     break;
+                                case TLMCW.ConfigIndex.FERRY_CONFIG:
+                                    comp = m_FerryLinesContainer;
+                                    m_ferryCount = AddToList(m_ferryCount, lineIdIterator, ref comp);
+                                    break;
+                                case TLMCW.ConfigIndex.BLIMP_CONFIG:
+                                    comp = m_BlimpLinesContainer;
+                                    m_blimpCount = AddToList(m_blimpCount, lineIdIterator, ref comp);
+                                    break;
+                                case TLMCW.ConfigIndex.MONORAIL_CONFIG:
+                                    comp = m_MonorailLinesContainer;
+                                    m_monorailCount = AddToList(m_monorailCount, lineIdIterator, ref comp);
+                                    break;
                             }
                         }
                     }
@@ -927,53 +1113,71 @@ namespace Klyte.TransportLinesManager.LineList
                     RemoveExtraLines(m_shipCount, ref comp);
                     comp = m_PlaneLinesContainer;
                     RemoveExtraLines(m_planeCount, ref comp);
+                    comp = m_MonorailLinesContainer;
+                    RemoveExtraLines(m_monorailCount, ref comp);
+                    comp = m_BlimpLinesContainer;
+                    RemoveExtraLines(m_blimpCount, ref comp);
+                    comp = m_FerryLinesContainer;
+                    RemoveExtraLines(m_ferryCount, ref comp);
 
                     this.m_LinesUpdated = true;
                 }
             }
 
-            if (isDepotView && Singleton<BuildingManager>.exists)
+            if (m_isDepotView && Singleton<BuildingManager>.exists)
             {
                 int busCount = 0;
                 int tramCount = 0;
                 int metroCount = 0;
                 int trainCount = 0;
-
-                //TLM
                 int shipCount = 0;
                 int planeCount = 0;
+                int monorailCount = 0;
+                int blimpCount = 0;
+                int ferryCount = 0;
 
                 UIComponent comp;
                 foreach (ushort buildingID in TLMDepotAI.getAllDepotsFromCity())
                 {
-                    switch ((Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID].Info.GetAI() as DepotAI).m_transportInfo.m_transportType)
+                    switch (TransportSystemDefinition.from((Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID].Info.GetAI() as DepotAI).m_transportInfo).toConfigIndex())
                     {
-                        case TransportInfo.TransportType.Bus:
+                        case TLMCW.ConfigIndex.BUS_CONFIG:
                             comp = m_BusDepotsContainer;
                             busCount = AddDepotToList(busCount, buildingID, ref comp);
                             break;
-                        case TransportInfo.TransportType.Tram:
+                        case TLMCW.ConfigIndex.TRAM_CONFIG:
                             comp = m_TramDepotsContainer;
                             tramCount = AddDepotToList(tramCount, buildingID, ref comp);
                             break;
-                        case TransportInfo.TransportType.Metro:
+                        case TLMCW.ConfigIndex.METRO_CONFIG:
                             comp = m_MetroDepotsContainer;
                             metroCount = AddDepotToList(metroCount, buildingID, ref comp);
                             break;
-                        case TransportInfo.TransportType.Train:
+                        case TLMCW.ConfigIndex.TRAIN_CONFIG:
                             comp = m_TrainDepotsContainer;
                             trainCount = AddDepotToList(trainCount, buildingID, ref comp);
                             break;
-                        case TransportInfo.TransportType.Ship:
+                        case TLMCW.ConfigIndex.SHIP_CONFIG:
                             comp = m_ShipDepotsContainer;
                             shipCount = AddDepotToList(shipCount, buildingID, ref comp);
                             break;
-                        case TransportInfo.TransportType.Airplane:
+                        case TLMCW.ConfigIndex.PLANE_CONFIG:
                             comp = m_PlaneDepotsContainer;
                             planeCount = AddDepotToList(planeCount, buildingID, ref comp);
                             break;
+                        case TLMCW.ConfigIndex.MONORAIL_CONFIG:
+                            comp = m_MonorailDepotsContainer;
+                            monorailCount = AddDepotToList(monorailCount, buildingID, ref comp);
+                            break;
+                        case TLMCW.ConfigIndex.BLIMP_CONFIG:
+                            comp = m_BlimpDepotsContainer;
+                            blimpCount = AddDepotToList(blimpCount, buildingID, ref comp);
+                            break;
+                        case TLMCW.ConfigIndex.FERRY_CONFIG:
+                            comp = m_FerryDepotsContainer;
+                            ferryCount = AddDepotToList(ferryCount, buildingID, ref comp);
+                            break;
                     }
-
                 }
                 comp = m_BusDepotsContainer;
                 RemoveExtraLines(busCount, ref comp);
@@ -987,6 +1191,12 @@ namespace Klyte.TransportLinesManager.LineList
                 RemoveExtraLines(shipCount, ref comp);
                 comp = m_PlaneDepotsContainer;
                 RemoveExtraLines(planeCount, ref comp);
+                comp = m_MonorailDepotsContainer;
+                RemoveExtraLines(monorailCount, ref comp);
+                comp = m_FerryDepotsContainer;
+                RemoveExtraLines(ferryCount, ref comp);
+                comp = m_BlimpDepotsContainer;
+                RemoveExtraLines(blimpCount, ref comp);
 
                 this.m_LinesUpdated = true;
             }
@@ -1061,7 +1271,7 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_ToggleAll.isChecked = idx < this.m_ToggleAllState.Length ? this.m_ToggleAllState[idx] : false;
                 m_isChangingTab = false;
             }
-            if (isDepotView || isLineView)
+            if (!m_isPrefixEditor)
             {
                 string[] filterOptions = TLMUtils.getFilterPrefixesOptions(tabSystemOrder[idx % (m_Strip.tabCount / 2)]);
                 if (filterOptions.Length < 3)
@@ -1080,19 +1290,19 @@ namespace Klyte.TransportLinesManager.LineList
                 m_prefixFilter.isVisible = false;
             }
 
-            m_depotsTitle.isVisible = isDepotView;
-            m_linesTitle.isVisible = isLineView;
-            m_buttonAutoName.isVisible = isLineView;
-            m_buttonAutoColor.isVisible = isLineView;
-            m_buttonRemoveUnwanted.isVisible = !isDepotView;
+            m_depotsTitle.isVisible = m_isDepotView && !m_isPrefixEditor;
+            m_linesTitle.isVisible = m_isLineView;
+            m_buttonAutoName.isVisible = m_isLineView;
+            m_buttonAutoColor.isVisible = m_isLineView;
+            m_buttonRemoveUnwanted.isVisible = !m_isDepotView;
 
-            if (isDepotView)
+            if (m_isDepotView && !m_isPrefixEditor)
             {
                 m_depotsTitle.Find<UIButton>("NameTitle").text = string.Format(Locale.Get("TLM_DEPOT_NAME_PATTERN"), Locale.Get("TLM_PUBLICTRANSPORT_OF_DEPOT", currentSelectedSystem.ToString()));
                 RefreshLines();
             }
 
-            if (isPrefixEditor)
+            if (m_isPrefixEditor)
             {
                 GetComponent<UIPanel>().height = 910;
             }
@@ -1226,10 +1436,10 @@ namespace Klyte.TransportLinesManager.LineList
         {
             //if (true)
             //{
-                m_prefixAssets.itemsList = getPrefixAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(idx - 1));
-                var t = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
-                m_defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex).Where(k => !m_prefixAssets.itemsList.ContainsKey(k.Key)).ToDictionary(k => k.Key, k => k.Value);
-                m_StripAsteriskTab.EnableTab(1);
+            m_prefixAssets.itemsList = getPrefixAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(idx - 1));
+            var t = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex);
+            m_defaultAssets.itemsList = getBasicAssetListFromDropDownSelection(m_systemTypeDropDown.selectedIndex).Where(k => !m_prefixAssets.itemsList.ContainsKey(k.Key)).ToDictionary(k => k.Key, k => k.Value);
+            m_StripAsteriskTab.EnableTab(1);
             //}
             //else
             //{
@@ -1269,7 +1479,7 @@ namespace Klyte.TransportLinesManager.LineList
                 for (int i = 0; i < 8; i++)
                 {
                     m_hourBudgets[i] = hourBudgetsSaved[i % hourBudgetsSaved.Length];
-                }                
+                }
                 updateBudgetSliders();
                 ticketPrice.text = (getTicketPriceFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1))).ToString();
                 reloadAssetsList(sel);
@@ -1304,7 +1514,10 @@ namespace Klyte.TransportLinesManager.LineList
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.BUS_CONFIG),
                     TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG),
-                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.METRO_CONFIG) }, 0, loadPrefixes);
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.METRO_CONFIG),
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG) ,
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG) ,
+                    TLMConfigWarehouse.getNameForTransportType(TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG) }, 0, loadPrefixes);
             m_prefixSelection = (UIDropDown)group2.AddDropdown(Locale.Get("TLM_PREFIX"), new string[] { "" }, 0, selectPrefixAction);
 
 
@@ -1572,6 +1785,12 @@ namespace Klyte.TransportLinesManager.LineList
                     return TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG;
                 case 6:
                     return TLMConfigWarehouse.ConfigIndex.METRO_CONFIG;
+                case 7:
+                    return TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG;
+                case 8:
+                    return TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG;
+                case 9:
+                    return TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG;
                 default:
                     return TLMConfigWarehouse.ConfigIndex.NIL;
             }
@@ -1581,13 +1800,16 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void RefreshLineCount(int transportTabIndex)
         {
-            if (isLineView)
+            if (m_isLineView)
             {
                 string arg = Locale.Get("TLM_PUBLICTRANSPORT_LINECOUNT", transportTabIndex);
                 this.m_LineCount.text = arg + ": " + new int[] {
                     m_planeCount,
+                    m_blimpCount,
                     m_shipCount,
+                    m_ferryCount,
                     m_trainCount,
+                    m_monorailCount,
                     m_metroCount,
                     m_tramCount,
                     m_busCount

@@ -155,10 +155,10 @@ namespace Klyte.TransportLinesManager.UI
 
         private bool isNumeroUsado(int numLinha, ushort lineIdx)
         {
-            TLMCW.ConfigIndex tipo = TLMCW.getConfigIndexForLine(lineIdx);
+            TLMCW.ConfigIndex tipo = TLMCW.getDefinitionForLine(lineIdx).toConfigIndex();
             for (ushort i = 0; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
             {
-                if (i != lineIdx && TLMCW.getConfigIndexForLine(i) == tipo && Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber == numLinha && (Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
+                if (i != lineIdx && TLMCW.getDefinitionForLine(i).toConfigIndex() == tipo && Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber == numLinha && (Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
                 {
                     return true;
                 }
@@ -596,18 +596,18 @@ namespace Klyte.TransportLinesManager.UI
             veiculosLinhaLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha });
 
             uint prefix = 0;
-            if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+            if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
             {
                 prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
             }
 
             float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
-            float prefixMultiplier = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
+            float prefixMultiplier = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).getBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
 
             detailedStatsLabel.text = string.Format("{0:0%}", overallBudget * prefixMultiplier);
             detailedStatsLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN"),
-                TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportType(info.m_transportType)),
-                TLMUtils.getStringOptionsForPrefix((ModoNomenclatura)TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX), true)[prefix + 1],
+                TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportInfo(info)),
+                TLMUtils.getStringOptionsForPrefix((ModoNomenclatura)TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(info) | TLMConfigWarehouse.ConfigIndex.PREFIX), true)[prefix + 1],
                 overallBudget, prefixMultiplier,
                 overallBudget * prefixMultiplier);
 
@@ -667,18 +667,25 @@ namespace Klyte.TransportLinesManager.UI
             TransportLine t = m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine];
             Hide();
             m_controller.defaultListingLinesPanel.Show();
-            TLMPublicTransportDetailPanel.instance.SetActiveTab(Array.IndexOf(TLMPublicTransportDetailPanel.tabSystemOrder, TLMCW.getConfigIndexForTransportType(t.Info.m_transportType)));
+            TLMPublicTransportDetailPanel.instance.SetActiveTab(Array.IndexOf(TLMPublicTransportDetailPanel.tabSystemOrder, TLMCW.getConfigIndexForTransportInfo(t.Info)));
         }
 
         public void openLineInfo(UIComponent component, UIMouseEventParameter eventParam)
         {
             ushort lineID = (component as UIButtonLineInfo).lineID;
-            openLineInfo(lineID);
+            if (lineID > 0)
+            {
+                openLineInfo(lineID);
+            }
 
         }
 
         public void openLineInfo(ushort lineID)
         {
+            if (lineID <= 0)
+            {
+                return;
+            }
             WorldInfoPanel.HideAllWorldInfoPanels();
             linePrefixDropDown.eventSelectedIndexChanged -= saveLineNumber;
             lineNumberLabel.eventLostFocus -= saveLineNumber;
@@ -689,7 +696,7 @@ namespace Klyte.TransportLinesManager.UI
             TransportLine t = m_controller.tm.m_lines.m_buffer[(int)lineID];
             ushort lineNumber = t.m_lineNumber;
 
-            TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForLine(lineID);
+            TLMCW.ConfigIndex transportType = TLMCW.getDefinitionForLine(lineID).toConfigIndex();
             ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMCW.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
             if (mnPrefixo != ModoNomenclatura.Nenhum)

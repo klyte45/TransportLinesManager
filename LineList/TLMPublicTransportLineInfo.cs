@@ -197,13 +197,13 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_LineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountVehicles(this.m_LineID).ToString("N0");
                 uint prefix = 0;
                 TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].Info;
-                if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportType(info.m_transportType) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+                if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
                 {
                     prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
                 }
 
                 float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
-                float prefixMultiplier = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportType(info.m_transportType)).getBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
+                float prefixMultiplier = TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).getBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
 
                 this.m_budgetEffective.text = string.Format("{0:0%}", overallBudget * prefixMultiplier);//585+1/7 = frames/week                
 
@@ -238,7 +238,7 @@ namespace Klyte.TransportLinesManager.LineList
                 TLMLineUtils.setLineNumberCircleOnRef(lineNumber, prefixMode, sep, suffix, nonPrefix, zerosEsquerda, m_LineNumberFormatted, invertPrefixSuffix, 0.8f);
                 m_LineColor.normalFgSprite = bgSprite;
 
-                m_budgetEffective.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN"), TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportType(info.m_transportType)), TLMUtils.getStringOptionsForPrefix(prefixMode, true)[prefix + 1], overallBudget, prefixMultiplier, overallBudget * prefixMultiplier);
+                m_budgetEffective.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN"), TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportInfo(info)), TLMUtils.getStringOptionsForPrefix(prefixMode, true)[prefix + 1], overallBudget, prefixMultiplier, overallBudget * prefixMultiplier);
 
                 this.m_PassengerCount = averageCount + averageCount2;
                 if (colors)

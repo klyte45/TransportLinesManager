@@ -10,7 +10,7 @@ using Klyte.TransportLinesManager.Extensors;
 using System.Collections.Generic;
 using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.LineList;
-using Klyte.TransportLinesManager.Extensors.BuildingAI;
+using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -402,7 +402,7 @@ namespace Klyte.TransportLinesManager.UI
             DepotAI basicAI = basicInfo.GetAI() as DepotAI;
             Hide();
             m_controller.defaultListingLinesPanel.Show();
-            TLMPublicTransportDetailPanel.instance.SetActiveTab(TLMPublicTransportDetailPanel.tabSystemOrder.Length + Array.IndexOf(TLMPublicTransportDetailPanel.tabSystemOrder, TLMCW.getConfigIndexForTransportType(basicAI.m_transportInfo.m_transportType)));
+            TLMPublicTransportDetailPanel.instance.SetActiveTab(TLMPublicTransportDetailPanel.tabSystemOrder.Length + Array.IndexOf(TLMPublicTransportDetailPanel.tabSystemOrder, TLMCW.getConfigIndexForTransportInfo(basicAI.m_transportInfo)));
         }
 
         public void openDepotInfo(ushort buildingID)
@@ -434,7 +434,7 @@ namespace Klyte.TransportLinesManager.UI
             bool oldIsLoading = isLoading;
             isLoading = true;
             DepotAI depotAI = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingIdSelecionado.Building].Info.GetAI() as DepotAI;
-            List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportType(depotAI.m_transportInfo.m_transportType));
+            List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportInfo(depotAI.m_transportInfo));
             var prefixesServedList = TLMDepotAI.getPrefixesServedByDepot(m_buildingIdSelecionado.Building);
             for (uint i = 0; i <= 64; i++)
             {

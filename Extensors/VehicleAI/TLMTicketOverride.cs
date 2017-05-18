@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Klyte.TransportLinesManager.Extensors.VehicleAI
+namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
 {
     class TLMTicketOverride : Redirector
     {
@@ -26,12 +26,18 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
 
         private static int ticketPriceForPrefix(ushort vehicleID, ref Vehicle vehicleData)
         {
+            var def = TransportSystemDefinition.from(vehicleData.Info.m_class.m_subService, vehicleData.Info.m_vehicleType);
+            if (def == default(TransportSystemDefinition))
+            {
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("NULL TSysDef! {0}+{1}+{2}", vehicleData.Info.GetAI().GetType(), vehicleData.Info.m_class.m_subService, vehicleData.Info.m_vehicleType);
+                return 100;
+            }
             if (vehicleData.m_transportLine == 0)
             {
-                return (int)BasicTransportExtensionSingleton.instance(vehicleData.Info.GetAI().GetType()).getDefaultTicketPrice();
+                return (int)BasicTransportExtensionSingleton.instance(def).getDefaultTicketPrice();
             }
             else {
-                return (int)BasicTransportExtensionSingleton.instance(vehicleData.Info.GetAI().GetType()).getTicketPrice((uint)vehicleData.m_transportLine / 1000u);
+                return (int)(BasicTransportExtensionSingleton.instance(def).getTicketPrice((uint)vehicleData.m_transportLine) / 1000u);
             }
         }
 
@@ -46,10 +52,14 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAI
             }
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading Ticket Price Hooks!");
             AddRedirect(typeof(BusAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
+            AddRedirect(typeof(PassengerBlimpAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
+            AddRedirect(typeof(PassengerFerryAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
             AddRedirect(typeof(PassengerPlaneAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
             AddRedirect(typeof(PassengerShipAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
             AddRedirect(typeof(PassengerTrainAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
             AddRedirect(typeof(TramAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
+            AddRedirect(typeof(CableCarAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
+            //AddRedirect(typeof(MonorailAI), typeof(TLMTicketOverride).GetMethod("GetTicketPrice", allFlags), ref redirects);
         }
 
         public static void DisableHooks()
