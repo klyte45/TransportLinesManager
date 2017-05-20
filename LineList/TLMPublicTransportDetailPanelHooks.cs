@@ -205,28 +205,28 @@ namespace Klyte.TransportLinesManager.LineList
             TLMCW.ConfigIndex.BUS_CONFIG,
             TLMCW.ConfigIndex.NIL,
         };
-
-        private UIComponent m_BusLinesContainer;
+        
         private UIComponent m_PlaneLinesContainer;
-        private UIComponent m_TramLinesContainer;
-        private UIComponent m_MetroLinesContainer;
-        private UIComponent m_TrainLinesContainer;
-        private UIComponent m_ShipLinesContainer;
-        private UIComponent m_MonorailLinesContainer;
         private UIComponent m_BlimpLinesContainer;
+        private UIComponent m_ShipLinesContainer;
         private UIComponent m_FerryLinesContainer;
+        private UIComponent m_TrainLinesContainer;
+        private UIComponent m_MonorailLinesContainer;
+        private UIComponent m_MetroLinesContainer;
+        private UIComponent m_TramLinesContainer;
+        private UIComponent m_BusLinesContainer;
 
         private UIComponent m_PrefixEditor;
 
         private UIComponent m_PlaneDepotsContainer;
-        private UIComponent m_TramDepotsContainer;
-        private UIComponent m_MetroDepotsContainer;
-        private UIComponent m_TrainDepotsContainer;
-        private UIComponent m_ShipDepotsContainer;
-        private UIComponent m_MonorailDepotsContainer;
-        private UIComponent m_BusDepotsContainer;
         private UIComponent m_BlimpDepotsContainer;
+        private UIComponent m_ShipDepotsContainer;
         private UIComponent m_FerryDepotsContainer;
+        private UIComponent m_TrainDepotsContainer;
+        private UIComponent m_MonorailDepotsContainer;
+        private UIComponent m_MetroDepotsContainer;
+        private UIComponent m_TramDepotsContainer;
+        private UIComponent m_BusDepotsContainer;
 
         private UICheckBox m_ToggleAll;
         private UISprite m_DayIcon;
@@ -265,7 +265,6 @@ namespace Klyte.TransportLinesManager.LineList
         private int m_planeCount = 0;
 
         //asset editor
-
         TextList<string> m_defaultAssets;
         TextList<string> m_prefixAssets;
         UIDropDown m_prefixSelection;
@@ -362,7 +361,6 @@ namespace Klyte.TransportLinesManager.LineList
         private void AwakeDepotTitleComponents()
         {
             //depot title
-
             m_depotsTitle = GameObject.Instantiate<UIPanel>(m_linesTitle);
             m_depotsTitle.transform.SetParent(m_linesTitle.transform.parent);
             m_depotsTitle.relativePosition = m_linesTitle.relativePosition;
@@ -406,7 +404,6 @@ namespace Klyte.TransportLinesManager.LineList
             prefixFilterLabel.width = 100;
             prefixFilterLabel.height = 36;
 
-
             UISprite icon = Find<UISprite>("Icon");
             icon.spriteName = "TransportLinesManagerIconHovered";
             icon.atlas = TLMController.taTLM;
@@ -431,7 +428,7 @@ namespace Klyte.TransportLinesManager.LineList
             var blimp = m_Strip.tabs[5].GetComponent<UIButton>();
             var monorail = m_Strip.tabs[6].GetComponent<UIButton>();
             var ship = m_Strip.AddTab("");
-            var plane = m_Strip.AddTab("");
+            var plane = m_Strip.AddTab(""); // cable-car? -alborzka
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Mid Tab");
             var prefixEditor = m_Strip.AddTab("");
@@ -478,7 +475,6 @@ namespace Klyte.TransportLinesManager.LineList
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Tab init - star");
             addIcon("Star", "", ref prefixEditor, false, NUM_TRANSPORT_SYSTEMS * 2);
 
-
             tram.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Tram);
             ferry.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Monorail);
             monorail.isVisible = Singleton<TransportManager>.instance.TransportTypeLoaded(TransportInfo.TransportType.Monorail);
@@ -491,6 +487,7 @@ namespace Klyte.TransportLinesManager.LineList
             this.m_BlimpLinesContainer = Find<UIComponent>("BlimpDetail").Find("Container");
             this.m_MonorailLinesContainer = Find<UIComponent>("MonorailDetail").Find("Container");
             this.m_FerryLinesContainer = Find<UIComponent>("FerryDetail").Find("Container");
+            // planes and ships? -alborzka
 
             m_BusLinesContainer.eventVisibilityChanged += null;
             m_TramLinesContainer.eventVisibilityChanged += null;
@@ -499,7 +496,8 @@ namespace Klyte.TransportLinesManager.LineList
             m_BlimpLinesContainer.eventVisibilityChanged += null;
             m_MonorailLinesContainer.eventVisibilityChanged += null;
             m_FerryLinesContainer.eventVisibilityChanged += null;
-
+            // planes and ships? -alborzka
+            
             CopyContainerFromBus(NUM_TRANSPORT_SYSTEMS - 2, ref m_ShipLinesContainer);
             CopyContainerFromBus(NUM_TRANSPORT_SYSTEMS - 1, ref m_PlaneLinesContainer);
 
@@ -515,7 +513,6 @@ namespace Klyte.TransportLinesManager.LineList
             CopyContainerFromBus(tabIt++, ref m_BusDepotsContainer);
 
             CopyContainerFromBus(tabIt, ref m_PrefixEditor);
-
 
             RemoveExtraLines(0, ref m_BusLinesContainer);
             RemoveExtraLines(0, ref m_TramLinesContainer);
@@ -562,7 +559,6 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void AwakeLinesTitleComponents()
         {
-
             m_linesTitle = Find<UIPanel>("LineTitle");
             this.m_ToggleAllState = new bool[this.m_Strip.tabCount / 2];
             this.m_Strip.eventSelectedIndexChanged += null;
@@ -686,7 +682,6 @@ namespace Klyte.TransportLinesManager.LineList
             m_depotIcon.height = 36;
             m_depotIcon.spriteName = "DepotIcon";
 
-
             TLMUtils.createUIElement<UIButton>(ref m_buttonPrefixConfig, transform);
             m_buttonPrefixConfig.pivot = UIPivotPoint.TopRight;
             m_buttonPrefixConfig.textScale = 0.6f;
@@ -707,7 +702,6 @@ namespace Klyte.TransportLinesManager.LineList
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "ConfigIcon";
-
 
             m_buttonDepotToggle.relativePosition = new Vector3(540, 43);
             m_buttonPrefixConfig.relativePosition = new Vector3(585, 43);
@@ -770,7 +764,6 @@ namespace Klyte.TransportLinesManager.LineList
             item.eventVisibilityChanged += null;
             scroll.GetComponent<UIScrollbar>().zOrder = 1;
         }
-
 
 
         private void addIcon(string namePrefix, string iconName, ref UIButton targetButton, bool alternativeIconAtlas, int tabIdx, string tooltipText = "", bool isTooltipLocale = true)
@@ -1531,7 +1524,6 @@ namespace Klyte.TransportLinesManager.LineList
             }
 
 
-
             TLMUtils.doLog("INIT TLM_TABS");
             m_StripAsteriskTab = group2.self.AddUIComponent<UITabstrip>();
             m_StripAsteriskTab.width = 840;
@@ -1645,8 +1637,6 @@ namespace Klyte.TransportLinesManager.LineList
             m_prefixSelection.isVisible = false;
             m_StripAsteriskTab.tabPages.enabled = false;
             m_StripAsteriskTab.enabled = false;
-
-
         }
 
         private void updateBudgetSliders()
@@ -1750,7 +1740,6 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 saveData = m_hourBudgets;
             }
-
             TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setBudgetMultiplier(prefix, saveData, global);
         }
         private void setTicketPriceDropDownSelection(int index, uint prefix, uint value, bool global = false)
@@ -1820,8 +1809,5 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_LineCount.text = "";
             }
         }
-
     }
-
-
 }
