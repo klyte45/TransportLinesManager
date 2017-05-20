@@ -1,0 +1,103 @@
+[b]IMPORTANT: Use the [url=http://steamcommunity.com/workshop/filedetails/discussion/408875519/405691491108713590/]this topic[/url] for bug reporting [/b]
+
+
+[h1]Works with Natural Distasters update (1.6.*)[/h1]
+
+-----------------------------------------------------------------------------------------------------------------------------
+[h1]If you don't downloaded this mod from Steam Workshop, I can't help you.[/h1] 
+
+I can't ensure the downloaded version is the same from here.
+-----------------------------------------------------------------------------------------------------------------------------
+[h1]NOTE ABOUT IMPROVED PUBLIC TRANSPORT [IPT] [/h1]
+
+This mod still compatible with IPT in version 5.0.0, and the compatibility mode will not be affected as I thought before. So, still compatible with IPT.
+The asset selection and others functions are incompatible with IPT.
+-----------------------------------------------------------------------------------------------------------------------------
+
+A shortcut to manage all city's public transports lines. And now it add [b]additional line categories[/b]!
+
+In 3.0, we already could change the name, the number and the color of the line, also see its statics direct on this panel. Now is possible categorize the lines for a better [b]passenger transport otimization[/b].
+
+[h1]How does this work[/h1]
+
+The tabs of lines detail window now have a different form for each line type:
+
+- [i]Hexagons[/i] are regular buses lines
+- [i]Circles[/i] are train lines
+- [i]Squares[/i] are metro/subway lines
+- [i]Diamonds[/i] are ship lines. (Since 4.3)
+- [i]Trapezes[/i] are tram lines. (Snowfall/Since 4.5)
+- [i]Pentagons[/i] are airplane lines. (Since 5.1)
+
+And more tabs are added:
+
+- [i]The asterisk tab[/i] contains all configurations about the prefixes (prices, budgets, models...)
+- [i]The factory icon tabs[/i] are tabs which contains lists for configure the vehicle depots - here you can set which line group (prefix) will be spawned in each depot/station.
+
+[h1]IPT Overridden Functions:[/h1]
+- You can choose which vehicle models will be spawned in each line (by [b]line prefix[/b] in the asterisk tab; since 5.0)
+- You can see where in the line are each vehicle in a graphic view, after accessing the line detail menu (since 4.2)
+- You can select how many vehicles will be used in a line. (in the line detail view; since 5.1)
+- You can set an multiplier for certain lines budget  (by [b]line prefix[/b] in asterisk tab; Since 5.2)
+- You can set the ticket price from 0.05 up to 40 C  (by [b]line prefix[/b] in asterisk tab; since 5.3)
+  (Game defaults: Bus= 1; Tram, Train, Metro = 2; Ship = 5; Airplane = 10)
+
+[h1]So, this mod overrides all main IPT functions[/h1] (except unbunching, but it can be done by [url=http://steamcommunity.com/sharedfiles/filedetails/?id=531401164]this mod[/url], recently updated; and the vehicle capacity editor, but it can be done using [url=http://steamcommunity.com/sharedfiles/filedetails/?id=442167376]the Advanced Vehicle Options[/url]. See Important Notes below for the AVO)
+
+[h1]AND MORE![/h1]
+- Since 5.5, you can set the budget by time of the day, in 3 hours length groups!
+- You can see all integrations of lines in each station in the linear view - in the line detail panel;
+- Since 5.4 you can edit stop names directly from linear view, just click on the labels and set its name. Works for buses and trams too!
+- You can see which lines serves around a building by clicking on it - with shortcuts for the line detail view;
+- You can set the internal number of lines and format how it's shown as you want too.
+- You can modify many line at once putting they in the same prefix and editing its prefix options on asterisk menu (includes budget, fares and models)
+- TLM have an more friendly graphical view of the city lines, in the linear view or exporting a map with the city lines (this last function is in alpha)
+
+[h1]Languages[/h1]
+- English
+- Portuguese
+- Korean - by [url=http://steamcommunity.com/id/lshst]Toothless[/url]
+- German- by [url=http://steamcommunity.com/profiles/76561198067363272]weoiss[/url]
+
+[h1]NEW AT 5.6[/h1]
+
+Added support for select metro models for each prefix.
+
+[h1]NEW AT 5.6.1[/h1]
+ [b]NEW[/b] Added german support (thanks weoiss!)
+
+ [b]Fixed[/b] Lines with 0% budget are seen by the cims as enabled - now they will be disabled (temporary, if using per hour budget, and reactivated when the budget is raised again)
+  NOTE: This fix allows create express lines in the rush hours!
+
+ [b]Fixed[/b] Unprefixed lines numbering form is respected now.
+
+
+[h1]Important Notes[/h1]
+- Due the overriding done in the Tram, Ship, Bus and Passenger Train system, the option of enable/disable vehicles from these categories inside the [i]Advanced Vehicle Options[/i] is useless for public city lines. The configuration in the TLM override it. But all other functions, like coloring, set capacity and more of AVO are still working. The model selection for external vehicles (like regional passenger ships and trains) still workin in AVO and alike mods.
+- Due the overriding done in the Tram, Ship, Bus and Passenger Train system, the IPT enqueue for these categories will fail: the model of the bus enqueued could not be the selected in IPT. Use the compatibility mode for IPT to avoid it.
+- No new incompatibilities found, except the listed above.
+
+
+[h1]Known Bugs[/h1]
+- The auto naming in the line creation was disabled for a while. It wasn't working properly...
+- Rename depots are not working in the TLM listing and in depot details windows.
+- Bus stations and terminals are wrongly listed as depots.
+
+[h1][url=http://steamcommunity.com/sharedfiles/filedetails/changelog/408875519]See the complete changelog[/url][/h1]
+
+[h1](Alpha) Transport map exporter[/h1]
+When active, a [i]Draw Map![/i] button will appear mod options menu. When clicked, the game generates a map with the metro and train lines like the linear map style. 
+The html files with the map can be found at Transport Lines Manager folder inside game root folder (steamapps/common/Cities Skylines).
+
+[h1]Next steps:[/h1]
+- Develop the transport map exporter
+- Improve interface (suggestions are welcome)
+
+[h1]Other notes[/h1]
+- Since 4.0, this mod uses the [url=https://github.com/sschoener/cities-skylines-detour]Sebastian Schöner's Detour code[/url]. 
+
+[h1]Reported incompatible mods:[/h1]
+- [url=http://steamcommunity.com/sharedfiles/filedetails/?id=406951430]Slow Speed[/url] (TLM 1.1.1 > *)
+- [url=http://steamcommunity.com/sharedfiles/filedetails/?id=519691655]Service Vehicle Selector[/url] (TLM 5.0+)
+
+If you like my work, you can help me [url=https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=U9EM9Z4YXEMTC]making a donation[/url]
