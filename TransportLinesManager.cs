@@ -216,7 +216,7 @@ namespace Klyte.TransportLinesManager
             get
             {
 
-                return "Transport Lines Manager " + version;
+                return "Transport Lines Manager Reborned " + version;
             }
         }
 
