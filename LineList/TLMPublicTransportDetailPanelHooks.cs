@@ -349,11 +349,11 @@ namespace Klyte.TransportLinesManager.LineList
             this.m_LineCount = base.Find<UILabel>("LabelLineCount");
 
             AwakeRearrangeTabs();
+            AwakeDepotTitleComponents();
             AwakeLinesTitleComponents();
             AwakeTopButtons();
             AwakeDayNightOptions();
             AwakePrefixFilter();
-            AwakeDepotTitleComponents();
             AwakePrefixEditor();
 
             m_Ready = true;
@@ -362,14 +362,14 @@ namespace Klyte.TransportLinesManager.LineList
         private void AwakeDepotTitleComponents()
         {
             //depot title
-
-            m_depotsTitle = GameObject.Instantiate<UIPanel>(m_linesTitle);
-            m_depotsTitle.transform.SetParent(m_linesTitle.transform.parent);
-            m_depotsTitle.relativePosition = m_linesTitle.relativePosition;
+            var tempTitle = Find<UIPanel>("LineTitle");
+            m_depotsTitle = GameObject.Instantiate<UIPanel>(tempTitle);
+            m_depotsTitle.transform.SetParent(tempTitle.transform.parent);
+            m_depotsTitle.relativePosition = tempTitle.relativePosition;
             m_depotsTitle.isVisible = false;
-            GameObject.Destroy(m_depotsTitle.Find<UISprite>("DaySprite").gameObject);
-            GameObject.Destroy(m_depotsTitle.Find<UISprite>("NightSprite").gameObject);
-            GameObject.Destroy(m_depotsTitle.Find<UISprite>("DayNightSprite").gameObject);
+            GameObject.Destroy(m_depotsTitle.Find<UIButton>("DayButton").gameObject);
+            GameObject.Destroy(m_depotsTitle.Find<UIButton>("NightButton").gameObject);
+            GameObject.Destroy(m_depotsTitle.Find<UIButton>("DayNightButton").gameObject);
             GameObject.Destroy(m_depotsTitle.Find<UICheckBox>("ToggleAll").gameObject);
             GameObject.Destroy(m_depotsTitle.Find<UIButton>("StopsTitle").gameObject);
             m_depotsTitle.Find<UIButton>("ColorTitle").text = Locale.Get("TUTORIAL_ADVISER_TITLE", "District");
@@ -593,7 +593,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Find Color title");
             var colorTitle = m_linesTitle.Find<UIButton>("ColorTitle");
-            colorTitle.name += "/" + Locale.Get("TLM_CODE_SHORT");
+            colorTitle.text += "/" + Locale.Get("TLM_CODE_SHORT");
             colorTitle.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
                 this.OnLineNumberSort();
