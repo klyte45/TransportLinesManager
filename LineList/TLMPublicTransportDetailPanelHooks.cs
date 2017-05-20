@@ -229,10 +229,10 @@ namespace Klyte.TransportLinesManager.LineList
         private UIComponent m_FerryDepotsContainer;
 
         private UICheckBox m_ToggleAll;
-        private UISprite m_DayIcon;
-        private UISprite m_NightIcon;
-        private UISprite m_DayNightIcon;
-        private UISprite m_DisabledIcon;
+        private UIButton m_DayIcon;
+        private UIButton m_NightIcon;
+        private UIButton m_DayNightIcon;
+        private UIButton m_DisabledIcon;
         private UIDropDown m_prefixFilter;
 
         private UISprite m_depotIcon;
@@ -372,8 +372,8 @@ namespace Klyte.TransportLinesManager.LineList
             GameObject.Destroy(m_depotsTitle.Find<UISprite>("DayNightSprite").gameObject);
             GameObject.Destroy(m_depotsTitle.Find<UICheckBox>("ToggleAll").gameObject);
             GameObject.Destroy(m_depotsTitle.Find<UIButton>("StopsTitle").gameObject);
-            m_depotsTitle.Find<UILabel>("ColorTitle").text = Locale.Get("TUTORIAL_ADVISER_TITLE", "District");
-            m_depotsTitle.Find<UILabel>("ColorTitle").eventClick += delegate (UIComponent c, UIMouseEventParameter r)
+            m_depotsTitle.Find<UIButton>("ColorTitle").text = Locale.Get("TUTORIAL_ADVISER_TITLE", "District");
+            m_depotsTitle.Find<UIButton>("ColorTitle").eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
                 this.OnDepotDistrictSort();
             };
@@ -563,10 +563,12 @@ namespace Klyte.TransportLinesManager.LineList
         private void AwakeLinesTitleComponents()
         {
 
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Find Panel title");
             m_linesTitle = Find<UIPanel>("LineTitle");
             this.m_ToggleAllState = new bool[this.m_Strip.tabCount / 2];
             this.m_Strip.eventSelectedIndexChanged += null;
             this.m_Strip.eventSelectedIndexChanged += new PropertyChangedEventHandler<int>(this.OnTabChanged);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Find Toggle button");
             this.m_ToggleAll = m_linesTitle.Find<UICheckBox>("ToggleAll");
             this.m_ToggleAll.eventCheckChanged += new PropertyChangedEventHandler<bool>(this.CheckChangedFunction);
             for (int i = 0; i < this.m_ToggleAllState.Length; i++)
@@ -589,8 +591,9 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 this.OnPassengerSort();
             };
-            var colorTitle = m_linesTitle.Find<UILabel>("ColorTitle");
-            colorTitle.suffix = "/" + Locale.Get("TLM_CODE_SHORT");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Find Color title");
+            var colorTitle = m_linesTitle.Find<UIButton>("ColorTitle");
+            colorTitle.name += "/" + Locale.Get("TLM_CODE_SHORT");
             colorTitle.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
                 this.OnLineNumberSort();
@@ -718,41 +721,54 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void AwakeDayNightOptions()
         {
-            m_DayIcon = m_linesTitle.Find<UISprite>("DaySprite");
-            m_NightIcon = m_linesTitle.Find<UISprite>("NightSprite");
-            m_DayNightIcon = m_linesTitle.Find<UISprite>("DayNightSprite");
-            m_DisabledIcon = GameObject.Instantiate(m_DayIcon.gameObject).GetComponent<UISprite>();
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Find Original buttons");
+            m_DayIcon = m_linesTitle.Find<UIButton>("DayButton");
+            m_NightIcon = m_linesTitle.Find<UIButton>("NightButton");
+            m_DayNightIcon = m_linesTitle.Find<UIButton>("DayNightButton");
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Create disabled button");
+            m_DisabledIcon = GameObject.Instantiate(m_DayIcon.gameObject).GetComponent<UIButton>();
             m_DisabledIcon.transform.SetParent(m_DayIcon.transform.parent);
             m_NightIcon.relativePosition = new Vector3(670, 14);
             m_DayNightIcon.relativePosition = new Vector3(695, 14);
-            m_DisabledIcon.spriteName = "Niet";
+            m_DisabledIcon.normalBgSprite = "Niet";
+            m_DisabledIcon.hoveredBgSprite = "Niet";
+            m_DisabledIcon.pressedBgSprite = "Niet";
+            m_DisabledIcon.disabledBgSprite = "Niet";
 
+
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Set Tooltips");
             m_DayIcon.tooltip = Locale.Get("TLM_DAY_FILTER_TOOLTIP");
             m_NightIcon.tooltip = Locale.Get("TLM_NIGHT_FILTER_TOOLTIP");
             m_DayNightIcon.tooltip = Locale.Get("TLM_DAY_NIGHT_FILTER_TOOLTIP");
             m_DisabledIcon.tooltip = Locale.Get("TLM_DISABLED_LINES_FILTER_TOOLTIP");
 
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Set events");
             m_DayIcon.eventClick += (x, y) =>
             {
                 m_showDayLines = !m_showDayLines;
                 m_DayIcon.color = m_showDayLines ? Color.white : Color.black;
+                m_DayIcon.focusedColor = m_showDayLines ? Color.white : Color.black;
             };
             m_NightIcon.eventClick += (x, y) =>
             {
                 m_showNightLines = !m_showNightLines;
                 m_NightIcon.color = m_showNightLines ? Color.white : Color.black;
+                m_NightIcon.focusedColor = m_showDayLines ? Color.white : Color.black;
             };
             m_DayNightIcon.eventClick += (x, y) =>
             {
                 m_showDayNightLines = !m_showDayNightLines;
                 m_DayNightIcon.color = m_showDayNightLines ? Color.white : Color.black;
+                m_DayNightIcon.focusedColor = m_showDayLines ? Color.white : Color.black;
             };
             m_DisabledIcon.eventClick += (x, y) =>
             {
                 m_showDisabledLines = !m_showDisabledLines;
                 m_DisabledIcon.color = m_showDisabledLines ? Color.white : Color.black;
+                m_DisabledIcon.focusedColor = m_showDayLines ? Color.white : Color.black;
             };
 
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Set position");
             m_DisabledIcon.relativePosition = new Vector3(736, 14);
         }
 
