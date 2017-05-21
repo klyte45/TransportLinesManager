@@ -368,9 +368,9 @@ namespace Klyte.TransportLinesManager
                 ushort buildingId = ((InstanceID)(prop.GetValue(parent.gameObject.GetComponent<WorldInfoPanel>()))).Building;
                 if (Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId].Info.GetAI() as DepotAI != null)
                 {
-                    depotShortcut.isVisible = true;
                     UILabel label = depotShortcut.GetComponentInChildren<UILabel>();
                     label.text = TLMUtils.getPrefixesServedAbstract(buildingId);
+                    depotShortcut.isVisible = TLMUtils.getPrefixesServedAbstract(buildingId) != null;
                 }
                 else
                 {
