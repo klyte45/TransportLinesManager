@@ -131,7 +131,7 @@ namespace Klyte.TransportLinesManager
         public static float GetLineLength(ushort lineID)
         {
             float totalSize = 0f;
-            for (int i = 0; i < Singleton<TransportManager>.instance.m_lineSegments[(int)lineID].Length; i++)
+            for (int i = 0; i < Singleton<TransportManager>.instance.m_lineCurves[(int)lineID].Length; i++)
             {
                 Bezier3 bez = Singleton<TransportManager>.instance.m_lineCurves[(int)lineID][i];
                 totalSize += TLMUtils.calcBezierLenght(bez.a, bez.b, bez.c, bez.d, 0.1f);

@@ -42,6 +42,10 @@ namespace Klyte.TransportLinesManager.LineList
         private void OnNameSort() { }
         private void OnStopSort() { }
         private void OnVehicleSort() { }
+        private void OnColorSort() { }
+        private void OnDaySort() { }
+        private void OnNightSort() { }
+        private void OnDayAndNightSort() { }
         private void OnPassengerSort() { }
         private void OpenDetailPanel(int idx)
         {
@@ -92,6 +96,10 @@ namespace Klyte.TransportLinesManager.LineList
             AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnStopSort", allFlags), ref redirects);
             AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnVehicleSort", allFlags), ref redirects);
             AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnPassengerSort", allFlags), ref redirects);
+            AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnDayAndNightSort", allFlags), ref redirects);
+            AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnDaySort", allFlags), ref redirects);
+            AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnColorSort", allFlags), ref redirects);
+            AddRedirect(typeof(PublicTransportDetailPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OnNightSort", allFlags), ref redirects);
             AddRedirect(typeof(PublicTransportInfoViewPanel), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OpenDetailPanel", allFlags), ref redirects);
             AddRedirect(typeof(PublicTransportLineInfo), typeof(TLMPublicTransportDetailPanelHooks).GetMethod("RefreshData", allFlags), ref redirects);
 
@@ -202,8 +210,7 @@ namespace Klyte.TransportLinesManager.LineList
             TLMCW.ConfigIndex.MONORAIL_CONFIG,
             TLMCW.ConfigIndex.METRO_CONFIG,
             TLMCW.ConfigIndex.TRAM_CONFIG,
-            TLMCW.ConfigIndex.BUS_CONFIG,
-            TLMCW.ConfigIndex.NIL,
+            TLMCW.ConfigIndex.BUS_CONFIG
         };
 
         private UIComponent m_BusLinesContainer;
