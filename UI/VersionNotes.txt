@@ -1,4 +1,7 @@
-﻿6.0
+﻿6.0.1
+    - Fixed no fare bug
+    - Fixed missing i18n terms
+6.0
     - Adapted for the Mass Transport expansion
     - Added support to Monorail (round square), Cable Cars (Cone), Blimp (Inverse Cone - replaces airlines) and Ferry (Diamond - replaces the old ship lines)
-    -
+    - Added support for streets naming the stops for buses and trams

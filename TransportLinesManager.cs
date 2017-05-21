@@ -17,7 +17,7 @@ using Klyte.TransportLinesManager.i18n;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
 
-[assembly: AssemblyVersion("6.0.0.*")]
+[assembly: AssemblyVersion("6.0.1.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -216,7 +216,7 @@ namespace Klyte.TransportLinesManager
             get
             {
 
-                return "Transport Lines Manager Reborned " + version;
+                return "Transport Lines Manager Reborn " + version;
             }
         }
 

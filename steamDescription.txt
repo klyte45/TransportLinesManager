@@ -69,6 +69,9 @@ And more things have changed:
 - Now shows external trains stations with a orange circle with a symbol (same model used for taxis, airports and ports)
 - Now uses road names for bus and tram stations and line namings(if near a crossing, show name as [i]Street A x Avenue B[/i])
 
+[b]6.0.1[/b]
+- Fixed no fare bug
+- Fixed missing i18n terms
 
 [h1]Important Notes[/h1]
 - Due the overriding done in the Tram, Ship, Bus and Passenger Train system, the option of enable/disable vehicles from these categories inside the [i]Advanced Vehicle Options[/i] is useless for public city lines. The configuration in the TLM override it. But all other functions, like coloring, set capacity and more of AVO are still working. The model selection for external vehicles (like regional passenger ships and trains) still workin in AVO and alike mods.
