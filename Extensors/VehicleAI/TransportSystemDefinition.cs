@@ -75,9 +75,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
         {
             return !(a == b);
         }
-        public static TransportSystemDefinition from(
-ItemClass.SubService subService,
-VehicleInfo.VehicleType vehicleType)
+        public static TransportSystemDefinition from(ItemClass.SubService subService, VehicleInfo.VehicleType vehicleType)
         {
             return availableDefinitions.FirstOrDefault(x => x.subService == subService && x.vehicleType == vehicleType);
         }
