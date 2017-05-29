@@ -77,7 +77,12 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
         }
         public static TransportSystemDefinition from(ItemClass.SubService subService, VehicleInfo.VehicleType vehicleType)
         {
-            return availableDefinitions.FirstOrDefault(x => x.subService == subService && x.vehicleType == vehicleType);
+            var item = availableDefinitions.FirstOrDefault(x => x.subService == subService && x.vehicleType == vehicleType);
+            if (item == default(TransportSystemDefinition))
+            {
+                TLMUtils.doErrorLog("TSD NOT FOUND!!! {0}-{1}", subService, vehicleType);
+            }
+            return item;
         }
 
         public static TransportSystemDefinition from(PrefabAI buildingAI)

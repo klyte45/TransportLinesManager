@@ -14,7 +14,7 @@ namespace Klyte.TransportLinesManager.i18n
         private const string localeKeySeparator = "|";
         private const string commentChar = "#";
         private static string language = "";
-        private static string[] locales = new string[] { "en", "pt", "ko", "de" };
+        private static string[] locales = new string[] { "en", "pt", "ko", "de","cn","pl","nl" };
 
         public static string loadedLanguage
         {
@@ -50,13 +50,14 @@ namespace Klyte.TransportLinesManager.i18n
             {
                 LocaleManager.ForceReload();
             }
-            loadLocaleIntern(localeId, true);
+            loadLocaleIntern(localeId, true); 
         }
         private static void loadLocaleIntern(string localeId, bool setLocale = false)
         {
             string load = ResourceLoader.loadResourceString("UI.i18n." + localeId + ".properties");
             if (load == null)
             {
+                TLMUtils.doErrorLog("FILE "+ "UI.i18n." + localeId + ".properties" + " NOT LOADED!!!!");
                 load = ResourceLoader.loadResourceString("UI.i18n.en.properties");
                 if (load == null)
                 {

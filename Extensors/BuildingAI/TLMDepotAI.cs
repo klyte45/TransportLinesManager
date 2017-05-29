@@ -90,7 +90,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getConfigForTransportType STRING FOR {0}: {1}", tsd.ToString(), depotList);
                 cached_lists[tsd] = getDictionaryFromConfigString(depotList, tsd);
             }
-            return cached_lists[tsd];
+            return cached_lists[tsd];            
         }
 
         private static void saveConfigForTransportType(TransportSystemDefinition tsd, Dictionary<ushort, List<uint>> value)
@@ -203,13 +203,16 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             DepotAI buildingAI = bm.m_buildings.m_buffer[buildingID].Info.GetAI() as DepotAI;
             if (buildingAI != null)
             {
-                var tsd = TransportSystemDefinition.from(buildingAI.m_info.m_class.m_subService, buildingAI.m_transportInfo.m_vehicleType);
-                var dic = getConfigForTransportType(tsd);
-                if (!dic.ContainsKey(buildingID))
+                TransportSystemDefinition tsd = TransportSystemDefinition.from(buildingAI.m_info.m_class.m_subService, buildingAI.m_transportInfo.m_vehicleType);
+                if (tsd != default(TransportSystemDefinition))
                 {
-                    return defaultPrefixList;
+                    var dic = getConfigForTransportType(tsd);
+                    if (!dic.ContainsKey(buildingID))
+                    {
+                        return defaultPrefixList;
+                    }
+                    return dic[buildingID];
                 }
-                return dic[buildingID];
             }
             return null;
         }

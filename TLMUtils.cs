@@ -131,7 +131,7 @@ namespace Klyte.TransportLinesManager
         public static float GetLineLength(ushort lineID)
         {
             float totalSize = 0f;
-            for (int i = 0; i < Singleton<TransportManager>.instance.m_lineSegments[(int)lineID].Length; i++)
+            for (int i = 0; i < Singleton<TransportManager>.instance.m_lineCurves[(int)lineID].Length; i++)
             {
                 Bezier3 bez = Singleton<TransportManager>.instance.m_lineCurves[(int)lineID][i];
                 totalSize += TLMUtils.calcBezierLenght(bez.a, bez.b, bez.c, bez.d, 0.1f);
@@ -1859,6 +1859,11 @@ namespace Klyte.TransportLinesManager
             if (b.Info.GetAI() as DepotAI == null) return "";
             List<string> options = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportInfo((b.Info.GetAI() as DepotAI).m_transportInfo));
             var prefixes = TLMDepotAI.getPrefixesServedByDepot(m_buildingID);
+            if (prefixes == null)
+            {
+                TLMUtils.doErrorLog("DEPOT AI WITH WRONG TYPE!!! id:{0} ({1})", m_buildingID, BuildingManager.instance.GetBuildingName(m_buildingID, default(InstanceID)));
+                return null;
+            }
             List<string> saida = new List<string>();
             if (prefixes.Contains(0)) saida.Add(Locale.Get("TLM_UNPREFIXED_SHORT"));
             uint sequenceInit = 0;
