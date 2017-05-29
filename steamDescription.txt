@@ -73,6 +73,15 @@ And more things have changed:
 - Fixed no fare bug
 - Fixed missing i18n terms
 
+[b]6.0.2[/b]
+- Fixed null pointer on invalid depot category, now logs error
+- Fixed some misspelling in English file
+- German language updated
+- Fixed sorting on line listing
+- Added dutch support (thanks bas_dehaan!)
+- Added polish support (thanks woj2012!)
+- Added partial chinese support (thanks Laoweek!)
+
 [h1]Important Notes[/h1]
 - Due the overriding done in the Tram, Ship, Bus and Passenger Train system, the option of enable/disable vehicles from these categories inside the [i]Advanced Vehicle Options[/i] is useless for public city lines. The configuration in the TLM override it. But all other functions, like coloring, set capacity and more of AVO are still working. The model selection for external vehicles (like regional passenger ships and trains) still workin in AVO and alike mods.
 - Due the overriding done in the Tram, Ship, Bus and Passenger Train system, the IPT enqueue for these categories will fail: the model of the bus enqueued could not be the selected in IPT. Use the compatibility mode for IPT to avoid it.
@@ -83,6 +92,9 @@ And more things have changed:
 - Rename depots are not working in the TLM listing and in depot details windows.
 - Bus stations and terminals are wrongly listed as depots.
 - Not show cable car stations on linear map as near transport
+- All transports have fixed fare at 100.
+- Color selector sometimes get the team selector - not the line color selector.
+
 
 [h1](Alpha) Transport map exporter[/h1]
 When active, a [i]Draw Map![/i] button will appear mod options menu. When clicked, the game generates a map with the metro and train lines like the linear map style. 

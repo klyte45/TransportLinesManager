@@ -300,7 +300,12 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
             loadPrefixConfigList(global);
             if (needReload)
             {
-                readVehicles(global); if (needReload) return;
+                readVehicles(global);
+                if (needReload)
+                {
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setPrefixName: RELOAD FAILED!");
+                    return;
+                }
             }
             if (!cached_prefixConfigList.ContainsKey(prefix))
             {
@@ -372,7 +377,12 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
             loadPrefixConfigList(global);
             if (needReload)
             {
-                readVehicles(global); if (needReload) return;
+                readVehicles(global);
+                if (needReload)
+                {
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getTicketPrice: RELOAD FAILED!");
+                    return;
+                }
             }
             if (!cached_prefixConfigList.ContainsKey(prefix))
             {
@@ -387,7 +397,12 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
             loadPrefixConfigList(global);
             if (needReload)
             {
-                readVehicles(global); if (needReload) return 100;
+                readVehicles(global);
+                if (needReload)
+                {
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getTicketPrice: RELOAD FAILED!");
+                    return 100;
+                }
             }
             if (cached_prefixConfigList.ContainsKey(prefix) && cached_prefixConfigList[prefix].ContainsKey(PrefixConfigIndex.TICKET_PRICE))
             {
@@ -433,6 +448,8 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
                         return 500;
                     }
                 default:
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("subservice not found: {0}", definition.subService);
+
                     return 100;
             }
 
@@ -444,7 +461,12 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
             loadPrefixConfigList(global);
             if (needReload)
             {
-                readVehicles(global); if (needReload) return;
+                readVehicles(global);
+                if (needReload)
+                {
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("setTicketPrice: RELOAD FAILED!");
+                    return;
+                }
             }
             if (!cached_prefixConfigList.ContainsKey(prefix))
             {
@@ -477,7 +499,13 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
         {
             if (needReload)
             {
-                readVehicles(global); if (needReload) return new Dictionary<string, string>();
+                readVehicles(global);
+                if (needReload)
+                {
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getBasicAssetsDictionary: RELOAD FAILED!");
+
+                    return new Dictionary<string, string>();
+                }
             }
             return basicAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
@@ -523,7 +551,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
         public void removeAllAssetsFromPrefixList(uint prefix, bool global = false)
         {
             loadPrefixConfigList(global);
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAssetFromPrefixList: {0}", prefix);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllAssetsFromPrefixList: {0}", prefix);
             if (!cached_prefixConfigList.ContainsKey(prefix))
             {
                 cached_prefixConfigList[prefix] = new Dictionary<PrefixConfigIndex, string>();
@@ -536,7 +564,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
         public void useDefaultAssetsForPrefixList(uint prefix, bool global = false)
         {
             loadPrefixConfigList(global);
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAssetFromPrefixList: {0}", prefix);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("useDefaultAssetsForPrefixList: {0}", prefix);
             if (!cached_prefixConfigList.ContainsKey(prefix))
             {
                 cached_prefixConfigList[prefix] = new Dictionary<PrefixConfigIndex, string>();
