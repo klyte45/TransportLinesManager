@@ -13,7 +13,7 @@ Also, Bloody Penguin is working in IPT and some incompatibilities shall vanish s
 
 A shortcut to manage all city's public transports lines. Useful for Airplane Line Tool and Ship Line Tool also.
 
-[h1]Why reborned?[/h1]
+[h1]Why reborn?[/h1]
 The TLM now is not a project solo, is a community project. You can contribute to improve this mod checking out the mod sources at GitHub:
 [url=https://github.com/klyte45/TransportLinesManager]Main project[/url]
 [url=https://github.com/klyte45/UIHelper]UI Helper (dependency)[/url]
@@ -62,6 +62,9 @@ And more things have changed:
 - Portuguese
 - Korean - by [url=http://steamcommunity.com/id/lshst]Toothless[/url]
 - German- by [url=http://steamcommunity.com/profiles/76561198067363272]weoiss[/url]
+- Dutch - by bas_dehaan
+- Polish - by woj2012
+- Chinese (partial) - by Laoweek
 
 [h1]NEW AT 6.0[/h1]
 
