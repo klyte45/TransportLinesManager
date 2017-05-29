@@ -3,6 +3,9 @@
     - Fixed some misspelling in English file
     - German language updated
     - Fixed sorting on line listing
+    - Added dutch support (thanks bas_dehaan!)
+    - Added polish support (thanks woj2012!)
+    - Added partial chinese support (thanks Laoweek!)
 6.0.1
     - Fixed no fare bug
     - Fixed missing i18n terms
