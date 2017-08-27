@@ -401,7 +401,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
                 if (needReload)
                 {
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getTicketPrice: RELOAD FAILED!");
-                    return 100;
+                    return 101;
                 }
             }
             if (cached_prefixConfigList.ContainsKey(prefix) && cached_prefixConfigList[prefix].ContainsKey(PrefixConfigIndex.TICKET_PRICE))
@@ -450,7 +450,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
                 default:
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("subservice not found: {0}", definition.subService);
 
-                    return 100;
+                    return 103;
             }
 
         }

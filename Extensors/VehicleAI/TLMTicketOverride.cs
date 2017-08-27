@@ -52,7 +52,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
             if (def == default(TransportSystemDefinition))
             {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("NULL TSysDef! {0}+{1}+{2}", vehicleData.Info.GetAI().GetType(), vehicleData.Info.m_class.m_subService, vehicleData.Info.m_vehicleType);
-                return 100;
+                return 109;
             }
             if (def.vehicleType == VehicleInfo.VehicleType.Ferry)
             {
