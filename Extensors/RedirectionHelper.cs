@@ -1,176 +1,26 @@
-﻿/*
-The MIT License (MIT)
-Copyright (c) 2015 Sebastian Sch�ner
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Klyte.TransportLinesManager.Utils;
+using System.Reflection.Emit;
+using System.Security.Permissions;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using Klyte.Harmony;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
-
-
-
-    public struct RedirectCallsState
+    public abstract class Redirector
     {
-        public byte a, b, c, d, e;
-        public ulong f;
-    }
-
-    /// <summary>
-    /// Helper class to deal with detours. This version is for Unity 5 x64 on Windows.
-    /// We provide three different methods of detouring.
-    /// </summary>
-    public static class RedirectionHelper
-    {
-        /// <summary>
-        /// Redirects all calls from method 'from' to method 'to'.
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        public static RedirectCallsState RedirectCalls(MethodInfo from, MethodInfo to)
-        {
-            // GetFunctionPointer enforces compilation of the method.
-            var fptr1 = from.MethodHandle.GetFunctionPointer();
-            var fptr2 = to.MethodHandle.GetFunctionPointer();
-            return PatchJumpTo(fptr1, fptr2);
-        }
-
-        public static void RevertRedirect(MethodInfo from, RedirectCallsState state)
-        {
-            var fptr1 = from.MethodHandle.GetFunctionPointer();
-            RevertJumpTo(fptr1, state);
-        }
-
-        /// <summary>
-        /// Primitive patching. Inserts a jump to 'target' at 'site'. Works even if both methods'
-        /// callers have already been compiled.
-        /// </summary>
-        /// <param name="site"></param>
-        /// <param name="target"></param>
-        public static RedirectCallsState PatchJumpTo(IntPtr site, IntPtr target)
-        {
-            RedirectCallsState state = new RedirectCallsState();
-
-            // R11 is volatile.
-            unsafe
-            {
-                byte* sitePtr = (byte*)site.ToPointer();
-                state.a = *sitePtr;
-                state.b = *(sitePtr + 1);
-                state.c = *(sitePtr + 10);
-                state.d = *(sitePtr + 11);
-                state.e = *(sitePtr + 12);
-                state.f = *((ulong*)(sitePtr + 2));
-
-                *sitePtr = 0x49; // mov r11, target
-                *(sitePtr + 1) = 0xBB;
-                *((ulong*)(sitePtr + 2)) = (ulong)target.ToInt64();
-                *(sitePtr + 10) = 0x41; // jmp r11
-                *(sitePtr + 11) = 0xFF;
-                *(sitePtr + 12) = 0xE3;
-            }
-
-            return state;
-        }
-
-
-        /// <summary>
-        /// Primitive patching. Inserts a jump to 'target' at 'site'. Works even if both methods'
-        /// callers have already been compiled.
-        /// </summary>
-        /// <param name="site"></param>
-        /// <param name="target"></param>
-        /// <param name="newSite"></param>
-        public static RedirectCallsState PatchJumpTo(IntPtr site, IntPtr target, IntPtr newSite)
-        {
-            RedirectCallsState state = new RedirectCallsState();
-
-            // R11 is volatile.
-            unsafe
-            {
-                byte* sitePtr = (byte*)site.ToPointer();
-                state.a = *sitePtr;
-                state.b = *(sitePtr + 1);
-                state.c = *(sitePtr + 10);
-                state.d = *(sitePtr + 11);
-                state.e = *(sitePtr + 12);
-                state.f = *((ulong*)(sitePtr + 2));
-
-                RevertJumpTo(newSite, state);
-
-                *sitePtr = 0x49; // mov r11, target
-                *(sitePtr + 1) = 0xBB;
-                *((ulong*)(sitePtr + 2)) = (ulong)target.ToInt64();
-                *(sitePtr + 10) = 0x41; // jmp r11
-                *(sitePtr + 11) = 0xFF;
-                *(sitePtr + 12) = 0xE3;
-            }
-
-            return state;
-        }
-
-        private static void RevertJumpTo(IntPtr site, RedirectCallsState state)
-        {
-            unsafe
-            {
-                byte* sitePtr = (byte*)site.ToPointer();
-                *sitePtr = state.a; // mov r11, target
-                *(sitePtr + 1) = state.b;
-                *((ulong*)(sitePtr + 2)) = state.f;
-                *(sitePtr + 10) = state.c; // jmp r11
-                *(sitePtr + 11) = state.d;
-                *(sitePtr + 12) = state.e;
-            }
-        }
-    }
-
-    public class Redirector
-    {
+        public abstract HarmonyInstance GetHarmonyInstance();
 
         public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.GetField | BindingFlags.GetProperty;
 
-        public static void AddRedirect(Type target, MethodInfo newMethod, ref Dictionary<MethodInfo, RedirectCallsState> redirects, string type1MethodName = null)
+        public void AddRedirect(MethodInfo oldMethod, MethodInfo newMethodPre, MethodInfo newMethodPost = null)
         {
-            var parameters = newMethod.GetParameters();
-
-            Type[] types;
-            if (parameters.Length > 0 && parameters[0].ParameterType == target)
-                types = parameters.Skip(1).Select(p => p.ParameterType).ToArray();
-            else
-                types = parameters.Select(p => p.ParameterType).ToArray();
-
-            var originalMethod = target.GetMethod(type1MethodName != null ? type1MethodName : newMethod.Name, allFlags, null, types, null);
-            if (originalMethod == null)
-            {
-                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)  TLMUtils.doLog("Cannot find " + newMethod.Name);
-            }
-            redirects.Add(originalMethod, RedirectionHelper.RedirectCalls(originalMethod, newMethod));
-        }
-
-        public static void AddRedirectWithNewLocationForOldMethod(MethodInfo originalMethod, MethodInfo hookedMethod, MethodInfo newLocationForOriginalMethod, ref Dictionary<MethodInfo, RedirectCallsState> redirects)
-        {
-            var originalMethodPointer = originalMethod.MethodHandle.GetFunctionPointer();
-            var hookedMethodPointer = hookedMethod.MethodHandle.GetFunctionPointer();
-            var newLocationForOriginalMethodPointer = newLocationForOriginalMethod.MethodHandle.GetFunctionPointer();
-            redirects.Add(originalMethod, RedirectionHelper.PatchJumpTo(originalMethodPointer, hookedMethodPointer, newLocationForOriginalMethodPointer));
+            GetHarmonyInstance().Patch(oldMethod, newMethodPre != null ? new HarmonyMethod(newMethodPre) : null, newMethodPost != null ? new HarmonyMethod(newMethodPost) : null, null);
         }
     }
 }

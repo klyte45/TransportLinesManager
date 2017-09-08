@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -75,9 +76,8 @@ namespace Klyte.TransportLinesManager.MapDrawer
     }
 
 
-    class MapTests : Redirector
+    class MapTests
     {
-        private static Dictionary<MethodInfo, RedirectCallsState> redirects = new Dictionary<MethodInfo, RedirectCallsState>();
         public static void Main(string[] args)
         {
             new LineSegmentStationsManager().getPath(new Vector2(678, 545), new Vector2(685, 556), CardinalPoint.SE, CardinalPoint.NW);

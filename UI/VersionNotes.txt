@@ -1,15 +1,17 @@
-﻿6.0.2
-    - Fixed null pointer on invalid depot category, now logs error
-    - Fixed some misspelling in English file
-    - German language updated
-    - Fixed sorting on line listing
-    - Added dutch support (thanks bas_dehaan!)
-    - Added polish support (thanks woj2012!)
-    - Added partial chinese support (thanks Laoweek!)
-6.0.1
-    - Fixed no fare bug
-    - Fixed missing i18n terms
-6.0
-    - Adapted for the Mass Transport expansion
-    - Added support to Monorail (round square), Cable Cars (Cone), Blimp (Inverse Cone - replaces airlines) and Ferry (Diamond - replaces the old ship lines)
-    - Added support for streets naming the stops for buses and trams
+﻿Lite 7.0.0
+    - Removed almost all methods hooking
+    - Updated UI
+    - New default palettes:
+        - Rainbow
+        - Rainbow Short
+        - World Metro
+        - MS Metro Design UI
+        - Material Design Default Colors
+        - Material Design 100
+        - Material Design 500
+        - Material Design 900
+        - Material Design A200
+        - Material Design A400
+        - Material Design A700
+        - São Paulo CPTM 2000
+        - São Paulo Bus Area 2000

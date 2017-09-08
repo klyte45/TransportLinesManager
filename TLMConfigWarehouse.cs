@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,13 +41,11 @@ namespace Klyte.TransportLinesManager
 
         public static TLMConfigWarehouse getConfig(string cityId, string cityName)
         {
-            if (cityId == null || cityName == null)
-            {
+            if (cityId == null || cityName == null) {
                 cityId = GLOBAL_CONFIG_INDEX;
                 cityName = GLOBAL_CONFIG_INDEX;
             }
-            if (!loadedCities.ContainsKey(cityId))
-            {
+            if (!loadedCities.ContainsKey(cityId)) {
                 loadedCities[cityId] = new TLMConfigWarehouse(cityId, cityName);
             }
             return loadedCities[cityId];
@@ -99,7 +98,7 @@ namespace Klyte.TransportLinesManager
 
         public static TransportSystemDefinition getDefinitionForLine(ushort i)
         {
-            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)i];
+            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[(int) i];
             return TransportSystemDefinition.from(t.Info.m_class.m_subService, t.Info.m_vehicleType);
             //if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("t.Info.m_transportType = {0};transportType = {1} ", t.Info.m_transportType, transportType);
             //return transportType;
@@ -119,14 +118,11 @@ namespace Klyte.TransportLinesManager
             tlmSettings.fileName = thisFileName;
             GameSettings.AddSettingsFile(tlmSettings);
 
-            if (!tlmSettings.IsValid() && cityId != GLOBAL_CONFIG_INDEX)
-            {
+            if (!tlmSettings.IsValid() && cityId != GLOBAL_CONFIG_INDEX) {
                 TLMConfigWarehouse defaultFile = getConfig(GLOBAL_CONFIG_INDEX, GLOBAL_CONFIG_INDEX);
-                foreach (string key in GameSettings.FindSettingsFileByName(defaultFile.thisFileName).ListKeys())
-                {
-                    ConfigIndex ci = (ConfigIndex)Enum.Parse(typeof(ConfigIndex), key);
-                    switch (ci & ConfigIndex.TYPE_PART)
-                    {
+                foreach (string key in GameSettings.FindSettingsFileByName(defaultFile.thisFileName).ListKeys()) {
+                    ConfigIndex ci = (ConfigIndex) Enum.Parse(typeof(ConfigIndex), key);
+                    switch (ci & ConfigIndex.TYPE_PART) {
                         case ConfigIndex.TYPE_BOOL:
                             setBool(ci, defaultFile.getBool(ci));
                             break;
@@ -144,8 +140,7 @@ namespace Klyte.TransportLinesManager
 
         private string thisFileName
         {
-            get
-            {
+            get {
                 return CONFIG_FILENAME + "_" + cityId;
             }
         }
@@ -183,8 +178,7 @@ namespace Klyte.TransportLinesManager
         {
             string listString = getFromFileString(i);
             List<int> result = new List<int>();
-            foreach (string s in listString.Split(LIST_SEPARATOR.ToCharArray()))
-            {
+            foreach (string s in listString.Split(LIST_SEPARATOR.ToCharArray())) {
                 result.Add(Int32Extensions.ParseOrDefault(s, 0));
             }
             return result;
@@ -193,8 +187,7 @@ namespace Klyte.TransportLinesManager
         public void addToListInt(ConfigIndex i, int value)
         {
             List<int> list = getListInt(i);
-            if (!list.Contains(value))
-            {
+            if (!list.Contains(value)) {
                 list.Add(value);
                 setToFile(i, serializeList(list));
             }
@@ -240,8 +233,7 @@ namespace Klyte.TransportLinesManager
 
         public static Color32 getColorForTransportType(ConfigIndex i)
         {
-            switch (i & ConfigIndex.SYSTEM_PART)
-            {
+            switch (i & ConfigIndex.SYSTEM_PART) {
                 case ConfigIndex.TRAIN_CONFIG:
                     return new Color32(250, 104, 0, 255);
                 case ConfigIndex.TRAM_CONFIG:
@@ -272,8 +264,7 @@ namespace Klyte.TransportLinesManager
 
         public static float getCostPerPassengerCapacityLine(ConfigIndex i)
         {
-            switch (i & ConfigIndex.SYSTEM_PART)
-            {
+            switch (i & ConfigIndex.SYSTEM_PART) {
                 case ConfigIndex.TRAIN_CONFIG:
                     return 50f / 400;
                 case ConfigIndex.SHIP_CONFIG:
@@ -308,32 +299,64 @@ namespace Klyte.TransportLinesManager
         }
         private static string getLocaleIdForIndex(ConfigIndex i, out string key)
         {
-            switch (i & ConfigIndex.DESC_DATA)
-            {
-                case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG: key = "Beautification"; break;
-                case ConfigIndex.ELECTRICITY_SERVICE_CONFIG: key = "Electricity"; break;
-                case ConfigIndex.WATER_SERVICE_CONFIG: key = "WaterAndSewage"; break;
-                case ConfigIndex.GARBAGE_SERVICE_CONFIG: key = "Garbage"; break;
-                case ConfigIndex.ROAD_SERVICE_CONFIG: key = "Roads"; break;
-                case ConfigIndex.HEALTHCARE_SERVICE_CONFIG: key = "Healthcare"; break;
-                case ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG: key = "Police"; break;
-                case ConfigIndex.EDUCATION_SERVICE_CONFIG: key = "Education"; break;
-                case ConfigIndex.MONUMENT_SERVICE_CONFIG: key = "Monuments"; break;
-                case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG: key = "FireDepartment"; break;
-                case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: key = "PublicTransport"; break;
-                case ConfigIndex.DISASTER_SERVICE_CONFIG: key = "Government"; break;
-                default: key = ""; break;
+            switch (i & ConfigIndex.DESC_DATA) {
+                case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG:
+                    key = "Beautification";
+                    break;
+                case ConfigIndex.ELECTRICITY_SERVICE_CONFIG:
+                    key = "Electricity";
+                    break;
+                case ConfigIndex.WATER_SERVICE_CONFIG:
+                    key = "WaterAndSewage";
+                    break;
+                case ConfigIndex.GARBAGE_SERVICE_CONFIG:
+                    key = "Garbage";
+                    break;
+                case ConfigIndex.ROAD_SERVICE_CONFIG:
+                    key = "Roads";
+                    break;
+                case ConfigIndex.HEALTHCARE_SERVICE_CONFIG:
+                    key = "Healthcare";
+                    break;
+                case ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG:
+                    key = "Police";
+                    break;
+                case ConfigIndex.EDUCATION_SERVICE_CONFIG:
+                    key = "Education";
+                    break;
+                case ConfigIndex.MONUMENT_SERVICE_CONFIG:
+                    key = "Monuments";
+                    break;
+                case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
+                    key = "FireDepartment";
+                    break;
+                case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    key = "PublicTransport";
+                    break;
+                case ConfigIndex.DISASTER_SERVICE_CONFIG:
+                    key = "Government";
+                    break;
+                default:
+                    key = "";
+                    break;
             }
-            switch (i & ConfigIndex.DESC_DATA)
-            {
-                case ConfigIndex.RESIDENTIAL_SERVICE_CONFIG: return "DISTRICT_RESIDENTIAL";
-                case ConfigIndex.COMMERCIAL_SERVICE_CONFIG: return "DISTRICT_COMMERCIAL";
-                case ConfigIndex.INDUSTRIAL_SERVICE_CONFIG: return "DISTRICT_INDUSTRIAL";
-                case ConfigIndex.NATURAL_SERVICE_CONFIG: return "Unused1";
-                case ConfigIndex.UNUSED2_SERVICE_CONFIG: return "Unused2";
-                case ConfigIndex.CITIZEN_SERVICE_CONFIG: return "INCOME_CITIZEN";
-                case ConfigIndex.TOURISM_SERVICE_CONFIG: return "INCOME_TOURIST";
-                case ConfigIndex.OFFICE_SERVICE_CONFIG: return "DISTRICT_OFFICE";
+            switch (i & ConfigIndex.DESC_DATA) {
+                case ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
+                    return "DISTRICT_RESIDENTIAL";
+                case ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
+                    return "DISTRICT_COMMERCIAL";
+                case ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
+                    return "DISTRICT_INDUSTRIAL";
+                case ConfigIndex.NATURAL_SERVICE_CONFIG:
+                    return "Unused1";
+                case ConfigIndex.UNUSED2_SERVICE_CONFIG:
+                    return "Unused2";
+                case ConfigIndex.CITIZEN_SERVICE_CONFIG:
+                    return "INCOME_CITIZEN";
+                case ConfigIndex.TOURISM_SERVICE_CONFIG:
+                    return "INCOME_TOURIST";
+                case ConfigIndex.OFFICE_SERVICE_CONFIG:
+                    return "DISTRICT_OFFICE";
                 case ConfigIndex.ROAD_SERVICE_CONFIG:
                 case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG:
                 case ConfigIndex.GARBAGE_SERVICE_CONFIG:
@@ -347,15 +370,15 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                 case ConfigIndex.DISASTER_SERVICE_CONFIG:
                     return "MAIN_TOOL";
-                default: return "???";
+                default:
+                    return "???";
 
             }
         }
 
         public static string getNameForTransportType(ConfigIndex i)
         {
-            switch (i & ConfigIndex.SYSTEM_PART)
-            {
+            switch (i & ConfigIndex.SYSTEM_PART) {
                 case ConfigIndex.TRAIN_CONFIG:
                     return Locale.Get("VEHICLE_TITLE", "Train Engine");
                 case ConfigIndex.TRAM_CONFIG:
@@ -391,8 +414,7 @@ namespace Klyte.TransportLinesManager
 
         public static int getDefaultIntValueForProperty(ConfigIndex i)
         {
-            switch (i)
-            {
+            switch (i) {
                 default:
                     return 0;
             }
@@ -420,48 +442,27 @@ namespace Klyte.TransportLinesManager
 
         public static ConfigIndex getConfigAssetsForAI(TransportSystemDefinition tsd)
         {
-            if (tsd == TransportSystemDefinition.BUS)
-            {
+            if (tsd == TransportSystemDefinition.BUS) {
                 return ConfigIndex.PREFIX_BASED_ASSETS_BUS;
-            }
-            else if (tsd == TransportSystemDefinition.TRAIN)
-            {
+            } else if (tsd == TransportSystemDefinition.TRAIN) {
                 return ConfigIndex.PREFIX_BASED_ASSETS_TRAIN;
-            }
-            else if (tsd == TransportSystemDefinition.TRAM)
-            {
+            } else if (tsd == TransportSystemDefinition.TRAM) {
                 return ConfigIndex.PREFIX_BASED_ASSETS_TRAM;
-            }
-            else if (tsd == TransportSystemDefinition.SHIP)
-            {
+            } else if (tsd == TransportSystemDefinition.SHIP) {
                 return ConfigIndex.PREFIX_BASED_ASSETS_SHIP;
-            }
-            else if (tsd == TransportSystemDefinition.PLANE)
-            {
+            } else if (tsd == TransportSystemDefinition.PLANE) {
                 return ConfigIndex.PREFIX_BASED_ASSETS_PLANE;
-            }
-            else if (tsd == TransportSystemDefinition.FERRY)
-            {
+            } else if (tsd == TransportSystemDefinition.FERRY) {
                 return ConfigIndex.PREFIX_BASED_ASSETS_SHIP;
-            }
-            else if (tsd == TransportSystemDefinition.BLIMP)
-            {
+            } else if (tsd == TransportSystemDefinition.BLIMP) {
                 return ConfigIndex.PREFIX_BASED_ASSETS_PLANE;
-            }
-            else if (tsd == TransportSystemDefinition.CABLE_CAR)
-            {
+            } else if (tsd == TransportSystemDefinition.CABLE_CAR) {
                 return ConfigIndex.PREFIX_BASED_ASSETS_CABLE_CAR;
-            }
-            else if (tsd == TransportSystemDefinition.MONORAIL)
-            {
+            } else if (tsd == TransportSystemDefinition.MONORAIL) {
                 return ConfigIndex.PREFIX_BASED_ASSETS_MONORAIL;
-            }
-            else if (tsd == TransportSystemDefinition.METRO)
-            {
+            } else if (tsd == TransportSystemDefinition.METRO) {
                 return ConfigIndex.PREFIX_BASED_ASSETS_METRO;
-            }
-            else
-            {
+            } else {
                 return ConfigIndex.NIL;
             }
         }
@@ -470,48 +471,27 @@ namespace Klyte.TransportLinesManager
         public static ConfigIndex getConfigDepotPrefix(TransportSystemDefinition tsd)
         {
 
-            if (tsd == TransportSystemDefinition.BUS)
-            {
+            if (tsd == TransportSystemDefinition.BUS) {
                 return ConfigIndex.DEPOT_PREFIXES_BUS;
-            }
-            else if (tsd == TransportSystemDefinition.TRAIN)
-            {
+            } else if (tsd == TransportSystemDefinition.TRAIN) {
                 return ConfigIndex.DEPOT_PREFIXES_TRAIN;
-            }
-            else if (tsd == TransportSystemDefinition.TRAM)
-            {
+            } else if (tsd == TransportSystemDefinition.TRAM) {
                 return ConfigIndex.DEPOT_PREFIXES_TRAM;
-            }
-            else if (tsd == TransportSystemDefinition.SHIP)
-            {
+            } else if (tsd == TransportSystemDefinition.SHIP) {
                 return ConfigIndex.DEPOT_PREFIXES_SHIP;
-            }
-            else if (tsd == TransportSystemDefinition.PLANE)
-            {
+            } else if (tsd == TransportSystemDefinition.PLANE) {
                 return ConfigIndex.DEPOT_PREFIXES_PLANE;
-            }
-            else if (tsd == TransportSystemDefinition.FERRY)
-            {
+            } else if (tsd == TransportSystemDefinition.FERRY) {
                 return ConfigIndex.DEPOT_PREFIXES_SHIP;
-            }
-            else if (tsd == TransportSystemDefinition.BLIMP)
-            {
+            } else if (tsd == TransportSystemDefinition.BLIMP) {
                 return ConfigIndex.DEPOT_PREFIXES_PLANE;
-            }
-            else if (tsd == TransportSystemDefinition.CABLE_CAR)
-            {
+            } else if (tsd == TransportSystemDefinition.CABLE_CAR) {
                 return ConfigIndex.DEPOT_PREFIXES_CABLE_CAR;
-            }
-            else if (tsd == TransportSystemDefinition.MONORAIL)
-            {
+            } else if (tsd == TransportSystemDefinition.MONORAIL) {
                 return ConfigIndex.DEPOT_PREFIXES_MONORAIL;
-            }
-            else if (tsd == TransportSystemDefinition.METRO)
-            {
+            } else if (tsd == TransportSystemDefinition.METRO) {
                 return ConfigIndex.DEPOT_PREFIXES_METRO;
-            }
-            else
-            {
+            } else {
                 return ConfigIndex.NIL;
             }
         }
@@ -525,48 +505,27 @@ namespace Klyte.TransportLinesManager
 
         public static ConfigIndex getConfigTransportSystemForDefinition(TransportSystemDefinition tsd)
         {
-            if (tsd == TransportSystemDefinition.BUS)
-            {
+            if (tsd == TransportSystemDefinition.BUS) {
                 return ConfigIndex.BUS_CONFIG;
-            }
-            else if (tsd == TransportSystemDefinition.TRAIN)
-            {
+            } else if (tsd == TransportSystemDefinition.TRAIN) {
                 return ConfigIndex.TRAIN_CONFIG;
-            }
-            else if (tsd == TransportSystemDefinition.TRAM)
-            {
+            } else if (tsd == TransportSystemDefinition.TRAM) {
                 return ConfigIndex.TRAM_CONFIG;
-            }
-            else if (tsd == TransportSystemDefinition.SHIP)
-            {
+            } else if (tsd == TransportSystemDefinition.SHIP) {
                 return ConfigIndex.SHIP_CONFIG;
-            }
-            else if (tsd == TransportSystemDefinition.PLANE)
-            {
+            } else if (tsd == TransportSystemDefinition.PLANE) {
                 return ConfigIndex.PLANE_CONFIG;
-            }
-            else if (tsd == TransportSystemDefinition.FERRY)
-            {
+            } else if (tsd == TransportSystemDefinition.FERRY) {
                 return ConfigIndex.FERRY_CONFIG;
-            }
-            else if (tsd == TransportSystemDefinition.BLIMP)
-            {
+            } else if (tsd == TransportSystemDefinition.BLIMP) {
                 return ConfigIndex.BLIMP_CONFIG;
-            }
-            else if (tsd == TransportSystemDefinition.CABLE_CAR)
-            {
+            } else if (tsd == TransportSystemDefinition.CABLE_CAR) {
                 return ConfigIndex.CABLE_CAR_CONFIG;
-            }
-            else if (tsd == TransportSystemDefinition.MONORAIL)
-            {
+            } else if (tsd == TransportSystemDefinition.MONORAIL) {
                 return ConfigIndex.MONORAIL_CONFIG;
-            }
-            else if (tsd == TransportSystemDefinition.METRO)
-            {
+            } else if (tsd == TransportSystemDefinition.METRO) {
                 return ConfigIndex.METRO_CONFIG;
-            }
-            else
-            {
+            } else {
                 return ConfigIndex.NIL;
             }
         }
@@ -575,20 +534,31 @@ namespace Klyte.TransportLinesManager
         public static TransportSystemDefinition getTransportSystemDefinitionForConfigTransport(ConfigIndex T)
         {
 
-            switch (T)
-            {
-                case ConfigIndex.BUS_CONFIG: return TransportSystemDefinition.BUS;
-                case ConfigIndex.TRAIN_CONFIG: return TransportSystemDefinition.TRAIN;
-                case ConfigIndex.TRAM_CONFIG: return TransportSystemDefinition.TRAM;
-                case ConfigIndex.SHIP_CONFIG: return TransportSystemDefinition.SHIP;
-                case ConfigIndex.TAXI_CONFIG: return TransportSystemDefinition.TAXI;
-                case ConfigIndex.PLANE_CONFIG: return TransportSystemDefinition.PLANE;
-                case ConfigIndex.METRO_CONFIG: return TransportSystemDefinition.METRO;
-                case ConfigIndex.CABLE_CAR_CONFIG: return TransportSystemDefinition.CABLE_CAR;
-                case ConfigIndex.MONORAIL_CONFIG: return TransportSystemDefinition.MONORAIL;
-                case ConfigIndex.BLIMP_CONFIG: return TransportSystemDefinition.BLIMP;
-                case ConfigIndex.FERRY_CONFIG: return TransportSystemDefinition.FERRY;
-                default: return null;
+            switch (T) {
+                case ConfigIndex.BUS_CONFIG:
+                    return TransportSystemDefinition.BUS;
+                case ConfigIndex.TRAIN_CONFIG:
+                    return TransportSystemDefinition.TRAIN;
+                case ConfigIndex.TRAM_CONFIG:
+                    return TransportSystemDefinition.TRAM;
+                case ConfigIndex.SHIP_CONFIG:
+                    return TransportSystemDefinition.SHIP;
+                case ConfigIndex.TAXI_CONFIG:
+                    return TransportSystemDefinition.TAXI;
+                case ConfigIndex.PLANE_CONFIG:
+                    return TransportSystemDefinition.PLANE;
+                case ConfigIndex.METRO_CONFIG:
+                    return TransportSystemDefinition.METRO;
+                case ConfigIndex.CABLE_CAR_CONFIG:
+                    return TransportSystemDefinition.CABLE_CAR;
+                case ConfigIndex.MONORAIL_CONFIG:
+                    return TransportSystemDefinition.MONORAIL;
+                case ConfigIndex.BLIMP_CONFIG:
+                    return TransportSystemDefinition.BLIMP;
+                case ConfigIndex.FERRY_CONFIG:
+                    return TransportSystemDefinition.FERRY;
+                default:
+                    return null;
             }
         }
 
@@ -972,37 +942,54 @@ namespace Klyte.TransportLinesManager
     {
         public static TLMConfigWarehouse.ConfigIndex toConfigIndex(ItemClass.Service s, ItemClass.SubService ss)
         {
-            switch (s)
-            {
-                case ItemClass.Service.Residential: return TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG;
-                case ItemClass.Service.Commercial: return TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG;
-                case ItemClass.Service.Industrial: return TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG;
-                case ItemClass.Service.Natural: return TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG;
-                case ItemClass.Service.Unused2: return TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG;
-                case ItemClass.Service.Citizen: return TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG;
-                case ItemClass.Service.Tourism: return TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG;
-                case ItemClass.Service.Office: return TLMConfigWarehouse.ConfigIndex.OFFICE_SERVICE_CONFIG;
+            switch (s) {
+                case ItemClass.Service.Residential:
+                    return TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG;
+                case ItemClass.Service.Commercial:
+                    return TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG;
+                case ItemClass.Service.Industrial:
+                    return TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG;
+                case ItemClass.Service.Natural:
+                    return TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG;
+                case ItemClass.Service.Unused2:
+                    return TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG;
+                case ItemClass.Service.Citizen:
+                    return TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG;
+                case ItemClass.Service.Tourism:
+                    return TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG;
+                case ItemClass.Service.Office:
+                    return TLMConfigWarehouse.ConfigIndex.OFFICE_SERVICE_CONFIG;
                 case ItemClass.Service.Road:
-                    if (ss == ItemClass.SubService.PublicTransportBus)
-                    {
+                    if (ss == ItemClass.SubService.PublicTransportBus) {
                         return TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG;
-                    }
-                    else {
+                    } else {
                         return TLMConfigWarehouse.ConfigIndex.ROAD_SERVICE_CONFIG;
                     }
 
-                case ItemClass.Service.Electricity: return TLMConfigWarehouse.ConfigIndex.ELECTRICITY_SERVICE_CONFIG;
-                case ItemClass.Service.Water: return TLMConfigWarehouse.ConfigIndex.WATER_SERVICE_CONFIG;
-                case ItemClass.Service.Beautification: return TLMConfigWarehouse.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG;
-                case ItemClass.Service.Garbage: return TLMConfigWarehouse.ConfigIndex.GARBAGE_SERVICE_CONFIG;
-                case ItemClass.Service.HealthCare: return TLMConfigWarehouse.ConfigIndex.HEALTHCARE_SERVICE_CONFIG;
-                case ItemClass.Service.PoliceDepartment: return TLMConfigWarehouse.ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG;
-                case ItemClass.Service.Education: return TLMConfigWarehouse.ConfigIndex.EDUCATION_SERVICE_CONFIG;
-                case ItemClass.Service.Monument: return TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG;
-                case ItemClass.Service.FireDepartment: return TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG;
-                case ItemClass.Service.PublicTransport: return TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
-                case ItemClass.Service.Disaster: return TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG;
-                default: return 0;
+                case ItemClass.Service.Electricity:
+                    return TLMConfigWarehouse.ConfigIndex.ELECTRICITY_SERVICE_CONFIG;
+                case ItemClass.Service.Water:
+                    return TLMConfigWarehouse.ConfigIndex.WATER_SERVICE_CONFIG;
+                case ItemClass.Service.Beautification:
+                    return TLMConfigWarehouse.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG;
+                case ItemClass.Service.Garbage:
+                    return TLMConfigWarehouse.ConfigIndex.GARBAGE_SERVICE_CONFIG;
+                case ItemClass.Service.HealthCare:
+                    return TLMConfigWarehouse.ConfigIndex.HEALTHCARE_SERVICE_CONFIG;
+                case ItemClass.Service.PoliceDepartment:
+                    return TLMConfigWarehouse.ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG;
+                case ItemClass.Service.Education:
+                    return TLMConfigWarehouse.ConfigIndex.EDUCATION_SERVICE_CONFIG;
+                case ItemClass.Service.Monument:
+                    return TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG;
+                case ItemClass.Service.FireDepartment:
+                    return TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG;
+                case ItemClass.Service.PublicTransport:
+                    return TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                case ItemClass.Service.Disaster:
+                    return TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG;
+                default:
+                    return 0;
             }
         }
 
@@ -1010,10 +997,9 @@ namespace Klyte.TransportLinesManager
         public static uint getPriority(this TLMConfigWarehouse.ConfigIndex idx)
         {
             uint saida;
-            switch (idx)
-            {
+            switch (idx) {
                 case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
-                    return (uint)TLMConfigWarehouse.namingOrder.Length;
+                    return (uint) TLMConfigWarehouse.namingOrder.Length;
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
@@ -1034,12 +1020,12 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
-                    saida = TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | idx) ? (uint)Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
+                    saida = TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | idx) ? (uint) Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
                     break;
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG:
-                    saida = TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx) ? (uint)Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
+                    saida = TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx) ? (uint) Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
                     break;
                 case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
@@ -1051,9 +1037,12 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
                     saida = TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx) ? 3 : uint.MaxValue;
                     break;
-                default: saida = uint.MaxValue; break;
+                default:
+                    saida = uint.MaxValue;
+                    break;
             }
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
             return saida;
         }
 
@@ -1061,8 +1050,7 @@ namespace Klyte.TransportLinesManager
 
         public static string getPrefixTextNaming(this TLMConfigWarehouse.ConfigIndex idx)
         {
-            switch (idx)
-            {
+            switch (idx) {
                 case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
                     return "";
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
@@ -1098,14 +1086,14 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG:
                     return TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | idx);
-                default: return "";
+                default:
+                    return "";
             }
         }
 
         public static bool isLineNamingEnabled(this TLMConfigWarehouse.ConfigIndex idx)
         {
-            switch (idx)
-            {
+            switch (idx) {
                 case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
                     return true;
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
@@ -1141,13 +1129,13 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG:
                     return TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx);
-                default: return false;
+                default:
+                    return false;
             }
         }
         public static bool isPublicTransport(this TLMConfigWarehouse.ConfigIndex idx)
         {
-            switch (idx)
-            {
+            switch (idx) {
                 case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
@@ -1182,7 +1170,8 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG:
                     return true;
-                default: return false;
+                default:
+                    return false;
             }
         }
     }

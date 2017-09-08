@@ -1,10 +1,12 @@
 using ColossalFramework;
 using ColossalFramework.UI;
+using Klyte.TransportLinesManager.LineList;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
+using Klyte.TransportLinesManager.Utils;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -117,21 +119,16 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineNumberFormat.backgroundSprite = bgSprite;
 
 
-            bool day, night, zeroed;
-            TLMLineUtils.getLineActive(ref t, out day, out night, out zeroed);
-            if (zeroed)
+            bool day, night;
+            TLMLineUtils.getLineActive(ref t, out day, out night);
+            if (!day || !night)
             {
-                linearMapLineTime.backgroundSprite = "NoBudgetIcon";
+                linearMapLineTime.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
             }
             else {
-                if (!day || !night)
-                {
-                    linearMapLineTime.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
-                }
-                else {
-                    linearMapLineTime.backgroundSprite = "";
-                }
+                linearMapLineTime.backgroundSprite = "";
             }
+
 
             setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, nonPrefix, zerosEsquerda, invertPrefixSuffix);
 
@@ -142,19 +139,22 @@ namespace Klyte.TransportLinesManager.UI
             int middle;
             string namePrefix;
             bool simmetric = TLMUtils.CalculateSimmetry(ss, stopsCount, t, out middle);
+            float addedWidth = 0;
             if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && simmetric && !showExtraStopInfo)
             {
-                lineStationsPanel.width = 5;
-                for (int j = middle; j <= middle + stopsCount / 2; j++)
+                lineStationsPanel.width = 0;
+                int maxIt = middle + stopsCount / 2;
+                for (int j = middle; j <= maxIt; j++)
                 {
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
                     local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out namePrefix);
-                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss) + (j == middle + stopsCount / 2 ? 5 : 0);
+                    addedWidth = addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss, lineColor) + (j == middle + stopsCount / 2 ? 5 : 0);
+                    lineStationsPanel.width += addedWidth;
                 }
             }
             else {
-                lineStationsPanel.width = 5;
+                lineStationsPanel.width = 0;
                 int minI = 0, maxI = stopsCount;
                 if (simmetric)
                 {
@@ -167,7 +167,7 @@ namespace Klyte.TransportLinesManager.UI
                     ushort stationId = t.GetStop(j);
                     List<ushort> intersections;
                     local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out namePrefix);
-                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss, true);
+                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss, lineColor, true);
                 }
                 for (int i = minI; i < maxI; i++)
                 {
@@ -175,9 +175,11 @@ namespace Klyte.TransportLinesManager.UI
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
                     local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out namePrefix);
-                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss) + (j == stopsCount - (showExtraStopInfo ? 0 : 1) ? 5 : 0);
+                    addedWidth = addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss, lineColor) + (j == stopsCount - (showExtraStopInfo ? 0 : 1) ? 5 : 0);
+                    lineStationsPanel.width += addedWidth;
                 }
             }
+            lineStationsPanel.width -= addedWidth ;
             if (showExtraStopInfo)
             {
                 vehiclesOnStation.Clear();
@@ -418,13 +420,14 @@ namespace Klyte.TransportLinesManager.UI
             lineStationsPanel.autoLayout = false;
             lineStationsPanel.useCenter = true;
             lineStationsPanel.wrapLayout = false;
-            lineStationsPanel.backgroundSprite = "GenericPanelWhite";
+            lineStationsPanel.atlas = TLMController.taLineNumber;
+            lineStationsPanel.backgroundSprite = "LinearBg";
             lineStationsPanel.pivot = UIPivotPoint.MiddleLeft;
-            lineStationsPanel.relativePosition = new Vector3(60f, 10f);
+            lineStationsPanel.relativePosition = new Vector3(75f, 10f);
             lineStationsPanel.color = lineInfoPanel.controller.tm.GetLineColor(lineInfoPanel.lineIdSelecionado.TransportLine);
         }
 
-        private float addStationToLinearMap(string stationPrefix, string stationName, Vector3 location, float offsetX, List<ushort> intersections, string airport, string harbor, string taxi, string regionalTrainStation, ushort stationNodeId, ItemClass.SubService ss, bool simple = false)//, out float intersectionPanelHeight)
+        private float addStationToLinearMap(string stationPrefix, string stationName, Vector3 location, float offsetX, List<ushort> intersections, string airport, string harbor, string taxi, string regionalTrainStation, ushort stationNodeId, ItemClass.SubService ss, Color lineColor, bool simple = false)//, out float intersectionPanelHeight)
         {
             ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
             TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
@@ -432,11 +435,13 @@ namespace Klyte.TransportLinesManager.UI
 
             UIButton stationButton = null;
             TLMUtils.createUIElement<UIButton>(ref stationButton, lineStationsPanel.transform);
-            stationButton.relativePosition = new Vector3(offsetX, 15f);
+            stationButton.relativePosition = new Vector3(offsetX - 13, 15f);
             stationButton.width = 20;
             stationButton.height = 20;
+            stationButton.color = lineColor;
             stationButton.name = "Station [" + stationName + "]";
-            TLMUtils.initButton(stationButton, true, "IconPolicyBaseCircle");
+            stationButton.atlas = TLMController.taLineNumber;
+            TLMUtils.initButton(stationButton, true, "LinearStation");
 
             UITextField stationLabel = null;
             TLMUtils.createUIElement<UITextField>(ref stationLabel, stationButton.transform);
@@ -507,8 +512,11 @@ namespace Klyte.TransportLinesManager.UI
                         //				
                         return 42f;
                     }
-                    else {
-                        return 25f;
+                    else
+                    {
+                        stationButton.relativePosition = new Vector3(offsetX - 23, 15f);
+                        TLMUtils.initButton(stationButton, true, "LinearHalfStation");
+                        return 21f;
                     }
                 }
                 else if (showExtraStopInfo)
