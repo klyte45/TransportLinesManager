@@ -77,38 +77,12 @@ namespace Klyte.TransportLinesManager.LineList
             return false;
         }
 
-        public static void preDoAutomation(ushort lineID, ref Boolean __state)
-        {
-            __state = (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None;
-            if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None &&
-                (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.CustomColor) != TransportLine.Flags.None
-                ) {
-                Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~TransportLine.Flags.CustomColor;
-            }
-
-        }
-
-        public static void doAutomation(ushort lineID, Boolean __state)
-        {
-            if (lineID > 0 && !__state && (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None) {
-                if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED)) {
-                    TLMController.instance.AutoColor(lineID);
-                }
-                if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED)) {
-                    TLMUtils.setLineName(lineID, TLMUtils.calculateAutoName(lineID));
-                }
-            }
-        }
+    
 
         public void EnableHooks()
         {
             MethodInfo preventDefault = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("preventDefault", allFlags);
-            MethodInfo doAutomation = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("doAutomation", allFlags);
-            MethodInfo preDoAutomation = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("preDoAutomation", allFlags);
             MethodInfo OpenDetailPanel = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OpenDetailPanel", allFlags);
-
-
-
 
             AddRedirect(typeof(PublicTransportDetailPanel).GetMethod("RefreshLines", allFlags), preventDefault);
             AddRedirect(typeof(PublicTransportDetailPanel).GetMethod("Awake", allFlags), preventDefault);
@@ -127,10 +101,7 @@ namespace Klyte.TransportLinesManager.LineList
 
             TLMUtils.doLog("Loading PublicTransportInfoViewPanel Hooks!");
             AddRedirect(typeof(PublicTransportInfoViewPanel).GetMethod("OpenDetailPanel", allFlags), preventDefault, OpenDetailPanel);
-
-            TLMUtils.doLog("Loading AutoColor & AutoName Hooks!");
-            AddRedirect(typeof(TransportLine).GetMethod("AddStop", allFlags), preDoAutomation, doAutomation);
-
+            
             TLMUtils.doLog("Remove PublicTransportDetailPanel Hooks!");
             update();
         }

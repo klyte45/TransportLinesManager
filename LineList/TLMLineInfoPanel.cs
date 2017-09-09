@@ -208,10 +208,9 @@ namespace Klyte.TransportLinesManager.LineList
                 lineNumberLabel.textColor = new Color(1, 0, 0, 1);
             } else {
                 lineNumberLabel.textColor = new Color(1, 1, 1, 1);
-                m_controller.tm.m_lines.m_buffer[(int) m_lineIdSelecionado.TransportLine].m_lineNumber = num;
-                m_linearMap.setLineNumberCircle(num, prefixo, sep, sufixo, nonPrefix, zeros, invertPrefixSuffix);
+                Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_lineNumber = num;
+                m_linearMap.setLineNumberCircle(m_lineIdSelecionado.TransportLine);
                 m_autoNameLabel.text = m_linearMap.autoName;
-
                 if (prefixo != ModoNomenclatura.Nenhum) {
                     lineNumberLabel.text = (num % 1000).ToString();
                     linePrefixDropDown.selectedIndex = (num / 1000);

@@ -167,6 +167,12 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public void AutoName(ushort m_LineID)
+        {           
+            string format = (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME)) ? "[{0}] {1}" : "{1}";
+            TLMUtils.setLineName(m_LineID, string.Format(format, TLMLineUtils.getLineStringId(m_LineID).Replace('\n', ' '), TLMUtils.calculateAutoName(m_LineID)));
+        }
+
 
         //NAVEGACAO
 

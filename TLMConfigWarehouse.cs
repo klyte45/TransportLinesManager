@@ -98,12 +98,13 @@ namespace Klyte.TransportLinesManager
 
         public static TransportSystemDefinition getDefinitionForLine(ushort i)
         {
-            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[(int) i];
-            return TransportSystemDefinition.from(t.Info.m_class.m_subService, t.Info.m_vehicleType);
-            //if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("t.Info.m_transportType = {0};transportType = {1} ", t.Info.m_transportType, transportType);
-            //return transportType;
+            return getDefinitionForLine(Singleton<TransportManager>.instance.m_lines.m_buffer[(int) i]);
         }
 
+        public static TransportSystemDefinition getDefinitionForLine(TransportLine t)
+        {
+            return TransportSystemDefinition.from(t.Info.m_class.m_subService, t.Info.m_vehicleType);
+        }
 
         public static ConfigIndex getConfigIndexForTransportInfo(TransportInfo ti)
         {

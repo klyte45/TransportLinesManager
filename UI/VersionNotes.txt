@@ -1,6 +1,8 @@
 ﻿Lite 7.0.0
     - Removed almost all methods hooking
     - Updated UI
+    - Added options for show near ferry and blimp lines in the options
+    - Removed IPT compatibility mode (is not applicable anymore)
     - New default palettes:
         - Rainbow
         - Rainbow Short

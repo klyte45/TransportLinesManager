@@ -6,6 +6,7 @@ using ColossalFramework.UI;
 using ICities;
 using Klyte.Extensions;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
-{   
+{
     public class TLMUtils
     {
         public static readonly TransferManager.TransferReason[] defaultAllowedVehicleTypes = {
@@ -34,27 +35,20 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static void doLog(string format, params object[] args)
         {
-            if (TransportLinesManagerMod.instance != null)
-            {
-                if (TransportLinesManagerMod.debugMode)
-                {
+            if (TransportLinesManagerMod.instance != null) {
+                if (TransportLinesManagerMod.debugMode) {
                     Debug.LogWarningFormat("TLMLv" + TransportLinesManagerMod.majorVersion + " " + format, args);
                 }
-            }
-            else
-            {
+            } else {
                 Console.WriteLine("TLMLv" + TransportLinesManagerMod.majorVersion + " " + format, args);
             }
         }
 
         public static void doErrorLog(string format, params object[] args)
         {
-            if (TransportLinesManagerMod.instance != null)
-            {
+            if (TransportLinesManagerMod.instance != null) {
                 Debug.LogErrorFormat("TLMLv" + TransportLinesManagerMod.majorVersion + " " + format, args);
-            }
-            else
-            {
+            } else {
                 Console.WriteLine("TLMLv" + TransportLinesManagerMod.majorVersion + " " + format, args);
             }
 
@@ -100,15 +94,14 @@ namespace Klyte.TransportLinesManager.Utils
             Vector3 bb = 3 * (a + c) - 6 * b;
             Vector3 cc = 3 * (b - a);
 
-            int len = (int)(1.0f / precision);
+            int len = (int) (1.0f / precision);
             float[] arcLengths = new float[len + 1];
             arcLengths[0] = 0;
 
             Vector3 ov = a;
             Vector3 v;
             float clen = 0.0f;
-            for (int i = 1; i <= len; i++)
-            {
+            for (int i = 1; i <= len; i++) {
                 float t = (i * precision);
                 v = ((aa * t + (bb)) * t + cc) * t + a;
                 clen += (ov - v).magnitude;
@@ -190,16 +183,13 @@ namespace Klyte.TransportLinesManager.Utils
         public static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false)
         {
             List<string> saida = new List<string>(new string[] { "" });
-            if (showUnprefixed)
-            {
+            if (showUnprefixed) {
                 saida.Add(Locale.Get("TLM_UNPREFIXED"));
             }
-            if (m == ModoNomenclatura.Nenhum)
-            {
+            if (m == ModoNomenclatura.Nenhum) {
                 return saida.ToArray();
             }
-            switch (m)
-            {
+            switch (m) {
                 case ModoNomenclatura.GregoMaiusculo:
                 case ModoNomenclatura.GregoMaiusculoNumero:
                     saida.AddRange(gregoMaiusculo.Select(x => x.ToString()));
@@ -225,14 +215,12 @@ namespace Klyte.TransportLinesManager.Utils
                     saida.AddRange(latinoMinusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.Numero:
-                    for (int i = 1; i <= 64; i++)
-                    {
+                    for (int i = 1; i <= 64; i++) {
                         saida.Add(i.ToString());
                     }
                     break;
             }
-            if (TLMUtils.nomenclaturasComNumeros.Contains(m))
-            {
+            if (TLMUtils.nomenclaturasComNumeros.Contains(m)) {
                 saida.AddRange(numeros.Select(x => x.ToString()));
             }
             return saida.ToArray();
@@ -242,10 +230,9 @@ namespace Klyte.TransportLinesManager.Utils
         public static string[] getFilterPrefixesOptions(TLMCW.ConfigIndex transportType)
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
-            var m = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+            var m = (ModoNomenclatura) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
             List<string> saida = new List<string>(new string[] { Locale.Get("TLM_ALL"), Locale.Get("TLM_UNPREFIXED") });
-            switch (m)
-            {
+            switch (m) {
                 case ModoNomenclatura.GregoMaiusculo:
                 case ModoNomenclatura.GregoMaiusculoNumero:
                     saida.AddRange(gregoMaiusculo.Select(x => x.ToString()));
@@ -271,14 +258,12 @@ namespace Klyte.TransportLinesManager.Utils
                     saida.AddRange(latinoMinusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.Numero:
-                    for (int i = 1; i <= 64; i++)
-                    {
+                    for (int i = 1; i <= 64; i++) {
                         saida.Add(i.ToString());
                     }
                     break;
             }
-            if (TLMUtils.nomenclaturasComNumeros.Contains(m))
-            {
+            if (TLMUtils.nomenclaturasComNumeros.Contains(m)) {
                 saida.AddRange(numeros.Select(x => x.ToString()));
             }
             return saida.ToArray();
@@ -288,10 +273,9 @@ namespace Klyte.TransportLinesManager.Utils
         public static List<string> getDepotPrefixesOptions(TLMCW.ConfigIndex transportType)
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
-            var m = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+            var m = (ModoNomenclatura) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
             List<string> saida = new List<string>(new string[] { Locale.Get("TLM_UNPREFIXED") });
-            switch (m)
-            {
+            switch (m) {
                 case ModoNomenclatura.GregoMaiusculo:
                 case ModoNomenclatura.GregoMaiusculoNumero:
                     saida.AddRange(gregoMaiusculo.Select(x => x.ToString()));
@@ -317,14 +301,12 @@ namespace Klyte.TransportLinesManager.Utils
                     saida.AddRange(latinoMinusculo.Select(x => x.ToString()));
                     break;
                 case ModoNomenclatura.Numero:
-                    for (int i = 1; i <= 64; i++)
-                    {
+                    for (int i = 1; i <= 64; i++) {
                         saida.Add(i.ToString());
                     }
                     break;
             }
-            if (TLMUtils.nomenclaturasComNumeros.Contains(m))
-            {
+            if (TLMUtils.nomenclaturasComNumeros.Contains(m)) {
                 saida.AddRange(numeros.Select(x => x.ToString()));
             }
             return saida;
@@ -336,19 +318,15 @@ namespace Klyte.TransportLinesManager.Utils
             string separadorSaida = "";
             string sufixoSaida = "";
             int prefixNum = 0;
-            if (prefixo != ModoNomenclatura.Nenhum)
-            {
+            if (prefixo != ModoNomenclatura.Nenhum) {
                 prefixNum = numero / 1000;
                 prefixoSaida = getStringFromNumber(getStringOptionsForPrefix(prefixo), prefixNum + 1);
                 numero = numero % 1000;
             }
 
-            if (numero > 0)
-            {
-                if (prefixoSaida != "" && s != Separador.Nenhum)
-                {
-                    switch (s)
-                    {
+            if (numero > 0) {
+                if (prefixoSaida != "" && s != Separador.Nenhum) {
+                    switch (s) {
                         case Separador.Barra:
                             separadorSaida = "/";
                             break;
@@ -366,8 +344,7 @@ namespace Klyte.TransportLinesManager.Utils
                             break;
                     }
                 }
-                switch (prefixo != ModoNomenclatura.Nenhum && prefixNum > 0 ? sufixo : naoPrefixado)
-                {
+                switch (prefixo != ModoNomenclatura.Nenhum && prefixNum > 0 ? sufixo : naoPrefixado) {
                     case ModoNomenclatura.GregoMaiusculo:
                         sufixoSaida = getStringFromNumber(gregoMaiusculo, numero);
                         break;
@@ -387,26 +364,20 @@ namespace Klyte.TransportLinesManager.Utils
                         sufixoSaida = getStringFromNumber(latinoMinusculo, numero);
                         break;
                     default:
-                        if (leadingZeros && prefixoSaida != "")
-                        {
+                        if (leadingZeros && prefixoSaida != "") {
                             sufixoSaida = numero.ToString("D3");
-                        }
-                        else {
+                        } else {
                             sufixoSaida = numero.ToString();
                         }
                         break;
                 }
 
-                if (invertPrefixSuffix && sufixo == ModoNomenclatura.Numero)
-                {
+                if (invertPrefixSuffix && sufixo == ModoNomenclatura.Numero) {
                     return sufixoSaida + separadorSaida + prefixoSaida;
-                }
-                else
-                {
+                } else {
                     return prefixoSaida + separadorSaida + sufixoSaida;
                 }
-            }
-            else {
+            } else {
                 return prefixoSaida;
             }
         }
@@ -414,8 +385,7 @@ namespace Klyte.TransportLinesManager.Utils
         private static string getString(ModoNomenclatura m, int numero)
         {
 
-            switch (m)
-            {
+            switch (m) {
                 case ModoNomenclatura.GregoMaiusculo:
                     return getStringFromNumber(gregoMaiusculo, numero);
                 case ModoNomenclatura.GregoMinusculo:
@@ -437,16 +407,13 @@ namespace Klyte.TransportLinesManager.Utils
         {
             int arraySize = array.Length;
             string saida = "";
-            while (number > 0)
-            {
+            while (number > 0) {
                 int idx = (number - 1) % arraySize;
                 saida = "" + array[idx] + saida;
-                if (number % arraySize == 0)
-                {
+                if (number % arraySize == 0) {
                     number /= arraySize;
                     number--;
-                }
-                else {
+                } else {
                     number /= arraySize;
                 }
 
@@ -457,21 +424,19 @@ namespace Klyte.TransportLinesManager.Utils
         public static void setLineColor(ushort lineIdx, Color color)
         {
 
-            Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_color = color;
-            Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags |= TransportLine.Flags.CustomColor;
+            Singleton<TransportManager>.instance.m_lines.m_buffer[(int) lineIdx].m_color = color;
+            Singleton<TransportManager>.instance.m_lines.m_buffer[(int) lineIdx].m_flags |= TransportLine.Flags.CustomColor;
         }
 
         public static void setLineName(ushort lineIdx, string name)
         {
             InstanceID lineIdSelecionado = default(InstanceID);
             lineIdSelecionado.TransportLine = lineIdx;
-            if (name.Length > 0)
-            {
+            if (name.Length > 0) {
                 Singleton<InstanceManager>.instance.SetName(lineIdSelecionado, name);
-                Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags |= TransportLine.Flags.CustomName;
-            }
-            else {
-                Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags &= ~TransportLine.Flags.CustomName;
+                Singleton<TransportManager>.instance.m_lines.m_buffer[(int) lineIdx].m_flags |= TransportLine.Flags.CustomName;
+            } else {
+                Singleton<TransportManager>.instance.m_lines.m_buffer[(int) lineIdx].m_flags &= ~TransportLine.Flags.CustomName;
             }
         }
 
@@ -488,36 +453,29 @@ namespace Klyte.TransportLinesManager.Utils
         public static string calculateAutoName(ushort lineIdx)
         {
             TransportManager tm = Singleton<TransportManager>.instance;
-            TransportLine t = tm.m_lines.m_buffer[(int)lineIdx];
+            TransportLine t = tm.m_lines.m_buffer[(int) lineIdx];
             ItemClass.SubService ss = ItemClass.SubService.None;
-            if (t.Info.m_transportType == TransportInfo.TransportType.Train)
-            {
+            if (t.Info.m_transportType == TransportInfo.TransportType.Train) {
                 ss = ItemClass.SubService.PublicTransportTrain;
-            }
-            else if (t.Info.m_transportType == TransportInfo.TransportType.Metro)
-            {
+            } else if (t.Info.m_transportType == TransportInfo.TransportType.Metro) {
                 ss = ItemClass.SubService.PublicTransportMetro;
             }
             int stopsCount = t.CountStops(lineIdx);
             ushort[] stopBuildings = new ushort[stopsCount];
             MultiMap<ushort, Vector3> bufferToDraw = new MultiMap<ushort, Vector3>();
             int middle;
-            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && CalculateSimmetry(ss, stopsCount, t, out middle))
-            {
+            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && CalculateSimmetry(ss, stopsCount, t, out middle)) {
                 string station1Name = getStationName(t.GetStop(middle), lineIdx, ss);
 
                 string station2Name = getStationName(t.GetStop(middle + stopsCount / 2), lineIdx, ss);
 
                 return station1Name + " - " + station2Name;
-            }
-            else
-            {
+            } else {
                 //float autoNameSimmetryImprecision = 0.075f;
                 DistrictManager dm = Singleton<DistrictManager>.instance;
                 Dictionary<int, KeyValuePair<TLMCW.ConfigIndex, String>> stationsList = new Dictionary<int, KeyValuePair<TLMCW.ConfigIndex, String>>();
                 NetManager nm = Singleton<NetManager>.instance;
-                for (int j = 0; j < stopsCount; j++)
-                {
+                for (int j = 0; j < stopsCount; j++) {
                     ItemClass.Service service;
                     ItemClass.SubService subservice;
                     string prefix;
@@ -527,8 +485,7 @@ namespace Klyte.TransportLinesManager.Utils
                     stationsList.Add(j, new KeyValuePair<TLMCW.ConfigIndex, string>(tsd != null ? tsd.toConfigIndex() : GameServiceExtensions.toConfigIndex(service, subservice), value));
                 }
                 uint mostImportantCategoryInLine = stationsList.Select(x => (x.Value.Key).getPriority()).Min();
-                if (mostImportantCategoryInLine < int.MaxValue)
-                {
+                if (mostImportantCategoryInLine < int.MaxValue) {
                     var mostImportantPlaceIdx = stationsList.Where(x => x.Value.Key.getPriority() == mostImportantCategoryInLine).Min(x => x.Key);
                     var destiny = stationsList[mostImportantPlaceIdx];
 
@@ -558,8 +515,7 @@ namespace Klyte.TransportLinesManager.Utils
                     //}
                     string originName = "";
                     //int districtOriginId = -1;
-                    if (resultIdx >= 0 && stationsList[resultIdx].Key.isLineNamingEnabled())
-                    {
+                    if (resultIdx >= 0 && stationsList[resultIdx].Key.isLineNamingEnabled()) {
                         var origin = stationsList[resultIdx];
                         var transportType = origin.Key;
                         var name = origin.Value;
@@ -580,9 +536,8 @@ namespace Klyte.TransportLinesManager.Utils
                     //        originName = "";
                     //    }
                     //}
-                    if (!destiny.Key.isLineNamingEnabled())
-                    {
-                        NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
+                    if (!destiny.Key.isLineNamingEnabled()) {
+                        NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int) resultIdx)];
                         Vector3 location = nn.m_position;
                         int districtDestinyId = dm.GetDistrict(location);
                         //if (districtDestinyId == districtOriginId)
@@ -591,16 +546,13 @@ namespace Klyte.TransportLinesManager.Utils
                         //    return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtDestinyId);
                         //}
                         //else
-                        if (districtDestinyId > 0)
-                        {
+                        if (districtDestinyId > 0) {
                             District d = dm.m_districts.m_buffer[districtDestinyId];
                             return originName + dm.GetDistrictName(districtDestinyId);
                         }
                     }
                     return originName + GetStationNameWithPrefix(destiny.Key, destiny.Value);
-                }
-                else
-                {
+                } else {
                     return autoNameByDistrict(t, stopsCount, out middle);
                 }
             }
@@ -613,8 +565,7 @@ namespace Klyte.TransportLinesManager.Utils
             BuildingManager bm = Singleton<BuildingManager>.instance;
 
             Building b = bm.m_buildings.m_buffer[buildingId];
-            while (b.m_parentBuilding > 0)
-            {
+            while (b.m_parentBuilding > 0) {
                 doLog("getStationNameWithPrefix(): building id {0} - parent = {1}", buildingId, b.m_parentBuilding);
                 buildingId = b.m_parentBuilding;
                 b = bm.m_buildings.m_buffer[buildingId];
@@ -624,8 +575,7 @@ namespace Klyte.TransportLinesManager.Utils
             serviceFound = b.Info.GetService();
             subserviceFound = b.Info.GetSubService();
             TLMCW.ConfigIndex index = GameServiceExtensions.toConfigIndex(serviceFound, subserviceFound);
-            if (index == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
-            {
+            if (index == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG) {
                 var tsd = TransportSystemDefinition.from(b.Info.GetAI());
                 index = tsd.toConfigIndex();
             }
@@ -649,56 +599,44 @@ namespace Klyte.TransportLinesManager.Utils
             Vector3 local;
             byte district;
             List<int> districtList = new List<int>();
-            for (int j = 0; j < stopsCount; j++)
-            {
-                local = nm.m_nodes.m_buffer[(int)t.GetStop(j)].m_bounds.center;
+            for (int j = 0; j < stopsCount; j++) {
+                local = nm.m_nodes.m_buffer[(int) t.GetStop(j)].m_bounds.center;
                 district = dm.GetDistrict(local);
-                if ((district != lastDistrict) && district != 0)
-                {
+                if ((district != lastDistrict) && district != 0) {
                     districtList.Add(district);
                 }
-                if (district != 0)
-                {
+                if (district != 0) {
                     lastDistrict = district;
                 }
             }
 
-            local = nm.m_nodes.m_buffer[(int)t.GetStop(0)].m_bounds.center;
+            local = nm.m_nodes.m_buffer[(int) t.GetStop(0)].m_bounds.center;
             district = dm.GetDistrict(local);
-            if ((district != lastDistrict) && district != 0)
-            {
+            if ((district != lastDistrict) && district != 0) {
                 districtList.Add(district);
             }
             middle = -1;
             int[] districtArray = districtList.ToArray();
-            if (districtArray.Length == 1)
-            {
+            if (districtArray.Length == 1) {
                 return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
-            }
-            else if (findSimetry(districtArray, out middle))
-            {
+            } else if (findSimetry(districtArray, out middle)) {
                 int firstIdx = middle;
                 int lastIdx = middle + districtArray.Length / 2;
 
                 result = dm.GetDistrictName(districtArray[firstIdx % districtArray.Length]) + " - " + dm.GetDistrictName(districtArray[lastIdx % districtArray.Length]);
-                if (lastIdx - firstIdx > 1)
-                {
+                if (lastIdx - firstIdx > 1) {
                     result += ", via ";
-                    for (int k = firstIdx + 1; k < lastIdx; k++)
-                    {
+                    for (int k = firstIdx + 1; k < lastIdx; k++) {
                         result += dm.GetDistrictName(districtArray[k % districtArray.Length]);
-                        if (k + 1 != lastIdx)
-                        {
+                        if (k + 1 != lastIdx) {
                             result += ", ";
                         }
                     }
                 }
                 return result;
-            }
-            else {
+            } else {
                 bool inicio = true;
-                foreach (int i in districtArray)
-                {
+                foreach (int i in districtArray) {
                     result += (inicio ? "" : " - ") + dm.GetDistrictName(i);
                     inicio = false;
                 }
@@ -713,46 +651,40 @@ namespace Klyte.TransportLinesManager.Utils
             BuildingManager bm = Singleton<BuildingManager>.instance;
             middle = -1;
             //try to find the loop
-            for (j = -1; j < stopsCount / 2; j++)
-            {
+            for (j = -1; j < stopsCount / 2; j++) {
                 int offsetL = (j + stopsCount) % stopsCount;
                 int offsetH = (j + 2) % stopsCount;
-                NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
-                NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
+                NetNode nn1 = nm.m_nodes.m_buffer[(int) t.GetStop(offsetL)];
+                NetNode nn2 = nm.m_nodes.m_buffer[(int) t.GetStop(offsetH)];
                 ushort buildingId1 = TLMUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                 ushort buildingId2 = TLMUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                 //					TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
                 //					TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
-                if (buildingId1 == buildingId2)
-                {
+                if (buildingId1 == buildingId2) {
                     middle = j + 1;
                     break;
                 }
             }
             //				TLMUtils.doLog("middle="+middle);
-            if (middle >= 0)
-            {
-                for (j = 1; j <= stopsCount / 2; j++)
-                {
+            if (middle >= 0) {
+                for (j = 1; j <= stopsCount / 2; j++) {
                     int offsetL = (-j + middle + stopsCount) % stopsCount;
                     int offsetH = (j + middle) % stopsCount;
                     //						TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
                     //						TLMUtils.doLog("t.GetStop (offsetL)="+t.GetStop (offsetH)+"|t.GetStop (offsetH)="+t.GetStop (offsetH));
-                    NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
-                    NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
+                    NetNode nn1 = nm.m_nodes.m_buffer[(int) t.GetStop(offsetL)];
+                    NetNode nn2 = nm.m_nodes.m_buffer[(int) t.GetStop(offsetH)];
                     ushort buildingId1 = TLMUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                     ushort buildingId2 = TLMUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                     //						TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
                     //						TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
                     //						TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
-                    if (buildingId1 != buildingId2)
-                    {
+                    if (buildingId1 != buildingId2) {
                         return false;
                     }
                 }
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
 
@@ -781,25 +713,19 @@ namespace Klyte.TransportLinesManager.Utils
         {
             string[] array = x.Split(SEPARATOR.ToCharArray());
             var saida = new Dictionary<T, string>();
-            if (array.Length != 2)
-            {
+            if (array.Length != 2) {
                 return saida;
             }
             var value = array[1];
-            foreach (string item in value.Split(SUBCOMMA.ToCharArray()))
-            {
+            foreach (string item in value.Split(SUBCOMMA.ToCharArray())) {
                 var kv = item.Split(SUBSEPARATOR.ToCharArray());
-                if (kv.Length != 2)
-                {
+                if (kv.Length != 2) {
                     continue;
                 }
-                try
-                {
-                    T subkey = (T)Enum.Parse(typeof(T), kv[0]);
+                try {
+                    T subkey = (T) Enum.Parse(typeof(T), kv[0]);
                     saida[subkey] = kv[1];
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     continue;
                 }
 
@@ -811,14 +737,11 @@ namespace Klyte.TransportLinesManager.Utils
         {
             doLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
             ushort buildingId = getStationBuilding(stopId, toSubService(Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_transportType), true, true);
-            if (buildingId == 0)
-            {
+            if (buildingId == 0) {
                 doLog("b=0");
                 TLMStopsExtension.instance.setStopName(newName, stopId, lineId);
                 callback();
-            }
-            else
-            {
+            } else {
                 doLog("b≠0 ({0})", buildingId);
                 Singleton<BuildingManager>.instance.StartCoroutine(setBuildingName(buildingId, newName, callback));
             }
@@ -831,8 +754,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         private static ItemClass.SubService toSubService(TransportInfo.TransportType t)
         {
-            switch (t)
-            {
+            switch (t) {
                 case TransportInfo.TransportType.Airplane:
                     return ItemClass.SubService.PublicTransportPlane;
                 case TransportInfo.TransportType.Bus:
@@ -855,8 +777,7 @@ namespace Klyte.TransportLinesManager.Utils
         public static string getStationName(uint stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, bool excludeCargo = false)
         {
             string savedName = TLMStopsExtension.instance.getStopName(stopId, lineId);
-            if (savedName != null)
-            {
+            if (savedName != null) {
                 serviceFound = ItemClass.Service.PublicTransport;
                 subserviceFound = toSubService(Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_transportType);
                 prefix = "";
@@ -865,12 +786,11 @@ namespace Klyte.TransportLinesManager.Utils
             }
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
-            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+            NetNode nn = nm.m_nodes.m_buffer[(int) stopId];
             buildingID = getStationBuilding(stopId, ss, excludeCargo);
 
             Vector3 location = nn.m_position;
-            if (buildingID > 0)
-            {
+            if (buildingID > 0) {
                 return getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix);
             }
 
@@ -887,30 +807,23 @@ namespace Klyte.TransportLinesManager.Utils
             string crossSegName = string.Empty;
 
             NetNode cross1node = nm.m_nodes.m_buffer[cross1nodeId];
-            for (int i = 0; i < 8; i++)
-            {
+            for (int i = 0; i < 8; i++) {
                 var iSegId = cross1node.GetSegment(i);
-                if (iSegId > 0 && iSegId != segId)
-                {
+                if (iSegId > 0 && iSegId != segId) {
                     string iSegName = nm.GetSegmentName(iSegId);
-                    if (iSegName != string.Empty && segName != iSegName)
-                    {
+                    if (iSegName != string.Empty && segName != iSegName) {
                         crossSegName = iSegName;
                         break;
                     }
                 }
             }
-            if (crossSegName == string.Empty)
-            {
+            if (crossSegName == string.Empty) {
                 NetNode cross2node = nm.m_nodes.m_buffer[cross2nodeId];
-                for (int i = 0; i < 8; i++)
-                {
+                for (int i = 0; i < 8; i++) {
                     var iSegId = cross2node.GetSegment(i);
-                    if (iSegId > 0 && iSegId != segId)
-                    {
+                    if (iSegId > 0 && iSegId != segId) {
                         string iSegName = nm.GetSegmentName(iSegId);
-                        if (iSegName != string.Empty && segName != iSegName)
-                        {
+                        if (iSegName != string.Empty && segName != iSegName) {
                             crossSegName = iSegName;
                             break;
                         }
@@ -918,23 +831,17 @@ namespace Klyte.TransportLinesManager.Utils
                 }
             }
             prefix = "";
-            if (segName != string.Empty)
-            {
+            if (segName != string.Empty) {
                 serviceFound = ItemClass.Service.Road;
                 subserviceFound = ItemClass.SubService.PublicTransportBus;
-                if (crossSegName == string.Empty)
-                {
+                if (crossSegName == string.Empty) {
                     return segName;
-                }
-                else
-                {
+                } else {
                     prefix = segName + " x ";
                     return crossSegName;
                 }
 
-            }
-            else
-            {
+            } else {
                 serviceFound = ItemClass.Service.None;
                 subserviceFound = ItemClass.SubService.None;
                 return "????????";
@@ -974,10 +881,10 @@ namespace Klyte.TransportLinesManager.Utils
 
 
             Bounds bounds = new Bounds(position, new Vector3(maxDistance * 2f, maxDistance * 2f, maxDistance * 2f));
-            int num = Mathf.Max((int)((bounds.min.x - 64f) / 64f + 135f), 0);
-            int num2 = Mathf.Max((int)((bounds.min.z - 64f) / 64f + 135f), 0);
-            int num3 = Mathf.Min((int)((bounds.max.x + 64f) / 64f + 135f), 269);
-            int num4 = Mathf.Min((int)((bounds.max.z + 64f) / 64f + 135f), 269);
+            int num = Mathf.Max((int) ((bounds.min.x - 64f) / 64f + 135f), 0);
+            int num2 = Mathf.Max((int) ((bounds.min.z - 64f) / 64f + 135f), 0);
+            int num3 = Mathf.Min((int) ((bounds.max.x + 64f) / 64f + 135f), 269);
+            int num4 = Mathf.Min((int) ((bounds.max.z + 64f) / 64f + 135f), 269);
             NetManager instance = Singleton<NetManager>.instance;
             pathPosA.m_segment = 0;
             pathPosA.m_lane = 0;
@@ -988,21 +895,17 @@ namespace Klyte.TransportLinesManager.Utils
             pathPosB.m_offset = 0;
             distanceSqrB = 1E+10f;
             float num5 = maxDistance * maxDistance;
-            for (int i = num2; i <= num4; i++)
-            {
-                for (int j = num; j <= num3; j++)
-                {
+            for (int i = num2; i <= num4; i++) {
+                for (int j = num; j <= num3; j++) {
                     ushort num6 = instance.m_segmentGrid[i * 270 + j];
                     int num7 = 0;
-                    while (num6 != 0)
-                    {
-                        NetInfo info = instance.m_segments.m_buffer[(int)num6].Info;
-                        if (info != null && (info.m_class.m_service == service || info.m_class.m_service == service2) && (instance.m_segments.m_buffer[(int)num6].m_flags & (NetSegment.Flags.Collapsed | NetSegment.Flags.Flooded)) == NetSegment.Flags.None && (allowUnderground || !info.m_netAI.IsUnderground()))
-                        {
-                            ushort startNode = instance.m_segments.m_buffer[(int)num6].m_startNode;
-                            ushort endNode = instance.m_segments.m_buffer[(int)num6].m_endNode;
-                            Vector3 position2 = instance.m_nodes.m_buffer[(int)startNode].m_position;
-                            Vector3 position3 = instance.m_nodes.m_buffer[(int)endNode].m_position;
+                    while (num6 != 0) {
+                        NetInfo info = instance.m_segments.m_buffer[(int) num6].Info;
+                        if (info != null && (info.m_class.m_service == service || info.m_class.m_service == service2) && (instance.m_segments.m_buffer[(int) num6].m_flags & (NetSegment.Flags.Collapsed | NetSegment.Flags.Flooded)) == NetSegment.Flags.None && (allowUnderground || !info.m_netAI.IsUnderground())) {
+                            ushort startNode = instance.m_segments.m_buffer[(int) num6].m_startNode;
+                            ushort endNode = instance.m_segments.m_buffer[(int) num6].m_endNode;
+                            Vector3 position2 = instance.m_nodes.m_buffer[(int) startNode].m_position;
+                            Vector3 position3 = instance.m_nodes.m_buffer[(int) endNode].m_position;
                             float num8 = Mathf.Max(Mathf.Max(bounds.min.x - 64f - position2.x, bounds.min.z - 64f - position2.z), Mathf.Max(position2.x - bounds.max.x - 64f, position2.z - bounds.max.z - 64f));
                             float num9 = Mathf.Max(Mathf.Max(bounds.min.x - 64f - position3.x, bounds.min.z - 64f - position3.z), Mathf.Max(position3.x - bounds.max.x - 64f, position3.z - bounds.max.z - 64f));
                             Vector3 b;
@@ -1011,37 +914,31 @@ namespace Klyte.TransportLinesManager.Utils
                             Vector3 b2;
                             int num12;
                             float num13;
-                            if ((num8 < 0f || num9 < 0f) && instance.m_segments.m_buffer[(int)num6].m_bounds.Intersects(bounds) && instance.m_segments.m_buffer[(int)num6].GetClosestLanePosition(position, laneType, vehicleType, stopType, requireConnect, out b, out num10, out num11, out b2, out num12, out num13))
-                            {
+                            if ((num8 < 0f || num9 < 0f) && instance.m_segments.m_buffer[(int) num6].m_bounds.Intersects(bounds) && instance.m_segments.m_buffer[(int) num6].GetClosestLanePosition(position, laneType, vehicleType, stopType, requireConnect, out b, out num10, out num11, out b2, out num12, out num13)) {
                                 float num14 = Vector3.SqrMagnitude(position - b);
-                                if (num14 < num5)
-                                {
+                                if (num14 < num5) {
                                     num5 = num14;
                                     pathPosA.m_segment = num6;
-                                    pathPosA.m_lane = (byte)num10;
-                                    pathPosA.m_offset = (byte)Mathf.Clamp(Mathf.RoundToInt(num11 * 255f), 0, 255);
+                                    pathPosA.m_lane = (byte) num10;
+                                    pathPosA.m_offset = (byte) Mathf.Clamp(Mathf.RoundToInt(num11 * 255f), 0, 255);
                                     distanceSqrA = num14;
                                     num14 = Vector3.SqrMagnitude(position - b2);
-                                    if (num12 == -1 || num14 >= maxDistance * maxDistance)
-                                    {
+                                    if (num12 == -1 || num14 >= maxDistance * maxDistance) {
                                         pathPosB.m_segment = 0;
                                         pathPosB.m_lane = 0;
                                         pathPosB.m_offset = 0;
                                         distanceSqrB = 1E+10f;
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         pathPosB.m_segment = num6;
-                                        pathPosB.m_lane = (byte)num12;
-                                        pathPosB.m_offset = (byte)Mathf.Clamp(Mathf.RoundToInt(num13 * 255f), 0, 255);
+                                        pathPosB.m_lane = (byte) num12;
+                                        pathPosB.m_offset = (byte) Mathf.Clamp(Mathf.RoundToInt(num13 * 255f), 0, 255);
                                         distanceSqrB = num14;
                                     }
                                 }
                             }
                         }
-                        num6 = instance.m_segments.m_buffer[(int)num6].m_nextGridSegment;
-                        if (++num7 >= 36864)
-                        {
+                        num6 = instance.m_segments.m_buffer[(int) num6].m_nextGridSegment;
+                        if (++num7 >= 36864) {
                             CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
                             break;
                         }
@@ -1076,18 +973,15 @@ namespace Klyte.TransportLinesManager.Utils
             ushort buildingId = getStationBuilding(stopId, ss);
 
 
-            if (buildingId > 0)
-            {
+            if (buildingId > 0) {
                 BuildingManager bm = Singleton<BuildingManager>.instance;
                 Building b = bm.m_buildings.m_buffer[buildingId];
                 InstanceID iid = default(InstanceID);
                 iid.Building = buildingId;
                 return b.m_position;
-            }
-            else
-            {
+            } else {
                 NetManager nm = Singleton<NetManager>.instance;
-                NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+                NetNode nn = nm.m_nodes.m_buffer[(int) stopId];
                 return nn.m_position;
             }
         }
@@ -1096,36 +990,28 @@ namespace Klyte.TransportLinesManager.Utils
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
-            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+            NetNode nn = nm.m_nodes.m_buffer[(int) stopId];
             ushort buildingId = 0, tempBuildingId;
 
-            if (ss != ItemClass.SubService.None)
-            {
+            if (ss != ItemClass.SubService.None) {
                 tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
-                {
+                if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI) {
                     buildingId = tempBuildingId;
                 }
             }
-            if (buildingId == 0 && !restrictToTransportType)
-            {
+            if (buildingId == 0 && !restrictToTransportType) {
                 tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, defaultAllowedVehicleTypes, Building.Flags.Active, Building.Flags.Untouchable);
-                if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
-                {
+                if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI) {
                     buildingId = tempBuildingId;
                 }
-                if (buildingId == 0)
-                {
+                if (buildingId == 0) {
                     tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                    if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
-                    {
+                    if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI) {
                         buildingId = tempBuildingId;
                     }
-                    if (buildingId == 0)
-                    {
+                    if (buildingId == 0) {
                         int iterator = 1;
-                        while (buildingId == 0 && iterator < seachOrder.Count())
-                        {
+                        while (buildingId == 0 && iterator < seachOrder.Count()) {
                             buildingId = TLMUtils.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                             iterator++;
                         }
@@ -1142,30 +1028,24 @@ namespace Klyte.TransportLinesManager.Utils
             int size = array.Length;
             if (size == 0)
                 return false;
-            for (int j = -1; j < size / 2; j++)
-            {
+            for (int j = -1; j < size / 2; j++) {
                 int offsetL = (j + size) % size;
                 int offsetH = (j + 2) % size;
-                if (array[offsetL] == array[offsetH])
-                {
+                if (array[offsetL] == array[offsetH]) {
                     middle = j + 1;
                     break;
                 }
             }
             //			TLMUtils.doLog("middle="+middle);
-            if (middle >= 0)
-            {
-                for (int k = 1; k <= size / 2; k++)
-                {
+            if (middle >= 0) {
+                for (int k = 1; k <= size / 2; k++) {
                     int offsetL = (-k + middle + size) % size;
                     int offsetH = (k + middle) % size;
-                    if (array[offsetL] != array[offsetH])
-                    {
+                    if (array[offsetL] != array[offsetH]) {
                         return false;
                     }
                 }
-            }
-            else {
+            } else {
                 return false;
             }
             return true;
@@ -1174,8 +1054,7 @@ namespace Klyte.TransportLinesManager.Utils
         public static void clearAllVisibilityEvents(UIComponent u)
         {
             u.eventVisibilityChanged += null;
-            for (int i = 0; i < u.components.Count; i++)
-            {
+            for (int i = 0; i < u.components.Count; i++) {
                 clearAllVisibilityEvents(u.components[i]);
             }
         }
@@ -1185,20 +1064,15 @@ namespace Klyte.TransportLinesManager.Utils
             var fields = o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             FieldInfo field = null;
 
-            foreach (var f in fields)
-            {
-                if (f.Name == fieldName)
-                {
+            foreach (var f in fields) {
+                if (f.Name == fieldName) {
                     field = f;
                     break;
                 }
             }
-            if (field != null)
-            {
-                return (T)field.GetValue(o);
-            }
-            else
-            {
+            if (field != null) {
+                return (T) field.GetValue(o);
+            } else {
                 return default(T);
             }
         }
@@ -1206,10 +1080,8 @@ namespace Klyte.TransportLinesManager.Utils
         public static bool HasField(object o, string fieldName)
         {
             var fields = o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            foreach (var f in fields)
-            {
-                if (f.Name == fieldName)
-                {
+            foreach (var f in fields) {
+                if (f.Name == fieldName) {
                     return true;
                 }
             }
@@ -1219,45 +1091,36 @@ namespace Klyte.TransportLinesManager.Utils
         public static ushort FindBuilding(Vector3 pos, float maxDistance, ItemClass.Service service, ItemClass.SubService subService, TransferManager.TransferReason[] allowedTypes, Building.Flags flagsRequired, Building.Flags flagsForbidden)
         {
             BuildingManager bm = Singleton<BuildingManager>.instance;
-            if (allowedTypes == null || allowedTypes.Length == 0)
-            {
+            if (allowedTypes == null || allowedTypes.Length == 0) {
                 return bm.FindBuilding(pos, maxDistance, service, subService, flagsRequired, flagsForbidden);
             }
-            int num = Mathf.Max((int)((pos.x - maxDistance) / 64f + 135f), 0);
-            int num2 = Mathf.Max((int)((pos.z - maxDistance) / 64f + 135f), 0);
-            int num3 = Mathf.Min((int)((pos.x + maxDistance) / 64f + 135f), 269);
-            int num4 = Mathf.Min((int)((pos.z + maxDistance) / 64f + 135f), 269);
+            int num = Mathf.Max((int) ((pos.x - maxDistance) / 64f + 135f), 0);
+            int num2 = Mathf.Max((int) ((pos.z - maxDistance) / 64f + 135f), 0);
+            int num3 = Mathf.Min((int) ((pos.x + maxDistance) / 64f + 135f), 269);
+            int num4 = Mathf.Min((int) ((pos.z + maxDistance) / 64f + 135f), 269);
             ushort result = 0;
             float num5 = maxDistance * maxDistance;
-            for (int i = num2; i <= num4; i++)
-            {
-                for (int j = num; j <= num3; j++)
-                {
+            for (int i = num2; i <= num4; i++) {
+                for (int j = num; j <= num3; j++) {
                     ushort num6 = bm.m_buildingGrid[i * 270 + j];
                     int num7 = 0;
-                    while (num6 != 0)
-                    {
-                        BuildingInfo info = bm.m_buildings.m_buffer[(int)num6].Info;
-                        if ((info.m_class.m_service == service || service == ItemClass.Service.None) && (info.m_class.m_subService == subService || subService == ItemClass.SubService.None))
-                        {
-                            Building.Flags flags = bm.m_buildings.m_buffer[(int)num6].m_flags;
-                            if ((flags & (flagsRequired | flagsForbidden)) == flagsRequired)
-                            {
+                    while (num6 != 0) {
+                        BuildingInfo info = bm.m_buildings.m_buffer[(int) num6].Info;
+                        if ((info.m_class.m_service == service || service == ItemClass.Service.None) && (info.m_class.m_subService == subService || subService == ItemClass.SubService.None)) {
+                            Building.Flags flags = bm.m_buildings.m_buffer[(int) num6].m_flags;
+                            if ((flags & (flagsRequired | flagsForbidden)) == flagsRequired) {
                                 DepotAI depotAI = info.GetAI() as DepotAI;
-                                if (depotAI != null && allowedTypes.Contains(depotAI.m_transportInfo.m_vehicleReason))
-                                {
-                                    float num8 = Vector3.SqrMagnitude(pos - bm.m_buildings.m_buffer[(int)num6].m_position);
-                                    if (num8 < num5)
-                                    {
+                                if (depotAI != null && allowedTypes.Contains(depotAI.m_transportInfo.m_vehicleReason)) {
+                                    float num8 = Vector3.SqrMagnitude(pos - bm.m_buildings.m_buffer[(int) num6].m_position);
+                                    if (num8 < num5) {
                                         result = num6;
                                         num5 = num8;
                                     }
                                 }
                             }
                         }
-                        num6 = bm.m_buildings.m_buffer[(int)num6].m_nextGridBuilding;
-                        if (++num7 >= 49152)
-                        {
+                        num6 = bm.m_buildings.m_buffer[(int) num6].m_nextGridBuilding;
+                        if (++num7 >= 49152) {
                             CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
                             break;
                         }
@@ -1269,16 +1132,12 @@ namespace Klyte.TransportLinesManager.Utils
         public static void doLocaleDump()
         {
             string localeDump = "LOCALE DUMP:\r\n";
-            try
-            {
+            try {
                 var locale = TLMUtils.GetPrivateField<Dictionary<Locale.Key, string>>(TLMUtils.GetPrivateField<Locale>(LocaleManager.instance, "m_Locale"), "m_LocalizedStrings");
-                foreach (Locale.Key k in locale.Keys)
-                {
+                foreach (Locale.Key k in locale.Keys) {
                     localeDump += string.Format("{0}  =>  {1}\n", k.ToString(), locale[k]);
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
 
                 TLMUtils.doErrorLog("LOCALE DUMP FAIL: {0}", e.ToString());
             }
@@ -1287,7 +1146,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public UISlider GenerateSliderField(UIHelperExtension uiHelper, OnValueChanged action, out UILabel label, out UIPanel container)
         {
-            UISlider budgetMultiplier = (UISlider)uiHelper.AddSlider("", 0f, 5, 0.05f, 1, action);
+            UISlider budgetMultiplier = (UISlider) uiHelper.AddSlider("", 0f, 5, 0.05f, 1, action);
             label = budgetMultiplier.transform.parent.GetComponentInChildren<UILabel>();
             label.autoSize = true;
             label.wordWrap = false;
@@ -1298,6 +1157,20 @@ namespace Klyte.TransportLinesManager.Utils
             container.autoLayoutPadding = new RectOffset(5, 5, 3, 3);
             container.wrapLayout = true;
             return budgetMultiplier;
+        }
+        public static string getTransportSystemPrefixName(TLMConfigWarehouse.ConfigIndex index, uint prefix, bool global = false)
+        {
+            return getExtensionFromConfigIndex(index).getPrefixName(prefix, global);
+        }
+
+        public static BasicTransportExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
+        {
+            return BasicTransportExtensionSingleton.instance(TLMConfigWarehouse.getTransportSystemDefinitionForConfigTransport(index));
+        }
+
+        public static BasicTransportExtension getExtensionFromTransportSystemDefinition(TransportSystemDefinition def)
+        {
+            return BasicTransportExtensionSingleton.instance(def);
         }
 
         private static string[] latinoMaiusculo = {
@@ -1505,7 +1378,7 @@ namespace Klyte.TransportLinesManager.Utils
 
     }
 
- 
+
     public enum ModoNomenclatura
     {
         Numero = 0,
@@ -1548,8 +1421,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public Range(T min, T max)
         {
-            if (min.CompareTo(max) >= 0)
-            {
+            if (min.CompareTo(max) >= 0) {
                 var temp = min;
                 min = max;
                 max = temp;
@@ -1635,16 +1507,11 @@ namespace Klyte.TransportLinesManager.Utils
         {
             float ca = to.x - from.x;
             float co = to.y - from.y;
-            if (co == 0)
-            {
+            if (co == 0) {
                 return ca > 0 ? 0 : 180;
-            }
-            else if (ca < 0)
-            {
+            } else if (ca < 0) {
                 return Mathf.Atan(co / ca) * Mathf.Rad2Deg + 180;
-            }
-            else
-            {
+            } else {
                 return Mathf.Atan(co / ca) * Mathf.Rad2Deg;
             }
         }
@@ -1654,8 +1521,7 @@ namespace Klyte.TransportLinesManager.Utils
     {
         public static int ParseOrDefault(string val, int defaultVal)
         {
-            try
-            {
+            try {
                 return int.Parse(val);
             }
 #pragma warning disable CS0168 // Variable is declared but never used

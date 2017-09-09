@@ -98,9 +98,9 @@ namespace Klyte.TransportLinesManager.UI
             lineStationsPanel.color = c;
         }
 
-        public void setLineNumberCircle(int num, ModoNomenclatura pre, Separador s, ModoNomenclatura mn, ModoNomenclatura np, bool zeros, bool invertPrefixSuffix)
+        public void setLineNumberCircle(ushort lineID)
         {
-            TLMLineUtils.setLineNumberCircleOnRef(num, pre, s, mn, np, zeros, linearMapLineNumber, invertPrefixSuffix);
+            TLMLineUtils.setLineNumberCircleOnRef(lineID, linearMapLineNumber);
         }
 
 
@@ -130,7 +130,7 @@ namespace Klyte.TransportLinesManager.UI
             }
 
 
-            setLineNumberCircle(t.m_lineNumber, prefix, sep, suffix, nonPrefix, zerosEsquerda, invertPrefixSuffix);
+            setLineNumberCircle(lineID);
 
             m_autoName = TLMUtils.calculateAutoName(lineID);
             string stationName = null;

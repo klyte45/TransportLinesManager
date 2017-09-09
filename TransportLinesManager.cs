@@ -17,6 +17,7 @@ using Klyte.TransportLinesManager.Extensors;
 using ColossalFramework.Math;
 using System.Reflection.Emit;
 using Klyte.Harmony;
+using Klyte.TransportLinesManager.Overrides;
 
 [assembly: AssemblyVersion("7.0.0.*")]
 namespace Klyte.TransportLinesManager
@@ -380,6 +381,8 @@ namespace Klyte.TransportLinesManager
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TRAIN"), TLMConfigWarehouse.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_SHIP"), TLMConfigWarehouse.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_PLANE"), TLMConfigWarehouse.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_FERRY"), TLMConfigWarehouse.ConfigIndex.FERRY_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_BLIMP"), TLMConfigWarehouse.ConfigIndex.BLIMP_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TAXI"), TLMConfigWarehouse.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_MONORAIL"), TLMConfigWarehouse.ConfigIndex.MONORAIL_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_CABLE_CAR"), TLMConfigWarehouse.ConfigIndex.CABLE_CAR_SHOW_IN_LINEAR_MAP);
@@ -652,6 +655,7 @@ namespace Klyte.TransportLinesManager
                 });
             }
             TLMPublicTransportDetailPanelHooks.instance.EnableHooks();
+            TransportLineOverrides.instance.EnableHooks();
             loadTLMLocale(false);
             m_loaded = true;
 

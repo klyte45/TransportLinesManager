@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Klyte.TransportLinesManager.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 
-namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
+namespace Klyte.TransportLinesManager.Extensors
 {
     public class TransportSystemDefinition
     {

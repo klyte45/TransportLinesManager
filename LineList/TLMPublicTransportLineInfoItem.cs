@@ -218,16 +218,8 @@ namespace Klyte.TransportLinesManager.LineList
                 averageCount,
                 averageCount2
                 }));
-                ModoNomenclatura prefixMode;
-                Separador sep;
-                ModoNomenclatura suffix;
-                ModoNomenclatura nonPrefix;
-                bool zerosEsquerda;
-                bool invertPrefixSuffix;
-                string bgSprite;
-                TLMLineUtils.getLineNamingParameters(lineID, out prefixMode, out sep, out suffix, out nonPrefix, out zerosEsquerda, out invertPrefixSuffix, out bgSprite);
-                TLMLineUtils.setLineNumberCircleOnRef(lineNumber, prefixMode, sep, suffix, nonPrefix, zerosEsquerda, m_LineNumberFormatted, invertPrefixSuffix, 0.8f);
-                m_LineColor.normalFgSprite = bgSprite;
+                TLMLineUtils.setLineNumberCircleOnRef(lineID, m_LineNumberFormatted, 0.8f);
+                m_LineColor.normalFgSprite = TLMLineUtils.getIconForLine(lineID);
 
                 m_lineBudgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
                     TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportInfo(info)),
