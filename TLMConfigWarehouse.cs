@@ -98,17 +98,21 @@ namespace Klyte.TransportLinesManager
 
         public static TransportSystemDefinition getDefinitionForLine(ushort i)
         {
-            return getDefinitionForLine(Singleton<TransportManager>.instance.m_lines.m_buffer[(int) i]);
+            return getDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int) i]);
         }
 
-        public static TransportSystemDefinition getDefinitionForLine(TransportLine t)
+        public static TransportSystemDefinition getDefinitionForLine(ref TransportLine t)
         {
-            return TransportSystemDefinition.from(t.Info.m_class.m_subService, t.Info.m_vehicleType);
+            return TransportSystemDefinition.from(t.Info);
         }
 
         public static ConfigIndex getConfigIndexForTransportInfo(TransportInfo ti)
         {
-            return TransportSystemDefinition.from(ti.m_class.m_subService, ti.m_vehicleType).toConfigIndex();
+            var tsd = TransportSystemDefinition.from(ti);
+            if(tsd == default(TransportSystemDefinition)) {
+                return default(ConfigIndex);
+            }
+            return tsd.toConfigIndex();
         }
 
         private TLMConfigWarehouse(string cityId, string cityName)

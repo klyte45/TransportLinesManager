@@ -6,6 +6,7 @@ using ColossalFramework.UI;
 using ICities;
 using Klyte.Extensions;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
 using System;
 using System.Collections;
@@ -37,19 +38,19 @@ namespace Klyte.TransportLinesManager.Utils
         {
             if (TransportLinesManagerMod.instance != null) {
                 if (TransportLinesManagerMod.debugMode) {
-                    Debug.LogWarningFormat("TLMLv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+                    Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " " + format, args);
                 }
             } else {
-                Console.WriteLine("TLMLv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+                Console.WriteLine("TLMRv" + TransportLinesManagerMod.majorVersion + " " + format, args);
             }
         }
 
         public static void doErrorLog(string format, params object[] args)
         {
             if (TransportLinesManagerMod.instance != null) {
-                Debug.LogErrorFormat("TLMLv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+                Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " " + format, args);
             } else {
-                Console.WriteLine("TLMLv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+                Console.WriteLine("TLMRv" + TransportLinesManagerMod.majorVersion + " " + format, args);
             }
 
         }
@@ -129,7 +130,7 @@ namespace Klyte.TransportLinesManager.Utils
             dh.Start();
         }
 
-        public static void initButton(UIButton button, bool isCheck, string baseSprite)
+        public static void initButton(UIButton button, bool isCheck, string baseSprite, bool allLower = false)
         {
             string sprite = baseSprite;//"ButtonMenu";
             string spriteHov = baseSprite + "Hovered";
@@ -138,6 +139,15 @@ namespace Klyte.TransportLinesManager.Utils
             button.hoveredBgSprite = spriteHov;
             button.focusedBgSprite = spriteHov;
             button.pressedBgSprite = isCheck ? sprite + "Pressed" : spriteHov;
+
+            if (allLower) {
+                button.normalBgSprite = button.normalBgSprite.ToLower();
+                button.disabledBgSprite = button.disabledBgSprite.ToLower();
+                button.hoveredBgSprite = button.hoveredBgSprite.ToLower();
+                button.focusedBgSprite = button.focusedBgSprite.ToLower();
+                button.pressedBgSprite = button.pressedBgSprite.ToLower();
+            }
+
             button.textColor = new Color32(255, 255, 255, 255);
         }
 
@@ -372,7 +382,7 @@ namespace Klyte.TransportLinesManager.Utils
                         break;
                 }
 
-                if (invertPrefixSuffix && sufixo == ModoNomenclatura.Numero) {
+                if (invertPrefixSuffix && sufixo == ModoNomenclatura.Numero && prefixo != ModoNomenclatura.Numero) {
                     return sufixoSaida + separadorSaida + prefixoSaida;
                 } else {
                     return prefixoSaida + separadorSaida + sufixoSaida;
@@ -1087,6 +1097,52 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return false;
         }
+
+        public static string getPrefixesServedAbstract(ushort m_buildingID, bool secondary)
+        {
+            Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];
+            DepotAI ai = b.Info.GetAI() as DepotAI;
+            if (ai == null)
+                return "";
+            List<string> options = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportInfo(secondary ? ai.m_secondaryTransportInfo : ai.m_transportInfo));
+            var prefixes = TLMDepotAI.getPrefixesServedByDepot(m_buildingID, secondary);
+            if (prefixes == null) {
+                TLMUtils.doErrorLog("DEPOT AI WITH WRONG TYPE!!! id:{0} ({1})", m_buildingID, BuildingManager.instance.GetBuildingName(m_buildingID, default(InstanceID)));
+                return null;
+            }
+            List<string> saida = new List<string>();
+            if (prefixes.Contains(0))
+                saida.Add(Locale.Get("TLM_UNPREFIXED_SHORT"));
+            uint sequenceInit = 0;
+            bool isInSequence = false;
+            for (uint i = 1; i < options.Count; i++) {
+                if (prefixes.Contains(i)) {
+                    if (sequenceInit == 0 || !isInSequence) {
+                        sequenceInit = i;
+                        isInSequence = true;
+                    }
+                } else if (sequenceInit != 0 && isInSequence) {
+                    if (i - 1 == sequenceInit) {
+                        saida.Add(options[(int) sequenceInit]);
+                    } else {
+                        saida.Add(options[(int) sequenceInit] + "-" + options[(int) (i - 1)]);
+                    }
+                    isInSequence = false;
+                }
+            }
+            if (sequenceInit != 0 && isInSequence) {
+                if (sequenceInit == options.Count - 1) {
+                    saida.Add(options[(int) sequenceInit]);
+                } else {
+                    saida.Add(options[(int) sequenceInit] + "-" + options[(int) (options.Count - 1)]);
+                }
+                isInSequence = false;
+            }
+            if (prefixes.Contains(65))
+                saida.Add(Locale.Get("TLM_REGIONAL_SHORT"));
+            return string.Join(" ", saida.ToArray());
+        }
+
 
         public static ushort FindBuilding(Vector3 pos, float maxDistance, ItemClass.Service service, ItemClass.SubService subService, TransferManager.TransferReason[] allowedTypes, Building.Flags flagsRequired, Building.Flags flagsForbidden)
         {

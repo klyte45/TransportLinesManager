@@ -18,6 +18,7 @@ using ColossalFramework.Math;
 using System.Reflection.Emit;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Overrides;
+using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 
 [assembly: AssemblyVersion("7.0.0.*")]
 namespace Klyte.TransportLinesManager
@@ -180,14 +181,14 @@ namespace Klyte.TransportLinesManager
         {
             get {
 
-                return "TLM Lite UI " + version;
+                return "TLM Reborn " + version;
             }
         }
 
         public string Description
         {
             get {
-                return "The lite version of Transport Lines Manager, with the naming functions and the UI. Made to be compatible with others mods.";
+                return "Reviewed version of TLM.";
             }
         }
 
@@ -200,18 +201,18 @@ namespace Klyte.TransportLinesManager
         public TransportLinesManagerMod()
         {
 
-            Debug.LogWarningFormat("TLMLv" + TransportLinesManagerMod.majorVersion + " LOADING TLM ");
+            Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " LOADING TLM ");
             SettingsFile tlmSettings = new SettingsFile();
             tlmSettings.fileName = TLMConfigWarehouse.CONFIG_FILENAME;
-            Debug.LogWarningFormat("TLMLv" + TransportLinesManagerMod.majorVersion + " SETTING FILES");
+            Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " SETTING FILES");
             try {
                 GameSettings.AddSettingsFile(tlmSettings);
             } catch (Exception e) {
-                Debug.LogErrorFormat("TLMLv" + TransportLinesManagerMod.majorVersion + " SETTING FILES FAIL!!! ");
+                Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " SETTING FILES FAIL!!! ");
                 Debug.LogError(e.Message);
                 Debug.LogError(e.StackTrace);
             }
-            Debug.LogWarningFormat("TLMLv" + TransportLinesManagerMod.majorVersion + " LOADING VARS ");
+            Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " LOADING VARS ");
 
             m_savedPalettes = new SavedString("savedPalettesTLM", Settings.gameSettingsFile, "", true);
             m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
@@ -319,7 +320,7 @@ namespace Klyte.TransportLinesManager
                 }
             };
 
-            overrideWorldInfoPanelLineOption = (UICheckBox) helper.AddCheckboxLocalized("TLM_OVERRIDE_DEFAULT_LINE_INFO", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
+            overrideWorldInfoPanelLineOption = (UICheckBox) helper.AddCheckboxLocale("TLM_OVERRIDE_DEFAULT_LINE_INFO", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
 
             helper.AddSpace(10);
 
@@ -646,20 +647,20 @@ namespace Klyte.TransportLinesManager
 
             if (TLMController.taTLM == null) {
                 TLMController.taTLM = CreateTextureAtlas("UI.Images.sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                    "TransportLinesManagerIcon","TransportLinesManagerIconHovered","AutoNameIcon","AutoColorIcon","RemoveUnwantedIcon","ConfigIcon"
+                    "TransportLinesManagerIcon","TransportLinesManagerIconHovered","AutoNameIcon","AutoColorIcon","RemoveUnwantedIcon","ConfigIcon","24hLineIcon", "PerHourIcon"
                 });
             }
             if (TLMController.taLineNumber == null) {
                 TLMController.taLineNumber = CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                 "LinearHalfStation","LinearStation","LinearBg","PlaneLineIcon","TramIcon","ShipLineIcon","FerryIcon","CableCarIcon", "BlimpIcon","BusIcon","SubwayIcon","TrainIcon","MonorailIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon","NightIcon","DisabledIcon","NoBudgetIcon","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap","RegionalTrainIcon"
+                "DepotIcon", "LinearHalfStation","LinearStation","LinearBg","PlaneLineIcon","TramIcon","ShipLineIcon","FerryIcon","CableCarIcon", "BlimpIcon","BusIcon","SubwayIcon","TrainIcon","MonorailIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon",
+                    "NightIcon","DisabledIcon","NoBudgetIcon","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap","RegionalTrainIcon"
                 });
             }
             TLMPublicTransportDetailPanelHooks.instance.EnableHooks();
             TransportLineOverrides.instance.EnableHooks();
+            TLMDepotAI.instance.EnableHooks();
             loadTLMLocale(false);
             m_loaded = true;
-
-            //			
         }
 
         public void OnLevelUnloading()

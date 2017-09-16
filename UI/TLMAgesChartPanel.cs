@@ -25,7 +25,7 @@ namespace Klyte.TransportLinesManager.UI
         private void createLineCharts()
         {
             TLMUtils.createUIElement<UIPanel>(ref agesChartPanel, lineInfoPanel.transform);
-            agesChartPanel.relativePosition = new Vector3(450f, 60f);
+            agesChartPanel.relativePosition = new Vector3(450f, 45f);
             agesChartPanel.width = 140;
             agesChartPanel.height = 70;
             agesChartPanel.name = "AgesChartPanel";

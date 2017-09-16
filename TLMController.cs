@@ -10,6 +10,7 @@ using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.LineList;
 using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Extensors;
 
 namespace Klyte.TransportLinesManager
 {
@@ -47,6 +48,7 @@ namespace Klyte.TransportLinesManager
         public bool initialized = false;
         public bool initializedWIP = false;
         private TLMLineInfoPanel m_lineInfoPanel;
+        private TLMDepotInfoPanel m_depotInfoPanel;
         private int lastLineCount = 0;
 
         private UIPanel _cachedDefaultListingLinesPanel;
@@ -66,6 +68,13 @@ namespace Klyte.TransportLinesManager
         {
             get {
                 return m_lineInfoPanel;
+            }
+        }
+
+        public TLMDepotInfoPanel depotInfoPanel
+        {
+            get {
+                return m_depotInfoPanel;
             }
         }
 
@@ -89,6 +98,10 @@ namespace Klyte.TransportLinesManager
 
             if (m_lineInfoPanel != null && m_lineInfoPanel.gameObject != null) {
                 UnityEngine.Object.Destroy(m_lineInfoPanel.gameObject);
+            }
+
+            if (m_depotInfoPanel != null && m_depotInfoPanel.gameObject != null) {
+                UnityEngine.Object.Destroy(m_depotInfoPanel.gameObject);
             }
 
             initialized = false;
@@ -130,6 +143,10 @@ namespace Klyte.TransportLinesManager
                 m_lineInfoPanel.updateBidings();
             }
 
+            if (m_depotInfoPanel.isVisible) {
+                m_depotInfoPanel.updateBidings();
+            }
+
             lastLineCount = tm.m_lineCount;
             TLMPublicTransportDetailPanelHooks.instance.update();
 
@@ -141,7 +158,11 @@ namespace Klyte.TransportLinesManager
         {
             TransportLine t = tm.m_lines.m_buffer[(int) i];
             try {
-                TLMCW.ConfigIndex transportType = TLMCW.getDefinitionForLine(i).toConfigIndex();
+                var tsd = TLMCW.getDefinitionForLine(i);
+                if (tsd == default(TransportSystemDefinition)) {
+                    return Color.clear;
+                }
+                TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
                 bool prefixBased = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_PREFIX_BASED);
 
                 bool randomOnOverflow = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
@@ -168,7 +189,7 @@ namespace Klyte.TransportLinesManager
         }
 
         public void AutoName(ushort m_LineID)
-        {           
+        {
             string format = (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME)) ? "[{0}] {1}" : "{1}";
             TLMUtils.setLineName(m_LineID, string.Format(format, TLMLineUtils.getLineStringId(m_LineID).Replace('\n', ' '), TLMUtils.calculateAutoName(m_LineID)));
         }
@@ -178,7 +199,7 @@ namespace Klyte.TransportLinesManager
 
         private void swapWindow(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (m_lineInfoPanel.isVisible || defaultListingLinesPanel.isVisible) {
+            if (m_lineInfoPanel.isVisible || defaultListingLinesPanel.isVisible || m_depotInfoPanel.isVisible) {
                 fecharTelaTransportes(component, eventParam);
             } else {
                 abrirTelaTransportes(component, eventParam);
@@ -191,6 +212,7 @@ namespace Klyte.TransportLinesManager
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "ABRE1!");
             abrePainelButton.normalFgSprite = abrePainelButton.focusedFgSprite;
             m_lineInfoPanel.Hide();
+            m_depotInfoPanel.Hide();
             defaultListingLinesPanel.Show();
             tm.LinesVisible = 0x7FFFFFFF;
             //			MainMenu ();
@@ -207,6 +229,7 @@ namespace Klyte.TransportLinesManager
             abrePainelButton.normalFgSprite = abrePainelButton.disabledFgSprite;
             defaultListingLinesPanel.Hide();
             m_lineInfoPanel.Hide();
+            m_depotInfoPanel.Hide();
             tm.LinesVisible = 0;
             InfoManager im = Singleton<InfoManager>.instance;
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "FECHA!");
@@ -214,8 +237,8 @@ namespace Klyte.TransportLinesManager
 
         private void createViews()
         {
-            /////////////////////////////////////////////////////	
             m_lineInfoPanel = new TLMLineInfoPanel(this);
+            m_depotInfoPanel = new TLMDepotInfoPanel(this);
         }
 
         private void initNearLinesOnWorldInfoPanel()
@@ -227,9 +250,11 @@ namespace Klyte.TransportLinesManager
                     return;
                 parent.eventVisibilityChanged += (component, value) => {
                     updateNearLines(TransportLinesManagerMod.savedShowNearLinesInCityServicesWorldInfoPanel.value ? parent : null, true);
+                    updateDepotEditShortcutButton(parent);
                 };
                 parent.eventPositionChanged += (component, value) => {
                     updateNearLines(TransportLinesManagerMod.savedShowNearLinesInCityServicesWorldInfoPanel.value ? parent : null, true);
+                    updateDepotEditShortcutButton(parent);
                 };
 
                 UIPanel parent2 = GameObject.Find("UIView").transform.GetComponentInChildren<ZonedBuildingWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
@@ -239,9 +264,11 @@ namespace Klyte.TransportLinesManager
 
                 parent2.eventVisibilityChanged += (component, value) => {
                     updateNearLines(TransportLinesManagerMod.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
+                    updateDepotEditShortcutButton(parent2);
                 };
                 parent2.eventPositionChanged += (component, value) => {
                     updateNearLines(TransportLinesManagerMod.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
+                    updateDepotEditShortcutButton(parent2);
                 };
                 UIPanel parent3 = GameObject.Find("UIView").transform.GetComponentInChildren<PublicTransportWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
 
@@ -250,7 +277,6 @@ namespace Klyte.TransportLinesManager
 
                 parent3.eventVisibilityChanged += (component, value) => {
                     if (TransportLinesManagerMod.overrideWorldInfoPanelLine && value) {
-
                         PublicTransportWorldInfoPanel ptwip = parent3.gameObject.GetComponent<PublicTransportWorldInfoPanel>();
                         ptwip.StartCoroutine(OpenLineInfo(ptwip));
                         ptwip.Hide();
@@ -304,7 +330,7 @@ namespace Klyte.TransportLinesManager
                         }
                     }
                     Dictionary<string, ushort> lines = TLMLineUtils.SortLines(nearLines);
-                    TLMLineUtils.PrintIntersections("", "", "", "", linesPanelObj.GetComponent<UIPanel>(), lines, scale, perLine);
+                    TLMLineUtils.PrintIntersections("", "", "", "", "", linesPanelObj.GetComponent<UIPanel>(), lines, scale, perLine);
                 }
                 linesPanelObj.GetComponent<UIPanel>().isVisible = showPanel;
             } else {
@@ -346,8 +372,68 @@ namespace Klyte.TransportLinesManager
             return saida.transform;
         }
 
+        private UIButton initDepotShortcutOnWorldInfoPanel(UIPanel parent)
+        {
+            UIButton saida = parent.AddUIComponent<UIButton>();
+            saida.relativePosition = new Vector3(10, parent.height - 50);
+            saida.atlas = taTLM;
+            saida.width = 30;
+            saida.height = 30;
+            saida.name = "TLMDepotShortcut";
+            saida.tooltipLocaleID = "TLM_GOTO_DEPOT_PREFIX_EDIT";
+            TLMUtils.initButton(saida, false, "TransportLinesManagerIcon");
+            saida.eventClick += (x, y) => {
+                var prop = typeof(WorldInfoPanel).GetField("m_InstanceID", System.Reflection.BindingFlags.NonPublic
+                       | System.Reflection.BindingFlags.Instance);
+                ushort buildingId = ((InstanceID) (prop.GetValue(parent.gameObject.GetComponent<WorldInfoPanel>()))).Building;
+                depotInfoPanel.openDepotInfo(buildingId, false);
+            };
 
+            UILabel prefixes = saida.AddUIComponent<UILabel>();
+            prefixes.autoSize = false;
+            prefixes.width = 200;
+            prefixes.wordWrap = true;
+            prefixes.textAlignment = UIHorizontalAlignment.Left;
+            prefixes.prefix = Locale.Get("TLM_PREFIXES_SERVED") + ":\n";
+            prefixes.useOutline = true;
+            prefixes.height = 60;
+            prefixes.textScale = 0.6f;
+            prefixes.relativePosition = new Vector3(35, 1);
+            prefixes.name = "Prefixes";
+            return saida;
+        }
 
+        private void updateDepotEditShortcutButton(UIPanel parent)
+        {
+            if (parent != null) {
+                UIButton depotShortcut = parent.Find<UIButton>("TLMDepotShortcut");
+                if (!depotShortcut) {
+                    depotShortcut = initDepotShortcutOnWorldInfoPanel(parent);
+                }
+                var prop = typeof(WorldInfoPanel).GetField("m_InstanceID", System.Reflection.BindingFlags.NonPublic
+                    | System.Reflection.BindingFlags.Instance);
+                ushort buildingId = ((InstanceID) (prop.GetValue(parent.gameObject.GetComponent<WorldInfoPanel>()))).Building;
+                DepotAI ai = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId].Info.GetAI() as DepotAI;
+                if (ai != null) {
+                    byte count = 0;
+                    List<string> lines = new List<string>();
+                    if (ai.m_transportInfo != null && ai.m_maxVehicleCount > 0) {
+                        lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_transportInfo).toConfigIndex()), TLMUtils.getPrefixesServedAbstract(buildingId, false)));
+                        count++;
+                    }
+                    if (ai.m_secondaryTransportInfo != null && ai.m_maxVehicleCount2 > 0) {
+                        lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_secondaryTransportInfo).toConfigIndex()), TLMUtils.getPrefixesServedAbstract(buildingId, true)));
+                        count++;
+                    }
+                    UILabel label = depotShortcut.GetComponentInChildren<UILabel>();
+                    label.text = string.Join("\n", lines.ToArray());
+                    depotShortcut.isVisible = count > 0;
+                } else {
+                    depotShortcut.isVisible = false;
+                }
+
+            }
+        }
     }
 
 

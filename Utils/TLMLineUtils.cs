@@ -95,9 +95,29 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static float getEffectiveBugdet(ushort transportLine)
         {
-            int num2 = Singleton<EconomyManager>.instance.GetBudget(Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info.m_class);
-            int budget = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].m_budget;
-            return (num2 * budget) / 10000f;
+            return getEffectiveBugdet(ref Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine]);
+        }
+
+        public static float getEffectiveBugdet(ref TransportLine __instance)
+        {
+            TransportInfo info = __instance.Info;
+            int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
+            if (!TLMLineUtils.hasPrefix(ref __instance)) {
+                int budget = __instance.m_budget;
+                return (budgetClass * budget) / 10000f;
+            } else {
+                return (budgetClass * getBudgetMultiplierPrefix(ref __instance)) / 100f;
+            }
+        }
+
+        public static float getBudgetMultiplierPrefix(ref TransportLine __instance)
+        {
+            TransportInfo info = __instance.Info;
+            int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
+            float lengthMeters = __instance.m_totalLength;
+            var tsd = TLMCW.getDefinitionForLine(ref __instance);
+            uint prefix = __instance.m_lineNumber / 1000u;
+            return TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).getBudgetMultiplierForHour(prefix, (int) Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
         }
 
         public static string getLineStringId(ushort lineIdx)
@@ -130,32 +150,54 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static float GetLineLength(ushort lineID)
         {
-            float totalSize = 0f;
-            for (int i = 0; i < Singleton<TransportManager>.instance.m_lineCurves[(int) lineID].Length; i++) {
-                Bezier3 bez = Singleton<TransportManager>.instance.m_lineCurves[(int) lineID][i];
-                totalSize += TLMUtils.calcBezierLenght(bez.a, bez.b, bez.c, bez.d, 0.1f);
-            }
-            return totalSize;
+            //float totalSize = 0f;
+            //for (int i = 0; i < Singleton<TransportManager>.instance.m_lineCurves[(int) lineID].Length; i++) {
+            //    Bezier3 bez = Singleton<TransportManager>.instance.m_lineCurves[(int) lineID][i];
+            //    totalSize += TLMUtils.calcBezierLenght(bez.a, bez.b, bez.c, bez.d, 0.1f);
+            //}
+            return Singleton<TransportManager>.instance.m_lines.m_buffer[(int) lineID].m_totalLength;
         }
 
         public static TransportSystemDefinition getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, out string icon)
         {
             var tsd = TLMCW.getDefinitionForLine(lineIdx);
-            TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
-
-            suffix = (ModoNomenclatura) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
-            s = (Separador) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
-            prefix = (ModoNomenclatura) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
-            nonPrefix = (ModoNomenclatura) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
-            zeros = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
-            invertPrefixSuffix = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
+            if (tsd != default(TransportSystemDefinition)) {
+                TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
+                suffix = (ModoNomenclatura) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
+                s = (Separador) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
+                prefix = (ModoNomenclatura) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+                nonPrefix = (ModoNomenclatura) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
+                zeros = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
+                invertPrefixSuffix = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
+            } else {
+                TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
+                suffix = default(ModoNomenclatura);
+                s = default(Separador);
+                prefix = default(ModoNomenclatura);
+                nonPrefix = default(ModoNomenclatura);
+                zeros = false;
+                invertPrefixSuffix = false;
+            }
             icon = getIconForLine(lineIdx);
             return tsd;
         }
 
-        public static bool hasPrefix(TransportLine t)
+        public static bool hasPrefix(ref TransportLine t)
         {
-            var tsd = TLMCW.getDefinitionForLine(t);
+            var tsd = TLMCW.getDefinitionForLine(ref t);
+            if (tsd == default(TransportSystemDefinition)) {
+                return false;
+            }
+            TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
+            return ((ModoNomenclatura) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+        }
+
+        public static bool hasPrefix(ushort idx)
+        {
+            var tsd = TLMCW.getDefinitionForLine(idx);
+            if (tsd == default(TransportSystemDefinition)) {
+                return false;
+            }
             TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
             return ((ModoNomenclatura) TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
@@ -317,7 +359,11 @@ namespace Klyte.TransportLinesManager.Utils
                 TransportLine tl = tm.m_lines.m_buffer[(int) s];
                 if (t.Equals(default(TransportLine)) || tl.Info.GetSubService() != t.Info.GetSubService() || tl.m_lineNumber != t.m_lineNumber) {
                     string transportTypeLetter = "";
-                    switch (TLMCW.getDefinitionForLine(s).toConfigIndex()) {
+                    var tsd = TLMCW.getDefinitionForLine(s);
+                    if (tsd == default(TransportSystemDefinition)) {
+                        continue;
+                    }
+                    switch (tsd.toConfigIndex()) {
                         case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                             transportTypeLetter = "A";
                             break;
@@ -357,7 +403,7 @@ namespace Klyte.TransportLinesManager.Utils
 
 
 
-        public static void PrintIntersections(string airport, string harbor, string taxi, string regionalTrainStation, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, float scale = 1.0f, int maxItemsForSizeSwap = 3)
+        public static void PrintIntersections(string airport, string harbor, string taxi, string regionalTrainStation, string cableCarStation, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, float scale = 1.0f, int maxItemsForSizeSwap = 3)
         {
             TransportManager tm = Singleton<TransportManager>.instance;
 
@@ -372,6 +418,9 @@ namespace Klyte.TransportLinesManager.Utils
                 intersectionCount++;
             }
             if (!String.IsNullOrEmpty(regionalTrainStation)) {
+                intersectionCount++;
+            }
+            if (!String.IsNullOrEmpty(cableCarStation)) {
                 intersectionCount++;
             }
             float size = scale * (intersectionCount > maxItemsForSizeSwap ? 20 : 40);
@@ -446,6 +495,9 @@ namespace Klyte.TransportLinesManager.Utils
             }
             if (regionalTrainStation != string.Empty) {
                 addExtraStationBuildingIntersection(intersectionsPanel, size, "RegionalTrainIcon", regionalTrainStation);
+            }
+            if (cableCarStation != string.Empty) {
+                addExtraStationBuildingIntersection(intersectionsPanel, size, "CableCarIcon", cableCarStation);
             }
         }
 

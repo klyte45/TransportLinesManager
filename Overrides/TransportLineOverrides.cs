@@ -54,7 +54,7 @@ namespace Klyte.TransportLinesManager.Overrides
             MethodInfo doAutomation = typeof(TransportLineOverrides).GetMethod("doAutomation", allFlags);
             MethodInfo preDoAutomation = typeof(TransportLineOverrides).GetMethod("preDoAutomation", allFlags);
 
-            TLMUtils.doLog("Loading AutoColor & AutoName Hooks!");
+            TLMUtils.doLog("Loading AutoColor & AutoName Hook");
             AddRedirect(typeof(TransportLine).GetMethod("AddStop", allFlags), preDoAutomation, doAutomation);
             #endregion
 
@@ -77,8 +77,13 @@ namespace Klyte.TransportLinesManager.Overrides
             AddRedirect(typeof(PassengerFerryAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerFerryAI);
             AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_BusAI);
             AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_CableCarAI);
+            #endregion
 
+            #region Budget Override Hooks
+            MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("SimulationStepPre", allFlags);
 
+            TLMUtils.doLog("Loading SimulationStepPre Hook");
+            AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), SimulationStepPre);
             #endregion
 
         }
@@ -104,24 +109,24 @@ namespace Klyte.TransportLinesManager.Overrides
                     TLMController.instance.AutoColor(lineID);
                 }
                 if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED)) {
-                    TLMUtils.setLineName(lineID, TLMUtils.calculateAutoName(lineID));
+                    TLMController.instance.AutoName(lineID);
                 }
             }
         }
         #endregion
 
         #region Budget Override
-        public void CalculateTargetVehicleCountPost(TransportLine __instance, ref int __result)
+        public static bool SimulationStepPre(ushort lineID)
         {
-            if (!TLMLineUtils.hasPrefix(__instance)) {
-                return;
+            try {
+                TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
+                if (t.m_lineNumber != 0 && t.m_stops != 0 && TLMLineUtils.hasPrefix(lineID)) {
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort) (TLMLineUtils.getBudgetMultiplierPrefix(ref t) * 100);
+                }
+            } catch (Exception e) {
+                TLMUtils.doErrorLog("Error processing budget for line: {0}\n{1}", lineID, e);
             }
-            TransportInfo info = __instance.Info;
-            float lengthMeters = __instance.m_totalLength;
-            var tsd = TLMCW.getDefinitionForLine(__instance);
-            int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            budgetClass = (budgetClass * (int) __instance.m_budget + 50) / 100;
-            __result = Mathf.CeilToInt((float) budgetClass * lengthMeters / (info.m_defaultVehicleDistance * 100f));
+            return true;
         }
         #endregion
 
@@ -161,7 +166,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
         private static int ticketPriceForPrefix(ushort vehicleID, ref Vehicle vehicleData, int defaultPrice)
         {
-            var def = TransportSystemDefinition.from(vehicleData.Info.m_class.m_subService, vehicleData.Info.m_vehicleType);
+            var def = TransportSystemDefinition.from(vehicleData.Info);
 
             if (def == default(TransportSystemDefinition)) {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)

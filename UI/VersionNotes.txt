@@ -1,8 +1,15 @@
-﻿Lite 7.0.0
-    - Removed almost all methods hooking
-    - Updated UI
+﻿TLMRv 7.0.0
+    - Updated methods hooking
+    - Updated Linear Map UI
+    - Added budget control sliders to the Line Info Panel (now is possible to edit per hour budget viewing a line info)
     - Added options for show near ferry and blimp lines in the options
-    - Removed IPT compatibility mode (is not applicable anymore)
+    - Fixed cable car icon in near lines panel (and linear map intersections)
+    - Removed IPT compatibility mode
+    - Added MOM compatibility to hide depots which doesn't shall spawn metro trains
+    - Added support for multi-service stations hub (like the monorail/rail/subway metro)
+    - Fixed evacuation route bug
+    - Fixed depot naming bug
+    - Fixed fare = 100 bug
     - New default palettes:
         - Rainbow
         - Rainbow Short

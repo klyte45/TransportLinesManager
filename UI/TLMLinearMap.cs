@@ -40,22 +40,18 @@ namespace Klyte.TransportLinesManager.UI
 
         public bool isVisible
         {
-            get
-            {
+            get {
                 return mainContainer.isVisible;
             }
-            set
-            {
+            set {
                 mainContainer.isVisible = value;
             }
         }
 
         public GameObject gameObject
         {
-            get
-            {
-                try
-                {
+            get {
+                try {
                     return mainContainer.gameObject;
                 }
 #pragma warning disable CS0168 // Variable is declared but never used
@@ -70,16 +66,12 @@ namespace Klyte.TransportLinesManager.UI
 
         public string autoName
         {
-            get
-            {
+            get {
                 ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
-                TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
-                if (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME))
-                {
+                TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int) lineID];
+                if (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME)) {
                     return "[" + TLMUtils.getString(prefix, sep, suffix, nonPrefix, t.m_lineNumber, zerosEsquerda, invertPrefixSuffix).Replace('\n', ' ') + "] " + m_autoName;
-                }
-                else
-                {
+                } else {
                     return m_autoName;
                 }
             }
@@ -108,7 +100,7 @@ namespace Klyte.TransportLinesManager.UI
         public void redrawLine()
         {
             ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
-            TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
+            TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int) lineID];
             int stopsCount = t.CountStops(lineID);
             int vehicleCount = t.CountVehicles(lineID);
             Color lineColor = lineInfoPanel.controller.tm.GetLineColor(lineID);
@@ -121,11 +113,9 @@ namespace Klyte.TransportLinesManager.UI
 
             bool day, night;
             TLMLineUtils.getLineActive(ref t, out day, out night);
-            if (!day || !night)
-            {
+            if (!day || !night) {
                 linearMapLineTime.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
-            }
-            else {
+            } else {
                 linearMapLineTime.backgroundSprite = "";
             }
 
@@ -135,56 +125,48 @@ namespace Klyte.TransportLinesManager.UI
             m_autoName = TLMUtils.calculateAutoName(lineID);
             string stationName = null;
             Vector3 local;
-            string airport, taxi, harbor, regionalStation;
+            string airport, taxi, harbor, regionalStation, cableCarStation;
             int middle;
             string namePrefix;
             bool simmetric = TLMUtils.CalculateSimmetry(ss, stopsCount, t, out middle);
             float addedWidth = 0;
-            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && simmetric && !showExtraStopInfo)
-            {
+            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && simmetric && !showExtraStopInfo) {
                 lineStationsPanel.width = 0;
                 int maxIt = middle + stopsCount / 2;
-                for (int j = middle; j <= maxIt; j++)
-                {
+                for (int j = middle; j <= maxIt; j++) {
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
-                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out namePrefix);
-                    addedWidth = addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss, lineColor) + (j == middle + stopsCount / 2 ? 5 : 0);
+                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out cableCarStation, out namePrefix);
+                    addedWidth = addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor) + (j == middle + stopsCount / 2 ? 5 : 0);
                     lineStationsPanel.width += addedWidth;
                 }
-            }
-            else {
+            } else {
                 lineStationsPanel.width = 0;
                 int minI = 0, maxI = stopsCount;
-                if (simmetric)
-                {
+                if (simmetric) {
                     minI = middle + 1;
                     maxI = stopsCount + middle + 1;
                 }
-                if (showExtraStopInfo)
-                {
+                if (showExtraStopInfo) {
                     int j = (minI - 1 + stopsCount) % stopsCount;
                     ushort stationId = t.GetStop(j);
                     List<ushort> intersections;
-                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out namePrefix);
-                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss, lineColor, true);
+                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out cableCarStation, out namePrefix);
+                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor, true);
                 }
-                for (int i = minI; i < maxI; i++)
-                {
+                for (int i = minI; i < maxI; i++) {
                     int j = i % stopsCount;
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
-                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out namePrefix);
-                    addedWidth = addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, stationId, ss, lineColor) + (j == stopsCount - (showExtraStopInfo ? 0 : 1) ? 5 : 0);
+                    local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out cableCarStation, out namePrefix);
+                    addedWidth = addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor) + (j == stopsCount - (showExtraStopInfo ? 0 : 1) ? 5 : 0);
                     lineStationsPanel.width += addedWidth;
                 }
             }
-            lineStationsPanel.width -= addedWidth ;
-            if (showExtraStopInfo)
-            {
+            lineStationsPanel.width -= addedWidth;
+            if (showExtraStopInfo) {
                 vehiclesOnStation.Clear();
-                for (int v = 0; v < vehicleCount; v++)
-                {
+                for (int v = 0; v < vehicleCount; v++) {
                     ushort vehicleId = t.GetVehicle(v);
 
                     AddVehicleToLinearMap(lineColor, vehicleId);
@@ -217,8 +199,7 @@ namespace Klyte.TransportLinesManager.UI
             vehicleLabel.textAlignment = UIHorizontalAlignment.Center;
             vehicleLabel.tooltip = Singleton<VehicleManager>.instance.GetVehicleName(vehicleId);
 
-            vehicleLabel.eventClick += (x, y) =>
-            {
+            vehicleLabel.eventClick += (x, y) => {
                 InstanceID id = default(InstanceID);
                 id.Vehicle = vehicleId;
                 Camera.main.GetComponent<CameraController>().SetTarget(id, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].GetLastFramePosition(), true);
@@ -230,40 +211,31 @@ namespace Klyte.TransportLinesManager.UI
 
         private void updateVehiclePosition(ushort vehicleId, UILabel vehicleLabel)
         {
-            try
-            {
+            try {
                 ushort stopId = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding;
                 var labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
                 float destX = stationOffsetX[stopId] - labelStation.width / 4 * 3;
-                if (Singleton<TransportManager>.instance.m_lines.m_buffer[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_transportLine].GetStop(0) == stopId && (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != 0)
-                {
+                if (Singleton<TransportManager>.instance.m_lines.m_buffer[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_transportLine].GetStop(0) == stopId && (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != 0) {
                     destX = stationOffsetX[TransportLine.GetPrevStop(stopId)] + labelStation.width / 4;
                 }
                 float yOffset = vehicleYbaseOffset;
                 int busesOnStation = vehiclesOnStation.ContainsKey(stopId) ? vehiclesOnStation[stopId] : 0;
-                if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != 0)
-                {
+                if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != 0) {
                     ushort prevStop = TransportLine.GetPrevStop(stopId);
                     destX = stationOffsetX[prevStop] - labelStation.width / 4;
                     busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(prevStop) ? vehiclesOnStation[prevStop] : 0);
                     vehiclesOnStation[prevStop] = busesOnStation + 1;
-                }
-                else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Arriving) != 0)
-                {
+                } else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Arriving) != 0) {
                     destX += labelStation.width / 4;
                     ushort nextStop = TransportLine.GetNextStop(stopId);
                     busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(nextStop) ? vehiclesOnStation[nextStop] : 0);
                     vehiclesOnStation[nextStop] = busesOnStation + 1;
-                }
-                else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Leaving) != 0)
-                {
+                } else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Leaving) != 0) {
                     destX -= labelStation.width / 4;
                     ushort prevStop = TransportLine.GetPrevStop(stopId);
                     busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(prevStop) ? vehiclesOnStation[prevStop] : 0);
                     vehiclesOnStation[prevStop] = busesOnStation + 1;
-                }
-                else
-                {
+                } else {
                     ushort prevStop = TransportLine.GetPrevStop(stopId);
                     busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(prevStop) ? vehiclesOnStation[prevStop] : 0);
                 }
@@ -346,16 +318,12 @@ namespace Klyte.TransportLinesManager.UI
             infoToggle.localeID = "TLM_SHOW_EXTRA_INFO";
             infoToggle.isLocalized = true;
             infoToggle.textScale = 0.8f;
-            infoToggle.eventClick += (x, y) =>
-            {
+            infoToggle.eventClick += (x, y) => {
                 showIntersections = !showIntersections;
                 showExtraStopInfo = !showIntersections;
-                if (showIntersections)
-                {
+                if (showIntersections) {
                     infoToggle.localeID = "TLM_SHOW_EXTRA_INFO";
-                }
-                else
-                {
+                } else {
                     infoToggle.localeID = "TLM_SHOW_LINE_INTEGRATION_SHORT";
                 }
                 redrawLine();
@@ -366,28 +334,24 @@ namespace Klyte.TransportLinesManager.UI
 
         public void updateBidings()
         {
-            if (showExtraStopInfo)
-            {
-                foreach (var resLabel in residentCounters)
-                {
+            if (showExtraStopInfo) {
+                foreach (var resLabel in residentCounters) {
                     int residents, tourists;
                     TLMLineUtils.GetQuantityPassengerWaiting(resLabel.Key, out residents, out tourists);
                     resLabel.Value.text = residents.ToString();
                     touristCounters[resLabel.Key].text = tourists.ToString();
                 }
                 ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
-                TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
+                TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int) lineID];
                 Color lineColor = lineInfoPanel.controller.tm.GetLineColor(lineID);
                 int vehicleCount = t.CountVehicles(lineID);
                 List<ushort> oldItems = lineVehicles.Keys.ToList();
                 vehiclesOnStation.Clear();
-                for (int v = 0; v < vehicleCount; v++)
-                {
+                for (int v = 0; v < vehicleCount; v++) {
                     ushort vehicleId = t.GetVehicle(v);
                     UILabel vehicleLabel = null;
 
-                    if (oldItems.Contains(vehicleId))
-                    {
+                    if (oldItems.Contains(vehicleId)) {
                         vehicleLabel = lineVehicles[vehicleId];
                         int fill, cap;
                         TLMLineUtils.GetVehicleCapacityAndFill(vehicleId, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId], out fill, out cap);
@@ -395,15 +359,12 @@ namespace Klyte.TransportLinesManager.UI
                         var labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
                         updateVehiclePosition(vehicleId, vehicleLabel);
                         oldItems.Remove(vehicleId);
-                    }
-                    else
-                    {
+                    } else {
                         AddVehicleToLinearMap(lineColor, vehicleId);
                     }
 
                 }
-                foreach (ushort dead in oldItems)
-                {
+                foreach (ushort dead in oldItems) {
                     GameObject.Destroy(lineVehicles[dead].gameObject);
                     lineVehicles.Remove(dead);
                 }
@@ -427,11 +388,14 @@ namespace Klyte.TransportLinesManager.UI
             lineStationsPanel.color = lineInfoPanel.controller.tm.GetLineColor(lineInfoPanel.lineIdSelecionado.TransportLine);
         }
 
-        private float addStationToLinearMap(string stationPrefix, string stationName, Vector3 location, float offsetX, List<ushort> intersections, string airport, string harbor, string taxi, string regionalTrainStation, ushort stationNodeId, ItemClass.SubService ss, Color lineColor, bool simple = false)//, out float intersectionPanelHeight)
+        private float addStationToLinearMap(string stationPrefix, string stationName, Vector3 location, float offsetX, List<ushort> intersections,
+            string airport, string harbor, string taxi, string regionalTrainStation, string cableCarStation,
+            ushort stationNodeId, ItemClass.SubService ss, Color lineColor, bool simple = false)//, out float intersectionPanelHeight)
         {
             ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
-            TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int)lineID];
+            TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int) lineID];
             TransportManager tm = Singleton<TransportManager>.instance;
+            
 
             UIButton stationButton = null;
             TLMUtils.createUIElement<UIButton>(ref stationButton, lineStationsPanel.transform);
@@ -462,14 +426,11 @@ namespace Klyte.TransportLinesManager.UI
             stationLabel.textColor = Color.white;
             stationLabel.cursorWidth = 2;
             stationLabel.cursorBlinkTime = 100;
-            stationLabel.eventGotFocus += (x, y) =>
-            {
+            stationLabel.eventGotFocus += (x, y) => {
                 stationLabel.text = TLMUtils.getStationName(stationNodeId, lineID, ss);
             };
-            stationLabel.eventTextSubmitted += (x, y) =>
-            {
-                TLMUtils.setStopName(y, stationNodeId, lineID, () =>
-                {
+            stationLabel.eventTextSubmitted += (x, y) => {
+                TLMUtils.setStopName(y, stationNodeId, lineID, () => {
                     stationLabel.text = TLMUtils.getFullStationName(stationNodeId, lineID, ss);
                     m_autoName = TLMUtils.calculateAutoName(lineID);
                     lineInfoPanel.autoNameLabel.text = autoName;
@@ -478,22 +439,18 @@ namespace Klyte.TransportLinesManager.UI
 
             stationButton.gameObject.transform.localPosition = new Vector3(0, 0, 0);
             stationButton.gameObject.transform.localEulerAngles = new Vector3(0, 0, 45);
-            stationButton.eventClick += (component, eventParam) =>
-            {
+            stationButton.eventClick += (component, eventParam) => {
                 lineInfoPanel.cameraController.SetTarget(lineInfoPanel.lineIdSelecionado, location, false);
                 lineInfoPanel.cameraController.ClearTarget();
 
             };
-            if (!simple)
-            {
+            if (!simple) {
                 stationOffsetX.Add(stationNodeId, offsetX);
-                if (showIntersections)
-                {
+                if (showIntersections) {
                     var otherLinesIntersections = TLMLineUtils.SortLines(intersections, t);
 
-                    int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0);
-                    if (intersectionCount > 0)
-                    {
+                    int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0) + (cableCarStation != string.Empty ? 1 : 0);
+                    if (intersectionCount > 0) {
                         UIPanel intersectionsPanel = null;
                         TLMUtils.createUIElement<UIPanel>(ref intersectionsPanel, stationButton.transform);
                         intersectionsPanel.autoSize = false;
@@ -504,26 +461,28 @@ namespace Klyte.TransportLinesManager.UI
                         intersectionsPanel.wrapLayout = false;
                         intersectionsPanel.autoFitChildrenVertically = true;
 
-                        TLMLineUtils.PrintIntersections(airport, harbor, taxi, regionalTrainStation, intersectionsPanel, otherLinesIntersections);
+                        TLMLineUtils.PrintIntersections(airport, harbor, taxi, regionalTrainStation, cableCarStation, intersectionsPanel, otherLinesIntersections);
 
                         intersectionsPanel.autoLayout = true;
                         intersectionsPanel.wrapLayout = true;
                         intersectionsPanel.width = 55;
                         //				
                         return 42f;
+                    } else {
+                        if (offsetX == 0){
+                            stationButton.relativePosition = new Vector3(offsetX - 13, 15f);
+                            TLMUtils.initButton(stationButton, true, "LinearHalfStation");
+                            return 31f;
+                        } else {
+                            stationButton.relativePosition = new Vector3(offsetX - 23, 15f);
+                            TLMUtils.initButton(stationButton, true, "LinearHalfStation");
+                            return 21f;
+                        }
                     }
-                    else
-                    {
-                        stationButton.relativePosition = new Vector3(offsetX - 23, 15f);
-                        TLMUtils.initButton(stationButton, true, "LinearHalfStation");
-                        return 21f;
-                    }
-                }
-                else if (showExtraStopInfo)
-                {
+                } else if (showExtraStopInfo) {
                     float normalWidth = 42.5f;
 
-                    NetNode stopNode = Singleton<NetManager>.instance.m_nodes.m_buffer[(int)stationNodeId];
+                    NetNode stopNode = Singleton<NetManager>.instance.m_nodes.m_buffer[(int) stationNodeId];
 
                     int residents, tourists;
                     TLMLineUtils.GetQuantityPassengerWaiting(stationNodeId, out residents, out tourists);
@@ -571,14 +530,10 @@ namespace Klyte.TransportLinesManager.UI
                     touristCounters[stationNodeId] = touristsWaiting;
                     //				
                     return normalWidth;
+                } else {
+                    return 30f;
                 }
-                else
-                {
-                    return 25f;
-                }
-            }
-            else
-            {
+            } else {
                 return 30f;
             }
 
@@ -588,11 +543,11 @@ namespace Klyte.TransportLinesManager.UI
 
 
 
-        Vector3 getStation(ushort lineId, ushort stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string harbor, out string taxiStand, out string regionalTrainStation, out string prefix)
+        Vector3 getStation(ushort lineId, ushort stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string harbor, out string taxiStand, out string regionalTrainStation, out string cableCarStation, out string prefix)
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
-            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+            NetNode nn = nm.m_nodes.m_buffer[(int) stopId];
             ItemClass.Service servFound;
             ItemClass.SubService subServFound;
             ushort buildingId;
@@ -600,12 +555,11 @@ namespace Klyte.TransportLinesManager.UI
 
             //paradas proximas (metro e trem)
             TransportManager tm = Singleton<TransportManager>.instance;
-            TransportInfo thisLineInfo = tm.m_lines.m_buffer[(int)nn.m_transportLine].Info;
-            TransportLine thisLine = tm.m_lines.m_buffer[(int)nn.m_transportLine];
+            TransportInfo thisLineInfo = tm.m_lines.m_buffer[(int) nn.m_transportLine].Info;
+            TransportLine thisLine = tm.m_lines.m_buffer[(int) nn.m_transportLine];
             linhas = new List<ushort>();
             Vector3 location = nn.m_position;
-            if (buildingId > 0 && ss == subServFound)
-            {
+            if (buildingId > 0 && ss == subServFound) {
                 location = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId].CalculateSidewalkPosition();
             }
             TLMLineUtils.GetNearLines(location, 120f, ref linhas);
@@ -614,51 +568,53 @@ namespace Klyte.TransportLinesManager.UI
             taxiStand = String.Empty;
             harbor = String.Empty;
             regionalTrainStation = String.Empty;
+            cableCarStation = string.Empty;
 
-            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP))
-            {
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP)) {
                 ushort trainStation = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain, null, Building.Flags.None, Building.Flags.Untouchable | Building.Flags.Downgrading);
 
-                if (trainStation > 0)
-                {
+                if (trainStation > 0) {
                     InstanceID iid = default(InstanceID);
                     iid.Building = trainStation;
                     regionalTrainStation = bm.GetBuildingName(trainStation, iid);
                 }
             }
 
-            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP))
-            {
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP)) {
                 ushort airportId = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane, new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerPlane }, Building.Flags.None, Building.Flags.Untouchable);
 
-                if (airportId > 0)
-                {
+                if (airportId > 0) {
                     InstanceID iid = default(InstanceID);
                     iid.Building = airportId;
                     airport = bm.GetBuildingName(airportId, iid);
                 }
             }
 
-            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP))
-            {
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP)) {
                 ushort harborId = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip, new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerShip }, Building.Flags.None, Building.Flags.Untouchable);
 
-                if (harborId > 0)
-                {
+                if (harborId > 0) {
                     InstanceID iid = default(InstanceID);
                     iid.Building = harborId;
                     harbor = bm.GetBuildingName(harborId, iid);
                 }
             }
-            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP))
-            {
-                ushort taxiId = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 50f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTaxi, new TransferManager.TransferReason[] { TransferManager.TransferReason.Taxi }, Building.Flags.None, Building.Flags.Untouchable);
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP)) {
+                ushort taxiId = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 50f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTaxi, null, Building.Flags.None, Building.Flags.Untouchable);
 
-                if (taxiId > 0)
-                {
+                if (taxiId > 0) {
                     InstanceID iid = default(InstanceID);
                     iid.Building = taxiId;
                     taxiStand = bm.GetBuildingName(taxiId, iid);
+                }
+            }
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CABLE_CAR_SHOW_IN_LINEAR_MAP)) {
+                ushort cableCarId = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportCableCar, null, Building.Flags.None, Building.Flags.Untouchable);
+
+                if (cableCarId > 0) {
+                    InstanceID iid = default(InstanceID);
+                    iid.Building = cableCarId;
+                    cableCarStation = bm.GetBuildingName(cableCarId, iid);
                 }
             }
 
