@@ -113,12 +113,12 @@ namespace Klyte.TransportLinesManager.Utils
 
         }
 
-        public static void createDragHandle(UIComponent parent, UIComponent target)
+        public static UIDragHandle createDragHandle(UIComponent parent, UIComponent target)
         {
-            createDragHandle(parent, target, -1);
+            return createDragHandle(parent, target, -1);
         }
 
-        public static void createDragHandle(UIComponent parent, UIComponent target, float height)
+        public static UIDragHandle createDragHandle(UIComponent parent, UIComponent target, float height)
         {
             UIDragHandle dh = null;
             createUIElement<UIDragHandle>(ref dh, parent.transform);
@@ -128,6 +128,7 @@ namespace Klyte.TransportLinesManager.Utils
             dh.height = height < 0 ? parent.height : height;
             dh.name = "DragHandle";
             dh.Start();
+            return dh;
         }
 
         public static void initButton(UIButton button, bool isCheck, string baseSprite, bool allLower = false)

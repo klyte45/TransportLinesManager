@@ -849,10 +849,10 @@ namespace Klyte.TransportLinesManager.LineList
 
             float baseBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
 
-            budgetLabel.text = string.Format("{0:0%} ({1:0%})", getEffectiveBudget(), Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.5f);//585+1/7 = frames/week                ;
+            budgetLabel.text = string.Format("{0:0%} ({1:0%})", getEffectiveBudget(), Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.004f);//585+1/7 = frames/week                ;
             budgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
                 TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportInfo(info)),
-                baseBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.5f, getEffectiveBudget());
+                baseBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.004f, getEffectiveBudget());
 
             //bool isZeroed = ((int)tl.m_flags & (int)TLMTransportLineFlags.ZERO_BUDGET_SETTED) > 0;
             //lineTime.isVisible = !isZeroed;

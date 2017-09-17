@@ -204,25 +204,86 @@ namespace Klyte.TransportLinesManager.UI
                 id.Vehicle = vehicleId;
                 Camera.main.GetComponent<CameraController>().SetTarget(id, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].GetLastFramePosition(), true);
             };
-            updateVehiclePosition(vehicleId, vehicleLabel);
+            UIDragHandle dh = TLMUtils.createDragHandle(vehicleLabel, vehicleLabel);
+            DraggableVehicleInfo dvi = null;
+            TLMUtils.createUIElement<DraggableVehicleInfo>(ref dvi, vehicleLabel.transform);
+            dvi.vehicleId = vehicleId;
+            dvi.name = "Vehicle" + vehicleId;
+
+            vehicleLabel.eventMouseLeave += vehicleHover;
+            vehicleLabel.eventMouseUp += vehicleHover;
+            vehicleLabel.eventMouseDown += vehicleHover;
+            vehicleLabel.eventDragStart += draggingVehicle;
+            vehicleLabel.eventMouseHover += vehicleHover;
+
+            updateVehiclePosition(vehicleLabel);
 
             lineVehicles.Add(vehicleId, vehicleLabel);
         }
 
-        private void updateVehiclePosition(ushort vehicleId, UILabel vehicleLabel)
+        private void vehicleHover(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            bool oldVal = component.GetComponentInChildren<DraggableVehicleInfo>().isDragging;
+            bool newVal = (eventParam.buttons & UIMouseButton.Left) != UIMouseButton.None;
+            component.GetComponentInChildren<DraggableVehicleInfo>().isDragging = newVal;
+            if (oldVal != newVal && newVal == false) {
+                TLMUtils.doLog("onVehicleDrop! {0}", component.name);
+                DraggableVehicleInfo dvi = eventParam.source.parent.GetComponentInChildren<DraggableVehicleInfo>();
+                UIView view = GameObject.FindObjectOfType<UIView>();
+                UIHitInfo[] hits = view.RaycastAll(eventParam.ray);
+                DroppableStationInfo dsi = null;
+                UIComponent res = null;
+                int idxRes = -1;
+                for (int i = hits.Length - 1; i >= 0; i--) {
+                    UIHitInfo hit = hits[i];
+                    DroppableStationInfo[] dsiList = hit.component.GetComponentsInChildren<DroppableStationInfo>();
+                    if (dsiList.Length == 0) {
+                        dsiList = hit.component.parent.GetComponentsInChildren<DroppableStationInfo>();
+                    }
+
+                    if (dsiList.Length == 1) {
+                        dsi = dsiList[0];
+                        res = hit.component;
+                        idxRes = i;
+                        break;
+                    }
+                }
+                if (dvi == null || dsi == null) {
+                    TLMUtils.doLog("Drag Drop falhou! {0}", eventParam.source.name);
+                    return;
+                } else {
+                    TLMUtils.doLog("Drag Funcionou! {0}/{1} ({2}-{3})", eventParam.source.name, dsi.gameObject.name, res.gameObject.name, idxRes);
+                    VehicleAI ai = (VehicleAI) Singleton<VehicleManager>.instance.m_vehicles.m_buffer[dvi.vehicleId].Info.GetAI();
+                    ai.SetTarget(dvi.vehicleId, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[dvi.vehicleId], dsi.nodeId);
+                }
+            }
+        }
+
+        private void draggingVehicle(UIComponent component, UIDragEventParameter eventParam)
+        {
+            component.GetComponentInChildren<DraggableVehicleInfo>().isDragging = true;
+        }
+
+
+        private void updateVehiclePosition(UILabel vehicleLabel)
         {
             try {
+                DraggableVehicleInfo dvi = vehicleLabel.GetComponentInChildren<DraggableVehicleInfo>();
+                if (dvi.isDragging) {
+                    return;
+                }
+                ushort vehicleId = dvi.vehicleId;
                 ushort stopId = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding;
                 var labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
-                float destX = stationOffsetX[stopId] - labelStation.width / 4 * 3;
+                float destX = stationOffsetX[stopId] - labelStation.width;
                 if (Singleton<TransportManager>.instance.m_lines.m_buffer[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_transportLine].GetStop(0) == stopId && (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != 0) {
-                    destX = stationOffsetX[TransportLine.GetPrevStop(stopId)] + labelStation.width / 4;
+                    destX = stationOffsetX[TransportLine.GetPrevStop(stopId)];
                 }
                 float yOffset = vehicleYbaseOffset;
                 int busesOnStation = vehiclesOnStation.ContainsKey(stopId) ? vehiclesOnStation[stopId] : 0;
                 if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != 0) {
                     ushort prevStop = TransportLine.GetPrevStop(stopId);
-                    destX = stationOffsetX[prevStop] - labelStation.width / 4;
+                    destX -= labelStation.width / 2;
                     busesOnStation = Math.Max(busesOnStation, vehiclesOnStation.ContainsKey(prevStop) ? vehiclesOnStation[prevStop] : 0);
                     vehiclesOnStation[prevStop] = busesOnStation + 1;
                 } else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Arriving) != 0) {
@@ -242,13 +303,10 @@ namespace Klyte.TransportLinesManager.UI
                 yOffset = vehicleYbaseOffset + busesOnStation * vehicleYoffsetIncrement;
                 vehiclesOnStation[stopId] = busesOnStation + 1;
                 vehicleLabel.position = new Vector3(destX, yOffset);
-            }
-#pragma warning disable CS0168 // Variable is declared but never used
-            catch (Exception e)
-#pragma warning restore CS0168 // Variable is declared but never used
-            {
+            } catch (Exception e) {
                 TLMUtils.doLog("ERROR UPDATING VEHICLE!!!");
-                redrawLine();
+                TLMUtils.doErrorLog(e.ToString());
+                //redrawLine();
             }
         }
 
@@ -357,7 +415,7 @@ namespace Klyte.TransportLinesManager.UI
                         TLMLineUtils.GetVehicleCapacityAndFill(vehicleId, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId], out fill, out cap);
                         vehicleLabel.text = string.Format("{0}/{1}", fill, cap);
                         var labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
-                        updateVehiclePosition(vehicleId, vehicleLabel);
+                        updateVehiclePosition(vehicleLabel);
                         oldItems.Remove(vehicleId);
                     } else {
                         AddVehicleToLinearMap(lineColor, vehicleId);
@@ -395,7 +453,7 @@ namespace Klyte.TransportLinesManager.UI
             ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
             TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int) lineID];
             TransportManager tm = Singleton<TransportManager>.instance;
-            
+
 
             UIButton stationButton = null;
             TLMUtils.createUIElement<UIButton>(ref stationButton, lineStationsPanel.transform);
@@ -405,7 +463,13 @@ namespace Klyte.TransportLinesManager.UI
             stationButton.color = lineColor;
             stationButton.name = "Station [" + stationName + "]";
             stationButton.atlas = TLMController.taLineNumber;
+            stationButton.tooltip = stationName + "(id:" + stationNodeId + ")";
             TLMUtils.initButton(stationButton, true, "LinearStation");
+
+            DroppableStationInfo dsi = null;
+            TLMUtils.createUIElement<DroppableStationInfo>(ref dsi, stationButton.transform);
+            dsi.nodeId = stationNodeId;
+            dsi.name = "DSI Station [" + stationName + "] - " + stationNodeId;
 
             UITextField stationLabel = null;
             TLMUtils.createUIElement<UITextField>(ref stationLabel, stationButton.transform);
@@ -469,7 +533,7 @@ namespace Klyte.TransportLinesManager.UI
                         //				
                         return 42f;
                     } else {
-                        if (offsetX == 0){
+                        if (offsetX == 0) {
                             stationButton.relativePosition = new Vector3(offsetX - 13, 15f);
                             TLMUtils.initButton(stationButton, true, "LinearHalfStation");
                             return 31f;
@@ -538,8 +602,6 @@ namespace Klyte.TransportLinesManager.UI
             }
 
         }
-
-
 
 
 
@@ -622,6 +684,15 @@ namespace Klyte.TransportLinesManager.UI
             return location;
         }
 
+        private class DraggableVehicleInfo : UIComponent
+        {
+            public ushort vehicleId;
+            public bool isDragging = false;
+        }
+        private class DroppableStationInfo : UIComponent
+        {
+            public ushort nodeId;
+        }
 
     }
 }
