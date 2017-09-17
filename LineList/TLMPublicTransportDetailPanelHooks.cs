@@ -660,7 +660,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_buttonRemoveUnwanted.tooltip = Locale.Get("TLM_REMOVE_UNWANTED_TOOLTIP");
             TLMUtils.initButton(m_buttonRemoveUnwanted, true, "ButtonMenu");
             m_buttonRemoveUnwanted.name = "RemoveUnwanted";
-            m_buttonRemoveUnwanted.isVisible = true;
+            m_buttonRemoveUnwanted.isVisible = !TransportLinesManagerMod.isIPTLoaded;
             m_buttonRemoveUnwanted.eventClick += (component, eventParam) => {
                 OnRemoveUnwanted();
             };
@@ -701,7 +701,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_buttonPrefixConfig.tooltip = Locale.Get("TLM_CITY_ASSETS_SELECTION");
             TLMUtils.initButton(m_buttonPrefixConfig, true, "ButtonMenu");
             m_buttonPrefixConfig.name = "DepotToggleButton";
-            m_buttonPrefixConfig.isVisible = true;
+            m_buttonPrefixConfig.isVisible = !TransportLinesManagerMod.isIPTLoaded;
             m_buttonPrefixConfig.eventClick += (component, eventParam) => {
                 SetActiveTab(NUM_TRANSPORT_SYSTEMS * 2);
             };
@@ -728,24 +728,12 @@ namespace Klyte.TransportLinesManager.LineList
             m_DayIcon = m_linesTitle.Find<UIButton>("DayButton");
             m_NightIcon = m_linesTitle.Find<UIButton>("NightButton");
             m_DayNightIcon = m_linesTitle.Find<UIButton>("DayNightButton");
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
-                TLMUtils.doLog("Create disabled button");
-            m_DisabledIcon = GameObject.Instantiate(m_DayIcon.gameObject).GetComponent<UIButton>();
-            m_DisabledIcon.transform.SetParent(m_DayIcon.transform.parent);
-            m_NightIcon.relativePosition = new Vector3(678, 14);
-            m_DayNightIcon.relativePosition = new Vector3(704, 14);
-            m_DisabledIcon.normalBgSprite = "Niet";
-            m_DisabledIcon.hoveredBgSprite = "Niet";
-            m_DisabledIcon.pressedBgSprite = "Niet";
-            m_DisabledIcon.disabledBgSprite = "Niet";
-
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                 TLMUtils.doLog("Set Tooltips");
             m_DayIcon.tooltip = Locale.Get("TLM_DAY_FILTER_TOOLTIP");
             m_NightIcon.tooltip = Locale.Get("TLM_NIGHT_FILTER_TOOLTIP");
             m_DayNightIcon.tooltip = Locale.Get("TLM_DAY_NIGHT_FILTER_TOOLTIP");
-            m_DisabledIcon.tooltip = Locale.Get("TLM_DISABLED_LINES_FILTER_TOOLTIP");
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                 TLMUtils.doLog("Set events");
@@ -764,15 +752,25 @@ namespace Klyte.TransportLinesManager.LineList
                 m_DayNightIcon.color = m_showDayNightLines ? Color.white : Color.black;
                 m_DayNightIcon.focusedColor = !m_showDayLines ? Color.white : Color.black;
             };
-            m_DisabledIcon.eventClick += (x, y) => {
-                m_showDisabledLines = !m_showDisabledLines;
-                m_DisabledIcon.color = m_showDisabledLines ? Color.white : Color.black;
-                m_DisabledIcon.focusedColor = !m_showDayLines ? Color.white : Color.black;
-            };
-
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
-                TLMUtils.doLog("Set position");
-            m_DisabledIcon.relativePosition = new Vector3(736, 14);
+            if (!TransportLinesManagerMod.isIPTLoaded) {
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                    TLMUtils.doLog("Create disabled button");
+                m_DisabledIcon = GameObject.Instantiate(m_DayIcon.gameObject).GetComponent<UIButton>();
+                m_DisabledIcon.transform.SetParent(m_DayIcon.transform.parent);
+                m_NightIcon.relativePosition = new Vector3(678, 14);
+                m_DayNightIcon.relativePosition = new Vector3(704, 14);
+                m_DisabledIcon.normalBgSprite = "Niet";
+                m_DisabledIcon.hoveredBgSprite = "Niet";
+                m_DisabledIcon.pressedBgSprite = "Niet";
+                m_DisabledIcon.disabledBgSprite = "Niet";
+                m_DisabledIcon.tooltip = Locale.Get("TLM_DISABLED_LINES_FILTER_TOOLTIP");
+                m_DisabledIcon.eventClick += (x, y) => {
+                    m_showDisabledLines = !m_showDisabledLines;
+                    m_DisabledIcon.color = m_showDisabledLines ? Color.white : Color.black;
+                    m_DisabledIcon.focusedColor = !m_showDayLines ? Color.white : Color.black;
+                };
+                m_DisabledIcon.relativePosition = new Vector3(736, 14);
+            }
         }
 
         private void CopyContainerFromBus(int idx, ref UIComponent item)
@@ -847,6 +845,9 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void AwakePrefixEditor()
         {
+            if (TransportLinesManagerMod.isIPTLoaded) {
+                return;
+            }
             UIHelperExtension group2 = new UIHelperExtension(m_PrefixEditor);
 
 
@@ -1211,7 +1212,7 @@ namespace Klyte.TransportLinesManager.LineList
         public void SetActiveTab(int idx)
         {
             this.m_Strip.selectedIndex = idx;
-            if (m_isDepotView != idx > NUM_TRANSPORT_SYSTEMS) {
+            if (m_isDepotView != (idx > NUM_TRANSPORT_SYSTEMS && idx != NUM_TRANSPORT_SYSTEMS * 2)) {
                 toggleDepotView();
             }
         }
@@ -1509,7 +1510,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_linesTitle.isVisible = m_isLineView;
             m_buttonAutoName.isVisible = m_isLineView;
             m_buttonAutoColor.isVisible = m_isLineView;
-            m_buttonRemoveUnwanted.isVisible = !m_isDepotView;
+            m_buttonRemoveUnwanted.isVisible = !m_isDepotView && !TransportLinesManagerMod.isIPTLoaded;
 
             if (m_isDepotView && !m_isPrefixEditor) {
                 m_depotsTitle.Find<UIButton>("NameTitle").text = string.Format(Locale.Get("TLM_DEPOT_NAME_PATTERN"), Locale.Get("TLM_PUBLICTRANSPORT_OF_DEPOT", currentSelectedSystem.ToString()));
@@ -1520,7 +1521,9 @@ namespace Klyte.TransportLinesManager.LineList
             }
 
             m_depotsTitle.relativePosition = m_linesTitle.relativePosition;
-            m_DisabledIcon.relativePosition = new Vector3(736, 14);
+            if (!TransportLinesManagerMod.isIPTLoaded) {
+                m_DisabledIcon.relativePosition = new Vector3(736, 14);
+            }
             RefreshLines();
             OnLineNumberSort();
             RefreshLineCount(m_Strip.selectedIndex);

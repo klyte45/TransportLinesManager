@@ -1014,6 +1014,17 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void updateSliders()
         {
+            if (TransportLinesManagerMod.isIPTLoaded) {
+                disableBudgetPerHour.isVisible = false;
+                enableBudgetPerHour.isVisible = false;
+                for (int i = 0; i < budgetSliders.Length; i++) {
+                    budgetSliders[i].isEnabled = false;
+                    budgetSliders[i].parent.isVisible = false;
+                }
+                lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_IPT2_NO_BUDGET_CONTROL"));
+
+                return;
+            }
             var tsd = TLMCW.getDefinitionForLine(m_lineIdSelecionado.TransportLine);
             if (m_lineIdSelecionado.TransportLine <= 0 || tsd == default(TransportSystemDefinition)) {
                 return;
@@ -1047,7 +1058,7 @@ namespace Klyte.TransportLinesManager.LineList
                         budgetSliders[i].value = multipliers[i] / 100f;
                     }
                 }
-                lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(mnPrefixo), (int) prefix+1) : Locale.Get("TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+                lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(mnPrefixo), (int) prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
             } else {
                 disableBudgetPerHour.isVisible = false;
                 enableBudgetPerHour.isVisible = false;

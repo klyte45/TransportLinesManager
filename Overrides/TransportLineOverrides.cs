@@ -59,31 +59,36 @@ namespace Klyte.TransportLinesManager.Overrides
             #endregion
 
             #region Ticket Override Hooks
-            MethodInfo GetTicketPricePost_PassengerPlaneAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerPlaneAI", allFlags);
-            MethodInfo GetTicketPricePost_PassengerShipAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerShipAI", allFlags);
-            MethodInfo GetTicketPricePost_TramAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_TramAI", allFlags);
-            MethodInfo GetTicketPricePost_PassengerTrainAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerTrainAI", allFlags);
-            MethodInfo GetTicketPricePost_PassengerBlimpAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerBlimpAI", allFlags);
-            MethodInfo GetTicketPricePost_PassengerFerryAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerFerryAI", allFlags);
-            MethodInfo GetTicketPricePost_BusAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_BusAI", allFlags);
-            MethodInfo GetTicketPricePost_CableCarAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_CableCarAI", allFlags);
+            if (!TransportLinesManagerMod.isIPTLoaded) {
+                MethodInfo GetTicketPricePost_PassengerPlaneAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerPlaneAI", allFlags);
+                MethodInfo GetTicketPricePost_PassengerShipAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerShipAI", allFlags);
+                MethodInfo GetTicketPricePost_TramAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_TramAI", allFlags);
+                MethodInfo GetTicketPricePost_PassengerTrainAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerTrainAI", allFlags);
+                MethodInfo GetTicketPricePost_PassengerBlimpAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerBlimpAI", allFlags);
+                MethodInfo GetTicketPricePost_PassengerFerryAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerFerryAI", allFlags);
+                MethodInfo GetTicketPricePost_BusAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_BusAI", allFlags);
+                MethodInfo GetTicketPricePost_CableCarAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_CableCarAI", allFlags);
 
-            TLMUtils.doLog("Loading Ticket Override Hooks");
-            AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerPlaneAI);
-            AddRedirect(typeof(PassengerShipAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerShipAI);
-            AddRedirect(typeof(TramAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_TramAI);
-            AddRedirect(typeof(PassengerTrainAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerTrainAI);
-            AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerBlimpAI);
-            AddRedirect(typeof(PassengerFerryAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerFerryAI);
-            AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_BusAI);
-            AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_CableCarAI);
+                TLMUtils.doLog("Loading Ticket Override Hooks");
+                AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerPlaneAI);
+                AddRedirect(typeof(PassengerShipAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerShipAI);
+                AddRedirect(typeof(TramAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_TramAI);
+                AddRedirect(typeof(PassengerTrainAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerTrainAI);
+                AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerBlimpAI);
+                AddRedirect(typeof(PassengerFerryAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerFerryAI);
+                AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_BusAI);
+                AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_CableCarAI);
+            }
             #endregion
 
             #region Budget Override Hooks
-            MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("SimulationStepPre", allFlags);
 
-            TLMUtils.doLog("Loading SimulationStepPre Hook");
-            AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), SimulationStepPre);
+            if (!TransportLinesManagerMod.isIPTLoaded) {
+                MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("SimulationStepPre", allFlags);
+
+                TLMUtils.doLog("Loading SimulationStepPre Hook");
+                AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), SimulationStepPre);
+            }
             #endregion
 
         }

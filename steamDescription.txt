@@ -1,4 +1,4 @@
-[h1]Works with Mass Transport update (1.7.*)[/h1]
+[h1]Works with Concerts update (1.8.*)[/h1]
 
 -----------------------------------------------------------------------------------------------------------------------------
 [h1]If you don't downloaded this mod from Steam Workshop, I can't help you.[/h1] 
@@ -7,8 +7,7 @@ I can't ensure the downloaded version is the same from here.
 -----------------------------------------------------------------------------------------------------------------------------
 [h1]NOTE ABOUT IMPROVED PUBLIC TRANSPORT 2 [IPT2] [/h1]
 
-The TLM Team is working to bring some functions from IPT to the TLM. Stay tuned!
-Also, Bloody Penguin is working in IPT and some incompatibilities shall vanish soon.
+The IPT mode was removed, but the TLM is now [b]compatible[/b] with IPT2. See the compatibility functions table for more info
 -----------------------------------------------------------------------------------------------------------------------------
 
 A shortcut to manage all city's public transports lines. Useful for Airplane Line Tool and Ship Line Tool also.
@@ -40,11 +39,10 @@ And more things have changed:
 - [i]The factory icon button[/i] switches between the lines listing and the depot listing.
 
 [h1]IPT Overridden Functions:[/h1]
-- You can choose which vehicle models will be spawned in each line (by [b]line prefix[/b] in the asterisk tab; since 5.0)
-- You can see where in the line are each vehicle in a graphic view, after accessing the line detail menu (since 4.2)
-- You can select how many vehicles will be used in a line. (in the line detail view; since 5.1)
-- You can set an multiplier for certain lines budget  (by [b]line prefix[/b] in asterisk tab; Since 5.2)
-- You can set the ticket price from 0.05 up to 40 C  (by [b]line prefix[/b] in asterisk tab; since 5.3)
+- You can choose which vehicle models will be spawned in each line (by [b]line prefix[/b] in the prefix config screen; since 5.0)
+- You can see where in the line are each vehicle in a graphic view, after accessing the line detail menu (since 4.2) and can manually set the next stop target for a vehicle dragging them (since 7.0)
+- You can set an multiplier for certain lines budget  (by [b]line prefix[/b]; Since 5.2 - Since 7.0 on TLM's line info window)
+- You can set the ticket price from 0.05 up to 40 C  (by [b]line prefix[/b] in the prefix config screen; since 5.3)
   (Game defaults: Bus= 1; Tram, Train, Metro = 2; Ship = 5; Airplane = 10)
 
 
@@ -66,37 +64,42 @@ And more things have changed:
 - Polish - by woj2012
 - Chinese (partial) - by Laoweek
 
-[h1]NEW AT 6.0[/h1]
+[h1]NEW AT 7.0[/h1]
+- Updated methods hooking
+- Updated Linear Map UI
+- Added drag'n'drop for vehicles - on vehicle monitor, drag a vehicle into a stop label and then the vehicle will target there as next stop (Manual Unbunching)
+- Added budget control sliders to the Line Info Panel (now is possible to edit per hour budget viewing a line info)
+- Added options for show near ferry and blimp lines in the options
+- Fixed cable car icon in near lines panel (and linear map intersections)
+- Removed IPT compatibility mode option - is automatic now (IPT2)
+- Added MOM compatibility to hide depots which doesn't shall spawn metro trains
+- Added support for multi-service stations hub which are depot also (like the monorail/rail/metro hub)
+- Fixed evacuation route bug
+- Fixed depot naming bug
+- Fixed fare = 100 bug
+- New default palettes:
+	- Rainbow
+	- Rainbow Short
+	- World Metro
+	- MS Metro Design UI
+	- Material Design Default Colors
+	- Material Design 100
+	- Material Design 500
+	- Material Design 900
+	- Material Design A200
+	- Material Design A400
+	- Material Design A700
+	- São Paulo CPTM 2000
+	- São Paulo Bus Area 2000
 
-- Support for mass transit
-- Now shows external trains stations with a orange circle with a symbol (same model used for taxis, airports and ports)
-- Now uses road names for bus and tram stations and line namings(if near a crossing, show name as [i]Street A x Avenue B[/i])
-
-[b]6.0.1[/b]
-- Fixed no fare bug
-- Fixed missing i18n terms
-
-[b]6.0.2[/b]
-- Fixed null pointer on invalid depot category, now logs error
-- Fixed some misspelling in English file
-- German language updated
-- Fixed sorting on line listing
-- Added dutch support (thanks bas_dehaan!)
-- Added polish support (thanks woj2012!)
-- Added partial chinese support (thanks Laoweek!)
 
 [h1]Important Notes[/h1]
 - Due the overriding done in the Tram, Ship, Bus and Passenger Train system, the option of enable/disable vehicles from these categories inside the [i]Advanced Vehicle Options[/i] is useless for public city lines. The configuration in the TLM override it. But all other functions, like coloring, set capacity and more of AVO are still working. The model selection for external vehicles (like regional passenger ships and trains) still workin in AVO and alike mods.
-- Due the overriding done in the Tram, Ship, Bus and Passenger Train system, the IPT enqueue for these categories will fail: the model of the bus enqueued could not be the selected in IPT. Use the compatibility mode for IPT to avoid it.
 - No new incompatibilities found, except the listed above.
 
 
 [h1]Known Bugs[/h1]
-- Rename depots are not working in the TLM listing and in depot details windows.
-- Bus stations and terminals are wrongly listed as depots.
-- Not show cable car stations on linear map as near transport
-- All transports have fixed fare at 100.
-- Color selector sometimes get the team selector - not the line color selector.
+None in 7.0
 
 
 [h1](Alpha) Transport map exporter[/h1]
@@ -107,10 +110,9 @@ The html files with the map can be found at Transport Lines Manager folder insid
 - Integrate IPT 2.
 
 [h1]Other notes[/h1]
-- Since 4.0, this mod uses the [url=https://github.com/sschoener/cities-skylines-detour]Sebastian Schöner's Detour code[/url]. 
+- Since 7.0, this mod uses the [url=https://github.com/pardeike/Harmony]Harmony[/url]. 
 
 [h1]Reported incompatible mods:[/h1]
-- [url=http://steamcommunity.com/sharedfiles/filedetails/?id=406951430]Slow Speed[/url] (TLM 1.1.1 > *)
-- [url=http://steamcommunity.com/sharedfiles/filedetails/?id=519691655]Service Vehicle Selector[/url] (TLM 5.0+)
+None in 7.0
 
 If you like my work, you can help me [url=https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=U9EM9Z4YXEMTC]making a donation[/url]

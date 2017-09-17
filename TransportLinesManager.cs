@@ -72,6 +72,13 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public static bool isIPTLoaded
+        {
+            get {
+                Type IPT2 = Type.GetType("ImprovedPublicTransport2.ImprovedPublicTransportMod");
+                return IPT2 != null && (bool) IPT2.GetField("inGame", Redirector.allFlags).GetValue(null);
+            }
+        }
 
         public static SavedBool debugMode
         {
@@ -501,8 +508,8 @@ namespace Klyte.TransportLinesManager
             });
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
-                TLMUtils.doLog("End Loading Options");            
-        }        
+                TLMUtils.doLog("End Loading Options");
+        }
 
         public void autoLoadTLMLocale()
         {

@@ -1,12 +1,13 @@
 ﻿TLMRv 7.0.0
     - Updated methods hooking
     - Updated Linear Map UI
+    - Added drag'n'drop for vehicles - on vehicle monitor, drag a vehicle into a stop label and then the vehicle will target there as next stop (Manual Unbunching)
     - Added budget control sliders to the Line Info Panel (now is possible to edit per hour budget viewing a line info)
     - Added options for show near ferry and blimp lines in the options
     - Fixed cable car icon in near lines panel (and linear map intersections)
-    - Removed IPT compatibility mode
+    - Removed IPT compatibility mode option - is automatic now (IPT2)
     - Added MOM compatibility to hide depots which doesn't shall spawn metro trains
-    - Added support for multi-service stations hub (like the monorail/rail/subway metro)
+    - Added support for multi-service stations hub which are depot also (like the monorail/rail/metro hub)
     - Fixed evacuation route bug
     - Fixed depot naming bug
     - Fixed fare = 100 bug
@@ -24,3 +25,18 @@
         - Material Design A700
         - São Paulo CPTM 2000
         - São Paulo Bus Area 2000
+
+COMPATIBILITY REPORT IPT2 - TLM7
+DEFAULT CONFLICTING FUNCTIONS               Effective
+- Line budget       						IPT2
+- Depot selection    						TLM7
+- Vehicle model selection                  	IPT2
+- Fares            							IPT2
+- Maintence cost						    IPT2
+
+TLM7 FEATURES                               Avaliability
+- Disable line      					    N/A
+- Manual Unbunching (Drag'n'Drop)	    	OK
+- Remove unselected vehciles for prefix 	OK
+- AutoName/AutoColor    					OK
+

@@ -378,8 +378,13 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
 
-            m_NightLine.relativePosition = new Vector3(678, 8);
-            m_DayNightLine.relativePosition = new Vector3(704, 8);
+            if (TransportLinesManagerMod.isIPTLoaded) {
+                m_DisabledLine.isEnabled = false;
+                m_DisabledLine.isVisible = false;
+            } else {
+                m_NightLine.relativePosition = new Vector3(678, 8);
+                m_DayNightLine.relativePosition = new Vector3(704, 8);
+            }
 
 
             //this.m_noBudgetWarn = GameObject.Instantiate(base.Find<UILabel>("LineName"));
