@@ -27,7 +27,7 @@ namespace Klyte.TransportLinesManager.Utils
             return vehicleData;
         }
 
-        public static void GetQuantityPassengerWaiting(ushort currentStop, out int residents, out int tourists)
+        public static void GetQuantityPassengerWaiting(ushort currentStop, out int residents, out int tourists, out int timeTilBored)
         {
             ushort nextStop = TransportLine.GetNextStop(currentStop);
             CitizenManager cm = Singleton<CitizenManager>.instance;
@@ -41,6 +41,7 @@ namespace Klyte.TransportLinesManager.Utils
             int maxZ = Mathf.Min((int) ((position.z + 32f) / 8f + 1080f), 2159);
             residents = 0;
             tourists = 0;
+            timeTilBored = 255;
             int zIterator = minZ;
             while (zIterator <= maxZ) {
                 int xIterator = minX;
@@ -60,6 +61,7 @@ namespace Klyte.TransportLinesManager.Utils
                                     } else {
                                         residents++;
                                     }
+                                    timeTilBored = Math.Max(255 - cm.m_instances.m_buffer[citizenIterator].m_waitCounter, timeTilBored);
                                 }
                             }
                         }

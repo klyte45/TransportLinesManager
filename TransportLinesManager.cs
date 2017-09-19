@@ -19,8 +19,9 @@ using System.Reflection.Emit;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
+using ColossalFramework.PlatformServices;
 
-[assembly: AssemblyVersion("7.0.0.*")]
+[assembly: AssemblyVersion("7.0.1.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -282,6 +283,11 @@ namespace Klyte.TransportLinesManager
 
         public void OnSettingsUI(UIHelperBase helperDefault)
         {
+            var oldTLMid = new PublishedFileId(408875519);
+            if (!string.IsNullOrEmpty(PlatformService.workshop.GetSubscribedItemPath(oldTLMid))) {
+                TLMUtils.doLog("Removing old TLM");
+                PlatformService.workshop.Unsubscribe(oldTLMid);
+            }
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                 TLMUtils.doLog("Loading Options");
@@ -753,13 +759,7 @@ namespace Klyte.TransportLinesManager
                 TLMController.instance.destroy();
             }
         }
-
-        static public void postCreateLineTest(ref ushort lineID)
-        {
-            TLMUtils.doLog("passando no metodo novo");
-            TLMUtils.doLog("valor retornado LineID: {0}", lineID);
-            TLMUtils.doLog("retornando...");
-        }
+        
 
     }
 

@@ -29,11 +29,12 @@ namespace Klyte.TransportLinesManager.UI
         private UIButton infoToggle;
         private Dictionary<ushort, UILabel> residentCounters = new Dictionary<ushort, UILabel>();
         private Dictionary<ushort, UILabel> touristCounters = new Dictionary<ushort, UILabel>();
+        private Dictionary<ushort, UILabel> ttbTimers = new Dictionary<ushort, UILabel>();
         private Dictionary<ushort, UILabel> lineVehicles = new Dictionary<ushort, UILabel>();
         private Dictionary<ushort, float> stationOffsetX = new Dictionary<ushort, float>();
         private Dictionary<ushort, int> vehiclesOnStation = new Dictionary<ushort, int>();
         private const float vehicleYoffsetIncrement = -20f;
-        private const float vehicleYbaseOffset = -55f;
+        private const float vehicleYbaseOffset = -75f;
 
         private bool showIntersections = true;
         private bool showExtraStopInfo = false;
@@ -394,10 +395,12 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (showExtraStopInfo) {
                 foreach (var resLabel in residentCounters) {
-                    int residents, tourists;
-                    TLMLineUtils.GetQuantityPassengerWaiting(resLabel.Key, out residents, out tourists);
+                    int residents, tourists, ttb;
+                    TLMLineUtils.GetQuantityPassengerWaiting(resLabel.Key, out residents, out tourists, out ttb);
                     resLabel.Value.text = residents.ToString();
                     touristCounters[resLabel.Key].text = tourists.ToString();
+                    ttbTimers[resLabel.Key].text = ttb.ToString();
+                    ttbTimers[resLabel.Key].color = getColorForTTB(ttb);
                 }
                 ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
                 TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int) lineID];
@@ -426,6 +429,19 @@ namespace Klyte.TransportLinesManager.UI
                     GameObject.Destroy(lineVehicles[dead].gameObject);
                     lineVehicles.Remove(dead);
                 }
+            }
+        }
+
+        private Color32 getColorForTTB(int ttb)
+        {
+            if (ttb > 200) {
+                return Color.green;
+            }else if(ttb > 150) {
+                return Color.Lerp(Color.green, Color.yellow, (ttb - 150) / 50f);
+            } else if (ttb > 50) {
+                return Color.Lerp(Color.yellow, Color.red, (ttb - 50) / 100f);
+            } else {
+                return Color.red;
             }
         }
 
@@ -548,8 +564,8 @@ namespace Klyte.TransportLinesManager.UI
 
                     NetNode stopNode = Singleton<NetManager>.instance.m_nodes.m_buffer[(int) stationNodeId];
 
-                    int residents, tourists;
-                    TLMLineUtils.GetQuantityPassengerWaiting(stationNodeId, out residents, out tourists);
+                    int residents, tourists, ttb;
+                    TLMLineUtils.GetQuantityPassengerWaiting(stationNodeId, out residents, out tourists, out ttb);
 
                     UIPanel stationInfoStatsPanel = null;
                     TLMUtils.createUIElement<UIPanel>(ref stationInfoStatsPanel, stationButton.transform);
@@ -592,6 +608,21 @@ namespace Klyte.TransportLinesManager.UI
                     touristsWaiting.color = new Color32(0x1f, 0x25, 0x68, 255);
                     touristsWaiting.textAlignment = UIHorizontalAlignment.Center;
                     touristCounters[stationNodeId] = touristsWaiting;
+
+                    UILabel timeTilBored = null;
+                    TLMUtils.createUIElement<UILabel>(ref timeTilBored, stationInfoStatsPanel.transform);
+                    timeTilBored.autoSize = false;
+                    timeTilBored.text = tourists.ToString();
+                    timeTilBored.tooltipLocaleID = "TLM_TIME_TIL_BORED";
+                    timeTilBored.useOutline = true;
+                    timeTilBored.width = normalWidth;
+                    timeTilBored.height = 20;
+                    timeTilBored.padding = new RectOffset(0, 0, 4, 2);
+                    timeTilBored.textScale = 0.7f;
+                    timeTilBored.backgroundSprite = "EmptySprite";
+                    timeTilBored.color = new Color32(0x1f, 0x25, 0x68, 255);
+                    timeTilBored.textAlignment = UIHorizontalAlignment.Center;
+                    ttbTimers[stationNodeId] = timeTilBored;
                     //				
                     return normalWidth;
                 } else {
