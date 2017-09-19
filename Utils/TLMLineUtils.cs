@@ -61,7 +61,7 @@ namespace Klyte.TransportLinesManager.Utils
                                     } else {
                                         residents++;
                                     }
-                                    timeTilBored = Math.Max(255 - cm.m_instances.m_buffer[citizenIterator].m_waitCounter, timeTilBored);
+                                    timeTilBored = Math.Min(255 - cm.m_instances.m_buffer[citizenIterator].m_waitCounter, timeTilBored);
                                 }
                             }
                         }

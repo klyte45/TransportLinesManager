@@ -1,4 +1,8 @@
-﻿TLMRv 7.0.0
+﻿TLMRv 7.0.1
+    - Fixed Harmony compatibility with multiplatform Mono
+    - Added Time Til Bored functionality to the linear map (on the vehicle monitor)
+
+7.0.0
     - Updated methods hooking
     - Updated Linear Map UI
     - Added drag'n'drop for vehicles - on vehicle monitor, drag a vehicle into a stop label and then the vehicle will target there as next stop (Manual Unbunching)

@@ -437,9 +437,9 @@ namespace Klyte.TransportLinesManager.UI
             if (ttb > 200) {
                 return Color.green;
             }else if(ttb > 150) {
-                return Color.Lerp(Color.green, Color.yellow, (ttb - 150) / 50f);
+                return Color.Lerp(Color. yellow, Color.green, (ttb - 150) / 50f);
             } else if (ttb > 50) {
-                return Color.Lerp(Color.yellow, Color.red, (ttb - 50) / 100f);
+                return Color.Lerp(Color.red, Color.yellow, (ttb - 50) / 100f);
             } else {
                 return Color.red;
             }
