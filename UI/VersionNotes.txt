@@ -1,5 +1,5 @@
 ﻿TLMRv 7.0.1
-    - Fixed Harmony compatibility with multiplatform Mono
+    - Fixed Harmony compatibility with others mods
     - Added Time Til Bored functionality to the linear map (on the vehicle monitor)
 
 7.0.0
