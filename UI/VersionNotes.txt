@@ -1,4 +1,10 @@
-﻿TLMRv 7.0.1
+﻿TLMRv 7.0.2
+    - German locale updated (thanks weoiss!)
+    - Disabled the world line info panel override if IPT2 is active
+    - Added button to world line info panel on TLM's line info window when using IPT2
+    - Minor UI fixes
+
+7.0.1
     - Fixed Harmony compatibility with others mods
     - Added Time Til Bored functionality to the linear map (on the vehicle monitor)
 

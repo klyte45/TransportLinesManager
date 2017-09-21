@@ -53,6 +53,7 @@ namespace Klyte.TransportLinesManager.LineList
         private UISlider[] budgetSliders = new UISlider[8];
         private UIButton enableBudgetPerHour;
         private UIButton disableBudgetPerHour;
+        private UIButton goToWorldInfoPanel;
         private UILabel lineBudgetSlidersTitle;
 
 
@@ -271,11 +272,12 @@ namespace Klyte.TransportLinesManager.LineList
             lineBudgetSlidersTitle.autoSize = false;
             lineBudgetSlidersTitle.relativePosition = new Vector3(15f, 130f);
             lineBudgetSlidersTitle.width = 400f;
-            lineBudgetSlidersTitle.height = 30f;
+            lineBudgetSlidersTitle.height = 36f;
             lineBudgetSlidersTitle.textScale = 0.9f;
             lineBudgetSlidersTitle.textAlignment = UIHorizontalAlignment.Center;
             lineBudgetSlidersTitle.name = "LineBudgetSlidersTitle";
             lineBudgetSlidersTitle.font = UIHelperExtension.defaultFontCheckbox;
+            lineBudgetSlidersTitle.wordWrap = true;
 
             for (int i = 0; i < budgetSliders.Length; i++) {
                 budgetSliders[i] = GenerateVerticalBudgetMultiplierField(uiHelper, i);
@@ -497,6 +499,20 @@ namespace Klyte.TransportLinesManager.LineList
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "24hLineIcon";
+
+            TLMUtils.createUIElement<UIButton>(ref goToWorldInfoPanel, lineInfoPanel.transform);
+            goToWorldInfoPanel.relativePosition = new Vector3(lineInfoPanel.width - 200f, lineInfoPanel.height - 140f);
+            goToWorldInfoPanel.text = "IPT2";
+            goToWorldInfoPanel.textScale = 0.6f;
+            goToWorldInfoPanel.width = 40;
+            goToWorldInfoPanel.height = 40;
+            goToWorldInfoPanel.tooltip = Locale.Get("TLM_GO_TO_WORLD_INFO_PANEL_LINE");
+            TLMUtils.initButton(goToWorldInfoPanel, true, "ButtonMenu");
+            goToWorldInfoPanel.name = "IPT2WorldInfoButton";
+            goToWorldInfoPanel.isVisible = true;
+            goToWorldInfoPanel.eventClick += (component, eventParam) => {
+                WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(Vector3.zero, m_lineIdSelecionado);
+            };
         }
 
         private void createLineInfoLabels()
@@ -1015,6 +1031,7 @@ namespace Klyte.TransportLinesManager.LineList
         private void updateSliders()
         {
             if (TransportLinesManagerMod.isIPTLoaded) {
+                goToWorldInfoPanel.isVisible = true;
                 disableBudgetPerHour.isVisible = false;
                 enableBudgetPerHour.isVisible = false;
                 for (int i = 0; i < budgetSliders.Length; i++) {
@@ -1024,6 +1041,8 @@ namespace Klyte.TransportLinesManager.LineList
                 lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_IPT2_NO_BUDGET_CONTROL"));
 
                 return;
+            } else {
+                goToWorldInfoPanel.isVisible = false;
             }
             var tsd = TLMCW.getDefinitionForLine(m_lineIdSelecionado.TransportLine);
             if (m_lineIdSelecionado.TransportLine <= 0 || tsd == default(TransportSystemDefinition)) {

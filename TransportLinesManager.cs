@@ -21,7 +21,7 @@ using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using ColossalFramework.PlatformServices;
 
-[assembly: AssemblyVersion("7.0.1.*")]
+[assembly: AssemblyVersion("7.0.2.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -133,7 +133,7 @@ namespace Klyte.TransportLinesManager
         public static bool overrideWorldInfoPanelLine
         {
             get {
-                return TransportLinesManagerMod.instance.m_savedOverrideDefaultLineInfoPanel.value;
+                return TransportLinesManagerMod.instance.m_savedOverrideDefaultLineInfoPanel.value && !isIPTLoaded;
             }
         }
 
