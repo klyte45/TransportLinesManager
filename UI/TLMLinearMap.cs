@@ -1,4 +1,4 @@
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.UI;
 using Klyte.TransportLinesManager.LineList;
 using System;
@@ -7,6 +7,7 @@ using System.Linq;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.Extensions;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -27,6 +28,7 @@ namespace Klyte.TransportLinesManager.UI
         private bool zerosEsquerda;
         private bool invertPrefixSuffix;
         private UIButton infoToggle;
+        private UIButton distanceToggle;
         private Dictionary<ushort, UILabel> residentCounters = new Dictionary<ushort, UILabel>();
         private Dictionary<ushort, UILabel> touristCounters = new Dictionary<ushort, UILabel>();
         private Dictionary<ushort, UILabel> ttbTimers = new Dictionary<ushort, UILabel>();
@@ -54,11 +56,8 @@ namespace Klyte.TransportLinesManager.UI
             get {
                 try {
                     return mainContainer.gameObject;
-                }
-#pragma warning disable CS0168 // Variable is declared but never used
-                catch (Exception e)
-#pragma warning restore CS0168 // Variable is declared but never used
-                {
+                } catch (Exception e) {
+                    TLMUtils.doErrorLog(e.ToString());
                     return null;
                 }
 
@@ -138,7 +137,7 @@ namespace Klyte.TransportLinesManager.UI
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
                     local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out cableCarStation, out namePrefix);
-                    addedWidth = addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor) + (j == middle + stopsCount / 2 ? 5 : 0);
+                    addedWidth = addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor, j == maxIt, false) + (j == middle + stopsCount / 2 ? 5 : 0);
                     lineStationsPanel.width += addedWidth;
                 }
             } else {
@@ -153,14 +152,14 @@ namespace Klyte.TransportLinesManager.UI
                     ushort stationId = t.GetStop(j);
                     List<ushort> intersections;
                     local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out cableCarStation, out namePrefix);
-                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor, true);
+                    lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor, false, true);
                 }
                 for (int i = minI; i < maxI; i++) {
                     int j = i % stopsCount;
                     List<ushort> intersections;
                     ushort stationId = t.GetStop(j);
                     local = getStation(lineID, stationId, ss, out stationName, out intersections, out airport, out harbor, out taxi, out regionalStation, out cableCarStation, out namePrefix);
-                    addedWidth = addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor) + (j == stopsCount - (showExtraStopInfo ? 0 : 1) ? 5 : 0);
+                    addedWidth = addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor, i + 1 == maxI, false) + (j == stopsCount - (showExtraStopInfo ? 0 : 1) ? 5 : 0);
                     lineStationsPanel.width += addedWidth;
                 }
             }
@@ -382,9 +381,27 @@ namespace Klyte.TransportLinesManager.UI
                 showExtraStopInfo = !showIntersections;
                 if (showIntersections) {
                     infoToggle.localeID = "TLM_SHOW_EXTRA_INFO";
+                    distanceToggle.isVisible = true;
                 } else {
                     infoToggle.localeID = "TLM_SHOW_LINE_INTEGRATION_SHORT";
+                    distanceToggle.isVisible = false;
                 }
+                redrawLine();
+            };
+
+
+            TLMUtils.createUIElement<UIButton>(ref distanceToggle, mainContainer.transform);
+            TLMUtils.initButton(distanceToggle, true, "ButtonMenu");
+            distanceToggle.relativePosition = new Vector3(0f, 135f);
+            distanceToggle.width = 50;
+            distanceToggle.height = 20;
+            distanceToggle.wordWrap = true;
+            distanceToggle.tooltipLocaleID = "TLM_TOGGLE_DISTANCE_LINEAR_MAP";
+            distanceToggle.isTooltipLocalized = true;
+            distanceToggle.textScale = 0.8f;
+            distanceToggle.text = "Δd";
+            distanceToggle.eventClick += (x, y) => {
+                TransportLinesManagerMod.showDistanceInLinearMap = !TransportLinesManagerMod.showDistanceInLinearMap;
                 redrawLine();
             };
 
@@ -436,8 +453,8 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (ttb > 200) {
                 return Color.green;
-            }else if(ttb > 150) {
-                return Color.Lerp(Color. yellow, Color.green, (ttb - 150) / 50f);
+            } else if (ttb > 150) {
+                return Color.Lerp(Color.yellow, Color.green, (ttb - 150) / 50f);
             } else if (ttb > 50) {
                 return Color.Lerp(Color.red, Color.yellow, (ttb - 50) / 100f);
             } else {
@@ -464,7 +481,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private float addStationToLinearMap(string stationPrefix, string stationName, Vector3 location, float offsetX, List<ushort> intersections,
             string airport, string harbor, string taxi, string regionalTrainStation, string cableCarStation,
-            ushort stationNodeId, ItemClass.SubService ss, Color lineColor, bool simple = false)//, out float intersectionPanelHeight)
+            ushort stationNodeId, ItemClass.SubService ss, Color lineColor, bool isLast, bool simple)//, out float intersectionPanelHeight)
         {
             ushort lineID = lineInfoPanel.lineIdSelecionado.TransportLine;
             TransportLine t = lineInfoPanel.controller.tm.m_lines.m_buffer[(int) lineID];
@@ -528,8 +545,52 @@ namespace Klyte.TransportLinesManager.UI
                 stationOffsetX.Add(stationNodeId, offsetX);
                 if (showIntersections) {
                     var otherLinesIntersections = TLMLineUtils.SortLines(intersections, t);
-
+                    UILabel distance = null;
                     int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0) + (cableCarStation != string.Empty ? 1 : 0);
+
+                    if (TransportLinesManagerMod.showDistanceInLinearMap && !isLast) {
+                        NetSegment seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment0];
+                        if (seg.m_startNode != stationNodeId) {
+                            seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment1];
+                        }
+                        if (seg.m_startNode != stationNodeId) {
+                            seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment2];
+                        }
+                        if (seg.m_startNode != stationNodeId) {
+                            seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment3];
+                        }
+                        if (seg.m_startNode != stationNodeId) {
+                            seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment4];
+                        }
+                        if (seg.m_startNode != stationNodeId) {
+                            seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment5];
+                        }
+                        if (seg.m_startNode != stationNodeId) {
+                            seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment6];
+                        }
+                        if (seg.m_startNode != stationNodeId) {
+                            seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment7];
+                        }
+                        UIPanel distContainer = null;
+                        TLMUtils.createUIElement<UIPanel>(ref distContainer, stationButton.transform);
+                        distContainer.size = new Vector2(0, 0);
+                        distContainer.relativePosition = new Vector3(0, 0, 0);
+                        TLMUtils.createUIElement<UILabel>(ref distance, distContainer.transform);
+                        distance.autoSize = false;
+                        distance.useOutline = true;
+                        distance.text = (int) seg.m_averageLength + "m";
+                        distance.textScale = 0.7f;
+                        distance.textAlignment = UIHorizontalAlignment.Center;
+                        distance.verticalAlignment = UIVerticalAlignment.Middle;
+                        distance.name = "dist.";
+                        distance.font = UIHelperExtension.defaultFontCheckbox;
+                        distance.width = 50f;
+                        distance.height = 50;
+                        distance.relativePosition = new Vector3(0, 0);
+                        distance.transform.localEulerAngles = new Vector3(0, 0, 45);
+                        distance.isInteractive = false;
+                    }
+
                     if (intersectionCount > 0) {
                         UIPanel intersectionsPanel = null;
                         TLMUtils.createUIElement<UIPanel>(ref intersectionsPanel, stationButton.transform);
@@ -542,21 +603,21 @@ namespace Klyte.TransportLinesManager.UI
                         intersectionsPanel.autoFitChildrenVertically = true;
 
                         TLMLineUtils.PrintIntersections(airport, harbor, taxi, regionalTrainStation, cableCarStation, intersectionsPanel, otherLinesIntersections);
-
                         intersectionsPanel.autoLayout = true;
                         intersectionsPanel.wrapLayout = true;
                         intersectionsPanel.width = 55;
-                        //				
+                        //		
                         return 42f;
                     } else {
+                        TLMUtils.initButton(stationButton, true, "LinearHalfStation");
                         if (offsetX == 0) {
                             stationButton.relativePosition = new Vector3(offsetX - 13, 15f);
-                            TLMUtils.initButton(stationButton, true, "LinearHalfStation");
                             return 31f;
-                        } else {
+                        } else if (distance == null) {
                             stationButton.relativePosition = new Vector3(offsetX - 23, 15f);
-                            TLMUtils.initButton(stationButton, true, "LinearHalfStation");
                             return 21f;
+                        } else {
+                            return 42f;
                         }
                     }
                 } else if (showExtraStopInfo) {

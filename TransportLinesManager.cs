@@ -21,7 +21,7 @@ using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using ColossalFramework.PlatformServices;
 
-[assembly: AssemblyVersion("7.0.2.*")]
+[assembly: AssemblyVersion("7.1.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -53,6 +53,7 @@ namespace Klyte.TransportLinesManager
         private SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
         private SavedBool m_debugMode;
         private SavedBool m_betaMapGen;
+        private SavedBool m_showDistanceInLinearMap;
         private SavedString m_savedPalettes;
 
 
@@ -92,6 +93,16 @@ namespace Klyte.TransportLinesManager
         {
             get {
                 return TransportLinesManagerMod.instance.m_betaMapGen;
+            }
+        }
+
+        public static bool showDistanceInLinearMap
+        {
+            get {
+                return TransportLinesManagerMod.instance.m_showDistanceInLinearMap.value;
+            }
+            set {
+                TransportLinesManagerMod.instance.m_showDistanceInLinearMap.value = value;
             }
         }
 
@@ -228,6 +239,7 @@ namespace Klyte.TransportLinesManager
             m_savedOverrideDefaultLineInfoPanel = new SavedBool("TLMOverrideDefaultLineInfoPanel", Settings.gameSettingsFile, true, true);
             m_debugMode = new SavedBool("TLMdebugMode", Settings.gameSettingsFile, false, true);
             m_betaMapGen = new SavedBool("TLMbetaMapGen", Settings.gameSettingsFile, false, true);
+            m_showDistanceInLinearMap = new SavedBool("TLMshowDistanceInLinearMap", Settings.gameSettingsFile, true, true);
 
             if (m_debugMode.value)
                 TLMUtils.doLog("currentSaveVersion.value = {0}, fullVersion = {1}", currentSaveVersion.value, fullVersion);

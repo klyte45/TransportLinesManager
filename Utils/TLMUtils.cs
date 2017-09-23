@@ -88,6 +88,10 @@ namespace Klyte.TransportLinesManager.Utils
             return new Color(d, d, d, 1);
         }
 
+        public static float calcBezierLenght(Bezier3 bz, float precision = 0.5f)
+        {
+            return calcBezierLenght(bz.a, bz.b, bz.c, bz.d, precision);
+        }
         public static float calcBezierLenght(Vector3 a, Vector3 b, Vector3 c, Vector3 d, float precision)
         {
 
