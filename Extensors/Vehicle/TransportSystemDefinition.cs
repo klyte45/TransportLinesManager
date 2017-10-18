@@ -52,20 +52,23 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public override bool Equals(object obj)
         {
-            if (obj == null) {
+            if (obj == null)
+            {
                 return false;
             }
-            if (obj.GetType() != typeof(TransportSystemDefinition)) {
+            if (obj.GetType() != typeof(TransportSystemDefinition))
+            {
                 return false;
             }
-            TransportSystemDefinition other = (TransportSystemDefinition) obj;
+            TransportSystemDefinition other = (TransportSystemDefinition)obj;
 
             return this.subService == other.subService && this.vehicleType == other.vehicleType;
         }
 
         public static bool operator ==(TransportSystemDefinition a, TransportSystemDefinition b)
         {
-            if (Object.Equals(a, null) || Object.Equals(b, null)) {
+            if (Object.Equals(a, null) || Object.Equals(b, null))
+            {
                 return Object.Equals(a, null) == Object.Equals(b, null);
             }
             return a.Equals(b);
@@ -78,7 +81,8 @@ namespace Klyte.TransportLinesManager.Extensors
         public static TransportSystemDefinition from(PrefabAI buildingAI)
         {
             DepotAI depotAI = buildingAI as DepotAI;
-            if (depotAI == null) {
+            if (depotAI == null)
+            {
                 return null;
             }
             return from(depotAI.m_transportInfo);
@@ -86,7 +90,8 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public static TransportSystemDefinition from(TransportInfo info)
         {
-            if (info == null) {
+            if (info == null)
+            {
                 return default(TransportSystemDefinition);
             }
             return availableDefinitions.FirstOrDefault(x => x.subService == info.m_class.m_subService && x.vehicleType == info.m_vehicleType);
@@ -104,6 +109,14 @@ namespace Klyte.TransportLinesManager.Extensors
         public override string ToString()
         {
             return subService.ToString() + "|" + vehicleType.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 286451371;
+            hashCode = hashCode * -1521134295 + subService.GetHashCode();
+            hashCode = hashCode * -1521134295 + vehicleType.GetHashCode();
+            return hashCode;
         }
     }
 }

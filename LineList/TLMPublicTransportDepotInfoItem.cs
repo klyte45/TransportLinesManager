@@ -155,6 +155,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
             GameObject.Destroy(base.Find<UICheckBox>("LineVisible").gameObject);
             GameObject.Destroy(base.Find<UIColorField>("LineColor").gameObject);
+            GameObject.Destroy(base.Find<UIPanel>("WarningIncomplete"));
 
             this.m_depotName = base.Find<UILabel>("LineName");
             this.m_depotNameField = this.m_depotName.Find<UITextField>("LineNameField");

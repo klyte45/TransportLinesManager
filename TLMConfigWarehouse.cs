@@ -119,8 +119,10 @@ namespace Klyte.TransportLinesManager
         {
             this.cityId = cityId;
             this.cityName = cityName;
-            SettingsFile tlmSettings = new SettingsFile();
-            tlmSettings.fileName = thisFileName;
+            SettingsFile tlmSettings = new SettingsFile
+            {
+                fileName = thisFileName
+            };
             GameSettings.AddSettingsFile(tlmSettings);
 
             if (!tlmSettings.IsValid() && cityId != GLOBAL_CONFIG_INDEX) {
@@ -298,8 +300,7 @@ namespace Klyte.TransportLinesManager
 
         public static string getNameForServiceType(ConfigIndex i)
         {
-            string key;
-            string id = getLocaleIdForIndex(i, out key);
+            string id = getLocaleIdForIndex(i, out string key);
             return Locale.Get(id, key);
         }
         private static string getLocaleIdForIndex(ConfigIndex i, out string key)

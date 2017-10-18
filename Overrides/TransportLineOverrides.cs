@@ -17,28 +17,8 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
-    class TransportLineOverrides : Redirector
+    class TransportLineOverrides : Redirector<TransportLineOverrides>
     {
-        #region Class Base
-        private readonly HarmonyInstance harmony = HarmonyInstance.Create("com.klyte.transportlinemanager.transportlineoverrides");
-
-        public override HarmonyInstance GetHarmonyInstance()
-        {
-            return harmony;
-        }
-
-        private static TransportLineOverrides _instance;
-        public static TransportLineOverrides instance
-        {
-            get {
-                if (_instance == null) {
-                    _instance = new TransportLineOverrides();
-                }
-                return _instance;
-            }
-        }
-        #endregion
-
         #region Hooking
 
         private static bool preventDefault()
@@ -46,7 +26,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return false;
         }
 
-        public void EnableHooks()
+        public override void EnableHooks()
         {
             MethodInfo preventDefault = typeof(TransportLineOverrides).GetMethod("preventDefault", allFlags);
 
@@ -179,10 +159,10 @@ namespace Klyte.TransportLinesManager.Overrides
                 return defaultPrice;
             }
             if (vehicleData.m_transportLine == 0) {
-                var value = (int) BasicTransportExtensionSingleton.instance(def).getDefaultTicketPrice();
+                var value = (int) BasicTransportExtensionSingleton.Instance(def).GetDefaultTicketPrice();
                 return value;
             } else {
-                var value = (int) (BasicTransportExtensionSingleton.instance(def).getTicketPrice((uint) vehicleData.m_transportLine));
+                var value = (int) (BasicTransportExtensionSingleton.Instance(def).GetTicketPrice((uint) vehicleData.m_transportLine));
 
                 return value;
             }

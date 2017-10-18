@@ -12,28 +12,8 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 {
-    class TLMDepotAI : Redirector
+    class TLMDepotAI : Redirector<TLMDepotAI>
     {
-        #region Class Base
-        private readonly HarmonyInstance harmony = HarmonyInstance.Create("com.klyte.transportlinemanager.depotai");
-
-        public override HarmonyInstance GetHarmonyInstance()
-        {
-            return harmony;
-        }
-
-        public static TLMDepotAI _instance;
-        public static TLMDepotAI instance
-        {
-            get {
-                if (_instance == null) {
-                    _instance = new TLMDepotAI();
-                }
-                return _instance;
-            }
-        }
-        #endregion
-
         #region Save file handle
         private const string SEPARATOR = "∂";
         private const string COMMA = "∞";
@@ -50,16 +30,17 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             foreach (string i in tempArray) {
                 var kv = i.Split(SEPARATOR.ToCharArray());
                 if (kv.Length == 2) {
-                    ushort key;
 
-                    if (ushort.TryParse(kv[0], out key)) {
-                        DepotAI buildingAI = bm.m_buildings.m_buffer[key].Info.GetAI() as DepotAI;
-                        if (buildingAI != null && tsd.isFromSystem(buildingAI)) {
+                    if (ushort.TryParse(kv[0], out ushort key))
+                    {
+                        if (bm.m_buildings.m_buffer[key].Info.GetAI() is DepotAI buildingAI && tsd.isFromSystem(buildingAI))
+                        {
                             saida[key] = new List<uint>();
                             var subtempArray = kv[1].Split(SUBCOMMA.ToCharArray());
-                            foreach (string j in subtempArray) {
-                                uint value;
-                                if (uint.TryParse(j, out value)) {
+                            foreach (string j in subtempArray)
+                            {
+                                if (uint.TryParse(j, out uint value))
+                                {
                                     saida[key].Add(value);
                                 }
                             }
@@ -110,11 +91,12 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
         public static void addPrefixToDepot(ushort buildingID, uint prefix, bool secondary)
         {
             var bm = Singleton<BuildingManager>.instance;
-            DepotAI buildingAI = bm.m_buildings.m_buffer[buildingID].Info.GetAI() as DepotAI;
-            if (buildingAI != null) {
+            if (bm.m_buildings.m_buffer[buildingID].Info.GetAI() is DepotAI buildingAI)
+            {
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
                 var dic = getConfigForTransportType(tsd);
-                if (!dic.ContainsKey(buildingID)) {
+                if (!dic.ContainsKey(buildingID))
+                {
                     dic[buildingID] = new List<uint>(defaultPrefixList);
                 }
                 dic[buildingID].Add(prefix);
@@ -126,11 +108,12 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
         public static void addAllPrefixesToDepot(ushort buildingID, bool secondary)
         {
             var bm = Singleton<BuildingManager>.instance;
-            DepotAI buildingAI = bm.m_buildings.m_buffer[buildingID].Info.GetAI() as DepotAI;
-            if (buildingAI != null) {
+            if (bm.m_buildings.m_buffer[buildingID].Info.GetAI() is DepotAI buildingAI)
+            {
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
                 var dic = getConfigForTransportType(tsd);
-                if (dic.ContainsKey(buildingID)) {
+                if (dic.ContainsKey(buildingID))
+                {
                     dic.Remove(buildingID);
                 }
                 saveConfigForTransportType(tsd, dic);
@@ -140,11 +123,12 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
         public static void removePrefixFromDepot(ushort buildingID, uint prefix, bool secondary)
         {
             var bm = Singleton<BuildingManager>.instance;
-            DepotAI buildingAI = bm.m_buildings.m_buffer[buildingID].Info.GetAI() as DepotAI;
-            if (buildingAI != null) {
+            if (bm.m_buildings.m_buffer[buildingID].Info.GetAI() is DepotAI buildingAI)
+            {
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
                 var dic = getConfigForTransportType(tsd);
-                if (!dic.ContainsKey(buildingID)) {
+                if (!dic.ContainsKey(buildingID))
+                {
                     dic[buildingID] = new List<uint>(defaultPrefixList);
                 }
                 dic[buildingID].Remove(prefix);
@@ -155,8 +139,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
         public static void removeAllPrefixesFromDepot(ushort buildingID, bool secondary)
         {
             var bm = Singleton<BuildingManager>.instance;
-            DepotAI buildingAI = bm.m_buildings.m_buffer[buildingID].Info.GetAI() as DepotAI;
-            if (buildingAI != null) {
+            if (bm.m_buildings.m_buffer[buildingID].Info.GetAI() is DepotAI buildingAI)
+            {
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
                 var dic = getConfigForTransportType(tsd);
                 dic[buildingID] = new List<uint>();
@@ -174,8 +158,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             var bm = Singleton<BuildingManager>.instance;
             var buildings = bm.GetServiceBuildings(ItemClass.Service.PublicTransport);
             foreach (ushort i in buildings) {
-                DepotAI buildingAI = bm.m_buildings.m_buffer[i].Info.GetAI() as DepotAI;
-                if (buildingAI != null && tsd.isFromSystem(buildingAI)) {
+                if (bm.m_buildings.m_buffer[i].Info.GetAI() is DepotAI buildingAI && tsd.isFromSystem(buildingAI))
+                {
                     saida.Add(i);
                 }
             }
@@ -187,8 +171,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             var bm = Singleton<BuildingManager>.instance;
             var buildings = bm.GetServiceBuildings(ItemClass.Service.PublicTransport);
             foreach (ushort i in buildings) {
-                DepotAI buildingAI = bm.m_buildings.m_buffer[i].Info.GetAI() as DepotAI;
-                if (buildingAI != null && buildingAI.m_maxVehicleCount > 0) {
+                if (bm.m_buildings.m_buffer[i].Info.GetAI() is DepotAI buildingAI && buildingAI.m_maxVehicleCount > 0)
+                {
                     saida.Add(i);
                 }
             }
@@ -199,12 +183,14 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
         {
             var bm = Singleton<BuildingManager>.instance;
             var buildings = bm.GetServiceBuildings(ItemClass.Service.PublicTransport);
-            DepotAI buildingAI = bm.m_buildings.m_buffer[buildingID].Info.GetAI() as DepotAI;
-            if (buildingAI != null) {
+            if (bm.m_buildings.m_buffer[buildingID].Info.GetAI() is DepotAI buildingAI)
+            {
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
-                if (tsd != default(TransportSystemDefinition)) {
+                if (tsd != default(TransportSystemDefinition))
+                {
                     var dic = getConfigForTransportType(tsd);
-                    if (!dic.ContainsKey(buildingID)) {
+                    if (!dic.ContainsKey(buildingID))
+                    {
                         return defaultPrefixList;
                     }
                     return dic[buildingID];
@@ -314,14 +300,12 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                 if (randomVehicleInfo != null) {
                     TLMUtils.doLog("randomVehicleInfo != null");
                     Array16<Vehicle> vehicles = Singleton<VehicleManager>.instance.m_vehicles;
-                    Vector3 position;
-                    Vector3 vector;
-                    __instance.CalculateSpawnPosition(buildingID, ref Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID], ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, out position, out vector);
-                    ushort vehicleID;
-                    if (Singleton<VehicleManager>.instance.CreateVehicle(out vehicleID, ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, position, reason, false, true)) {
+                    __instance.CalculateSpawnPosition(buildingID, ref Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID], ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, out Vector3 position, out Vector3 vector);
+                    if (Singleton<VehicleManager>.instance.CreateVehicle(out ushort vehicleID, ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, position, reason, false, true))
+                    {
                         TLMUtils.doLog("CreatedVehicle!!!");
-                        randomVehicleInfo.m_vehicleAI.SetSource(vehicleID, ref vehicles.m_buffer[(int) vehicleID], buildingID);
-                        randomVehicleInfo.m_vehicleAI.StartTransfer(vehicleID, ref vehicles.m_buffer[(int) vehicleID], reason, offer);
+                        randomVehicleInfo.m_vehicleAI.SetSource(vehicleID, ref vehicles.m_buffer[(int)vehicleID], buildingID);
+                        randomVehicleInfo.m_vehicleAI.StartTransfer(vehicleID, ref vehicles.m_buffer[(int)vehicleID], reason, offer);
                     }
                     return false;
                 }
@@ -335,7 +319,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         #region Hooking
 
-        public void EnableHooks()
+        public override void EnableHooks()
         {
             TLMUtils.doLog("Loading Depot Hooks!");
             AddRedirect(typeof(DepotAI).GetMethod("StartTransfer", allFlags), typeof(TLMDepotAI).GetMethod("StartTransfer", allFlags));

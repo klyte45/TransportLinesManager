@@ -14,10 +14,11 @@ using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
 using ICities;
 using System.Reflection;
+using Klyte.TransportLinesManager.Interfaces;
 
 namespace Klyte.TransportLinesManager.LineList
 {
-    public class TLMLineInfoPanel
+    public class TLMLineInfoPanel : LinearMapParentInterface
     {
         private TLMAgesChartPanel agesPanel;
         private TLMController m_controller;
@@ -63,6 +64,14 @@ namespace Klyte.TransportLinesManager.LineList
                 return m_autoNameLabel;
             }
         }
+
+        public override Transform TransformLinearMap
+        {
+            get {
+                return lineInfoPanel.transform;
+            }
+        }
+
 
         public Transform transform
         {
@@ -121,6 +130,36 @@ namespace Klyte.TransportLinesManager.LineList
             }
         }
 
+        public override ushort CurrentSelectedId
+        {
+            get {
+                return m_lineIdSelecionado.TransportLine;
+            }
+        }
+
+        public override bool CanSwitchView
+        {
+            get {
+                return true;
+            }
+        }
+
+        public override bool ForceShowStopsDistances
+        {
+            get {
+                return false;
+            }
+        }
+
+        public override bool PrefixSelector => false;
+
+        public override TransportInfo CurrentTransportInfo
+        {
+            get {
+                return Singleton<TransportManager>.instance.m_lines.m_buffer[CurrentSelectedId].Info;
+            }
+        }
+
         public TLMLineInfoPanel(TLMController controller)
         {
             this.m_controller = controller;
@@ -135,6 +174,9 @@ namespace Klyte.TransportLinesManager.LineList
         {
             if (!GameObject.Find("InfoViewsPanel").GetComponent<UIPanel>().isVisible) {
                 GameObject.Find("InfoViewsPanel").GetComponent<UIPanel>().isVisible = true;
+            }
+            if (Singleton<ToolController>.instance.CurrentTool.GetType() == typeof(TransportTool)) {
+                Singleton<ToolController>.instance.CurrentTool = Singleton<DefaultTool>.instance;
             }
             lineInfoPanel.Show();
         }
@@ -206,13 +248,7 @@ namespace Klyte.TransportLinesManager.LineList
         {
             String value = "0" + lineNumberLabel.text;
             int valPrefixo = linePrefixDropDown.selectedIndex;
-            ModoNomenclatura sufixo;
-            ModoNomenclatura prefixo;
-            ModoNomenclatura nonPrefix;
-            Separador sep;
-            bool zeros;
-            bool invertPrefixSuffix;
-            TLMLineUtils.getLineNamingParameters(m_lineIdSelecionado.TransportLine, out prefixo, out sep, out sufixo, out nonPrefix, out zeros, out invertPrefixSuffix);
+            TLMLineUtils.getLineNamingParameters(m_lineIdSelecionado.TransportLine, out ModoNomenclatura prefixo, out Separador sep, out ModoNomenclatura sufixo, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
             ushort num = ushort.Parse(value);
             if (prefixo != ModoNomenclatura.Nenhum) {
                 num = (ushort) (valPrefixo * 1000 + (num % 1000));
@@ -453,12 +489,12 @@ namespace Klyte.TransportLinesManager.LineList
                     var tsd = TransportSystemDefinition.from(tl.Info);
                     uint prefix = tl.m_lineNumber / 1000u;
                     BasicTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
-                    uint[] saveData = bte.getBudgetsMultiplier(prefix);
+                    uint[] saveData = bte.GetBudgetsMultiplier(prefix);
                     uint[] newSaveData = new uint[8];
                     for (int i = 0; i < 8; i++) {
                         newSaveData[i] = saveData[0];
                     }
-                    bte.setBudgetMultiplier(prefix, newSaveData);
+                    bte.SetBudgetMultiplier(prefix, newSaveData);
                 }
                 updateSliders();
             };
@@ -486,9 +522,9 @@ namespace Klyte.TransportLinesManager.LineList
                     var tsd = TransportSystemDefinition.from(tl.Info);
                     uint prefix = tl.m_lineNumber / 1000u;
                     BasicTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
-                    uint[] saveData = bte.getBudgetsMultiplier(prefix);
+                    uint[] saveData = bte.GetBudgetsMultiplier(prefix);
                     uint[] newSaveData = new uint[] { saveData[0] };
-                    bte.setBudgetMultiplier(prefix, newSaveData);
+                    bte.SetBudgetMultiplier(prefix, newSaveData);
                 }
                 updateSliders();
             };
@@ -718,12 +754,12 @@ namespace Klyte.TransportLinesManager.LineList
                 var tsd = TransportSystemDefinition.from(tl.Info);
                 uint prefix = tl.m_lineNumber / 1000u;
                 BasicTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
-                uint[] saveData = bte.getBudgetsMultiplier(prefix);
+                uint[] saveData = bte.GetBudgetsMultiplier(prefix);
                 if (selectedHourIndex >= saveData.Length || saveData[selectedHourIndex] == val) {
                     return;
                 }
                 saveData[selectedHourIndex] = val;
-                bte.setBudgetMultiplier(prefix, saveData);
+                bte.SetBudgetMultiplier(prefix, saveData);
             } else {
                 Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_budget = val;
             }
@@ -990,8 +1026,7 @@ namespace Klyte.TransportLinesManager.LineList
 
             lineColorPicker.selectedColor = m_controller.tm.GetLineColor(lineID);
 
-            bool day, night;
-            TLMLineUtils.getLineActive(ref t, out day, out night);
+            TLMLineUtils.getLineActive(ref t, out bool day, out bool night);
             m_DayNightLine.isChecked = false;
             m_NightLine.isChecked = false;
             m_DayLine.isChecked = false;
@@ -1057,7 +1092,7 @@ namespace Klyte.TransportLinesManager.LineList
             if (mnPrefixo != ModoNomenclatura.Nenhum) {
                 uint prefix = t.m_lineNumber / 1000u;
                 BasicTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
-                uint[] multipliers = bte.getBudgetsMultiplier(prefix);
+                uint[] multipliers = bte.GetBudgetsMultiplier(prefix);
                 disableBudgetPerHour.isVisible = multipliers.Length == 8;
                 enableBudgetPerHour.isVisible = multipliers.Length == 1;
                 for (int i = 0; i < budgetSliders.Length; i++) {
@@ -1093,6 +1128,11 @@ namespace Klyte.TransportLinesManager.LineList
                 }
                 lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(m_lineIdSelecionado.TransportLine), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
             }
+        }
+
+        public override void OnRenameStationAction(string autoName)
+        {
+            autoNameLabel.text = autoName;
         }
     }
 }

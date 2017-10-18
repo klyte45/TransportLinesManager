@@ -11,10 +11,12 @@ using Klyte.TransportLinesManager.LineList;
 using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Interfaces;
+using System.Reflection;
 
 namespace Klyte.TransportLinesManager
 {
-    public class TLMController
+    public class TLMController : LinearMapParentInterface
     {
         private static TLMController _instance;
 
@@ -49,6 +51,7 @@ namespace Klyte.TransportLinesManager
         public bool initializedWIP = false;
         private TLMLineInfoPanel m_lineInfoPanel;
         private TLMDepotInfoPanel m_depotInfoPanel;
+        private TLMLinearMap m_linearMapCreatingLine;
         private int lastLineCount = 0;
 
         private UIPanel _cachedDefaultListingLinesPanel;
@@ -85,7 +88,60 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        private TLMController() { }
+
+        public override Transform TransformLinearMap
+        {
+            get {
+                return uiView.transform;
+            }
+        }
+        private ushort m_currentSelectedId;
+
+        public override ushort CurrentSelectedId
+        {
+            get {
+                return m_currentSelectedId;
+            }
+        }
+        public void setCurrentSelectedId(ushort line)
+        {
+            m_currentSelectedId = line;
+        }
+
+        public override bool CanSwitchView
+        {
+            get {
+                return false;
+            }
+        }
+
+        public TLMLinearMap LinearMapCreatingLine
+        {
+            get {
+                return m_linearMapCreatingLine;
+            }
+        }
+
+        public override bool ForceShowStopsDistances
+        {
+            get {
+                return true;
+            }
+        }
+
+        public override bool PrefixSelector => true;
+
+        public override TransportInfo CurrentTransportInfo
+        {
+            get {
+                return Singleton<TransportTool>.instance.m_prefab;
+            }
+        }
+            
+
+        private TLMController()
+        {
+        }
 
         public void destroy()
         {
@@ -98,6 +154,9 @@ namespace Klyte.TransportLinesManager
 
             if (m_lineInfoPanel != null && m_lineInfoPanel.gameObject != null) {
                 UnityEngine.Object.Destroy(m_lineInfoPanel.gameObject);
+            }
+            if (m_linearMapCreatingLine != null && m_linearMapCreatingLine.gameObject != null) {
+                UnityEngine.Object.Destroy(m_linearMapCreatingLine.gameObject);
             }
 
             if (m_depotInfoPanel != null && m_depotInfoPanel.gameObject != null) {
@@ -239,6 +298,10 @@ namespace Klyte.TransportLinesManager
         {
             m_lineInfoPanel = new TLMLineInfoPanel(this);
             m_depotInfoPanel = new TLMDepotInfoPanel(this);
+            m_linearMapCreatingLine = new TLMLinearMap(this)
+            {
+                isVisible = false
+            };
         }
 
         private void initNearLinesOnWorldInfoPanel()
@@ -413,26 +476,35 @@ namespace Klyte.TransportLinesManager
                 var prop = typeof(WorldInfoPanel).GetField("m_InstanceID", System.Reflection.BindingFlags.NonPublic
                     | System.Reflection.BindingFlags.Instance);
                 ushort buildingId = ((InstanceID) (prop.GetValue(parent.gameObject.GetComponent<WorldInfoPanel>()))).Building;
-                DepotAI ai = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId].Info.GetAI() as DepotAI;
-                if (ai != null) {
+                if (Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId].Info.GetAI() is DepotAI ai)
+                {
                     byte count = 0;
                     List<string> lines = new List<string>();
-                    if (ai.m_transportInfo != null && ai.m_maxVehicleCount > 0) {
+                    if (ai.m_transportInfo != null && ai.m_maxVehicleCount > 0)
+                    {
                         lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_transportInfo).toConfigIndex()), TLMUtils.getPrefixesServedAbstract(buildingId, false)));
                         count++;
                     }
-                    if (ai.m_secondaryTransportInfo != null && ai.m_maxVehicleCount2 > 0) {
+                    if (ai.m_secondaryTransportInfo != null && ai.m_maxVehicleCount2 > 0)
+                    {
                         lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_secondaryTransportInfo).toConfigIndex()), TLMUtils.getPrefixesServedAbstract(buildingId, true)));
                         count++;
                     }
                     UILabel label = depotShortcut.GetComponentInChildren<UILabel>();
                     label.text = string.Join("\n", lines.ToArray());
                     depotShortcut.isVisible = count > 0;
-                } else {
+                }
+                else
+                {
                     depotShortcut.isVisible = false;
                 }
 
             }
+        }
+
+        public override void OnRenameStationAction(string autoName)
+        {
+
         }
     }
 

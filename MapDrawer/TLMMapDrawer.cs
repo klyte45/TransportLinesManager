@@ -23,11 +23,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
 
             TLMController controller = TLMController.instance;
-            Dictionary<TransportInfo.TransportType, List<ushort>> linesByType = new Dictionary<TransportInfo.TransportType, List<ushort>>();
-            linesByType[TransportInfo.TransportType.Metro] = new List<ushort>();
-            linesByType[TransportInfo.TransportType.Train] = new List<ushort>();
-            linesByType[TransportInfo.TransportType.Tram] = new List<ushort>();
-            linesByType[TransportInfo.TransportType.Ship] = new List<ushort>();
+            Dictionary<TransportInfo.TransportType, List<ushort>> linesByType = new Dictionary<TransportInfo.TransportType, List<ushort>>
+            {
+                [TransportInfo.TransportType.Metro] = new List<ushort>(),
+                [TransportInfo.TransportType.Train] = new List<ushort>(),
+                [TransportInfo.TransportType.Tram] = new List<ushort>(),
+                [TransportInfo.TransportType.Ship] = new List<ushort>()
+            };
 
             //			List<int> usedX = new List<int> ();
             //			List<int> usedY = new List<int> ();
@@ -35,9 +37,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
             for (ushort lineId = 0; lineId < controller.tm.m_lines.m_size; lineId++)
             {
                 TransportLine t = controller.tm.m_lines.m_buffer[(int)lineId];
-                if (t.m_lineNumber > 0 && (t.Info.m_transportType == TransportInfo.TransportType.Metro 
+                if (t.m_lineNumber > 0 && (t.Info.m_transportType == TransportInfo.TransportType.Metro
                     || t.Info.m_transportType == TransportInfo.TransportType.Train
-                    || t.Info.m_transportType == TransportInfo.TransportType.Tram 
+                    || t.Info.m_transportType == TransportInfo.TransportType.Tram
                     || t.Info.m_transportType == TransportInfo.TransportType.Ship))
                 {
                     switch (t.Info.m_transportType)
@@ -86,8 +88,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     }
                     Color color = t.m_color;
                     Vector2 ultPos = Vector2.zero;
-                    bool day, night;
-                    t.GetActive(out day, out night);
+                    t.GetActive(out bool day, out bool night);
                     transportLines[lineId] = new MapTransportLine(color, day, night, lineId);
                     int startStop = 0;
                     int finalStop = stopsCount;
@@ -96,11 +97,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         //						Debug.Log ("ULT POS:" + ultPos);
                         ushort nextStop = t.GetStop(j % stopsCount);
-                        ItemClass.Service service;
-                        ItemClass.SubService nil2;
-                        string prefix;
-                        ushort buildingId;
-                        string name = TLMUtils.getStationName(nextStop, lineId, t.Info.m_stationSubService, out service, out nil2, out prefix, out buildingId);
+                        string name = TLMUtils.getStationName(nextStop, lineId, t.Info.m_stationSubService, out ItemClass.Service service, out ItemClass.SubService nil2, out string prefix, out ushort buildingId);
 
                         Vector3 worldPos = TLMUtils.getStationBuildingPosition(nextStop, t.Info.m_stationSubService);
                         Vector2 pos2D = calc(worldPos, invPrecision);
@@ -251,8 +248,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
         }
         public int linesPassingCount
         {
-            get
-            {
+            get {
                 return linesPassing.Count;
             }
         }
@@ -266,15 +262,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
         }
         public Vector2 writePoint
         {
-            get
-            {
+            get {
                 return centralPos + lastPoint;
             }
         }
         public float writeAngle
         {
-            get
-            {
+            get {
                 CardinalPoint direction = CardinalPoint.E;
                 for (int i = 0; i < 8; i++)
                 {
@@ -452,7 +446,8 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 return CardinalPoint.SW;
             }
-            else {
+            else
+            {
                 return CardinalPoint.W;
             }
 
@@ -476,7 +471,8 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 return CardinalPoint.S;
             }
-            else {
+            else
+            {
                 return CardinalPoint.W;
             }
         }

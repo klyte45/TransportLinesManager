@@ -78,7 +78,7 @@ namespace Klyte.TransportLinesManager
         {
             get {
                 Type IPT2 = Type.GetType("ImprovedPublicTransport2.ImprovedPublicTransportMod");
-                return IPT2 != null && (bool) IPT2.GetField("inGame", Redirector.allFlags).GetValue(null);
+                return IPT2 != null && (bool) IPT2.GetField("inGame", Redirector<TLMDepotAI>.allFlags).GetValue(null);
             }
         }
 
@@ -221,8 +221,10 @@ namespace Klyte.TransportLinesManager
         {
 
             Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " LOADING TLM ");
-            SettingsFile tlmSettings = new SettingsFile();
-            tlmSettings.fileName = TLMConfigWarehouse.CONFIG_FILENAME;
+            SettingsFile tlmSettings = new SettingsFile
+            {
+                fileName = TLMConfigWarehouse.CONFIG_FILENAME
+            };
             Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " SETTING FILES");
             try {
                 GameSettings.AddSettingsFile(tlmSettings);
@@ -312,6 +314,7 @@ namespace Klyte.TransportLinesManager
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 4)),
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 5)),
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 6)),
+                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 14))
             };
             string[] namingOptionsPrefixo = new string[] {
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 0)),
@@ -328,6 +331,7 @@ namespace Klyte.TransportLinesManager
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 11)),
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 12)),
                 Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 13)),
+                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 14))
             };
             string[] namingOptionsSeparador = new string[] {
                 Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 0)),
@@ -352,7 +356,17 @@ namespace Klyte.TransportLinesManager
             configSelector = (UIDropDown) helper.AddDropdownLocalized("TLM_SHOW_CONFIG_FOR", getOptionsForLoadConfig(), 0, reloadData);
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                 TLMUtils.doLog("Loading Group 1");
-            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] { TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG, TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG, TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG, TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG, TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG, TLMConfigWarehouse.ConfigIndex.BUS_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG, TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG, TLMConfigWarehouse.ConfigIndex.METRO_CONFIG, TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG }) {
+            foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] {
+                TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.BUS_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.METRO_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG
+            }) {
                 UIHelperExtension group1 = helper.AddGroupExtended(string.Format(Locale.Get("TLM_CONFIGS_FOR"), TLMConfigWarehouse.getNameForTransportType(transportType)));
                 lineTypesPanels[transportType] = group1.self.GetComponentInParent<UIPanel>();
                 ((UIPanel) group1.self).autoLayoutDirection = LayoutDirection.Horizontal;
@@ -681,9 +695,15 @@ namespace Klyte.TransportLinesManager
                     "NightIcon","DisabledIcon","NoBudgetIcon","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap","RegionalTrainIcon"
                 });
             }
+
+            Assembly asm = Assembly.GetAssembly(typeof(TransportLinesManagerMod));
+            Type[] types = asm.GetTypes();
+
             TLMPublicTransportDetailPanelHooks.instance.EnableHooks();
             TransportLineOverrides.instance.EnableHooks();
             TLMDepotAI.instance.EnableHooks();
+            TransportToolOverrides.instance.EnableHooks();
+            TransportManagerOverrides.instance.EnableHooks();
             loadTLMLocale(false);
             m_loaded = true;
         }
@@ -705,8 +725,10 @@ namespace Klyte.TransportLinesManager
 
         UITextureAtlas CreateTextureAtlas(string textureFile, string atlasName, Material baseMaterial, int spriteWidth, int spriteHeight, string[] spriteNames)
         {
-            Texture2D tex = new Texture2D(spriteWidth * spriteNames.Length, spriteHeight, TextureFormat.ARGB32, false);
-            tex.filterMode = FilterMode.Bilinear;
+            Texture2D tex = new Texture2D(spriteWidth * spriteNames.Length, spriteHeight, TextureFormat.ARGB32, false)
+            {
+                filterMode = FilterMode.Bilinear
+            };
             { // LoadTexture
                 tex.LoadImage(ResourceLoader.loadResourceData(textureFile));
                 tex.Apply(true, true);
@@ -771,7 +793,7 @@ namespace Klyte.TransportLinesManager
                 TLMController.instance.destroy();
             }
         }
-        
+
 
     }
 
@@ -785,9 +807,11 @@ namespace Klyte.TransportLinesManager
     {
         public void AddSlice(Color32 innerColor, Color32 outterColor)
         {
-            SliceSettings slice = new UIRadialChart.SliceSettings();
-            slice.outterColor = outterColor;
-            slice.innerColor = innerColor;
+            SliceSettings slice = new UIRadialChart.SliceSettings
+            {
+                outterColor = outterColor,
+                innerColor = innerColor
+            };
             this.m_Slices.Add(slice);
             this.Invalidate();
         }

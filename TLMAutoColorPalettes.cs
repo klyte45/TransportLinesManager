@@ -478,10 +478,10 @@ namespace Klyte.TransportLinesManager
                     TLMUtils.doErrorLog("[TLM Palette '" + name + "'] Corrupted serialized color: " + thisColor);
                     return null;
                 }
-                byte r, g, b;
-                bool success = byte.TryParse(thisColorCompounds[0], out r);
-                success &= byte.TryParse(thisColorCompounds[1], out g);
-                success &= byte.TryParse(thisColorCompounds[2], out b);
+
+                bool success = byte.TryParse(thisColorCompounds[0], out byte r);
+                success &= byte.TryParse(thisColorCompounds[1], out byte g);
+                success &= byte.TryParse(thisColorCompounds[2], out byte b);
                 if (!success)
                 {
                     TLMUtils.doErrorLog("[TLM Palette '" + name + "'] Corrupted serialized color: invalid number in " + thisColor);
@@ -520,13 +520,15 @@ namespace Klyte.TransportLinesManager
             colorBytes[0] = (byte)(_random.Next(128) + 64);
             colorBytes[1] = (byte)(_random.Next(128) + 64);
             colorBytes[2] = (byte)(_random.Next(128) + 64);
-            Color32 color = new Color32();
+            Color32 color = new Color32
+            {
 
-            // make the color fully opaque
-            color.a = 255;
-            color.r = colorBytes[0];
-            color.g = colorBytes[1];
-            color.b = colorBytes[2];
+                // make the color fully opaque
+                a = 255,
+                r = colorBytes[0],
+                g = colorBytes[1],
+                b = colorBytes[2]
+            };
             TLMUtils.doLog(color.ToString());
 
             return color;

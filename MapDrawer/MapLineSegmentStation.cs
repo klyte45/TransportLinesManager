@@ -27,8 +27,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
         public void addLine(Station s1, Station s2, MapTransportLine line, Direction d)
         {
-            bool invert;
-            LineSegmentStations lss = getStationsSegment(s1, s2, out invert);
+            LineSegmentStations lss = getStationsSegment(s1, s2, out bool invert);
             if (invert)
             {
                 switch (d)
@@ -83,8 +82,10 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
             CardinalPoint currentDirection = s1Exit;
 
-            List<Vector2> saida = new List<Vector2>();
-            saida.Add(originalPos);
+            List<Vector2> saida = new List<Vector2>
+            {
+                originalPos
+            };
 
 
 
@@ -716,8 +717,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 get
                 {
-                    bool x;
-                    return getIdForSegments(s1, s2, out x);
+                    return getIdForSegments(s1, s2, out bool x);
                 }
             }
 
@@ -748,8 +748,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
             public LineSegmentStations(Station a, Station b, LineSegmentStationsManager manager)
             {
-                bool invert;
-                getIdForSegments(a, b, out invert);
+                getIdForSegments(a, b, out bool invert);
                 if (invert)
                 {
                     s1 = b;

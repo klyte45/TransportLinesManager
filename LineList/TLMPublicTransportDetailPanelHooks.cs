@@ -18,28 +18,10 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.LineList
 {
-    class TLMPublicTransportDetailPanelHooks : Redirector
+    class TLMPublicTransportDetailPanelHooks : Redirector<TLMPublicTransportDetailPanelHooks>
     {
         private bool panelOverriden = false;
         private int tryCount = 0;
-
-        private readonly HarmonyInstance harmony = HarmonyInstance.Create("com.klyte.transportlinemanager.ptdphooks");
-
-        public override HarmonyInstance GetHarmonyInstance()
-        {
-            return harmony;
-        }
-
-        private static TLMPublicTransportDetailPanelHooks _instance;
-        public static TLMPublicTransportDetailPanelHooks instance
-        {
-            get {
-                if (_instance == null) {
-                    _instance = new TLMPublicTransportDetailPanelHooks();
-                }
-                return _instance;
-            }
-        }
 
         private static void OpenDetailPanel(int idx)
         {
@@ -81,7 +63,7 @@ namespace Klyte.TransportLinesManager.LineList
 
 
 
-        public void EnableHooks()
+        public override void EnableHooks()
         {
             MethodInfo preventDefault = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("preventDefault", allFlags);
             MethodInfo OpenDetailPanel = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OpenDetailPanel", allFlags);
@@ -120,7 +102,7 @@ namespace Klyte.TransportLinesManager.LineList
                     panelOverriden = true;
                 } catch (Exception e) {
                     tryCount++;
-                    TLMUtils.doLog("Failed to load panel. Trying again a " + tryCount + getOrdinal(tryCount) + " time next frame");
+                    TLMUtils.doLog("Failed to load panel. Trying again a " + tryCount + getOrdinal(tryCount) + " time next frame:\n{0}",e);
                 }
             }
         }
@@ -1089,7 +1071,7 @@ namespace Klyte.TransportLinesManager.LineList
         }
         private static int NaturalCompare(string left, string right)
         {
-            return (int) typeof(PublicTransportDetailPanel).GetMethod("NaturalCompare", Redirector.allFlags).Invoke(null, new object[] { left, right });
+            return (int) typeof(PublicTransportDetailPanel).GetMethod("NaturalCompare", Redirector<TLMDepotAI>.allFlags).Invoke(null, new object[] { left, right });
         }
         private void OnNameSort()
         {
@@ -1494,7 +1476,7 @@ namespace Klyte.TransportLinesManager.LineList
                 m_isChangingTab = false;
             }
             if (!m_isPrefixEditor) {
-                string[] filterOptions = TLMUtils.getFilterPrefixesOptions(tabSystemOrder[idx % NUM_TRANSPORT_SYSTEMS]);
+                string[] filterOptions = TLMUtils.getPrefixesOptions(tabSystemOrder[idx % NUM_TRANSPORT_SYSTEMS]);
                 if (filterOptions.Length < 3) {
                     m_prefixFilter.isVisible = false;
                 } else {
@@ -1538,7 +1520,9 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnChangeVisibleAll(bool visible)
         {
-            if (this.m_Strip.selectedIndex > -1 && this.m_Strip.selectedIndex < this.m_Strip.tabContainer.components.Count) {
+            if (this.m_Strip.selectedIndex < 0 && visible) {
+                this.m_Strip.selectedIndex = 0;
+            } else if (this.m_Strip.selectedIndex > -1 && this.m_Strip.selectedIndex < this.m_Strip.tabContainer.components.Count) {
                 this.m_ToggleAllState[this.m_Strip.selectedIndex] = visible;
                 UIComponent uIComponent = this.m_Strip.tabContainer.components[this.m_Strip.selectedIndex].Find("Container");
                 if (uIComponent != null) {
@@ -1552,6 +1536,8 @@ namespace Klyte.TransportLinesManager.LineList
                         }
                     }
                 }
+                this.RefreshLines();
+            }else if (visible) {
                 this.RefreshLines();
             }
         }
@@ -1667,9 +1653,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private UISlider GenerateBudgetMultiplierField(UIHelperExtension uiHelper, string title, OnValueChanged action)
         {
-            UILabel label;
-            UIPanel panel;
-            return GenerateBudgetMultiplierField(uiHelper, title, action, out label, out panel);
+            return GenerateBudgetMultiplierField(uiHelper, title, action, out UILabel label, out UIPanel panel);
         }
 
         private static UISlider GenerateBudgetMultiplierField(UIHelperExtension uiHelper, string title, OnValueChanged action, out UILabel label, out UIPanel panel)
@@ -1703,17 +1687,17 @@ namespace Klyte.TransportLinesManager.LineList
 
         private Dictionary<string, string> getBasicAssetListFromDropDownSelection(int index, bool global = false)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBasicAssetsDictionary(global);
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBasicAssetsDictionary(global);
 
         }
         private Dictionary<string, string> getPrefixAssetListFromDropDownSelection(int index, uint prefix, bool global = false)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBasicAssetsListForPrefix(prefix, global);
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBasicAssetsListForPrefix(prefix, global);
         }
 
         private void addAssetToPrefixDropDownSelection(int index, uint prefix, string assetId, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).addAssetToPrefixList(prefix, assetId, global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).AddAssetToPrefixList(prefix, assetId, global);
         }
 
         private void removeAssetFromPrefixDropDownSelection(int index, uint prefix, string assetId, bool global = false)
@@ -1728,7 +1712,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void setPrefixNameDropDownSelection(int index, uint prefix, string name, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setPrefixName(prefix, name, global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetPrefixName(prefix, name, global);
         }
 
         private void setBudgetMultiplierDropDownSelection(int index, uint prefix, bool global = false)
@@ -1740,12 +1724,12 @@ namespace Klyte.TransportLinesManager.LineList
                 saveData = m_hourBudgets;
             }
 
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setBudgetMultiplier(prefix, saveData, global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetBudgetMultiplier(prefix, saveData, global);
         }
 
         private void setTicketPriceDropDownSelection(int index, uint prefix, uint value, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).setTicketPrice(prefix, value, global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetTicketPrice(prefix, value, global);
         }
         private string getPrefixNameFromDropDownSelection(int index, uint prefix, bool global = false)
         {
@@ -1753,11 +1737,11 @@ namespace Klyte.TransportLinesManager.LineList
         }
         private uint[] getPrefixBudgetMultiplierFromDropDownSelection(int index, uint prefix, bool global = false)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getBudgetsMultiplier(prefix, global);
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBudgetsMultiplier(prefix, global);
         }
         private uint getTicketPriceFromDropDownSelection(int index, uint prefix, bool global = false)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).getTicketPrice(prefix, global);
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetTicketPrice(prefix, global);
         }
         private TLMConfigWarehouse.ConfigIndex getConfigIndexFromDropDownSelection(int index)
         {

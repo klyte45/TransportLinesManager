@@ -54,8 +54,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         private uint getIndexFromStringArray(string x)
         {
-            uint saida;
-            if (uint.TryParse(x.Split(SEPARATOR.ToCharArray())[0], out saida))
+            if (uint.TryParse(x.Split(SEPARATOR.ToCharArray())[0], out uint saida))
             {
                 return saida;
             }

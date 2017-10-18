@@ -82,6 +82,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 }
                 catch (Exception e)
                 {
+                    TLMUtils.doLog("ERRO AO OBTER VALOR STR: {0}", e);
                     continue;
                 }
             }
