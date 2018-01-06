@@ -24,7 +24,6 @@ namespace Klyte.TransportLinesManager.UI
         private UILabel linearMapLineTime;
         private UIPanel lineStationsPanel;
         private UIPanel mainContainer;
-        private UIDropDown prefixSelector;
         private string m_autoName;
         private ModoNomenclatura prefix;
         private ModoNomenclatura suffix;
@@ -106,13 +105,6 @@ namespace Klyte.TransportLinesManager.UI
         public void setLineNumberCircle(ushort lineID)
         {
             TLMLineUtils.setLineNumberCircleOnRef(lineID, linearMapLineNumber);
-            if (lineID == 0 && prefixSelector != null && parent.CurrentTransportInfo != null)
-            {
-                FieldInfo lineNumberFieldArray = typeof(TransportManager).GetField("m_lineNumber", RedirectorUtils.allFlags);
-                TransportManager tmInstance = Singleton<TransportManager>.instance;
-                TLMLineUtils.GetNamingRulesFromTSD(out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, TransportSystemDefinition.from(parent.CurrentTransportInfo));
-                linearMapLineNumber.text = TLMUtils.getString(prefix, s, suffix, nonPrefix, (((ushort[])lineNumberFieldArray.GetValue(tmInstance))[(int)parent.CurrentTransportInfo.m_transportType]) + 1, zeros, invertPrefixSuffix);
-            }
         }
 
 
@@ -395,10 +387,8 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineNumberFormat.name = "LineFormat";
             linearMapLineNumberFormat.relativePosition = new Vector3(0f, 0f);
             linearMapLineNumberFormat.atlas = TLMController.taLineNumber;
-            if (!parent.PrefixSelector)
-            {
-                TLMUtils.createDragHandle(linearMapLineNumberFormat, mainContainer);
-            }
+            TLMUtils.createDragHandle(linearMapLineNumberFormat, mainContainer);
+
 
 
 
@@ -528,14 +518,6 @@ namespace Klyte.TransportLinesManager.UI
 
         public void updateBidings()
         {
-            if (prefixSelector != null)
-            {
-                if (isVisible && parent.CurrentTransportInfo != null && parent.CurrentTransportInfo.m_transportType != lastType)
-                {
-                    UpdatePrefixSelector();
-                    lastType = parent.CurrentTransportInfo.m_transportType;
-                }
-            }
             if (showExtraStopInfo)
             {
                 foreach (var resLabel in residentCounters)
@@ -580,14 +562,6 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        private void UpdatePrefixSelector()
-        {
-            prefixSelector.items = TLMUtils.getPrefixesOptions(TLMCW.getConfigIndexForTransportInfo(parent.CurrentTransportInfo), false);
-            TLMUtils.doLog("ITEMS> [{0}]", string.Join(",", prefixSelector.items));
-            FieldInfo lineNumberFieldArray = typeof(TransportManager).GetField("m_lineNumber", RedirectorUtils.allFlags);
-            TransportManager tmInstance = Singleton<TransportManager>.instance;
-            prefixSelector.selectedIndex = ((ushort[])lineNumberFieldArray.GetValue(tmInstance))[(int)parent.CurrentTransportInfo.m_transportType] / 1000;
-        }
 
         private Color32 getColorForTTB(int ttb)
         {

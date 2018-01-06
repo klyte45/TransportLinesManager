@@ -13,7 +13,6 @@ namespace Klyte.TransportLinesManager.Interfaces
         public abstract void OnRenameStationAction(string autoName);
         public abstract bool CanSwitchView { get; }
         public abstract bool ForceShowStopsDistances { get; }
-        public abstract bool PrefixSelector { get; }
         public abstract TransportInfo CurrentTransportInfo { get; }
     }
 }

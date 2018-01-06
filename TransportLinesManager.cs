@@ -14,20 +14,17 @@ using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.i18n;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using ColossalFramework.Math;
-using System.Reflection.Emit;
-using Klyte.Harmony;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using ColossalFramework.PlatformServices;
 
-[assembly: AssemblyVersion("7.1.0.*")]
+[assembly: AssemblyVersion("7.1.1.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
     {
 
-        public static string version
+        public static string minorVersion
         {
             get {
                 return majorVersion + "." + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Build;
@@ -42,9 +39,24 @@ namespace Klyte.TransportLinesManager
         public static string fullVersion
         {
             get {
-                return version + " r" + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Revision;
+                return minorVersion + " r" + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Revision;
             }
         }
+        public static string version
+        {
+            get {
+                if (typeof(TransportLinesManagerMod).Assembly.GetName().Version.Build > 0)
+                {
+                    return minorVersion;
+                }
+                else
+                {
+                    return majorVersion;
+                }
+            }
+        }
+
+
         public static TransportLinesManagerMod instance;
 
 
@@ -78,7 +90,7 @@ namespace Klyte.TransportLinesManager
         {
             get {
                 Type IPT2 = Type.GetType("ImprovedPublicTransport2.ImprovedPublicTransportMod");
-                return IPT2 != null && (bool) IPT2.GetField("inGame", Redirector<TLMDepotAI>.allFlags).GetValue(null);
+                return IPT2 != null && (bool)IPT2.GetField("inGame", Redirector<TLMDepotAI>.allFlags).GetValue(null);
             }
         }
 
@@ -165,18 +177,22 @@ namespace Klyte.TransportLinesManager
         private string currentCityId
         {
             get {
-                if (isCityLoaded) {
+                if (isCityLoaded)
+                {
                     return Singleton<SimulationManager>.instance.m_metaData.m_gameInstanceIdentifier;
-                } else
+                }
+                else
                     return TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
             }
         }
         private string currentCityName
         {
             get {
-                if (isCityLoaded) {
+                if (isCityLoaded)
+                {
                     return Singleton<SimulationManager>.instance.m_metaData.m_CityName;
-                } else
+                }
+                else
                     return TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
             }
         }
@@ -190,9 +206,11 @@ namespace Klyte.TransportLinesManager
 
         private string[] getOptionsForLoadConfig()
         {
-            if (currentCityId == TLMConfigWarehouse.GLOBAL_CONFIG_INDEX) {
+            if (currentCityId == TLMConfigWarehouse.GLOBAL_CONFIG_INDEX)
+            {
                 return new string[] { TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
-            } else
+            }
+            else
                 return new string[] { currentCityName, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
         }
 
@@ -226,9 +244,12 @@ namespace Klyte.TransportLinesManager
                 fileName = TLMConfigWarehouse.CONFIG_FILENAME
             };
             Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " SETTING FILES");
-            try {
+            try
+            {
                 GameSettings.AddSettingsFile(tlmSettings);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " SETTING FILES FAIL!!! ");
                 Debug.LogError(e.Message);
                 Debug.LogError(e.StackTrace);
@@ -245,7 +266,8 @@ namespace Klyte.TransportLinesManager
 
             if (m_debugMode.value)
                 TLMUtils.doLog("currentSaveVersion.value = {0}, fullVersion = {1}", currentSaveVersion.value, fullVersion);
-            if (currentSaveVersion.value != fullVersion) {
+            if (currentSaveVersion.value != fullVersion)
+            {
                 needShowPopup = true;
             }
             toggleOverrideDefaultLineInfoPanel(m_savedOverrideDefaultLineInfoPanel.value);
@@ -256,14 +278,18 @@ namespace Klyte.TransportLinesManager
 
         public bool showVersionInfoPopup(bool force = false)
         {
-            if (needShowPopup || force) {
-                try {
+            if (needShowPopup || force)
+            {
+                try
+                {
                     UIComponent uIComponent = UIView.library.ShowModal("ExceptionPanel");
-                    if (uIComponent != null) {
+                    if (uIComponent != null)
+                    {
                         Cursor.lockState = CursorLockMode.None;
                         Cursor.visible = true;
                         BindPropertyByKey component = uIComponent.GetComponent<BindPropertyByKey>();
-                        if (component != null) {
+                        if (component != null)
+                        {
                             string title = "Transport Lines Manager v" + version;
                             string notes = ResourceLoader.loadResourceString("UI.VersionNotes.txt");
                             string text = "Transport Lines Manager was updated! Release notes:\r\n\r\n" + notes;
@@ -282,12 +308,16 @@ namespace Klyte.TransportLinesManager
                             return true;
                         }
                         return false;
-                    } else {
+                    }
+                    else
+                    {
                         if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                             TLMUtils.doLog("PANEL NOT FOUND!!!!");
                         return false;
                     }
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                         TLMUtils.doLog("showVersionInfoPopup ERROR {0} {1}", e.GetType(), e.Message);
                 }
@@ -298,7 +328,8 @@ namespace Klyte.TransportLinesManager
         public void OnSettingsUI(UIHelperBase helperDefault)
         {
             var oldTLMid = new PublishedFileId(408875519);
-            if (!string.IsNullOrEmpty(PlatformService.workshop.GetSubscribedItemPath(oldTLMid))) {
+            if (!string.IsNullOrEmpty(PlatformService.workshop.GetSubscribedItemPath(oldTLMid)))
+            {
                 TLMUtils.doLog("Removing old TLM");
                 PlatformService.workshop.Unsubscribe(oldTLMid);
             }
@@ -341,19 +372,21 @@ namespace Klyte.TransportLinesManager
                 Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 4)),
                 Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 5)),
             };
-            UIHelperExtension helper = new UIHelperExtension((UIHelper) helperDefault);
+            UIHelperExtension helper = new UIHelperExtension((UIHelper)helperDefault);
 
-            helper.self.eventVisibilityChanged += delegate (UIComponent component, bool b) {
-                if (b) {
+            helper.self.eventVisibilityChanged += delegate (UIComponent component, bool b)
+            {
+                if (b)
+                {
                     showVersionInfoPopup();
                 }
             };
 
-            overrideWorldInfoPanelLineOption = (UICheckBox) helper.AddCheckboxLocale("TLM_OVERRIDE_DEFAULT_LINE_INFO", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
+            overrideWorldInfoPanelLineOption = (UICheckBox)helper.AddCheckboxLocale("TLM_OVERRIDE_DEFAULT_LINE_INFO", m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
 
             helper.AddSpace(10);
 
-            configSelector = (UIDropDown) helper.AddDropdownLocalized("TLM_SHOW_CONFIG_FOR", getOptionsForLoadConfig(), 0, reloadData);
+            configSelector = (UIDropDown)helper.AddDropdownLocalized("TLM_SHOW_CONFIG_FOR", getOptionsForLoadConfig(), 0, reloadData);
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                 TLMUtils.doLog("Loading Group 1");
             foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] {
@@ -366,15 +399,16 @@ namespace Klyte.TransportLinesManager
                 TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG,
                 TLMConfigWarehouse.ConfigIndex.METRO_CONFIG,
                 TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG
-            }) {
+            })
+            {
                 UIHelperExtension group1 = helper.AddGroupExtended(string.Format(Locale.Get("TLM_CONFIGS_FOR"), TLMConfigWarehouse.getNameForTransportType(transportType)));
                 lineTypesPanels[transportType] = group1.self.GetComponentInParent<UIPanel>();
-                ((UIPanel) group1.self).autoLayoutDirection = LayoutDirection.Horizontal;
-                ((UIPanel) group1.self).backgroundSprite = "EmptySprite";
-                ((UIPanel) group1.self).wrapLayout = true;
+                ((UIPanel)group1.self).autoLayoutDirection = LayoutDirection.Horizontal;
+                ((UIPanel)group1.self).backgroundSprite = "EmptySprite";
+                ((UIPanel)group1.self).wrapLayout = true;
                 var systemColor = TLMConfigWarehouse.getColorForTransportType(transportType);
-                ((UIPanel) group1.self).color = new Color32((byte) (systemColor.r * 0.7f), (byte) (systemColor.g * 0.7f), (byte) (systemColor.b * 0.7f), 0xff);
-                ((UIPanel) group1.self).width = 730;
+                ((UIPanel)group1.self).color = new Color32((byte)(systemColor.r * 0.7f), (byte)(systemColor.g * 0.7f), (byte)(systemColor.b * 0.7f), 0xff);
+                ((UIPanel)group1.self).width = 730;
                 group1.AddSpace(30);
                 UIDropDown prefixDD = generateDropdownConfig(group1, Locale.Get("TLM_PREFIX"), namingOptionsPrefixo, transportType | TLMConfigWarehouse.ConfigIndex.PREFIX);
                 var separatorContainer = generateDropdownConfig(group1, Locale.Get("TLM_SEPARATOR"), namingOptionsSeparador, transportType | TLMConfigWarehouse.ConfigIndex.SEPARATOR).transform.parent.GetComponent<UIPanel>();
@@ -387,24 +421,29 @@ namespace Klyte.TransportLinesManager
                 var prefixAsSuffixContainer = generateCheckboxConfig(group1, Locale.Get("TLM_INVERT_PREFIX_SUFFIX_ORDER"), transportType | TLMConfigWarehouse.ConfigIndex.INVERT_PREFIX_SUFFIX);
                 generateCheckboxConfig(group1, Locale.Get("TLM_RANDOM_ON_PALETTE_OVERFLOW"), transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
                 var autoColorBasedContainer = generateCheckboxConfig(group1, Locale.Get("TLM_AUTO_COLOR_BASED_ON_PREFIX"), transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_PREFIX_BASED);
-                PropertyChangedEventHandler<int> updateFunction = delegate (UIComponent c, int sel) {
-                    bool isPrefixed = (ModoNomenclatura) sel != ModoNomenclatura.Nenhum;
+                var prefixIncrement = generateCheckboxConfig(group1, Locale.Get("TLM_LINENUMBERING_BASED_IN_PREFIX"), transportType | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT);
+                PropertyChangedEventHandler<int> updateFunction = delegate (UIComponent c, int sel)
+                {
+                    bool isPrefixed = (ModoNomenclatura)sel != ModoNomenclatura.Nenhum;
                     separatorContainer.isVisible = isPrefixed;
                     prefixedPaletteContainer.isVisible = isPrefixed;
+                    prefixIncrement.isVisible = isPrefixed;
                     suffixDDContainer.isVisible = isPrefixed;
-                    zerosContainer.isVisible = isPrefixed && (ModoNomenclatura) suffixDD.selectedIndex == ModoNomenclatura.Numero;
-                    prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura) suffixDD.selectedIndex == ModoNomenclatura.Numero && (ModoNomenclatura) prefixDD.selectedIndex != ModoNomenclatura.Numero;
+                    zerosContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero;
+                    prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
                     autoColorBasedContainer.isVisible = isPrefixed;
                     paletteLabel.text = isPrefixed ? Locale.Get("TLM_PALETTE_UNPREFIXED") : Locale.Get("TLM_PALETTE");
-                    if (TLMPublicTransportDetailPanel.instance != null && TLMPublicTransportDetailPanel.instance.m_systemTypeDropDown != null) {
+                    if (TLMPublicTransportDetailPanel.instance != null && TLMPublicTransportDetailPanel.instance.m_systemTypeDropDown != null)
+                    {
                         TLMPublicTransportDetailPanel.instance.m_systemTypeDropDown.selectedIndex = 0;
                     }
                 };
                 prefixDD.eventSelectedIndexChanged += updateFunction;
-                suffixDD.eventSelectedIndexChanged += delegate (UIComponent c, int sel) {
-                    bool isPrefixed = (ModoNomenclatura) prefixDD.selectedIndex != ModoNomenclatura.Nenhum;
-                    zerosContainer.isVisible = isPrefixed && (ModoNomenclatura) sel == ModoNomenclatura.Numero;
-                    prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura) sel == ModoNomenclatura.Numero && (ModoNomenclatura) prefixDD.selectedIndex != ModoNomenclatura.Numero;
+                suffixDD.eventSelectedIndexChanged += delegate (UIComponent c, int sel)
+                {
+                    bool isPrefixed = (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Nenhum;
+                    zerosContainer.isVisible = isPrefixed && (ModoNomenclatura)sel == ModoNomenclatura.Numero;
+                    prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)sel == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
                 };
                 updateFunction.Invoke(null, prefixDD.selectedIndex);
             }
@@ -434,14 +473,15 @@ namespace Klyte.TransportLinesManager
             generateCheckboxConfig(group8, Locale.Get("TLM_ADD_LINE_NUMBER_AUTO_NAME"), TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME);
 
             UIHelperExtension group13 = helper.AddGroupExtended(Locale.Get("TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT"));
-            ((UIPanel) group13.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel) group13.self).wrapLayout = true;
-            ((UIPanel) group13.self).width = 730;
+            ((UIPanel)group13.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group13.self).wrapLayout = true;
+            ((UIPanel)group13.self).width = 730;
 
             group13.AddSpace(1);
             group13.AddLabel(Locale.Get("TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT_DESC"));
             group13.AddSpace(1);
-            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameTransportCategories) {
+            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameTransportCategories)
+            {
                 generateCheckboxConfig(group13, TLMConfigWarehouse.getNameForTransportType(ci), TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | ci).width = 300;
                 var textFieldPanel = generateTextFieldConfig(group13, Locale.Get("TLM_PREFIX_OPTIONAL"), TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | ci).GetComponentInParent<UIPanel>();
                 textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
@@ -449,10 +489,11 @@ namespace Klyte.TransportLinesManager
                 group13.AddSpace(1);
             }
             UIHelperExtension group14 = helper.AddGroupExtended(Locale.Get("TLM_AUTO_NAME_SETTINGS_OTHER"));
-            ((UIPanel) group14.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel) group14.self).wrapLayout = true;
-            ((UIPanel) group14.self).width = 730;
-            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameCategories) {
+            ((UIPanel)group14.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group14.self).wrapLayout = true;
+            ((UIPanel)group14.self).width = 730;
+            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameCategories)
+            {
                 generateCheckboxConfig(group14, TLMConfigWarehouse.getNameForServiceType(ci), TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci).width = 300;
                 var textFieldPanel = generateTextFieldConfig(group14, Locale.Get("TLM_PREFIX_OPTIONAL"), TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | ci).GetComponentInParent<UIPanel>();
                 textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
@@ -470,12 +511,16 @@ namespace Klyte.TransportLinesManager
             DropDownColorSelector colorEditor = null;
             NumberedColorList colorList = null;
 
-            editorSelector = group6.AddDropdown(Locale.Get("TLM_PALETTE_SELECT"), TLMAutoColorPalettes.paletteListForEditing, 0, delegate (int sel) {
-                if (sel <= 0 || sel >= TLMAutoColorPalettes.paletteListForEditing.Length) {
+            editorSelector = group6.AddDropdown(Locale.Get("TLM_PALETTE_SELECT"), TLMAutoColorPalettes.paletteListForEditing, 0, delegate (int sel)
+            {
+                if (sel <= 0 || sel >= TLMAutoColorPalettes.paletteListForEditing.Length)
+                {
                     paletteName.enabled = false;
                     colorEditor.Disable();
                     colorList.Disable();
-                } else {
+                }
+                else
+                {
                     paletteName.enabled = true;
                     colorEditor.Disable();
                     colorList.colorList = TLMAutoColorPalettes.getColors(TLMAutoColorPalettes.paletteListForEditing[sel]);
@@ -484,38 +529,46 @@ namespace Klyte.TransportLinesManager
                 }
             }) as UIDropDown;
 
-            group6.AddButton(Locale.Get("CREATE"), delegate () {
+            group6.AddButton(Locale.Get("CREATE"), delegate ()
+            {
                 string newName = TLMAutoColorPalettes.addPalette();
                 updateDropDowns("", "");
                 editorSelector.selectedValue = newName;
             });
-            group6.AddButton(Locale.Get("TLM_DELETE"), delegate () {
+            group6.AddButton(Locale.Get("TLM_DELETE"), delegate ()
+            {
                 TLMAutoColorPalettes.removePalette(editorSelector.selectedValue);
                 updateDropDowns("", "");
             });
-            paletteName = group6.AddTextField(Locale.Get("TLM_PALETTE_NAME"), delegate (string val) {
+            paletteName = group6.AddTextField(Locale.Get("TLM_PALETTE_NAME"), delegate (string val)
+            {
 
-            }, "", (string value) => {
+            }, "", (string value) =>
+            {
                 string oldName = editorSelector.selectedValue;
                 paletteName.text = TLMAutoColorPalettes.renamePalette(oldName, value);
                 updateDropDowns(oldName, value);
             });
             paletteName.parent.width = 500;
 
-            colorEditor = group6.AddColorField(Locale.Get("TLM_COLORS"), Color.black, delegate (Color c) {
+            colorEditor = group6.AddColorField(Locale.Get("TLM_COLORS"), Color.black, delegate (Color c)
+            {
                 TLMAutoColorPalettes.setColor(colorEditor.id, editorSelector.selectedValue, c);
                 colorList.colorList = TLMAutoColorPalettes.getColors(editorSelector.selectedValue);
-            }, delegate {
+            }, delegate
+            {
                 TLMAutoColorPalettes.removeColor(editorSelector.selectedValue, colorEditor.id);
                 colorList.colorList = TLMAutoColorPalettes.getColors(editorSelector.selectedValue);
             });
 
-            colorList = group6.AddNumberedColorList(null, new List<Color32>(), delegate (int c) {
+            colorList = group6.AddNumberedColorList(null, new List<Color32>(), delegate (int c)
+            {
                 colorEditor.id = c;
                 colorEditor.selectedColor = TLMAutoColorPalettes.getColor(c, editorSelector.selectedValue, false);
                 colorEditor.title = c.ToString();
                 colorEditor.Enable();
-            }, colorEditor.parent.GetComponentInChildren<UILabel>(), delegate () {
+            }, colorEditor.parent.GetComponentInChildren<UILabel>(), delegate ()
+            {
                 TLMAutoColorPalettes.addColor(editorSelector.selectedValue);
             });
 
@@ -528,14 +581,16 @@ namespace Klyte.TransportLinesManager
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                 TLMUtils.doLog("Loading Group 4");
             UIHelperExtension group9 = helper.AddGroupExtended(Locale.Get("TLM_BETAS_EXTRA_INFO"));
-            group9.AddDropdownLocalized("TLM_MOD_LANG", TLMLocaleUtils.getLanguageIndex(), currentLanguageId.value, delegate (int idx) {
+            group9.AddDropdownLocalized("TLM_MOD_LANG", TLMLocaleUtils.getLanguageIndex(), currentLanguageId.value, delegate (int idx)
+            {
                 currentLanguageId.value = idx;
                 loadTLMLocale(true);
             });
             group9.AddButton(Locale.Get("TLM_DRAW_CITY_MAP"), TLMMapDrawer.drawCityMap);
             group9.AddCheckbox(Locale.Get("TLM_DEBUG_MODE"), m_debugMode.value, delegate (bool val) { m_debugMode.value = val; });
             group9.AddLabel("Version: " + version + " rev" + typeof(TransportLinesManagerMod).Assembly.GetName().Version.Revision);
-            group9.AddButton(Locale.Get("TLM_RELEASE_NOTES"), delegate () {
+            group9.AddButton(Locale.Get("TLM_RELEASE_NOTES"), delegate ()
+            {
                 showVersionInfoPopup(true);
             });
 
@@ -545,21 +600,25 @@ namespace Klyte.TransportLinesManager
 
         public void autoLoadTLMLocale()
         {
-            if (currentLanguageId.value == 0) {
+            if (currentLanguageId.value == 0)
+            {
                 loadTLMLocale(false);
             }
         }
         public void loadTLMLocale(bool force)
         {
-            if (SingletonLite<LocaleManager>.exists) {
+            if (SingletonLite<LocaleManager>.exists)
+            {
                 TLMLocaleUtils.loadLocale(currentLanguageId.value == 0 ? SingletonLite<LocaleManager>.instance.language : TLMLocaleUtils.getSelectedLocaleByIndex(currentLanguageId.value), force);
             }
         }
 
         private T getSelectedIndex<T>(params TextList<T>[] boxes)
         {
-            foreach (var box in boxes) {
-                if (!box.unselected) {
+            foreach (var box in boxes)
+            {
+                if (!box.unselected)
+                {
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                         TLMUtils.doLog("{0} is selected: {1}", box.name, box.selectedItem.ToString());
                     return box.selectedItem;
@@ -572,14 +631,14 @@ namespace Klyte.TransportLinesManager
 
         private UICheckBox generateCheckboxConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            checkBoxes[configIndex] = (UICheckBox) group.AddCheckbox(title, currentConfigWarehouseEditor.getBool(configIndex), delegate (bool b) { currentConfigWarehouseEditor.setBool(configIndex, b); });
+            checkBoxes[configIndex] = (UICheckBox)group.AddCheckbox(title, currentConfigWarehouseEditor.getBool(configIndex), delegate (bool b) { currentConfigWarehouseEditor.setBool(configIndex, b); });
 
             return checkBoxes[configIndex];
         }
 
         private UIDropDown generateDropdownConfig(UIHelperExtension group, string title, string[] options, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            dropDowns[configIndex] = (UIDropDown) group.AddDropdown(title, options, currentConfigWarehouseEditor.getInt(configIndex), delegate (int i) { currentConfigWarehouseEditor.setInt(configIndex, i); });
+            dropDowns[configIndex] = (UIDropDown)group.AddDropdown(title, options, currentConfigWarehouseEditor.getInt(configIndex), delegate (int i) { currentConfigWarehouseEditor.setInt(configIndex, i); });
             return dropDowns[configIndex];
         }
 
@@ -600,11 +659,14 @@ namespace Klyte.TransportLinesManager
         {
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                 TLMUtils.doLog("OPÇÔES RECARREGANDO ARQUIVO", currentSelectedConfigEditor);
-            foreach (var i in dropDowns) {
+            foreach (var i in dropDowns)
+            {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                     TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
-                try {
-                    switch (i.Key & TLMConfigWarehouse.ConfigIndex.TYPE_PART) {
+                try
+                {
+                    switch (i.Key & TLMConfigWarehouse.ConfigIndex.TYPE_PART)
+                    {
                         case TLMConfigWarehouse.ConfigIndex.TYPE_INT:
                             i.Value.selectedIndex = currentConfigWarehouseEditor.getInt(i.Key);
                             break;
@@ -627,12 +689,14 @@ namespace Klyte.TransportLinesManager
                 }
 
             }
-            foreach (var i in checkBoxes) {
+            foreach (var i in checkBoxes)
+            {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                     TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
                 i.Value.isChecked = currentConfigWarehouseEditor.getBool(i.Key);
             }
-            foreach (var i in textFields) {
+            foreach (var i in textFields)
+            {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                     TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
                 i.Value.text = currentConfigWarehouseEditor.getString(i.Key);
@@ -645,27 +709,38 @@ namespace Klyte.TransportLinesManager
 
             string idxSel = editorSelector.selectedValue;
             editorSelector.items = TLMAutoColorPalettes.paletteListForEditing;
-            if (!TLMAutoColorPalettes.paletteListForEditing.Contains(idxSel)) {
-                if (idxSel != oldName || !TLMAutoColorPalettes.paletteListForEditing.Contains(newName)) {
+            if (!TLMAutoColorPalettes.paletteListForEditing.Contains(idxSel))
+            {
+                if (idxSel != oldName || !TLMAutoColorPalettes.paletteListForEditing.Contains(newName))
+                {
                     editorSelector.selectedIndex = 0;
-                } else {
+                }
+                else
+                {
                     idxSel = newName;
                     editorSelector.selectedIndex = TLMAutoColorPalettes.paletteListForEditing.ToList().IndexOf(idxSel);
                 }
-            } else {
+            }
+            else
+            {
                 editorSelector.selectedIndex = TLMAutoColorPalettes.paletteListForEditing.ToList().IndexOf(idxSel);
             }
 
-            foreach (var ci in TLMConfigWarehouse.PALETTES_INDEXES) {
+            foreach (var ci in TLMConfigWarehouse.PALETTES_INDEXES)
+            {
                 UIDropDown paletteDD = dropDowns[ci];
                 if (!paletteDD)
                     continue;
                 idxSel = (paletteDD.selectedValue);
                 paletteDD.items = TLMAutoColorPalettes.paletteList;
-                if (!paletteDD.items.Contains(idxSel)) {
-                    if (idxSel != oldName || !paletteDD.items.Contains(newName)) {
+                if (!paletteDD.items.Contains(idxSel))
+                {
+                    if (idxSel != oldName || !paletteDD.items.Contains(newName))
+                    {
                         idxSel = TLMAutoColorPalettes.PALETTE_RANDOM;
-                    } else {
+                    }
+                    else
+                    {
                         idxSel = newName;
                     }
                 }
@@ -678,18 +753,21 @@ namespace Klyte.TransportLinesManager
         public void OnLevelLoaded(LoadMode mode)
         {
             TLMUtils.doLog("LEVEL LOAD");
-            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame) {
+            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame)
+            {
                 m_loaded = false;
                 TLMUtils.doLog("NOT GAME ({0})", mode);
                 return;
             }
 
-            if (TLMController.taTLM == null) {
+            if (TLMController.taTLM == null)
+            {
                 TLMController.taTLM = CreateTextureAtlas("UI.Images.sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
                     "TransportLinesManagerIcon","TransportLinesManagerIconHovered","AutoNameIcon","AutoColorIcon","RemoveUnwantedIcon","ConfigIcon","24hLineIcon", "PerHourIcon"
                 });
             }
-            if (TLMController.taLineNumber == null) {
+            if (TLMController.taLineNumber == null)
+            {
                 TLMController.taLineNumber = CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
                 "DepotIcon", "LinearHalfStation","LinearStation","LinearBg","PlaneLineIcon","TramIcon","ShipLineIcon","FerryIcon","CableCarIcon", "BlimpIcon","BusIcon","SubwayIcon","TrainIcon","MonorailIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon",
                     "NightIcon","DisabledIcon","NoBudgetIcon","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap","RegionalTrainIcon"
@@ -711,7 +789,8 @@ namespace Klyte.TransportLinesManager
         public void OnLevelUnloading()
         {
             if (!m_loaded) { return; }
-            if (TLMController.instance != null) {
+            if (TLMController.instance != null)
+            {
                 TLMController.instance.destroy();
             }
             //			Log.debug ("LEVELUNLOAD");
@@ -735,15 +814,17 @@ namespace Klyte.TransportLinesManager
             }
             UITextureAtlas atlas = ScriptableObject.CreateInstance<UITextureAtlas>();
             { // Setup atlas
-                Material material = (Material) Material.Instantiate(baseMaterial);
+                Material material = (Material)Material.Instantiate(baseMaterial);
                 material.mainTexture = tex;
                 atlas.material = material;
                 atlas.name = atlasName;
             }
             // Add sprites
-            for (int i = 0; i < spriteNames.Length; ++i) {
+            for (int i = 0; i < spriteNames.Length; ++i)
+            {
                 float uw = 1.0f / spriteNames.Length;
-                var spriteInfo = new UITextureAtlas.SpriteInfo() {
+                var spriteInfo = new UITextureAtlas.SpriteInfo()
+                {
                     name = spriteNames[i],
                     texture = tex,
                     region = new Rect(i * uw, 0, uw, 1),
@@ -776,20 +857,23 @@ namespace Klyte.TransportLinesManager
     {
         public override void OnCreated(IThreading threading)
         {
-            if (TLMController.instance != null) {
+            if (TLMController.instance != null)
+            {
                 TLMController.instance.destroy();
             }
         }
 
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta)
         {
-            if (TLMController.instance != null) {
+            if (TLMController.instance != null)
+            {
                 TLMController.instance.update();
             }
         }
         public override void OnReleased()
         {
-            if (TLMController.instance != null) {
+            if (TLMController.instance != null)
+            {
                 TLMController.instance.destroy();
             }
         }

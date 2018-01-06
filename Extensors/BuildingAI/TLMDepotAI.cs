@@ -260,6 +260,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                 TransferManager.TransferReason.PassengerShip,
                 TransferManager.TransferReason.PassengerPlane,
                 TransferManager.TransferReason.MetroTrain,
+                TransferManager.TransferReason.Monorail,
+                TransferManager.TransferReason.CableCar,
                 TransferManager.TransferReason.Blimp,
                 TransferManager.TransferReason.Bus,
                 TransferManager.TransferReason.Ferry
@@ -267,7 +269,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         public static bool StartTransfer(DepotAI __instance, ushort buildingID, ref Building data, TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
-            if (!managedReasons.Contains(reason) || offer.TransportLine == 0) {
+            if (!managedReasons.Contains(reason) || offer.TransportLine == 0)
+            {
                 return true;
             }
 

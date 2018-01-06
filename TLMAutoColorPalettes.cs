@@ -150,13 +150,13 @@ namespace Klyte.TransportLinesManager
     new Color32(0x26,0x32,0x38,255),         new Color32(0xb7,0x1c,0x1c,255),   new Color32(0x88,0x0e,0x4f,255),    new Color32(0x4a,0x14,0x8c,255),    new Color32(0x31,0x1b,0x92,255),    new Color32(0x1a,0x23,0x7e,255),    new Color32(0x0d,0x47,0xa1,255),    new Color32(0x01,0x57,0x9b,255),    new Color32(0x00,0x60,0x64,255),    new Color32(0x00,0x4d,0x40,255),    new Color32(0x1b,0x5e,0x20,255),    new Color32(0x33,0x69,0x1e,255),    new Color32(0x82,0x77,0x17,255),    new Color32(0xf5,0x7f,0x17,255),    new Color32(0xff,0x6f,0x00,255),    new Color32(0xe6,0x51,0x00,255),    new Color32(0xbf,0x36,0x0c,255),    new Color32(0x3e,0x27,0x23,255),    new Color32(0x21,0x21,0x21,255),    new Color32(0x26,0x32,0x38,255),
         });
         public readonly static List<Color32> MatColorA200 = new List<Color32>(new Color32[]{
-   new Color32(0xff,0x6e,0x40,255),            new Color32(0xff,0x52,0x52,255),  new Color32(0xff,0x40,0x81,255),    new Color32(0xe0,0x40,0xfb,255),    new Color32(0x7c,0x4d,0xff,255),    new Color32(0x53,0x6d,0xfe,255),    new Color32(0x44,0x8a,0xff,255),    new Color32(0x40,0xc4,0xff,255),    new Color32(0x18,0xff,0xff,255),    new Color32(0x64,0xff,0xda,255),    new Color32(0x69,0xf0,0xae,255),    new Color32(0xb2,0xff,0x59,255),    new Color32(0xee,0xff,0x41,255),    new Color32(0xff,0xff,0x00,255),    new Color32(0xff,0xd7,0x40,255),    new Color32(0xff,0xab,0x40,255),   
+   new Color32(0xff,0x6e,0x40,255),            new Color32(0xff,0x52,0x52,255),  new Color32(0xff,0x40,0x81,255),    new Color32(0xe0,0x40,0xfb,255),    new Color32(0x7c,0x4d,0xff,255),    new Color32(0x53,0x6d,0xfe,255),    new Color32(0x44,0x8a,0xff,255),    new Color32(0x40,0xc4,0xff,255),    new Color32(0x18,0xff,0xff,255),    new Color32(0x64,0xff,0xda,255),    new Color32(0x69,0xf0,0xae,255),    new Color32(0xb2,0xff,0x59,255),    new Color32(0xee,0xff,0x41,255),    new Color32(0xff,0xff,0x00,255),    new Color32(0xff,0xd7,0x40,255),    new Color32(0xff,0xab,0x40,255),
        });
-       public readonly static List<Color32> MatColorA400 = new List<Color32>(new Color32[]{
-   new Color32(0xff,0x3d,0x00,255),           new Color32(0xff,0x17,0x44,255),   new Color32(0xf5,0x00,0x57,255),    new Color32(0xd5,0x00,0xf9,255),    new Color32(0x65,0x1f,0xff,255),    new Color32(0x3d,0x5a,0xfe,255),    new Color32(0x29,0x79,0xff,255),    new Color32(0x00,0xb0,0xff,255),    new Color32(0x00,0xe5,0xff,255),    new Color32(0x1d,0xe9,0xb6,255),    new Color32(0x00,0xe6,0x76,255),    new Color32(0x76,0xff,0x03,255),    new Color32(0xc6,0xff,0x00,255),    new Color32(0xff,0xea,0x00,255),    new Color32(0xff,0xc4,0x00,255),    new Color32(0xff,0x91,0x00,255),   
+        public readonly static List<Color32> MatColorA400 = new List<Color32>(new Color32[]{
+   new Color32(0xff,0x3d,0x00,255),           new Color32(0xff,0x17,0x44,255),   new Color32(0xf5,0x00,0x57,255),    new Color32(0xd5,0x00,0xf9,255),    new Color32(0x65,0x1f,0xff,255),    new Color32(0x3d,0x5a,0xfe,255),    new Color32(0x29,0x79,0xff,255),    new Color32(0x00,0xb0,0xff,255),    new Color32(0x00,0xe5,0xff,255),    new Color32(0x1d,0xe9,0xb6,255),    new Color32(0x00,0xe6,0x76,255),    new Color32(0x76,0xff,0x03,255),    new Color32(0xc6,0xff,0x00,255),    new Color32(0xff,0xea,0x00,255),    new Color32(0xff,0xc4,0x00,255),    new Color32(0xff,0x91,0x00,255),
        });
-       public readonly static List<Color32> MatColorA700 = new List<Color32>(new Color32[]{
-   new Color32(0xdd,0x2c,0x00,255),            new Color32(0xd5,0x00,0x00,255),  new Color32(0xc5,0x11,0x62,255),    new Color32(0xaa,0x00,0xff,255),    new Color32(0x62,0x00,0xea,255),    new Color32(0x30,0x4f,0xfe,255),    new Color32(0x29,0x62,0xff,255),    new Color32(0x00,0x91,0xea,255),    new Color32(0x00,0xb8,0xd4,255),    new Color32(0x00,0xbf,0xa5,255),    new Color32(0x00,0xc8,0x53,255),    new Color32(0x64,0xdd,0x17,255),    new Color32(0xae,0xea,0x00,255),    new Color32(0xff,0xd6,0x00,255),    new Color32(0xff,0xab,0x00,255),    new Color32(0xff,0x6d,0x00,255),   
+        public readonly static List<Color32> MatColorA700 = new List<Color32>(new Color32[]{
+   new Color32(0xdd,0x2c,0x00,255),            new Color32(0xd5,0x00,0x00,255),  new Color32(0xc5,0x11,0x62,255),    new Color32(0xaa,0x00,0xff,255),    new Color32(0x62,0x00,0xea,255),    new Color32(0x30,0x4f,0xfe,255),    new Color32(0x29,0x62,0xff,255),    new Color32(0x00,0x91,0xea,255),    new Color32(0x00,0xb8,0xd4,255),    new Color32(0x00,0xbf,0xa5,255),    new Color32(0x00,0xc8,0x53,255),    new Color32(0x64,0xdd,0x17,255),    new Color32(0xae,0xea,0x00,255),    new Color32(0xff,0xd6,0x00,255),    new Color32(0xff,0xab,0x00,255),    new Color32(0xff,0x6d,0x00,255),
         });
 
         public readonly static List<Color32> CPTM_SP_2000 = new List<Color32>(new Color32[]{
@@ -203,16 +203,14 @@ namespace Klyte.TransportLinesManager
 
         public static string defaultPaletteList
         {
-            get
-            {
+            get {
                 return ToString(defaultPaletteArray);
             }
         }
 
         public static string[] paletteList
         {
-            get
-            {
+            get {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("TLMAutoColorPalettes paletteList");
                 if (m_palettes == null)
                 {
@@ -224,8 +222,7 @@ namespace Klyte.TransportLinesManager
 
         public static string[] paletteListForEditing
         {
-            get
-            {
+            get {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("TLMAutoColorPalettes paletteListForEditing");
                 if (m_palettes == null)
                 {
@@ -280,7 +277,7 @@ namespace Klyte.TransportLinesManager
             TransportLinesManagerMod.savedPalettes.value = ToString(m_palettes.Values);
         }
 
-        public static Color32 getColor(int number, string paletteName, bool randomOnPaletteOverflow)
+        public static Color32 getColor(int number, string paletteName, bool randomOnPaletteOverflow, bool avoidRandom = false)
         {
             if (m_palettes.ContainsKey(paletteName))
             {
@@ -290,7 +287,14 @@ namespace Klyte.TransportLinesManager
                     return palette[number % palette.Count];
                 }
             }
-            return gen.GetNext();
+            if (avoidRandom)
+            {
+                return Color.clear;
+            }
+            else
+            {
+                return gen.GetNext();
+            }
         }
 
         public static void setColor(int number, string paletteName, Color newColor)
@@ -391,16 +395,14 @@ namespace Klyte.TransportLinesManager
 
         public int Count
         {
-            get
-            {
+            get {
                 return m_colors.Count;
             }
         }
 
         public List<Color32> colors
         {
-            get
-            {
+            get {
                 return m_colors;
             }
         }
@@ -420,7 +422,8 @@ namespace Klyte.TransportLinesManager
                     m_colors[0] = m_colors[m_colors.Count - 1];
                     m_colors.RemoveAt(m_colors.Count - 1);
                 }
-                else {
+                else
+                {
                     m_colors.RemoveAt(index % m_colors.Count);
                 }
             }
@@ -434,12 +437,10 @@ namespace Klyte.TransportLinesManager
 
         public Color32 this[int key]
         {
-            get
-            {
+            get {
                 return m_colors[key];
             }
-            set
-            {
+            set {
                 m_colors[key] = value;
             }
         }

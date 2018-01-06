@@ -1,6 +1,4 @@
-﻿TLMRv 7.1
-    - Green Cities TLM behaviour: Biofuel Bus can be spawned in any depot, if allowed for prefix. Also Biofuel Bus Depot can spawn any bus type, but will prefer the Biofuel model.
-    - Added distance between stations on linear map
-    - Added line preview on creating line
-    - Fixed: Null Reference Exception on creating evacuation routes
-    - New line numbering mode: Roman
+﻿TLMRv 7.1.1
+- Added prefix selector on creating line tool
+- Fixed vehicle selector for monorails
+- Fixed weird null pointer when loading a city, which prevented the model selector to work

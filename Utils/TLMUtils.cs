@@ -41,12 +41,12 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 if (TransportLinesManagerMod.debugMode)
                 {
-                    Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+                    Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
                 }
             }
             else
             {
-                Console.WriteLine("TLMRv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+                Console.WriteLine("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
             }
         }
 
@@ -54,11 +54,11 @@ namespace Klyte.TransportLinesManager.Utils
         {
             if (TransportLinesManagerMod.instance != null)
             {
-                Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+                Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
             }
             else
             {
-                Console.WriteLine("TLMRv" + TransportLinesManagerMod.majorVersion + " " + format, args);
+                Console.WriteLine("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
             }
 
         }
@@ -205,6 +205,36 @@ namespace Klyte.TransportLinesManager.Utils
 
         }
 
+
+
+        public static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, bool avoidRandom = false)
+        {
+            bool prefixBased = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_PREFIX_BASED);
+
+            bool randomOnOverflow = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
+
+            string pal = TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_SUBLINE);
+
+            if (num >= 1000 && TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+            {
+                pal = TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_MAIN);
+                if (prefixBased)
+                {
+                    num /= 1000;
+                }
+                else
+                {
+                    num %= 1000;
+                }
+            }
+            Color c;
+            c = TLMAutoColorPalettes.getColor(num, pal, randomOnOverflow, avoidRandom);
+            if (c == Color.clear)
+            {
+                c = TLMCW.getColorForTransportType(transportType);
+            }
+            return c;
+        }
         public static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false)
         {
             List<string> saida = new List<string>(new string[] { "" });

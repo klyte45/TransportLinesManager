@@ -17,6 +17,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
 
         public static BasicTransportExtension Instance(TransportSystemDefinition T)
         {
+            if (T == null) return null;
             if (!_instances.ContainsKey(T))
             {
                 _instances[T] = new BasicTransportExtension(T);
@@ -659,7 +660,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
                     VehicleInfo info = instance3.m_vehicles.m_buffer[Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].GetVehicle(0)].Info;
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: pre model list; type = {0}", info.GetAI());
                     var def = TransportSystemDefinition.from(info);
-                    if (def == default(TransportSystemDefinition))
+                    if (def == default(TransportSystemDefinition) || def == null)
                     {
                         if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("NULL TSysDef! {0}+{1}+{2}", info.GetAI().GetType(), info.m_class.m_subService, info.m_vehicleType);
                         continue;

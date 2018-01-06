@@ -51,11 +51,13 @@ namespace Klyte.TransportLinesManager.Overrides
         static FieldInfo tt_lineTemp = typeof(TransportTool).GetField("m_tempLine", allFlags);
         static FieldInfo tt_mode = typeof(TransportTool).GetField("m_mode", allFlags);
 
+
         private static void OnEnable()
         {
             TLMUtils.doLog("OnEnableTransportTool");
             TransportLinesManagerMod.instance.showVersionInfoPopup();
             TLMController.instance.LinearMapCreatingLine.isVisible = true;
+            TLMController.instance.LineCreationToolbox.setVisible(true);
             TLMController.instance.setCurrentSelectedId(0);
             TLMController.instance.LinearMapCreatingLine.redrawLine();
             TLMController.instance.lineInfoPanel.Hide();
@@ -66,13 +68,14 @@ namespace Klyte.TransportLinesManager.Overrides
             TLMUtils.doLog("OnDisableTransportTool");
             TLMController.instance.setCurrentSelectedId(0);
             TLMController.instance.LinearMapCreatingLine.isVisible = false;
+            TLMController.instance.LineCreationToolbox.setVisible(false);
         }
 
         private static ToolStatus lastState = new ToolStatus();
         private static float lastLength = 0;
         private static int frameCountRedraw = 0;
 
-        public static void resetLenght()
+        public static void resetLength()
         {
             lastLength = 0;
         }
@@ -92,26 +95,35 @@ namespace Klyte.TransportLinesManager.Overrides
 
         private static void OnToolGUIPos(ref TransportTool __instance, ref Event e)
         {
-            if (e.type == EventType.MouseUp && !isInsideUI) {
+            if (e.type == EventType.MouseUp && !isInsideUI)
+            {
                 TLMUtils.doLog("OnToolGUIPostTransportTool");
                 ToolStatus currentState = new ToolStatus();
                 TLMUtils.doLog("__state => {0} | tt_mode=> {1} | tt_lineCurrent => {2}", currentState, tt_mode, tt_lineCurrent);
-                currentState.m_mode = (Mode) tt_mode.GetValue(__instance);
-                currentState.m_lineCurrent = (ushort) tt_lineCurrent.GetValue(__instance);
-                currentState.m_lineTemp = (ushort) tt_lineTemp.GetValue(__instance);
+                currentState.m_mode = (Mode)tt_mode.GetValue(__instance);
+                currentState.m_lineCurrent = (ushort)tt_lineCurrent.GetValue(__instance);
+                currentState.m_lineTemp = (ushort)tt_lineTemp.GetValue(__instance);
                 TLMUtils.doLog("__state = {0} | {1}, newMode = {2}", lastState.m_mode, lastState.m_lineCurrent, currentState.m_mode);
                 redrawMap(currentState);
                 lastState = currentState;
-                TransportToolOverrides.resetLenght();
+                resetLength();
+            }
+            if (TLMController.instance.LineCreationToolbox.isVisible())
+            {
+                TLMController.instance.LineCreationToolbox.eachFrame();
             }
         }
 
         private static void SimulationStepPos(ref TransportTool __instance)
         {
-            if (lastState.m_lineCurrent > 0 && lastLength != Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength) {
-                if (frameCountRedraw < 5 || HasInputFocus) {
+            if (lastState.m_lineCurrent > 0 && lastLength != Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength)
+            {
+                if (frameCountRedraw < 5 || HasInputFocus)
+                {
                     frameCountRedraw++;
-                } else {
+                }
+                else
+                {
                     frameCountRedraw = 0;
                     lastLength = Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength;
                     TLMController.instance.LinearMapCreatingLine.redrawLine();
@@ -121,9 +133,11 @@ namespace Klyte.TransportLinesManager.Overrides
 
         private static void redrawMap(ToolStatus __state)
         {
-            if (__state.m_lineCurrent > 0 || (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None) {
+            if (__state.m_lineCurrent > 0 || (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None)
+            {
                 TLMController.instance.setCurrentSelectedId(__state.m_lineCurrent);
-                if (__state.m_lineCurrent > 0 && TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED)) {
+                if (__state.m_lineCurrent > 0 && TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
+                {
                     TLMController.instance.AutoColor(__state.m_lineCurrent);
                 }
             }
