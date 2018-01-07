@@ -35,24 +35,21 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
 
         private TLMConfigWarehouse.ConfigIndex ConfigKeyForAssets
         {
-            get
-            {
+            get {
                 return TLMConfigWarehouse.getConfigAssetsForAI(definition);
             }
         }
 
         public TLMConfigWarehouse.ConfigIndex ConfigKeyForAutoNamingPrefixRule
         {
-            get
-            {
+            get {
                 return TLMConfigWarehouse.getConfigPrefixForAI(definition);
             }
         }
 
         public TLMConfigWarehouse.ConfigIndex ConfigKeyForTransportSystem
         {
-            get
-            {
+            get {
                 return TLMConfigWarehouse.getConfigTransportSystemForDefinition(definition);
             }
         }
@@ -274,8 +271,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
 
         private bool NeedReload
         {
-            get
-            {
+            get {
                 return basicAssetsList == null;
             }
         }
@@ -542,7 +538,8 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
                 };
                 temp = GetAssetListForPrefix(0, global);
             }
-            else {
+            else
+            {
                 temp = cached_prefixConfigList[prefix][PrefixConfigIndex.MODELS].Split(PROPERTY_VALUE_COMMA.ToCharArray()).ToList();
             }
             if (!temp.Contains(assetId)) return;
@@ -638,7 +635,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
             }
             catch (Exception e)
             {
-                TLMUtils.doLog("ERRO AO OBTER CAPACIDADE: {0}", e);
+                TLMUtils.doLog("ERRO AO OBTER CAPACIDADE: [{0}] {1}", info, e.Message);
             }
             return capacity;
         }

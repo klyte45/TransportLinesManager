@@ -272,6 +272,8 @@ namespace Klyte.TransportLinesManager
                     return new Color32(31, 96, 225, 255);
                 case ConfigIndex.TAXI_CONFIG:
                     return new Color32(60, 184, 120, 255);
+                case ConfigIndex.EVAC_BUS_CONFIG:
+                    return new Color32(202, 162, 31, 255);
                 default:
                     return new Color();
 
@@ -420,6 +422,8 @@ namespace Klyte.TransportLinesManager
                     return Locale.Get("VEHICLE_TITLE", "Cable Car");
                 case ConfigIndex.TAXI_CONFIG:
                     return Locale.Get("VEHICLE_TITLE", "Taxi");
+                case ConfigIndex.EVAC_BUS_CONFIG:
+                    return Locale.Get("VEHICLE_TITLE", "Evacuation Bus");
                 default:
                     return "???";
 
@@ -501,6 +505,10 @@ namespace Klyte.TransportLinesManager
             else if (tsd == TransportSystemDefinition.METRO)
             {
                 return ConfigIndex.PREFIX_BASED_ASSETS_METRO;
+            }
+            else if (tsd == TransportSystemDefinition.EVAC_BUS)
+            {
+                return ConfigIndex.PREFIX_BASED_ASSETS_EVAC_BUS;
             }
             else
             {
@@ -607,6 +615,10 @@ namespace Klyte.TransportLinesManager
             {
                 return ConfigIndex.METRO_CONFIG;
             }
+            else if (tsd == TransportSystemDefinition.EVAC_BUS)
+            {
+                return ConfigIndex.EVAC_BUS_CONFIG;
+            }
             else
             {
                 return ConfigIndex.NIL;
@@ -641,6 +653,8 @@ namespace Klyte.TransportLinesManager
                     return TransportSystemDefinition.BLIMP;
                 case ConfigIndex.FERRY_CONFIG:
                     return TransportSystemDefinition.FERRY;
+                case ConfigIndex.EVAC_BUS_CONFIG:
+                    return TransportSystemDefinition.EVAC_BUS;
                 default:
                     return null;
             }
@@ -690,11 +704,13 @@ namespace Klyte.TransportLinesManager
             DEPOT_PREFIXES_CABLE_CAR = GLOBAL_CONFIG | 0x1E | TYPE_DICTIONARY,
             DEPOT_PREFIXES_MONORAIL = GLOBAL_CONFIG | 0x1F | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_METRO = GLOBAL_CONFIG | 0x20 | TYPE_DICTIONARY,
+            PREFIX_BASED_ASSETS_EVAC_BUS = GLOBAL_CONFIG | 0x21 | TYPE_DICTIONARY,
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = TransportInfo.TransportType.Tram << 16,
             METRO_CONFIG = TransportInfo.TransportType.Metro << 16,
             BUS_CONFIG = TransportInfo.TransportType.Bus << 16,
+            EVAC_BUS_CONFIG = TransportInfo.TransportType.EvacuationBus << 16,
             PLANE_CONFIG = TransportInfo.TransportType.Airplane << 16,
             TAXI_CONFIG = TransportInfo.TransportType.Taxi << 16,
             SHIP_CONFIG = TransportInfo.TransportType.Ship << 16,

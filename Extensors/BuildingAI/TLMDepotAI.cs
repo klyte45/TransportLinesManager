@@ -27,9 +27,11 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             Dictionary<ushort, List<uint>> saida = new Dictionary<ushort, List<uint>>();
             var tempArray = s.Split(COMMA.ToCharArray());
             var bm = Singleton<BuildingManager>.instance;
-            foreach (string i in tempArray) {
+            foreach (string i in tempArray)
+            {
                 var kv = i.Split(SEPARATOR.ToCharArray());
-                if (kv.Length == 2) {
+                if (kv.Length == 2)
+                {
 
                     if (ushort.TryParse(kv[0], out ushort key))
                     {
@@ -54,7 +56,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
         private static string getConfigStringFromDictionary(Dictionary<ushort, List<uint>> d)
         {
             List<string> temp = new List<string>();
-            foreach (ushort i in d.Keys) {
+            foreach (ushort i in d.Keys)
+            {
                 temp.Add(i + SEPARATOR + string.Join(SUBCOMMA, d[i].Select(x => x.ToString()).ToArray()));
             }
             return string.Join(COMMA, temp.ToArray());
@@ -76,7 +79,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         private static Dictionary<ushort, List<uint>> getConfigForTransportType(TransportSystemDefinition tsd)
         {
-            if (!cached_lists.ContainsKey(tsd)) {
+            if (!cached_lists.ContainsKey(tsd))
+            {
                 string depotList = TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.getConfigDepotPrefix(tsd));
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                     TLMUtils.doLog("getConfigForTransportType STRING FOR {0}: {1}", tsd.ToString(), depotList);
@@ -157,7 +161,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             List<ushort> saida = new List<ushort>();
             var bm = Singleton<BuildingManager>.instance;
             var buildings = bm.GetServiceBuildings(ItemClass.Service.PublicTransport);
-            foreach (ushort i in buildings) {
+            foreach (ushort i in buildings)
+            {
                 if (bm.m_buildings.m_buffer[i].Info.GetAI() is DepotAI buildingAI && tsd.isFromSystem(buildingAI))
                 {
                     saida.Add(i);
@@ -170,8 +175,10 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             List<ushort> saida = new List<ushort>();
             var bm = Singleton<BuildingManager>.instance;
             var buildings = bm.GetServiceBuildings(ItemClass.Service.PublicTransport);
-            foreach (ushort i in buildings) {
-                if (bm.m_buildings.m_buffer[i].Info.GetAI() is DepotAI buildingAI && buildingAI.m_maxVehicleCount > 0)
+            foreach (ushort i in buildings)
+            {
+                PrefabAI prefAI = bm.m_buildings.m_buffer[i].Info.GetAI();
+                if ((prefAI is DepotAI buildingAI && buildingAI.m_maxVehicleCount > 0) || prefAI is ShelterAI)
                 {
                     saida.Add(i);
                 }
@@ -203,10 +210,12 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
         {
             var dic = getConfigForTransportType(tsd);
             List<ushort> saida = getAllDepotsFromCity(tsd);
-            foreach (ushort i in dic.Keys) {
+            foreach (ushort i in dic.Keys)
+            {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                     TLMUtils.doLog("dic[i]: {{{0}}} ||  prefix = {1} || contains = {2}  ", string.Join(",", dic[i].Select(x => x.ToString()).ToArray()), prefix, dic[i].Contains(prefix));
-                if (!dic[i].Contains(prefix)) {
+                if (!dic[i].Contains(prefix))
+                {
                     saida.Remove(i);
                 }
             }
@@ -219,10 +228,12 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         private static VehicleInfo doModelDraw(TransportLine t)
         {
-            if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(t.Info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int) ModoNomenclatura.Nenhum) {
+            if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(t.Info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+            {
                 uint prefix = t.m_lineNumber / 1000u;
                 var def = TransportSystemDefinition.from(t.Info);
-                if (def == default(TransportSystemDefinition)) {
+                if (def == default(TransportSystemDefinition))
+                {
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                         TLMUtils.doLog("NULL TSysDef! {0}+{1}", t.Info.m_class.m_subService, t.Info.m_vehicleType);
                     return null;
@@ -238,7 +249,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
         public static void setRandomBuildingByPrefix(TransportSystemDefinition tsd, uint prefix, ref ushort currentId)
         {
             var allowedDepots = getAllowedDepotsForPrefix(tsd, prefix);
-            if (allowedDepots.Count == 0 || allowedDepots.Contains(currentId)) {
+            if (allowedDepots.Count == 0 || allowedDepots.Contains(currentId))
+            {
                 if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                     TLMUtils.doLog("allowedDepots.Count --{0}-- == 0||  allowedDepots.Contains({1}): --{2}--  ", allowedDepots.Count, currentId, string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()));
                 return;
@@ -282,25 +294,31 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                 TLMUtils.doLog("m_info {0} | m_transportInfo {1} | Line: {2}", m_info.name, m_transportInfo.name, offer.TransportLine);
 
 
-            if (reason == m_transportInfo.m_vehicleReason || (__instance.m_secondaryTransportInfo != null && reason == __instance.m_secondaryTransportInfo.m_vehicleReason)) {
+            if (reason == m_transportInfo.m_vehicleReason || (__instance.m_secondaryTransportInfo != null && reason == __instance.m_secondaryTransportInfo.m_vehicleReason))
+            {
                 VehicleInfo randomVehicleInfo = null;
                 var tsd = TransportSystemDefinition.from(__instance.m_transportInfo);
 
                 TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[offer.TransportLine];
                 TransportInfo.TransportType t = tl.Info.m_transportType;
 
-                if (TLMLineUtils.hasPrefix(ref tl)) {
+                if (TLMLineUtils.hasPrefix(ref tl))
+                {
                     setRandomBuildingByPrefix(tsd, tl.m_lineNumber / 1000u, ref buildingID);
-                } else {
+                }
+                else
+                {
                     setRandomBuildingByPrefix(tsd, 0, ref buildingID);
                 }
 
                 TLMUtils.doLog("randomVehicleInfo");
                 randomVehicleInfo = doModelDraw(tl);
-                if (randomVehicleInfo == null) {
+                if (randomVehicleInfo == null)
+                {
                     randomVehicleInfo = Singleton<VehicleManager>.instance.GetRandomVehicleInfo(ref Singleton<SimulationManager>.instance.m_randomizer, m_info.m_class.m_service, m_info.m_class.m_subService, m_info.m_class.m_level);
                 }
-                if (randomVehicleInfo != null) {
+                if (randomVehicleInfo != null)
+                {
                     TLMUtils.doLog("randomVehicleInfo != null");
                     Array16<Vehicle> vehicles = Singleton<VehicleManager>.instance.m_vehicles;
                     __instance.CalculateSpawnPosition(buildingID, ref Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID], ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, out Vector3 position, out Vector3 vector);

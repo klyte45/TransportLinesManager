@@ -20,8 +20,8 @@ namespace Klyte.TransportLinesManager.Extensors
         public static readonly TransportSystemDefinition SHIP = new TransportSystemDefinition(ItemClass.SubService.PublicTransportShip, VehicleInfo.VehicleType.Ship);
         public static readonly TransportSystemDefinition PLANE = new TransportSystemDefinition(ItemClass.SubService.PublicTransportPlane, VehicleInfo.VehicleType.Plane);
         public static readonly TransportSystemDefinition TAXI = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTaxi, VehicleInfo.VehicleType.Car);
-        //public static readonly TransportSystemDefinition EVAC_BUS = new TransportSystemDefinition(ItemClass.SubService.PublicTransportBus, VehicleInfo.VehicleType.);
-        public static readonly List<TransportSystemDefinition> availableDefinitions = new List<TransportSystemDefinition>(new TransportSystemDefinition[] { BUS, TRAM, METRO, MONORAIL, TRAIN, FERRY, BLIMP, CABLE_CAR, SHIP, PLANE, TAXI });
+        public static readonly TransportSystemDefinition EVAC_BUS = new TransportSystemDefinition(ItemClass.SubService.None, VehicleInfo.VehicleType.Car);
+        public static readonly List<TransportSystemDefinition> availableDefinitions = new List<TransportSystemDefinition>(new TransportSystemDefinition[] { EVAC_BUS, BUS, TRAM, METRO, MONORAIL, TRAIN, FERRY, BLIMP, CABLE_CAR, SHIP, PLANE, TAXI });
 
         public ItemClass.SubService subService
         {

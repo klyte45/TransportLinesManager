@@ -1,4 +1,6 @@
 ﻿TLMRv 7.1.1
 - Added prefix selector on creating line tool
-- Fixed vehicle selector for monorails
-- Fixed weird null pointer when loading a city, which prevented the model selector to work
+- Fixed: Vehicle selector for monorails
+- Fixed: Weird null pointer when loading a city, which prevented the model selector to work
+- Fixed: Division by zero on Evacuation Buses
+- Fixed: Added support for Evacuation Buses (Line listing, numbering, model select, prefixing)

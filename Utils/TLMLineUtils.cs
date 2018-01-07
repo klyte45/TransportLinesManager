@@ -214,12 +214,24 @@ namespace Klyte.TransportLinesManager.Utils
         public static void GetNamingRulesFromTSD(out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, TransportSystemDefinition tsd)
         {
             TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
-            suffix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
-            s = (Separador)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
-            prefix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
-            nonPrefix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
-            zeros = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
-            invertPrefixSuffix = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
+            if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
+            {
+                suffix = ModoNomenclatura.Romano;
+                s = Separador.Hifen;
+                prefix = ModoNomenclatura.Numero;
+                nonPrefix = ModoNomenclatura.Romano;
+                zeros = false;
+                invertPrefixSuffix = false;
+            }
+            else
+            {
+                suffix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
+                s = (Separador)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
+                prefix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+                nonPrefix = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
+                zeros = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
+                invertPrefixSuffix = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
+            }
         }
 
         public static bool hasPrefix(ref TransportLine t)
@@ -230,7 +242,7 @@ namespace Klyte.TransportLinesManager.Utils
                 return false;
             }
             TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
-            return ((ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
         public static bool hasPrefix(ushort idx)
@@ -241,13 +253,13 @@ namespace Klyte.TransportLinesManager.Utils
                 return false;
             }
             TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
-            return ((ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
         public static bool hasPrefix(TransportInfo t)
         {
             TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForTransportInfo(t);
-            return ((ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
         public static string getIconForLine(ushort lineIdx)
@@ -289,6 +301,8 @@ namespace Klyte.TransportLinesManager.Utils
                     return "FerryIcon";
                 case TLMCW.ConfigIndex.BLIMP_CONFIG:
                     return "BlimpIcon";
+                case TLMCW.ConfigIndex.EVAC_BUS_CONFIG:
+                    return "EvacBusIcon";
                 default:
                     return "BusIcon";
             }

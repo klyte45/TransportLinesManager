@@ -466,7 +466,7 @@ namespace Klyte.TransportLinesManager.LineList
             UIButton buttonAutoColor = null;
             TLMUtils.createUIElement<UIButton>(ref buttonAutoColor, transform);
             buttonAutoColor.pivot = UIPivotPoint.TopRight;
-            buttonAutoColor.relativePosition = new Vector3(120, 2);
+            buttonAutoColor.relativePosition = new Vector3(90, 2);
             buttonAutoColor.text = "A";
             buttonAutoColor.textScale = 0.6f;
             buttonAutoColor.width = 15;

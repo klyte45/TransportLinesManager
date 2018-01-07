@@ -209,6 +209,11 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, bool avoidRandom = false)
         {
+            if(transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
+            {
+                return TLMCW.getColorForTransportType(transportType);
+            }
+
             bool prefixBased = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_PREFIX_BASED);
 
             bool randomOnOverflow = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
@@ -564,67 +569,67 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 if (remain >= 1000)
                 {
-                    sb.Append("M");
+                    sb.Append("Ⅿ");
                     remain -= 1000;
                 }
                 else if (remain >= 900)
                 {
-                    sb.Append("CM");
+                    sb.Append("ⅭⅯ");
                     remain -= 900;
                 }
                 else if (remain >= 500)
                 {
-                    sb.Append("D");
+                    sb.Append("Ⅾ");
                     remain -= 500;
                 }
                 else if (remain >= 400)
                 {
-                    sb.Append("CD");
+                    sb.Append("ⅭⅮ");
                     remain -= 400;
                 }
                 else if (remain >= 100)
                 {
-                    sb.Append("C");
+                    sb.Append("Ⅽ");
                     remain -= 100;
                 }
                 else if (remain >= 90)
                 {
-                    sb.Append("XC");
+                    sb.Append("ⅩⅭ");
                     remain -= 90;
                 }
                 else if (remain >= 50)
                 {
-                    sb.Append("L");
+                    sb.Append("Ⅼ");
                     remain -= 50;
                 }
                 else if (remain >= 40)
                 {
-                    sb.Append("XL");
+                    sb.Append("ⅩⅬ");
                     remain -= 40;
                 }
                 else if (remain >= 10)
                 {
-                    sb.Append("X");
+                    sb.Append("Ⅹ");
                     remain -= 10;
                 }
                 else if (remain >= 9)
                 {
-                    sb.Append("IX");
+                    sb.Append("Ⅸ");
                     remain -= 9;
                 }
                 else if (remain >= 5)
                 {
-                    sb.Append("V");
+                    sb.Append("Ⅴ");
                     remain -= 5;
                 }
                 else if (remain >= 4)
                 {
-                    sb.Append("IV");
+                    sb.Append("Ⅳ");
                     remain -= 4;
                 }
                 else if (remain >= 1)
                 {
-                    sb.Append("I");
+                    sb.Append("Ⅰ");
                     remain -= 1;
                 }
                 else
@@ -717,6 +722,10 @@ namespace Klyte.TransportLinesManager.Utils
             TransportManager tm = Singleton<TransportManager>.instance;
             TransportLine t = tm.m_lines.m_buffer[(int)lineIdx];
             ItemClass.SubService ss = ItemClass.SubService.None;
+            if (t.Info.m_transportType == TransportInfo.TransportType.EvacuationBus)
+            {
+                return null;
+            }
             if (t.Info.m_transportType == TransportInfo.TransportType.Train)
             {
                 ss = ItemClass.SubService.PublicTransportTrain;
