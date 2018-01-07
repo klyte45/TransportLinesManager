@@ -18,7 +18,7 @@ using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using ColossalFramework.PlatformServices;
 
-[assembly: AssemblyVersion("7.1.1.*")]
+[assembly: AssemblyVersion("7.1.2.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -433,9 +433,9 @@ namespace Klyte.TransportLinesManager
                     prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
                     autoColorBasedContainer.isVisible = isPrefixed;
                     paletteLabel.text = isPrefixed ? Locale.Get("TLM_PALETTE_UNPREFIXED") : Locale.Get("TLM_PALETTE");
-                    if (TLMPublicTransportDetailPanel.instance != null && TLMPublicTransportDetailPanel.instance.m_systemTypeDropDown != null)
+                    if (TLMPublicTransportDetailPanel.instance != null && TLMPublicTransportDetailPanel.instance.prefixEditor.m_systemTypeDropDown != null)
                     {
-                        TLMPublicTransportDetailPanel.instance.m_systemTypeDropDown.selectedIndex = 0;
+                        TLMPublicTransportDetailPanel.instance.prefixEditor.m_systemTypeDropDown.selectedIndex = 0;
                     }
                 };
                 prefixDD.eventSelectedIndexChanged += updateFunction;

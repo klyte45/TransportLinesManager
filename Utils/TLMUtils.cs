@@ -209,7 +209,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, bool avoidRandom = false)
         {
-            if(transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
+            if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
             {
                 return TLMCW.getColorForTransportType(transportType);
             }
@@ -240,12 +240,22 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return c;
         }
-        public static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false)
+        public static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false, TLMCW.ConfigIndex nameReferenceSystem = TLMCW.ConfigIndex.NIL)
         {
+
             List<string> saida = new List<string>(new string[] { "" });
             if (showUnprefixed)
             {
-                saida.Add(Locale.Get("TLM_UNPREFIXED"));
+                string unprefixedName = Locale.Get("TLM_UNPREFIXED");
+                if (nameReferenceSystem != TLMCW.ConfigIndex.NIL)
+                {
+                    string prefixName = getTransportSystemPrefixName(nameReferenceSystem, 0);
+                    if (!string.IsNullOrEmpty(prefixName))
+                    {
+                        unprefixedName += " - " + prefixName;
+                    }
+                }
+                saida.Add(unprefixedName);
             }
             if (m == ModoNomenclatura.Nenhum)
             {
@@ -255,47 +265,77 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 case ModoNomenclatura.GregoMaiusculo:
                 case ModoNomenclatura.GregoMaiusculoNumero:
-                    saida.AddRange(gregoMaiusculo.Select(x => x.ToString()));
+                    addToArrayWithName(gregoMaiusculo, saida, nameReferenceSystem);
                     break;
                 case ModoNomenclatura.GregoMinusculo:
                 case ModoNomenclatura.GregoMinusculoNumero:
-                    saida.AddRange(gregoMinusculo.Select(x => x.ToString()));
+                    addToArrayWithName(gregoMinusculo, saida, nameReferenceSystem);
                     break;
                 case ModoNomenclatura.CirilicoMaiusculo:
                 case ModoNomenclatura.CirilicoMaiusculoNumero:
-                    saida.AddRange(cirilicoMaiusculo.Select(x => x.ToString()));
+                    addToArrayWithName(cirilicoMaiusculo, saida, nameReferenceSystem);
                     break;
                 case ModoNomenclatura.CirilicoMinusculo:
                 case ModoNomenclatura.CirilicoMinusculoNumero:
-                    saida.AddRange(cirilicoMinusculo.Select(x => x.ToString()));
+                    addToArrayWithName(cirilicoMinusculo, saida, nameReferenceSystem);
                     break;
                 case ModoNomenclatura.LatinoMaiusculo:
                 case ModoNomenclatura.LatinoMaiusculoNumero:
-                    saida.AddRange(latinoMaiusculo.Select(x => x.ToString()));
+                    addToArrayWithName(latinoMaiusculo, saida, nameReferenceSystem);
                     break;
                 case ModoNomenclatura.LatinoMinusculo:
                 case ModoNomenclatura.LatinoMinusculoNumero:
-                    saida.AddRange(latinoMinusculo.Select(x => x.ToString()));
+                    addToArrayWithName(latinoMinusculo, saida, nameReferenceSystem);
                     break;
                 case ModoNomenclatura.Numero:
+                    string[] temp = new string[64];
                     for (int i = 1; i <= 64; i++)
                     {
-                        saida.Add(i.ToString());
+                        temp[i - 1] = i.ToString();
                     }
+                    addToArrayWithName(temp, saida, nameReferenceSystem);
                     break;
                 case ModoNomenclatura.Romano:
+                    string[] tempR = new string[64];
                     for (ushort i = 1; i <= 64; i++)
                     {
-                        saida.Add(ToRomanNumeral(i));
+                        tempR[i - 1] = ToRomanNumeral(i);
                     }
+                    addToArrayWithName(tempR, saida, nameReferenceSystem);
                     break;
             }
             if (TLMUtils.nomenclaturasComNumeros.Contains(m))
             {
-                saida.AddRange(numeros.Select(x => x.ToString()));
+                addToArrayWithName(numeros, saida, nameReferenceSystem);
             }
             return saida.ToArray();
         }
+
+        private static void addToArrayWithName(string[] input, List<string> saida, TLMCW.ConfigIndex nameReferenceSystem)
+        {
+            if (nameReferenceSystem == TLMCW.ConfigIndex.NIL)
+            {
+                saida.AddRange(input);
+            }
+            else
+            {
+                for (uint i = 0; i < input.Length; i++)
+                {
+                    string item = input[i];
+                    string prefixName = getTransportSystemPrefixName(nameReferenceSystem, i + 1);
+                    if (string.IsNullOrEmpty(prefixName))
+                    {
+                        saida.Add(item);
+                    }
+                    else
+                    {
+                        saida.Add(item + " - " + prefixName);
+                    }
+
+                }
+            }
+        }
+
 
         public static ushort GetFirstEmptyValueForPrefix(TransportInfo info, int prefix)
         {
@@ -434,13 +474,13 @@ namespace Klyte.TransportLinesManager.Utils
                     }
                     break;
                 case ModoNomenclatura.Romano:
-                    for (int i = 1; i <= 64; i++)
+                    for (ushort i = 1; i <= 64; i++)
                     {
-                        saida.Add(i.ToString());
+                        saida.Add(ToRomanNumeral(i));
                     }
                     break;
             }
-            if (TLMUtils.nomenclaturasComNumeros.Contains(m))
+            if (nomenclaturasComNumeros.Contains(m))
             {
                 saida.AddRange(numeros.Select(x => x.ToString()));
             }
@@ -607,33 +647,54 @@ namespace Klyte.TransportLinesManager.Utils
                     sb.Append("ⅩⅬ");
                     remain -= 40;
                 }
-                else if (remain >= 10)
+                else if (remain >= 13)
                 {
                     sb.Append("Ⅹ");
                     remain -= 10;
                 }
-                else if (remain >= 9)
-                {
-                    sb.Append("Ⅸ");
-                    remain -= 9;
-                }
-                else if (remain >= 5)
-                {
-                    sb.Append("Ⅴ");
-                    remain -= 5;
-                }
-                else if (remain >= 4)
-                {
-                    sb.Append("Ⅳ");
-                    remain -= 4;
-                }
-                else if (remain >= 1)
-                {
-                    sb.Append("Ⅰ");
-                    remain -= 1;
-                }
                 else
-                    throw new Exception("Unexpected error."); // <<-- shouldn't be possble to get here, but it ensures that we will never have an infinite loop (in case the computer is on crack that day).
+                {
+                    switch (remain)
+                    {
+                        case 12:
+                            sb.Append("Ⅻ");
+                            break;
+                        case 11:
+                            sb.Append("Ⅺ");
+                            break;
+                        case 10:
+                            sb.Append("Ⅹ");
+                            break;
+                        case 9:
+                            sb.Append("Ⅸ");
+                            break;
+                        case 8:
+                            sb.Append("Ⅷ");
+                            break;
+                        case 7:
+                            sb.Append("Ⅶ");
+                            break;
+                        case 6:
+                            sb.Append("Ⅵ");
+                            break;
+                        case 5:
+                            sb.Append("Ⅴ");
+                            break;
+                        case 4:
+                            sb.Append("Ⅳ");
+                            break;
+                        case 3:
+                            sb.Append("Ⅲ");
+                            break;
+                        case 2:
+                            sb.Append("Ⅱ");
+                            break;
+                        case 1:
+                            sb.Append("Ⅰ");
+                            break;
+                    }
+                    remain = 0;
+                }
             }
 
             return remain;
@@ -1582,12 +1643,19 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static string getTransportSystemPrefixName(TLMConfigWarehouse.ConfigIndex index, uint prefix, bool global = false)
         {
-            return getExtensionFromConfigIndex(index).GetPrefixName(prefix, global);
+            var extension = getExtensionFromConfigIndex(index);
+            if (extension == null)
+            {
+                return "";
+            }
+            return extension.GetPrefixName(prefix, global);
         }
 
         public static BasicTransportExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
         {
-            return BasicTransportExtensionSingleton.Instance(TLMConfigWarehouse.getTransportSystemDefinitionForConfigTransport(index));
+            var tsd = TLMConfigWarehouse.getTransportSystemDefinitionForConfigTransport(index);
+            TLMUtils.doLog("getExtensionFromConfigIndex Target TSD: " + tsd + " from idx: " + index);
+            return BasicTransportExtensionSingleton.Instance(tsd);
         }
 
         public static BasicTransportExtension getExtensionFromTransportSystemDefinition(TransportSystemDefinition def)

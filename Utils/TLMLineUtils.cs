@@ -216,10 +216,10 @@ namespace Klyte.TransportLinesManager.Utils
             TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
             {
-                suffix = ModoNomenclatura.Romano;
+                suffix = ModoNomenclatura.Numero;
                 s = Separador.Hifen;
-                prefix = ModoNomenclatura.Numero;
-                nonPrefix = ModoNomenclatura.Romano;
+                prefix = ModoNomenclatura.Romano;
+                nonPrefix = ModoNomenclatura.Numero;
                 zeros = false;
                 invertPrefixSuffix = false;
             }

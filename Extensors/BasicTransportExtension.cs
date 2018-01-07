@@ -17,7 +17,11 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
 
         public static BasicTransportExtension Instance(TransportSystemDefinition T)
         {
-            if (T == null) return null;
+            if (T == null)
+            {
+                TLMUtils.doErrorLog("ERRRR: BasicTransportExtension NULL: " + T);
+                return null;
+            }
             if (!_instances.ContainsKey(T))
             {
                 _instances[T] = new BasicTransportExtension(T);
