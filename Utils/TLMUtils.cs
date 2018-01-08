@@ -334,47 +334,7 @@ namespace Klyte.TransportLinesManager.Utils
 
                 }
             }
-        }
-
-
-        public static ushort GetFirstEmptyValueForPrefix(TransportInfo info, int prefix)
-        {
-            var m = (ModoNomenclatura)TLMCW.getCurrentConfigInt(TLMCW.getConfigIndexForTransportInfo(info) | TLMCW.ConfigIndex.PREFIX);
-            var tm = Singleton<TransportManager>.instance;
-            int prefixThresold, size;
-            if (m == ModoNomenclatura.Nenhum)
-            {
-                prefixThresold = 0;
-                size = 65000;
-            }
-            else
-            {
-                prefixThresold = prefix * 1000;
-                size = 1000;
-            }
-            List<ushort> num = new List<ushort>();
-            for (int i = 1; i < 256; i++)
-            {
-                if (tm.m_lines.m_buffer[i].m_flags != TransportLine.Flags.None && tm.m_lines.m_buffer[i].Info.m_transportType == info.m_transportType && tm.m_lines.m_buffer[i].m_lineNumber - prefixThresold < size && tm.m_lines.m_buffer[i].m_lineNumber >= prefixThresold)
-                {
-                    num.Add(tm.m_lines.m_buffer[i].m_lineNumber);
-                }
-            }
-            if (num.Count == 0)
-            {
-                return (ushort)(prefixThresold);
-            }
-            num.Sort();
-            for (int i = 1; i < num.Count; i++)
-            {
-                if (num[i - 1] - num[i] > 1)
-                {
-                    return (ushort)(num[i - 1]);
-                }
-            }
-            return (ushort)(num[num.Count - 1]);
-
-        }
+        }      
 
         public static string[] getPrefixesOptions(TLMCW.ConfigIndex transportType, Boolean addDefaults = true)
         {
@@ -445,27 +405,27 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 case ModoNomenclatura.GregoMaiusculo:
                 case ModoNomenclatura.GregoMaiusculoNumero:
-                    saida.AddRange(gregoMaiusculo.Select(x => x.ToString()));
+                    saida.AddRange(gregoMaiusculo);
                     break;
                 case ModoNomenclatura.GregoMinusculo:
                 case ModoNomenclatura.GregoMinusculoNumero:
-                    saida.AddRange(gregoMinusculo.Select(x => x.ToString()));
+                    saida.AddRange(gregoMinusculo);
                     break;
                 case ModoNomenclatura.CirilicoMaiusculo:
                 case ModoNomenclatura.CirilicoMaiusculoNumero:
-                    saida.AddRange(cirilicoMaiusculo.Select(x => x.ToString()));
+                    saida.AddRange(cirilicoMaiusculo);
                     break;
                 case ModoNomenclatura.CirilicoMinusculo:
                 case ModoNomenclatura.CirilicoMinusculoNumero:
-                    saida.AddRange(cirilicoMinusculo.Select(x => x.ToString()));
+                    saida.AddRange(cirilicoMinusculo);
                     break;
                 case ModoNomenclatura.LatinoMaiusculo:
                 case ModoNomenclatura.LatinoMaiusculoNumero:
-                    saida.AddRange(latinoMaiusculo.Select(x => x.ToString()));
+                    saida.AddRange(latinoMaiusculo);
                     break;
                 case ModoNomenclatura.LatinoMinusculo:
                 case ModoNomenclatura.LatinoMinusculoNumero:
-                    saida.AddRange(latinoMinusculo.Select(x => x.ToString()));
+                    saida.AddRange(latinoMinusculo);
                     break;
                 case ModoNomenclatura.Numero:
                     for (int i = 1; i <= 64; i++)

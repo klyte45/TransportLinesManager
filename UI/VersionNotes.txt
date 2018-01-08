@@ -1,3 +1,8 @@
-﻿TLMRv 7.1.2
+﻿TLMRv 7.2
 - Added model preview on asset selection (Based on SamsamTS's AVO preview)
 - Added prefix name on prefix listing at prefix editor window
+- Added first stop edit funcionality
+
+BUGS: 
+- The autoname inside the Line Info Window isn't working properly
+- The autoname at changing first stop is not working properly

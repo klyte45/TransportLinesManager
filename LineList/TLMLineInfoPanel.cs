@@ -1,63 +1,58 @@
 using ColossalFramework;
-using ColossalFramework.Math;
 using ColossalFramework.UI;
 using Klyte.Extensions;
 using System;
-using System.Linq;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 using Klyte.TransportLinesManager.Extensors;
-using System.Collections.Generic;
 using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
-using ICities;
-using System.Reflection;
 using Klyte.TransportLinesManager.Interfaces;
 
 namespace Klyte.TransportLinesManager.LineList
 {
     public class TLMLineInfoPanel : LinearMapParentInterface
     {
-        private TLMAgesChartPanel agesPanel;
+        private TLMAgesChartPanel m_agesPanel;
         private TLMController m_controller;
         private TLMLinearMap m_linearMap;
-        //		private readonly string costsFormat = "₡ {0:#,0.00} + ₡ {1:#,0.00} = ₡ {2:#,0.00}";
-        private int lastStopsCount = 0;
+        private int m_lastStopsCount = 0;
 
         //line info	
-        private UIPanel lineInfoPanel;
+        private UIPanel m_lineInfoPanel;
         private InstanceID m_lineIdSelecionado;
         private CameraController m_CameraController;
-        private string lastLineName;
-        private UILabel lineLenghtLabel;
-        private UILabel budgetLabel;
-        private UITextField lineNumberLabel;
-        private UIDropDown linePrefixDropDown;
-        private UILabel lineTransportIconTypeLabel;
-        private UILabel viagensEvitadasLabel;
-        private UILabel passageirosEturistasLabel;
-        private UILabel veiculosLinhaLabel;
+        private string m_lastLineName;
+        private UILabel m_lineLenghtLabel;
+        private UILabel m_budgetLabel;
+        private UITextField m_lineNumberLabel;
+        private UIDropDown m_linePrefixDropDown;
+        private UILabel m_lineTransportIconTypeLabel;
+        private UILabel m_viagensEvitadasLabel;
+        private UILabel m_passageirosEturistasLabel;
+        private UILabel m_veiculosLinhaLabel;
         private UILabel m_autoNameLabel;
-        //private UILabel generalDebugLabel;
-        private UITextField lineNameField;
-        private UIColorField lineColorPicker;
-        private AsyncAction daytimeChange;
+        private UITextField m_lineNameField;
+        private UIColorField m_lineColorPicker;
+        private AsyncAction m_daytimeChange;
 
-        private UIHelperExtension uiHelper;
+        private UIHelperExtension m_uiHelper;
         private UICheckBox m_DayLine;
         private UICheckBox m_DayNightLine;
         private UICheckBox m_NightLine;
         private UICheckBox m_DisabledLine;
 
-        private UISlider[] budgetSliders = new UISlider[8];
-        private UIButton enableBudgetPerHour;
-        private UIButton disableBudgetPerHour;
-        private UIButton goToWorldInfoPanel;
-        private UILabel lineBudgetSlidersTitle;
+        private UISlider[] m_budgetSliders = new UISlider[8];
+        private UIButton m_enableBudgetPerHour;
+        private UIButton m_disableBudgetPerHour;
+        private UIButton m_goToWorldInfoPanel;
+        private UILabel m_lineBudgetSlidersTitle;
 
+        private UIDropDown m_firstStopSelect;
 
+        #region Getters
         public UILabel autoNameLabel
         {
             get {
@@ -68,7 +63,7 @@ namespace Klyte.TransportLinesManager.LineList
         public override Transform TransformLinearMap
         {
             get {
-                return lineInfoPanel.transform;
+                return m_lineInfoPanel.transform;
             }
         }
 
@@ -76,7 +71,7 @@ namespace Klyte.TransportLinesManager.LineList
         public Transform transform
         {
             get {
-                return lineInfoPanel.transform;
+                return m_lineInfoPanel.transform;
             }
         }
 
@@ -85,7 +80,7 @@ namespace Klyte.TransportLinesManager.LineList
             get {
                 try
                 {
-                    return lineInfoPanel.gameObject;
+                    return m_lineInfoPanel.gameObject;
                 }
 #pragma warning disable CS0168 // Variable is declared but never used
                 catch (Exception e)
@@ -99,7 +94,7 @@ namespace Klyte.TransportLinesManager.LineList
         public bool isVisible
         {
             get {
-                return lineInfoPanel.isVisible;
+                return m_lineInfoPanel.isVisible;
             }
         }
 
@@ -151,7 +146,7 @@ namespace Klyte.TransportLinesManager.LineList
                 return false;
             }
         }
-        
+
 
         public override TransportInfo CurrentTransportInfo
         {
@@ -159,7 +154,9 @@ namespace Klyte.TransportLinesManager.LineList
                 return Singleton<TransportManager>.instance.m_lines.m_buffer[CurrentSelectedId].Info;
             }
         }
+        #endregion
 
+        #region Instantiation
         public TLMLineInfoPanel(TLMController controller)
         {
             this.m_controller = controller;
@@ -169,119 +166,6 @@ namespace Klyte.TransportLinesManager.LineList
                 m_CameraController = gameObject.GetComponent<CameraController>();
             }
             createInfoView();
-        }
-
-        public void Show()
-        {
-            if (!GameObject.Find("InfoViewsPanel").GetComponent<UIPanel>().isVisible)
-            {
-                GameObject.Find("InfoViewsPanel").GetComponent<UIPanel>().isVisible = true;
-            }
-            if (Singleton<ToolController>.instance.CurrentTool.GetType() == typeof(TransportTool))
-            {
-                Singleton<ToolController>.instance.CurrentTool = Singleton<DefaultTool>.instance;
-            }
-            lineInfoPanel.Show();
-        }
-
-        public void Hide()
-        {
-            lineInfoPanel.Hide();
-        }
-
-
-
-
-        //ACOES
-        private void saveLineName(UITextField u)
-        {
-            string value = u.text;
-
-            TLMUtils.setLineName(m_lineIdSelecionado.TransportLine, value);
-        }
-
-        private void setLineBudget(ushort value)
-        {
-            Singleton<TransportManager>.instance.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine].m_budget = (ushort)value;
-        }
-
-        private void setLineBudgetForAllPrefix(ushort value)
-        {
-            int prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_lineNumber % 1000;
-            for (ushort i = 0; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
-            {
-                if (Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber % 1000 == prefix)
-                {
-                    Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_budget = (ushort)value;
-                }
-
-            }
-        }
-
-        private float getEffectiveBudget()
-        {
-            return TLMLineUtils.getEffectiveBugdet(m_lineIdSelecionado.TransportLine);
-        }
-
-        private bool isNumeroUsado(int numLinha, ushort lineIdx)
-        {
-            var tsdOr = TLMCW.getDefinitionForLine(lineIdx);
-            if (tsdOr == default(TransportSystemDefinition))
-            {
-                return true;
-            }
-
-            return TLMLineUtils.isNumberUsed(numLinha, tsdOr, lineIdx);
-        }
-
-        private void saveLineNumber(UIComponent c, object v)
-        {
-            saveLineNumber();
-        }
-
-        private void saveLineNumber(UIComponent c, int v)
-        {
-            saveLineNumber();
-        }
-
-        private void saveLineNumber()
-        {
-            String value = "0" + lineNumberLabel.text;
-            int valPrefixo = linePrefixDropDown.selectedIndex;
-            TLMLineUtils.getLineNamingParameters(m_lineIdSelecionado.TransportLine, out ModoNomenclatura prefixo, out Separador sep, out ModoNomenclatura sufixo, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
-            ushort num = ushort.Parse(value);
-            if (prefixo != ModoNomenclatura.Nenhum)
-            {
-                num = (ushort)(valPrefixo * 1000 + (num % 1000));
-            }
-            if (num < 1)
-            {
-                lineNumberLabel.textColor = new Color(1, 0, 0, 1);
-                return;
-            }
-            bool numeroUsado = isNumeroUsado(num, m_lineIdSelecionado.TransportLine);
-
-            if (numeroUsado)
-            {
-                lineNumberLabel.textColor = new Color(1, 0, 0, 1);
-            }
-            else
-            {
-                lineNumberLabel.textColor = new Color(1, 1, 1, 1);
-                Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_lineNumber = num;
-                m_linearMap.setLineNumberCircle(m_lineIdSelecionado.TransportLine);
-                m_autoNameLabel.text = m_linearMap.autoName;
-                if (prefixo != ModoNomenclatura.Nenhum)
-                {
-                    lineNumberLabel.text = (num % 1000).ToString();
-                    linePrefixDropDown.selectedIndex = (num / 1000);
-                }
-                else
-                {
-                    lineNumberLabel.text = (num % 10000).ToString();
-                }
-                updateSliders();
-            }
         }
 
         private void createInfoView()
@@ -298,10 +182,70 @@ namespace Klyte.TransportLinesManager.LineList
 
             createDayNightBudgetControls();
 
-            agesPanel = new TLMAgesChartPanel(this);
+            CreateBudgetSliders();
+
+            CreateFirstStopSelector();
+
+            m_agesPanel = new TLMAgesChartPanel(this);
             m_linearMap = new TLMLinearMap(this);
         }
 
+        private void CreateFirstStopSelector()
+        {
+            m_firstStopSelect = m_uiHelper.AddDropdownLocalized("TLM_FIRST_STOP_DD_LABEL", new String[1], 0, ChangeFirstStop);
+            m_firstStopSelect.eventMouseWheel -= null;
+
+            UIPanel parent = m_firstStopSelect.GetComponentInParent<UIPanel>();
+            parent.autoFitChildrenHorizontally = false;
+            parent.relativePosition = new Vector3(5, 290);
+            m_firstStopSelect.width = 435;
+            UILabel label = parent.GetComponentInChildren<UILabel>();
+            label.autoSize = false;
+            label.width = 200;
+            label.height = 40;
+            label.verticalAlignment = UIVerticalAlignment.Middle;
+            label.textAlignment = UIHorizontalAlignment.Center;
+            parent.autoLayoutDirection = LayoutDirection.Horizontal;
+            parent.autoLayout = true;
+            parent.ResetLayout(false, true);
+        }
+
+        private void ChangeFirstStop(int idxSel)
+        {
+            if (idxSel <= 0 || idxSel >= m_firstStopSelect.items.Length) return;
+            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
+            if ((t.m_flags & TransportLine.Flags.Invalid) != TransportLine.Flags.None)
+            {
+                return;
+            }
+            Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_stops = t.GetStop(idxSel);
+            openLineInfo(m_lineIdSelecionado.TransportLine);
+            if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
+            {
+                TLMController.instance.AutoName(m_lineIdSelecionado.TransportLine);
+            }
+        }
+
+        private void CreateBudgetSliders()
+        {
+            TLMUtils.createUIElement<UILabel>(ref m_lineBudgetSlidersTitle, m_lineInfoPanel.transform);
+            m_lineBudgetSlidersTitle.autoSize = false;
+            m_lineBudgetSlidersTitle.relativePosition = new Vector3(15f, 130f);
+            m_lineBudgetSlidersTitle.width = 400f;
+            m_lineBudgetSlidersTitle.height = 36f;
+            m_lineBudgetSlidersTitle.textScale = 0.9f;
+            m_lineBudgetSlidersTitle.textAlignment = UIHorizontalAlignment.Center;
+            m_lineBudgetSlidersTitle.name = "LineBudgetSlidersTitle";
+            m_lineBudgetSlidersTitle.font = UIHelperExtension.defaultFontCheckbox;
+            m_lineBudgetSlidersTitle.wordWrap = true;
+
+            for (int i = 0; i < m_budgetSliders.Length; i++)
+            {
+                m_budgetSliders[i] = GenerateVerticalBudgetMultiplierField(m_uiHelper, i);
+            }
+        }
+
+        #region Day & Night Controls creation
         private void createDayNightBudgetControls()
         {
             DayNightInstantiateCheckBoxes();
@@ -310,26 +254,11 @@ namespace Klyte.TransportLinesManager.LineList
 
             DayNightSetGroup();
 
-            SetPosition();
+            DayNightSetPosition();
 
-            TLMUtils.createUIElement<UILabel>(ref lineBudgetSlidersTitle, lineInfoPanel.transform);
-            lineBudgetSlidersTitle.autoSize = false;
-            lineBudgetSlidersTitle.relativePosition = new Vector3(15f, 130f);
-            lineBudgetSlidersTitle.width = 400f;
-            lineBudgetSlidersTitle.height = 36f;
-            lineBudgetSlidersTitle.textScale = 0.9f;
-            lineBudgetSlidersTitle.textAlignment = UIHorizontalAlignment.Center;
-            lineBudgetSlidersTitle.name = "LineBudgetSlidersTitle";
-            lineBudgetSlidersTitle.font = UIHelperExtension.defaultFontCheckbox;
-            lineBudgetSlidersTitle.wordWrap = true;
-
-            for (int i = 0; i < budgetSliders.Length; i++)
-            {
-                budgetSliders[i] = GenerateVerticalBudgetMultiplierField(uiHelper, i);
-            }
         }
 
-        private void SetPosition()
+        private void DayNightSetPosition()
         {
             m_DisabledLine.relativePosition = new Vector3(450f, 200f);
             m_DayLine.relativePosition = new Vector3(450f, 220f);
@@ -395,15 +324,17 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void DayNightInstantiateCheckBoxes()
         {
-            m_DayLine = uiHelper.AddCheckboxLocale("TRANSPORT_LINE_DAY", false);
-            m_NightLine = uiHelper.AddCheckboxLocale("TRANSPORT_LINE_NIGHT", false);
-            m_DayNightLine = uiHelper.AddCheckboxLocale("TRANSPORT_LINE_DAYNNIGHT", false);
-            m_DisabledLine = uiHelper.AddCheckboxLocale("TLM_TRANSPORT_LINE_DISABLED", false);
+            m_DayLine = m_uiHelper.AddCheckboxLocale("TRANSPORT_LINE_DAY", false);
+            m_NightLine = m_uiHelper.AddCheckboxLocale("TRANSPORT_LINE_NIGHT", false);
+            m_DayNightLine = m_uiHelper.AddCheckboxLocale("TRANSPORT_LINE_DAYNNIGHT", false);
+            m_DisabledLine = m_uiHelper.AddCheckboxLocale("TLM_TRANSPORT_LINE_DISABLED", false);
         }
+
+        #endregion
 
         private void createRightLineActionButtons()
         {
-            TLMUtils.createUIElement<UILabel>(ref m_autoNameLabel, lineInfoPanel.transform);
+            TLMUtils.createUIElement<UILabel>(ref m_autoNameLabel, m_lineInfoPanel.transform);
             m_autoNameLabel.autoSize = false;
             m_autoNameLabel.relativePosition = new Vector3(400f, 120f);
             m_autoNameLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -419,7 +350,7 @@ namespace Klyte.TransportLinesManager.LineList
 
             UIButton deleteLine = null;
             TLMUtils.createUIElement<UIButton>(ref deleteLine, transform);
-            deleteLine.relativePosition = new Vector3(lineInfoPanel.width - 150f, lineInfoPanel.height - 140f);
+            deleteLine.relativePosition = new Vector3(m_lineInfoPanel.width - 150f, m_lineInfoPanel.height - 190f);
             deleteLine.textScale = 0.6f;
             deleteLine.width = 40;
             deleteLine.height = 40;
@@ -453,13 +384,11 @@ namespace Klyte.TransportLinesManager.LineList
             icon.spriteName = "RemoveUnwantedIcon";
             icon.color = Color.red;
 
-
-
             //Auto color & Auto Name
             UIButton buttonAutoName = null;
-            TLMUtils.createUIElement<UIButton>(ref buttonAutoName, lineInfoPanel.transform);
+            TLMUtils.createUIElement<UIButton>(ref buttonAutoName, m_lineInfoPanel.transform);
             buttonAutoName.textScale = 0.6f;
-            buttonAutoName.relativePosition = new Vector3(lineInfoPanel.width - 50f, lineInfoPanel.height - 140f);
+            buttonAutoName.relativePosition = new Vector3(m_lineInfoPanel.width - 50f, m_lineInfoPanel.height - 190f);
             buttonAutoName.width = 40;
             buttonAutoName.height = 40;
             buttonAutoName.tooltip = Locale.Get("TLM_USE_AUTO_NAME");
@@ -468,8 +397,8 @@ namespace Klyte.TransportLinesManager.LineList
             buttonAutoName.isVisible = true;
             buttonAutoName.eventClick += (component, eventParam) =>
             {
-                lineNameField.text = m_linearMap.autoName;
-                saveLineName(lineNameField);
+                m_lineNameField.text = m_linearMap.autoName;
+                saveLineName(m_lineNameField);
             };
 
             icon = buttonAutoName.AddUIComponent<UISprite>();
@@ -480,8 +409,8 @@ namespace Klyte.TransportLinesManager.LineList
             icon.height = 36;
 
             UIButton buttonAutoColor = null;
-            TLMUtils.createUIElement<UIButton>(ref buttonAutoColor, lineInfoPanel.transform);
-            buttonAutoColor.relativePosition = new Vector3(lineInfoPanel.width - 100f, lineInfoPanel.height - 140f);
+            TLMUtils.createUIElement<UIButton>(ref buttonAutoColor, m_lineInfoPanel.transform);
+            buttonAutoColor.relativePosition = new Vector3(m_lineInfoPanel.width - 100f, m_lineInfoPanel.height - 190f);
             buttonAutoColor.textScale = 0.6f;
             buttonAutoColor.width = 40;
             buttonAutoColor.height = 40;
@@ -491,8 +420,8 @@ namespace Klyte.TransportLinesManager.LineList
             buttonAutoColor.isVisible = true;
             buttonAutoColor.eventClick += (component, eventParam) =>
             {
-                lineColorPicker.selectedColor = m_controller.AutoColor(m_lineIdSelecionado.TransportLine);
-                updateLineUI(lineColorPicker.selectedColor);
+                m_lineColorPicker.selectedColor = m_controller.AutoColor(m_lineIdSelecionado.TransportLine);
+                updateLineUI(m_lineColorPicker.selectedColor);
             };
 
             icon = buttonAutoColor.AddUIComponent<UISprite>();
@@ -502,16 +431,16 @@ namespace Klyte.TransportLinesManager.LineList
             icon.height = 36;
             icon.spriteName = "AutoColorIcon";
 
-            TLMUtils.createUIElement<UIButton>(ref enableBudgetPerHour, lineInfoPanel.transform);
-            enableBudgetPerHour.relativePosition = new Vector3(lineInfoPanel.width - 200f, lineInfoPanel.height - 140f);
-            enableBudgetPerHour.textScale = 0.6f;
-            enableBudgetPerHour.width = 40;
-            enableBudgetPerHour.height = 40;
-            enableBudgetPerHour.tooltip = Locale.Get("TLM_USE_PER_PERIOD_BUDGET");
-            TLMUtils.initButton(enableBudgetPerHour, true, "ButtonMenu");
-            enableBudgetPerHour.name = "EnableBudgetPerHour";
-            enableBudgetPerHour.isVisible = true;
-            enableBudgetPerHour.eventClick += (component, eventParam) =>
+            TLMUtils.createUIElement<UIButton>(ref m_enableBudgetPerHour, m_lineInfoPanel.transform);
+            m_enableBudgetPerHour.relativePosition = new Vector3(m_lineInfoPanel.width - 200f, m_lineInfoPanel.height - 190f);
+            m_enableBudgetPerHour.textScale = 0.6f;
+            m_enableBudgetPerHour.width = 40;
+            m_enableBudgetPerHour.height = 40;
+            m_enableBudgetPerHour.tooltip = Locale.Get("TLM_USE_PER_PERIOD_BUDGET");
+            TLMUtils.initButton(m_enableBudgetPerHour, true, "ButtonMenu");
+            m_enableBudgetPerHour.name = "EnableBudgetPerHour";
+            m_enableBudgetPerHour.isVisible = true;
+            m_enableBudgetPerHour.eventClick += (component, eventParam) =>
             {
                 TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
                 if (TLMLineUtils.hasPrefix(ref tl))
@@ -530,7 +459,7 @@ namespace Klyte.TransportLinesManager.LineList
                 updateSliders();
             };
 
-            icon = enableBudgetPerHour.AddUIComponent<UISprite>();
+            icon = m_enableBudgetPerHour.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
             icon.atlas = TLMController.taTLM;
             icon.width = 36;
@@ -538,16 +467,16 @@ namespace Klyte.TransportLinesManager.LineList
             icon.spriteName = "PerHourIcon";
 
 
-            TLMUtils.createUIElement<UIButton>(ref disableBudgetPerHour, lineInfoPanel.transform);
-            disableBudgetPerHour.relativePosition = new Vector3(lineInfoPanel.width - 200f, lineInfoPanel.height - 140f);
-            disableBudgetPerHour.textScale = 0.6f;
-            disableBudgetPerHour.width = 40;
-            disableBudgetPerHour.height = 40;
-            disableBudgetPerHour.tooltip = Locale.Get("TLM_USE_SINGLE_BUDGET");
-            TLMUtils.initButton(disableBudgetPerHour, true, "ButtonMenu");
-            disableBudgetPerHour.name = "DisableBudgetPerHour";
-            disableBudgetPerHour.isVisible = true;
-            disableBudgetPerHour.eventClick += (component, eventParam) =>
+            TLMUtils.createUIElement<UIButton>(ref m_disableBudgetPerHour, m_lineInfoPanel.transform);
+            m_disableBudgetPerHour.relativePosition = new Vector3(m_lineInfoPanel.width - 200f, m_lineInfoPanel.height - 190f);
+            m_disableBudgetPerHour.textScale = 0.6f;
+            m_disableBudgetPerHour.width = 40;
+            m_disableBudgetPerHour.height = 40;
+            m_disableBudgetPerHour.tooltip = Locale.Get("TLM_USE_SINGLE_BUDGET");
+            TLMUtils.initButton(m_disableBudgetPerHour, true, "ButtonMenu");
+            m_disableBudgetPerHour.name = "DisableBudgetPerHour";
+            m_disableBudgetPerHour.isVisible = true;
+            m_disableBudgetPerHour.eventClick += (component, eventParam) =>
             {
                 TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
                 if (TLMLineUtils.hasPrefix(ref tl))
@@ -562,24 +491,24 @@ namespace Klyte.TransportLinesManager.LineList
                 updateSliders();
             };
 
-            icon = disableBudgetPerHour.AddUIComponent<UISprite>();
+            icon = m_disableBudgetPerHour.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
             icon.atlas = TLMController.taTLM;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "24hLineIcon";
 
-            TLMUtils.createUIElement<UIButton>(ref goToWorldInfoPanel, lineInfoPanel.transform);
-            goToWorldInfoPanel.relativePosition = new Vector3(lineInfoPanel.width - 200f, lineInfoPanel.height - 140f);
-            goToWorldInfoPanel.text = "IPT2";
-            goToWorldInfoPanel.textScale = 0.6f;
-            goToWorldInfoPanel.width = 40;
-            goToWorldInfoPanel.height = 40;
-            goToWorldInfoPanel.tooltip = Locale.Get("TLM_GO_TO_WORLD_INFO_PANEL_LINE");
-            TLMUtils.initButton(goToWorldInfoPanel, true, "ButtonMenu");
-            goToWorldInfoPanel.name = "IPT2WorldInfoButton";
-            goToWorldInfoPanel.isVisible = true;
-            goToWorldInfoPanel.eventClick += (component, eventParam) =>
+            TLMUtils.createUIElement<UIButton>(ref m_goToWorldInfoPanel, m_lineInfoPanel.transform);
+            m_goToWorldInfoPanel.relativePosition = new Vector3(m_lineInfoPanel.width - 200f, m_lineInfoPanel.height - 190f);
+            m_goToWorldInfoPanel.text = "IPT2";
+            m_goToWorldInfoPanel.textScale = 0.6f;
+            m_goToWorldInfoPanel.width = 40;
+            m_goToWorldInfoPanel.height = 40;
+            m_goToWorldInfoPanel.tooltip = Locale.Get("TLM_GO_TO_WORLD_INFO_PANEL_LINE");
+            TLMUtils.initButton(m_goToWorldInfoPanel, true, "ButtonMenu");
+            m_goToWorldInfoPanel.name = "IPT2WorldInfoButton";
+            m_goToWorldInfoPanel.isVisible = true;
+            m_goToWorldInfoPanel.eventClick += (component, eventParam) =>
             {
                 WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(Vector3.zero, m_lineIdSelecionado);
             };
@@ -587,161 +516,148 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void createLineInfoLabels()
         {
-            TLMUtils.createUIElement<UILabel>(ref lineLenghtLabel, lineInfoPanel.transform);
-            lineLenghtLabel.autoSize = false;
-            lineLenghtLabel.relativePosition = new Vector3(10f, 45f);
-            lineLenghtLabel.textAlignment = UIHorizontalAlignment.Left;
-            lineLenghtLabel.text = "";
-            lineLenghtLabel.width = 550;
-            lineLenghtLabel.height = 25;
-            lineLenghtLabel.prefix = "";
-            lineLenghtLabel.suffix = "";
-            lineLenghtLabel.name = "LineLenghtLabel";
-            lineLenghtLabel.textScale = 0.6f;
-            lineLenghtLabel.font = UIHelperExtension.defaultFontCheckbox;
+            TLMUtils.createUIElement<UILabel>(ref m_lineLenghtLabel, m_lineInfoPanel.transform);
+            m_lineLenghtLabel.autoSize = false;
+            m_lineLenghtLabel.relativePosition = new Vector3(10f, 45f);
+            m_lineLenghtLabel.textAlignment = UIHorizontalAlignment.Left;
+            m_lineLenghtLabel.text = "";
+            m_lineLenghtLabel.width = 550;
+            m_lineLenghtLabel.height = 25;
+            m_lineLenghtLabel.prefix = "";
+            m_lineLenghtLabel.suffix = "";
+            m_lineLenghtLabel.name = "LineLenghtLabel";
+            m_lineLenghtLabel.textScale = 0.6f;
+            m_lineLenghtLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement<UILabel>(ref veiculosLinhaLabel, lineInfoPanel.transform);
-            veiculosLinhaLabel.autoSize = false;
-            veiculosLinhaLabel.relativePosition = new Vector3(10f, 55);
-            veiculosLinhaLabel.textAlignment = UIHorizontalAlignment.Left;
-            veiculosLinhaLabel.text = "";
-            veiculosLinhaLabel.width = 550;
-            veiculosLinhaLabel.height = 25;
-            veiculosLinhaLabel.name = "VehiclesLineLabel";
-            veiculosLinhaLabel.textScale = 0.6f;
-            veiculosLinhaLabel.font = UIHelperExtension.defaultFontCheckbox;
+            TLMUtils.createUIElement<UILabel>(ref m_veiculosLinhaLabel, m_lineInfoPanel.transform);
+            m_veiculosLinhaLabel.autoSize = false;
+            m_veiculosLinhaLabel.relativePosition = new Vector3(10f, 55);
+            m_veiculosLinhaLabel.textAlignment = UIHorizontalAlignment.Left;
+            m_veiculosLinhaLabel.text = "";
+            m_veiculosLinhaLabel.width = 550;
+            m_veiculosLinhaLabel.height = 25;
+            m_veiculosLinhaLabel.name = "VehiclesLineLabel";
+            m_veiculosLinhaLabel.textScale = 0.6f;
+            m_veiculosLinhaLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement<UILabel>(ref viagensEvitadasLabel, lineInfoPanel.transform);
-            viagensEvitadasLabel.autoSize = false;
-            viagensEvitadasLabel.relativePosition = new Vector3(10f, 65);
-            viagensEvitadasLabel.textAlignment = UIHorizontalAlignment.Left;
-            viagensEvitadasLabel.text = "";
-            viagensEvitadasLabel.width = 250;
-            viagensEvitadasLabel.height = 25;
-            viagensEvitadasLabel.name = "AvoidedTravelsLabel";
-            viagensEvitadasLabel.textScale = 0.6f;
-            viagensEvitadasLabel.font = UIHelperExtension.defaultFontCheckbox;
+            TLMUtils.createUIElement<UILabel>(ref m_viagensEvitadasLabel, m_lineInfoPanel.transform);
+            m_viagensEvitadasLabel.autoSize = false;
+            m_viagensEvitadasLabel.relativePosition = new Vector3(10f, 65);
+            m_viagensEvitadasLabel.textAlignment = UIHorizontalAlignment.Left;
+            m_viagensEvitadasLabel.text = "";
+            m_viagensEvitadasLabel.width = 250;
+            m_viagensEvitadasLabel.height = 25;
+            m_viagensEvitadasLabel.name = "AvoidedTravelsLabel";
+            m_viagensEvitadasLabel.textScale = 0.6f;
+            m_viagensEvitadasLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement<UILabel>(ref passageirosEturistasLabel, lineInfoPanel.transform);
-            passageirosEturistasLabel.autoSize = false;
-            passageirosEturistasLabel.relativePosition = new Vector3(10f, 75f);
-            passageirosEturistasLabel.textAlignment = UIHorizontalAlignment.Left;
-            passageirosEturistasLabel.text = "";
-            passageirosEturistasLabel.width = 350;
-            passageirosEturistasLabel.height = 25;
-            passageirosEturistasLabel.name = "TouristAndPassagersLabel";
-            passageirosEturistasLabel.textScale = 0.6f;
-            passageirosEturistasLabel.font = UIHelperExtension.defaultFontCheckbox;
+            TLMUtils.createUIElement<UILabel>(ref m_passageirosEturistasLabel, m_lineInfoPanel.transform);
+            m_passageirosEturistasLabel.autoSize = false;
+            m_passageirosEturistasLabel.relativePosition = new Vector3(10f, 75f);
+            m_passageirosEturistasLabel.textAlignment = UIHorizontalAlignment.Left;
+            m_passageirosEturistasLabel.text = "";
+            m_passageirosEturistasLabel.width = 350;
+            m_passageirosEturistasLabel.height = 25;
+            m_passageirosEturistasLabel.name = "TouristAndPassagersLabel";
+            m_passageirosEturistasLabel.textScale = 0.6f;
+            m_passageirosEturistasLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement<UILabel>(ref budgetLabel, lineInfoPanel.transform);
-            budgetLabel.autoSize = false;
-            budgetLabel.relativePosition = new Vector3(10f, 85f);
-            budgetLabel.textAlignment = UIHorizontalAlignment.Left;
-            budgetLabel.width = 550;
-            budgetLabel.height = 25;
-            budgetLabel.name = "ExtraInfoLabel";
-            budgetLabel.textScale = 0.6f;
-            budgetLabel.prefix = Locale.Get("TLM_LINE_EFFECTIVE_BUDGET") + ": ";
-            budgetLabel.font = UIHelperExtension.defaultFontCheckbox;
-
-            //TLMUtils.createUIElement<UILabel>(ref generalDebugLabel, lineInfoPanel.transform);
-            //generalDebugLabel.autoSize = false;
-            //generalDebugLabel.relativePosition = new Vector3(10f, 185f);
-            //generalDebugLabel.textAlignment = UIHorizontalAlignment.Left;
-            //generalDebugLabel.prefix = "DEBUG: DATA AVAIL = ";
-            //generalDebugLabel.width = 350;
-            //generalDebugLabel.height = 100;
-            //generalDebugLabel.name = "CustosLabel";
-            //generalDebugLabel.textScale = 0.8f;
-            //generalDebugLabel.wordWrap = true;
-            //generalDebugLabel.clipChildren = false;
-            //generalDebugLabel.enabled = false && TransportLinesManagerMod.debugMode.value;
+            TLMUtils.createUIElement<UILabel>(ref m_budgetLabel, m_lineInfoPanel.transform);
+            m_budgetLabel.autoSize = false;
+            m_budgetLabel.relativePosition = new Vector3(10f, 85f);
+            m_budgetLabel.textAlignment = UIHorizontalAlignment.Left;
+            m_budgetLabel.width = 550;
+            m_budgetLabel.height = 25;
+            m_budgetLabel.name = "ExtraInfoLabel";
+            m_budgetLabel.textScale = 0.6f;
+            m_budgetLabel.prefix = Locale.Get("TLM_LINE_EFFECTIVE_BUDGET") + ": ";
+            m_budgetLabel.font = UIHelperExtension.defaultFontCheckbox;
         }
 
         private void createTitleBarItems()
         {
 
 
-            TLMUtils.createUIElement<UILabel>(ref lineTransportIconTypeLabel, lineInfoPanel.transform);
-            lineTransportIconTypeLabel.autoSize = false;
-            lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 12f);
-            lineTransportIconTypeLabel.width = 30;
-            lineTransportIconTypeLabel.height = 20;
-            lineTransportIconTypeLabel.name = "LineTransportIcon";
-            lineTransportIconTypeLabel.clipChildren = true;
-            TLMUtils.createDragHandle(lineTransportIconTypeLabel, lineInfoPanel);
+            TLMUtils.createUIElement<UILabel>(ref m_lineTransportIconTypeLabel, m_lineInfoPanel.transform);
+            m_lineTransportIconTypeLabel.autoSize = false;
+            m_lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 12f);
+            m_lineTransportIconTypeLabel.width = 30;
+            m_lineTransportIconTypeLabel.height = 20;
+            m_lineTransportIconTypeLabel.name = "LineTransportIcon";
+            m_lineTransportIconTypeLabel.clipChildren = true;
+            TLMUtils.createDragHandle(m_lineTransportIconTypeLabel, m_lineInfoPanel);
 
             GameObject lpddgo = GameObject.Instantiate(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate).GetComponent<UIPanel>().Find<UIDropDown>("Dropdown").gameObject);
-            linePrefixDropDown = lpddgo.GetComponent<UIDropDown>();
-            lineInfoPanel.AttachUIComponent(linePrefixDropDown.gameObject);
-            linePrefixDropDown.isLocalized = false;
-            linePrefixDropDown.autoSize = false;
-            linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
-            linePrefixDropDown.text = "";
-            linePrefixDropDown.width = 40;
-            linePrefixDropDown.height = 30;
-            linePrefixDropDown.name = "LinePrefixDropDown";
-            linePrefixDropDown.textScale = 1.6f;
-            linePrefixDropDown.itemHeight = 35;
-            linePrefixDropDown.itemPadding = new RectOffset(2, 2, 2, 2);
-            linePrefixDropDown.textFieldPadding = new RectOffset(2, 2, 2, 2);
-            linePrefixDropDown.eventSelectedIndexChanged += saveLineNumber;
-            linePrefixDropDown.relativePosition = new Vector3(70f, 5f);
-            linePrefixDropDown.normalBgSprite = "OptionsDropboxListbox";
-            linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
+            m_linePrefixDropDown = lpddgo.GetComponent<UIDropDown>();
+            m_lineInfoPanel.AttachUIComponent(m_linePrefixDropDown.gameObject);
+            m_linePrefixDropDown.isLocalized = false;
+            m_linePrefixDropDown.autoSize = false;
+            m_linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
+            m_linePrefixDropDown.text = "";
+            m_linePrefixDropDown.width = 40;
+            m_linePrefixDropDown.height = 30;
+            m_linePrefixDropDown.name = "LinePrefixDropDown";
+            m_linePrefixDropDown.textScale = 1.6f;
+            m_linePrefixDropDown.itemHeight = 35;
+            m_linePrefixDropDown.itemPadding = new RectOffset(2, 2, 2, 2);
+            m_linePrefixDropDown.textFieldPadding = new RectOffset(2, 2, 2, 2);
+            m_linePrefixDropDown.eventSelectedIndexChanged += saveLineNumber;
+            m_linePrefixDropDown.relativePosition = new Vector3(70f, 5f);
+            m_linePrefixDropDown.normalBgSprite = "OptionsDropboxListbox";
+            m_linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
 
 
-            TLMUtils.createUIElement<UITextField>(ref lineNumberLabel, lineInfoPanel.transform);
-            lineNumberLabel.autoSize = false;
-            lineNumberLabel.relativePosition = new Vector3(80f, 5f);
-            lineNumberLabel.horizontalAlignment = UIHorizontalAlignment.Center;
-            lineNumberLabel.text = "";
-            lineNumberLabel.width = 75;
-            lineNumberLabel.height = 30;
-            lineNumberLabel.name = "LineNumberLabel";
-            lineNumberLabel.normalBgSprite = "EmptySprite";
-            lineNumberLabel.textScale = 1.6f;
-            lineNumberLabel.padding = new RectOffset(0, 0, 0, 0);
-            lineNumberLabel.color = new Color(0, 0, 0, 1);
-            TLMUtils.uiTextFieldDefaults(lineNumberLabel);
-            lineNumberLabel.numericalOnly = true;
-            lineNumberLabel.maxLength = 4;
-            lineNumberLabel.eventLostFocus += saveLineNumber;
-            lineNumberLabel.zOrder = 10;
+            TLMUtils.createUIElement<UITextField>(ref m_lineNumberLabel, m_lineInfoPanel.transform);
+            m_lineNumberLabel.autoSize = false;
+            m_lineNumberLabel.relativePosition = new Vector3(80f, 5f);
+            m_lineNumberLabel.horizontalAlignment = UIHorizontalAlignment.Center;
+            m_lineNumberLabel.text = "";
+            m_lineNumberLabel.width = 75;
+            m_lineNumberLabel.height = 30;
+            m_lineNumberLabel.name = "LineNumberLabel";
+            m_lineNumberLabel.normalBgSprite = "EmptySprite";
+            m_lineNumberLabel.textScale = 1.6f;
+            m_lineNumberLabel.padding = new RectOffset(0, 0, 0, 0);
+            m_lineNumberLabel.color = new Color(0, 0, 0, 1);
+            TLMUtils.uiTextFieldDefaults(m_lineNumberLabel);
+            m_lineNumberLabel.numericalOnly = true;
+            m_lineNumberLabel.maxLength = 4;
+            m_lineNumberLabel.eventLostFocus += saveLineNumber;
+            m_lineNumberLabel.zOrder = 10;
 
 
-            TLMUtils.createUIElement<UITextField>(ref lineNameField, lineInfoPanel.transform);
-            lineNameField.autoSize = false;
-            lineNameField.relativePosition = new Vector3(190f, 11f);
-            lineNameField.horizontalAlignment = UIHorizontalAlignment.Center;
-            lineNameField.text = "NOME";
-            lineNameField.width = 410;
-            lineNameField.height = 18;
-            lineNameField.name = "LineNameLabel";
-            lineNameField.maxLength = 256;
-            lineNameField.textScale = 1f;
-            TLMUtils.uiTextFieldDefaults(lineNameField);
-            lineNameField.eventGotFocus += (component, eventParam) =>
+            TLMUtils.createUIElement<UITextField>(ref m_lineNameField, m_lineInfoPanel.transform);
+            m_lineNameField.autoSize = false;
+            m_lineNameField.relativePosition = new Vector3(190f, 11f);
+            m_lineNameField.horizontalAlignment = UIHorizontalAlignment.Center;
+            m_lineNameField.text = "NOME";
+            m_lineNameField.width = 410;
+            m_lineNameField.height = 18;
+            m_lineNameField.name = "LineNameLabel";
+            m_lineNameField.maxLength = 256;
+            m_lineNameField.textScale = 1f;
+            TLMUtils.uiTextFieldDefaults(m_lineNameField);
+            m_lineNameField.eventGotFocus += (component, eventParam) =>
             {
-                lastLineName = lineNameField.text;
+                m_lastLineName = m_lineNameField.text;
             };
-            lineNameField.eventLostFocus += (component, eventParam) =>
+            m_lineNameField.eventLostFocus += (component, eventParam) =>
             {
-                if (lastLineName != lineNameField.text)
+                if (m_lastLineName != m_lineNameField.text)
                 {
-                    saveLineName(lineNameField);
+                    saveLineName(m_lineNameField);
                 }
-                lineNameField.text = m_controller.tm.GetLineName(m_lineIdSelecionado.TransportLine);
+                m_lineNameField.text = m_controller.tm.GetLineName(m_lineIdSelecionado.TransportLine);
             };
 
 
-            lineColorPicker = GameObject.Instantiate(PublicTransportWorldInfoPanel.FindObjectOfType<UIColorField>().gameObject).GetComponent<UIColorField>();
-            lineInfoPanel.AttachUIComponent(lineColorPicker.gameObject);
-            lineColorPicker.name = "LineColorPicker";
-            lineColorPicker.relativePosition = new Vector3(42f, 10f);
-            lineColorPicker.enabled = true;
-            lineColorPicker.anchor = UIAnchorStyle.Top & UIAnchorStyle.Left;
-            lineColorPicker.eventSelectedColorChanged += (UIComponent component, Color value) =>
+            m_lineColorPicker = GameObject.Instantiate(PublicTransportWorldInfoPanel.FindObjectOfType<UIColorField>().gameObject).GetComponent<UIColorField>();
+            m_lineInfoPanel.AttachUIComponent(m_lineColorPicker.gameObject);
+            m_lineColorPicker.name = "LineColorPicker";
+            m_lineColorPicker.relativePosition = new Vector3(42f, 10f);
+            m_lineColorPicker.enabled = true;
+            m_lineColorPicker.anchor = UIAnchorStyle.Top & UIAnchorStyle.Left;
+            m_lineColorPicker.eventSelectedColorChanged += (UIComponent component, Color value) =>
             {
                 TLMUtils.setLineColor(m_lineIdSelecionado.TransportLine, value);
                 updateLineUI(value);
@@ -749,8 +665,8 @@ namespace Klyte.TransportLinesManager.LineList
 
 
             UIButton voltarButton2 = null;
-            TLMUtils.createUIElement<UIButton>(ref voltarButton2, lineInfoPanel.transform);
-            voltarButton2.relativePosition = new Vector3(lineInfoPanel.width - 40f, 5f);
+            TLMUtils.createUIElement<UIButton>(ref voltarButton2, m_lineInfoPanel.transform);
+            voltarButton2.relativePosition = new Vector3(m_lineInfoPanel.width - 40f, 5f);
             voltarButton2.width = 30;
             voltarButton2.height = 30;
             TLMUtils.initButton(voltarButton2, true, "buttonclose", true);
@@ -760,22 +676,22 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void createMainPanel()
         {
-            TLMUtils.createUIElement<UIPanel>(ref lineInfoPanel, m_controller.mainRef.transform);
-            lineInfoPanel.Hide();
-            lineInfoPanel.relativePosition = new Vector3(394.0f, 0.0f);
-            lineInfoPanel.width = 650;
-            lineInfoPanel.height = 290;
-            lineInfoPanel.zOrder = 50;
-            lineInfoPanel.color = new Color32(255, 255, 255, 255);
-            lineInfoPanel.backgroundSprite = "MenuPanel2";
-            lineInfoPanel.name = "LineInfoPanel";
-            lineInfoPanel.autoLayoutPadding = new RectOffset(5, 5, 10, 10);
-            lineInfoPanel.autoLayout = false;
-            lineInfoPanel.useCenter = true;
-            lineInfoPanel.wrapLayout = false;
-            lineInfoPanel.canFocus = true;
-            TLMUtils.createDragHandle(lineInfoPanel, lineInfoPanel, 35f);
-            lineInfoPanel.eventVisibilityChanged += (component, value) =>
+            TLMUtils.createUIElement<UIPanel>(ref m_lineInfoPanel, m_controller.mainRef.transform);
+            m_lineInfoPanel.Hide();
+            m_lineInfoPanel.relativePosition = new Vector3(394.0f, 0.0f);
+            m_lineInfoPanel.width = 650;
+            m_lineInfoPanel.height = 340;
+            m_lineInfoPanel.zOrder = 50;
+            m_lineInfoPanel.color = new Color32(255, 255, 255, 255);
+            m_lineInfoPanel.backgroundSprite = "MenuPanel2";
+            m_lineInfoPanel.name = "LineInfoPanel";
+            m_lineInfoPanel.autoLayoutPadding = new RectOffset(5, 5, 10, 10);
+            m_lineInfoPanel.autoLayout = false;
+            m_lineInfoPanel.useCenter = true;
+            m_lineInfoPanel.wrapLayout = false;
+            m_lineInfoPanel.canFocus = true;
+            TLMUtils.createDragHandle(m_lineInfoPanel, m_lineInfoPanel, 35f);
+            m_lineInfoPanel.eventVisibilityChanged += (component, value) =>
             {
                 if (m_linearMap != null)
                 {
@@ -783,9 +699,98 @@ namespace Klyte.TransportLinesManager.LineList
                 }
             };
 
-            uiHelper = new UIHelperExtension(lineInfoPanel);
+            m_uiHelper = new UIHelperExtension(m_lineInfoPanel);
+        }
+        #endregion
+
+        #region Actions
+        private void saveLineName(UITextField u)
+        {
+            string value = u.text;
+
+            TLMUtils.setLineName(m_lineIdSelecionado.TransportLine, value);
         }
 
+        private void changeLineTime(int selection)
+        {
+            Singleton<SimulationManager>.instance.AddAction(delegate
+            {
+                ushort lineID = m_lineIdSelecionado.TransportLine;
+                TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID], ((selection & 0x2) == 0), ((selection & 0x1) == 0));
+            });
+        }
+
+        private void saveLineNumber(UIComponent c, object v)
+        {
+            saveLineNumber();
+        }
+
+        private void saveLineNumber(UIComponent c, int v)
+        {
+            saveLineNumber();
+        }
+
+        private void saveLineNumber()
+        {
+            String value = "0" + m_lineNumberLabel.text;
+            int valPrefixo = m_linePrefixDropDown.selectedIndex;
+            TLMLineUtils.getLineNamingParameters(m_lineIdSelecionado.TransportLine, out ModoNomenclatura prefixo, out Separador sep, out ModoNomenclatura sufixo, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
+            ushort num = ushort.Parse(value);
+            if (prefixo != ModoNomenclatura.Nenhum)
+            {
+                num = (ushort)(valPrefixo * 1000 + (num % 1000));
+            }
+            if (num < 1)
+            {
+                m_lineNumberLabel.textColor = new Color(1, 0, 0, 1);
+                return;
+            }
+            bool numeroUsado = isNumeroUsado(num, m_lineIdSelecionado.TransportLine);
+
+            if (numeroUsado)
+            {
+                m_lineNumberLabel.textColor = new Color(1, 0, 0, 1);
+            }
+            else
+            {
+                m_lineNumberLabel.textColor = new Color(1, 1, 1, 1);
+                Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_lineNumber = num;
+                m_linearMap.setLineNumberCircle(m_lineIdSelecionado.TransportLine);
+                m_autoNameLabel.text = m_linearMap.autoName;
+                if (prefixo != ModoNomenclatura.Nenhum)
+                {
+                    m_lineNumberLabel.text = (num % 1000).ToString();
+                    m_linePrefixDropDown.selectedIndex = (num / 1000);
+                }
+                else
+                {
+                    m_lineNumberLabel.text = (num % 10000).ToString();
+                }
+                updateSliders();
+            }
+        }
+        #endregion.
+
+        #region Checking Methods
+
+        private float getEffectiveBudget()
+        {
+            return TLMLineUtils.getEffectiveBugdet(m_lineIdSelecionado.TransportLine);
+        }
+
+        private bool isNumeroUsado(int numLinha, ushort lineIdx)
+        {
+            var tsdOr = TLMCW.getDefinitionForLine(lineIdx);
+            if (tsdOr == default(TransportSystemDefinition))
+            {
+                return true;
+            }
+
+            return TLMLineUtils.isNumberUsed(numLinha, tsdOr, lineIdx);
+        }
+        #endregion
+
+        #region Budget Methods
         private void setBudgetHour(float x, int selectedHourIndex)
         {
             TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
@@ -857,10 +862,116 @@ namespace Klyte.TransportLinesManager.LineList
             return bugdetSlider;
         }
 
+        private void updateSliders()
+        {
+            if (TransportLinesManagerMod.isIPTLoaded)
+            {
+                m_goToWorldInfoPanel.isVisible = true;
+                m_disableBudgetPerHour.isVisible = false;
+                m_enableBudgetPerHour.isVisible = false;
+                for (int i = 0; i < m_budgetSliders.Length; i++)
+                {
+                    m_budgetSliders[i].isEnabled = false;
+                    m_budgetSliders[i].parent.isVisible = false;
+                }
+                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_IPT2_NO_BUDGET_CONTROL"));
 
+                return;
+            }
+            else
+            {
+                m_goToWorldInfoPanel.isVisible = false;
+            }
+            var tsd = TLMCW.getDefinitionForLine(m_lineIdSelecionado.TransportLine);
+            if (m_lineIdSelecionado.TransportLine <= 0 || tsd == default(TransportSystemDefinition))
+            {
+                return;
+            }
+            TransportLine t = m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine];
+            ushort lineNumber = t.m_lineNumber;
+
+            TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
+            ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMCW.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
+
+            if (mnPrefixo != ModoNomenclatura.Nenhum)
+            {
+                uint prefix = t.m_lineNumber / 1000u;
+                BasicTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                uint[] multipliers = bte.GetBudgetsMultiplier(prefix);
+                m_disableBudgetPerHour.isVisible = multipliers.Length == 8;
+                m_enableBudgetPerHour.isVisible = multipliers.Length == 1;
+                for (int i = 0; i < m_budgetSliders.Length; i++)
+                {
+                    UILabel budgetSliderLabel = m_budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>();
+                    if (i == 0)
+                    {
+                        if (multipliers.Length == 1)
+                        {
+                            budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL_ALL");
+                        }
+                        else
+                        {
+                            budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", 0);
+                        }
+                    }
+                    else
+                    {
+                        m_budgetSliders[i].isEnabled = multipliers.Length == 8;
+                        m_budgetSliders[i].parent.isVisible = multipliers.Length == 8;
+                    }
+
+                    if (i < multipliers.Length)
+                    {
+                        m_budgetSliders[i].value = multipliers[i] / 100f;
+                    }
+                }
+                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(mnPrefixo), (int)prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+            }
+            else
+            {
+                m_disableBudgetPerHour.isVisible = false;
+                m_enableBudgetPerHour.isVisible = false;
+                for (int i = 0; i < m_budgetSliders.Length; i++)
+                {
+                    if (i == 0)
+                    {
+                        UILabel budgetSliderLabel = m_budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>();
+                        budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL_ALL");
+                        m_budgetSliders[i].value = t.m_budget / 100f;
+                    }
+                    else
+                    {
+                        m_budgetSliders[i].isEnabled = false;
+                        m_budgetSliders[i].parent.isVisible = false;
+                    }
+                }
+                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(m_lineIdSelecionado.TransportLine), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+            }
+        }
+
+        private void setLineBudget(ushort value)
+        {
+            Singleton<TransportManager>.instance.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine].m_budget = (ushort)value;
+        }
+
+        private void setLineBudgetForAllPrefix(ushort value)
+        {
+            int prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_lineNumber % 1000;
+            for (ushort i = 0; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
+            {
+                if (Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber % 1000 == prefix)
+                {
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_budget = (ushort)value;
+                }
+
+            }
+        }
+        #endregion
+
+        #region Update Methods
         private void updateLineUI(Color color)
         {
-            lineNumberLabel.color = color;
+            m_lineNumberLabel.color = color;
             m_linearMap.setLinearMapColor(color);
         }
 
@@ -891,7 +1002,7 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 porcAdultos = 100 - (porcCriancas + porcAdolescentes + porcJovens + porcIdosos);
             }
-            agesPanel.SetValues(new int[]
+            m_agesPanel.SetValues(new int[]
                                  {
                 porcCriancas,
                 porcAdolescentes,
@@ -899,7 +1010,7 @@ namespace Klyte.TransportLinesManager.LineList
                 porcAdultos,
                 porcIdosos
             });
-            passageirosEturistasLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
+            m_passageirosEturistasLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
                                                                            {
                 residentes,
                 turistas
@@ -920,14 +1031,14 @@ namespace Klyte.TransportLinesManager.LineList
                 viagensSalvas = (int)(((long)motoristas * 10000L + (long)(coeficienteViagens >> 1)) / (long)coeficienteViagens);
                 viagensSalvas = Mathf.Clamp(viagensSalvas, 0, 100);
             }
-            viagensEvitadasLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_TRIPSAVED", new object[]{
+            m_viagensEvitadasLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_TRIPSAVED", new object[]{
                 viagensSalvas
             });
 
-            if (daytimeChange != null && daytimeChange.completedOrFailed)
+            if (m_daytimeChange != null && m_daytimeChange.completedOrFailed)
             {
                 linearMap.redrawLine();
-                daytimeChange = null;
+                m_daytimeChange = null;
             }
             else
             {
@@ -937,15 +1048,15 @@ namespace Klyte.TransportLinesManager.LineList
 
             //lines info
             int stopsCount = TLMLineUtils.GetStopsCount(lineID);
-            if (lastStopsCount != stopsCount)
+            if (m_lastStopsCount != stopsCount)
             {
                 float totalSize = TLMLineUtils.GetLineLength(lineID);
-                lineLenghtLabel.text = string.Format(Locale.Get("TLM_LENGHT_AND_STOPS"), totalSize, stopsCount);
-                lastStopsCount = stopsCount;
+                m_lineLenghtLabel.text = string.Format(Locale.Get("TLM_LENGHT_AND_STOPS"), totalSize, stopsCount);
+                m_lastStopsCount = stopsCount;
             }
 
             //estatisticas novas
-            veiculosLinhaLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha });
+            m_veiculosLinhaLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha });
 
             uint prefix = 0;
             if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
@@ -955,61 +1066,31 @@ namespace Klyte.TransportLinesManager.LineList
 
             float baseBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
 
-            budgetLabel.text = string.Format("{0:0%} ({1:0%})", getEffectiveBudget(), Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.004f);//585+1/7 = frames/week                ;
-            budgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
+            m_budgetLabel.text = string.Format("{0:0%} ({1:0%})", getEffectiveBudget(), Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.004f);//585+1/7 = frames/week                ;
+            m_budgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
                 TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportInfo(info)),
                 baseBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.004f, getEffectiveBudget());
+        }
+        #endregion
 
-            //bool isZeroed = ((int)tl.m_flags & (int)TLMTransportLineFlags.ZERO_BUDGET_SETTED) > 0;
-            //lineTime.isVisible = !isZeroed;
-            //if (isZeroed)
-            //{
-            //    lineTimeTitle.localeID = ("TLM_LINE_DISABLED_NO_BUDGET");
-            //    lineTimeTitle.tooltipLocaleID = ("TLM_LINE_DISABLED_NO_BUDGET_DESC");
-            //}
-            //else
-            //{
-            //    lineTimeTitle.localeID = ("TRANSPORT_LINE_ACTIVITY");
-            //    lineTimeTitle.tooltipLocaleID = ("");
-            //}
-
-            //generalDebugLabel.enabled = TransportLinesManagerMod.debugMode.value;
-            //if (TransportLinesManagerMod.debugMode.value)
-            //{
-            //    string debugTxt = "!";
-            //    var extraDatas = ExtraVehiclesStats.instance.getLineVehiclesData(lineID);
-            //    if (extraDatas.Count == 0)
-            //    {
-            //        debugTxt = "none";
-            //    }
-            //    else
-            //    {
-            //        foreach (var item in extraDatas)
-            //        {
-            //            debugTxt += string.Format("BUS ID {0} - {1} Fill, {2} per lap ||", item.Key, item.Value.avgFill.ToString("0.00%"), string.Format("{0}d {1}h{2}m", item.Value.timeTakenLap.TotalDays, item.Value.timeTakenLap.Hours, item.Value.timeTakenLap.Minutes));
-            //        }
-            //    }
-
-            //    generalDebugLabel.text = debugTxt;
-            //}
-
-            //			//custos da linha
-            //			float costVehicles = 0;
-            //			ushort nextVehId = tl.m_vehicles;
-            //			while (nextVehId >0) {
-            //				costVehicles += Singleton<VehicleManager>.instance.m_vehicles.m_buffer [(int)nextVehId].Info.GetMaintenanceCost () ;
-            //				nextVehId = Singleton<VehicleManager>.instance.m_vehicles.m_buffer [(int)nextVehId].m_nextLineVehicle;
-            //			}
-            //			float costStops = 0;
-            //			int a = tl.m_stops;
-            //			for (int i = 0; i< stopsCount; i++) {
-            //				costStops += Singleton<NetManager>.instance.m_nodes.m_buffer [(int)tl.GetStop (i)].Info.GetMaintenanceCost () ;
-            //			}
-            //			custosLabel.text = String.Format (costsFormat, costVehicles, costStops, costVehicles + costStops);
-
+        #region Open & Close
+        public void Show()
+        {
+            if (!GameObject.Find("InfoViewsPanel").GetComponent<UIPanel>().isVisible)
+            {
+                GameObject.Find("InfoViewsPanel").GetComponent<UIPanel>().isVisible = true;
+            }
+            if (Singleton<ToolController>.instance.CurrentTool.GetType() == typeof(TransportTool))
+            {
+                Singleton<ToolController>.instance.CurrentTool = Singleton<DefaultTool>.instance;
+            }
+            m_lineInfoPanel.Show();
         }
 
-
+        public void Hide()
+        {
+            m_lineInfoPanel.Hide();
+        }
 
         public void closeLineInfo(UIComponent component, UIMouseEventParameter eventParam)
         {
@@ -1037,8 +1118,8 @@ namespace Klyte.TransportLinesManager.LineList
                 return;
             }
             WorldInfoPanel.HideAllWorldInfoPanels();
-            linePrefixDropDown.eventSelectedIndexChanged -= saveLineNumber;
-            lineNumberLabel.eventLostFocus -= saveLineNumber;
+            m_linePrefixDropDown.eventSelectedIndexChanged -= saveLineNumber;
+            m_lineNumberLabel.eventLostFocus -= saveLineNumber;
 
             m_lineIdSelecionado = default(InstanceID);
             m_lineIdSelecionado.TransportLine = lineID;
@@ -1051,39 +1132,39 @@ namespace Klyte.TransportLinesManager.LineList
 
             if (mnPrefixo != ModoNomenclatura.Nenhum)
             {
-                lineNumberLabel.text = (lineNumber % 1000).ToString();
-                lineNumberLabel.relativePosition = new Vector3(110f, 5f);
-                lineNumberLabel.width = 55;
-                linePrefixDropDown.enabled = false;
+                m_lineNumberLabel.text = (lineNumber % 1000).ToString();
+                m_lineNumberLabel.relativePosition = new Vector3(110f, 5f);
+                m_lineNumberLabel.width = 55;
+                m_linePrefixDropDown.enabled = false;
 
                 var temp = TLMUtils.getStringOptionsForPrefix(mnPrefixo);
-                linePrefixDropDown.items = temp;
-                linePrefixDropDown.selectedIndex = lineNumber / 1000;
-                linePrefixDropDown.enabled = true;
-                lineNumberLabel.maxLength = 3;
+                m_linePrefixDropDown.items = temp;
+                m_linePrefixDropDown.selectedIndex = lineNumber / 1000;
+                m_linePrefixDropDown.enabled = true;
+                m_lineNumberLabel.maxLength = 3;
 
 
             }
             else
             {
-                lineNumberLabel.text = (lineNumber).ToString();
-                lineNumberLabel.relativePosition = new Vector3(80f, 5f);
-                lineNumberLabel.width = 75;
-                lineNumberLabel.maxLength = 4;
-                linePrefixDropDown.enabled = false;
+                m_lineNumberLabel.text = (lineNumber).ToString();
+                m_lineNumberLabel.relativePosition = new Vector3(80f, 5f);
+                m_lineNumberLabel.width = 75;
+                m_lineNumberLabel.maxLength = 4;
+                m_linePrefixDropDown.enabled = false;
             }
 
 
 
-            lineNumberLabel.color = m_controller.tm.GetLineColor(lineID);
-            lineNameField.text = m_controller.tm.GetLineName(lineID);
+            m_lineNumberLabel.color = m_controller.tm.GetLineColor(lineID);
+            m_lineNameField.text = m_controller.tm.GetLineName(lineID);
 
-            lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 12f);
-            lineTransportIconTypeLabel.height = 20;
-            lineTransportIconTypeLabel.atlas = linePrefixDropDown.atlas;
-            lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(t.Info.m_transportType);
+            m_lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 12f);
+            m_lineTransportIconTypeLabel.height = 20;
+            m_lineTransportIconTypeLabel.atlas = m_linePrefixDropDown.atlas;
+            m_lineTransportIconTypeLabel.backgroundSprite = PublicTransportWorldInfoPanel.GetVehicleTypeIcon(t.Info.m_transportType);
 
-            lineColorPicker.selectedColor = m_controller.tm.GetLineColor(lineID);
+            m_lineColorPicker.selectedColor = m_controller.tm.GetLineColor(lineID);
 
             TLMLineUtils.getLineActive(ref t, out bool day, out bool night);
             m_DayNightLine.isChecked = false;
@@ -1109,118 +1190,26 @@ namespace Klyte.TransportLinesManager.LineList
             updateSliders();
             m_linearMap.redrawLine();
             m_autoNameLabel.text = m_linearMap.autoName;
-            lineInfoPanel.color = Color.Lerp(TLMCW.getColorForTransportType(transportType), Color.white, 0.4f);
+            m_lineInfoPanel.color = Color.Lerp(TLMCW.getColorForTransportType(transportType), Color.white, 0.4f);
 
             Show();
             m_controller.defaultListingLinesPanel.Hide();
             m_controller.depotInfoPanel.Hide();
 
-            linePrefixDropDown.eventSelectedIndexChanged += saveLineNumber;
-            lineNumberLabel.eventLostFocus += saveLineNumber;
-
-
+            m_linePrefixDropDown.eventSelectedIndexChanged += saveLineNumber;
+            m_lineNumberLabel.eventLostFocus += saveLineNumber;
+            m_firstStopSelect.items = TLMLineUtils.getAllStopsFromLine(lineID);
+            m_firstStopSelect.selectedIndex = 0;
         }
+        #endregion
 
-        private void changeLineTime(int selection)
-        {
-            Singleton<SimulationManager>.instance.AddAction(delegate
-            {
-                ushort lineID = m_lineIdSelecionado.TransportLine;
-                TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID], ((selection & 0x2) == 0), ((selection & 0x1) == 0));
-            });
-        }
-
-        private void updateSliders()
-        {
-            if (TransportLinesManagerMod.isIPTLoaded)
-            {
-                goToWorldInfoPanel.isVisible = true;
-                disableBudgetPerHour.isVisible = false;
-                enableBudgetPerHour.isVisible = false;
-                for (int i = 0; i < budgetSliders.Length; i++)
-                {
-                    budgetSliders[i].isEnabled = false;
-                    budgetSliders[i].parent.isVisible = false;
-                }
-                lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_IPT2_NO_BUDGET_CONTROL"));
-
-                return;
-            }
-            else
-            {
-                goToWorldInfoPanel.isVisible = false;
-            }
-            var tsd = TLMCW.getDefinitionForLine(m_lineIdSelecionado.TransportLine);
-            if (m_lineIdSelecionado.TransportLine <= 0 || tsd == default(TransportSystemDefinition))
-            {
-                return;
-            }
-            TransportLine t = m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine];
-            ushort lineNumber = t.m_lineNumber;
-
-            TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
-            ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMCW.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
-
-            if (mnPrefixo != ModoNomenclatura.Nenhum)
-            {
-                uint prefix = t.m_lineNumber / 1000u;
-                BasicTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
-                uint[] multipliers = bte.GetBudgetsMultiplier(prefix);
-                disableBudgetPerHour.isVisible = multipliers.Length == 8;
-                enableBudgetPerHour.isVisible = multipliers.Length == 1;
-                for (int i = 0; i < budgetSliders.Length; i++)
-                {
-                    UILabel budgetSliderLabel = budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>();
-                    if (i == 0)
-                    {
-                        if (multipliers.Length == 1)
-                        {
-                            budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL_ALL");
-                        }
-                        else
-                        {
-                            budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", 0);
-                        }
-                    }
-                    else
-                    {
-                        budgetSliders[i].isEnabled = multipliers.Length == 8;
-                        budgetSliders[i].parent.isVisible = multipliers.Length == 8;
-                    }
-
-                    if (i < multipliers.Length)
-                    {
-                        budgetSliders[i].value = multipliers[i] / 100f;
-                    }
-                }
-                lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(mnPrefixo), (int)prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
-            }
-            else
-            {
-                disableBudgetPerHour.isVisible = false;
-                enableBudgetPerHour.isVisible = false;
-                for (int i = 0; i < budgetSliders.Length; i++)
-                {
-                    if (i == 0)
-                    {
-                        UILabel budgetSliderLabel = budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>();
-                        budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL_ALL");
-                        budgetSliders[i].value = t.m_budget / 100f;
-                    }
-                    else
-                    {
-                        budgetSliders[i].isEnabled = false;
-                        budgetSliders[i].parent.isVisible = false;
-                    }
-                }
-                lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(m_lineIdSelecionado.TransportLine), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
-            }
-        }
-
+        #region Events
         public override void OnRenameStationAction(string autoName)
         {
             autoNameLabel.text = autoName;
         }
+        #endregion
+
     }
 }
 

@@ -139,8 +139,8 @@ namespace Klyte.TransportLinesManager.UI
                 return;
             }
 
-            ItemClass.SubService ss = TLMLineUtils.getLineNamingParameters(lineID, out prefix, out sep, out suffix, out nonPrefix, out zerosEsquerda, out invertPrefixSuffix, out string bgSprite).subService;
-            linearMapLineNumberFormat.backgroundSprite = bgSprite;
+            ItemClass.SubService ss = TLMCW.getDefinitionForLine(lineID).subService;
+            linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.getIconForLine(lineID);
             m_autoName = TLMUtils.calculateAutoName(lineID);
             linearMapLineNumber.tooltip = m_autoName;
             string stationName = null;
@@ -506,14 +506,6 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             createLineStationsPanel();
-        }
-
-        private void SetSelectedPrefix(int y)
-        {
-            setLineNumberCircle(parent.CurrentSelectedId);
-            FieldInfo lineNumberFieldArray = typeof(TransportManager).GetField("m_lineNumber", RedirectorUtils.allFlags);
-            TransportManager tmInstance = Singleton<TransportManager>.instance;
-            ((ushort[])lineNumberFieldArray.GetValue(tmInstance))[(int)parent.CurrentTransportInfo.m_transportType] = TLMUtils.GetFirstEmptyValueForPrefix(parent.CurrentTransportInfo, y);
         }
 
         public void updateBidings()

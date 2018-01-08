@@ -730,6 +730,19 @@ namespace Klyte.TransportLinesManager.Utils
             return 0;
         }
 
+        public static string[] getAllStopsFromLine(ushort lineID)
+        {
+            TransportLine t = TLMController.instance.tm.m_lines.m_buffer[lineID];
+            int stopsCount = t.CountStops(lineID);
+            string[] result = new string[stopsCount];
+            ItemClass.SubService ss = TLMCW.getDefinitionForLine(lineID).subService;
+            for (int i = 0; i < stopsCount; i++)
+            {
+                ushort stationId = t.GetStop(i);
+                result[i] = TLMUtils.getFullStationName(stationId, lineID, ss);
+            }
+            return result;
+        }
     }
 
 }
