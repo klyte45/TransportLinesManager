@@ -16,20 +16,8 @@ using System.Reflection;
 
 namespace Klyte.TransportLinesManager
 {
-    public class TLMController : LinearMapParentInterface
+    public class TLMController : LinearMapParentInterface<TLMController>
     {
-        private static TLMController _instance;
-
-        public static TLMController instance
-        {
-            get {
-                if (_instance == null)
-                {
-                    _instance = new TLMController();
-                }
-                return _instance;
-            }
-        }
 
         public static UITextureAtlas taTLM = null;
         public static UITextureAtlas taLineNumber = null;
@@ -183,8 +171,6 @@ namespace Klyte.TransportLinesManager
 
             initialized = false;
             initializedWIP = false;
-
-            _instance = null;
         }
 
         public void update()
@@ -263,7 +249,7 @@ namespace Klyte.TransportLinesManager
 
         public void AutoName(ushort m_LineID)
         {
-            TLMUtils.setLineName(m_LineID,  TLMUtils.calculateAutoName(m_LineID, true));
+            TLMUtils.setLineName(m_LineID, TLMUtils.calculateAutoName(m_LineID, true));
         }
 
 

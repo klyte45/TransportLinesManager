@@ -1045,37 +1045,6 @@ namespace Klyte.TransportLinesManager.Utils
             ItemClass.Service.Water
         };
 
-        public static Dictionary<T, string> getValueFromStringArray<T>(string x, string SEPARATOR, string SUBCOMMA, string SUBSEPARATOR)
-        {
-            string[] array = x.Split(SEPARATOR.ToCharArray());
-            var saida = new Dictionary<T, string>();
-            if (array.Length != 2)
-            {
-                return saida;
-            }
-            var value = array[1];
-            foreach (string item in value.Split(SUBCOMMA.ToCharArray()))
-            {
-                var kv = item.Split(SUBSEPARATOR.ToCharArray());
-                if (kv.Length != 2)
-                {
-                    continue;
-                }
-                try
-                {
-                    T subkey = (T)Enum.Parse(typeof(T), kv[0]);
-                    saida[subkey] = kv[1];
-                }
-                catch (Exception e)
-                {
-                    TLMUtils.doLog("ERRO AO OBTER VALOR STR ARR: {0}", e);
-                    continue;
-                }
-
-            }
-            return saida;
-        }
-
         public static void setStopName(string newName, uint stopId, ushort lineId, OnEndProcessingBuildingName callback)
         {
             doLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);

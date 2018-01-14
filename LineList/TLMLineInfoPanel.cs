@@ -13,7 +13,7 @@ using Klyte.TransportLinesManager.Interfaces;
 
 namespace Klyte.TransportLinesManager.LineList
 {
-    public class TLMLineInfoPanel : LinearMapParentInterface
+    public class TLMLineInfoPanel : LinearMapParentInterface<TLMLineInfoPanel>
     {
         private TLMAgesChartPanel m_agesPanel;
         private TLMController m_controller;

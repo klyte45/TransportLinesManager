@@ -1,5 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Threading;
+using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
-  
+
     enum TLMTransportLineFlags
     {
         ZERO_BUDGET_DAY = 0x40000000,
@@ -19,21 +21,13 @@ namespace Klyte.TransportLinesManager.Extensors
         ZERO_BUDGET_SETTED = 0x10000000
     }
 
-    class TLMVehiclesLineManager
+    enum TLMTransportLineExtensionsKey
     {
-        private static TLMVehiclesLineManager _instance;
-        public static TLMVehiclesLineManager instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new TLMVehiclesLineManager();
-                }
-                return _instance;
-            }
-        }
+        IGNORE_BUDGET_PREFIX
+    }
 
+    class TLMTransportLineExtensions : BasicExtensionInterface<TLMTransportLineExtensionsKey, TLMTransportLineExtensions>
+    {
         private const string SEPARATOR = "∂";
         private const string COMMA = "§";
         private Dictionary<ushort, int> cached_list;
@@ -94,17 +88,16 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             if (cached_list == null)
             {
-                cached_list = getValueFromString(TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.ConfigIndex.VEHICLE_LINE));
+                cached_list = getValueFromString(TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.ConfigIndex.LINES_CONFIG));
             }
         }
 
         private void saveVehicles()
         {
-            TLMConfigWarehouse loadedConfig;
-            loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
+            TLMCW loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
             var value = string.Join(COMMA, cached_list.Select(x => x.Key.ToString() + SEPARATOR + x.Value.ToString()).ToArray());
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("saveVehicles NEW VALUE: {0}", value);
-            loadedConfig.setString(TLMConfigWarehouse.ConfigIndex.VEHICLE_LINE, value);
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("saveLineConfig NEW VALUE: {0}", value);
+            loadedConfig.setString(TLMConfigWarehouse.ConfigIndex.LINES_CONFIG, value);
         }
     }
 }
