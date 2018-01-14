@@ -368,7 +368,7 @@ namespace Klyte.TransportLinesManager.Utils
 
 
         //GetNearStopPoints
-        public static bool GetNearStopPoints(Vector3 pos, float maxDistance, ref List<ushort> stopsFound, ItemClass.SubService[] subservicesAllowed = null, int maxDepht = 4, int depth = 0)
+        public static bool GetNearStopPoints(Vector3 pos, float maxDistance, ref Dictionary<ushort, Vector3> stopsFound, ItemClass.SubService[] subservicesAllowed = null, int maxDepht = 4, int depth = 0)
         {
             if (depth >= maxDepht)
                 return false;
@@ -398,12 +398,12 @@ namespace Klyte.TransportLinesManager.Utils
                             ushort transportLine = nm.m_nodes.m_buffer[(int)stopId].m_transportLine;
                             if (transportLine != 0)
                             {
-                                if (!stopsFound.Contains(stopId))
+                                if (!stopsFound.Keys.Contains(stopId))
                                 {
                                     float num8 = Vector3.SqrMagnitude(pos - nm.m_nodes.m_buffer[(int)stopId].m_position);
                                     if (num8 < maxDistance * maxDistance)
                                     {
-                                        stopsFound.Add(stopId);
+                                        stopsFound[stopId] = nm.m_nodes.m_buffer[(int)stopId].m_position;
                                         GetNearStopPoints(nm.m_nodes.m_buffer[(int)stopId].m_position, maxDistance, ref stopsFound, subservicesAllowed, maxDepht, depth + 1);
                                         noneFound = false;
                                     }

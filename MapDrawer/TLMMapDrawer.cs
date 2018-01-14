@@ -23,13 +23,12 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
 
             TLMController controller = TLMController.instance;
-            Dictionary<TransportInfo.TransportType, List<ushort>> linesByType = new Dictionary<TransportInfo.TransportType, List<ushort>>
+            Dictionary<TransportInfo.TransportType, List<ushort>> linesByType = new Dictionary<TransportInfo.TransportType, List<ushort>>();
+
+            foreach (var type in Enum.GetValues(typeof(TransportInfo.TransportType)))
             {
-                [TransportInfo.TransportType.Metro] = new List<ushort>(),
-                [TransportInfo.TransportType.Train] = new List<ushort>(),
-                [TransportInfo.TransportType.Tram] = new List<ushort>(),
-                [TransportInfo.TransportType.Ship] = new List<ushort>()
-            };
+                linesByType[(TransportInfo.TransportType)type] = new List<ushort>();
+            }
 
             //			List<int> usedX = new List<int> ();
             //			List<int> usedY = new List<int> ();
@@ -37,20 +36,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
             for (ushort lineId = 0; lineId < controller.tm.m_lines.m_size; lineId++)
             {
                 TransportLine t = controller.tm.m_lines.m_buffer[(int)lineId];
-                if (t.m_lineNumber > 0 && (t.Info.m_transportType == TransportInfo.TransportType.Metro
-                    || t.Info.m_transportType == TransportInfo.TransportType.Train
-                    || t.Info.m_transportType == TransportInfo.TransportType.Tram
-                    || t.Info.m_transportType == TransportInfo.TransportType.Ship))
+                if (t.m_lineNumber > 0 && (t.m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None)
                 {
-                    switch (t.Info.m_transportType)
-                    {
-                        case TransportInfo.TransportType.Ship:
-                        case TransportInfo.TransportType.Train:
-                        case TransportInfo.TransportType.Metro:
-                        case TransportInfo.TransportType.Tram:
-                            linesByType[t.Info.m_transportType].Add(lineId);
-                            break;
-                    }
+                    linesByType[t.Info.m_transportType].Add(lineId);
                 }
 
             }
@@ -61,10 +49,10 @@ namespace Klyte.TransportLinesManager.MapDrawer
             //Restart:
             Dictionary<int, List<int>> positions = new Dictionary<int, List<int>>();
             List<Station> stations = new List<Station>();
-            Dictionary<Segment2, Color32> svgLines = new Dictionary<Segment2, Color32>();
             Dictionary<ushort, MapTransportLine> transportLines = new Dictionary<ushort, MapTransportLine>();
-            foreach (TransportInfo.TransportType tt in new TransportInfo.TransportType[] { TransportInfo.TransportType.Ship, TransportInfo.TransportType.Train, TransportInfo.TransportType.Metro, TransportInfo.TransportType.Tram })
+            foreach (TransportInfo.TransportType tt in linesByType.Keys)
             {
+                if (!linesByType.ContainsKey(tt)) continue;
                 foreach (ushort lineId in linesByType[tt])
                 {
                     TransportLine t = controller.tm.m_lines.m_buffer[(int)lineId];
@@ -75,7 +63,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             range = 150f;
                             break;
                         case TransportInfo.TransportType.Metro:
+                        case TransportInfo.TransportType.Monorail:
                         case TransportInfo.TransportType.Train:
+                        case TransportInfo.TransportType.CableCar:
                             range = 100f;
                             break;
                     }
@@ -104,7 +94,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         Vector2 gridAdd = Vector2.zero;
 
 
-                        var idx = stations.FirstOrDefault(x => x.stops.Contains(nextStop) || x.centralPos == pos2D);
+                        var idx = stations.FirstOrDefault(x => x.stopsWithWorldPos.ContainsKey(nextStop) || x.centralPos == pos2D);
                         if (idx != null)
                         {
                             transportLines[lineId].addStation(ref idx);
@@ -117,12 +107,12 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             //    invprecision = (float)math.pow(2, exp);
                             //    goto restart;
                             //}
-                            List<ushort> nearStops = new List<ushort>();
-                            TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportShip }, 10);
-                            TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTrain, ItemClass.SubService.PublicTransportMetro }, 10);
-                            TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTram }, 10);
+                            Dictionary<ushort, Vector3> nearStops = new Dictionary<ushort, Vector3>();
+                            TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportShip, ItemClass.SubService.PublicTransportPlane }, 10);
+                            TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTrain, ItemClass.SubService.PublicTransportMonorail, ItemClass.SubService.PublicTransportCableCar, ItemClass.SubService.PublicTransportMetro }, 10);
+                            TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTram, ItemClass.SubService.PublicTransportBus }, 10);
                             TLMUtils.doLog("Station: ${0}; nearStops: ${1}", name, string.Join(",", nearStops.Select(x => x.ToString()).ToArray()));
-                            Station thisStation = new Station(name, pos2D, nearStops, nextStationId++, service, nextStop);
+                            Station thisStation = new Station(name, pos2D, worldPos, nearStops, nextStationId++, service, nextStop);
                             stations.Add(thisStation);
                             transportLines[lineId].addStation(ref thisStation);
                         }
@@ -136,7 +126,36 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     }
                 }
             }
-            printToSVG(stations, transportLines, Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd"));
+            //printToSVG(stations, transportLines, Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd"));
+            printToJson(stations, transportLines, Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd"));
+        }
+
+
+        public static string printToJson(List<Station> stations, Dictionary<ushort, MapTransportLine> transportLines, string mapName)
+        {
+            CityTransportObject cto = new CityTransportObject
+            {
+                transportLines = transportLines
+            };
+
+            String folder = "Transport Lines Manager";
+            if (File.Exists(folder) && (File.GetAttributes(folder) & FileAttributes.Directory) != FileAttributes.Directory)
+            {
+                File.Delete(folder);
+            }
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+            String filename = folder + Path.DirectorySeparatorChar + "TLM_MAP_" + mapName + ".json";
+            if (File.Exists(filename))
+            {
+                File.Delete(filename);
+            }
+            var sr = File.CreateText(filename);
+            sr.WriteLine(cto.toJson());
+            sr.Close();
+            return filename;
         }
 
         public static string printToSVG(List<Station> stations, Dictionary<ushort, MapTransportLine> transportLines, string mapName)
@@ -228,38 +247,29 @@ namespace Klyte.TransportLinesManager.MapDrawer
         private delegate Vector2 CalculateCoords(Vector3 pos, float invPrecision);
     }
 
+    public class CityTransportObject
+    {
+        public Dictionary<ushort, MapTransportLine> transportLines;
+        public string toJson()
+        {
+            return $"{{\"transportLines\":{{{String.Join(",", transportLines.Select(x => $"\"{x.Key}\":{x.Value.toJson()}").ToArray())}}}}}";
+        }
+    }
+
     public class Station
     {
-        public string name
-        {
-            get; set;
-        }
-        private Vector2 originalCentralPos
-        {
-            get; set;
-        }
-        public Vector2 centralPos
-        {
-            get; set;
-        }
-        public Vector2 finalPos
-        {
-            get; set;
-        }
+        public string name;
+        private Vector2 originalCentralPos;
+        public Vector2 centralPos;
+        public Vector2 finalPos;
         public int linesPassingCount
         {
             get {
                 return linesPassing.Count;
             }
         }
-        public List<ushort> stops
-        {
-            get; set;
-        }
-        public ushort stopId
-        {
-            get; internal set;
-        }
+        public Dictionary<ushort, Vector3> stopsWithWorldPos = new Dictionary<ushort, Vector3>();
+        public ushort stopId;
         public Vector2 writePoint
         {
             get {
@@ -290,20 +300,34 @@ namespace Klyte.TransportLinesManager.MapDrawer
         private int id;
         private List<int> optimizedWithStationsId = new List<int>();
         private ItemClass.Service service;
+        private Dictionary<CardinalPoint, Station> stationConnections = new Dictionary<CardinalPoint, Station>();
+        private string districtName;
+        private ushort districtId;
 
-        public Station(string n, Vector2 pos, List<ushort> stops, int stationId, ItemClass.Service service, ushort stopId, ushort lineId) : this(n, pos, stops, stationId, service, stopId)
+        public string toJson()
+        {
+            return $"{{\"name\":\"{name}\",\"originalCentralPos\":[{originalCentralPos.x},{originalCentralPos.y}],\"centralPos\":[{centralPos.x},{centralPos.y}]," +
+                $"\"finalPos\":[{finalPos.x},{finalPos.y}],\"linesPassingCount\":{linesPassingCount},\"stops\":{{{string.Join(",", stopsWithWorldPos.Select(x => $"\"{x.Key}\":[{x.Value.x},{x.Value.y},{x.Value.z}]").ToArray())}}}," +
+                $"\"stopId\":{stopId},\"writePoint\":[{writePoint.x},{writePoint.y}],\"writeAngle\":{writeAngle},\"linesPassing\":[{string.Join(",", linesPassing.Select(x => x.ToString()).ToArray())}]," +
+                $"\"id\":{id},\"service\":\"{service}\",\"districtId\":{districtId},\"districtName\":\"{districtName}\"}}";
+        }
+
+        public Station(string n, Vector2 pos, Vector3 worldPos, Dictionary<ushort, Vector3> stops, int stationId, ItemClass.Service service, ushort stopId, ushort lineId) : this(n, pos, worldPos, stops, stationId, service, stopId)
         {
             addLine(lineId);
         }
-        public Station(string n, Vector2 pos, List<ushort> stops, int stationId, ItemClass.Service service, ushort stopId)
+        public Station(string n, Vector2 pos, Vector3 worldPos, Dictionary<ushort, Vector3> stops, int stationId, ItemClass.Service service, ushort stopId)
         {
             name = n;
             originalCentralPos = pos;
             centralPos = pos;
-            this.stops = stops;
+            this.stopsWithWorldPos = stops;
             id = stationId;
             this.stopId = stopId;
             this.service = service;
+            DistrictManager dm = Singleton<DistrictManager>.instance;
+            districtId = dm.GetDistrict(worldPos);
+            districtName = dm.GetDistrictName(districtId);
         }
 
         public void addLine(ushort lineId)
@@ -332,7 +356,6 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
         }
 
-        private Dictionary<CardinalPoint, Station> stationConnections = new Dictionary<CardinalPoint, Station>();
 
         public CardinalPoint reserveExit(Station s2)
         {
@@ -340,11 +363,11 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 return CardinalPoint.ZERO;
             }
-            if (stops.Contains(s2.stopId) || s2.stops.Contains(stopId))
+            if (stopsWithWorldPos.ContainsKey(s2.stopId) || s2.stopsWithWorldPos.ContainsKey(stopId))
             {
                 return CardinalPoint.ZERO;
             }
-            var s = stationConnections.FirstOrDefault(x => x.Value.stops.Contains(s2.stopId));
+            var s = stationConnections.FirstOrDefault(x => x.Value.stopsWithWorldPos.ContainsKey(s2.stopId));
             if (!s.Equals(default(KeyValuePair<CardinalPoint, Station>)))
             {
                 return s.Key;
@@ -854,7 +877,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
         /// 3 = B;
         /// 4 = Line type;
         /// </summary>
-       // private readonly string pathLine = "<path d='{0}' class=\"path{4}\" style='stroke:rgb({1},{2},{3});' stroke-linejoin=\"round\" stroke-linecap=\"round\"/>";
+        // private readonly string pathLine = "<path d='{0}' class=\"path{4}\" style='stroke:rgb({1},{2},{3});' stroke-linejoin=\"round\" stroke-linecap=\"round\"/>";
         ///// <summary>
         ///// The integration.<>
         ///// 0 = X 

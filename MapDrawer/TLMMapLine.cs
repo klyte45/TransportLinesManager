@@ -13,37 +13,17 @@ namespace Klyte.TransportLinesManager.MapDrawer
 {
     public struct MapTransportLine
     {
-        public ushort lineId
-        {
-            get; set;
-        }
+        public ushort lineId;
         private List<Station> stations;
-        private TransportInfo.TransportType transportType
-        {
-            get; set;
-        }
-        public string lineName
-        {
-            get; set;
-        }
-        public string lineStringIdentifier
-        {
-            get; set;
-        }
-        public Color32 lineColor
-        {
-            get; set;
-        }
-
-        public bool activeDay
-        {
-            get; set;
-        }
-
-        public bool activeNight
-        {
-            get; set;
-        }
+        private TransportInfo.TransportType transportType;
+        private ItemClass.SubService subservice;
+        private VehicleInfo.VehicleType vehicleType;
+        public string lineName;
+        public string lineStringIdentifier;
+        public Color32 lineColor;
+        public bool activeDay;
+        public bool activeNight;
+        public ushort lineNumber;
 
         public MapTransportLine(Color32 color, bool day, bool night, ushort lineId)
         {
@@ -51,11 +31,14 @@ namespace Klyte.TransportLinesManager.MapDrawer
             this.lineName = Singleton<TransportManager>.instance.GetLineName(lineId);
             this.lineStringIdentifier = TLMLineUtils.getLineStringId(lineId);
             transportType = t.Info.m_transportType;
+            subservice = t.Info.GetSubService();
+            vehicleType = t.Info.m_vehicleType;
             stations = new List<Station>();
             lineColor = color;
             activeDay = day;
             activeNight = night;
             this.lineId = lineId;
+            this.lineNumber = t.m_lineNumber;
         }
 
         public void addStation(ref Station s)
@@ -72,6 +55,15 @@ namespace Klyte.TransportLinesManager.MapDrawer
         public int stationsCount()
         {
             return stations.Count;
+        }
+
+        public String toJson()
+        {
+            var simmetry = TLMUtils.findSimetry(stations.Select(x => (int)x.stopId).ToArray(), out int middle);
+            return $"{{\"lineId\": {lineId},\"stations\": [{string.Join(",", stations.Select(x => x.toJson()).ToArray())}],\"transportType\": \"{transportType}\"," +
+                $"\"subservice\": \"{subservice}\",\"vehicleType\": \"{vehicleType}\",\"lineName\": \"{lineName}\",\"lineStringIdentifier\": \"{lineStringIdentifier}\"," +
+                $"\"lineColor\": \"#{(lineColor.r.ToString("X2") + lineColor.g.ToString("X2") + lineColor.b.ToString("X2"))}\",\"activeDay\": {activeDay.ToString().ToLower()}," +
+                $" \"activeNight\": {activeNight.ToString().ToLower()}, \"lineNumber\": {lineNumber}, \"simmetryRange\": " + (simmetry ? ("[" + middle + "," + (middle + stations.Count / 2 + 2) + "]") : "null") + "}";
         }
     }
 
