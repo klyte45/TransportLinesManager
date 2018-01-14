@@ -76,16 +76,7 @@ namespace Klyte.TransportLinesManager.UI
         public string autoName
         {
             get {
-                ushort lineID = parent.CurrentSelectedId;
-                TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)lineID];
-                if (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME))
-                {
-                    return "[" + TLMUtils.getString(prefix, sep, suffix, nonPrefix, t.m_lineNumber, zerosEsquerda, invertPrefixSuffix).Replace('\n', ' ') + "] " + m_autoName;
-                }
-                else
-                {
-                    return m_autoName;
-                }
+                return m_autoName;
             }
         }
 
@@ -141,7 +132,7 @@ namespace Klyte.TransportLinesManager.UI
 
             ItemClass.SubService ss = TLMCW.getDefinitionForLine(lineID).subService;
             linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.getIconForLine(lineID);
-            m_autoName = TLMUtils.calculateAutoName(lineID);
+            m_autoName = TLMUtils.calculateAutoName(lineID, true);
             linearMapLineNumber.tooltip = m_autoName;
             string stationName = null;
             Vector3 local;
@@ -645,7 +636,7 @@ namespace Klyte.TransportLinesManager.UI
                 TLMUtils.setStopName(y, stationNodeId, lineID, () =>
                 {
                     stationLabel.text = TLMUtils.getFullStationName(stationNodeId, lineID, ss);
-                    m_autoName = TLMUtils.calculateAutoName(lineID);
+                    m_autoName = TLMUtils.calculateAutoName(lineID, true);
                     parent.OnRenameStationAction(autoName);
                 });
             };

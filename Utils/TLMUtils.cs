@@ -334,7 +334,7 @@ namespace Klyte.TransportLinesManager.Utils
 
                 }
             }
-        }      
+        }
 
         public static string[] getPrefixesOptions(TLMCW.ConfigIndex transportType, Boolean addDefaults = true)
         {
@@ -738,11 +738,12 @@ namespace Klyte.TransportLinesManager.Utils
 
         public delegate void OnEndProcessingBuildingName();
 
-        public static string calculateAutoName(ushort lineIdx)
+        public static string calculateAutoName(ushort lineIdx, bool complete = false)
         {
             TransportManager tm = Singleton<TransportManager>.instance;
             TransportLine t = tm.m_lines.m_buffer[(int)lineIdx];
             ItemClass.SubService ss = ItemClass.SubService.None;
+            string resultName;
             if (t.Info.m_transportType == TransportInfo.TransportType.EvacuationBus)
             {
                 return null;
@@ -764,7 +765,7 @@ namespace Klyte.TransportLinesManager.Utils
 
                 string station2Name = getStationName(t.GetStop(middle + stopsCount / 2), lineIdx, ss);
 
-                return station1Name + " - " + station2Name;
+                resultName = station1Name + " - " + station2Name;
             }
             else
             {
@@ -849,12 +850,21 @@ namespace Klyte.TransportLinesManager.Utils
                             return originName + dm.GetDistrictName(districtDestinyId);
                         }
                     }
-                    return originName + GetStationNameWithPrefix(destiny.Key, destiny.Value);
+                    resultName = originName + GetStationNameWithPrefix(destiny.Key, destiny.Value);
                 }
                 else
                 {
-                    return autoNameByDistrict(t, stopsCount, out middle);
+                    resultName = autoNameByDistrict(t, stopsCount, out middle);
                 }
+            }
+            if (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME) && complete)
+            {
+                string format = "[{0}] {1}";
+                return string.Format(format, TLMLineUtils.getLineStringId(lineIdx).Replace('\n', ' '), resultName);
+            }
+            else
+            {
+                return resultName;
             }
         }
 
