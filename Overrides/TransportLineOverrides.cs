@@ -116,6 +116,7 @@ namespace Klyte.TransportLinesManager.Overrides
         #region Budget Override
         public static bool SimulationStepPre(ushort lineID)
         {
+            if (TLMTransportLineExtensions.instance.GetIgnorePrefixBudget(lineID)) return true;
             try
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];

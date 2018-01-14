@@ -14,9 +14,9 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
 {
     public class BasicTransportExtensionSingleton
     {
-        private static Dictionary<TransportSystemDefinition, BasicTransportExtension> _instances = new Dictionary<TransportSystemDefinition, BasicTransportExtension>();
+        private static Dictionary<TransportSystemDefinition, TLMTransportExtension> _instances = new Dictionary<TransportSystemDefinition, TLMTransportExtension>();
 
-        public static BasicTransportExtension Instance(TransportSystemDefinition T)
+        public static TLMTransportExtension Instance(TransportSystemDefinition T)
         {
             if (T == null)
             {
@@ -25,17 +25,17 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
             }
             if (!_instances.ContainsKey(T))
             {
-                _instances[T] = new BasicTransportExtension(T);
+                _instances[T] = new TLMTransportExtension(T);
             }
             return _instances[T];
         }
     }
 
-    public class BasicTransportExtension : BasicExtensionInterface<PrefixConfigIndex, BasicTransportExtension>
+    public class TLMTransportExtension : BasicExtensionInterface<PrefixConfigIndex, TLMTransportExtension>
 
     {
         private string ItSepLvl3 { get { return "⅞"; } }
-        internal BasicTransportExtension(TransportSystemDefinition t)
+        internal TLMTransportExtension(TransportSystemDefinition t)
         {
             definition = t;
         }
@@ -71,32 +71,6 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
 
 
         #region Utils
-        private Dictionary<PrefixConfigIndex, string> GetValueFromStringArray(string x)
-        {
-            string[] array = x.Split(KvSepLvl1.ToCharArray());
-            var saida = new Dictionary<PrefixConfigIndex, string>();
-            if (array.Length != 2)
-            {
-                return saida;
-            }
-            foreach (string s in array[1].Split(ItSepLvl2.ToCharArray()))
-            {
-                var items = s.Split(KvSepLvl2.ToCharArray());
-                if (items.Length != 2) continue;
-                try
-                {
-                    PrefixConfigIndex pci = (PrefixConfigIndex)Enum.Parse(typeof(PrefixConfigIndex), items[0]);
-                    saida[pci] = items[1];
-                }
-                catch (Exception e)
-                {
-                    TLMUtils.doLog("ERRO AO OBTER VALOR: {0}", e);
-                    continue;
-                }
-            }
-
-            return saida;
-        }
         private bool IsTrailer(PrefabInfo prefab)
         {
             string @unchecked = Locale.GetUnchecked("VEHICLE_TITLE", prefab.name);

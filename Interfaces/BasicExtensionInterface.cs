@@ -17,7 +17,7 @@ namespace Klyte.TransportLinesManager.Interfaces
         protected virtual string KvSepLvl2 { get { return "∫"; } }
         protected virtual string ItSepLvl2 { get { return "≠"; } }
 
-
+        #region Utils Decoding
         protected uint GetIndexFromStringArray(string x)
         {
             if (uint.TryParse(x.Split(KvSepLvl1.ToCharArray())[0], out uint saida))
@@ -26,9 +26,6 @@ namespace Klyte.TransportLinesManager.Interfaces
             }
             return 0xFFFFFFFF;
         }
-
-
-
         protected Dictionary<T, string> GetValueFromStringArray(string x)
         {
             string[] array = x.Split(KvSepLvl1.ToCharArray());
@@ -59,9 +56,9 @@ namespace Klyte.TransportLinesManager.Interfaces
             }
             return saida;
         }
+        #endregion
 
-
-
+        #region Utils Encoding
         protected string RecursiveEncode(object obj, int lvl = 0)
         {
             if (obj == null) { return ""; }
@@ -98,7 +95,6 @@ namespace Klyte.TransportLinesManager.Interfaces
                 return obj.ToString();
             }
         }
-
         protected string EncodeKV(string key, string value, int lvl)
         {
             string kvSep;
@@ -115,7 +111,6 @@ namespace Klyte.TransportLinesManager.Interfaces
             }
             return string.Format("{0}{1}{2}", key, kvSep, value);
         }
-
         protected string EncodeList(string[] array, int lvl)
         {
             string itSep;
@@ -132,7 +127,9 @@ namespace Klyte.TransportLinesManager.Interfaces
             }
             return string.Join(itSep, array);
         }
+        #endregion
 
+        #region Utils I/O
         protected void SaveConfig(Dictionary<uint, Dictionary<T, string>> target, TLMConfigWarehouse.ConfigIndex idx)
         {
             TLMConfigWarehouse loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
@@ -140,8 +137,6 @@ namespace Klyte.TransportLinesManager.Interfaces
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("saveConfig ({0}) NEW VALUE: {1}", idx, value);
             loadedConfig.setString(idx, value);
         }
-
-
         public Dictionary<uint, Dictionary<T, string>> LoadConfig(TLMConfigWarehouse.ConfigIndex idx)
         {
             var result = new Dictionary<uint, Dictionary<T, string>>();
@@ -162,5 +157,6 @@ namespace Klyte.TransportLinesManager.Interfaces
             }
             return result;
         }
+        #endregion        
     }
 }

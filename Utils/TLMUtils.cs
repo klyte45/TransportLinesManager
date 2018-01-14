@@ -1047,12 +1047,12 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static void setStopName(string newName, uint stopId, ushort lineId, OnEndProcessingBuildingName callback)
         {
-            doLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
+            doLog("setStopName! {0} - {1} - {2}", newName, stopId);
             ushort buildingId = getStationBuilding(stopId, toSubService(Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_transportType), true, true);
             if (buildingId == 0)
             {
                 doLog("b=0");
-                TLMStopsExtension.instance.setStopName(newName, stopId, lineId);
+                TLMStopsExtension.instance.SetStopName(newName, stopId);
                 callback();
             }
             else
@@ -1062,10 +1062,6 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
-        public static void cleanStopInfo(uint stopId, ushort lineId)
-        {
-            TLMStopsExtension.instance.cleanStopInfo(stopId, lineId);
-        }
 
         private static ItemClass.SubService toSubService(TransportInfo.TransportType t)
         {
@@ -1092,7 +1088,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static string getStationName(uint stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, bool excludeCargo = false)
         {
-            string savedName = TLMStopsExtension.instance.getStopName(stopId, lineId);
+            string savedName = TLMStopsExtension.instance.GetStopName(stopId);
             if (savedName != null)
             {
                 serviceFound = ItemClass.Service.PublicTransport;
@@ -1590,14 +1586,14 @@ namespace Klyte.TransportLinesManager.Utils
             return extension.GetPrefixName(prefix, global);
         }
 
-        public static BasicTransportExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
+        public static TLMTransportExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
         {
             var tsd = TLMConfigWarehouse.getTransportSystemDefinitionForConfigTransport(index);
             TLMUtils.doLog("getExtensionFromConfigIndex Target TSD: " + tsd + " from idx: " + index);
             return BasicTransportExtensionSingleton.Instance(tsd);
         }
 
-        public static BasicTransportExtension getExtensionFromTransportSystemDefinition(TransportSystemDefinition def)
+        public static TLMTransportExtension getExtensionFromTransportSystemDefinition(TransportSystemDefinition def)
         {
             return BasicTransportExtensionSingleton.Instance(def);
         }

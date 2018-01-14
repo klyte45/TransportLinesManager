@@ -95,8 +95,7 @@ namespace Klyte.TransportLinesManager.UI
                 return _transportTool;
             }
         }
-
-        private bool initialized = false;
+        
 
         private ushort nextLineNumber
         {
@@ -235,8 +234,7 @@ namespace Klyte.TransportLinesManager.UI
                  TLMConfigWarehouse.setCurrentConfigBool(TLMConfigWarehouse.getConfigIndexForTransportInfo(transportTool.m_prefab) | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT, value);
              });
             prefixIncrementChk.relativePosition = new Vector3(5f, 162.5f);
-
-            initialized = true;
+            
         }
 
         private void setNextLinePrefix(UIComponent component, int value)

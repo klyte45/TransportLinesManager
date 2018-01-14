@@ -19,59 +19,29 @@ namespace Klyte.TransportLinesManager.Extensors
         protected override string KvSepLvl2 { get { return "∫"; } }
         protected override string ItSepLvl2 { get { return "≠"; } }
         protected override TLMConfigWarehouse.ConfigIndex ConfigIndexKey { get { return TLMConfigWarehouse.ConfigIndex.STOPS_CONFIG; } }
-        
-        public string getStopName(uint stopId, ushort lineId)
-        {
-            if (cachedValues == null) Load();
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("getStopName(): Params: {0}, {1}", stopId, lineId);
 
-            if (cachedValues.ContainsKey(stopId) && cachedValues[stopId].ContainsKey(TLMStopExtensionProperty.STOP_LINE_ID) && cachedValues[stopId].ContainsKey(TLMStopExtensionProperty.STOP_NAME) && lineId == ushort.Parse(cachedValues[stopId][TLMStopExtensionProperty.STOP_LINE_ID]))
+
+        public string GetStopName(uint stopId)
+        {
+            return SafeGet(stopId, TLMStopExtensionProperty.STOP_NAME);
+        }
+
+        public void SetStopName(string newName, uint stopId)
+        {
+            if (newName == null)
             {
-                return cachedValues[stopId][TLMStopExtensionProperty.STOP_NAME];
+                SafeCleanEntry(stopId);
             }
             else
             {
-                return null;
+                SafeSet(stopId, TLMStopExtensionProperty.STOP_NAME, newName);
             }
         }
-
-        public void setStopName(string newName, uint stopId, ushort lineId)
-        {
-            if (cachedValues == null) Load();
-            if (!cachedValues.ContainsKey(stopId))
-            {
-                cachedValues[stopId] = new Dictionary<TLMStopExtensionProperty, string>();
-            }
-            if (string.IsNullOrEmpty(newName))
-            {
-                cachedValues.Remove(stopId);
-            }
-            else
-            {
-                cachedValues[stopId][TLMStopExtensionProperty.STOP_NAME] = newName;
-                cachedValues[stopId][TLMStopExtensionProperty.STOP_LINE_ID] = lineId.ToString();
-            }
-            Save();
-            Load();
-        }
-
-        public void cleanStopInfo(uint stopId, ushort lineId)
-        {
-            if (cachedValues == null) Load();
-            if (cachedValues.ContainsKey(stopId))
-            {
-                cachedValues.Remove(stopId);
-                Save();
-                Load();
-            }
-        }
-
     }
 
     internal enum TLMStopExtensionProperty
     {
-        STOP_NAME,
-        STOP_LINE_ID
+        STOP_NAME
     }
 
 }

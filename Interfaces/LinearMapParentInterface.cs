@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Interfaces
 {
-    public abstract class LinearMapParentInterface<T> : Singleton<T>, LinearMapParentInterface where T : LinearMapParentInterface<T>
+    public abstract class LinearMapParentInterface<T> : Singleton<T>, ILinearMapParentInterface where T : LinearMapParentInterface<T>
     {
         public abstract ushort CurrentSelectedId { get; }
         public abstract Transform TransformLinearMap { get; }
@@ -17,7 +17,7 @@ namespace Klyte.TransportLinesManager.Interfaces
         public abstract void OnRenameStationAction(string autoName);
     }
 
-    public interface LinearMapParentInterface
+    public interface ILinearMapParentInterface
     {
         ushort CurrentSelectedId { get; }
         Transform TransformLinearMap { get; }

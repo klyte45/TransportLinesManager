@@ -72,7 +72,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public Transform transform
+        public Transform TargetTransform
         {
             get {
                 return mainRef.transform;

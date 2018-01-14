@@ -18,19 +18,13 @@ namespace Klyte.TransportLinesManager.UI
     public class TLMLinearMap
     {
 
-        private LinearMapParentInterface parent;
+        private ILinearMapParentInterface parent;
         private UILabel linearMapLineNumberFormat;
         private UILabel linearMapLineNumber;
         private UILabel linearMapLineTime;
         private UIPanel lineStationsPanel;
         private UIPanel mainContainer;
         private string m_autoName;
-        private ModoNomenclatura prefix;
-        private ModoNomenclatura suffix;
-        private ModoNomenclatura nonPrefix;
-        private Separador sep;
-        private bool zerosEsquerda;
-        private bool invertPrefixSuffix;
         private UIButton infoToggle;
         private UIButton distanceToggle;
         private Dictionary<ushort, UILabel> residentCounters = new Dictionary<ushort, UILabel>();
@@ -41,7 +35,6 @@ namespace Klyte.TransportLinesManager.UI
         private Dictionary<ushort, int> vehiclesOnStation = new Dictionary<ushort, int>();
         private const float vehicleYoffsetIncrement = -20f;
         private const float vehicleYbaseOffset = -75f;
-        private TransportInfo.TransportType lastType = (TransportInfo.TransportType)(-1);
 
         private bool showIntersections = true;
         private bool showExtraStopInfo = false;
@@ -80,8 +73,9 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        public TLMLinearMap(LinearMapParentInterface lip)
+        public TLMLinearMap(ILinearMapParentInterface lip)
         {
+            isVisible = false;
             parent = lip;
             createLineStationsLinearView();
         }
