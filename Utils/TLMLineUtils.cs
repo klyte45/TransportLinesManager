@@ -108,21 +108,16 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static float getEffectiveBugdet(ushort transportLine)
         {
-            return getEffectiveBugdet(ref Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine]);
-        }
-
-        public static float getEffectiveBugdet(ref TransportLine __instance)
-        {
-            TransportInfo info = __instance.Info;
+            TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info;
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            if (!TLMLineUtils.hasPrefix(ref __instance))
+            if (!TLMLineUtils.hasPrefix(ref Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine]) || TLMTransportLineExtensions.instance.GetIgnorePrefixBudget(transportLine))
             {
-                int budget = __instance.m_budget;
+                int budget = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].m_budget;
                 return (budgetClass * budget) / 10000f;
             }
             else
             {
-                return (budgetClass * getBudgetMultiplierPrefix(ref __instance)) / 100f;
+                return (budgetClass * getBudgetMultiplierPrefix(ref Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine])) / 100f;
             }
         }
 

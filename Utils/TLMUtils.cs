@@ -1586,16 +1586,16 @@ namespace Klyte.TransportLinesManager.Utils
             return extension.GetPrefixName(prefix, global);
         }
 
-        public static TLMTransportExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
+        public static ITLMTransportExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
         {
             var tsd = TLMConfigWarehouse.getTransportSystemDefinitionForConfigTransport(index);
             TLMUtils.doLog("getExtensionFromConfigIndex Target TSD: " + tsd + " from idx: " + index);
-            return BasicTransportExtensionSingleton.Instance(tsd);
+            return tsd.GetTransportExtension();
         }
 
-        public static TLMTransportExtension getExtensionFromTransportSystemDefinition(TransportSystemDefinition def)
+        public static ITLMTransportExtension getExtensionFromTransportSystemDefinition(TransportSystemDefinition tsd)
         {
-            return BasicTransportExtensionSingleton.Instance(def);
+            return tsd.GetTransportExtension();
         }
 
         private static string[] latinoMaiusculo = {

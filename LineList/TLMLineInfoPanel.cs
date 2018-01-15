@@ -196,12 +196,13 @@ namespace Klyte.TransportLinesManager.LineList
         private void CreateIgnorePrefixBudgetOption()
         {
             m_IgnorePrefix = m_uiHelper.AddCheckboxLocale("TLM_IGNORE_PREFIX_BUDGETING", false);
-            m_IgnorePrefix.relativePosition = new Vector3(5f, 290f);
+            m_IgnorePrefix.relativePosition = new Vector3(5f, 300f);
             m_IgnorePrefix.eventCheckChanged += delegate (UIComponent comp, bool value)
             {
                 if (Singleton<SimulationManager>.exists && m_lineIdSelecionado.TransportLine != 0)
                 {
                     TLMTransportLineExtensions.instance.SetIgnorePrefixBudget(m_lineIdSelecionado.TransportLine, value);
+                    updateSliders();
                 }
             };
         }
@@ -463,7 +464,7 @@ namespace Klyte.TransportLinesManager.LineList
                 {
                     var tsd = TransportSystemDefinition.from(tl.Info);
                     uint prefix = tl.m_lineNumber / 1000u;
-                    TLMTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                    ITLMTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
                     uint[] saveData = bte.GetBudgetsMultiplier(prefix);
                     uint[] newSaveData = new uint[8];
                     for (int i = 0; i < 8; i++)
@@ -499,7 +500,7 @@ namespace Klyte.TransportLinesManager.LineList
                 {
                     var tsd = TransportSystemDefinition.from(tl.Info);
                     uint prefix = tl.m_lineNumber / 1000u;
-                    TLMTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                    ITLMTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
                     uint[] saveData = bte.GetBudgetsMultiplier(prefix);
                     uint[] newSaveData = new uint[] { saveData[0] };
                     bte.SetBudgetMultiplier(prefix, newSaveData);
@@ -783,6 +784,7 @@ namespace Klyte.TransportLinesManager.LineList
                     m_lineNumberLabel.text = (num % 10000).ToString();
                 }
                 updateSliders();
+               
             }
         }
         #endregion.
@@ -809,24 +811,31 @@ namespace Klyte.TransportLinesManager.LineList
         #region Budget Methods
         private void setBudgetHour(float x, int selectedHourIndex)
         {
-            TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
-            ushort val = (ushort)(x * 100 + 0.5f);
-            if (TLMLineUtils.hasPrefix(ref tl))
+            if (TLMTransportLineExtensions.instance.GetIgnorePrefixBudget(m_lineIdSelecionado.TransportLine))
             {
-                var tsd = TransportSystemDefinition.from(tl.Info);
-                uint prefix = tl.m_lineNumber / 1000u;
-                TLMTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
-                uint[] saveData = bte.GetBudgetsMultiplier(prefix);
-                if (selectedHourIndex >= saveData.Length || saveData[selectedHourIndex] == val)
-                {
-                    return;
-                }
-                saveData[selectedHourIndex] = val;
-                bte.SetBudgetMultiplier(prefix, saveData);
+                Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_budget = (ushort)(x * 100 + 0.5f);
             }
             else
             {
-                Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_budget = val;
+                TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
+                ushort val = (ushort)(x * 100 + 0.5f);
+                if (TLMLineUtils.hasPrefix(ref tl))
+                {
+                    var tsd = TransportSystemDefinition.from(tl.Info);
+                    uint prefix = tl.m_lineNumber / 1000u;
+                    ITLMTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                    uint[] saveData = bte.GetBudgetsMultiplier(prefix);
+                    if (selectedHourIndex >= saveData.Length || saveData[selectedHourIndex] == val)
+                    {
+                        return;
+                    }
+                    saveData[selectedHourIndex] = val;
+                    bte.SetBudgetMultiplier(prefix, saveData);
+                }
+                else
+                {
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_budget = val;
+                }
             }
         }
 
@@ -885,48 +894,26 @@ namespace Klyte.TransportLinesManager.LineList
                 m_goToWorldInfoPanel.isVisible = true;
                 m_disableBudgetPerHour.isVisible = false;
                 m_enableBudgetPerHour.isVisible = false;
+                m_IgnorePrefix.isVisible = false;
                 for (int i = 0; i < m_budgetSliders.Length; i++)
                 {
                     m_budgetSliders[i].isEnabled = false;
                     m_budgetSliders[i].parent.isVisible = false;
                 }
                 m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_IPT2_NO_BUDGET_CONTROL"));
-
                 return;
             }
             else
             {
                 m_goToWorldInfoPanel.isVisible = false;
             }
+
             TransportLine t = m_controller.tm.m_lines.m_buffer[(int)m_lineIdSelecionado.TransportLine];
             var tsd = TLMCW.getDefinitionForLine(m_lineIdSelecionado.TransportLine);
             if (m_lineIdSelecionado.TransportLine <= 0 || tsd == default(TransportSystemDefinition))
             {
                 return;
             }
-
-            if (TLMTransportLineExtensions.instance.GetIgnorePrefixBudget(m_lineIdSelecionado.TransportLine))
-            {
-                m_disableBudgetPerHour.isVisible = false;
-                m_enableBudgetPerHour.isVisible = false;
-                for (int i = 0; i < m_budgetSliders.Length; i++)
-                {
-                    if (i == 0)
-                    {
-                        UILabel budgetSliderLabel = m_budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>();
-                        budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL_ALL");
-                        m_budgetSliders[i].value = t.m_budget / 100f;
-                    }
-                    else
-                    {
-                        m_budgetSliders[i].isEnabled = false;
-                        m_budgetSliders[i].parent.isVisible = false;
-                    }
-                }
-                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(m_lineIdSelecionado.TransportLine), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
-                return;
-            }
-
             ushort lineNumber = t.m_lineNumber;
 
             TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
@@ -934,42 +921,70 @@ namespace Klyte.TransportLinesManager.LineList
 
             if (mnPrefixo != ModoNomenclatura.Nenhum)
             {
-                uint prefix = t.m_lineNumber / 1000u;
-                TLMTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
-                uint[] multipliers = bte.GetBudgetsMultiplier(prefix);
-                m_disableBudgetPerHour.isVisible = multipliers.Length == 8;
-                m_enableBudgetPerHour.isVisible = multipliers.Length == 1;
-                for (int i = 0; i < m_budgetSliders.Length; i++)
+                m_IgnorePrefix.isVisible = true;
+                if (TLMTransportLineExtensions.instance.GetIgnorePrefixBudget(m_lineIdSelecionado.TransportLine))
                 {
-                    UILabel budgetSliderLabel = m_budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>();
-                    if (i == 0)
+                    m_disableBudgetPerHour.isVisible = false;
+                    m_enableBudgetPerHour.isVisible = false;
+                    m_IgnorePrefix.isChecked = true;
+                    for (int i = 0; i < m_budgetSliders.Length; i++)
                     {
-                        if (multipliers.Length == 1)
+                        if (i == 0)
                         {
+                            UILabel budgetSliderLabel = m_budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>();
                             budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL_ALL");
+                            m_budgetSliders[i].value = t.m_budget / 100f;
                         }
                         else
                         {
-                            budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", 0);
+                            m_budgetSliders[i].isEnabled = false;
+                            m_budgetSliders[i].parent.isVisible = false;
                         }
                     }
-                    else
-                    {
-                        m_budgetSliders[i].isEnabled = multipliers.Length == 8;
-                        m_budgetSliders[i].parent.isVisible = multipliers.Length == 8;
-                    }
+                    m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(m_lineIdSelecionado.TransportLine), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
 
-                    if (i < multipliers.Length)
-                    {
-                        m_budgetSliders[i].value = multipliers[i] / 100f;
-                    }
                 }
-                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(mnPrefixo), (int)prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+                else
+                {
+                    uint prefix = t.m_lineNumber / 1000u;
+                    ITLMTransportExtension bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                    uint[] multipliers = bte.GetBudgetsMultiplier(prefix);
+                    m_disableBudgetPerHour.isVisible = multipliers.Length == 8;
+                    m_enableBudgetPerHour.isVisible = multipliers.Length == 1;
+                    m_IgnorePrefix.isChecked = false;
+                    for (int i = 0; i < m_budgetSliders.Length; i++)
+                    {
+                        UILabel budgetSliderLabel = m_budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>();
+                        if (i == 0)
+                        {
+                            if (multipliers.Length == 1)
+                            {
+                                budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL_ALL");
+                            }
+                            else
+                            {
+                                budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", 0);
+                            }
+                        }
+                        else
+                        {
+                            m_budgetSliders[i].isEnabled = multipliers.Length == 8;
+                            m_budgetSliders[i].parent.isVisible = multipliers.Length == 8;
+                        }
+
+                        if (i < multipliers.Length)
+                        {
+                            m_budgetSliders[i].value = multipliers[i] / 100f;
+                        }
+                    }
+                    m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(mnPrefixo), (int)prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+                }
             }
             else
             {
                 m_disableBudgetPerHour.isVisible = false;
                 m_enableBudgetPerHour.isVisible = false;
+                m_IgnorePrefix.isVisible = false;
                 for (int i = 0; i < m_budgetSliders.Length; i++)
                 {
                     if (i == 0)
@@ -1095,7 +1110,7 @@ namespace Klyte.TransportLinesManager.LineList
             }
 
             //estatisticas novas
-            m_veiculosLinhaLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha });
+            m_veiculosLinhaLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha }) + "/" + tl.CalculateTargetVehicleCount();
 
             uint prefix = 0;
             if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)

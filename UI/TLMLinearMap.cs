@@ -75,7 +75,6 @@ namespace Klyte.TransportLinesManager.UI
 
         public TLMLinearMap(ILinearMapParentInterface lip)
         {
-            isVisible = false;
             parent = lip;
             createLineStationsLinearView();
         }
@@ -90,6 +89,7 @@ namespace Klyte.TransportLinesManager.UI
         public void setLineNumberCircle(ushort lineID)
         {
             TLMLineUtils.setLineNumberCircleOnRef(lineID, linearMapLineNumber);
+            m_autoName = TLMUtils.calculateAutoName(lineID, true);
         }
 
 

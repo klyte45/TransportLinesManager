@@ -1,4 +1,6 @@
-﻿using Klyte.TransportLinesManager.Utils;
+﻿using ColossalFramework;
+using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +40,22 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             this.vehicleType = vehicleType;
             this.subService = subservice;
+        }
+
+        public ITLMTransportExtension GetTransportExtension()
+        {
+            if (this == BUS) { return TLMTransportExtensionBus.instance; }
+            if (this == EVAC_BUS) { return TLMTransportExtensionEvacBus.instance; }
+            if (this == TRAM) { return TLMTransportExtensionTram.instance; }
+            if (this == TRAIN) { return TLMTransportExtensionTrain.instance; }
+            if (this == METRO) { return TLMTransportExtensionMetro.instance; }
+            if (this == MONORAIL) { return TLMTransportExtensionMonorail.instance; }
+            if (this == FERRY) { return TLMTransportExtensionFerry.instance; }
+            if (this == BLIMP) { return TLMTransportExtensionBlimp.instance; }
+            if (this == SHIP) { return TLMTransportExtensionShip.instance; }
+            if (this == PLANE) { return TLMTransportExtensionPlane.instance; }
+            return null;
+
         }
 
         public bool isFromSystem(VehicleInfo info)
@@ -124,4 +142,16 @@ namespace Klyte.TransportLinesManager.Extensors
             return hashCode;
         }
     }
+
+    public abstract class TLMSysDef : Singleton<TLMSysDef> { public abstract TransportSystemDefinition GetTSD(); }
+    public sealed class TLMSysDefBus : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.BUS; } }
+    public sealed class TLMSysDefEvacBus : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.EVAC_BUS; } }
+    public sealed class TLMSysDefTram : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.TRAM; } }
+    public sealed class TLMSysDefMonorail : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.MONORAIL; } }
+    public sealed class TLMSysDefMetro : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.METRO; } }
+    public sealed class TLMSysDefTrain : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.TRAIN; } }
+    public sealed class TLMSysDefFerry : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.FERRY; } }
+    public sealed class TLMSysDefBlimp : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.BLIMP; } }
+    public sealed class TLMSysDefShip : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.SHIP; } }
+    public sealed class TLMSysDefPlane : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.PLANE; } }
 }

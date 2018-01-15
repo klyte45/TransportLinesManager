@@ -18,7 +18,7 @@ using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using ColossalFramework.PlatformServices;
 
-[assembly: AssemblyVersion("7.2.0.*")]
+[assembly: AssemblyVersion("8.0.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -45,6 +45,10 @@ namespace Klyte.TransportLinesManager
         public static string version
         {
             get {
+                if (typeof(TransportLinesManagerMod).Assembly.GetName().Version.Minor == 0 && typeof(TransportLinesManagerMod).Assembly.GetName().Version.Build == 0)
+                {
+                    return typeof(TransportLinesManagerMod).Assembly.GetName().Version.Major.ToString();
+                }
                 if (typeof(TransportLinesManagerMod).Assembly.GetName().Version.Build > 0)
                 {
                     return minorVersion;

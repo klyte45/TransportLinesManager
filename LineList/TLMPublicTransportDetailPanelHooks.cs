@@ -1534,7 +1534,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnRemoveUnwanted()
         {
-            TLMTransportExtension.removeAllUnwantedVehicles();
+            TLMTransportExtensionUtils.removeAllUnwantedVehicles();
         }
 
         private void OnAutoColorAll()

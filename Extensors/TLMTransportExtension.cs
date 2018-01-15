@@ -12,33 +12,9 @@ using Klyte.TransportLinesManager.Interfaces;
 
 namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
 {
-    public class BasicTransportExtensionSingleton
-    {
-        private static Dictionary<TransportSystemDefinition, TLMTransportExtension> _instances = new Dictionary<TransportSystemDefinition, TLMTransportExtension>();
-
-        public static TLMTransportExtension Instance(TransportSystemDefinition T)
-        {
-            if (T == null)
-            {
-                TLMUtils.doErrorLog("ERRRR: BasicTransportExtension NULL: " + T);
-                return null;
-            }
-            if (!_instances.ContainsKey(T))
-            {
-                _instances[T] = new TLMTransportExtension(T);
-            }
-            return _instances[T];
-        }
-    }
-
-    public class TLMTransportExtension : BasicExtensionInterface<PrefixConfigIndex, TLMTransportExtension>
-
+    public abstract class TLMTransportExtension<TSD, SG> : BasicExtensionInterface<PrefixConfigIndex, SG>, ITLMTransportExtension where TSD : TLMSysDef, new() where SG : TLMTransportExtension<TSD, SG>
     {
         private string ItSepLvl3 { get { return "⅞"; } }
-        internal TLMTransportExtension(TransportSystemDefinition t)
-        {
-            definition = t;
-        }
 
         private TLMConfigWarehouse.ConfigIndex ConfigKeyForAssets
         {
@@ -63,7 +39,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
 
         private List<string> basicAssetsList;
         private bool globalLoaded = false;
-        private TransportSystemDefinition definition;
+        private TransportSystemDefinition definition => Singleton<TSD>.instance.GetTSD();
 
         private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_prefixConfigList;
         private Dictionary<uint, Dictionary<PrefixConfigIndex, string>> cached_prefixConfigListGlobal;
@@ -598,6 +574,24 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
             }
             return capacity;
         }
+        #endregion
+
+    }
+
+    public sealed class TLMTransportExtensionBus : TLMTransportExtension<TLMSysDefBus, TLMTransportExtensionBus> { }
+    public sealed class TLMTransportExtensionBlimp : TLMTransportExtension<TLMSysDefBlimp, TLMTransportExtensionBlimp> { }
+    public sealed class TLMTransportExtensionEvacBus : TLMTransportExtension<TLMSysDefBlimp, TLMTransportExtensionEvacBus> { }
+    public sealed class TLMTransportExtensionFerry : TLMTransportExtension<TLMSysDefFerry, TLMTransportExtensionFerry> { }
+    public sealed class TLMTransportExtensionMetro : TLMTransportExtension<TLMSysDefMetro, TLMTransportExtensionMetro> { }
+    public sealed class TLMTransportExtensionMonorail : TLMTransportExtension<TLMSysDefMonorail, TLMTransportExtensionMonorail> { }
+    public sealed class TLMTransportExtensionPlane : TLMTransportExtension<TLMSysDefPlane, TLMTransportExtensionPlane> { }
+    public sealed class TLMTransportExtensionShip : TLMTransportExtension<TLMSysDefShip, TLMTransportExtensionShip> { }
+    public sealed class TLMTransportExtensionTrain : TLMTransportExtension<TLMSysDefTrain, TLMTransportExtensionTrain> { }
+    public sealed class TLMTransportExtensionTram : TLMTransportExtension<TLMSysDefTram, TLMTransportExtensionTram> { }
+
+    public sealed class TLMTransportExtensionUtils
+    {
+
         public static void removeAllUnwantedVehicles()
         {
             for (ushort lineId = 1; lineId < Singleton<TransportManager>.instance.m_lines.m_size; lineId++)
@@ -620,7 +614,7 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
                         if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("NULL TSysDef! {0}+{1}+{2}", info.GetAI().GetType(), info.m_class.m_subService, info.m_vehicleType);
                         continue;
                     }
-                    var modelList = BasicTransportExtensionSingleton.Instance(def).GetAssetListForPrefix(prefix);
+                    var modelList = def.GetTransportExtension().GetAssetListForPrefix(prefix);
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
                     if (modelList.Count > 0)
                     {
@@ -646,8 +640,31 @@ namespace Klyte.TransportLinesManager.Extensors.VehicleAIExt
                 }
             }
         }
-        #endregion
+    }
 
+    public interface ITLMTransportExtension
+    {
+        string GetPrefixName(uint prefix, bool global = false);
+        void SetPrefixName(uint prefix, string name, bool global = false);
+
+        uint[] GetBudgetsMultiplier(uint prefix, bool global = false);
+        uint GetBudgetMultiplierForHour(uint prefix, int hour);
+        void SetBudgetMultiplier(uint prefix, uint[] multipliers, bool global = false);
+
+        uint GetTicketPrice(uint prefix, bool global = false);
+        uint GetDefaultTicketPrice();
+        void SetTicketPrice(uint prefix, uint price, bool global = false);
+
+        List<string> GetAssetListForPrefix(uint prefix, bool global = false);
+        Dictionary<string, string> GetBasicAssetsListForPrefix(uint prefix, bool global = false);
+        Dictionary<string, string> GetBasicAssetsDictionary(bool global = false);
+        void AddAssetToPrefixList(uint prefix, string assetId, bool global = false);
+        void removeAssetFromPrefixList(uint prefix, string assetId, bool global = false);
+        void removeAllAssetsFromPrefixList(uint prefix, bool global = false);
+        void useDefaultAssetsForPrefixList(uint prefix, bool global = false);
+
+        VehicleInfo getRandomModel(uint prefix);
+        int getCapacity(VehicleInfo info, bool noLoop = false);
     }
 
     public enum PrefixConfigIndex

@@ -116,11 +116,10 @@ namespace Klyte.TransportLinesManager.Overrides
         #region Budget Override
         public static bool SimulationStepPre(ushort lineID)
         {
-            if (TLMTransportLineExtensions.instance.GetIgnorePrefixBudget(lineID)) return true;
             try
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
-                if (t.m_lineNumber != 0 && t.m_stops != 0 && TLMLineUtils.hasPrefix(lineID))
+                if (t.m_lineNumber != 0 && t.m_stops != 0 && TLMLineUtils.hasPrefix(lineID) && !TLMTransportLineExtensions.instance.GetIgnorePrefixBudget(lineID))
                 {
                     Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort)(TLMLineUtils.getBudgetMultiplierPrefix(ref t) * 100);
                 }
@@ -187,12 +186,12 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             if (vehicleData.m_transportLine == 0)
             {
-                var value = (int)BasicTransportExtensionSingleton.Instance(def).GetDefaultTicketPrice();
+                var value = (int)def.GetTransportExtension().GetDefaultTicketPrice();
                 return value;
             }
             else
             {
-                var value = (int)(BasicTransportExtensionSingleton.Instance(def).GetTicketPrice((uint)vehicleData.m_transportLine));
+                var value = (int)def.GetTransportExtension().GetTicketPrice(vehicleData.m_transportLine);
 
                 return value;
             }

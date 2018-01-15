@@ -238,7 +238,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                         TLMUtils.doLog("NULL TSysDef! {0}+{1}", t.Info.m_class.m_subService, t.Info.m_vehicleType);
                     return null;
                 }
-                TLMTransportExtension extension = TLMUtils.getExtensionFromTransportSystemDefinition(def);
+                ITLMTransportExtension extension = TLMUtils.getExtensionFromTransportSystemDefinition(def);
                 var randomInfo = extension.getRandomModel(prefix);
                 return randomInfo;
 
