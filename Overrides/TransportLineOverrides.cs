@@ -81,13 +81,6 @@ namespace Klyte.TransportLinesManager.Overrides
         public static void preDoAutomation(ushort lineID, ref TransportLine.Flags __state)
         {
             __state = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags;
-            if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None &&
-                (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.CustomColor) != TransportLine.Flags.None
-                )
-            {
-                Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~TransportLine.Flags.CustomColor;
-            }
-
         }
 
         public static void doAutomation(ushort lineID, TransportLine.Flags __state)
@@ -107,7 +100,14 @@ namespace Klyte.TransportLinesManager.Overrides
                         TLMController.instance.AutoName(lineID);
                     }
                     TLMController.instance.LineCreationToolbox.incrementNumber();
+                    TLMTransportLineExtensions.instance.SafeCleanEntry(lineID);
                 }
+            }
+            if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None &&
+                (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.CustomColor) != TransportLine.Flags.None
+                )
+            {
+                Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~TransportLine.Flags.CustomColor;
             }
 
         }
@@ -193,7 +193,9 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             else
             {
-                var value = (int)def.GetTransportExtension().GetTicketPrice(vehicleData.m_transportLine);
+                TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine];
+                uint prefix = TLMLineUtils.hasPrefix(vehicleData.m_transportLine) ? t.m_lineNumber / 1000u : 0u;
+                var value = (int)def.GetTransportExtension().GetTicketPrice(prefix);
 
                 return value;
             }
