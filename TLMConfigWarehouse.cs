@@ -39,6 +39,12 @@ namespace Klyte.TransportLinesManager
         private string cityId;
         private string cityName;
 
+
+        public static TLMConfigWarehouse getConfig()
+        {
+            return getConfig(null, null);
+        }
+
         public static TLMConfigWarehouse getConfig(string cityId, string cityName)
         {
             if (cityId == null || cityName == null)

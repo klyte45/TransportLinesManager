@@ -316,7 +316,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                 m_hourBudgets[i] = hourBudgetsSaved[i % hourBudgetsSaved.Length];
             }
             updateBudgetSliders();
-            m_ticketPrice.text = (getTicketPriceFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1))).ToString();
+            m_ticketPrice.text = "" + (getTicketPriceFromDropDownSelection(m_systemTypeDropDown.selectedIndex, (uint)(sel - 1)));
             reloadAssetsList(sel);
             m_StripAsteriskTab.tabPages.enabled = true;
             m_StripAsteriskTab.enabled = true;
@@ -374,32 +374,32 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
 
         private Dictionary<string, string> getBasicAssetListFromDropDownSelection(int index, bool global = false)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBasicAssetsDictionary(global);
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBasicAssetsDictionary();
 
         }
         private Dictionary<string, string> getPrefixAssetListFromDropDownSelection(int index, uint prefix, bool global = false)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBasicAssetsListForPrefix(prefix, global);
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBasicAssetsListForPrefix(prefix);
         }
 
         private void addAssetToPrefixDropDownSelection(int index, uint prefix, string assetId, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).AddAssetToPrefixList(prefix, assetId, global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).AddAssetToPrefixList(prefix, assetId);
         }
 
         private void removeAssetFromPrefixDropDownSelection(int index, uint prefix, string assetId, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).removeAssetFromPrefixList(prefix, assetId, global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).RemoveAssetFromPrefixList(prefix, assetId);
         }
 
         private void removeAllAssetsFromPrefixDropDownSelection(int index, uint prefix, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).removeAllAssetsFromPrefixList(prefix, global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).RemoveAllAssetsFromPrefixList(prefix);
         }
 
         private void setPrefixNameDropDownSelection(int index, uint prefix, string name, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetPrefixName(prefix, name, global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetPrefixName(prefix, name);
         }
 
         private void setBudgetMultiplierDropDownSelection(int index, uint prefix, bool global = false)
@@ -414,25 +414,26 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                 saveData = m_hourBudgets;
             }
 
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetBudgetMultiplier(prefix, saveData, global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetBudgetMultiplier(prefix, saveData);
         }
 
-        private void setTicketPriceDropDownSelection(int index, uint prefix, uint value, bool global = false)
+        private void setTicketPriceDropDownSelection(int index, uint prefix, uint value)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetTicketPrice(prefix, value, global);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetTicketPrice(prefix, value);
         }
-        private string getPrefixNameFromDropDownSelection(int index, uint prefix, bool global = false)
+        private string getPrefixNameFromDropDownSelection(int index, uint prefix)
         {
-            return TLMUtils.getTransportSystemPrefixName(getConfigIndexFromDropDownSelection(index), prefix, global);
+            return TLMUtils.getTransportSystemPrefixName(getConfigIndexFromDropDownSelection(index), prefix) ?? string.Empty;
         }
-        private uint[] getPrefixBudgetMultiplierFromDropDownSelection(int index, uint prefix, bool global = false)
+        private uint[] getPrefixBudgetMultiplierFromDropDownSelection(int index, uint prefix)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBudgetsMultiplier(prefix, global);
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBudgetsMultiplier(prefix);
         }
-        private uint getTicketPriceFromDropDownSelection(int index, uint prefix, bool global = false)
+        private uint getTicketPriceFromDropDownSelection(int index, uint prefix)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetTicketPrice(prefix, global);
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetTicketPrice(prefix);
         }
+
         private TLMConfigWarehouse.ConfigIndex getConfigIndexFromDropDownSelection(int index)
         {
             if (index < 0 || index > m_transportTypeOrder.Length)

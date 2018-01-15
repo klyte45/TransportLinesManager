@@ -136,42 +136,44 @@ namespace Klyte.TransportLinesManager.Overrides
         public static void GetTicketPricePost_PassengerPlaneAI(ushort vehicleID, ref Vehicle vehicleData, PassengerPlaneAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerShipAI(ushort vehicleID, ref Vehicle vehicleData, PassengerShipAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_TramAI(ushort vehicleID, ref Vehicle vehicleData, TramAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerTrainAI(ushort vehicleID, ref Vehicle vehicleData, PassengerTrainAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerBlimpAI(ushort vehicleID, ref Vehicle vehicleData, PassengerBlimpAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerFerryAI(ushort vehicleID, ref Vehicle vehicleData, PassengerFerryAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_BusAI(ushort vehicleID, ref Vehicle vehicleData, BusAI __instance, ref int __result)
         {
+            TLMUtils.doLog(" __result= {0};BusAI.m_ticketPrice ={1}, ticketPriceForPrefix={2}", __result, __instance.m_ticketPrice, ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice));
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
+            TLMUtils.doLog("after __result= {0} ", __result, __instance.m_ticketPrice);
         }
         public static void GetTicketPricePost_CableCarAI(ushort vehicleID, ref Vehicle vehicleData, CableCarAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
 
         private static int ticketPriceForPrefix(ushort vehicleID, ref Vehicle vehicleData, int defaultPrice)

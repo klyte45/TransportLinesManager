@@ -239,7 +239,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                     return null;
                 }
                 ITLMTransportExtension extension = TLMUtils.getExtensionFromTransportSystemDefinition(def);
-                var randomInfo = extension.getRandomModel(prefix);
+                var randomInfo = extension.GetRandomModel(prefix);
                 return randomInfo;
 
             }

@@ -16,6 +16,7 @@ namespace Klyte.TransportLinesManager.Interfaces
         protected virtual string ItSepLvl1 { get { return "∞"; } }
         protected virtual string KvSepLvl2 { get { return "∫"; } }
         protected virtual string ItSepLvl2 { get { return "≠"; } }
+        protected virtual bool AllowGlobal { get { return false; } }
 
         #region Utils Decoding
         protected uint GetIndexFromStringArray(string x)
@@ -130,18 +131,36 @@ namespace Klyte.TransportLinesManager.Interfaces
         #endregion
 
         #region Utils I/O
-        protected void SaveConfig(Dictionary<uint, Dictionary<T, string>> target, TLMConfigWarehouse.ConfigIndex idx)
+        protected void SaveConfig(Dictionary<uint, Dictionary<T, string>> target, TLMConfigWarehouse.ConfigIndex idx, bool global = false)
         {
-            TLMConfigWarehouse loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
+            TLMConfigWarehouse loadedConfig;
+            if (global && !AllowGlobal) { throw new Exception("CONFIGURAÇÂO NÃO GLOBAL TENTOU SER SALVA COMO GLOBAL: " + typeof(U)); }
+            if (global)
+            {
+                loadedConfig = TLMConfigWarehouse.getConfig(TLMConfigWarehouse.GLOBAL_CONFIG_INDEX, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX);
+            }
+            else
+            {
+                loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
+            }
             var value = RecursiveEncode(target);
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("saveConfig ({0}) NEW VALUE: {1}", idx, value);
             loadedConfig.setString(idx, value);
         }
-        public Dictionary<uint, Dictionary<T, string>> LoadConfig(TLMConfigWarehouse.ConfigIndex idx)
+        public Dictionary<uint, Dictionary<T, string>> LoadConfig(TLMConfigWarehouse.ConfigIndex idx, bool global = false)
         {
             var result = new Dictionary<uint, Dictionary<T, string>>();
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("{0} load()", idx);
-            var itemListLvl1 = TLMConfigWarehouse.getCurrentConfigString(idx).Split(ItSepLvl1.ToCharArray());
+            string[] itemListLvl1;
+            if (global && !AllowGlobal) { throw new Exception("CONFIGURAÇÂO NÃO GLOBAL TENTOU SER CARREGADA COMO GLOBAL: " + typeof(U)); }
+            if (global)
+            {
+                itemListLvl1 = TLMConfigWarehouse.getConfig().getString(idx).Split(ItSepLvl1.ToCharArray());
+            }
+            else
+            {
+                itemListLvl1 = TLMConfigWarehouse.getCurrentConfigString(idx).Split(ItSepLvl1.ToCharArray());
+            }
 
             if (itemListLvl1.Length > 0)
             {

@@ -1576,14 +1576,14 @@ namespace Klyte.TransportLinesManager.Utils
             container.wrapLayout = true;
             return budgetMultiplier;
         }
-        public static string getTransportSystemPrefixName(TLMConfigWarehouse.ConfigIndex index, uint prefix, bool global = false)
+        public static string getTransportSystemPrefixName(TLMConfigWarehouse.ConfigIndex index, uint prefix)
         {
             var extension = getExtensionFromConfigIndex(index);
             if (extension == null)
             {
                 return "";
             }
-            return extension.GetPrefixName(prefix, global);
+            return extension.GetPrefixName(prefix);
         }
 
         public static ITLMTransportExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
