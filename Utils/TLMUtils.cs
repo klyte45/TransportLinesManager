@@ -7,7 +7,10 @@ using ICities;
 using Klyte.Extensions;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors.NetNodeExt;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -1583,20 +1586,98 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 return "";
             }
-            return extension.GetPrefixName(prefix);
+            return extension.GetName(prefix);
         }
 
-        public static ITLMTransportExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
+        public static ITLMTransportTypeExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
         {
             var tsd = TLMConfigWarehouse.getTransportSystemDefinitionForConfigTransport(index);
             TLMUtils.doLog("getExtensionFromConfigIndex Target TSD: " + tsd + " from idx: " + index);
             return tsd.GetTransportExtension();
         }
 
-        public static ITLMTransportExtension getExtensionFromTransportSystemDefinition(TransportSystemDefinition tsd)
+        public static ITLMTransportTypeExtension getExtensionFromTransportSystemDefinition(TransportSystemDefinition tsd)
         {
             return tsd.GetTransportExtension();
         }
+
+
+        public static ITLMAssetSelectorExtension getExtensionFromTransportLine(ushort lineID)
+        {
+            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
+
+            if (t.m_lineNumber != 0 && t.m_stops != 0)
+            {
+                if (TLMTransportLineExtensions.instance.GetUseCustomConfig(lineID))
+                {
+                    return TLMTransportLineExtensions.instance;
+                }
+                else
+                {
+                    return TransportSystemDefinition.from(lineID).GetTransportExtension();
+                }
+            }
+            return null;
+        }
+
+
+        #region Vehicle Utils
+        public static VehicleInfo GetRandomModel(List<string> assetList)
+        {
+            if (assetList.Count == 0) return null;
+            Randomizer r = new Randomizer(new System.Random().Next());
+
+            string model = assetList[r.Int32(0, assetList.Count - 1)];
+
+            var saida = PrefabCollection<VehicleInfo>.FindLoaded(model);
+            if (saida == null)
+            {
+                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("MODEL DOESN'T EXIST!");
+                return null;
+            }
+            return saida;
+        }
+        public static int getCapacity(VehicleInfo info, bool noLoop = false)
+        {
+            if (info == null) return -1;
+            int capacity = TLMUtils.GetPrivateField<int>(info.GetAI(), "m_passengerCapacity");
+            try
+            {
+                if (!noLoop)
+                {
+                    foreach (var trailer in info.m_trailers)
+                    {
+                        capacity += getCapacity(trailer.m_info, true);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                TLMUtils.doLog("ERRO AO OBTER CAPACIDADE: [{0}] {1}", info, e.Message);
+            }
+            return capacity;
+        }
+        public static List<string> LoadBasicAssets(TransportSystemDefinition definition)
+        {
+            List<string> basicAssetsList = new List<string>();
+
+            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("LoadBasicAssets: pre prefab read");
+            for (uint num = 0u; (ulong)num < (ulong)((long)PrefabCollection<VehicleInfo>.PrefabCount()); num += 1u)
+            {
+                VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
+                if (!(prefab == null) && definition.isFromSystem(prefab) && !IsTrailer(prefab))
+                {
+                    basicAssetsList.Add(prefab.name);
+                }
+            }
+            return basicAssetsList;
+        }
+        private static bool IsTrailer(PrefabInfo prefab)
+        {
+            string @unchecked = Locale.GetUnchecked("VEHICLE_TITLE", prefab.name);
+            return @unchecked.StartsWith("VEHICLE_TITLE") || @unchecked.StartsWith("Trailer");
+        }
+        #endregion
 
         private static string[] latinoMaiusculo = {
             "A",

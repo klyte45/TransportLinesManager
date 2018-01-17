@@ -42,14 +42,22 @@ namespace Klyte.TransportLinesManager.Interfaces
         protected string SafeGet(uint idx, T key, bool global = false)
         {
             var cachedValues = GetDictionaryData(global);
-            if (cachedValues == null) Load(global);
+            if (cachedValues == null)
+            {
+                Load(global);
+                cachedValues = GetDictionaryData(global);
+            }
             if (!cachedValues.ContainsKey(idx) || !cachedValues[idx].ContainsKey(key)) return null;
             return cachedValues[idx][key];
         }
         protected void SafeSet(uint idx, T key, string value, bool global = false)
         {
             var cachedValues = GetDictionaryData(global);
-            if (cachedValues == null) Load(global);
+            if (cachedValues == null)
+            {
+                Load(global);
+                cachedValues = GetDictionaryData(global);
+            }
             if (!cachedValues.ContainsKey(idx))
             {
                 cachedValues[idx] = new Dictionary<T, string>();
@@ -69,7 +77,11 @@ namespace Klyte.TransportLinesManager.Interfaces
         public void SafeCleanEntry(uint idx, bool global = false)
         {
             var cachedValues = GetDictionaryData(global);
-            if (cachedValues == null) Load(global);
+            if (cachedValues == null)
+            {
+                Load(global);
+                cachedValues = GetDictionaryData(global);
+            }
             if (cachedValues.ContainsKey(idx))
             {
                 cachedValues.Remove(idx);
@@ -81,7 +93,11 @@ namespace Klyte.TransportLinesManager.Interfaces
         public void SafeCleanProperty(uint idx, T key, bool global = false)
         {
             var cachedValues = GetDictionaryData(global);
-            if (cachedValues == null) Load(global);
+            if (cachedValues == null)
+            {
+                Load(global);
+                cachedValues = GetDictionaryData(global);
+            }
             if (cachedValues.ContainsKey(idx))
             {
                 if (cachedValues[idx].ContainsKey(key))

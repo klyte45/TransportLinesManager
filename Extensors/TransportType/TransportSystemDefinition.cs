@@ -1,5 +1,5 @@
 ﻿using ColossalFramework;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace Klyte.TransportLinesManager.Extensors
+namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
     public class TransportSystemDefinition
     {
@@ -42,18 +42,18 @@ namespace Klyte.TransportLinesManager.Extensors
             this.subService = subservice;
         }
 
-        public ITLMTransportExtension GetTransportExtension()
+        public ITLMTransportTypeExtension GetTransportExtension()
         {
-            if (this == BUS) { return TLMTransportExtensionBus.instance; }
-            if (this == EVAC_BUS) { return TLMTransportExtensionEvacBus.instance; }
-            if (this == TRAM) { return TLMTransportExtensionTram.instance; }
-            if (this == TRAIN) { return TLMTransportExtensionTrain.instance; }
-            if (this == METRO) { return TLMTransportExtensionMetro.instance; }
-            if (this == MONORAIL) { return TLMTransportExtensionMonorail.instance; }
-            if (this == FERRY) { return TLMTransportExtensionFerry.instance; }
-            if (this == BLIMP) { return TLMTransportExtensionBlimp.instance; }
-            if (this == SHIP) { return TLMTransportExtensionShip.instance; }
-            if (this == PLANE) { return TLMTransportExtensionPlane.instance; }
+            if (this == BUS) { return TLMTransportTypeExtensionBus.instance; }
+            if (this == EVAC_BUS) { return TLMTransportTypeExtensionEvacBus.instance; }
+            if (this == TRAM) { return TLMTransportTypeExtensionTram.instance; }
+            if (this == TRAIN) { return TLMTransportTypeExtensionTrain.instance; }
+            if (this == METRO) { return TLMTransportTypeExtensionMetro.instance; }
+            if (this == MONORAIL) { return TLMTransportTypeExtensionMonorail.instance; }
+            if (this == FERRY) { return TLMTransportTypeExtensionFerry.instance; }
+            if (this == BLIMP) { return TLMTransportTypeExtensionBlimp.instance; }
+            if (this == SHIP) { return TLMTransportTypeExtensionShip.instance; }
+            if (this == PLANE) { return TLMTransportTypeExtensionPlane.instance; }
             return null;
 
         }
@@ -122,6 +122,11 @@ namespace Klyte.TransportLinesManager.Extensors
                 return default(TransportSystemDefinition);
             }
             return availableDefinitions.FirstOrDefault(x => x.subService == info.m_class.m_subService && x.vehicleType == info.m_vehicleType);
+        }
+        public static TransportSystemDefinition from(uint lineId)
+        {
+            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
+            return from(t.Info);
         }
 
         public TLMConfigWarehouse.ConfigIndex toConfigIndex()

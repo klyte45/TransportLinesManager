@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Math;
 using Klyte.Harmony;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -226,24 +226,11 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         #region Generation methods
 
-        private static VehicleInfo doModelDraw(TransportLine t)
+        private static VehicleInfo doModelDraw(ushort lineId)
         {
-            if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(t.Info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
-            {
-                uint prefix = t.m_lineNumber / 1000u;
-                var def = TransportSystemDefinition.from(t.Info);
-                if (def == default(TransportSystemDefinition))
-                {
-                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
-                        TLMUtils.doLog("NULL TSysDef! {0}+{1}", t.Info.m_class.m_subService, t.Info.m_vehicleType);
-                    return null;
-                }
-                ITLMTransportExtension extension = TLMUtils.getExtensionFromTransportSystemDefinition(def);
-                var randomInfo = extension.GetRandomModel(prefix);
-                return randomInfo;
-
-            }
-            return null;
+            var extension = TLMUtils.getExtensionFromTransportLine(lineId);
+            var randomInfo = extension?.GetAModel(lineId);
+            return randomInfo;
         }
 
         public static void setRandomBuildingByPrefix(TransportSystemDefinition tsd, uint prefix, ref ushort currentId)
@@ -312,7 +299,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                 }
 
                 TLMUtils.doLog("randomVehicleInfo");
-                randomVehicleInfo = doModelDraw(tl);
+                randomVehicleInfo = doModelDraw(offer.TransportLine);
                 if (randomVehicleInfo == null)
                 {
                     randomVehicleInfo = Singleton<VehicleManager>.instance.GetRandomVehicleInfo(ref Singleton<SimulationManager>.instance.m_randomizer, m_info.m_class.m_service, m_info.m_class.m_subService, m_info.m_class.m_level);

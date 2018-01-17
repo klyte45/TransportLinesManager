@@ -6,7 +6,7 @@ using Klyte.Extensions;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.LineList.ExtraUI;
 using Klyte.TransportLinesManager.Utils;
 using System;

@@ -6,6 +6,8 @@ using ColossalFramework.UI;
 using ICities;
 using Klyte.Extensions;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -110,7 +112,7 @@ namespace Klyte.TransportLinesManager.Utils
         {
             TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info;
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            if (!TLMLineUtils.hasPrefix(ref Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine]) || TLMTransportLineExtensions.instance.GetIgnorePrefixBudget(transportLine))
+            if (!TLMLineUtils.hasPrefix(ref Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine]) || TLMTransportLineExtensions.instance.GetUseCustomConfig(transportLine))
             {
                 int budget = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].m_budget;
                 return (budgetClass * budget) / 10000f;
@@ -127,10 +129,10 @@ namespace Klyte.TransportLinesManager.Utils
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
             float lengthMeters = __instance.m_totalLength;
             var tsd = TLMCW.getDefinitionForLine(ref __instance);
-            uint prefix = __instance.m_lineNumber / 1000u;
+            uint prefix = TLMLineUtils.hasPrefix(ref __instance) ? __instance.m_lineNumber / 1000u : 0;
             return TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).GetBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
         }
-
+        
         public static string getLineStringId(ushort lineIdx)
         {
             getLineNamingParameters(lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
@@ -255,6 +257,25 @@ namespace Klyte.TransportLinesManager.Utils
         {
             TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForTransportInfo(t);
             return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+        }
+
+
+        public static uint getPrefix(ushort idx)
+        {
+            var tsd = TLMCW.getDefinitionForLine(idx);
+            if (tsd == default(TransportSystemDefinition))
+            {
+                return 0;
+            }
+            TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
+            if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum)
+            {
+                return Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public static string getIconForLine(ushort lineIdx)

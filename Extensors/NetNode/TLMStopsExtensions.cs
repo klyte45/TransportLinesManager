@@ -9,7 +9,7 @@ using System.Text;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
-namespace Klyte.TransportLinesManager.Extensors
+namespace Klyte.TransportLinesManager.Extensors.NetNodeExt
 {
 
     class TLMStopsExtension : ExtensionInterfaceDefaultImpl<TLMStopExtensionProperty, TLMStopsExtension>

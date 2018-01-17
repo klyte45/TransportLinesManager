@@ -5,3 +5,4 @@
 - Added individual line budget funcionality
 - Finally, the prefix ticket price is working!
 - Added target vehicles count at line detail window (as "Current count/Budget target")
+- Added asset selection at the line info window

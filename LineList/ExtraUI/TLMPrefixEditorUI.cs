@@ -6,7 +6,7 @@ using Klyte.Extensions;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -48,6 +48,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
         UIDropDown m_prefixSelection;
         private UITextureSprite m_preview;
         AVOPreviewRenderer m_previewRenderer;
+        VehicleInfo m_lastInfo;
 
         //per hour budget
         UITextField m_prefixName = null;
@@ -132,8 +133,8 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
             m_defaultAssets.root.width = 340;
             assetSelectionTabContainer.AddSpace(10);
 
-            m_prefixAssets.eventOnSelect += M_defaultAssets_eventOnSelect;
-            m_defaultAssets.eventOnSelect += M_defaultAssets_eventOnSelect;
+            m_prefixAssets.EventOnSelect += M_defaultAssets_eventOnSelect;
+            m_defaultAssets.EventOnSelect += M_defaultAssets_eventOnSelect;
 
 
             OnButtonClicked reload = delegate
@@ -204,7 +205,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                 redrawModel();
             };
         }
-        VehicleInfo m_lastInfo;
+
         private void M_defaultAssets_eventOnSelect(string idx)
         {
             m_lastInfo = PrefabCollection<VehicleInfo>.FindLoaded(idx);
@@ -374,32 +375,32 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
 
         private Dictionary<string, string> getBasicAssetListFromDropDownSelection(int index, bool global = false)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBasicAssetsDictionary();
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetAllBasicAssets(0);
 
         }
         private Dictionary<string, string> getPrefixAssetListFromDropDownSelection(int index, uint prefix, bool global = false)
         {
-            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetBasicAssetsListForPrefix(prefix);
+            return TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).GetSelectedBasicAssets(prefix);
         }
 
         private void addAssetToPrefixDropDownSelection(int index, uint prefix, string assetId, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).AddAssetToPrefixList(prefix, assetId);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).AddAsset(prefix, assetId);
         }
 
         private void removeAssetFromPrefixDropDownSelection(int index, uint prefix, string assetId, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).RemoveAssetFromPrefixList(prefix, assetId);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).RemoveAsset(prefix, assetId);
         }
 
         private void removeAllAssetsFromPrefixDropDownSelection(int index, uint prefix, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).RemoveAllAssetsFromPrefixList(prefix);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).UseDefaultAssets(prefix);
         }
 
         private void setPrefixNameDropDownSelection(int index, uint prefix, string name, bool global = false)
         {
-            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetPrefixName(prefix, name);
+            TLMUtils.getExtensionFromConfigIndex(getConfigIndexFromDropDownSelection(index)).SetName(prefix, name);
         }
 
         private void setBudgetMultiplierDropDownSelection(int index, uint prefix, bool global = false)

@@ -5,7 +5,8 @@ using ICities;
 using Klyte.Extensions;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -119,9 +120,17 @@ namespace Klyte.TransportLinesManager.Overrides
             try
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
-                if (t.m_lineNumber != 0 && t.m_stops != 0 && TLMLineUtils.hasPrefix(lineID) && !TLMTransportLineExtensions.instance.GetIgnorePrefixBudget(lineID))
+
+                if (t.m_lineNumber != 0 && t.m_stops != 0)
                 {
-                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort)(TLMLineUtils.getBudgetMultiplierPrefix(ref t) * 100);
+                    if (TLMTransportLineExtensions.instance.GetUseCustomConfig(lineID))
+                    {
+                        //TODO
+                    }
+                    else
+                    {
+                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort)(TLMLineUtils.getBudgetMultiplierPrefix(ref t) * 100);
+                    }
                 }
             }
             catch (Exception e)
@@ -165,10 +174,8 @@ namespace Klyte.TransportLinesManager.Overrides
         }
         public static void GetTicketPricePost_BusAI(ushort vehicleID, ref Vehicle vehicleData, BusAI __instance, ref int __result)
         {
-            TLMUtils.doLog(" __result= {0};BusAI.m_ticketPrice ={1}, ticketPriceForPrefix={2}", __result, __instance.m_ticketPrice, ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice));
             if (__instance.m_ticketPrice == 0) __result = 0;
             else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
-            TLMUtils.doLog("after __result= {0} ", __result, __instance.m_ticketPrice);
         }
         public static void GetTicketPricePost_CableCarAI(ushort vehicleID, ref Vehicle vehicleData, CableCarAI __instance, ref int __result)
         {
@@ -188,7 +195,7 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             if (vehicleData.m_transportLine == 0)
             {
-                var value = (int)def.GetTransportExtension().GetDefaultTicketPrice();
+                var value = (int)def.GetTransportExtension().GetDefaultTicketPrice(0);
                 return value;
             }
             else

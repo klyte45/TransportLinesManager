@@ -16,6 +16,7 @@ namespace Klyte.TransportLinesManager.Interfaces
         protected virtual string ItSepLvl1 { get { return "∞"; } }
         protected virtual string KvSepLvl2 { get { return "∫"; } }
         protected virtual string ItSepLvl2 { get { return "≠"; } }
+        protected virtual string ItSepLvl3 { get { return "⅞"; } }
         protected virtual bool AllowGlobal { get { return false; } }
 
         #region Utils Decoding
@@ -50,7 +51,7 @@ namespace Klyte.TransportLinesManager.Interfaces
                 }
                 catch (Exception e)
                 {
-                    TLMUtils.doLog("ERRO AO OBTER VALOR STR ARR: {0}", e);
+                    TLMUtils.doLog("ERRO AO OBTER VALOR STR ARR: {0}", e.StackTrace);
                     continue;
                 }
 

@@ -13,6 +13,7 @@ using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Interfaces;
 using System.Reflection;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 
 namespace Klyte.TransportLinesManager
 {
@@ -218,6 +219,11 @@ namespace Klyte.TransportLinesManager
 
             lastLineCount = tm.m_lineCount;
             TLMPublicTransportDetailPanelHooks.instance.update();
+
+            if (m_lineInfoPanel?.assetSelectorWindow!=null)
+            {
+                m_lineInfoPanel?.assetSelectorWindow?.RotateCamera();
+            }
 
             return;
         }
