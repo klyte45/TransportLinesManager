@@ -1,8 +1,16 @@
 ﻿TLMRv 8
+--> INDIVIDUAL LINE CONFIGURATION
+- Individual configured lines have font color in yellow (at line icon) - prefix based still white
+- Can set budget per line (per-hour and all day)
+- Can set vehicle models
+
+--> Others
 - Added model preview on asset selection (Based on SamsamTS's AVO preview)
 - Added prefix name on prefix listing at prefix editor window
 - Added first stop edit funcionality
-- Added individual line budget funcionality
 - Finally, the prefix ticket price is working!
 - Added target vehicles count at line detail window (as "Current count/Budget target")
 - Added asset selection at the line info window
+- Added icon when line is out of budget (a red dollar sign at bottom left of line icon as sun/moon)
+
+

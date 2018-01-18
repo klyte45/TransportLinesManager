@@ -12,6 +12,7 @@ namespace Klyte.TransportLinesManager.LineList
     using ColossalFramework.UI;
     using Extensions;
     using Extensors;
+    using Klyte.TransportLinesManager.Extensors.TransportLineExt;
     using System;
     using System.Collections;
     using System.Diagnostics;
@@ -146,10 +147,15 @@ namespace Klyte.TransportLinesManager.LineList
                     //this.m_noBudgetWarn.isVisible = (isZeroed);
 
 
-                    TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID], out bool dayActive, out bool nightActive);
-                    if (!dayActive || !nightActive)
+                    TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[m_LineID], out bool dayActive, out bool nightActive);
+                    bool zeroed;
+                    unchecked
                     {
-                        m_LineColor.normalBgSprite = dayActive ? "DayIcon" : nightActive ? "NightIcon" : "DisabledIcon";
+                        zeroed = (Singleton<TransportManager>.instance.m_lines.m_buffer[m_LineID].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
+                    }
+                    if (!dayActive || !nightActive || zeroed)
+                    {
+                        m_LineColor.normalBgSprite = zeroed ? "NoBudgetIcon" : dayActive ? "DayIcon" : nightActive ? "NightIcon" : "DisabledIcon";
                     }
                     else
                     {

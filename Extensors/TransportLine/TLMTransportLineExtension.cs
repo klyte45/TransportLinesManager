@@ -15,11 +15,9 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
 {
 
-    enum TLMTransportLineFlags
+    enum TLMTransportLineFlags : uint
     {
-        ZERO_BUDGET_DAY = 0x40000000,
-        ZERO_BUDGET_NIGHT = 0x20000000,
-        ZERO_BUDGET_SETTED = 0x10000000
+        ZERO_BUDGET_CURRENT = 0x80000000
     }
 
     enum TLMTransportLineExtensionsKey
@@ -30,7 +28,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         LOCAL_BUDGET
     }
 
-    class TLMTransportLineExtensions : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtensions>, ITLMAssetSelectorExtension
+    class TLMTransportLineExtensions : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtensions>, ITLMAssetSelectorExtension, ITLMBudgetableExtension
     {
         protected override TLMCW.ConfigIndex ConfigIndexKey => TLMCW.ConfigIndex.LINES_CONFIG;
         private Dictionary<TransportSystemDefinition, List<string>> basicAssetsList = new Dictionary<TransportSystemDefinition, List<string>>();
@@ -92,7 +90,47 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         {
             return TLMUtils.GetRandomModel(GetAssetList(lineId));
         }
+
         #endregion
 
+        #region Budget Multiplier
+        public uint[] GetBudgetsMultiplier(uint prefix)
+        {
+            string value = SafeGet(prefix, TLMTransportLineExtensionsKey.LOCAL_BUDGET);
+            if (value == null) return new uint[] { 100 };
+            string[] savedMultipliers = value.Split(ItSepLvl3.ToCharArray());
+
+            uint[] result = new uint[savedMultipliers.Length];
+            for (int i = 0; i < result.Length; i++)
+            {
+                if (uint.TryParse(savedMultipliers[i], out uint parsed))
+                {
+                    result[i] = parsed;
+                }
+                else
+                {
+                    return new uint[] { 100 };
+                }
+            }
+            return result;
+        }
+        public uint GetBudgetMultiplierForHour(uint prefix, int hour)
+        {
+            uint[] savedMultipliers = GetBudgetsMultiplier(prefix);
+            if (savedMultipliers.Length == 1)
+            {
+                return savedMultipliers[0];
+            }
+            else if (savedMultipliers.Length == 8)
+            {
+                return savedMultipliers[((hour + 23) / 3) % 8];
+            }
+            return 100;
+        }
+        public void SetBudgetMultiplier(uint prefix, uint[] multipliers)
+        {
+            SafeSet(prefix, TLMTransportLineExtensionsKey.LOCAL_BUDGET, string.Join(ItSepLvl3, multipliers.Select(x => x.ToString()).ToArray()));
+        }
+        #endregion
     }
 }

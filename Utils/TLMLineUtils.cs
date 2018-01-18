@@ -112,27 +112,26 @@ namespace Klyte.TransportLinesManager.Utils
         {
             TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info;
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            if (!TLMLineUtils.hasPrefix(ref Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine]) || TLMTransportLineExtensions.instance.GetUseCustomConfig(transportLine))
+            return budgetClass * getBudgetMultiplierLine(transportLine) / 100f;
+        }
+
+        public static float getBudgetMultiplierLine(ushort lineId)
+        {
+            TransportLine __instance = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
+            TransportInfo info = __instance.Info;
+            int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
+            if (TLMTransportLineExtensions.instance.GetUseCustomConfig(lineId))
             {
-                int budget = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].m_budget;
-                return (budgetClass * budget) / 10000f;
+                return TLMTransportLineExtensions.instance.GetBudgetMultiplierForHour(lineId, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
             }
             else
             {
-                return (budgetClass * getBudgetMultiplierPrefix(ref Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine])) / 100f;
+                var tsd = TLMCW.getDefinitionForLine(ref __instance);
+                uint prefix = TLMLineUtils.getPrefix(lineId);
+                return TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).GetBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
             }
         }
 
-        public static float getBudgetMultiplierPrefix(ref TransportLine __instance)
-        {
-            TransportInfo info = __instance.Info;
-            int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            float lengthMeters = __instance.m_totalLength;
-            var tsd = TLMCW.getDefinitionForLine(ref __instance);
-            uint prefix = TLMLineUtils.hasPrefix(ref __instance) ? __instance.m_lineNumber / 1000u : 0;
-            return TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).GetBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
-        }
-        
         public static string getLineStringId(ushort lineIdx)
         {
             getLineNamingParameters(lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
@@ -575,11 +574,15 @@ namespace Klyte.TransportLinesManager.Utils
                 lineNumberIntersect.name = "LineNumber";
                 lineNumberIntersect.height = size;
                 lineNumberIntersect.relativePosition = new Vector3(-0.5f, 0.5f);
-                lineNumberIntersect.textColor = Color.white;
                 lineNumberIntersect.outlineColor = Color.black;
                 lineNumberIntersect.useOutline = true;
                 getLineActive(ref intersectLine, out bool day, out bool night);
-                if (!day || !night)
+                bool zeroed;
+                unchecked
+                {
+                    zeroed = (tm.m_lines.m_buffer[s.Value].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
+                }
+                if (!day || !night || zeroed)
                 {
                     UILabel daytimeIndicator = null;
                     TLMUtils.createUIElement<UILabel>(ref daytimeIndicator, lineCircleIntersect.transform);
@@ -592,7 +595,7 @@ namespace Klyte.TransportLinesManager.Utils
                     daytimeIndicator.name = "LineTime";
                     daytimeIndicator.relativePosition = new Vector3(0f, 0f);
                     daytimeIndicator.atlas = TLMController.taLineNumber;
-                    daytimeIndicator.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
+                    daytimeIndicator.backgroundSprite = zeroed ? "NoBudgetIcon" : day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
                 }
                 setLineNumberCircleOnRef(s.Value, lineNumberIntersect);
                 lineNumberIntersect.textScale *= multiplier;
@@ -650,16 +653,18 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static void setLineNumberCircleOnRef(ushort lineID, UITextComponent reference, float ratio = 1f)
         {
-            getLineNumberCircleOnRefParams(lineID, ratio, out string text, out float textScale, out Vector3 relativePosition);
+            getLineNumberCircleOnRefParams(lineID, ratio, out string text, out Color textColor, out float textScale, out Vector3 relativePosition);
             reference.text = text;
             reference.textScale = textScale;
             reference.relativePosition = relativePosition;
-            reference.tooltip = "";
+            reference.textColor = textColor;
+            reference.useOutline = true;
+            reference.outlineColor = Color.black;
         }
 
-        private static void getLineNumberCircleOnRefParams(ushort lineID, float ratio, out string text, out float textScale, out Vector3 relativePosition)
+        private static void getLineNumberCircleOnRefParams(ushort lineID, float ratio, out string text, out Color textColor, out float textScale, out Vector3 relativePosition)
         {
-            text = TLMLineUtils.getLineStringId(lineID).Trim();
+            text = getLineStringId(lineID).Trim();
             string[] textParts = text.Split(new char[] { '\n' });
             int lenght = textParts.Max(x => x.Length);
             if (lenght >= 9 && textParts.Length == 1)
@@ -698,6 +703,7 @@ namespace Klyte.TransportLinesManager.Utils
                 textScale = 2.3f * ratio;
                 relativePosition = new Vector3(-0.5f, 0f);
             }
+            textColor = TLMTransportLineExtensions.instance.GetUseCustomConfig(lineID) ? Color.yellow : Color.white;
         }
 
         public static int getVehicleCapacity(ushort vehicleId)

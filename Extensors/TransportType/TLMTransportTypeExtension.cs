@@ -59,7 +59,6 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                     return new uint[] { 100 };
                 }
             }
-            TLMUtils.doLog("LENGTH SIZE BG PFX= {0}", result.Length);
             return result;
         }
         public uint GetBudgetMultiplierForHour(uint prefix, int hour)

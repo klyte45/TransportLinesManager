@@ -192,14 +192,10 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                             }
                         });
                         CreateModelCheckBox(i, checkbox);
+                        checkbox.label.tooltip = checkbox.label.text;
+                        checkbox.label.textScale = 0.9f;
+                        checkbox.label.transform.localScale = new Vector3(Math.Min((m_mainPanel.width - 50) / checkbox.label.width, 1), 1);
                         m_checkboxes[i] = checkbox;
-                    }
-
-                    foreach (var chkTitle in m_uiHelper.self.GetComponentsInChildren<UILabel>())
-                    {
-                        chkTitle.tooltip = chkTitle.text;
-                        chkTitle.textScale = 0.9f;
-                        chkTitle.transform.localScale = new Vector3(Math.Min((m_mainPanel.width - 50) / chkTitle.width,1), 1);
                     }
                 }
                 m_lastDef = tsd;
@@ -234,11 +230,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                 m_previewPanel.isVisible = false;
             };
         }
-
-        private void resizeLabelChk(UIComponent component, string value)
-        {
-            component.transform.localScale = new Vector3(Math.Min((m_mainPanel.width - 20) / component.width, 1f), 1);
-        }
+        
 
         private void CreateModelCheckBox(string i, UICheckBox checkbox)
         {

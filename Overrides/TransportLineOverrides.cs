@@ -123,15 +123,23 @@ namespace Klyte.TransportLinesManager.Overrides
 
                 if (t.m_lineNumber != 0 && t.m_stops != 0)
                 {
-                    if (TLMTransportLineExtensions.instance.GetUseCustomConfig(lineID))
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort)(TLMLineUtils.getBudgetMultiplierLine(lineID) * 100);
+                }
+
+                unchecked
+                {
+                    TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], out bool day, out bool night);
+                    bool isNight = Singleton<SimulationManager>.instance.m_isNightTime;
+                    if (((isNight && night) || (!isNight && day)) && Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget == 0)
                     {
-                        //TODO
+                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags |= (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
                     }
                     else
                     {
-                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort)(TLMLineUtils.getBudgetMultiplierPrefix(ref t) * 100);
+                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~(TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
                     }
                 }
+
             }
             catch (Exception e)
             {

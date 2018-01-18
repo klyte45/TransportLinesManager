@@ -13,6 +13,7 @@ using Klyte.TransportLinesManager.Extensors;
 using System.Reflection;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -83,7 +84,6 @@ namespace Klyte.TransportLinesManager.UI
         public void setLinearMapColor(Color c)
         {
             linearMapLineNumberFormat.color = c;
-            linearMapLineNumber.textColor = TLMUtils.contrastColor(c);
             lineStationsPanel.color = c;
         }
 
@@ -91,6 +91,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             TLMLineUtils.setLineNumberCircleOnRef(lineID, linearMapLineNumber);
             m_autoName = TLMUtils.calculateAutoName(lineID, true);
+            linearMapLineNumber.tooltip = m_autoName;
         }
 
 
@@ -104,15 +105,7 @@ namespace Klyte.TransportLinesManager.UI
             Color lineColor = TLMController.instance.tm.GetLineColor(lineID);
             setLinearMapColor(lineColor);
             clearStations();
-            TLMLineUtils.getLineActive(ref t, out bool day, out bool night);
-            if (!day || !night)
-            {
-                linearMapLineTime.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
-            }
-            else
-            {
-                linearMapLineTime.backgroundSprite = "";
-            }
+            updateSubIconLayer();
             setLineNumberCircle(lineID);
             if (lineID == 0)
             {
@@ -188,6 +181,27 @@ namespace Klyte.TransportLinesManager.UI
                 }
             }
 
+        }
+
+        public TransportLine updateSubIconLayer()
+        {
+            var t = TLMController.instance.tm.m_lines.m_buffer[parent.CurrentSelectedId];
+            TLMLineUtils.getLineActive(ref t, out bool day, out bool night);
+            bool zeroed;
+            unchecked
+            {
+                zeroed = (t.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
+            }
+            if (!day || !night || zeroed)
+            {
+                linearMapLineTime.backgroundSprite = zeroed ? "NoBudgetIcon" : day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
+            }
+            else
+            {
+                linearMapLineTime.backgroundSprite = "";
+            }
+
+            return t;
         }
 
         private void AddVehicleToLinearMap(Color lineColor, ushort vehicleId)
