@@ -28,7 +28,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         LOCAL_BUDGET
     }
 
-    class TLMTransportLineExtensions : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtensions>, ITLMAssetSelectorExtension, ITLMBudgetableExtension
+    class TLMTransportLineExtension : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtension>, ITLMAssetSelectorExtension, ITLMBudgetableExtension, ITLMTicketPriceExtension
     {
         protected override TLMCW.ConfigIndex ConfigIndexKey => TLMCW.ConfigIndex.LINES_CONFIG;
         private Dictionary<TransportSystemDefinition, List<string>> basicAssetsList = new Dictionary<TransportSystemDefinition, List<string>>();
@@ -130,6 +130,60 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         public void SetBudgetMultiplier(uint prefix, uint[] multipliers)
         {
             SafeSet(prefix, TLMTransportLineExtensionsKey.LOCAL_BUDGET, string.Join(ItSepLvl3, multipliers.Select(x => x.ToString()).ToArray()));
+        }
+        #endregion
+
+        #region Ticket Price
+        public uint GetTicketPrice(uint lineId)
+        {
+
+            if (uint.TryParse(SafeGet(lineId, TLMTransportLineExtensionsKey.LOCAL_TICKET_PRICE), out uint result))
+            {
+                return result;
+            }
+            return GetDefaultTicketPrice(lineId);
+        }
+        public uint GetDefaultTicketPrice(uint lineId = 0)
+        {
+            var tsd = TransportSystemDefinition.from(lineId);
+            switch (tsd.subService)
+            {
+                case ItemClass.SubService.PublicTransportCableCar:
+                case ItemClass.SubService.PublicTransportBus:
+                case ItemClass.SubService.PublicTransportMonorail:
+                    return 100;
+                case ItemClass.SubService.PublicTransportMetro:
+                case ItemClass.SubService.PublicTransportTaxi:
+                case ItemClass.SubService.PublicTransportTrain:
+                case ItemClass.SubService.PublicTransportTram:
+                    return 200;
+                case ItemClass.SubService.PublicTransportPlane:
+                    if (tsd.vehicleType == VehicleInfo.VehicleType.Blimp)
+                    {
+                        return 100;
+                    }
+                    else
+                    {
+                        return 1000;
+                    }
+                case ItemClass.SubService.PublicTransportShip:
+                    if (tsd.vehicleType == VehicleInfo.VehicleType.Ferry)
+                    {
+                        return 100;
+                    }
+                    else
+                    {
+                        return 500;
+                    }
+                default:
+                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("subservice not found: {0}", tsd?.subService);
+                    return 103;
+            }
+
+        }
+        public void SetTicketPrice(uint prefix, uint price)
+        {
+            SafeSet(prefix, TLMTransportLineExtensionsKey.LOCAL_TICKET_PRICE, price.ToString());
         }
         #endregion
     }

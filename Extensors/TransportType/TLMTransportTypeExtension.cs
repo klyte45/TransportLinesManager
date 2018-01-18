@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
@@ -207,24 +208,27 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             {
                 if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
                 {
-                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: line #{0}", lineId);
+                    uint idx;
+                    ITLMAssetSelectorExtension extension;
+                    if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineId))
+                    {
+                        idx = lineId;
+                        extension = TLMTransportLineExtension.instance;
+                    }
+                    else
+                    {
+                        idx = TLMLineUtils.getPrefix(lineId);
+                        var def = TransportSystemDefinition.from(lineId);
+                        extension = def.GetTransportExtension();
+                    }
+
                     TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
-                    uint prefix = 0;
-                    if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(tl.Info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
-                    {
-                        prefix = tl.m_lineNumber / 1000u;
-                    }
-                    VehicleManager instance3 = Singleton<VehicleManager>.instance;
-                    VehicleInfo info = instance3.m_vehicles.m_buffer[Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].GetVehicle(0)].Info;
-                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: pre model list; type = {0}", info.GetAI());
-                    var def = TransportSystemDefinition.from(info);
-                    if (def == default(TransportSystemDefinition) || def == null)
-                    {
-                        if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("NULL TSysDef! {0}+{1}+{2}", info.GetAI().GetType(), info.m_class.m_subService, info.m_vehicleType);
-                        continue;
-                    }
-                    var modelList = def.GetTransportExtension().GetAssetList(prefix);
+                    var modelList = extension.GetAssetList(idx);
+                    VehicleManager vm = Singleton<VehicleManager>.instance;
+                    VehicleInfo info = vm.m_vehicles.m_buffer[Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].GetVehicle(0)].Info;
+
                     if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
+
                     if (modelList.Count > 0)
                     {
                         Dictionary<ushort, VehicleInfo> vehiclesToRemove = new Dictionary<ushort, VehicleInfo>();
@@ -233,17 +237,16 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                             var vehicle = tl.GetVehicle(i);
                             if (vehicle != 0)
                             {
-                                VehicleInfo info2 = instance3.m_vehicles.m_buffer[(int)vehicle].Info;
+                                VehicleInfo info2 = vm.m_vehicles.m_buffer[(int)vehicle].Info;
                                 if (!modelList.Contains(info2.name))
                                 {
                                     vehiclesToRemove[vehicle] = info2;
                                 }
                             }
                         }
-
                         foreach (var item in vehiclesToRemove)
                         {
-                            item.Value.m_vehicleAI.SetTransportLine(item.Key, ref instance3.m_vehicles.m_buffer[item.Key], 0);
+                            item.Value.m_vehicleAI.SetTransportLine(item.Key, ref vm.m_vehicles.m_buffer[item.Key], 0);
                         }
                     }
                 }

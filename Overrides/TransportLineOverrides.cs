@@ -101,7 +101,7 @@ namespace Klyte.TransportLinesManager.Overrides
                         TLMController.instance.AutoName(lineID);
                     }
                     TLMController.instance.LineCreationToolbox.incrementNumber();
-                    TLMTransportLineExtensions.instance.SafeCleanEntry(lineID);
+                    TLMTransportLineExtension.instance.SafeCleanEntry(lineID);
                 }
             }
             if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None &&
@@ -208,11 +208,15 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             else
             {
-                TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[vehicleData.m_transportLine];
-                uint prefix = TLMLineUtils.hasPrefix(vehicleData.m_transportLine) ? t.m_lineNumber / 1000u : 0u;
-                var value = (int)def.GetTransportExtension().GetTicketPrice(prefix);
+                if (TLMTransportLineExtension.instance.GetUseCustomConfig(vehicleData.m_transportLine))
+                {
+                    return (int)TLMTransportLineExtension.instance.GetTicketPrice(vehicleData.m_transportLine);
+                }
+                else
+                {
+                    return (int)def.GetTransportExtension().GetTicketPrice(TLMLineUtils.getPrefix(vehicleData.m_transportLine));
+                }
 
-                return value;
             }
         }
         #endregion

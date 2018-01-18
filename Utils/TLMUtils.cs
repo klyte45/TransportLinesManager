@@ -1608,9 +1608,9 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (t.m_lineNumber != 0 && t.m_stops != 0)
             {
-                if (TLMTransportLineExtensions.instance.GetUseCustomConfig(lineID))
+                if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineID))
                 {
-                    return TLMTransportLineExtensions.instance;
+                    return TLMTransportLineExtension.instance;
                 }
                 else
                 {

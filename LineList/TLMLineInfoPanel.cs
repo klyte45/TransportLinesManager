@@ -53,6 +53,7 @@ namespace Klyte.TransportLinesManager.LineList
         private UILabel m_lineBudgetSlidersTitle;
 
         private UIDropDown m_firstStopSelect;
+        private UITextField m_ticketPriceEditor;
 
         public TLMAssetSelectorWindow assetSelectorWindow { get; private set; }
 
@@ -198,6 +199,8 @@ namespace Klyte.TransportLinesManager.LineList
 
             CreateIgnorePrefixBudgetOption();
 
+            CreateTicketPriceEditor();
+
             m_agesPanel = new TLMAgesChartPanel(this);
             m_linearMap = new TLMLinearMap(this);
             assetSelectorWindow = new TLMAssetSelectorWindow(this);
@@ -211,9 +214,10 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 if (Singleton<SimulationManager>.exists && m_lineIdSelecionado.TransportLine != 0)
                 {
-                    TLMTransportLineExtensions.instance.SetUseCustomConfig(m_lineIdSelecionado.TransportLine, value);
+                    TLMTransportLineExtension.instance.SetUseCustomConfig(m_lineIdSelecionado.TransportLine, value);
                     m_linearMap.setLineNumberCircle(m_lineIdSelecionado.TransportLine);
                     updateSliders();
+                    UpdateTicketPrice();
                     EventOnLineChanged(m_lineIdSelecionado.TransportLine);
                 }
             };
@@ -238,6 +242,34 @@ namespace Klyte.TransportLinesManager.LineList
             parent.autoLayoutDirection = LayoutDirection.Horizontal;
             parent.autoLayout = true;
             parent.ResetLayout(false, true);
+        }
+
+        private void CreateTicketPriceEditor()
+        {
+            m_ticketPriceEditor = m_uiHelper.AddTextField("-", SetTicketPrice);
+
+            UIPanel parent = m_ticketPriceEditor.GetComponentInParent<UIPanel>();
+            parent.autoFitChildrenHorizontally = false;
+            parent.autoLayout = false;
+            parent.relativePosition = new Vector3(5, 265);
+            parent.height = 40;
+            m_ticketPriceEditor.width = 200;
+            UILabel label = parent.GetComponentInChildren<UILabel>();
+            label.autoSize = true;
+            label.anchor = UIAnchorStyle.None;
+            label.autoHeight = false;
+            label.transform.localScale = new Vector3(Math.Min(300f / label.width, 1), 1);
+            label.height = 40;
+            label.verticalAlignment = UIVerticalAlignment.Middle;
+            label.textAlignment = UIHorizontalAlignment.Center;
+            label.localeID = "TLM_TICKET_PRICE_LABEL";
+            label.eventSizeChanged += (UIComponent component, Vector2 value) => { label.transform.localScale = new Vector3(Math.Min(300f / label.width, 1), 1); };
+            label.relativePosition = new Vector3(0, 5);
+            m_ticketPriceEditor.relativePosition = new Vector3(330, 0);
+            m_ticketPriceEditor.numericalOnly = true;
+            m_ticketPriceEditor.maxLength = 6;
+            m_ticketPriceEditor.horizontalAlignment = UIHorizontalAlignment.Right;
+            m_ticketPriceEditor.width = 80;
         }
 
 
@@ -460,10 +492,10 @@ namespace Klyte.TransportLinesManager.LineList
                 TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
                 ITLMBudgetableExtension bte;
                 uint idx;
-                if (TLMTransportLineExtensions.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
+                if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
                 {
 
-                    bte = TLMTransportLineExtensions.instance;
+                    bte = TLMTransportLineExtension.instance;
                     idx = m_lineIdSelecionado.TransportLine;
                 }
                 else
@@ -507,10 +539,10 @@ namespace Klyte.TransportLinesManager.LineList
 
                 ITLMBudgetableExtension bte;
                 uint idx;
-                if (TLMTransportLineExtensions.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
+                if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
                 {
 
-                    bte = TLMTransportLineExtensions.instance;
+                    bte = TLMTransportLineExtension.instance;
                     idx = m_lineIdSelecionado.TransportLine;
                 }
                 else
@@ -821,7 +853,28 @@ namespace Klyte.TransportLinesManager.LineList
             }
             EventOnLineChanged(m_lineIdSelecionado.TransportLine);
         }
-        #endregion.
+
+        private void SetTicketPrice(string value)
+        {
+            bool res = UInt32.TryParse(value, out uint valInt);
+            if (!res) return;
+            ITLMTicketPriceExtension tpe;
+            uint idx;
+            if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
+            {
+                tpe = TLMTransportLineExtension.instance;
+                idx = m_lineIdSelecionado.TransportLine;
+            }
+            else
+            {
+                TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
+                idx = TLMLineUtils.getPrefix(m_lineIdSelecionado.TransportLine);
+                var tsd = TransportSystemDefinition.from(tl.Info);
+                tpe = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+            }
+            tpe.SetTicketPrice(idx, valInt);
+        }
+        #endregion
 
         #region Checking Methods
 
@@ -850,10 +903,10 @@ namespace Klyte.TransportLinesManager.LineList
             ITLMBudgetableExtension bte;
             uint[] saveData;
             uint idx;
-            if (TLMTransportLineExtensions.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
+            if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
             {
-                saveData = TLMTransportLineExtensions.instance.GetBudgetsMultiplier(m_lineIdSelecionado.TransportLine);
-                bte = TLMTransportLineExtensions.instance;
+                saveData = TLMTransportLineExtension.instance.GetBudgetsMultiplier(m_lineIdSelecionado.TransportLine);
+                bte = TLMTransportLineExtension.instance;
                 idx = m_lineIdSelecionado.TransportLine;
             }
             else
@@ -956,12 +1009,12 @@ namespace Klyte.TransportLinesManager.LineList
             ITLMBudgetableExtension bte;
             uint idx;
 
-            m_IgnorePrefix.isChecked = TLMTransportLineExtensions.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine);
+            m_IgnorePrefix.isChecked = TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine);
             if (m_IgnorePrefix.isChecked)
             {
                 idx = m_lineIdSelecionado.TransportLine;
-                multipliers = TLMTransportLineExtensions.instance.GetBudgetsMultiplier(m_lineIdSelecionado.TransportLine);
-                bte = TLMTransportLineExtensions.instance;
+                multipliers = TLMTransportLineExtension.instance.GetBudgetsMultiplier(m_lineIdSelecionado.TransportLine);
+                bte = TLMTransportLineExtension.instance;
                 m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(m_lineIdSelecionado.TransportLine), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
             }
             else
@@ -1076,7 +1129,7 @@ namespace Klyte.TransportLinesManager.LineList
             }
             m_viagensEvitadasLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_TRIPSAVED", new object[]{
                 viagensSalvas
-            });            
+            });
 
             linearMap.updateSubIconLayer();
 
@@ -1164,7 +1217,7 @@ namespace Klyte.TransportLinesManager.LineList
             TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
             ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMCW.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
-            if (mnPrefixo != ModoNomenclatura.Nenhum)
+            if (TLMLineUtils.hasPrefix(lineID))
             {
                 m_lineNumberLabel.text = (lineNumber % 1000).ToString();
                 m_lineNumberLabel.relativePosition = new Vector3(110f, 5f);
@@ -1235,7 +1288,29 @@ namespace Klyte.TransportLinesManager.LineList
             m_firstStopSelect.items = TLMLineUtils.getAllStopsFromLine(lineID);
             m_firstStopSelect.selectedIndex = 0;
 
+            UpdateTicketPrice();
+
             EventOnLineChanged(lineID);
+        }
+
+        private void UpdateTicketPrice()
+        {
+            ushort lineID = m_lineIdSelecionado.TransportLine;
+            ITLMTicketPriceExtension tpe;
+            uint idx;
+            if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineID))
+            {
+                tpe = TLMTransportLineExtension.instance;
+                idx = lineID;
+            }
+            else
+            {
+                var tsd = TLMCW.getDefinitionForLine(lineID);
+                idx = TLMLineUtils.getPrefix(lineID);
+                tpe = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+            }
+
+            m_ticketPriceEditor.text = tpe.GetTicketPrice(idx).ToString();
         }
         #endregion
 

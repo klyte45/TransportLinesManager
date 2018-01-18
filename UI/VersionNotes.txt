@@ -3,6 +3,7 @@
 - Individual configured lines have font color in yellow (at line icon) - prefix based still white
 - Can set budget per line (per-hour and all day)
 - Can set vehicle models
+- Can set ticket prices
 
 --> Others
 - Added model preview on asset selection (Based on SamsamTS's AVO preview)

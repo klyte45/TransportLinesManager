@@ -47,6 +47,33 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
             SetPreviewWindow();
 
             BindParentChanges();
+
+            CreateRemoveUndesiredModelsButton();
+        }
+
+        private void CreateRemoveUndesiredModelsButton()
+        {
+            UIButton removeUndesired = null;
+            TLMUtils.createUIElement<UIButton>(ref removeUndesired, m_mainPanel.transform);
+            removeUndesired.relativePosition = new Vector3(m_mainPanel.width - 25f, 10f);
+            removeUndesired.textScale = 0.6f;
+            removeUndesired.width = 20;
+            removeUndesired.height = 20;
+            removeUndesired.tooltip = Locale.Get("TLM_REMOVE_UNWANTED_TOOLTIP");
+            TLMUtils.initButton(removeUndesired, true, "ButtonMenu");
+            removeUndesired.name = "DeleteLineButton";
+            removeUndesired.isVisible = true;
+            removeUndesired.eventClick += (component, eventParam) =>
+            {
+                TLMTransportExtensionUtils.RemoveAllUnwantedVehicles();
+            };
+
+            var icon = removeUndesired.AddUIComponent<UISprite>();
+            icon.relativePosition = new Vector3(2, 2);
+            icon.atlas = TLMController.taTLM;
+            icon.width = 18;
+            icon.height = 18;
+            icon.spriteName = "RemoveUnwantedIcon";
         }
 
         private void CreateMainPanel()
@@ -75,7 +102,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
             m_title.textAlignment = UIHorizontalAlignment.Center;
             m_title.autoSize = false;
             m_title.autoHeight = true;
-            m_title.width = m_mainPanel.width - 10f;
+            m_title.width = m_mainPanel.width - 30f;
             m_title.relativePosition = new Vector3(5, 5);
             m_title.textScale = 0.9f;
         }
@@ -149,7 +176,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
             {
                 TLMUtils.doLog("EventOnLineChanged");
                 m_isLoading = true;
-                bool isCustomLine = TLMTransportLineExtensions.instance.GetUseCustomConfig(lineId);
+                bool isCustomLine = TLMTransportLineExtension.instance.GetUseCustomConfig(lineId);
                 TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);
                 TLMUtils.doLog("tsd = {0}", tsd);
                 if (m_lastDef != tsd)
@@ -170,9 +197,9 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                             if (m_isLoading) return;
                             if (x)
                             {
-                                if (TLMTransportLineExtensions.instance.GetUseCustomConfig(lineIdx))
+                                if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineIdx))
                                 {
-                                    TLMTransportLineExtensions.instance.AddAsset(lineIdx, i);
+                                    TLMTransportLineExtension.instance.AddAsset(lineIdx, i);
                                 }
                                 else
                                 {
@@ -181,9 +208,9 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                             }
                             else
                             {
-                                if (TLMTransportLineExtensions.instance.GetUseCustomConfig(lineIdx))
+                                if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineIdx))
                                 {
-                                    TLMTransportLineExtensions.instance.RemoveAsset(lineIdx, i);
+                                    TLMTransportLineExtension.instance.RemoveAsset(lineIdx, i);
                                 }
                                 else
                                 {
@@ -202,7 +229,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                 List<string> selectedAssets;
                 if (isCustomLine)
                 {
-                    selectedAssets = TLMTransportLineExtensions.instance.GetAssetList(lineId);
+                    selectedAssets = TLMTransportLineExtension.instance.GetAssetList(lineId);
                 }
                 else
                 {

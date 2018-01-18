@@ -120,9 +120,9 @@ namespace Klyte.TransportLinesManager.Utils
             TransportLine __instance = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
             TransportInfo info = __instance.Info;
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            if (TLMTransportLineExtensions.instance.GetUseCustomConfig(lineId))
+            if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineId))
             {
-                return TLMTransportLineExtensions.instance.GetBudgetMultiplierForHour(lineId, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
+                return TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
             }
             else
             {
@@ -703,7 +703,7 @@ namespace Klyte.TransportLinesManager.Utils
                 textScale = 2.3f * ratio;
                 relativePosition = new Vector3(-0.5f, 0f);
             }
-            textColor = TLMTransportLineExtensions.instance.GetUseCustomConfig(lineID) ? Color.yellow : Color.white;
+            textColor = TLMTransportLineExtension.instance.GetUseCustomConfig(lineID) ? Color.yellow : Color.white;
         }
 
         public static int getVehicleCapacity(ushort vehicleId)
