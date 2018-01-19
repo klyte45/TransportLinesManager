@@ -38,10 +38,17 @@ namespace Klyte.TransportLinesManager.Overrides
             MethodInfo SimulationStepPos = typeof(TransportToolOverrides).GetMethod("SimulationStepPos", allFlags);
 
             TLMUtils.doLog("Loading TransportToolOverrides Hook");
-            AddRedirect(typeof(TransportTool).GetMethod("OnEnable", allFlags), onEnable);
-            AddRedirect(typeof(TransportTool).GetMethod("OnDisable", allFlags), onDisable);
-            AddRedirect(typeof(TransportTool).GetMethod("OnToolGUI", allFlags), null, OnToolGUIPos);
-            AddRedirect(typeof(TransportTool).GetMethod("SimulationStep", allFlags), null, SimulationStepPos);
+            try
+            {
+                AddRedirect(typeof(TransportTool).GetMethod("OnEnable", allFlags), onEnable);
+                AddRedirect(typeof(TransportTool).GetMethod("OnDisable", allFlags), onDisable);
+                AddRedirect(typeof(TransportTool).GetMethod("OnToolGUI", allFlags), null, OnToolGUIPos);
+                AddRedirect(typeof(TransportTool).GetMethod("SimulationStep", allFlags), null, SimulationStepPos);
+            }
+            catch (Exception e)
+            {
+                TLMUtils.doErrorLog("ERRO AO CARREGAR HOOKS: {0}", e.StackTrace);
+            }
             #endregion
 
 
@@ -56,19 +63,19 @@ namespace Klyte.TransportLinesManager.Overrides
         {
             TLMUtils.doLog("OnEnableTransportTool");
             TransportLinesManagerMod.instance.showVersionInfoPopup();
-            TLMController.instance.LinearMapCreatingLine.isVisible = true;
-            TLMController.instance.LineCreationToolbox.setVisible(true);
+            TLMController.instance.LinearMapCreatingLine?.setVisible(true);
+            TLMController.instance.LineCreationToolbox?.setVisible(true);
             TLMController.instance.setCurrentSelectedId(0);
-            TLMController.instance.LinearMapCreatingLine.redrawLine();
-            TLMController.instance.lineInfoPanel.Hide();
+            TLMController.instance.LinearMapCreatingLine?.redrawLine();
+            TLMController.instance.lineInfoPanel?.Hide();
         }
 
         private static void OnDisable()
         {
             TLMUtils.doLog("OnDisableTransportTool");
             TLMController.instance.setCurrentSelectedId(0);
-            TLMController.instance.LinearMapCreatingLine.isVisible = false;
-            TLMController.instance.LineCreationToolbox.setVisible(false);
+            TLMController.instance.LinearMapCreatingLine?.setVisible(false);
+            TLMController.instance.LineCreationToolbox?.setVisible(false);
         }
 
         private static ToolStatus lastState = new ToolStatus();

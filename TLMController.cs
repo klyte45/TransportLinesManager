@@ -17,7 +17,7 @@ using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 
 namespace Klyte.TransportLinesManager
 {
-    public class TLMController : LinearMapParentInterface<TLMController>
+    internal class TLMController : LinearMapParentInterface<TLMController>
     {
 
         public static UITextureAtlas taTLM = null;
@@ -110,14 +110,30 @@ namespace Klyte.TransportLinesManager
         public TLMLinearMap LinearMapCreatingLine
         {
             get {
-                return m_linearMapCreatingLine;
+                if (m_linearMapCreatingLine == null)
+                {
+                    return m_linearMapCreatingLine;
+                }
+                else
+                {
+                    TLMUtils.doErrorLog("LinearMapCreatingLine is NULL!!!!");
+                    return null;
+                }
             }
         }
 
         public TLMLineCreationToolbox LineCreationToolbox
         {
             get {
-                return m_lineCreationToolbox;
+                if (m_lineCreationToolbox != null)
+                {
+                    return m_lineCreationToolbox;
+                }
+                else
+                {
+                    TLMUtils.doErrorLog("LineCreationToolbox is NULL!!!!");
+                    return null;
+                }
             }
         }
 
@@ -220,7 +236,7 @@ namespace Klyte.TransportLinesManager
             lastLineCount = tm.m_lineCount;
             TLMPublicTransportDetailPanelHooks.instance.update();
 
-            if (m_lineInfoPanel?.assetSelectorWindow!=null)
+            if (m_lineInfoPanel?.assetSelectorWindow != null)
             {
                 m_lineInfoPanel?.assetSelectorWindow?.RotateCamera();
             }
@@ -241,7 +257,7 @@ namespace Klyte.TransportLinesManager
                 }
                 TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
                 Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType);
-                TLMUtils.setLineColor(i, c);
+                TLMLineUtils.setLineColor(i, c);
                 //TLMUtils.doLog("Colocada a cor {0} na linha {1} ({3} {2})", c, i, t.m_lineNumber, t.Info.m_transportType);
                 return c;
             }
@@ -255,7 +271,7 @@ namespace Klyte.TransportLinesManager
 
         public void AutoName(ushort m_LineID)
         {
-            TLMUtils.setLineName(m_LineID, TLMUtils.calculateAutoName(m_LineID, true));
+            TLMLineUtils.setLineName(m_LineID, TLMLineUtils.calculateAutoName(m_LineID, true));
         }
 
 
@@ -306,10 +322,8 @@ namespace Klyte.TransportLinesManager
         {
             m_lineInfoPanel = new TLMLineInfoPanel(this);
             m_depotInfoPanel = new TLMDepotInfoPanel(this);
-            m_linearMapCreatingLine = new TLMLinearMap(this)
-            {
-                isVisible = false
-            };
+            m_linearMapCreatingLine = new TLMLinearMap(this);
+            m_linearMapCreatingLine.setVisible(false);
             m_lineCreationToolbox = new TLMLineCreationToolbox(this);
         }
 
@@ -513,12 +527,12 @@ namespace Klyte.TransportLinesManager
                     List<string> lines = new List<string>();
                     if (ai.m_transportInfo != null && ai.m_maxVehicleCount > 0)
                     {
-                        lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_transportInfo).toConfigIndex()), TLMUtils.getPrefixesServedAbstract(buildingId, false)));
+                        lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_transportInfo).toConfigIndex()), TLMLineUtils.getPrefixesServedAbstract(buildingId, false)));
                         count++;
                     }
                     if (ai.m_secondaryTransportInfo != null && ai.m_maxVehicleCount2 > 0)
                     {
-                        lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_secondaryTransportInfo).toConfigIndex()), TLMUtils.getPrefixesServedAbstract(buildingId, true)));
+                        lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_secondaryTransportInfo).toConfigIndex()), TLMLineUtils.getPrefixesServedAbstract(buildingId, true)));
                         count++;
                     }
                     UILabel label = depotShortcut.GetComponentInChildren<UILabel>();

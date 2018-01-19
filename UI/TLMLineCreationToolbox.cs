@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
 {
-    public class TLMLineCreationToolbox : Redirector<TLMLineCreationToolbox>
+    internal class TLMLineCreationToolbox : Redirector<TLMLineCreationToolbox>
     {
         private static bool preventDefault()
         {

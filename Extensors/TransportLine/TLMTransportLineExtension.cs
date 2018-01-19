@@ -28,7 +28,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         LOCAL_BUDGET
     }
 
-    class TLMTransportLineExtension : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtension>, ITLMAssetSelectorExtension, ITLMBudgetableExtension, ITLMTicketPriceExtension
+    class TLMTransportLineExtension : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtension>, IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension
     {
         protected override TLMCW.ConfigIndex ConfigIndexKey => TLMCW.ConfigIndex.LINES_CONFIG;
         private Dictionary<TransportSystemDefinition, List<string>> basicAssetsList = new Dictionary<TransportSystemDefinition, List<string>>();

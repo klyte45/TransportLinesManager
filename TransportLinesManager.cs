@@ -18,7 +18,7 @@ using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using ColossalFramework.PlatformServices;
 
-[assembly: AssemblyVersion("8.0.0.*")]
+[assembly: AssemblyVersion("8.0.1.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : IUserMod, ILoadingExtension
@@ -164,7 +164,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public TLMConfigWarehouse currentLoadedCityConfig
+        internal TLMConfigWarehouse currentLoadedCityConfig
         {
             get {
                 return TLMConfigWarehouse.getConfig(currentCityId, currentCityName);

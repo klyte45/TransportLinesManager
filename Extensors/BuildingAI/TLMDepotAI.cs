@@ -228,7 +228,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         private static VehicleInfo doModelDraw(ushort lineId)
         {
-            var extension = TLMUtils.getExtensionFromTransportLine(lineId);
+            var extension = TLMLineUtils.getExtensionFromTransportLine(lineId);
             var randomInfo = extension?.GetAModel(lineId);
             return randomInfo;
         }

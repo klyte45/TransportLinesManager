@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.LineList.ExtraUI
 {
-    public class TLMAssetSelectorWindow
+    internal class TLMAssetSelectorWindow
     {
         private UIPanel m_parent => m_lineInfo.mainPanel;
         private UIPanel m_mainPanel;
@@ -257,7 +257,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                 m_previewPanel.isVisible = false;
             };
         }
-        
+
 
         private void CreateModelCheckBox(string i, UICheckBox checkbox)
         {

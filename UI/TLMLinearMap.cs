@@ -41,15 +41,15 @@ namespace Klyte.TransportLinesManager.UI
         private bool showIntersections = true;
         private bool showExtraStopInfo = false;
 
-        public bool isVisible
+        public bool getVisible()
         {
-            get {
-                return mainContainer.isVisible;
-            }
-            set {
-                mainContainer.isVisible = value;
-            }
+            return mainContainer.isVisible;
         }
+        public void setVisible(bool value)
+        {
+            mainContainer.isVisible = value;
+        }
+
 
         public GameObject gameObject
         {
@@ -90,7 +90,7 @@ namespace Klyte.TransportLinesManager.UI
         public void setLineNumberCircle(ushort lineID)
         {
             TLMLineUtils.setLineNumberCircleOnRef(lineID, linearMapLineNumber);
-            m_autoName = TLMUtils.calculateAutoName(lineID, true);
+            m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
             linearMapLineNumber.tooltip = m_autoName;
         }
 
@@ -120,14 +120,14 @@ namespace Klyte.TransportLinesManager.UI
 
             ItemClass.SubService ss = TLMCW.getDefinitionForLine(lineID).subService;
             linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.getIconForLine(lineID);
-            m_autoName = TLMUtils.calculateAutoName(lineID, true);
+            m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
             linearMapLineNumber.tooltip = m_autoName;
             string stationName = null;
             Vector3 local;
             string airport, taxi, harbor, regionalStation, cableCarStation;
             string namePrefix;
             bool isComplete = (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None;
-            bool simmetric = TLMUtils.CalculateSimmetry(ss, stopsCount, t, out int middle);
+            bool simmetric = TLMLineUtils.CalculateSimmetry(ss, stopsCount, t, out int middle);
             float addedWidth = 0;
             lineStationsPanel.width = 0;
             if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && simmetric && !showExtraStopInfo)
@@ -638,14 +638,14 @@ namespace Klyte.TransportLinesManager.UI
             stationLabel.cursorBlinkTime = 100;
             stationLabel.eventGotFocus += (x, y) =>
             {
-                stationLabel.text = TLMUtils.getStationName(stationNodeId, lineID, ss);
+                stationLabel.text = TLMLineUtils.getStationName(stationNodeId, lineID, ss);
             };
             stationLabel.eventTextSubmitted += (x, y) =>
             {
-                TLMUtils.setStopName(y, stationNodeId, lineID, () =>
+                TLMLineUtils.setStopName(y, stationNodeId, lineID, () =>
                 {
-                    stationLabel.text = TLMUtils.getFullStationName(stationNodeId, lineID, ss);
-                    m_autoName = TLMUtils.calculateAutoName(lineID, true);
+                    stationLabel.text = TLMLineUtils.getFullStationName(stationNodeId, lineID, ss);
+                    m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
                     parent.OnRenameStationAction(autoName);
                 });
             };
@@ -862,7 +862,7 @@ namespace Klyte.TransportLinesManager.UI
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-            stationName = TLMUtils.getStationName(stopId, lineId, ss, out ItemClass.Service servFound, out ItemClass.SubService subServFound, out prefix, out ushort buildingId);
+            stationName = TLMLineUtils.getStationName(stopId, lineId, ss, out ItemClass.Service servFound, out ItemClass.SubService subServFound, out prefix, out ushort buildingId);
 
             //paradas proximas (metro e trem)
             TransportManager tm = Singleton<TransportManager>.instance;

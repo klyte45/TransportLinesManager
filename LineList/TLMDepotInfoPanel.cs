@@ -17,7 +17,7 @@ using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 
 namespace Klyte.TransportLinesManager.LineList
 {
-    public class TLMDepotInfoPanel
+    internal class TLMDepotInfoPanel
     {
         private TLMController m_controller;
 
@@ -259,7 +259,7 @@ namespace Klyte.TransportLinesManager.LineList
             voltarButton2.name = "LineInfoCloseButton";
             voltarButton2.eventClick += closeDepotInfo;
 
-            workerChart = new TLMWorkerChartPanel(this, new Vector3(400f, 60f));
+            workerChart = new TLMWorkerChartPanel(this.transform, new Vector3(400f, 60f));
 
             UIButton addAllPrefixesButton = null;
             TLMUtils.createUIElement(ref addAllPrefixesButton, transform);

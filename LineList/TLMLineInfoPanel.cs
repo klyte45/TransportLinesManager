@@ -15,7 +15,7 @@ using Klyte.TransportLinesManager.LineList.ExtraUI;
 
 namespace Klyte.TransportLinesManager.LineList
 {
-    public class TLMLineInfoPanel : LinearMapParentInterface<TLMLineInfoPanel>
+    internal class TLMLineInfoPanel : LinearMapParentInterface<TLMLineInfoPanel>
     {
         private TLMAgesChartPanel m_agesPanel;
         private TLMController m_controller;
@@ -109,7 +109,7 @@ namespace Klyte.TransportLinesManager.LineList
             }
         }
 
-        public TLMController controller
+        internal TLMController controller
         {
             get {
                 return m_controller;
@@ -201,7 +201,7 @@ namespace Klyte.TransportLinesManager.LineList
 
             CreateTicketPriceEditor();
 
-            m_agesPanel = new TLMAgesChartPanel(this);
+            m_agesPanel = new TLMAgesChartPanel(this.transform);
             m_linearMap = new TLMLinearMap(this);
             assetSelectorWindow = new TLMAssetSelectorWindow(this);
         }
@@ -490,7 +490,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_enableBudgetPerHour.eventClick += (component, eventParam) =>
             {
                 TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
-                ITLMBudgetableExtension bte;
+                IBudgetableExtension bte;
                 uint idx;
                 if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
                 {
@@ -501,7 +501,7 @@ namespace Klyte.TransportLinesManager.LineList
                 else
                 {
                     var tsd = TransportSystemDefinition.from(tl.Info);
-                    bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                    bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(tsd);
                     idx = TLMLineUtils.getPrefix(m_lineIdSelecionado.TransportLine);
                 }
 
@@ -537,7 +537,7 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
 
-                ITLMBudgetableExtension bte;
+                IBudgetableExtension bte;
                 uint idx;
                 if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
                 {
@@ -548,7 +548,7 @@ namespace Klyte.TransportLinesManager.LineList
                 else
                 {
                     var tsd = TransportSystemDefinition.from(tl.Info);
-                    bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                    bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(tsd);
                     idx = TLMLineUtils.getPrefix(m_lineIdSelecionado.TransportLine);
                 }
                 uint[] saveData = bte.GetBudgetsMultiplier(idx);
@@ -726,7 +726,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_lineColorPicker.anchor = UIAnchorStyle.Top & UIAnchorStyle.Left;
             m_lineColorPicker.eventSelectedColorChanged += (UIComponent component, Color value) =>
             {
-                TLMUtils.setLineColor(m_lineIdSelecionado.TransportLine, value);
+                TLMLineUtils.setLineColor(m_lineIdSelecionado.TransportLine, value);
                 updateLineUI(value);
             };
 
@@ -760,10 +760,7 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.createDragHandle(m_lineInfoPanel, m_lineInfoPanel, 35f);
             m_lineInfoPanel.eventVisibilityChanged += (component, value) =>
             {
-                if (m_linearMap != null)
-                {
-                    m_linearMap.isVisible = value;
-                }
+                m_linearMap?.setVisible(value);
             };
 
             m_uiHelper = new UIHelperExtension(m_lineInfoPanel);
@@ -791,7 +788,7 @@ namespace Klyte.TransportLinesManager.LineList
         {
             string value = u.text;
 
-            TLMUtils.setLineName(m_lineIdSelecionado.TransportLine, value);
+            TLMLineUtils.setLineName(m_lineIdSelecionado.TransportLine, value);
         }
 
         private void changeLineTime(int selection)
@@ -858,7 +855,7 @@ namespace Klyte.TransportLinesManager.LineList
         {
             bool res = UInt32.TryParse(value, out uint valInt);
             if (!res) return;
-            ITLMTicketPriceExtension tpe;
+            ITicketPriceExtension tpe;
             uint idx;
             if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
             {
@@ -870,7 +867,7 @@ namespace Klyte.TransportLinesManager.LineList
                 TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
                 idx = TLMLineUtils.getPrefix(m_lineIdSelecionado.TransportLine);
                 var tsd = TransportSystemDefinition.from(tl.Info);
-                tpe = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                tpe = TLMLineUtils.getExtensionFromTransportSystemDefinition(tsd);
             }
             tpe.SetTicketPrice(idx, valInt);
         }
@@ -900,7 +897,7 @@ namespace Klyte.TransportLinesManager.LineList
         {
             TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
             ushort val = (ushort)(x * 100 + 0.5f);
-            ITLMBudgetableExtension bte;
+            IBudgetableExtension bte;
             uint[] saveData;
             uint idx;
             if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
@@ -913,7 +910,7 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 idx = TLMLineUtils.getPrefix(m_lineIdSelecionado.TransportLine);
                 var tsd = TransportSystemDefinition.from(tl.Info);
-                bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(tsd);
                 saveData = bte.GetBudgetsMultiplier(TLMLineUtils.getPrefix(m_lineIdSelecionado.TransportLine));
             }
             if (selectedHourIndex >= saveData.Length || saveData[selectedHourIndex] == val)
@@ -1006,7 +1003,7 @@ namespace Klyte.TransportLinesManager.LineList
             ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMCW.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
             uint[] multipliers;
-            ITLMBudgetableExtension bte;
+            IBudgetableExtension bte;
             uint idx;
 
             m_IgnorePrefix.isChecked = TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine);
@@ -1020,7 +1017,7 @@ namespace Klyte.TransportLinesManager.LineList
             else
             {
                 idx = TLMLineUtils.getPrefix(m_lineIdSelecionado.TransportLine);
-                bte = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(tsd);
                 multipliers = bte.GetBudgetsMultiplier(idx);
 
                 if (mnPrefixo != ModoNomenclatura.Nenhum)
@@ -1157,6 +1154,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_budgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
                 TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportInfo(info)),
                 baseBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.004f, getEffectiveBudget());
+            linearMap.updateBidings();
         }
         #endregion
 
@@ -1296,7 +1294,7 @@ namespace Klyte.TransportLinesManager.LineList
         private void UpdateTicketPrice()
         {
             ushort lineID = m_lineIdSelecionado.TransportLine;
-            ITLMTicketPriceExtension tpe;
+            ITicketPriceExtension tpe;
             uint idx;
             if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineID))
             {
@@ -1307,7 +1305,7 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 var tsd = TLMCW.getDefinitionForLine(lineID);
                 idx = TLMLineUtils.getPrefix(lineID);
-                tpe = TLMUtils.getExtensionFromTransportSystemDefinition(tsd);
+                tpe = TLMLineUtils.getExtensionFromTransportSystemDefinition(tsd);
             }
 
             m_ticketPriceEditor.text = tpe.GetTicketPrice(idx).ToString();

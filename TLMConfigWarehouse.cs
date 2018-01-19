@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager
 {
-    public class TLMConfigWarehouse
+    internal class TLMConfigWarehouse
     {
         public const string CONFIG_FILENAME = "TransportsLinesManager5";
         public const string GLOBAL_CONFIG_INDEX = "DEFAULT";
@@ -1054,7 +1054,7 @@ namespace Klyte.TransportLinesManager
             TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG
         };
     }
-    public static class GameServiceExtensions
+    internal static class GameServiceExtensions
     {
         public static TLMConfigWarehouse.ConfigIndex toConfigIndex(ItemClass.Service s, ItemClass.SubService ss)
         {

@@ -9,11 +9,11 @@ namespace Klyte.TransportLinesManager.UI
     {
         private UIPanel agesChartPanel;
         private UIRadialChartAge agesChart;
-        private TLMLineInfoPanel lineInfoPanel;
+        private Transform parent;
 
-        public TLMAgesChartPanel(TLMLineInfoPanel lineInfoPanel)
+        public TLMAgesChartPanel(Transform parent)
         {
-            this.lineInfoPanel = lineInfoPanel;
+            this.parent = parent;
             createLineCharts();
         }
 
@@ -24,7 +24,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void createLineCharts()
         {
-            TLMUtils.createUIElement<UIPanel>(ref agesChartPanel, lineInfoPanel.TransformLinearMap);
+            TLMUtils.createUIElement<UIPanel>(ref agesChartPanel, parent);
             agesChartPanel.relativePosition = new Vector3(450f, 45f);
             agesChartPanel.width = 140;
             agesChartPanel.height = 70;

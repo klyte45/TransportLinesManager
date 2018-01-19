@@ -15,7 +15,7 @@ namespace Klyte.TransportLinesManager.UI
         private UIPanel agesChartPanel;
         private UIRadialChartAge workersChart;
         private UIRadialChartAge workplaceChart;
-        private TLMDepotInfoPanel depotInfoPanel;
+        private Transform parent;
 
         private UILabel legendL0;
         private UILabel legendL1;
@@ -23,9 +23,9 @@ namespace Klyte.TransportLinesManager.UI
         private UILabel legendL3;
         private UILabel legendFr;
 
-        public TLMWorkerChartPanel(TLMDepotInfoPanel lineInfoPanel, Vector3 relativePos)
+        public TLMWorkerChartPanel(Transform parent, Vector3 relativePos)
         {
-            this.depotInfoPanel = lineInfoPanel;
+            this.parent = parent;
             createLineCharts(relativePos);
         }
 
@@ -53,7 +53,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void createLineCharts(Vector3 relativePos)
         {
-            TLMUtils.createUIElement<UIPanel>(ref agesChartPanel, depotInfoPanel.transform);
+            TLMUtils.createUIElement<UIPanel>(ref agesChartPanel, parent);
             agesChartPanel.relativePosition = relativePos;
             agesChartPanel.width = 140;
             agesChartPanel.height = 70;

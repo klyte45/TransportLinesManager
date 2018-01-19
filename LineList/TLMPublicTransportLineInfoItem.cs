@@ -557,7 +557,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnRename(UIComponent comp, string text)
         {
-            TLMUtils.setLineName(this.m_LineID, text);
+            TLMLineUtils.setLineName(this.m_LineID, text);
         }
 
         private void OnLineChanged(ushort id)
@@ -570,7 +570,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnColorChanged(UIComponent comp, Color color)
         {
-            TLMUtils.setLineColor(this.m_LineID, color);
+            TLMLineUtils.setLineColor(this.m_LineID, color);
         }
         private void changeLineTime(bool day, bool night)
         {

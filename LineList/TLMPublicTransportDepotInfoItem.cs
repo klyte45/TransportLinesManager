@@ -116,7 +116,7 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_districtName.text = districtName;
 
                 //prefix
-                this.m_prefixesServed.text = TLMUtils.getPrefixesServedAbstract(this.m_buildingID, secondary);
+                this.m_prefixesServed.text = TLMLineUtils.getPrefixesServedAbstract(this.m_buildingID, secondary);
                 DepotAI buildingAI = b.Info.GetAI() as DepotAI;
                 List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportInfo(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo));
                 prefixOptions.Add(Locale.Get("TLM_REGIONAL"));

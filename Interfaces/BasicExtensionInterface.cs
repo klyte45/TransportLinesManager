@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Klyte.TransportLinesManager.Interfaces
 {
-    public abstract class BasicExtensionInterface<T, U> : Singleton<U> where T : struct, IConvertible where U : BasicExtensionInterface<T, U>
+    internal abstract class BasicExtensionInterface<T, U> : Singleton<U> where T : struct, IConvertible where U : BasicExtensionInterface<T, U>
     {
         protected virtual string KvSepLvl1 { get { return "∂"; } }
         protected virtual string ItSepLvl1 { get { return "∞"; } }

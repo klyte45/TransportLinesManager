@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Klyte.TransportLinesManager.Interfaces
 {
-    public abstract class ExtensionInterfaceDefaultImpl<T, U> : BasicExtensionInterface<T, U> where T : struct, IConvertible where U : ExtensionInterfaceDefaultImpl<T, U>
+    internal abstract class ExtensionInterfaceDefaultImpl<T, U> : BasicExtensionInterface<T, U> where T : struct, IConvertible where U : ExtensionInterfaceDefaultImpl<T, U>
     {
         protected abstract TLMConfigWarehouse.ConfigIndex ConfigIndexKey { get; }
         private Dictionary<uint, Dictionary<T, string>> cachedValuesLocal;

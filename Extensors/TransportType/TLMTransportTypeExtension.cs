@@ -13,9 +13,9 @@ using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
-    public interface ITLMTransportTypeExtension : ITLMAssetSelectorExtension, ITLMTicketPriceExtension, ITLMNameableExtension, ITLMBudgetableExtension { }
+    internal interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension { }
 
-    public abstract class TLMTransportTypeExtension<TSD, SG> : ExtensionInterfaceDefaultImpl<PrefixConfigIndex, SG>, ITLMTransportTypeExtension where TSD : TLMSysDef, new() where SG : TLMTransportTypeExtension<TSD, SG>
+    internal abstract class TLMTransportTypeExtension<TSD, SG> : ExtensionInterfaceDefaultImpl<PrefixConfigIndex, SG>, ITLMTransportTypeExtension where TSD : TLMSysDef, new() where SG : TLMTransportTypeExtension<TSD, SG>
     {
 
         protected override TLMConfigWarehouse.ConfigIndex ConfigIndexKey
@@ -188,18 +188,18 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 
     }
 
-    public sealed class TLMTransportTypeExtensionBus : TLMTransportTypeExtension<TLMSysDefBus, TLMTransportTypeExtensionBus> { }
-    public sealed class TLMTransportTypeExtensionBlimp : TLMTransportTypeExtension<TLMSysDefBlimp, TLMTransportTypeExtensionBlimp> { }
-    public sealed class TLMTransportTypeExtensionEvacBus : TLMTransportTypeExtension<TLMSysDefBlimp, TLMTransportTypeExtensionEvacBus> { }
-    public sealed class TLMTransportTypeExtensionFerry : TLMTransportTypeExtension<TLMSysDefFerry, TLMTransportTypeExtensionFerry> { }
-    public sealed class TLMTransportTypeExtensionMetro : TLMTransportTypeExtension<TLMSysDefMetro, TLMTransportTypeExtensionMetro> { }
-    public sealed class TLMTransportTypeExtensionMonorail : TLMTransportTypeExtension<TLMSysDefMonorail, TLMTransportTypeExtensionMonorail> { }
-    public sealed class TLMTransportTypeExtensionPlane : TLMTransportTypeExtension<TLMSysDefPlane, TLMTransportTypeExtensionPlane> { }
-    public sealed class TLMTransportTypeExtensionShip : TLMTransportTypeExtension<TLMSysDefShip, TLMTransportTypeExtensionShip> { }
-    public sealed class TLMTransportTypeExtensionTrain : TLMTransportTypeExtension<TLMSysDefTrain, TLMTransportTypeExtensionTrain> { }
-    public sealed class TLMTransportTypeExtensionTram : TLMTransportTypeExtension<TLMSysDefTram, TLMTransportTypeExtensionTram> { }
+    internal sealed class TLMTransportTypeExtensionBus : TLMTransportTypeExtension<TLMSysDefBus, TLMTransportTypeExtensionBus> { }
+    internal sealed class TLMTransportTypeExtensionBlimp : TLMTransportTypeExtension<TLMSysDefBlimp, TLMTransportTypeExtensionBlimp> { }
+    internal sealed class TLMTransportTypeExtensionEvacBus : TLMTransportTypeExtension<TLMSysDefBlimp, TLMTransportTypeExtensionEvacBus> { }
+    internal sealed class TLMTransportTypeExtensionFerry : TLMTransportTypeExtension<TLMSysDefFerry, TLMTransportTypeExtensionFerry> { }
+    internal sealed class TLMTransportTypeExtensionMetro : TLMTransportTypeExtension<TLMSysDefMetro, TLMTransportTypeExtensionMetro> { }
+    internal sealed class TLMTransportTypeExtensionMonorail : TLMTransportTypeExtension<TLMSysDefMonorail, TLMTransportTypeExtensionMonorail> { }
+    internal sealed class TLMTransportTypeExtensionPlane : TLMTransportTypeExtension<TLMSysDefPlane, TLMTransportTypeExtensionPlane> { }
+    internal sealed class TLMTransportTypeExtensionShip : TLMTransportTypeExtension<TLMSysDefShip, TLMTransportTypeExtensionShip> { }
+    internal sealed class TLMTransportTypeExtensionTrain : TLMTransportTypeExtension<TLMSysDefTrain, TLMTransportTypeExtensionTrain> { }
+    internal sealed class TLMTransportTypeExtensionTram : TLMTransportTypeExtension<TLMSysDefTram, TLMTransportTypeExtensionTram> { }
 
-    public sealed class TLMTransportExtensionUtils
+    internal sealed class TLMTransportExtensionUtils
     {
 
         public static void RemoveAllUnwantedVehicles()
@@ -209,7 +209,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                 if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
                 {
                     uint idx;
-                    ITLMAssetSelectorExtension extension;
+                    IAssetSelectorExtension extension;
                     if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineId))
                     {
                         idx = lineId;

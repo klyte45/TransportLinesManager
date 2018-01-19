@@ -1,4 +1,8 @@
-﻿TLMRv 8
+﻿TLMRv 8.0.1
+- Fixed line monitor updating
+- German i18n file updated (thanks Weoiss)
+
+8.0.0
 --> INDIVIDUAL LINE CONFIGURATION
 - Individual configured lines have font color in yellow (at line icon) - prefix based still white
 - Can set budget per line (per-hour and all day)
@@ -13,5 +17,3 @@
 - Added target vehicles count at line detail window (as "Current count/Budget target")
 - Added asset selection at the line info window
 - Added icon when line is out of budget (a red dollar sign at bottom left of line icon as sun/moon)
-
-
