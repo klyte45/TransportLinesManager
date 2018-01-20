@@ -120,7 +120,7 @@ namespace Klyte.TransportLinesManager.Overrides
             try
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
-
+                bool activeDayNightManagedByTLM = TLMLineUtils.isPerHourBudget(lineID);
                 if (t.m_lineNumber != 0 && t.m_stops != 0)
                 {
                     Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort)(TLMLineUtils.getBudgetMultiplierLine(lineID) * 100);
@@ -130,13 +130,27 @@ namespace Klyte.TransportLinesManager.Overrides
                 {
                     TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], out bool day, out bool night);
                     bool isNight = Singleton<SimulationManager>.instance.m_isNightTime;
-                    if (((isNight && night) || (!isNight && day)) && Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget == 0)
+                    bool zeroed = false;
+                    if ((activeDayNightManagedByTLM || (isNight && night) || (!isNight && day)) && Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget == 0)
                     {
                         Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags |= (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
+                        zeroed = true;
                     }
                     else
                     {
                         Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~(TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
+                    }
+                    TLMUtils.doLog("activeDayNightManagedByTLM = {0}; zeroed = {1}", activeDayNightManagedByTLM, zeroed);
+                    if (activeDayNightManagedByTLM)
+                    {
+                        if (zeroed)
+                        {
+                            TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], false, false);
+                        }
+                        else
+                        {
+                            TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], true, true);
+                        }
                     }
                 }
 

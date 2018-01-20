@@ -18,10 +18,10 @@ using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using ColossalFramework.PlatformServices;
 
-[assembly: AssemblyVersion("8.0.2.*")]
+[assembly: AssemblyVersion("8.0.3.*")]
 namespace Klyte.TransportLinesManager
 {
-    public class TransportLinesManagerMod : IUserMod, ILoadingExtension
+    public class TransportLinesManagerMod : Component, IUserMod, ILoadingExtension
     {
 
         public static string minorVersion
@@ -82,35 +82,16 @@ namespace Klyte.TransportLinesManager
         private UICheckBox overrideWorldInfoPanelLineOption;
 
         public bool needShowPopup;
+        private bool isLocaleLoaded = false;
+        private bool settingUILoaded = false;
 
-        private string currentSelectedConfigEditor
-        {
-            get {
-                return configSelector.selectedIndex == 0 ? currentCityId : TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
-            }
-        }
+        private string currentSelectedConfigEditor => configSelector.selectedIndex == 0 ? currentCityId : TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
 
-        public static bool isIPTLoaded
-        {
-            get {
-                Type IPT2 = Type.GetType("ImprovedPublicTransport2.ImprovedPublicTransportMod");
-                return IPT2 != null && (bool)IPT2.GetField("inGame", Redirector<TLMDepotAI>.allFlags).GetValue(null);
-            }
-        }
+        public static bool isIPTLoaded => (bool)(Type.GetType("ImprovedPublicTransport2.ImprovedPublicTransportMod")?.GetField("inGame", Redirector<TLMDepotAI>.allFlags)?.GetValue(null)??false);
 
-        public static SavedBool debugMode
-        {
-            get {
-                return TransportLinesManagerMod.instance.m_debugMode;
-            }
-        }
+        public static SavedBool debugMode => TransportLinesManagerMod.instance.m_debugMode;
 
-        public static SavedBool betaMapGen
-        {
-            get {
-                return TransportLinesManagerMod.instance.m_betaMapGen;
-            }
-        }
+        public static SavedBool betaMapGen => TransportLinesManagerMod.instance.m_betaMapGen;
 
         public static bool showDistanceInLinearMap
         {
@@ -122,122 +103,34 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static SavedString savedPalettes
-        {
-            get {
-                return TransportLinesManagerMod.instance.m_savedPalettes;
-            }
-        }
+        public static SavedString savedPalettes => TransportLinesManagerMod.instance.m_savedPalettes;
 
-        public static SavedBool savedShowNearLinesInZonedBuildingWorldInfoPanel
-        {
-            get {
-                return TransportLinesManagerMod.instance.m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
-            }
-        }
+        public static SavedBool savedShowNearLinesInZonedBuildingWorldInfoPanel => TransportLinesManagerMod.instance.m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
 
-        public static SavedBool savedShowNearLinesInCityServicesWorldInfoPanel
-        {
-            get {
-                return TransportLinesManagerMod.instance.m_savedShowNearLinesInCityServicesWorldInfoPanel;
-            }
-        }
+        public static SavedBool savedShowNearLinesInCityServicesWorldInfoPanel => TransportLinesManagerMod.instance.m_savedShowNearLinesInCityServicesWorldInfoPanel;
 
-        private SavedString currentSaveVersion
-        {
-            get {
-                return new SavedString("TLMSaveVersion", Settings.gameSettingsFile, "null", true);
-            }
-        }
+        private SavedString currentSaveVersion => new SavedString("TLMSaveVersion", Settings.gameSettingsFile, "null", true);
 
-        private SavedInt currentLanguageId
-        {
-            get {
-                return new SavedInt("TLMLanguage", Settings.gameSettingsFile, 0, true);
-            }
-        }
+        private SavedInt currentLanguageId => new SavedInt("TLMLanguage", Settings.gameSettingsFile, 0, true);
 
-        public static bool overrideWorldInfoPanelLine
-        {
-            get {
-                return TransportLinesManagerMod.instance.m_savedOverrideDefaultLineInfoPanel.value && !isIPTLoaded;
-            }
-        }
+        public static bool overrideWorldInfoPanelLine => TransportLinesManagerMod.instance.m_savedOverrideDefaultLineInfoPanel.value && !isIPTLoaded;
 
-        internal TLMConfigWarehouse currentLoadedCityConfig
-        {
-            get {
-                return TLMConfigWarehouse.getConfig(currentCityId, currentCityName);
-            }
-        }
+        internal TLMConfigWarehouse currentLoadedCityConfig => TLMConfigWarehouse.getConfig(currentCityId, currentCityName);
 
-        public static bool isCityLoaded
-        {
-            get {
-                return Singleton<SimulationManager>.instance.m_metaData != null;
-            }
-        }
+        public static bool isCityLoaded => Singleton<SimulationManager>.instance.m_metaData != null;
 
-        private string currentCityId
-        {
-            get {
-                if (isCityLoaded)
-                {
-                    return Singleton<SimulationManager>.instance.m_metaData.m_gameInstanceIdentifier;
-                }
-                else
-                    return TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
-            }
-        }
-        private string currentCityName
-        {
-            get {
-                if (isCityLoaded)
-                {
-                    return Singleton<SimulationManager>.instance.m_metaData.m_CityName;
-                }
-                else
-                    return TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
-            }
-        }
-
-        private TLMConfigWarehouse currentConfigWarehouseEditor
-        {
-            get {
-                return TLMConfigWarehouse.getConfig(currentSelectedConfigEditor, currentCityName);
-            }
-        }
-
-        private string[] getOptionsForLoadConfig()
-        {
-            if (currentCityId == TLMConfigWarehouse.GLOBAL_CONFIG_INDEX)
-            {
-                return new string[] { TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
-            }
-            else
-                return new string[] { currentCityName, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
-        }
-
-        public string Name
-        {
-            get {
-
-                return "TLM Reborn " + version;
-            }
-        }
-
-        public string Description
-        {
-            get {
-                return "Reviewed version of TLM.";
-            }
-        }
+        private string currentCityId => isCityLoaded ? Singleton<SimulationManager>.instance.m_metaData.m_gameInstanceIdentifier : TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
+        private string currentCityName => isCityLoaded ? Singleton<SimulationManager>.instance.m_metaData.m_CityName : TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
 
 
+        private TLMConfigWarehouse currentConfigWarehouseEditor => TLMConfigWarehouse.getConfig(currentSelectedConfigEditor, currentCityName);
 
-        public void OnCreated(ILoading loading)
-        {
-        }
+        private string[] optionsForLoadConfig => currentCityId == TLMConfigWarehouse.GLOBAL_CONFIG_INDEX ? new string[] { TLMConfigWarehouse.GLOBAL_CONFIG_INDEX } : new string[] { currentCityName, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
+
+        public string Name => "TLM Reborn " + version;
+        public string Description => "Reviewed version of TLM.";
+
+        public void OnCreated(ILoading loading) { }
 
         public TransportLinesManagerMod()
         {
@@ -254,9 +147,17 @@ namespace Klyte.TransportLinesManager
             }
             catch (Exception e)
             {
-                Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " SETTING FILES FAIL!!! ");
-                Debug.LogError(e.Message);
-                Debug.LogError(e.StackTrace);
+                SettingsFile tryLoad = GameSettings.FindSettingsFileByName(TLMConfigWarehouse.CONFIG_FILENAME);
+                if (tryLoad == null)
+                {
+                    Debug.LogErrorFormat("TLMRv" + majorVersion + " SETTING FILES FAIL!!! ");
+                    Debug.LogError(e.Message);
+                    Debug.LogError(e.StackTrace);
+                }
+                else
+                {
+                    tlmSettings = tryLoad;
+                }
             }
             Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.majorVersion + " LOADING VARS ");
 
@@ -275,9 +176,10 @@ namespace Klyte.TransportLinesManager
                 needShowPopup = true;
             }
             toggleOverrideDefaultLineInfoPanel(m_savedOverrideDefaultLineInfoPanel.value);
-            loadTLMLocale(false);
             LocaleManager.eventLocaleChanged += new LocaleManager.LocaleChangedHandler(this.autoLoadTLMLocale);
+            if (instance != null) GameObject.Destroy(instance);
             instance = this;
+            loadTLMLocale(false);
         }
 
         public bool showVersionInfoPopup(bool force = false)
@@ -329,8 +231,32 @@ namespace Klyte.TransportLinesManager
             return false;
         }
 
+        private delegate void OnLocaleLoaded();
+        private event OnLocaleLoaded eventOnLoadLocaleEnd;
+
         public void OnSettingsUI(UIHelperBase helperDefault)
         {
+            UIHelperExtension helper = new UIHelperExtension((UIHelper)helperDefault);
+            OnLocaleLoaded ev = () =>
+            {
+                LoadSettingsUI(helper);
+            };
+            helper.self.parent.eventVisibilityChanged += (x, t) => { if (!settingUILoaded) { ev(); } };
+            eventOnLoadLocaleEnd = null; 
+            eventOnLoadLocaleEnd += ev;
+            ev();
+        }
+
+        private void LoadSettingsUI(UIHelperExtension helper)
+        {
+            foreach (Transform child in helper.self.transform)
+            {
+                try
+                {
+                    GameObject.Destroy(child.gameObject);
+                }
+                catch (Exception e) { }
+            }
             var oldTLMid = new PublishedFileId(408875519);
             if (!string.IsNullOrEmpty(PlatformService.workshop.GetSubscribedItemPath(oldTLMid)))
             {
@@ -376,7 +302,6 @@ namespace Klyte.TransportLinesManager
                 Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 4)),
                 Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 5)),
             };
-            UIHelperExtension helper = new UIHelperExtension((UIHelper)helperDefault);
 
             helper.self.eventVisibilityChanged += delegate (UIComponent component, bool b)
             {
@@ -390,7 +315,7 @@ namespace Klyte.TransportLinesManager
 
             helper.AddSpace(10);
 
-            configSelector = (UIDropDown)helper.AddDropdownLocalized("TLM_SHOW_CONFIG_FOR", getOptionsForLoadConfig(), 0, reloadData);
+            configSelector = (UIDropDown)helper.AddDropdownLocalized("TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, reloadData);
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                 TLMUtils.doLog("Loading Group 1");
             foreach (TLMConfigWarehouse.ConfigIndex transportType in new TLMConfigWarehouse.ConfigIndex[] {
@@ -400,7 +325,7 @@ namespace Klyte.TransportLinesManager
                 TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG,
                 TLMConfigWarehouse.ConfigIndex.BUS_CONFIG,
                 TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG,
-                TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG ,
                 TLMConfigWarehouse.ConfigIndex.METRO_CONFIG,
                 TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG
             })
@@ -600,6 +525,7 @@ namespace Klyte.TransportLinesManager
 
             if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
                 TLMUtils.doLog("End Loading Options");
+            settingUILoaded=true;
         }
 
         public void autoLoadTLMLocale()
@@ -614,6 +540,11 @@ namespace Klyte.TransportLinesManager
             if (SingletonLite<LocaleManager>.exists)
             {
                 TLMLocaleUtils.loadLocale(currentLanguageId.value == 0 ? SingletonLite<LocaleManager>.instance.language : TLMLocaleUtils.getSelectedLocaleByIndex(currentLanguageId.value), force);
+                if (!isLocaleLoaded)
+                {
+                    isLocaleLoaded = true;
+                    eventOnLoadLocaleEnd?.Invoke();
+                }
             }
         }
 
@@ -861,25 +792,16 @@ namespace Klyte.TransportLinesManager
     {
         public override void OnCreated(IThreading threading)
         {
-            if (TLMController.instance != null)
-            {
-                TLMController.instance.destroy();
-            }
+            TLMController.instance?.destroy();
         }
 
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta)
         {
-            if (TLMController.instance != null)
-            {
-                TLMController.instance.update();
-            }
+            TLMController.instance?.update();
         }
         public override void OnReleased()
         {
-            if (TLMController.instance != null)
-            {
-                TLMController.instance.destroy();
-            }
+            TLMController.instance?.destroy();
         }
 
 

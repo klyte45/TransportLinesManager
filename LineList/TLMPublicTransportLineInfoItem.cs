@@ -48,6 +48,8 @@ namespace Klyte.TransportLinesManager.LineList
 
         private UILabel m_lineBudgetLabel;
 
+        private UILabel m_perHourBudgetInfo;
+
         //    private UILabel m_LineEarnings;
 
         private UIButton m_LineNumberFormatted;
@@ -237,6 +239,15 @@ namespace Klyte.TransportLinesManager.LineList
 
 
                 m_lineBudgetLabel.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 19, 0);
+
+                bool tlmPerHour = TLMLineUtils.isPerHourBudget(m_LineID);
+                m_DayLine.isVisible = !tlmPerHour;
+                m_DayNightLine.isVisible = !tlmPerHour;
+                m_NightLine.isVisible = !tlmPerHour;
+                m_DisabledLine.isVisible = !tlmPerHour;
+                m_perHourBudgetInfo.isVisible=tlmPerHour;
+
+                m_perHourBudgetInfo.relativePosition = new Vector3(615, 2);
             }
         }
 
@@ -408,6 +419,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_LineVehicles.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 5, 0);
             m_lineBudgetLabel = GameObject.Instantiate(this.m_LineStops);
             m_lineBudgetLabel.transform.SetParent(m_LineStops.transform.parent);
+
             //m_LineEarnings = GameObject.Instantiate(this.m_LinePassengers);
             //m_LineEarnings.transform.SetParent(m_LineStops.transform.parent);
             //m_LineEarnings.textColor = Color.green;
@@ -488,7 +500,27 @@ namespace Klyte.TransportLinesManager.LineList
 
             m_lineIncompleteWarning = base.Find<UIPanel>("WarningIncomplete");
 
+            TLMUtils.createUIElement(ref m_perHourBudgetInfo, transform);
+            m_perHourBudgetInfo.name="PerHourIndicator";
+            m_perHourBudgetInfo.autoSize = false;
+            m_perHourBudgetInfo.autoHeight = true;
+            m_perHourBudgetInfo.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
+            m_perHourBudgetInfo.width = 180;
+            m_perHourBudgetInfo.height = m_perHourBudgetInfo.parent.height ;
+            m_perHourBudgetInfo.verticalAlignment = UIVerticalAlignment.Middle;
+            m_perHourBudgetInfo.textAlignment = UIHorizontalAlignment.Center;
+            m_perHourBudgetInfo.textScale = 1f;
+            m_perHourBudgetInfo.localeID = "TLM_PER_HOUR_BUDGET_ACTIVE_LABEL";
+            m_perHourBudgetInfo.wordWrap = true;
+            m_perHourBudgetInfo.eventTextChanged += constraintedScale;
+            constraintedScale(m_perHourBudgetInfo, "");
+        }
 
+        private void constraintedScale(UIComponent component, string value)
+        {
+            component.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
+            float ratio = Math.Min(1,component.height/component.parent.height);
+            component.transform.localScale= new Vector3(ratio, ratio);
         }
 
         public void DoAutoColor()

@@ -155,6 +155,7 @@ namespace Klyte.TransportLinesManager
 
         private TLMController()
         {
+            transform.SetParent(TransportLinesManagerMod.instance.transform);
         }
 
         public void destroy()

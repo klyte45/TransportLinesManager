@@ -94,9 +94,9 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         #endregion
 
         #region Budget Multiplier
-        public uint[] GetBudgetsMultiplier(uint prefix)
+        public uint[] GetBudgetsMultiplier(uint lineId)
         {
-            string value = SafeGet(prefix, TLMTransportLineExtensionsKey.LOCAL_BUDGET);
+            string value = SafeGet(lineId, TLMTransportLineExtensionsKey.LOCAL_BUDGET);
             if (value == null) return new uint[] { 100 };
             string[] savedMultipliers = value.Split(ItSepLvl3.ToCharArray());
 

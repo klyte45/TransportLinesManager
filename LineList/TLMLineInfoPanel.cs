@@ -1057,6 +1057,12 @@ namespace Klyte.TransportLinesManager.LineList
                     m_budgetSliders[i].value = multipliers[i] / 100f;
                 }
             }
+
+            m_DayLine.isVisible = m_enableBudgetPerHour.isVisible;
+            m_DayNightLine.isVisible = m_enableBudgetPerHour.isVisible;
+            m_NightLine.isVisible = m_enableBudgetPerHour.isVisible;
+            m_DisabledLine.isVisible = m_enableBudgetPerHour.isVisible;
+
         }
 
         #endregion

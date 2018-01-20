@@ -135,6 +135,22 @@ namespace Klyte.TransportLinesManager.Utils
                 return TLMLineUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).GetBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
             }
         }
+        public static bool isPerHourBudget(ushort lineId)
+        {
+            TransportLine __instance = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
+            TransportInfo info = __instance.Info;
+            int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
+            if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineId))
+            {
+                return TLMTransportLineExtension.instance.GetBudgetsMultiplier(lineId).Length ==8;
+            }
+            else
+            {
+                var tsd = TLMCW.getDefinitionForLine(ref __instance);
+                uint prefix = TLMLineUtils.getPrefix(lineId);
+                return TLMLineUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).GetBudgetsMultiplier(lineId).Length == 8;
+            }
+        }
 
         public static string getLineStringId(ushort lineIdx)
         {

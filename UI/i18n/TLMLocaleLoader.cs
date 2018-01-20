@@ -50,7 +50,10 @@ namespace Klyte.TransportLinesManager.i18n
             {
                 LocaleManager.ForceReload();
             }
-            loadLocaleIntern(localeId, true, prefix, packagePrefix);
+            else
+            {
+                loadLocaleIntern(localeId, true, prefix, packagePrefix);
+            }
         }
         private static void loadLocaleIntern(string localeId, bool setLocale, string prefix, string packagePrefix)
         {
