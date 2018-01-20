@@ -1,4 +1,7 @@
-﻿TLMRv 8.0.1
+﻿TLMRv 8.0.2
+- Fixed Cable Car ticket error
+
+TLMRv 8.0.1
 - Fixed line monitor updating
 - German i18n file updated (thanks Weoiss)
 

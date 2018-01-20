@@ -54,6 +54,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             if (this == BLIMP) { return TLMTransportTypeExtensionBlimp.instance; }
             if (this == SHIP) { return TLMTransportTypeExtensionShip.instance; }
             if (this == PLANE) { return TLMTransportTypeExtensionPlane.instance; }
+            if (this == CABLE_CAR) { return TLMTransportTypeExtensionCableCar.instance; }
             return null;
 
         }
@@ -159,4 +160,5 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
     internal sealed class TLMSysDefBlimp : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.BLIMP; } }
     internal sealed class TLMSysDefShip : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.SHIP; } }
     internal sealed class TLMSysDefPlane : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.PLANE; } }
+    internal sealed class TLMSysDefCableCar : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.CABLE_CAR; } }
 }

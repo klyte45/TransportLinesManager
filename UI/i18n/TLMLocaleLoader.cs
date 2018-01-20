@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Klyte.TransportLinesManager.i18n
 {
-    public class TLMLocaleUtils
+    internal class TLMLocaleUtils
     {
         private const string lineSeparator = "\r\n";
         private const string kvSeparator = "=";
@@ -44,15 +44,15 @@ namespace Klyte.TransportLinesManager.i18n
             return locales[idx - 1];
         }
 
-        public static void loadLocale(string localeId, bool force)
+        public static void loadLocale(string localeId, bool force, string prefix = "TLM_", string packagePrefix = "Klyte.TransportLinesManager")
         {
             if (force)
             {
                 LocaleManager.ForceReload();
             }
-            loadLocaleIntern(localeId, true);
+            loadLocaleIntern(localeId, true, prefix, packagePrefix);
         }
-        private static void loadLocaleIntern(string localeId, bool setLocale = false, string prefix = "TLM_")
+        private static void loadLocaleIntern(string localeId, bool setLocale, string prefix, string packagePrefix)
         {
             string load = ResourceLoader.loadResourceString("UI.i18n." + localeId + ".properties");
             if (load == null)
@@ -108,7 +108,7 @@ namespace Klyte.TransportLinesManager.i18n
 
             if (localeId != "en")
             {
-                loadLocaleIntern("en");
+                loadLocaleIntern("en", false, prefix, packagePrefix);
             }
             if (setLocale)
             {
