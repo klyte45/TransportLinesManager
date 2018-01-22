@@ -53,7 +53,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void createLineCharts(Vector3 relativePos)
         {
-            TLMUtils.createUIElement<UIPanel>(ref agesChartPanel, parent);
+            TLMUtils.createUIElement(out agesChartPanel, parent);
             agesChartPanel.relativePosition = relativePos;
             agesChartPanel.width = 140;
             agesChartPanel.height = 70;
@@ -63,8 +63,7 @@ namespace Klyte.TransportLinesManager.UI
             agesChartPanel.wrapLayout = false;
             agesChartPanel.tooltipLocaleID = "ZONEDBUILDING_WORKERCHART";
 
-            UIPanel pieLegendPanel = null;
-            TLMUtils.createUIElement<UIPanel>(ref pieLegendPanel, agesChartPanel.transform);
+            TLMUtils.createUIElement(out UIPanel pieLegendPanel, agesChartPanel.transform);
             pieLegendPanel.relativePosition = new Vector3(70f, 0f);
             pieLegendPanel.width = 70;
             pieLegendPanel.height = 70;
@@ -73,7 +72,7 @@ namespace Klyte.TransportLinesManager.UI
             pieLegendPanel.autoLayout = false;
             pieLegendPanel.useCenter = true;
 
-            TLMUtils.createUIElement<UIRadialChartAge>(ref workplaceChart, agesChartPanel.transform);
+            TLMUtils.createUIElement(out workplaceChart, agesChartPanel.transform);
             workplaceChart.spriteName = "PieChartWhiteBg";
             workplaceChart.relativePosition = new Vector3(0, 0);
             workplaceChart.width = 70;
@@ -90,7 +89,7 @@ namespace Klyte.TransportLinesManager.UI
             legendL2 = criaFatiaELegenda(twoSchool, workplaceChart, pieLegendPanel, "ZONEDBUILDING_WELLEDUCATED", 14 * y++);
             legendL3 = criaFatiaELegenda(threeSchool, workplaceChart, pieLegendPanel, "ZONEDBUILDING_HIGHLYEDUCATED", 14 * y++);
 
-            TLMUtils.createUIElement<UIRadialChartAge>(ref workersChart, workplaceChart.transform);
+            TLMUtils.createUIElement(out workersChart, workplaceChart.transform);
             workersChart.spriteName = "PieChartWhiteFg";
             workersChart.relativePosition = new Vector3(0, 0);
             workersChart.width = 70;
@@ -108,7 +107,7 @@ namespace Klyte.TransportLinesManager.UI
             UIPanel legendItemContainer = null;
             if (legendPanel != null)
             {
-                TLMUtils.createUIElement<UIPanel>(ref legendItemContainer, legendPanel.transform);
+                TLMUtils.createUIElement(out legendItemContainer, legendPanel.transform);
                 legendItemContainer.width = legendPanel.width;
                 legendItemContainer.relativePosition = new Vector3(0f, offsetY);
                 legendItemContainer.name = "LegendItem";
@@ -116,15 +115,13 @@ namespace Klyte.TransportLinesManager.UI
                 legendItemContainer.useCenter = true;
                 legendItemContainer.wrapLayout = false;
                 legendItemContainer.height = 20;
-                UILabel legendColor = null;
-                TLMUtils.createUIElement<UILabel>(ref legendColor, legendItemContainer.transform);
+                TLMUtils.createUIElement(out UILabel legendColor, legendItemContainer.transform);
                 legendColor.backgroundSprite = "EmptySprite";
                 legendColor.width = 10;
                 legendColor.height = 10;
                 legendColor.relativePosition = new Vector3(0, 0);
                 legendColor.color = c;
-                UILabel legendName = null;
-                TLMUtils.createUIElement<UILabel>(ref legendName, legendItemContainer.transform);
+                TLMUtils.createUIElement(out UILabel legendName, legendItemContainer.transform);
                 legendName.textAlignment = UIHorizontalAlignment.Right;
                 legendName.width = legendItemContainer.width - 10;
                 legendName.localeID = localeID;

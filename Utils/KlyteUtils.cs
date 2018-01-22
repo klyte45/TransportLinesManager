@@ -52,11 +52,25 @@ namespace Klyte.TransportLinesManager.Utils
         #endregion
 
         #region UI utils
-        public static void createUIElement<T>(ref T uiItem, Transform parent) where T : Component
+        public static void createElement<T>(out T uiItem, Transform parent) where T : MonoBehaviour
+        {
+            GameObject container = new GameObject();
+            container.transform.parent = parent;
+            uiItem = (T)container.AddComponent(typeof(T));
+        }
+        public static void createUIElement<T>(out T uiItem, Transform parent, String name = null, Vector4 area = default(Vector4)) where T : UIComponent
         {
             GameObject container = new GameObject();
             container.transform.parent = parent;
             uiItem = container.AddComponent<T>();
+            if (name != null)
+            {
+                uiItem.name = name;
+            }
+            if (area != default(Vector4))
+            {
+                uiItem.area = area;
+            }
         }
         public static void uiTextFieldDefaults(UITextField uiItem)
         {
@@ -87,8 +101,7 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static UIDragHandle createDragHandle(UIComponent parent, UIComponent target, float height)
         {
-            UIDragHandle dh = null;
-            createUIElement<UIDragHandle>(ref dh, parent.transform);
+            createUIElement(out UIDragHandle dh, parent.transform);
             dh.target = target;
             dh.relativePosition = new Vector3(0, 0);
             dh.width = parent.width;
@@ -800,25 +813,33 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return capacity;
         }
-        internal static List<string> LoadBasicAssets(TransportSystemDefinition definition)
-        {
-            List<string> basicAssetsList = new List<string>();
 
-            TLMUtils.doLog("LoadBasicAssets: pre prefab read");
-            for (uint num = 0u; (ulong)num < (ulong)((long)PrefabCollection<VehicleInfo>.PrefabCount()); num += 1u)
-            {
-                VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
-                if (!(prefab == null) && definition.isFromSystem(prefab) && !IsTrailer(prefab))
-                {
-                    basicAssetsList.Add(prefab.name);
-                }
-            }
-            return basicAssetsList;
-        }
-        private static bool IsTrailer(PrefabInfo prefab)
+        protected static bool IsTrailer(PrefabInfo prefab)
         {
             string @unchecked = Locale.GetUnchecked("VEHICLE_TITLE", prefab.name);
             return @unchecked.StartsWith("VEHICLE_TITLE") || @unchecked.StartsWith("Trailer");
+        }
+        private static UIColorField s_colorFieldTemplate;
+        internal static UIColorField CreatColorField(UIComponent parent)
+        {
+            if (s_colorFieldTemplate == null)
+            {
+                UIComponent uIComponent = UITemplateManager.Get("LineTemplate");
+                if (uIComponent == null)
+                {
+                    return null;
+                }
+                s_colorFieldTemplate = uIComponent.Find<UIColorField>("LineColor");
+                if (s_colorFieldTemplate == null)
+                {
+                    return null;
+                }
+            }
+            UIColorField component = UnityEngine.Object.Instantiate<GameObject>(s_colorFieldTemplate.gameObject).GetComponent<UIColorField>();
+            parent.AttachUIComponent(component.gameObject);
+            component.size = new Vector2(40f, 26f);
+            component.pickerPosition = UIColorField.ColorPickerPosition.LeftAbove;
+            return component;
         }
         #endregion
     }

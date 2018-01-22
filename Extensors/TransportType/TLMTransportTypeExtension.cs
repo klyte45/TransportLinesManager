@@ -124,7 +124,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                         return 500;
                     }
                 default:
-                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("subservice not found: {0}", definition.subService);
+                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("subservice not found: {0}", definition.subService);
                     return 103;
             }
 
@@ -228,7 +228,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                     VehicleManager vm = Singleton<VehicleManager>.instance;
                     VehicleInfo info = vm.m_vehicles.m_buffer[Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].GetVehicle(0)].Info;
 
-                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
+                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
 
                     if (modelList.Count > 0)
                     {

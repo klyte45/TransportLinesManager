@@ -927,7 +927,7 @@ namespace Klyte.TransportLinesManager
                     saida = uint.MaxValue;
                     break;
             }
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
             return saida;
         }

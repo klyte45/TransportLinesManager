@@ -24,19 +24,8 @@ namespace Klyte.TransportLinesManager
         public static UITextureAtlas taLineNumber = null;
         public UIView uiView;
         public UIComponent mainRef;
-        public TransportManager tm
-        {
-            get {
-                return Singleton<TransportManager>.instance;
-            }
-        }
-        public InfoManager im
-        {
-            get {
-                return Singleton<InfoManager>.instance;
-            }
-        }
-        public UIButton abrePainelButton;
+        public TransportManager tm => Singleton<TransportManager>.instance;
+        public InfoManager im => Singleton<InfoManager>.instance;
         public bool initialized = false;
         public bool initializedWIP = false;
         private TLMLineInfoPanel m_lineInfoPanel;
@@ -47,70 +36,25 @@ namespace Klyte.TransportLinesManager
 
         private UIPanel _cachedDefaultListingLinesPanel;
 
-        public UIPanel defaultListingLinesPanel
-        {
-            get {
-                if (_cachedDefaultListingLinesPanel == null)
-                {
-                    _cachedDefaultListingLinesPanel = GameObject.Find("UIView").GetComponentInChildren<TLMPublicTransportDetailPanel>().GetComponent<UIPanel>();
-                }
-                return _cachedDefaultListingLinesPanel;
-            }
-        }
+        public UIPanel defaultListingLinesPanel => _cachedDefaultListingLinesPanel ?? (_cachedDefaultListingLinesPanel = GameObject.Find("UIView").GetComponentInChildren<TLMPublicTransportDetailPanel>().GetComponent<UIPanel>());
 
 
-        public TLMLineInfoPanel lineInfoPanel
-        {
-            get {
-                return m_lineInfoPanel;
-            }
-        }
+        public TLMLineInfoPanel lineInfoPanel => m_lineInfoPanel;
+        public TLMDepotInfoPanel depotInfoPanel => m_depotInfoPanel;
+        public Transform TargetTransform => mainRef?.transform;
+        public override Transform TransformLinearMap => uiView?.transform;
 
-        public TLMDepotInfoPanel depotInfoPanel
-        {
-            get {
-                return m_depotInfoPanel;
-            }
-        }
-
-        public Transform TargetTransform
-        {
-            get {
-                return mainRef.transform;
-            }
-        }
-
-
-        public override Transform TransformLinearMap
-        {
-            get {
-                return uiView.transform;
-            }
-        }
         private ushort m_currentSelectedId;
 
-        public override ushort CurrentSelectedId
-        {
-            get {
-                return m_currentSelectedId;
-            }
-        }
-        public void setCurrentSelectedId(ushort line)
-        {
-            m_currentSelectedId = line;
-        }
+        public override ushort CurrentSelectedId => m_currentSelectedId;
+        public void setCurrentSelectedId(ushort line) => m_currentSelectedId = line;
 
-        public override bool CanSwitchView
-        {
-            get {
-                return false;
-            }
-        }
+        public override bool CanSwitchView => false;
 
         public TLMLinearMap LinearMapCreatingLine
         {
             get {
-                if (m_linearMapCreatingLine == null)
+                if (m_linearMapCreatingLine != null)
                 {
                     return m_linearMapCreatingLine;
                 }
@@ -152,99 +96,57 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-
-        private TLMController()
+        public void Update()
         {
-            transform.SetParent(TransportLinesManagerMod.instance.transform);
-        }
-
-        public void destroy()
-        {
-            if (abrePainelButton != null && abrePainelButton.gameObject != null)
-            {
-                UnityEngine.Object.Destroy(abrePainelButton.gameObject);
-            }
-            if (m_lineInfoPanel != null && m_lineInfoPanel.linearMap != null && m_lineInfoPanel.linearMap.gameObject != null)
-            {
-                UnityEngine.Object.Destroy(m_lineInfoPanel.linearMap.gameObject);
-            }
-
-            if (m_lineInfoPanel != null && m_lineInfoPanel.gameObject != null)
-            {
-                UnityEngine.Object.Destroy(m_lineInfoPanel.gameObject);
-            }
-            if (m_linearMapCreatingLine != null && m_linearMapCreatingLine.gameObject != null)
-            {
-                UnityEngine.Object.Destroy(m_linearMapCreatingLine.gameObject);
-            }
-
-            if (m_lineCreationToolbox != null && m_lineCreationToolbox.gameObject != null)
-            {
-                UnityEngine.Object.Destroy(m_lineCreationToolbox.gameObject);
-            }
-            if (m_depotInfoPanel != null && m_depotInfoPanel.gameObject != null)
-            {
-                UnityEngine.Object.Destroy(m_depotInfoPanel.gameObject);
-            }
-
-            initialized = false;
-            initializedWIP = false;
-        }
-
-        public void update()
-        {
-            if (!GameObject.FindGameObjectWithTag("GameController") || ((GameObject.FindGameObjectWithTag("GameController").GetComponent<ToolController>()).m_mode & ItemClass.Availability.Game) == ItemClass.Availability.None)
+            if (!GameObject.FindGameObjectWithTag("GameController") || ((GameObject.FindGameObjectWithTag("GameController")?.GetComponent<ToolController>())?.m_mode & ItemClass.Availability.Game) == ItemClass.Availability.None)
             {
                 TLMUtils.doErrorLog("GameController NOT FOUND!");
                 return;
             }
             if (!initialized)
             {
-                TransportLinesManagerMod.instance.loadTLMLocale(false);
-
-                uiView = GameObject.FindObjectOfType<UIView>();
-                if (!uiView)
-                    return;
-                mainRef = uiView.FindUIComponent<UIPanel>("InfoPanel").Find<UITabContainer>("InfoViewsContainer").Find<UIPanel>("InfoViewsPanel");
-                if (!mainRef)
-                    return;
-                mainRef.eventVisibilityChanged += delegate (UIComponent component, bool b)
-                {
-                    if (b)
-                    {
-                        TransportLinesManagerMod.instance.showVersionInfoPopup();
-                    }
-                };
-
-
-                createViews();
-                mainRef.clipChildren = false;
-                initialized = true;
+                Awake();
             }
 
-            initNearLinesOnWorldInfoPanel();
 
-            if (m_lineInfoPanel.isVisible)
+            if (m_lineInfoPanel?.isVisible ?? false)
             {
-                m_lineInfoPanel.updateBidings();
+                m_lineInfoPanel?.updateBidings();
             }
 
-            if (m_depotInfoPanel.isVisible)
+            if (m_depotInfoPanel?.isVisible ?? false)
             {
-                m_depotInfoPanel.updateBidings();
+                m_depotInfoPanel?.updateBidings();
             }
 
             lastLineCount = tm.m_lineCount;
-            TLMPublicTransportDetailPanelHooks.instance.update();
+            TLMPublicTransportDetailPanelHooks.instance?.update();
 
-            if (m_lineInfoPanel?.assetSelectorWindow != null)
-            {
-                m_lineInfoPanel?.assetSelectorWindow?.RotateCamera();
-            }
-
-            return;
+            m_lineInfoPanel?.assetSelectorWindow?.RotateCamera();
         }
-        const int maxTryLoads = 100;
+
+        public void Awake()
+        {
+            TLMSingleton.instance.loadTLMLocale(false);
+
+            uiView = GameObject.FindObjectOfType<UIView>();
+            if (!uiView)
+                return;
+            mainRef = uiView.FindUIComponent<UIPanel>("InfoPanel").Find<UITabContainer>("InfoViewsContainer").Find<UIPanel>("InfoViewsPanel");
+            if (!mainRef)
+                return;
+            mainRef.eventVisibilityChanged += delegate (UIComponent component, bool b)
+            {
+                if (b)
+                {
+                    TLMSingleton.instance.showVersionInfoPopup();
+                }
+            };
+            createViews();
+            mainRef.clipChildren = false;
+            initNearLinesOnWorldInfoPanel();
+            initialized = true;
+        }
 
         public Color AutoColor(ushort i)
         {
@@ -294,7 +196,6 @@ namespace Klyte.TransportLinesManager
         private void abrirTelaTransportes(UIComponent component, UIMouseEventParameter eventParam)
         {
             //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "ABRE1!");
-            abrePainelButton.normalFgSprite = abrePainelButton.focusedFgSprite;
             m_lineInfoPanel.Hide();
             m_depotInfoPanel.Hide();
             defaultListingLinesPanel.Show();
@@ -310,7 +211,6 @@ namespace Klyte.TransportLinesManager
 
         private void fecharTelaTransportes(UIComponent component, UIMouseEventParameter eventParam)
         {
-            abrePainelButton.normalFgSprite = abrePainelButton.disabledFgSprite;
             defaultListingLinesPanel.Hide();
             m_lineInfoPanel.Hide();
             m_depotInfoPanel.Hide();
@@ -321,11 +221,12 @@ namespace Klyte.TransportLinesManager
 
         private void createViews()
         {
-            m_lineInfoPanel = new TLMLineInfoPanel(this);
-            m_depotInfoPanel = new TLMDepotInfoPanel(this);
-            m_linearMapCreatingLine = new TLMLinearMap(this);
+            TLMUtils.createElement(out m_lineInfoPanel, transform);
+            TLMUtils.createElement(out m_depotInfoPanel, transform);
+            TLMUtils.createElement(out m_linearMapCreatingLine, transform);
+            TLMUtils.createElement(out m_lineCreationToolbox, transform);
+            m_linearMapCreatingLine.parent = this;
             m_linearMapCreatingLine.setVisible(false);
-            m_lineCreationToolbox = new TLMLineCreationToolbox(this);
         }
 
         private void initNearLinesOnWorldInfoPanel()
@@ -338,12 +239,12 @@ namespace Klyte.TransportLinesManager
                     return;
                 parent.eventVisibilityChanged += (component, value) =>
                 {
-                    updateNearLines(TransportLinesManagerMod.savedShowNearLinesInCityServicesWorldInfoPanel.value ? parent : null, true);
+                    updateNearLines(TLMSingleton.savedShowNearLinesInCityServicesWorldInfoPanel.value ? parent : null, true);
                     updateDepotEditShortcutButton(parent);
                 };
                 parent.eventPositionChanged += (component, value) =>
                 {
-                    updateNearLines(TransportLinesManagerMod.savedShowNearLinesInCityServicesWorldInfoPanel.value ? parent : null, true);
+                    updateNearLines(TLMSingleton.savedShowNearLinesInCityServicesWorldInfoPanel.value ? parent : null, true);
                     updateDepotEditShortcutButton(parent);
                 };
 
@@ -354,12 +255,12 @@ namespace Klyte.TransportLinesManager
 
                 parent2.eventVisibilityChanged += (component, value) =>
                 {
-                    updateNearLines(TransportLinesManagerMod.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
+                    updateNearLines(TLMSingleton.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
                     updateDepotEditShortcutButton(parent2);
                 };
                 parent2.eventPositionChanged += (component, value) =>
                 {
-                    updateNearLines(TransportLinesManagerMod.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
+                    updateNearLines(TLMSingleton.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
                     updateDepotEditShortcutButton(parent2);
                 };
                 UIPanel parent3 = GameObject.Find("UIView").transform.GetComponentInChildren<PublicTransportWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
@@ -369,7 +270,7 @@ namespace Klyte.TransportLinesManager
 
                 parent3.eventVisibilityChanged += (component, value) =>
                 {
-                    if (TransportLinesManagerMod.overrideWorldInfoPanelLine && value)
+                    if (TLMSingleton.overrideWorldInfoPanelLine && value)
                     {
                         PublicTransportWorldInfoPanel ptwip = parent3.gameObject.GetComponent<PublicTransportWorldInfoPanel>();
                         ptwip.StartCoroutine(OpenLineInfo(ptwip));

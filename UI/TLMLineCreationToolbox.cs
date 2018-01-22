@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
 {
-    internal class TLMLineCreationToolbox : Redirector<TLMLineCreationToolbox>
+    internal class TLMLineCreationToolboxHooks : Redirector<TLMLineCreationToolboxHooks>
     {
         private static bool preventDefault()
         {
@@ -31,9 +31,11 @@ namespace Klyte.TransportLinesManager.UI
             TLMUtils.doLog("Loading TLMLineCreationToolbox Hook");
             AddRedirect(typeof(GeneratedScrollPanel).GetMethod("OnClick", allFlags), OnButtonClickedPre, OnButtonClickedPos);
             #endregion
-
-
         }
+    }
+
+    internal class TLMLineCreationToolbox : MonoBehaviour
+    {
 
         #region Line Draw Button Click Impl
 
@@ -55,7 +57,7 @@ namespace Klyte.TransportLinesManager.UI
         {
         }
 
-        static FieldInfo tt_nextLineNum = typeof(TransportManager).GetField("m_lineNumber", allFlags);
+        static FieldInfo tt_nextLineNum = typeof(TransportManager).GetField("m_lineNumber", RedirectorUtils.allFlags);
 
         public TransportInfo.TransportType currentType
         {
@@ -71,8 +73,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
             }
         }
-        private TLMController m_controller;
-        public GameObject gameObject { get; internal set; }
+        private TLMController m_controller => TLMController.instance;
 
         UIHelperExtension uiHelper;
 
@@ -96,7 +97,7 @@ namespace Klyte.TransportLinesManager.UI
                 return _transportTool;
             }
         }
-        
+
 
         private ushort nextLineNumber
         {
@@ -127,9 +128,8 @@ namespace Klyte.TransportLinesManager.UI
             mainContainer.isVisible = value;
         }
 
-        public TLMLineCreationToolbox(TLMController controller)
+        public void Awake()
         {
-            m_controller = controller;
             createToolbox();
             setVisible(false);
         }
@@ -137,7 +137,7 @@ namespace Klyte.TransportLinesManager.UI
         private void createToolbox()
         {
 
-            TLMUtils.createUIElement<UIPanel>(ref mainContainer, m_controller.TransformLinearMap);
+            TLMUtils.createUIElement(out mainContainer, m_controller.TransformLinearMap);
             mainContainer.absolutePosition = new Vector3(2f, TLMController.instance.uiView.fixedHeight - 300f);
             mainContainer.name = "TLMLineCreationToolbox";
             mainContainer.height = 190;
@@ -147,8 +147,7 @@ namespace Klyte.TransportLinesManager.UI
 
             uiHelper = new UIHelperExtension(mainContainer);
 
-            UILabel title = null;
-            TLMUtils.createUIElement<UILabel>(ref title, mainContainer.transform);
+            TLMUtils.createUIElement(out UILabel title, mainContainer.transform);
             title.autoSize = false;
             title.width = mainContainer.width;
             title.height = 30;
@@ -182,7 +181,7 @@ namespace Klyte.TransportLinesManager.UI
             linePrefixDropDown.normalBgSprite = "OptionsDropboxListbox";
             linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
 
-            TLMUtils.createUIElement<UITextField>(ref lineNumberTxtBox, mainContainer.transform);
+            TLMUtils.createUIElement(out lineNumberTxtBox, mainContainer.transform);
             lineNumberTxtBox.autoSize = false;
             lineNumberTxtBox.relativePosition = new Vector3(85f, 45f);
             lineNumberTxtBox.horizontalAlignment = UIHorizontalAlignment.Center;
@@ -201,7 +200,7 @@ namespace Klyte.TransportLinesManager.UI
             lineNumberTxtBox.zOrder = 10;
             lineNumberTxtBox.text = "0";
 
-            TLMUtils.createUIElement<UILabel>(ref lineFormat, mainContainer.transform);
+            TLMUtils.createUIElement(out lineFormat, mainContainer.transform);
             lineFormat.autoSize = false;
             lineFormat.width = 80;
             lineFormat.height = 80;
@@ -214,7 +213,7 @@ namespace Klyte.TransportLinesManager.UI
             lineFormat.atlas = TLMController.taLineNumber;
             TLMUtils.createDragHandle(lineFormat, mainContainer);
 
-            TLMUtils.createUIElement<UILabel>(ref lineNumber, lineFormat.transform);
+            TLMUtils.createUIElement(out lineNumber, lineFormat.transform);
             lineNumber.autoSize = false;
             lineNumber.width = lineFormat.width;
             lineNumber.pivot = UIPivotPoint.MiddleCenter;
@@ -228,14 +227,14 @@ namespace Klyte.TransportLinesManager.UI
 
             prefixIncrementChk = uiHelper.AddCheckboxLocale("TLM_AUTOINCREMENT_PREFIX", false, delegate (bool value)
              {
-                 if (TransportLinesManagerMod.debugMode)
+                 if (TLMSingleton.debugMode)
                  {
                      TLMUtils.doLog("Type = " + TLMConfigWarehouse.getConfigIndexForTransportInfo(transportTool.m_prefab) + "|prop=" + (TLMConfigWarehouse.getConfigIndexForTransportInfo(transportTool.m_prefab) | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT) + "|valToSet = " + value);
                  }
                  TLMConfigWarehouse.setCurrentConfigBool(TLMConfigWarehouse.getConfigIndexForTransportInfo(transportTool.m_prefab) | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT, value);
              });
             prefixIncrementChk.relativePosition = new Vector3(5f, 162.5f);
-            
+
         }
 
         private void setNextLinePrefix(UIComponent component, int value)

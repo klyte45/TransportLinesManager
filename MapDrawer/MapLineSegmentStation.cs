@@ -392,7 +392,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 addSegmentToIndex(saida[i - 1], saida[i]);
             }
-            if (TransportLinesManagerMod.instance == null || TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance == null || TLMSingleton.debugMode)
             {
                 string points = string.Join(",", saida.Select(x => "(" + x.x + "," + x.y + ")").ToArray());
                 TLMUtils.doLog("Points: [{0}]", points);

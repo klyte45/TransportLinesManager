@@ -566,8 +566,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 TransportLine intersectLine = tm.m_lines.m_buffer[(int)s.Value];
                 ItemClass.SubService ss = getLineNamingParameters(s.Value, out ModoNomenclatura prefixo, out Separador separador, out ModoNomenclatura sufixo, out ModoNomenclatura naoPrefixado, out bool zeros, out bool invertPrefixSuffix, out string bgSprite).subService;
-                UIButtonLineInfo lineCircleIntersect = null;
-                TLMUtils.createUIElement<UIButtonLineInfo>(ref lineCircleIntersect, intersectionsPanel.transform);
+                createUIElement(out UIButtonLineInfo lineCircleIntersect, intersectionsPanel.transform);
                 lineCircleIntersect.autoSize = false;
                 lineCircleIntersect.width = size;
                 lineCircleIntersect.height = size;
@@ -583,8 +582,7 @@ namespace Klyte.TransportLinesManager.Utils
                 lineCircleIntersect.lineID = s.Value;
                 lineCircleIntersect.tooltip = tm.GetLineName(s.Value);
                 lineCircleIntersect.eventClick += TLMController.instance.lineInfoPanel.openLineInfo;
-                UILabel lineNumberIntersect = null;
-                TLMUtils.createUIElement<UILabel>(ref lineNumberIntersect, lineCircleIntersect.transform);
+                TLMUtils.createUIElement(out UILabel lineNumberIntersect, lineCircleIntersect.transform);
                 lineNumberIntersect.autoSize = false;
                 lineNumberIntersect.autoHeight = false;
                 lineNumberIntersect.width = lineCircleIntersect.width;
@@ -604,8 +602,7 @@ namespace Klyte.TransportLinesManager.Utils
                 }
                 if (!day || !night || zeroed)
                 {
-                    UILabel daytimeIndicator = null;
-                    TLMUtils.createUIElement<UILabel>(ref daytimeIndicator, lineCircleIntersect.transform);
+                    TLMUtils.createUIElement(out UILabel daytimeIndicator, lineCircleIntersect.transform);
                     daytimeIndicator.autoSize = false;
                     daytimeIndicator.width = size;
                     daytimeIndicator.height = size;
@@ -657,8 +654,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         private static void addExtraStationBuildingIntersection(UIComponent parent, float size, string bgSprite, string description)
         {
-            UILabel lineCircleIntersect = null;
-            TLMUtils.createUIElement<UILabel>(ref lineCircleIntersect, parent.transform);
+            TLMUtils.createUIElement(out UILabel lineCircleIntersect, parent.transform);
             lineCircleIntersect.autoSize = false;
             lineCircleIntersect.width = size;
             lineCircleIntersect.height = size;

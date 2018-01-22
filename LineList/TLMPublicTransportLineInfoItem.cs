@@ -389,7 +389,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
 
-            if (TransportLinesManagerMod.isIPTLoaded)
+            if (TLMSingleton.isIPTLoaded)
             {
                 m_DisabledLine.isEnabled = false;
                 m_DisabledLine.isVisible = false;
@@ -465,7 +465,7 @@ namespace Klyte.TransportLinesManager.LineList
 
             //Auto color & Auto Name
             UIButton buttonAutoName = null;
-            TLMUtils.createUIElement<UIButton>(ref buttonAutoName, transform);
+            TLMUtils.createUIElement(out buttonAutoName, transform);
             buttonAutoName.pivot = UIPivotPoint.TopRight;
             buttonAutoName.relativePosition = new Vector3(164, 2);
             buttonAutoName.text = "A";
@@ -482,7 +482,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
             UIButton buttonAutoColor = null;
-            TLMUtils.createUIElement<UIButton>(ref buttonAutoColor, transform);
+            TLMUtils.createUIElement(out buttonAutoColor, transform);
             buttonAutoColor.pivot = UIPivotPoint.TopRight;
             buttonAutoColor.relativePosition = new Vector3(90, 2);
             buttonAutoColor.text = "A";
@@ -500,7 +500,7 @@ namespace Klyte.TransportLinesManager.LineList
 
             m_lineIncompleteWarning = base.Find<UIPanel>("WarningIncomplete");
 
-            TLMUtils.createUIElement(ref m_perHourBudgetInfo, transform);
+            TLMUtils.createUIElement(out m_perHourBudgetInfo, transform);
             m_perHourBudgetInfo.name="PerHourIndicator";
             m_perHourBudgetInfo.autoSize = false;
             m_perHourBudgetInfo.autoHeight = true;

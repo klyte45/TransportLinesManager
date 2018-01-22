@@ -432,31 +432,47 @@ namespace Klyte.TransportLinesManager.Utils
         #region Logging
         public static void doLog(string format, params object[] args)
         {
-            if (TransportLinesManagerMod.instance != null)
+            if (TLMSingleton.instance != null)
             {
-                if (TransportLinesManagerMod.debugMode)
+                if (TLMSingleton.debugMode)
                 {
-                    Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
+                    Debug.LogWarningFormat("TLMRv" + TLMSingleton.version + " " + format, args);
                 }
             }
             else
             {
-                Console.WriteLine("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
+                Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
             }
         }
         public static void doErrorLog(string format, params object[] args)
         {
-            if (TransportLinesManagerMod.instance != null)
+            if (TLMSingleton.instance != null)
             {
-                Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
+                Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " " + format, args);
             }
             else
             {
-                Console.WriteLine("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
+                Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
             }
 
         }
         #endregion
+
+        internal static List<string> LoadBasicAssets(TransportSystemDefinition definition)
+        {
+            List<string> basicAssetsList = new List<string>();
+
+            TLMUtils.doLog("LoadBasicAssets: pre prefab read");
+            for (uint num = 0u; (ulong)num < (ulong)((long)PrefabCollection<VehicleInfo>.PrefabCount()); num += 1u)
+            {
+                VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
+                if (!(prefab == null) && definition.isFromSystem(prefab) && !IsTrailer(prefab))
+                {
+                    basicAssetsList.Add(prefab.name);
+                }
+            }
+            return basicAssetsList;
+        }
     }
 
 

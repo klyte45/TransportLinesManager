@@ -40,7 +40,7 @@ namespace Klyte.TransportLinesManager.Overrides
             #endregion
 
             #region Ticket Override Hooks
-            if (!TransportLinesManagerMod.isIPTLoaded)
+            if (!TLMSingleton.isIPTLoaded)
             {
                 MethodInfo GetTicketPricePost_PassengerPlaneAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerPlaneAI", allFlags);
                 MethodInfo GetTicketPricePost_PassengerShipAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerShipAI", allFlags);
@@ -65,7 +65,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
             #region Budget Override Hooks
 
-            if (!TransportLinesManagerMod.isIPTLoaded)
+            if (!TLMSingleton.isIPTLoaded)
             {
                 MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("SimulationStepPre", allFlags);
 
@@ -211,7 +211,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
             if (def == default(TransportSystemDefinition))
             {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("NULL TSysDef! {0}+{1}+{2}", vehicleData.Info.GetAI().GetType(), vehicleData.Info.m_class.m_subService, vehicleData.Info.m_vehicleType);
                 return defaultPrice;
             }

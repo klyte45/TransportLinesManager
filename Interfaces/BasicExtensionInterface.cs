@@ -142,16 +142,16 @@ namespace Klyte.TransportLinesManager.Interfaces
             }
             else
             {
-                loadedConfig = TransportLinesManagerMod.instance.currentLoadedCityConfig;
+                loadedConfig = TLMSingleton.instance.currentLoadedCityConfig;
             }
             var value = RecursiveEncode(target);
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("saveConfig ({0}) NEW VALUE: {1}", idx, value);
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("saveConfig ({0}) NEW VALUE: {1}", idx, value);
             loadedConfig.setString(idx, value);
         }
         public Dictionary<uint, Dictionary<T, string>> LoadConfig(TLMConfigWarehouse.ConfigIndex idx, bool global = false)
         {
             var result = new Dictionary<uint, Dictionary<T, string>>();
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("{0} load()", idx);
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("{0} load()", idx);
             string[] itemListLvl1;
             if (global && !AllowGlobal) { throw new Exception("CONFIGURAÇÂO NÃO GLOBAL TENTOU SER CARREGADA COMO GLOBAL: " + typeof(U)); }
             if (global)
@@ -165,14 +165,14 @@ namespace Klyte.TransportLinesManager.Interfaces
 
             if (itemListLvl1.Length > 0)
             {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("{0} load(): file.Length > 0", idx);
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("{0} load(): file.Length > 0", idx);
                 foreach (string s in itemListLvl1)
                 {
                     uint key = GetIndexFromStringArray(s);
                     var value = GetValueFromStringArray(s);
                     result[key] = value;
                 }
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("{0} load(): dic done", idx);
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("{0} load(): dic done", idx);
                 result.Remove(~0u);
             }
             return result;

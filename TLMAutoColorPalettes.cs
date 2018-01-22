@@ -211,7 +211,7 @@ namespace Klyte.TransportLinesManager
         public static string[] paletteList
         {
             get {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("TLMAutoColorPalettes paletteList");
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("TLMAutoColorPalettes paletteList");
                 if (m_palettes == null)
                 {
                     init();
@@ -223,7 +223,7 @@ namespace Klyte.TransportLinesManager
         public static string[] paletteListForEditing
         {
             get {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("TLMAutoColorPalettes paletteListForEditing");
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("TLMAutoColorPalettes paletteListForEditing");
                 if (m_palettes == null)
                 {
                     init();
@@ -234,20 +234,20 @@ namespace Klyte.TransportLinesManager
 
         private static void init()
         {
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("TLMAutoColorPalettes init()");
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("TLMAutoColorPalettes init()");
             m_palettes = new Dictionary<string, AutoColorPalette>();
             load();
         }
 
         private static void load()
         {
-            string serializedInfo = TransportLinesManagerMod.savedPalettes.value;
+            string serializedInfo = TLMSingleton.savedPalettes.value;
 
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading palettes - separator: {1} ; save Value: {0}", serializedInfo, SERIALIZER_ITEM_SEPARATOR);
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("Loading palettes - separator: {1} ; save Value: {0}", serializedInfo, SERIALIZER_ITEM_SEPARATOR);
             string[] items = serializedInfo.Split(SERIALIZER_ITEM_SEPARATOR);
             foreach (string item in items)
             {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode) TLMUtils.doLog("Loading palette {0}", items);
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("Loading palette {0}", items);
                 AutoColorPalette acp = AutoColorPalette.parseFromString(item);
                 if (acp != null)
                 {
@@ -274,7 +274,7 @@ namespace Klyte.TransportLinesManager
 
         public static void save()
         {
-            TransportLinesManagerMod.savedPalettes.value = ToString(m_palettes.Values);
+            TLMSingleton.savedPalettes.value = ToString(m_palettes.Values);
         }
 
         public static Color32 getColor(int number, string paletteName, bool randomOnPaletteOverflow, bool avoidRandom = false)

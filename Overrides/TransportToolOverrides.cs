@@ -62,7 +62,7 @@ namespace Klyte.TransportLinesManager.Overrides
         private static void OnEnable()
         {
             TLMUtils.doLog("OnEnableTransportTool");
-            TransportLinesManagerMod.instance.showVersionInfoPopup();
+            TLMSingleton.instance.showVersionInfoPopup();
             TLMController.instance.LinearMapCreatingLine?.setVisible(true);
             TLMController.instance.LineCreationToolbox?.setVisible(true);
             TLMController.instance.setCurrentSelectedId(0);

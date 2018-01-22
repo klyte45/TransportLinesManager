@@ -18,7 +18,7 @@ namespace Klyte.TransportLinesManager.LineList
     internal class TLMLineInfoPanel : LinearMapParentInterface<TLMLineInfoPanel>
     {
         private TLMAgesChartPanel m_agesPanel;
-        private TLMController m_controller;
+        private TLMController m_controller => TLMController.instance;
         private TLMLinearMap m_linearMap;
         private int m_lastStopsCount = 0;
 
@@ -55,7 +55,8 @@ namespace Klyte.TransportLinesManager.LineList
         private UIDropDown m_firstStopSelect;
         private UITextField m_ticketPriceEditor;
 
-        public TLMAssetSelectorWindow assetSelectorWindow { get; private set; }
+        private TLMAssetSelectorWindow m_assetSelectorWindow;
+        public TLMAssetSelectorWindow assetSelectorWindow => m_assetSelectorWindow;
 
         #region Getters
         public UILabel autoNameLabel
@@ -69,30 +70,6 @@ namespace Klyte.TransportLinesManager.LineList
         {
             get {
                 return m_lineInfoPanel.transform;
-            }
-        }
-
-
-        public new Transform transform
-        {
-            get {
-                return m_lineInfoPanel.transform;
-            }
-        }
-
-        public new GameObject gameObject
-        {
-            get {
-                try
-                {
-                    return m_lineInfoPanel.gameObject;
-                }
-#pragma warning disable CS0168 // Variable is declared but never used
-                catch (Exception e)
-#pragma warning restore CS0168 // Variable is declared but never used
-                {
-                    return null;
-                }
             }
         }
 
@@ -168,9 +145,8 @@ namespace Klyte.TransportLinesManager.LineList
         #endregion
 
         #region Instantiation
-        public TLMLineInfoPanel(TLMController controller)
+        public void Awake()
         {
-            this.m_controller = controller;
             GameObject gameObject = GameObject.FindGameObjectWithTag("MainCamera");
             if (gameObject != null)
             {
@@ -201,9 +177,11 @@ namespace Klyte.TransportLinesManager.LineList
 
             CreateTicketPriceEditor();
 
-            m_agesPanel = new TLMAgesChartPanel(this.transform);
-            m_linearMap = new TLMLinearMap(this);
-            assetSelectorWindow = new TLMAssetSelectorWindow(this);
+            TLMUtils.createElement(out m_agesPanel, m_lineInfoPanel.transform);
+            TLMUtils.createElement(out m_linearMap, transform);
+            m_linearMap.parent = this;
+            TLMUtils.createElement(out m_assetSelectorWindow, transform);
+            m_assetSelectorWindow.lineInfo = this;
         }
 
         private void CreateIgnorePrefixBudgetOption()
@@ -275,7 +253,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void CreateBudgetSliders()
         {
-            TLMUtils.createUIElement<UILabel>(ref m_lineBudgetSlidersTitle, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_lineBudgetSlidersTitle, m_lineInfoPanel.transform);
             m_lineBudgetSlidersTitle.autoSize = false;
             m_lineBudgetSlidersTitle.relativePosition = new Vector3(15f, 100f);
             m_lineBudgetSlidersTitle.width = 400f;
@@ -381,7 +359,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void createRightLineActionButtons()
         {
-            TLMUtils.createUIElement<UILabel>(ref m_autoNameLabel, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_autoNameLabel, m_lineInfoPanel.transform);
             m_autoNameLabel.autoSize = false;
             m_autoNameLabel.relativePosition = new Vector3(400f, 120f);
             m_autoNameLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -395,8 +373,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_autoNameLabel.textAlignment = UIHorizontalAlignment.Right;
             m_autoNameLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            UIButton deleteLine = null;
-            TLMUtils.createUIElement<UIButton>(ref deleteLine, transform);
+            TLMUtils.createUIElement(out UIButton deleteLine, m_lineInfoPanel.transform);
             deleteLine.relativePosition = new Vector3(m_lineInfoPanel.width - 150f, m_lineInfoPanel.height - 230f);
             deleteLine.textScale = 0.6f;
             deleteLine.width = 40;
@@ -432,8 +409,7 @@ namespace Klyte.TransportLinesManager.LineList
             icon.color = Color.red;
 
             //Auto color & Auto Name
-            UIButton buttonAutoName = null;
-            TLMUtils.createUIElement<UIButton>(ref buttonAutoName, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out UIButton buttonAutoName, m_lineInfoPanel.transform);
             buttonAutoName.textScale = 0.6f;
             buttonAutoName.relativePosition = new Vector3(m_lineInfoPanel.width - 50f, m_lineInfoPanel.height - 230f);
             buttonAutoName.width = 40;
@@ -455,8 +431,7 @@ namespace Klyte.TransportLinesManager.LineList
             icon.width = 36;
             icon.height = 36;
 
-            UIButton buttonAutoColor = null;
-            TLMUtils.createUIElement<UIButton>(ref buttonAutoColor, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out UIButton buttonAutoColor, m_lineInfoPanel.transform);
             buttonAutoColor.relativePosition = new Vector3(m_lineInfoPanel.width - 100f, m_lineInfoPanel.height - 230f);
             buttonAutoColor.textScale = 0.6f;
             buttonAutoColor.width = 40;
@@ -478,7 +453,7 @@ namespace Klyte.TransportLinesManager.LineList
             icon.height = 36;
             icon.spriteName = "AutoColorIcon";
 
-            TLMUtils.createUIElement<UIButton>(ref m_enableBudgetPerHour, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_enableBudgetPerHour, m_lineInfoPanel.transform);
             m_enableBudgetPerHour.relativePosition = new Vector3(m_lineInfoPanel.width - 200f, m_lineInfoPanel.height - 230f);
             m_enableBudgetPerHour.textScale = 0.6f;
             m_enableBudgetPerHour.width = 40;
@@ -524,7 +499,7 @@ namespace Klyte.TransportLinesManager.LineList
             icon.spriteName = "PerHourIcon";
 
 
-            TLMUtils.createUIElement<UIButton>(ref m_disableBudgetPerHour, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_disableBudgetPerHour, m_lineInfoPanel.transform);
             m_disableBudgetPerHour.relativePosition = new Vector3(m_lineInfoPanel.width - 200f, m_lineInfoPanel.height - 230f);
             m_disableBudgetPerHour.textScale = 0.6f;
             m_disableBudgetPerHour.width = 40;
@@ -565,7 +540,7 @@ namespace Klyte.TransportLinesManager.LineList
             icon.height = 36;
             icon.spriteName = "24hLineIcon";
 
-            TLMUtils.createUIElement<UIButton>(ref m_goToWorldInfoPanel, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_goToWorldInfoPanel, m_lineInfoPanel.transform);
             m_goToWorldInfoPanel.relativePosition = new Vector3(m_lineInfoPanel.width - 200f, m_lineInfoPanel.height - 230f);
             m_goToWorldInfoPanel.text = "IPT2";
             m_goToWorldInfoPanel.textScale = 0.6f;
@@ -583,7 +558,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void createLineInfoLabels()
         {
-            TLMUtils.createUIElement<UILabel>(ref m_lineLenghtLabel, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_lineLenghtLabel, m_lineInfoPanel.transform);
             m_lineLenghtLabel.autoSize = false;
             m_lineLenghtLabel.relativePosition = new Vector3(10f, 45f);
             m_lineLenghtLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -596,7 +571,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_lineLenghtLabel.textScale = 0.6f;
             m_lineLenghtLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement<UILabel>(ref m_veiculosLinhaLabel, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_veiculosLinhaLabel, m_lineInfoPanel.transform);
             m_veiculosLinhaLabel.autoSize = false;
             m_veiculosLinhaLabel.relativePosition = new Vector3(10f, 55);
             m_veiculosLinhaLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -607,7 +582,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_veiculosLinhaLabel.textScale = 0.6f;
             m_veiculosLinhaLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement<UILabel>(ref m_viagensEvitadasLabel, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_viagensEvitadasLabel, m_lineInfoPanel.transform);
             m_viagensEvitadasLabel.autoSize = false;
             m_viagensEvitadasLabel.relativePosition = new Vector3(10f, 65);
             m_viagensEvitadasLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -618,7 +593,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_viagensEvitadasLabel.textScale = 0.6f;
             m_viagensEvitadasLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement<UILabel>(ref m_passageirosEturistasLabel, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_passageirosEturistasLabel, m_lineInfoPanel.transform);
             m_passageirosEturistasLabel.autoSize = false;
             m_passageirosEturistasLabel.relativePosition = new Vector3(10f, 75f);
             m_passageirosEturistasLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -629,7 +604,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_passageirosEturistasLabel.textScale = 0.6f;
             m_passageirosEturistasLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement<UILabel>(ref m_budgetLabel, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_budgetLabel, m_lineInfoPanel.transform);
             m_budgetLabel.autoSize = false;
             m_budgetLabel.relativePosition = new Vector3(10f, 85f);
             m_budgetLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -645,7 +620,7 @@ namespace Klyte.TransportLinesManager.LineList
         {
 
 
-            TLMUtils.createUIElement<UILabel>(ref m_lineTransportIconTypeLabel, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_lineTransportIconTypeLabel, m_lineInfoPanel.transform);
             m_lineTransportIconTypeLabel.autoSize = false;
             m_lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 12f);
             m_lineTransportIconTypeLabel.width = 30;
@@ -674,7 +649,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
 
 
-            TLMUtils.createUIElement<UITextField>(ref m_lineNumberLabel, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_lineNumberLabel, m_lineInfoPanel.transform);
             m_lineNumberLabel.autoSize = false;
             m_lineNumberLabel.relativePosition = new Vector3(80f, 5f);
             m_lineNumberLabel.horizontalAlignment = UIHorizontalAlignment.Center;
@@ -693,7 +668,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_lineNumberLabel.zOrder = 10;
 
 
-            TLMUtils.createUIElement<UITextField>(ref m_lineNameField, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out m_lineNameField, m_lineInfoPanel.transform);
             m_lineNameField.autoSize = false;
             m_lineNameField.relativePosition = new Vector3(190f, 11f);
             m_lineNameField.horizontalAlignment = UIHorizontalAlignment.Center;
@@ -718,12 +693,13 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
 
-            m_lineColorPicker = GameObject.Instantiate(PublicTransportWorldInfoPanel.FindObjectOfType<UIColorField>().gameObject).GetComponent<UIColorField>();
-            m_lineInfoPanel.AttachUIComponent(m_lineColorPicker.gameObject);
+            m_lineColorPicker = KlyteUtils.CreatColorField(m_lineInfoPanel);
             m_lineColorPicker.name = "LineColorPicker";
-            m_lineColorPicker.relativePosition = new Vector3(42f, 10f);
-            m_lineColorPicker.enabled = true;
             m_lineColorPicker.anchor = UIAnchorStyle.Top & UIAnchorStyle.Left;
+            m_lineColorPicker.relativePosition = new Vector3(42f, 10f);
+            m_lineColorPicker.height = 26f;
+            m_lineColorPicker.width = 26f;
+            m_lineColorPicker.enabled = true;
             m_lineColorPicker.eventSelectedColorChanged += (UIComponent component, Color value) =>
             {
                 TLMLineUtils.setLineColor(m_lineIdSelecionado.TransportLine, value);
@@ -731,8 +707,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
 
-            UIButton voltarButton2 = null;
-            TLMUtils.createUIElement<UIButton>(ref voltarButton2, m_lineInfoPanel.transform);
+            TLMUtils.createUIElement(out UIButton voltarButton2, m_lineInfoPanel.transform);
             voltarButton2.relativePosition = new Vector3(m_lineInfoPanel.width - 40f, 5f);
             voltarButton2.width = 30;
             voltarButton2.height = 30;
@@ -743,7 +718,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void createMainPanel()
         {
-            TLMUtils.createUIElement<UIPanel>(ref m_lineInfoPanel, m_controller.mainRef.transform);
+            TLMUtils.createUIElement(out m_lineInfoPanel, m_controller.mainRef.transform);
             m_lineInfoPanel.Hide();
             m_lineInfoPanel.relativePosition = new Vector3(394.0f, 0.0f);
             m_lineInfoPanel.width = 650;
@@ -971,7 +946,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void updateSliders()
         {
-            if (TransportLinesManagerMod.isIPTLoaded)
+            if (TLMSingleton.isIPTLoaded)
             {
                 m_goToWorldInfoPanel.isVisible = true;
                 m_disableBudgetPerHour.isVisible = false;

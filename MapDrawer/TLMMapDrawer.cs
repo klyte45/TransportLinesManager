@@ -710,7 +710,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 return 0;
             }
-            if (object.ReferenceEquals(left, null))
+            if (object.ReferenceEquals(left, default(CardinalPoint)))
             {
                 return -1;
             }

@@ -13,13 +13,25 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.LineList.ExtraUI
 {
-    internal class TLMAssetSelectorWindow
+    internal class TLMAssetSelectorWindow :MonoBehaviour
     {
         private UIPanel m_parent => m_lineInfo.mainPanel;
         private UIPanel m_mainPanel;
         private UIHelperExtension m_uiHelper;
         private UILabel m_title;
         private TLMLineInfoPanel m_lineInfo;
+        public TLMLineInfoPanel lineInfo {
+            get {
+                return m_lineInfo;
+            }
+            set {
+                if(m_lineInfo == null)
+                {
+                    m_lineInfo = value;
+                    CreateWindow();
+                }
+            }
+        }
 
         private UIScrollablePanel m_scrollablePanel;
         private UIScrollbar m_scrollbar;
@@ -31,13 +43,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
         private Dictionary<string, UICheckBox> m_checkboxes = new Dictionary<string, UICheckBox>();
         private TransportSystemDefinition m_lastDef = null;
         private bool m_isLoading;
-
-        public TLMAssetSelectorWindow(TLMLineInfoPanel parent)
-        {
-            m_lineInfo = parent;
-            CreateWindow();
-        }
-
+        
         private void CreateWindow()
         {
             CreateMainPanel();
@@ -53,8 +59,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
 
         private void CreateRemoveUndesiredModelsButton()
         {
-            UIButton removeUndesired = null;
-            TLMUtils.createUIElement<UIButton>(ref removeUndesired, m_mainPanel.transform);
+            TLMUtils.createUIElement<UIButton>(out UIButton removeUndesired, m_mainPanel.transform);
             removeUndesired.relativePosition = new Vector3(m_mainPanel.width - 25f, 10f);
             removeUndesired.textScale = 0.6f;
             removeUndesired.width = 20;
@@ -78,7 +83,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
 
         private void CreateMainPanel()
         {
-            TLMUtils.createUIElement(ref m_mainPanel, m_parent.transform);
+            TLMUtils.createUIElement(out m_mainPanel, m_parent.transform);
             m_mainPanel.Hide();
             m_mainPanel.relativePosition = new Vector3(m_parent.width, 0.0f);
             m_mainPanel.width = 250;
@@ -98,7 +103,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                 m_mainPanel.isVisible = value;
             };
 
-            TLMUtils.createUIElement(ref m_title, m_mainPanel.transform);
+            TLMUtils.createUIElement(out m_title, m_mainPanel.transform);
             m_title.textAlignment = UIHorizontalAlignment.Center;
             m_title.autoSize = false;
             m_title.autoHeight = true;
@@ -109,7 +114,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
 
         private void CreateScrollPanel()
         {
-            TLMUtils.createUIElement(ref m_scrollablePanel, m_mainPanel.transform);
+            TLMUtils.createUIElement(out m_scrollablePanel, m_mainPanel.transform);
             m_scrollablePanel.width = m_mainPanel.width - 20f;
             m_scrollablePanel.height = m_mainPanel.height - 50f;
             m_scrollablePanel.autoLayoutDirection = LayoutDirection.Vertical;
@@ -119,8 +124,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
             m_scrollablePanel.clipChildren = true;
             m_scrollablePanel.relativePosition = new Vector3(5, 45);
 
-            UIPanel trackballPanel = null;
-            TLMUtils.createUIElement(ref trackballPanel, m_mainPanel.transform);
+            TLMUtils.createUIElement(out UIPanel trackballPanel, m_mainPanel.transform);
             trackballPanel.width = 10f;
             trackballPanel.height = m_scrollablePanel.height;
             trackballPanel.autoLayoutDirection = LayoutDirection.Horizontal;
@@ -130,7 +134,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
             trackballPanel.relativePosition = new Vector3(m_mainPanel.width - 15, 45);
 
 
-            TLMUtils.createUIElement(ref m_scrollbar, trackballPanel.transform);
+            TLMUtils.createUIElement(out m_scrollbar, trackballPanel.transform);
             m_scrollbar.width = 10f;
             m_scrollbar.height = m_scrollbar.parent.height;
             m_scrollbar.orientation = UIOrientation.Vertical;
@@ -140,8 +144,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
             m_scrollbar.value = 0f;
             m_scrollbar.incrementAmount = 25f;
 
-            UISlicedSprite scrollBg = null;
-            TLMUtils.createUIElement(ref scrollBg, m_scrollbar.transform);
+            TLMUtils.createUIElement(out UISlicedSprite scrollBg, m_scrollbar.transform);
             scrollBg.relativePosition = Vector2.zero;
             scrollBg.autoSize = true;
             scrollBg.size = scrollBg.parent.size;
@@ -149,8 +152,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
             scrollBg.spriteName = "ScrollbarTrack";
             m_scrollbar.trackObject = scrollBg;
 
-            UISlicedSprite scrollFg = null;
-            TLMUtils.createUIElement(ref scrollFg, scrollBg.transform);
+            TLMUtils.createUIElement(out UISlicedSprite scrollFg, scrollBg.transform);
             scrollFg.relativePosition = Vector2.zero;
             scrollFg.fillDirection = UIFillDirection.Vertical;
             scrollFg.autoSize = true;
@@ -271,15 +273,15 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
 
         private void SetPreviewWindow()
         {
-            TLMUtils.createUIElement(ref m_previewPanel, m_mainPanel.transform);
+            TLMUtils.createUIElement(out m_previewPanel, m_mainPanel.transform);
             m_previewPanel.backgroundSprite = "GenericPanel";
             m_previewPanel.width = m_mainPanel.width + 100f;
             m_previewPanel.height = m_mainPanel.width;
             m_previewPanel.relativePosition = new Vector3(-50f, m_mainPanel.height);
-            TLMUtils.createUIElement(ref m_preview, m_previewPanel.transform);
+            TLMUtils.createUIElement(out m_preview, m_previewPanel.transform);
             this.m_preview.size = m_previewPanel.size;
             this.m_preview.relativePosition = Vector3.zero;
-            TLMUtils.createUIElement(ref m_previewRenderer, m_mainPanel.transform);
+            TLMUtils.createElement(out m_previewRenderer, m_mainPanel.transform);
             this.m_previewRenderer.size = this.m_preview.size * 2f;
             this.m_preview.texture = this.m_previewRenderer.texture;
             m_previewRenderer.zoom = 3;

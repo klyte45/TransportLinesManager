@@ -61,7 +61,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
 
         public void Init()
         {
-            if (TransportLinesManagerMod.isIPTLoaded)
+            if (TLMSingleton.isIPTLoaded)
             {
                 return;
             }

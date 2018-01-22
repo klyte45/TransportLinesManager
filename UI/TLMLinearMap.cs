@@ -17,10 +17,23 @@ using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
 namespace Klyte.TransportLinesManager.UI
 {
-    public class TLMLinearMap
+    public class TLMLinearMap : MonoBehaviour
     {
 
-        private ILinearMapParentInterface parent;
+        internal ILinearMapParentInterface parent
+        {
+            private get {
+                return m_parent;
+            }
+            set {
+                if (m_parent == null)
+                {
+                    m_parent = value;
+                    createLineStationsLinearView();
+                }
+            }
+        }
+        private ILinearMapParentInterface m_parent;
         private UILabel linearMapLineNumberFormat;
         private UILabel linearMapLineNumber;
         private UILabel linearMapLineTime;
@@ -51,7 +64,7 @@ namespace Klyte.TransportLinesManager.UI
         }
 
 
-        public GameObject gameObject
+        public GameObject containerGameObject
         {
             get {
                 try
@@ -74,13 +87,7 @@ namespace Klyte.TransportLinesManager.UI
                 return m_autoName;
             }
         }
-
-        public TLMLinearMap(ILinearMapParentInterface lip)
-        {
-            parent = lip;
-            createLineStationsLinearView();
-        }
-
+        
         public void setLinearMapColor(Color c)
         {
             linearMapLineNumberFormat.color = c;
@@ -156,7 +163,7 @@ namespace Klyte.TransportLinesManager.UI
                     local = getStation(lineID, stationId, ss, out stationName, out List<ushort> intersections, out airport, out harbor, out taxi, out regionalStation, out cableCarStation, out namePrefix);
                     lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor, true);
                 }
-                else if (TransportLinesManagerMod.showDistanceInLinearMap || parent.ForceShowStopsDistances)
+                else if (TLMSingleton.showDistanceInLinearMap || parent.ForceShowStopsDistances)
                 {
                     minI--;
                 }
@@ -207,10 +214,9 @@ namespace Klyte.TransportLinesManager.UI
         private void AddVehicleToLinearMap(Color lineColor, ushort vehicleId)
         {
 
-            UILabel vehicleLabel = null;
             TLMLineUtils.GetVehicleCapacityAndFill(vehicleId, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId], out int fill, out int cap);
 
-            TLMUtils.createUIElement<UILabel>(ref vehicleLabel, lineStationsPanel.transform);
+            TLMUtils.createUIElement(out UILabel vehicleLabel, lineStationsPanel.transform);
             vehicleLabel.autoSize = false;
             vehicleLabel.text = string.Format("{0}/{1}", fill, cap);
             vehicleLabel.useOutline = true;
@@ -234,8 +240,7 @@ namespace Klyte.TransportLinesManager.UI
                 Camera.main.GetComponent<CameraController>().SetTarget(id, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].GetLastFramePosition(), true);
             };
             UIDragHandle dh = TLMUtils.createDragHandle(vehicleLabel, vehicleLabel);
-            DraggableVehicleInfo dvi = null;
-            TLMUtils.createUIElement<DraggableVehicleInfo>(ref dvi, vehicleLabel.transform);
+            TLMUtils.createUIElement(out DraggableVehicleInfo dvi, vehicleLabel.transform);
             dvi.vehicleId = vehicleId;
             dvi.name = "Vehicle" + vehicleId;
 
@@ -370,13 +375,13 @@ namespace Klyte.TransportLinesManager.UI
 
         private void createLineStationsLinearView()
         {
-            TLMUtils.createUIElement<UIPanel>(ref mainContainer, parent.TransformLinearMap);
+            TLMUtils.createUIElement(out mainContainer, parent.TransformLinearMap);
             mainContainer.absolutePosition = new Vector3(2f, TLMController.instance.uiView.fixedHeight - 300f);
             mainContainer.name = "LineStationsLinearView";
             mainContainer.height = 50;
             mainContainer.autoSize = true;
 
-            TLMUtils.createUIElement<UILabel>(ref linearMapLineNumberFormat, mainContainer.transform);
+            TLMUtils.createUIElement(out linearMapLineNumberFormat, mainContainer.transform);
             linearMapLineNumberFormat.autoSize = false;
             linearMapLineNumberFormat.width = 50;
             linearMapLineNumberFormat.height = 50;
@@ -392,7 +397,7 @@ namespace Klyte.TransportLinesManager.UI
 
 
 
-            TLMUtils.createUIElement<UILabel>(ref linearMapLineNumber, linearMapLineNumberFormat.transform);
+            TLMUtils.createUIElement(out linearMapLineNumber, linearMapLineNumberFormat.transform);
 
             linearMapLineNumber.autoSize = false;
             linearMapLineNumber.width = linearMapLineNumberFormat.width;
@@ -406,7 +411,7 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineNumber.verticalAlignment = UIVerticalAlignment.Middle;
 
 
-            TLMUtils.createUIElement<UILabel>(ref linearMapLineTime, linearMapLineNumberFormat.transform);
+            TLMUtils.createUIElement(out linearMapLineTime, linearMapLineNumberFormat.transform);
             linearMapLineTime.autoSize = false;
             linearMapLineTime.width = 50;
             linearMapLineTime.height = 50;
@@ -461,7 +466,7 @@ namespace Klyte.TransportLinesManager.UI
 
             if (parent.CanSwitchView)
             {
-                TLMUtils.createUIElement<UIButton>(ref infoToggle, mainContainer.transform);
+                TLMUtils.createUIElement(out infoToggle, mainContainer.transform);
                 TLMUtils.initButton(infoToggle, true, "ButtonMenu");
                 infoToggle.relativePosition = new Vector3(0f, 60f);
                 infoToggle.width = 50;
@@ -488,7 +493,7 @@ namespace Klyte.TransportLinesManager.UI
                 };
 
 
-                TLMUtils.createUIElement<UIButton>(ref distanceToggle, mainContainer.transform);
+                TLMUtils.createUIElement(out distanceToggle, mainContainer.transform);
                 TLMUtils.initButton(distanceToggle, true, "ButtonMenu");
                 distanceToggle.relativePosition = new Vector3(0f, 135f);
                 distanceToggle.width = 50;
@@ -500,7 +505,7 @@ namespace Klyte.TransportLinesManager.UI
                 distanceToggle.text = "Δd";
                 distanceToggle.eventClick += (x, y) =>
                 {
-                    TransportLinesManagerMod.showDistanceInLinearMap = !TransportLinesManagerMod.showDistanceInLinearMap;
+                    TLMSingleton.showDistanceInLinearMap = !TLMSingleton.showDistanceInLinearMap;
                     redrawLine();
                 };
             }
@@ -578,7 +583,7 @@ namespace Klyte.TransportLinesManager.UI
         private void createLineStationsPanel()
         {
 
-            TLMUtils.createUIElement<UIPanel>(ref lineStationsPanel, mainContainer.transform);
+            TLMUtils.createUIElement(out lineStationsPanel, mainContainer.transform);
             lineStationsPanel.width = 140;
             lineStationsPanel.height = 30;
             lineStationsPanel.name = "LineStationsPanel";
@@ -601,8 +606,7 @@ namespace Klyte.TransportLinesManager.UI
             TransportManager tm = Singleton<TransportManager>.instance;
 
 
-            UIButton stationButton = null;
-            TLMUtils.createUIElement<UIButton>(ref stationButton, lineStationsPanel.transform);
+            TLMUtils.createUIElement(out UIButton stationButton, lineStationsPanel.transform);
             stationButton.relativePosition = new Vector3(offsetX - 13, 15f);
             stationButton.width = 20;
             stationButton.height = 20;
@@ -612,13 +616,11 @@ namespace Klyte.TransportLinesManager.UI
             stationButton.tooltip = stationName + "(id:" + stationNodeId + ")";
             TLMUtils.initButton(stationButton, true, "LinearStation");
 
-            DroppableStationInfo dsi = null;
-            TLMUtils.createUIElement<DroppableStationInfo>(ref dsi, stationButton.transform);
+            TLMUtils.createUIElement(out DroppableStationInfo dsi, stationButton.transform);
             dsi.nodeId = stationNodeId;
             dsi.name = "DSI Station [" + stationName + "] - " + stationNodeId;
 
-            UITextField stationLabel = null;
-            TLMUtils.createUIElement<UITextField>(ref stationLabel, stationButton.transform);
+            TLMUtils.createUIElement(out UITextField stationLabel, stationButton.transform);
             stationLabel.autoSize = true;
             stationLabel.width = 220;
             stationLabel.height = 20;
@@ -677,7 +679,7 @@ namespace Klyte.TransportLinesManager.UI
                     UILabel distance = null;
                     int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0) + (cableCarStation != string.Empty ? 1 : 0);
 
-                    if ((TransportLinesManagerMod.showDistanceInLinearMap || parent.ForceShowStopsDistances) && offsetX > 0)
+                    if ((TLMSingleton.showDistanceInLinearMap || parent.ForceShowStopsDistances) && offsetX > 0)
                     {
                         NetSegment seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment0];
                         if (seg.m_endNode != stationNodeId)
@@ -712,11 +714,10 @@ namespace Klyte.TransportLinesManager.UI
                         {
                             seg = default(NetSegment);
                         }
-                        UIPanel distContainer = null;
-                        TLMUtils.createUIElement<UIPanel>(ref distContainer, stationButton.transform);
+                        TLMUtils.createUIElement(out UIPanel distContainer, stationButton.transform);
                         distContainer.size = new Vector2(0, 0);
                         distContainer.relativePosition = new Vector3(0, 0, 0);
-                        TLMUtils.createUIElement<UILabel>(ref distance, distContainer.transform);
+                        TLMUtils.createUIElement(out distance, distContainer.transform);
                         distance.autoSize = false;
                         distance.useOutline = true;
                         if (seg.Equals(default(NetSegment)))
@@ -742,8 +743,7 @@ namespace Klyte.TransportLinesManager.UI
 
                     if (intersectionCount > 0)
                     {
-                        UIPanel intersectionsPanel = null;
-                        TLMUtils.createUIElement<UIPanel>(ref intersectionsPanel, stationButton.transform);
+                        TLMUtils.createUIElement(out UIPanel intersectionsPanel, stationButton.transform);
                         intersectionsPanel.autoSize = false;
                         intersectionsPanel.autoLayout = false;
                         intersectionsPanel.autoLayoutStart = LayoutStart.TopLeft;
@@ -786,8 +786,7 @@ namespace Klyte.TransportLinesManager.UI
 
                     TLMLineUtils.GetQuantityPassengerWaiting(stationNodeId, out int residents, out int tourists, out int ttb);
 
-                    UIPanel stationInfoStatsPanel = null;
-                    TLMUtils.createUIElement<UIPanel>(ref stationInfoStatsPanel, stationButton.transform);
+                    TLMUtils.createUIElement(out UIPanel stationInfoStatsPanel, stationButton.transform);
                     stationInfoStatsPanel.autoSize = false;
                     stationInfoStatsPanel.autoLayout = false;
                     stationInfoStatsPanel.autoFitChildrenVertically = true;
@@ -798,8 +797,7 @@ namespace Klyte.TransportLinesManager.UI
                     stationInfoStatsPanel.wrapLayout = true;
                     stationInfoStatsPanel.width = normalWidth;
 
-                    UILabel residentsWaiting = null;
-                    TLMUtils.createUIElement<UILabel>(ref residentsWaiting, stationInfoStatsPanel.transform);
+                    TLMUtils.createUIElement(out UILabel residentsWaiting, stationInfoStatsPanel.transform);
                     residentsWaiting.autoSize = false;
                     residentsWaiting.useOutline = true;
                     residentsWaiting.text = residents.ToString();
@@ -813,8 +811,7 @@ namespace Klyte.TransportLinesManager.UI
                     residentsWaiting.textAlignment = UIHorizontalAlignment.Center;
                     residentCounters[stationNodeId] = residentsWaiting;
 
-                    UILabel touristsWaiting = null;
-                    TLMUtils.createUIElement<UILabel>(ref touristsWaiting, stationInfoStatsPanel.transform);
+                    TLMUtils.createUIElement(out UILabel touristsWaiting, stationInfoStatsPanel.transform);
                     touristsWaiting.autoSize = false;
                     touristsWaiting.text = tourists.ToString();
                     touristsWaiting.tooltipLocaleID = "TLM_TOURISTS_WAITING";
@@ -828,8 +825,7 @@ namespace Klyte.TransportLinesManager.UI
                     touristsWaiting.textAlignment = UIHorizontalAlignment.Center;
                     touristCounters[stationNodeId] = touristsWaiting;
 
-                    UILabel timeTilBored = null;
-                    TLMUtils.createUIElement<UILabel>(ref timeTilBored, stationInfoStatsPanel.transform);
+                    TLMUtils.createUIElement(out UILabel timeTilBored, stationInfoStatsPanel.transform);
                     timeTilBored.autoSize = false;
                     timeTilBored.text = tourists.ToString();
                     timeTilBored.tooltipLocaleID = "TLM_TIME_TIL_BORED";

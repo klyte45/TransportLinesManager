@@ -235,7 +235,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
             //Buttons
-            TLMUtils.createUIElement<UIButton>(ref m_addPrefixButton, transform);
+            TLMUtils.createUIElement(out m_addPrefixButton, transform);
             m_addPrefixButton.pivot = UIPivotPoint.TopRight;
             m_addPrefixButton.relativePosition = new Vector3(730, 2);
             m_addPrefixButton.text = Locale.Get("TLM_ADD");
@@ -253,7 +253,7 @@ namespace Klyte.TransportLinesManager.LineList
                 m_removePrefixButton.isVisible = true;
             };
 
-            TLMUtils.createUIElement<UIButton>(ref m_removePrefixButton, transform);
+            TLMUtils.createUIElement(out m_removePrefixButton, transform);
             m_removePrefixButton.pivot = UIPivotPoint.TopRight;
             m_removePrefixButton.relativePosition = new Vector3(780, 2);
             m_removePrefixButton.text = Locale.Get("TLM_REMOVE");
@@ -272,7 +272,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
 
-            TLMUtils.createUIElement<UIButton>(ref m_addAllPrefixesButton, transform);
+            TLMUtils.createUIElement(out m_addAllPrefixesButton, transform);
             m_addAllPrefixesButton.pivot = UIPivotPoint.TopRight;
             m_addAllPrefixesButton.relativePosition = new Vector3(730, 20);
             m_addAllPrefixesButton.text = Locale.Get("TLM_ADD_ALL_SHORT");
@@ -291,7 +291,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
 
-            TLMUtils.createUIElement<UIButton>(ref m_removeAllPrefixesButton, transform);
+            TLMUtils.createUIElement(out m_removeAllPrefixesButton, transform);
             m_removeAllPrefixesButton.pivot = UIPivotPoint.TopRight;
             m_removeAllPrefixesButton.relativePosition = new Vector3(780, 20);
             m_removeAllPrefixesButton.text = Locale.Get("TLM_REMOVE_ALL_SHORT");
