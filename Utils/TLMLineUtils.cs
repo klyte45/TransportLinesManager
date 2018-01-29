@@ -6,6 +6,11 @@ using ColossalFramework.UI;
 using ICities;
 using Klyte.Extensions;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
+using Klyte.TransportLinesManager.Extensors.NetNodeExt;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,11 +18,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using static Klyte.TransportLinesManager.Utils.KlyteUtils;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
 {
-    public class TLMLineUtils
+    internal class TLMLineUtils
     {
         public static Vehicle GetVehicleCapacityAndFill(ushort vehicleID, Vehicle vehicleData, out int fill, out int cap)
         {
@@ -108,32 +114,42 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static float getEffectiveBugdet(ushort transportLine)
         {
-            return getEffectiveBugdet(ref Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine]);
+            TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info;
+            int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
+            return budgetClass * getBudgetMultiplierLine(transportLine) / 100f;
         }
 
-        public static float getEffectiveBugdet(ref TransportLine __instance)
+        public static float getBudgetMultiplierLine(ushort lineId)
         {
+            TransportLine __instance = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
             TransportInfo info = __instance.Info;
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            if (!TLMLineUtils.hasPrefix(ref __instance))
+            if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineId))
             {
-                int budget = __instance.m_budget;
-                return (budgetClass * budget) / 10000f;
+                return TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
             }
             else
             {
-                return (budgetClass * getBudgetMultiplierPrefix(ref __instance)) / 100f;
+                var tsd = TLMCW.getDefinitionForLine(ref __instance);
+                uint prefix = TLMLineUtils.getPrefix(lineId);
+                return TLMLineUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).GetBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
             }
         }
-
-        public static float getBudgetMultiplierPrefix(ref TransportLine __instance)
+        public static bool isPerHourBudget(ushort lineId)
         {
+            TransportLine __instance = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
             TransportInfo info = __instance.Info;
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            float lengthMeters = __instance.m_totalLength;
-            var tsd = TLMCW.getDefinitionForLine(ref __instance);
-            uint prefix = __instance.m_lineNumber / 1000u;
-            return TLMUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).GetBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
+            if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineId))
+            {
+                return TLMTransportLineExtension.instance.GetBudgetsMultiplier(lineId).Length ==8;
+            }
+            else
+            {
+                var tsd = TLMCW.getDefinitionForLine(ref __instance);
+                uint prefix = TLMLineUtils.getPrefix(lineId);
+                return TLMLineUtils.getExtensionFromConfigIndex(TLMCW.getConfigIndexForTransportInfo(info)).GetBudgetsMultiplier(lineId).Length == 8;
+            }
         }
 
         public static string getLineStringId(ushort lineIdx)
@@ -260,6 +276,25 @@ namespace Klyte.TransportLinesManager.Utils
         {
             TLMCW.ConfigIndex transportType = TLMCW.getConfigIndexForTransportInfo(t);
             return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+        }
+
+
+        public static uint getPrefix(ushort idx)
+        {
+            var tsd = TLMCW.getDefinitionForLine(idx);
+            if (tsd == default(TransportSystemDefinition))
+            {
+                return 0;
+            }
+            TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
+            if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum)
+            {
+                return Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public static string getIconForLine(ushort lineIdx)
@@ -531,8 +566,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 TransportLine intersectLine = tm.m_lines.m_buffer[(int)s.Value];
                 ItemClass.SubService ss = getLineNamingParameters(s.Value, out ModoNomenclatura prefixo, out Separador separador, out ModoNomenclatura sufixo, out ModoNomenclatura naoPrefixado, out bool zeros, out bool invertPrefixSuffix, out string bgSprite).subService;
-                UIButtonLineInfo lineCircleIntersect = null;
-                TLMUtils.createUIElement<UIButtonLineInfo>(ref lineCircleIntersect, intersectionsPanel.transform);
+                createUIElement(out UIButtonLineInfo lineCircleIntersect, intersectionsPanel.transform);
                 lineCircleIntersect.autoSize = false;
                 lineCircleIntersect.width = size;
                 lineCircleIntersect.height = size;
@@ -548,8 +582,7 @@ namespace Klyte.TransportLinesManager.Utils
                 lineCircleIntersect.lineID = s.Value;
                 lineCircleIntersect.tooltip = tm.GetLineName(s.Value);
                 lineCircleIntersect.eventClick += TLMController.instance.lineInfoPanel.openLineInfo;
-                UILabel lineNumberIntersect = null;
-                TLMUtils.createUIElement<UILabel>(ref lineNumberIntersect, lineCircleIntersect.transform);
+                TLMUtils.createUIElement(out UILabel lineNumberIntersect, lineCircleIntersect.transform);
                 lineNumberIntersect.autoSize = false;
                 lineNumberIntersect.autoHeight = false;
                 lineNumberIntersect.width = lineCircleIntersect.width;
@@ -559,14 +592,17 @@ namespace Klyte.TransportLinesManager.Utils
                 lineNumberIntersect.name = "LineNumber";
                 lineNumberIntersect.height = size;
                 lineNumberIntersect.relativePosition = new Vector3(-0.5f, 0.5f);
-                lineNumberIntersect.textColor = Color.white;
                 lineNumberIntersect.outlineColor = Color.black;
                 lineNumberIntersect.useOutline = true;
                 getLineActive(ref intersectLine, out bool day, out bool night);
-                if (!day || !night)
+                bool zeroed;
+                unchecked
                 {
-                    UILabel daytimeIndicator = null;
-                    TLMUtils.createUIElement<UILabel>(ref daytimeIndicator, lineCircleIntersect.transform);
+                    zeroed = (tm.m_lines.m_buffer[s.Value].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
+                }
+                if (!day || !night || zeroed)
+                {
+                    TLMUtils.createUIElement(out UILabel daytimeIndicator, lineCircleIntersect.transform);
                     daytimeIndicator.autoSize = false;
                     daytimeIndicator.width = size;
                     daytimeIndicator.height = size;
@@ -576,7 +612,7 @@ namespace Klyte.TransportLinesManager.Utils
                     daytimeIndicator.name = "LineTime";
                     daytimeIndicator.relativePosition = new Vector3(0f, 0f);
                     daytimeIndicator.atlas = TLMController.taLineNumber;
-                    daytimeIndicator.backgroundSprite = day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
+                    daytimeIndicator.backgroundSprite = zeroed ? "NoBudgetIcon" : day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
                 }
                 setLineNumberCircleOnRef(s.Value, lineNumberIntersect);
                 lineNumberIntersect.textScale *= multiplier;
@@ -618,8 +654,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         private static void addExtraStationBuildingIntersection(UIComponent parent, float size, string bgSprite, string description)
         {
-            UILabel lineCircleIntersect = null;
-            TLMUtils.createUIElement<UILabel>(ref lineCircleIntersect, parent.transform);
+            TLMUtils.createUIElement(out UILabel lineCircleIntersect, parent.transform);
             lineCircleIntersect.autoSize = false;
             lineCircleIntersect.width = size;
             lineCircleIntersect.height = size;
@@ -634,16 +669,18 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static void setLineNumberCircleOnRef(ushort lineID, UITextComponent reference, float ratio = 1f)
         {
-            getLineNumberCircleOnRefParams(lineID, ratio, out string text, out float textScale, out Vector3 relativePosition);
+            getLineNumberCircleOnRefParams(lineID, ratio, out string text, out Color textColor, out float textScale, out Vector3 relativePosition);
             reference.text = text;
             reference.textScale = textScale;
             reference.relativePosition = relativePosition;
-            reference.tooltip = "";
+            reference.textColor = textColor;
+            reference.useOutline = true;
+            reference.outlineColor = Color.black;
         }
 
-        private static void getLineNumberCircleOnRefParams(ushort lineID, float ratio, out string text, out float textScale, out Vector3 relativePosition)
+        private static void getLineNumberCircleOnRefParams(ushort lineID, float ratio, out string text, out Color textColor, out float textScale, out Vector3 relativePosition)
         {
-            text = TLMLineUtils.getLineStringId(lineID).Trim();
+            text = getLineStringId(lineID).Trim();
             string[] textParts = text.Split(new char[] { '\n' });
             int lenght = textParts.Max(x => x.Length);
             if (lenght >= 9 && textParts.Length == 1)
@@ -682,6 +719,7 @@ namespace Klyte.TransportLinesManager.Utils
                 textScale = 2.3f * ratio;
                 relativePosition = new Vector3(-0.5f, 0f);
             }
+            textColor = TLMTransportLineExtension.instance.GetUseCustomConfig(lineID) ? Color.yellow : Color.white;
         }
 
         public static int getVehicleCapacity(ushort vehicleId)
@@ -739,10 +777,611 @@ namespace Klyte.TransportLinesManager.Utils
             for (int i = 0; i < stopsCount; i++)
             {
                 ushort stationId = t.GetStop(i);
-                result[i] = TLMUtils.getFullStationName(stationId, lineID, ss);
+                result[i] = TLMLineUtils.getFullStationName(stationId, lineID, ss);
             }
             return result;
         }
+
+
+        #region Line Utils
+        public static void setLineColor(ushort lineIdx, Color color)
+        {
+
+            Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_color = color;
+            Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags |= TransportLine.Flags.CustomColor;
+        }
+        public static void setLineName(ushort lineIdx, string name)
+        {
+            InstanceID lineIdSelecionado = default(InstanceID);
+            lineIdSelecionado.TransportLine = lineIdx;
+            if (name.Length > 0)
+            {
+                Singleton<InstanceManager>.instance.SetName(lineIdSelecionado, name);
+                Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags |= TransportLine.Flags.CustomName;
+            }
+            else
+            {
+                Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags &= ~TransportLine.Flags.CustomName;
+            }
+        }
+        public static string calculateAutoName(ushort lineIdx, bool complete = false)
+        {
+            TransportManager tm = Singleton<TransportManager>.instance;
+            TransportLine t = tm.m_lines.m_buffer[(int)lineIdx];
+            ItemClass.SubService ss = ItemClass.SubService.None;
+            string resultName;
+            if (t.Info.m_transportType == TransportInfo.TransportType.EvacuationBus)
+            {
+                return null;
+            }
+            if (t.Info.m_transportType == TransportInfo.TransportType.Train)
+            {
+                ss = ItemClass.SubService.PublicTransportTrain;
+            }
+            else if (t.Info.m_transportType == TransportInfo.TransportType.Metro)
+            {
+                ss = ItemClass.SubService.PublicTransportMetro;
+            }
+            int stopsCount = t.CountStops(lineIdx);
+            ushort[] stopBuildings = new ushort[stopsCount];
+            MultiMap<ushort, Vector3> bufferToDraw = new MultiMap<ushort, Vector3>();
+            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && CalculateSimmetry(ss, stopsCount, t, out int middle))
+            {
+                string station1Name = getStationName(t.GetStop(middle), lineIdx, ss);
+
+                string station2Name = getStationName(t.GetStop(middle + stopsCount / 2), lineIdx, ss);
+
+                resultName = station1Name + " - " + station2Name;
+            }
+            else
+            {
+                //float autoNameSimmetryImprecision = 0.075f;
+                DistrictManager dm = Singleton<DistrictManager>.instance;
+                Dictionary<int, KeyValuePair<TLMCW.ConfigIndex, String>> stationsList = new Dictionary<int, KeyValuePair<TLMCW.ConfigIndex, String>>();
+                NetManager nm = Singleton<NetManager>.instance;
+                for (int j = 0; j < stopsCount; j++)
+                {
+                    String value = getStationName(t.GetStop(j), lineIdx, ss, out ItemClass.Service service, out ItemClass.SubService subservice, out string prefix, out ushort buidingId, true);
+                    var tsd = TransportSystemDefinition.from(Singleton<BuildingManager>.instance.m_buildings.m_buffer[buidingId].Info.GetAI());
+                    stationsList.Add(j, new KeyValuePair<TLMCW.ConfigIndex, string>(tsd != null ? tsd.toConfigIndex() : GameServiceExtensions.toConfigIndex(service, subservice), value));
+                }
+                uint mostImportantCategoryInLine = stationsList.Select(x => (x.Value.Key).getPriority()).Min();
+                if (mostImportantCategoryInLine < int.MaxValue)
+                {
+                    var mostImportantPlaceIdx = stationsList.Where(x => x.Value.Key.getPriority() == mostImportantCategoryInLine).Min(x => x.Key);
+                    var destiny = stationsList[mostImportantPlaceIdx];
+
+                    var inverseIdxCenter = (mostImportantPlaceIdx + stopsCount / 2) % stopsCount;
+                    int resultIdx = inverseIdxCenter;
+                    //int simmetryMargin = (int)Math.Ceiling(stopsCount * autoNameSimmetryImprecision);
+                    //int resultIdx = -1;
+                    //var destBuilding = getStationBuilding((uint)mostImportantPlaceIdx, ss);
+                    //BuildingManager bm = Singleton<BuildingManager>.instance;
+                    //for (int i = 0; i <= simmetryMargin; i++)
+                    //{
+                    //    int currentI = (inverseIdxCenter + i + stopsCount) % stopsCount;
+
+
+                    //    var iBuilding = getStationBuilding((uint)currentI, ss);
+                    //    if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority()) && iBuilding != destBuilding)
+                    //    {
+                    //        resultIdx = currentI;
+                    //    }
+                    //    if (i == 0) continue;
+                    //    currentI = (inverseIdxCenter - i + stopsCount) % stopsCount;
+                    //    iBuilding = getStationBuilding((uint)currentI, ss);
+                    //    if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority()) && iBuilding != destBuilding)
+                    //    {
+                    //        resultIdx = currentI;
+                    //    }
+                    //}
+                    string originName = "";
+                    //int districtOriginId = -1;
+                    if (resultIdx >= 0 && stationsList[resultIdx].Key.isLineNamingEnabled())
+                    {
+                        var origin = stationsList[resultIdx];
+                        var transportType = origin.Key;
+                        var name = origin.Value;
+                        originName = GetStationNameWithPrefix(transportType, name);
+                        originName += " - ";
+                    }
+                    //else
+                    //{
+                    //    NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
+                    //    Vector3 location = nn.m_position;
+                    //    districtOriginId = dm.GetDistrict(location);
+                    //    if (districtOriginId > 0)
+                    //    {
+                    //        District d = dm.m_districts.m_buffer[districtOriginId];
+                    //        originName = dm.GetDistrictName(districtOriginId) + " - ";
+                    //    }
+                    //    else {
+                    //        originName = "";
+                    //    }
+                    //}
+                    if (!destiny.Key.isLineNamingEnabled())
+                    {
+                        NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
+                        Vector3 location = nn.m_position;
+                        int districtDestinyId = dm.GetDistrict(location);
+                        //if (districtDestinyId == districtOriginId)
+                        //{
+                        //    District d = dm.m_districts.m_buffer[districtDestinyId];
+                        //    return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtDestinyId);
+                        //}
+                        //else
+                        if (districtDestinyId > 0)
+                        {
+                            District d = dm.m_districts.m_buffer[districtDestinyId];
+                            return originName + dm.GetDistrictName(districtDestinyId);
+                        }
+                    }
+                    resultName = originName + GetStationNameWithPrefix(destiny.Key, destiny.Value);
+                }
+                else
+                {
+                    resultName = autoNameByDistrict(t, stopsCount, out middle);
+                }
+            }
+            if (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME) && complete)
+            {
+                string format = "[{0}] {1}";
+                return string.Format(format, TLMLineUtils.getLineStringId(lineIdx).Replace('\n', ' '), resultName);
+            }
+            else
+            {
+                return resultName;
+            }
+        }
+        private static string GetStationNameWithPrefix(TLMCW.ConfigIndex transportType, string name)
+        {
+            return transportType.getPrefixTextNaming().Trim() + (transportType.getPrefixTextNaming().Trim() != string.Empty ? " " : "") + name;
+        }
+        private static string autoNameByDistrict(TransportLine t, int stopsCount, out int middle)
+        {
+
+            DistrictManager dm = Singleton<DistrictManager>.instance;
+            NetManager nm = Singleton<NetManager>.instance;
+            string result = "";
+            byte lastDistrict = 0;
+            Vector3 local;
+            byte district;
+            List<int> districtList = new List<int>();
+            for (int j = 0; j < stopsCount; j++)
+            {
+                local = nm.m_nodes.m_buffer[(int)t.GetStop(j)].m_bounds.center;
+                district = dm.GetDistrict(local);
+                if ((district != lastDistrict) && district != 0)
+                {
+                    districtList.Add(district);
+                }
+                if (district != 0)
+                {
+                    lastDistrict = district;
+                }
+            }
+
+            local = nm.m_nodes.m_buffer[(int)t.GetStop(0)].m_bounds.center;
+            district = dm.GetDistrict(local);
+            if ((district != lastDistrict) && district != 0)
+            {
+                districtList.Add(district);
+            }
+            middle = -1;
+            int[] districtArray = districtList.ToArray();
+            if (districtArray.Length == 1)
+            {
+                return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
+            }
+            else if (findSimetry(districtArray, out middle))
+            {
+                int firstIdx = middle;
+                int lastIdx = middle + districtArray.Length / 2;
+
+                result = dm.GetDistrictName(districtArray[firstIdx % districtArray.Length]) + " - " + dm.GetDistrictName(districtArray[lastIdx % districtArray.Length]);
+                if (lastIdx - firstIdx > 1)
+                {
+                    result += ", via ";
+                    for (int k = firstIdx + 1; k < lastIdx; k++)
+                    {
+                        result += dm.GetDistrictName(districtArray[k % districtArray.Length]);
+                        if (k + 1 != lastIdx)
+                        {
+                            result += ", ";
+                        }
+                    }
+                }
+                return result;
+            }
+            else
+            {
+                bool inicio = true;
+                foreach (int i in districtArray)
+                {
+                    result += (inicio ? "" : " - ") + dm.GetDistrictName(i);
+                    inicio = false;
+                }
+                return result;
+            }
+        }
+        public static void setStopName(string newName, uint stopId, ushort lineId, OnEndProcessingBuildingName callback)
+        {
+            TLMUtils.doLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
+            ushort buildingId = getStationBuilding(stopId, toSubService(Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_transportType), true, true);
+            if (buildingId == 0)
+            {
+                TLMUtils.doLog("b=0");
+                TLMStopsExtension.instance.SetStopName(newName, stopId);
+                callback();
+            }
+            else
+            {
+                TLMUtils.doLog("b≠0 ({0})", buildingId);
+                Singleton<BuildingManager>.instance.StartCoroutine(setBuildingName(buildingId, newName, callback));
+            }
+        }
+        public static bool CalculateSimmetry(ItemClass.SubService ss, int stopsCount, TransportLine t, out int middle)
+        {
+            int j;
+            NetManager nm = Singleton<NetManager>.instance;
+            BuildingManager bm = Singleton<BuildingManager>.instance;
+            middle = -1;
+            if ((t.m_flags & (TransportLine.Flags.Invalid | TransportLine.Flags.Temporary)) != TransportLine.Flags.None)
+            {
+                return false;
+            }
+            //try to find the loop
+            for (j = -1; j < stopsCount / 2; j++)
+            {
+                int offsetL = (j + stopsCount) % stopsCount;
+                int offsetH = (j + 2) % stopsCount;
+                NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
+                NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
+                ushort buildingId1 = TLMUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                ushort buildingId2 = TLMUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                //					TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
+                //					TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
+                if (buildingId1 == buildingId2)
+                {
+                    middle = j + 1;
+                    break;
+                }
+            }
+            //				TLMUtils.doLog("middle="+middle);
+            if (middle >= 0)
+            {
+                for (j = 1; j <= stopsCount / 2; j++)
+                {
+                    int offsetL = (-j + middle + stopsCount) % stopsCount;
+                    int offsetH = (j + middle) % stopsCount;
+                    //						TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
+                    //						TLMUtils.doLog("t.GetStop (offsetL)="+t.GetStop (offsetH)+"|t.GetStop (offsetH)="+t.GetStop (offsetH));
+                    NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
+                    NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
+                    ushort buildingId1 = TLMUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                    ushort buildingId2 = TLMUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                    //						TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
+                    //						TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
+                    //						TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
+                    if (buildingId1 != buildingId2)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        public static string getStationName(uint stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, bool excludeCargo = false)
+        {
+            string savedName = TLMStopsExtension.instance.GetStopName(stopId);
+            if (savedName != null)
+            {
+                serviceFound = ItemClass.Service.PublicTransport;
+                subserviceFound = toSubService(Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_transportType);
+                prefix = "";
+                buildingID = 0;
+                return savedName;
+            }
+            NetManager nm = Singleton<NetManager>.instance;
+            BuildingManager bm = Singleton<BuildingManager>.instance;
+            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+            buildingID = getStationBuilding(stopId, ss, excludeCargo);
+
+            Vector3 location = nn.m_position;
+            if (buildingID > 0)
+            {
+                return TLMUtils.getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix);
+            }
+
+
+
+            NetNode nextNode = nm.m_nodes.m_buffer[nn.m_nextGridNode];
+            //return nm.GetSegmentName(segId);
+            ushort segId = FindNearNamedRoad(nn.m_position);
+            string segName = nm.GetSegmentName(segId);
+            NetSegment seg = nm.m_segments.m_buffer[segId];
+            ushort cross1nodeId = seg.m_startNode;
+            ushort cross2nodeId = seg.m_endNode;
+
+            string crossSegName = string.Empty;
+
+            NetNode cross1node = nm.m_nodes.m_buffer[cross1nodeId];
+            for (int i = 0; i < 8; i++)
+            {
+                var iSegId = cross1node.GetSegment(i);
+                if (iSegId > 0 && iSegId != segId)
+                {
+                    string iSegName = nm.GetSegmentName(iSegId);
+                    if (iSegName != string.Empty && segName != iSegName)
+                    {
+                        crossSegName = iSegName;
+                        break;
+                    }
+                }
+            }
+            if (crossSegName == string.Empty)
+            {
+                NetNode cross2node = nm.m_nodes.m_buffer[cross2nodeId];
+                for (int i = 0; i < 8; i++)
+                {
+                    var iSegId = cross2node.GetSegment(i);
+                    if (iSegId > 0 && iSegId != segId)
+                    {
+                        string iSegName = nm.GetSegmentName(iSegId);
+                        if (iSegName != string.Empty && segName != iSegName)
+                        {
+                            crossSegName = iSegName;
+                            break;
+                        }
+                    }
+                }
+            }
+            prefix = "";
+            if (segName != string.Empty)
+            {
+                serviceFound = ItemClass.Service.Road;
+                subserviceFound = ItemClass.SubService.PublicTransportBus;
+                if (crossSegName == string.Empty)
+                {
+                    return segName;
+                }
+                else
+                {
+                    prefix = segName + " x ";
+                    return crossSegName;
+                }
+
+            }
+            else
+            {
+                serviceFound = ItemClass.Service.None;
+                subserviceFound = ItemClass.SubService.None;
+                return "????????";
+            }
+            //}
+
+            //}
+        }
+        public static readonly ItemClass.Service[] seachOrder = new ItemClass.Service[]{
+            ItemClass.Service.PublicTransport,
+            ItemClass.Service.Monument,
+            ItemClass.Service.Beautification,
+            ItemClass.Service.Disaster,
+            ItemClass.Service.HealthCare,
+            ItemClass.Service.FireDepartment,
+            ItemClass.Service.PoliceDepartment,
+            ItemClass.Service.Tourism,
+            ItemClass.Service.Education,
+            ItemClass.Service.Garbage,
+            ItemClass.Service.Office,
+            ItemClass.Service.Commercial,
+            ItemClass.Service.Industrial,
+            ItemClass.Service.Residential,
+            ItemClass.Service.Electricity,
+            ItemClass.Service.Water
+        };
+        private static ItemClass.SubService toSubService(TransportInfo.TransportType t)
+        {
+            switch (t)
+            {
+                case TransportInfo.TransportType.Airplane:
+                    return ItemClass.SubService.PublicTransportPlane;
+                case TransportInfo.TransportType.Bus:
+                    return ItemClass.SubService.PublicTransportBus;
+                case TransportInfo.TransportType.Metro:
+                    return ItemClass.SubService.PublicTransportMetro;
+                case TransportInfo.TransportType.Ship:
+                    return ItemClass.SubService.PublicTransportShip;
+                case TransportInfo.TransportType.Taxi:
+                    return ItemClass.SubService.PublicTransportTaxi;
+                case TransportInfo.TransportType.Train:
+                    return ItemClass.SubService.PublicTransportTrain;
+                case TransportInfo.TransportType.Tram:
+                    return ItemClass.SubService.PublicTransportTram;
+                default:
+                    return ItemClass.SubService.None;
+            }
+        }
+        public static string getStationName(ushort stopId, ushort lineId, ItemClass.SubService ss)
+        {
+            return getStationName(stopId, lineId, ss, out ItemClass.Service serv, out ItemClass.SubService subServ, out string prefix, out ushort buildingId, true);
+        }
+        public static string getFullStationName(ushort stopId, ushort lineId, ItemClass.SubService ss)
+        {
+            string result = getStationName(stopId, lineId, ss, out ItemClass.Service serv, out ItemClass.SubService subServ, out string prefix, out ushort buildingId, true);
+            return string.IsNullOrEmpty(prefix) ? result : prefix + " " + result;
+        }
+        public static Vector3 getStationBuildingPosition(uint stopId, ItemClass.SubService ss)
+        {
+            ushort buildingId = getStationBuilding(stopId, ss);
+
+
+            if (buildingId > 0)
+            {
+                BuildingManager bm = Singleton<BuildingManager>.instance;
+                Building b = bm.m_buildings.m_buffer[buildingId];
+                InstanceID iid = default(InstanceID);
+                iid.Building = buildingId;
+                return b.m_position;
+            }
+            else
+            {
+                NetManager nm = Singleton<NetManager>.instance;
+                NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+                return nn.m_position;
+            }
+        }
+        public static ushort getStationBuilding(uint stopId, ItemClass.SubService ss, bool excludeCargo = false, bool restrictToTransportType = false)
+        {
+            NetManager nm = Singleton<NetManager>.instance;
+            BuildingManager bm = Singleton<BuildingManager>.instance;
+            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+            ushort buildingId = 0, tempBuildingId;
+
+            if (ss != ItemClass.SubService.None)
+            {
+                tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
+                {
+                    buildingId = tempBuildingId;
+                }
+            }
+            if (buildingId == 0 && !restrictToTransportType)
+            {
+                tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.Active, Building.Flags.Untouchable);
+                if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
+                {
+                    buildingId = tempBuildingId;
+                }
+                if (buildingId == 0)
+                {
+                    tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                    if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
+                    {
+                        buildingId = tempBuildingId;
+                    }
+                    if (buildingId == 0)
+                    {
+                        int iterator = 1;
+                        while (buildingId == 0 && iterator < seachOrder.Count())
+                        {
+                            buildingId = TLMUtils.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                            iterator++;
+                        }
+                    }
+                }
+            }
+            return buildingId;
+
+        }
+        public static string getPrefixesServedAbstract(ushort m_buildingID, bool secondary)
+        {
+            Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];
+            DepotAI ai = b.Info.GetAI() as DepotAI;
+            if (ai == null)
+                return "";
+            List<string> options = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportInfo(secondary ? ai.m_secondaryTransportInfo : ai.m_transportInfo));
+            var prefixes = TLMDepotAI.getPrefixesServedByDepot(m_buildingID, secondary);
+            if (prefixes == null)
+            {
+                TLMUtils.doErrorLog("DEPOT AI WITH WRONG TYPE!!! id:{0} ({1})", m_buildingID, BuildingManager.instance.GetBuildingName(m_buildingID, default(InstanceID)));
+                return null;
+            }
+            List<string> saida = new List<string>();
+            if (prefixes.Contains(0))
+                saida.Add(Locale.Get("TLM_UNPREFIXED_SHORT"));
+            uint sequenceInit = 0;
+            bool isInSequence = false;
+            for (uint i = 1; i < options.Count; i++)
+            {
+                if (prefixes.Contains(i))
+                {
+                    if (sequenceInit == 0 || !isInSequence)
+                    {
+                        sequenceInit = i;
+                        isInSequence = true;
+                    }
+                }
+                else if (sequenceInit != 0 && isInSequence)
+                {
+                    if (i - 1 == sequenceInit)
+                    {
+                        saida.Add(options[(int)sequenceInit]);
+                    }
+                    else
+                    {
+                        saida.Add(options[(int)sequenceInit] + "-" + options[(int)(i - 1)]);
+                    }
+                    isInSequence = false;
+                }
+            }
+            if (sequenceInit != 0 && isInSequence)
+            {
+                if (sequenceInit == options.Count - 1)
+                {
+                    saida.Add(options[(int)sequenceInit]);
+                }
+                else
+                {
+                    saida.Add(options[(int)sequenceInit] + "-" + options[(int)(options.Count - 1)]);
+                }
+                isInSequence = false;
+            }
+            if (prefixes.Contains(65))
+                saida.Add(Locale.Get("TLM_REGIONAL_SHORT"));
+            return string.Join(" ", saida.ToArray());
+        }
+        internal static string getTransportSystemPrefixName(TLMConfigWarehouse.ConfigIndex index, uint prefix)
+        {
+            var extension = getExtensionFromConfigIndex(index);
+            if (extension == null)
+            {
+                return "";
+            }
+            return extension.GetName(prefix);
+        }
+        internal static ITLMTransportTypeExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
+        {
+            var tsd = TLMConfigWarehouse.getTransportSystemDefinitionForConfigTransport(index);
+            TLMUtils.doLog("getExtensionFromConfigIndex Target TSD: " + tsd + " from idx: " + index);
+            return tsd.GetTransportExtension();
+        }
+        internal static ITLMTransportTypeExtension getExtensionFromTransportSystemDefinition(TransportSystemDefinition tsd)
+        {
+            return tsd.GetTransportExtension();
+        }
+        public static IAssetSelectorExtension getExtensionFromTransportLine(ushort lineID)
+        {
+            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
+
+            if (t.m_lineNumber != 0 && t.m_stops != 0)
+            {
+                if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineID))
+                {
+                    return TLMTransportLineExtension.instance;
+                }
+                else
+                {
+                    return TransportSystemDefinition.from(lineID).GetTransportExtension();
+                }
+            }
+            return null;
+        }
+        internal static readonly ModoNomenclatura[] nomenclaturasComNumeros = new ModoNomenclatura[]
+        {
+        ModoNomenclatura. LatinoMinusculoNumero ,
+        ModoNomenclatura. LatinoMaiusculoNumero ,
+        ModoNomenclatura. GregoMinusculoNumero,
+        ModoNomenclatura. GregoMaiusculoNumero,
+        ModoNomenclatura. CirilicoMinusculoNumero,
+        ModoNomenclatura. CirilicoMaiusculoNumero
+        };
+        #endregion
     }
 
 }

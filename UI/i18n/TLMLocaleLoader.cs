@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Klyte.TransportLinesManager.i18n
 {
-    class TLMLocaleUtils
+    internal class TLMLocaleUtils
     {
         private const string lineSeparator = "\r\n";
         private const string kvSeparator = "=";
@@ -15,12 +15,11 @@ namespace Klyte.TransportLinesManager.i18n
         private const string localeKeySeparator = "|";
         private const string commentChar = "#";
         private static string language = "";
-        private static string[] locales = new string[] { "en", "pt", "ko", "de","cn","pl","nl" };
+        private static string[] locales = new string[] { "en", "pt", "ko", "de", "cn", "pl", "nl" };
 
         public static string loadedLanguage
         {
-            get
-            {
+            get {
                 return language;
             }
         }
@@ -45,20 +44,23 @@ namespace Klyte.TransportLinesManager.i18n
             return locales[idx - 1];
         }
 
-        public static void loadLocale(string localeId, bool force)
+        public static void loadLocale(string localeId, bool force, string prefix = "TLM_", string packagePrefix = "Klyte.TransportLinesManager")
         {
             if (force)
             {
                 LocaleManager.ForceReload();
             }
-            loadLocaleIntern(localeId, true); 
+            else
+            {
+                loadLocaleIntern(localeId, true, prefix, packagePrefix);
+            }
         }
-        private static void loadLocaleIntern(string localeId, bool setLocale = false)
+        private static void loadLocaleIntern(string localeId, bool setLocale, string prefix, string packagePrefix)
         {
             string load = ResourceLoader.loadResourceString("UI.i18n." + localeId + ".properties");
             if (load == null)
             {
-                TLMUtils.doErrorLog("FILE "+ "UI.i18n." + localeId + ".properties" + " NOT LOADED!!!!");
+                TLMUtils.doErrorLog("FILE " + "UI.i18n." + localeId + ".properties" + " NOT LOADED!!!!");
                 load = ResourceLoader.loadResourceString("UI.i18n.en.properties");
                 if (load == null)
                 {
@@ -97,7 +99,7 @@ namespace Klyte.TransportLinesManager.i18n
 
                 k = new Locale.Key()
                 {
-                    m_Identifier = "TLM_" + array[0],
+                    m_Identifier = prefix + array[0],
                     m_Key = localeKey,
                     m_Index = idx
                 };
@@ -109,7 +111,7 @@ namespace Klyte.TransportLinesManager.i18n
 
             if (localeId != "en")
             {
-                loadLocaleIntern("en");
+                loadLocaleIntern("en", false, prefix, packagePrefix);
             }
             if (setLocale)
             {

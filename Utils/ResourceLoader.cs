@@ -17,7 +17,7 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
 {
-    public class ResourceLoader
+    internal class ResourceLoader
     {
 
         public static Assembly ResourceAssembly
@@ -28,26 +28,28 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
-        public static byte[] loadResourceData(string name)
+        public static byte[] loadResourceData(string name, string prefix = "Klyte.TransportLinesManager.")
         {
-            name = "Klyte.TransportLinesManager." + name;
+            name = prefix + name;
 
-            UnmanagedMemoryStream stream = (UnmanagedMemoryStream) ResourceAssembly.GetManifestResourceStream(name);
-            if (stream == null) {
+            UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
+            if (stream == null)
+            {
                 TLMUtils.doErrorLog("Could not find resource: " + name);
                 return null;
             }
 
             BinaryReader read = new BinaryReader(stream);
-            return read.ReadBytes((int) stream.Length);
+            return read.ReadBytes((int)stream.Length);
         }
 
-        public static string loadResourceString(string name)
+        public static string loadResourceString(string name, string prefix = "Klyte.TransportLinesManager.")
         {
-            name = "Klyte.TransportLinesManager." + name;
+            name = prefix + name;
 
-            UnmanagedMemoryStream stream = (UnmanagedMemoryStream) ResourceAssembly.GetManifestResourceStream(name);
-            if (stream == null) {
+            UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
+            if (stream == null)
+            {
                 TLMUtils.doErrorLog("Could not find resource: " + name);
                 return null;
             }
@@ -58,11 +60,14 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static Texture2D loadTexture(int x, int y, string filename)
         {
-            try {
+            try
+            {
                 Texture2D texture = new Texture2D(x, y);
                 texture.LoadImage(loadResourceData(filename));
                 return texture;
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 TLMUtils.doErrorLog("The file could not be read:" + e.Message);
             }
 

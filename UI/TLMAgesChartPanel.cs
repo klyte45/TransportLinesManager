@@ -5,15 +5,14 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
 {
-    public class TLMAgesChartPanel
+    public class TLMAgesChartPanel : MonoBehaviour
     {
         private UIPanel agesChartPanel;
         private UIRadialChartAge agesChart;
-        private TLMLineInfoPanel lineInfoPanel;
+        private Transform parent => transform.parent;
 
-        public TLMAgesChartPanel(TLMLineInfoPanel lineInfoPanel)
+        public void Awake()
         {
-            this.lineInfoPanel = lineInfoPanel;
             createLineCharts();
         }
 
@@ -24,7 +23,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void createLineCharts()
         {
-            TLMUtils.createUIElement<UIPanel>(ref agesChartPanel, lineInfoPanel.TransformLinearMap);
+            TLMUtils.createUIElement(out agesChartPanel, parent);
             agesChartPanel.relativePosition = new Vector3(450f, 45f);
             agesChartPanel.width = 140;
             agesChartPanel.height = 70;
@@ -33,8 +32,7 @@ namespace Klyte.TransportLinesManager.UI
             agesChartPanel.useCenter = true;
             agesChartPanel.wrapLayout = false;
 
-            UIPanel pieLegendPanel = null;
-            TLMUtils.createUIElement<UIPanel>(ref pieLegendPanel, agesChartPanel.transform);
+            TLMUtils.createUIElement(out UIPanel pieLegendPanel, agesChartPanel.transform);
             pieLegendPanel.relativePosition = new Vector3(70f, 0f);
             pieLegendPanel.width = 70;
             pieLegendPanel.height = 70;
@@ -43,7 +41,7 @@ namespace Klyte.TransportLinesManager.UI
             pieLegendPanel.autoLayout = false;
             pieLegendPanel.useCenter = true;
 
-            TLMUtils.createUIElement<UIRadialChartAge>(ref agesChart, agesChartPanel.transform);
+            TLMUtils.createUIElement(out agesChart, agesChartPanel.transform);
             agesChart.spriteName = "PieChartWhiteBg";
             agesChart.tooltipLocaleID = "ZONEDBUILDING_AGECHART";
             agesChart.relativePosition = new Vector3(0, 0);
@@ -65,8 +63,7 @@ namespace Klyte.TransportLinesManager.UI
         private void criaFatiaELegenda(Color c, UIRadialChartAge chart, UIPanel legendPanel, string localeID, float offsetY)
         {
             chart.AddSlice(c, c);
-            UIPanel legendItemContainer = null;
-            TLMUtils.createUIElement<UIPanel>(ref legendItemContainer, legendPanel.transform);
+            TLMUtils.createUIElement(out UIPanel legendItemContainer, legendPanel.transform);
             legendItemContainer.width = legendPanel.width;
             legendItemContainer.relativePosition = new Vector3(0f, offsetY);
             legendItemContainer.name = "LegendItem";
@@ -74,15 +71,13 @@ namespace Klyte.TransportLinesManager.UI
             legendItemContainer.useCenter = true;
             legendItemContainer.wrapLayout = false;
             legendItemContainer.height = 20;
-            UILabel legendColor = null;
-            TLMUtils.createUIElement<UILabel>(ref legendColor, legendItemContainer.transform);
+            TLMUtils.createUIElement(out UILabel legendColor, legendItemContainer.transform);
             legendColor.backgroundSprite = "EmptySprite";
             legendColor.width = 10;
             legendColor.height = 10;
             legendColor.relativePosition = new Vector3(0, 0);
             legendColor.color = c;
-            UILabel legendName = null;
-            TLMUtils.createUIElement<UILabel>(ref legendName, legendItemContainer.transform);
+            TLMUtils.createUIElement(out UILabel legendName, legendItemContainer.transform);
             legendName.textAlignment = UIHorizontalAlignment.Right;
             legendName.width = legendItemContainer.width - 10;
             legendName.localeID = localeID;

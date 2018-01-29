@@ -12,6 +12,7 @@ namespace Klyte.TransportLinesManager.LineList
     using ColossalFramework.UI;
     using Extensions;
     using Extensors;
+    using Klyte.TransportLinesManager.Extensors.TransportLineExt;
     using System;
     using System.Collections;
     using System.Diagnostics;
@@ -46,6 +47,8 @@ namespace Klyte.TransportLinesManager.LineList
         private UILabel m_LinePassengers;
 
         private UILabel m_lineBudgetLabel;
+
+        private UILabel m_perHourBudgetInfo;
 
         //    private UILabel m_LineEarnings;
 
@@ -146,10 +149,15 @@ namespace Klyte.TransportLinesManager.LineList
                     //this.m_noBudgetWarn.isVisible = (isZeroed);
 
 
-                    TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID], out bool dayActive, out bool nightActive);
-                    if (!dayActive || !nightActive)
+                    TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[m_LineID], out bool dayActive, out bool nightActive);
+                    bool zeroed;
+                    unchecked
                     {
-                        m_LineColor.normalBgSprite = dayActive ? "DayIcon" : nightActive ? "NightIcon" : "DisabledIcon";
+                        zeroed = (Singleton<TransportManager>.instance.m_lines.m_buffer[m_LineID].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
+                    }
+                    if (!dayActive || !nightActive || zeroed)
+                    {
+                        m_LineColor.normalBgSprite = zeroed ? "NoBudgetIcon" : dayActive ? "DayIcon" : nightActive ? "NightIcon" : "DisabledIcon";
                     }
                     else
                     {
@@ -231,6 +239,15 @@ namespace Klyte.TransportLinesManager.LineList
 
 
                 m_lineBudgetLabel.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 19, 0);
+
+                bool tlmPerHour = TLMLineUtils.isPerHourBudget(m_LineID);
+                m_DayLine.isVisible = !tlmPerHour;
+                m_DayNightLine.isVisible = !tlmPerHour;
+                m_NightLine.isVisible = !tlmPerHour;
+                m_DisabledLine.isVisible = !tlmPerHour;
+                m_perHourBudgetInfo.isVisible=tlmPerHour;
+
+                m_perHourBudgetInfo.relativePosition = new Vector3(615, 2);
             }
         }
 
@@ -372,7 +389,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
 
-            if (TransportLinesManagerMod.isIPTLoaded)
+            if (TLMSingleton.isIPTLoaded)
             {
                 m_DisabledLine.isEnabled = false;
                 m_DisabledLine.isVisible = false;
@@ -402,6 +419,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_LineVehicles.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 5, 0);
             m_lineBudgetLabel = GameObject.Instantiate(this.m_LineStops);
             m_lineBudgetLabel.transform.SetParent(m_LineStops.transform.parent);
+
             //m_LineEarnings = GameObject.Instantiate(this.m_LinePassengers);
             //m_LineEarnings.transform.SetParent(m_LineStops.transform.parent);
             //m_LineEarnings.textColor = Color.green;
@@ -447,7 +465,7 @@ namespace Klyte.TransportLinesManager.LineList
 
             //Auto color & Auto Name
             UIButton buttonAutoName = null;
-            TLMUtils.createUIElement<UIButton>(ref buttonAutoName, transform);
+            TLMUtils.createUIElement(out buttonAutoName, transform);
             buttonAutoName.pivot = UIPivotPoint.TopRight;
             buttonAutoName.relativePosition = new Vector3(164, 2);
             buttonAutoName.text = "A";
@@ -464,7 +482,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
             UIButton buttonAutoColor = null;
-            TLMUtils.createUIElement<UIButton>(ref buttonAutoColor, transform);
+            TLMUtils.createUIElement(out buttonAutoColor, transform);
             buttonAutoColor.pivot = UIPivotPoint.TopRight;
             buttonAutoColor.relativePosition = new Vector3(90, 2);
             buttonAutoColor.text = "A";
@@ -482,7 +500,27 @@ namespace Klyte.TransportLinesManager.LineList
 
             m_lineIncompleteWarning = base.Find<UIPanel>("WarningIncomplete");
 
+            TLMUtils.createUIElement(out m_perHourBudgetInfo, transform);
+            m_perHourBudgetInfo.name="PerHourIndicator";
+            m_perHourBudgetInfo.autoSize = false;
+            m_perHourBudgetInfo.autoHeight = true;
+            m_perHourBudgetInfo.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
+            m_perHourBudgetInfo.width = 180;
+            m_perHourBudgetInfo.height = m_perHourBudgetInfo.parent.height ;
+            m_perHourBudgetInfo.verticalAlignment = UIVerticalAlignment.Middle;
+            m_perHourBudgetInfo.textAlignment = UIHorizontalAlignment.Center;
+            m_perHourBudgetInfo.textScale = 1f;
+            m_perHourBudgetInfo.localeID = "TLM_PER_HOUR_BUDGET_ACTIVE_LABEL";
+            m_perHourBudgetInfo.wordWrap = true;
+            m_perHourBudgetInfo.eventTextChanged += constraintedScale;
+            constraintedScale(m_perHourBudgetInfo, "");
+        }
 
+        private void constraintedScale(UIComponent component, string value)
+        {
+            component.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
+            float ratio = Math.Min(1,component.height/component.parent.height);
+            component.transform.localScale= new Vector3(ratio, ratio);
         }
 
         public void DoAutoColor()
@@ -551,7 +589,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnRename(UIComponent comp, string text)
         {
-            TLMUtils.setLineName(this.m_LineID, text);
+            TLMLineUtils.setLineName(this.m_LineID, text);
         }
 
         private void OnLineChanged(ushort id)
@@ -564,7 +602,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnColorChanged(UIComponent comp, Color color)
         {
-            TLMUtils.setLineColor(this.m_LineID, color);
+            TLMLineUtils.setLineColor(this.m_LineID, color);
         }
         private void changeLineTime(bool day, bool night)
         {

@@ -9,6 +9,8 @@ using System.Security.Permissions;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Klyte.Harmony;
+using ColossalFramework;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
@@ -16,7 +18,7 @@ namespace Klyte.TransportLinesManager.Extensors
     {
         public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.GetField | BindingFlags.GetProperty;
     }
-    public abstract class Redirector<T> where T : Redirector<T>, new()
+    public abstract class Redirector<T> : MonoBehaviour where T : Redirector<T>, new()
     {
         #region Class Base
         private readonly HarmonyInstance harmony = HarmonyInstance.Create("com.klyte.transportlinemanager." + typeof(T).Name);
@@ -25,21 +27,9 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             return harmony;
         }
-
-        private static T _instance;
-        public static T instance
-        {
-            get {
-                if (_instance == null)
-                {
-                    _instance = new T();
-                }
-                return _instance;
-            }
-        }
         #endregion
 
-        public abstract void EnableHooks();
+        public abstract void Awake();
 
         public static readonly BindingFlags allFlags = RedirectorUtils.allFlags;
 

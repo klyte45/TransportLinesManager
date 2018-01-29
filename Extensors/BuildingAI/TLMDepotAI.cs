@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Math;
 using Klyte.Harmony;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -82,7 +82,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             if (!cached_lists.ContainsKey(tsd))
             {
                 string depotList = TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.getConfigDepotPrefix(tsd));
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("getConfigForTransportType STRING FOR {0}: {1}", tsd.ToString(), depotList);
                 cached_lists[tsd] = getDictionaryFromConfigString(depotList, tsd);
             }
@@ -212,7 +212,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             List<ushort> saida = getAllDepotsFromCity(tsd);
             foreach (ushort i in dic.Keys)
             {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("dic[i]: {{{0}}} ||  prefix = {1} || contains = {2}  ", string.Join(",", dic[i].Select(x => x.ToString()).ToArray()), prefix, dic[i].Contains(prefix));
                 if (!dic[i].Contains(prefix))
                 {
@@ -226,24 +226,11 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         #region Generation methods
 
-        private static VehicleInfo doModelDraw(TransportLine t)
+        private static VehicleInfo doModelDraw(ushort lineId)
         {
-            if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(t.Info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
-            {
-                uint prefix = t.m_lineNumber / 1000u;
-                var def = TransportSystemDefinition.from(t.Info);
-                if (def == default(TransportSystemDefinition))
-                {
-                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
-                        TLMUtils.doLog("NULL TSysDef! {0}+{1}", t.Info.m_class.m_subService, t.Info.m_vehicleType);
-                    return null;
-                }
-                BasicTransportExtension extension = TLMUtils.getExtensionFromTransportSystemDefinition(def);
-                var randomInfo = extension.getRandomModel(prefix);
-                return randomInfo;
-
-            }
-            return null;
+            var extension = TLMLineUtils.getExtensionFromTransportLine(lineId);
+            var randomInfo = extension?.GetAModel(lineId);
+            return randomInfo;
         }
 
         public static void setRandomBuildingByPrefix(TransportSystemDefinition tsd, uint prefix, ref ushort currentId)
@@ -251,15 +238,15 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             var allowedDepots = getAllowedDepotsForPrefix(tsd, prefix);
             if (allowedDepots.Count == 0 || allowedDepots.Contains(currentId))
             {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("allowedDepots.Count --{0}-- == 0||  allowedDepots.Contains({1}): --{2}--  ", allowedDepots.Count, currentId, string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()));
                 return;
             }
             Randomizer r = new Randomizer(new System.Random().Next());
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("DEPOT POSSIBLE VALUES FOR {2} PREFIX {1}: {0} ", string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()), prefix, tsd);
             currentId = allowedDepots[r.Int32(0, allowedDepots.Count - 1)];
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("DEPOT FOR {2} PREFIX {1}: {0} ", currentId, prefix, tsd);
         }
         #endregion
@@ -290,7 +277,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             TransportInfo m_transportInfo = __instance.m_transportInfo;
             BuildingInfo m_info = __instance.m_info;
 
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("m_info {0} | m_transportInfo {1} | Line: {2}", m_info.name, m_transportInfo.name, offer.TransportLine);
 
 
@@ -312,7 +299,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                 }
 
                 TLMUtils.doLog("randomVehicleInfo");
-                randomVehicleInfo = doModelDraw(tl);
+                randomVehicleInfo = doModelDraw(offer.TransportLine);
                 if (randomVehicleInfo == null)
                 {
                     randomVehicleInfo = Singleton<VehicleManager>.instance.GetRandomVehicleInfo(ref Singleton<SimulationManager>.instance.m_randomizer, m_info.m_class.m_service, m_info.m_class.m_subService, m_info.m_class.m_level);
@@ -340,7 +327,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         #region Hooking
 
-        public override void EnableHooks()
+        public override void Awake()
         {
             TLMUtils.doLog("Loading Depot Hooks!");
             AddRedirect(typeof(DepotAI).GetMethod("StartTransfer", allFlags), typeof(TLMDepotAI).GetMethod("StartTransfer", allFlags));

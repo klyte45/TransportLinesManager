@@ -1,6 +1,8 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -9,105 +11,35 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager
 {
-    public class TLMConfigWarehouse
+    internal class TLMConfigWarehouse : ConfigWarehouseBase<TLMConfigWarehouse.ConfigIndex, TLMConfigWarehouse>
     {
         public const string CONFIG_FILENAME = "TransportsLinesManager5";
-        public const string GLOBAL_CONFIG_INDEX = "DEFAULT";
+        public override string ConfigFilename => CONFIG_FILENAME;
         public const string TRUE_VALUE = "1";
         public const string FALSE_VALUE = "0";
-        private const string LIST_SEPARATOR = "∂";
         public static readonly ConfigIndex[] PALETTES_INDEXES = new ConfigIndex[] {
-           ConfigIndex. SHIP_PALETTE_MAIN,
-           ConfigIndex. TRAIN_PALETTE_MAIN,
-          ConfigIndex.   TRAM_PALETTE_MAIN,
-         ConfigIndex.    METRO_PALETTE_MAIN ,
-         ConfigIndex.    BUS_PALETTE_MAIN ,
-         ConfigIndex.   PLANE_PALETTE_MAIN ,
-         ConfigIndex.    CABLE_CAR_PALETTE_MAIN ,
-         ConfigIndex.   MONORAIL_PALETTE_MAIN ,
-           ConfigIndex. PLANE_PALETTE_SUBLINE,
-           ConfigIndex. SHIP_PALETTE_SUBLINE,
-         ConfigIndex.    TRAIN_PALETTE_SUBLINE,
-        ConfigIndex.     TRAM_PALETTE_SUBLINE,
-         ConfigIndex.    METRO_PALETTE_SUBLINE,
-         ConfigIndex.    BUS_PALETTE_SUBLINE,
-        ConfigIndex.     CABLE_CAR_PALETTE_SUBLINE,
-         ConfigIndex.    MONORAIL_PALETTE_SUBLINE,
+           ConfigIndex.SHIP_PALETTE_MAIN,
+           ConfigIndex.TRAIN_PALETTE_MAIN,
+           ConfigIndex.TRAM_PALETTE_MAIN,
+           ConfigIndex.METRO_PALETTE_MAIN ,
+           ConfigIndex.BUS_PALETTE_MAIN ,
+           ConfigIndex.PLANE_PALETTE_MAIN ,
+           ConfigIndex.CABLE_CAR_PALETTE_MAIN ,
+           ConfigIndex.MONORAIL_PALETTE_MAIN ,
+           ConfigIndex.PLANE_PALETTE_SUBLINE,
+           ConfigIndex.SHIP_PALETTE_SUBLINE,
+           ConfigIndex.TRAIN_PALETTE_SUBLINE,
+           ConfigIndex.TRAM_PALETTE_SUBLINE,
+           ConfigIndex.METRO_PALETTE_SUBLINE,
+           ConfigIndex.BUS_PALETTE_SUBLINE,
+           ConfigIndex.CABLE_CAR_PALETTE_SUBLINE,
+           ConfigIndex.MONORAIL_PALETTE_SUBLINE,
         };
-        private static Dictionary<string, TLMConfigWarehouse> loadedCities = new Dictionary<string, TLMConfigWarehouse>();
         public bool unsafeMode = false;
-        private string cityId;
-        private string cityName;
+        public TLMConfigWarehouse() { }
 
-        public static TLMConfigWarehouse getConfig(string cityId, string cityName)
-        {
-            if (cityId == null || cityName == null)
-            {
-                cityId = GLOBAL_CONFIG_INDEX;
-                cityName = GLOBAL_CONFIG_INDEX;
-            }
-            if (!loadedCities.ContainsKey(cityId))
-            {
-                loadedCities[cityId] = new TLMConfigWarehouse(cityId, cityName);
-            }
-            return loadedCities[cityId];
-        }
-
-        public static bool getCurrentConfigBool(ConfigIndex i)
-        {
-            return TransportLinesManagerMod.instance.currentLoadedCityConfig.getBool(i);
-        }
-
-        public static void setCurrentConfigBool(ConfigIndex i, bool value)
-        {
-            TransportLinesManagerMod.instance.currentLoadedCityConfig.setBool(i, value);
-        }
-
-        public static int getCurrentConfigInt(ConfigIndex i)
-        {
-            return TransportLinesManagerMod.instance.currentLoadedCityConfig.getInt(i);
-        }
-
-        public static void setCurrentConfigInt(ConfigIndex i, int value)
-        {
-            TransportLinesManagerMod.instance.currentLoadedCityConfig.setInt(i, value);
-        }
-
-        public static string getCurrentConfigString(ConfigIndex i)
-        {
-            return TransportLinesManagerMod.instance.currentLoadedCityConfig.getString(i);
-        }
-
-        public static void setCurrentConfigString(ConfigIndex i, string value)
-        {
-            TransportLinesManagerMod.instance.currentLoadedCityConfig.setString(i, value);
-        }
-
-        public static List<int> getCurrentConfigListInt(ConfigIndex i)
-        {
-            return TransportLinesManagerMod.instance.currentLoadedCityConfig.getListInt(i);
-        }
-
-        public static void addToCurrentConfigListInt(ConfigIndex i, int value)
-        {
-            TransportLinesManagerMod.instance.currentLoadedCityConfig.addToListInt(i, value);
-        }
-
-        public static void removeFromCurrentConfigListInt(ConfigIndex i, int value)
-        {
-            TransportLinesManagerMod.instance.currentLoadedCityConfig.removeFromListInt(i, value);
-        }
-
-        public static TransportSystemDefinition getDefinitionForLine(ushort i)
-        {
-            return getDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)i]);
-        }
-
-        public static TransportSystemDefinition getDefinitionForLine(ref TransportLine t)
-        {
-            return TransportSystemDefinition.from(t.Info);
-        }
-
+        public static TransportSystemDefinition getDefinitionForLine(ushort i) => getDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)i]);
+        public static TransportSystemDefinition getDefinitionForLine(ref TransportLine t) => TransportSystemDefinition.from(t.Info);
         public static ConfigIndex getConfigIndexForTransportInfo(TransportInfo ti)
         {
             var tsd = TransportSystemDefinition.from(ti);
@@ -118,133 +50,6 @@ namespace Klyte.TransportLinesManager
             return tsd.toConfigIndex();
         }
 
-        private TLMConfigWarehouse(string cityId, string cityName)
-        {
-            this.cityId = cityId;
-            this.cityName = cityName;
-            SettingsFile tlmSettings = new SettingsFile
-            {
-                fileName = thisFileName
-            };
-            GameSettings.AddSettingsFile(tlmSettings);
-
-            if (!tlmSettings.IsValid() && cityId != GLOBAL_CONFIG_INDEX)
-            {
-                TLMConfigWarehouse defaultFile = getConfig(GLOBAL_CONFIG_INDEX, GLOBAL_CONFIG_INDEX);
-                foreach (string key in GameSettings.FindSettingsFileByName(defaultFile.thisFileName).ListKeys())
-                {
-                    ConfigIndex ci = (ConfigIndex)Enum.Parse(typeof(ConfigIndex), key);
-                    switch (ci & ConfigIndex.TYPE_PART)
-                    {
-                        case ConfigIndex.TYPE_BOOL:
-                            setBool(ci, defaultFile.getBool(ci));
-                            break;
-                        case ConfigIndex.TYPE_STRING:
-                        case ConfigIndex.TYPE_LIST:
-                            setString(ci, defaultFile.getString(ci));
-                            break;
-                        case ConfigIndex.TYPE_INT:
-                            setInt(ci, defaultFile.getInt(ci));
-                            break;
-                    }
-                }
-            }
-        }
-
-        private string thisFileName
-        {
-            get {
-                return CONFIG_FILENAME + "_" + cityId;
-            }
-        }
-
-        public string getString(ConfigIndex i)
-        {
-            return getFromFileString(i);
-        }
-        public void setString(ConfigIndex i, string value)
-        {
-            setToFile(i, value);
-        }
-
-        public bool getBool(ConfigIndex i)
-        {
-            return getFromFileBool(i);
-        }
-
-        public int getInt(ConfigIndex i)
-        {
-            return getFromFileInt(i);
-        }
-
-        public void setBool(ConfigIndex idx, bool newVal)
-        {
-            setToFile(idx, newVal);
-        }
-
-        public void setInt(ConfigIndex idx, int value)
-        {
-            setToFile(idx, value);
-        }
-
-        public List<int> getListInt(ConfigIndex i)
-        {
-            string listString = getFromFileString(i);
-            List<int> result = new List<int>();
-            foreach (string s in listString.Split(LIST_SEPARATOR.ToCharArray()))
-            {
-                result.Add(Int32Extensions.ParseOrDefault(s, 0));
-            }
-            return result;
-        }
-
-        public void addToListInt(ConfigIndex i, int value)
-        {
-            List<int> list = getListInt(i);
-            if (!list.Contains(value))
-            {
-                list.Add(value);
-                setToFile(i, serializeList(list));
-            }
-        }
-        public void removeFromListInt(ConfigIndex i, int value)
-        {
-            List<int> list = getListInt(i);
-            list.Remove(value);
-            setToFile(i, serializeList(list));
-        }
-        private string serializeList<T>(List<T> l)
-        {
-            return string.Join(LIST_SEPARATOR, l.Select(x => x.ToString()).ToArray());
-        }
-
-        private string getFromFileString(ConfigIndex i)
-        {
-            return new SavedString(i.ToString(), thisFileName, string.Empty, false).value;
-        }
-
-        private int getFromFileInt(ConfigIndex i)
-        {
-            return new SavedInt(i.ToString(), thisFileName, getDefaultIntValueForProperty(i), false).value;
-        }
-
-        private bool getFromFileBool(ConfigIndex i)
-        {
-            return new SavedBool(i.ToString(), thisFileName, getDefaultValueForProperty(i), false).value;
-        }
-
-        private void setToFile(ConfigIndex i, string value)
-        {
-            new SavedString(i.ToString(), thisFileName, value, true).value = value;
-        }
-        private void setToFile(ConfigIndex i, bool value)
-        {
-            new SavedBool(i.ToString(), thisFileName, value, true).value = value;
-        }
-        private void setToFile(ConfigIndex i, int value)
-        {
-            new SavedInt(i.ToString(), thisFileName, value, true).value = value;
-        }
 
         public static Color32 getColorForTransportType(ConfigIndex i)
         {
@@ -310,11 +115,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static string getNameForServiceType(ConfigIndex i)
-        {
-            string id = getLocaleIdForIndex(i, out string key);
-            return Locale.Get(id, key);
-        }
+        public static string getNameForServiceType(ConfigIndex i) => Locale.Get(getLocaleIdForIndex(i, out string key), key);
         private static string getLocaleIdForIndex(ConfigIndex i, out string key)
         {
             switch (i & ConfigIndex.DESC_DATA)
@@ -395,7 +196,6 @@ namespace Klyte.TransportLinesManager
 
             }
         }
-
         public static string getNameForTransportType(ConfigIndex i)
         {
             switch (i & ConfigIndex.SYSTEM_PART)
@@ -430,12 +230,12 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static bool getDefaultValueForProperty(ConfigIndex i)
+        public override bool getDefaultBoolValueForProperty(ConfigIndex i)
         {
             return defaultTrueBoolProperties.Contains(i);
         }
 
-        public static int getDefaultIntValueForProperty(ConfigIndex i)
+        public override int getDefaultIntValueForProperty(ConfigIndex i)
         {
             switch (i)
             {
@@ -444,25 +244,10 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static bool isServiceLineNameable(ItemClass.Service s)
-        {
-            return getCurrentConfigBool(ConfigIndex.USE_FOR_AUTO_NAMING_REF | GameServiceExtensions.toConfigIndex(s, ItemClass.SubService.None));
-        }
-
-        public static string getPrefixForServiceLineNameable(ItemClass.Service s)
-        {
-            return getCurrentConfigString(ConfigIndex.AUTO_NAMING_REF_TEXT | GameServiceExtensions.toConfigIndex(s, ItemClass.SubService.None));
-        }
-
-        public static bool isPublicTransportLineNameable(TransportSystemDefinition tsd)
-        {
-            return getCurrentConfigBool(ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | getConfigTransportSystemForDefinition(tsd));
-        }
-
-        public static string getPrefixForPublicTransportLineNameable(TransportSystemDefinition tsd)
-        {
-            return getCurrentConfigString(ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | getConfigTransportSystemForDefinition(tsd));
-        }
+        public static bool isServiceLineNameable(ItemClass.Service s) => getCurrentConfigBool(ConfigIndex.USE_FOR_AUTO_NAMING_REF | GameServiceExtensions.toConfigIndex(s, ItemClass.SubService.None));
+        public static string getPrefixForServiceLineNameable(ItemClass.Service s) => getCurrentConfigString(ConfigIndex.AUTO_NAMING_REF_TEXT | GameServiceExtensions.toConfigIndex(s, ItemClass.SubService.None));
+        public static bool isPublicTransportLineNameable(TransportSystemDefinition tsd) => getCurrentConfigBool(ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | getConfigTransportSystemForDefinition(tsd));
+        public static string getPrefixForPublicTransportLineNameable(TransportSystemDefinition tsd) => getCurrentConfigString(ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | getConfigTransportSystemForDefinition(tsd));
 
         public static ConfigIndex getConfigAssetsForAI(TransportSystemDefinition tsd)
         {
@@ -515,8 +300,6 @@ namespace Klyte.TransportLinesManager
                 return ConfigIndex.NIL;
             }
         }
-
-
         public static ConfigIndex getConfigDepotPrefix(TransportSystemDefinition tsd)
         {
 
@@ -565,13 +348,7 @@ namespace Klyte.TransportLinesManager
                 return ConfigIndex.NIL;
             }
         }
-
-
-        public static ConfigIndex getConfigPrefixForAI(TransportSystemDefinition tsd)
-        {
-            return getConfigTransportSystemForDefinition(tsd) | ConfigIndex.PREFIX;
-        }
-
+        public static ConfigIndex getConfigPrefixForAI(TransportSystemDefinition tsd) => getConfigTransportSystemForDefinition(tsd) | ConfigIndex.PREFIX;
 
         public static ConfigIndex getConfigTransportSystemForDefinition(TransportSystemDefinition tsd)
         {
@@ -624,8 +401,6 @@ namespace Klyte.TransportLinesManager
                 return ConfigIndex.NIL;
             }
         }
-
-
         public static TransportSystemDefinition getTransportSystemDefinitionForConfigTransport(ConfigIndex T)
         {
 
@@ -660,6 +435,82 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+
+
+        public static readonly ConfigIndex[] configurableAutoNameTransportCategories = {
+            ConfigIndex.PLANE_CONFIG,
+            ConfigIndex.BLIMP_CONFIG,
+            ConfigIndex.CABLE_CAR_CONFIG,
+            ConfigIndex.SHIP_CONFIG,
+            ConfigIndex.FERRY_CONFIG,
+            ConfigIndex.TRAIN_CONFIG,
+            ConfigIndex.MONORAIL_CONFIG,
+            ConfigIndex.TRAM_CONFIG,
+            ConfigIndex.METRO_CONFIG,
+            ConfigIndex.BUS_CONFIG,
+            ConfigIndex.TAXI_CONFIG,
+        };
+        public static readonly ConfigIndex[] configurableAutoNameCategories = {
+            ConfigIndex.MONUMENT_SERVICE_CONFIG,
+            ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG,
+            ConfigIndex.HEALTHCARE_SERVICE_CONFIG,
+            ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG,
+            ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG,
+            ConfigIndex.EDUCATION_SERVICE_CONFIG,
+            ConfigIndex.DISASTER_SERVICE_CONFIG,
+            ConfigIndex.GARBAGE_SERVICE_CONFIG,
+        };
+        public static readonly ConfigIndex[] defaultTrueBoolProperties = {
+             ConfigIndex.MONUMENT_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.BEAUTIFICATION_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.TRAIN_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.METRO_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.BUS_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.PLANE_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.SHIP_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME,
+             ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.METRO_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.BUS_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.MONORAIL_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.CABLE_CAR_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP ,
+        };
+        public static readonly ConfigIndex[] namingOrder =
+        {
+            TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG  ,
+            TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG  ,
+            TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG  ,
+            TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.METRO_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.BUS_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG  ,
+            TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG    ,
+            TLMConfigWarehouse.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG    ,
+            TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG  ,
+            TLMConfigWarehouse.ConfigIndex.HEALTHCARE_SERVICE_CONFIG    ,
+            TLMConfigWarehouse.ConfigIndex.EDUCATION_SERVICE_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG  ,
+            TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG    ,
+            TLMConfigWarehouse.ConfigIndex.GARBAGE_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.WATER_SERVICE_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.ELECTRICITY_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.ROAD_SERVICE_CONFIG  ,
+            TLMConfigWarehouse.ConfigIndex.OFFICE_SERVICE_CONFIG    ,
+            TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG    ,
+            TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG    ,
+            TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG
+        };
+
         public enum ConfigIndex
         {
             NIL = -1,
@@ -690,14 +541,9 @@ namespace Klyte.TransportLinesManager
             DEPOT_PREFIXES_TRAIN = GLOBAL_CONFIG | 0x10 | TYPE_DICTIONARY,
             DEPOT_PREFIXES_METRO = GLOBAL_CONFIG | 0x11 | TYPE_DICTIONARY,
             DEPOT_PREFIXES_SHIP = GLOBAL_CONFIG | 0x12 | TYPE_DICTIONARY,
-            STATION_DISALLOW_EXTERNAL_PASSENGER_TRAIN = GLOBAL_CONFIG | 0x13 | TYPE_DICTIONARY,
-            STATION_DISALLOW_EXTERNAL_CARGO_TRAIN = GLOBAL_CONFIG | 0x14 | TYPE_DICTIONARY,
-            STATION_DISALLOW_EXTERNAL_PASSENGER_SHIP = GLOBAL_CONFIG | 0x15 | TYPE_DICTIONARY,
-            STATION_DISALLOW_EXTERNAL_CARGO_SHIP = GLOBAL_CONFIG | 0x16 | TYPE_DICTIONARY,
-            STATION_DISALLOW_EXTERNAL_PASSENGER_PLANE = GLOBAL_CONFIG | 0x17 | TYPE_DICTIONARY,
             DEPOT_PREFIXES_PLANE = GLOBAL_CONFIG | 0x18 | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_PLANE = GLOBAL_CONFIG | 0x19 | TYPE_DICTIONARY,
-            VEHICLE_LINE = GLOBAL_CONFIG | 0x1A | TYPE_DICTIONARY,
+            LINES_CONFIG = GLOBAL_CONFIG | 0x1A | TYPE_DICTIONARY,
             STOPS_CONFIG = GLOBAL_CONFIG | 0x1B | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_CABLE_CAR = GLOBAL_CONFIG | 0x1C | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_MONORAIL = GLOBAL_CONFIG | 0x1D | TYPE_DICTIONARY,
@@ -974,85 +820,8 @@ namespace Klyte.TransportLinesManager
 
 
         }
-
-        public static readonly ConfigIndex[] configurableAutoNameTransportCategories = {
-            ConfigIndex.PLANE_CONFIG,
-            ConfigIndex.BLIMP_CONFIG,
-            ConfigIndex.CABLE_CAR_CONFIG,
-            ConfigIndex.SHIP_CONFIG,
-            ConfigIndex.FERRY_CONFIG,
-            ConfigIndex.TRAIN_CONFIG,
-            ConfigIndex.MONORAIL_CONFIG,
-            ConfigIndex.TRAM_CONFIG,
-            ConfigIndex.METRO_CONFIG,
-            ConfigIndex.BUS_CONFIG,
-            ConfigIndex.TAXI_CONFIG,
-        };
-
-        public static readonly ConfigIndex[] configurableAutoNameCategories = {
-            ConfigIndex.MONUMENT_SERVICE_CONFIG,
-            ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG,
-            ConfigIndex.HEALTHCARE_SERVICE_CONFIG,
-            ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG,
-            ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG,
-            ConfigIndex.EDUCATION_SERVICE_CONFIG,
-            ConfigIndex.DISASTER_SERVICE_CONFIG,
-            ConfigIndex.GARBAGE_SERVICE_CONFIG,
-        };
-
-        public static readonly ConfigIndex[] defaultTrueBoolProperties = {
-             ConfigIndex.MONUMENT_USE_FOR_AUTO_NAMING_REF,
-             ConfigIndex.BEAUTIFICATION_USE_FOR_AUTO_NAMING_REF,
-             ConfigIndex.TRAIN_USE_FOR_AUTO_NAMING_REF,
-             ConfigIndex.METRO_USE_FOR_AUTO_NAMING_REF,
-             ConfigIndex.BUS_USE_FOR_AUTO_NAMING_REF,
-             ConfigIndex.PLANE_USE_FOR_AUTO_NAMING_REF,
-             ConfigIndex.SHIP_USE_FOR_AUTO_NAMING_REF,
-            ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME,
-            ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP ,
-          ConfigIndex.  METRO_SHOW_IN_LINEAR_MAP ,
-          ConfigIndex.  BUS_SHOW_IN_LINEAR_MAP ,
-          ConfigIndex.  MONORAIL_SHOW_IN_LINEAR_MAP ,
-          ConfigIndex.  CABLE_CAR_SHOW_IN_LINEAR_MAP ,
-         ConfigIndex.   PLANE_SHOW_IN_LINEAR_MAP ,
-          ConfigIndex.  SHIP_SHOW_IN_LINEAR_MAP ,
-        };
-
-        public static readonly ConfigIndex[] namingOrder =
-        {
-            TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG ,
-            TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG  ,
-            TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG ,
-            TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG  ,
-            TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG  ,
-            TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG ,
-            TLMConfigWarehouse.ConfigIndex.METRO_CONFIG ,
-            TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG ,
-            TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG ,
-            TLMConfigWarehouse.ConfigIndex.BUS_CONFIG   ,
-            TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG  ,
-            TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG    ,
-            TLMConfigWarehouse.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG    ,
-            TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG  ,
-            TLMConfigWarehouse.ConfigIndex.HEALTHCARE_SERVICE_CONFIG    ,
-            TLMConfigWarehouse.ConfigIndex.EDUCATION_SERVICE_CONFIG ,
-            TLMConfigWarehouse.ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG  ,
-            TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG    ,
-            TLMConfigWarehouse.ConfigIndex.GARBAGE_SERVICE_CONFIG   ,
-            TLMConfigWarehouse.ConfigIndex.WATER_SERVICE_CONFIG ,
-            TLMConfigWarehouse.ConfigIndex.ELECTRICITY_SERVICE_CONFIG   ,
-            TLMConfigWarehouse.ConfigIndex.ROAD_SERVICE_CONFIG  ,
-            TLMConfigWarehouse.ConfigIndex.OFFICE_SERVICE_CONFIG    ,
-            TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG   ,
-            TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG   ,
-            TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG    ,
-            TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG    ,
-            TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG   ,
-            TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG   ,
-            TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG
-        };
     }
-    public static class GameServiceExtensions
+    internal static class GameServiceExtensions
     {
         public static TLMConfigWarehouse.ConfigIndex toConfigIndex(ItemClass.Service s, ItemClass.SubService ss)
         {
@@ -1110,8 +879,6 @@ namespace Klyte.TransportLinesManager
                     return 0;
             }
         }
-
-
         public static uint getPriority(this TLMConfigWarehouse.ConfigIndex idx)
         {
             uint saida;
@@ -1160,13 +927,10 @@ namespace Klyte.TransportLinesManager
                     saida = uint.MaxValue;
                     break;
             }
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
             return saida;
         }
-
-
-
         public static string getPrefixTextNaming(this TLMConfigWarehouse.ConfigIndex idx)
         {
             switch (idx)
@@ -1210,7 +974,6 @@ namespace Klyte.TransportLinesManager
                     return "";
             }
         }
-
         public static bool isLineNamingEnabled(this TLMConfigWarehouse.ConfigIndex idx)
         {
             switch (idx)

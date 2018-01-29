@@ -5,7 +5,8 @@ using ICities;
 using Klyte.Extensions;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return false;
         }
 
-        public override void EnableHooks()
+        public override void Awake()
         {
             MethodInfo preventDefault = typeof(TransportLineOverrides).GetMethod("preventDefault", allFlags);
 
@@ -39,7 +40,7 @@ namespace Klyte.TransportLinesManager.Overrides
             #endregion
 
             #region Ticket Override Hooks
-            if (!TransportLinesManagerMod.isIPTLoaded)
+            if (!TLMSingleton.isIPTLoaded)
             {
                 MethodInfo GetTicketPricePost_PassengerPlaneAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerPlaneAI", allFlags);
                 MethodInfo GetTicketPricePost_PassengerShipAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerShipAI", allFlags);
@@ -64,7 +65,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
             #region Budget Override Hooks
 
-            if (!TransportLinesManagerMod.isIPTLoaded)
+            if (!TLMSingleton.isIPTLoaded)
             {
                 MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("SimulationStepPre", allFlags);
 
@@ -81,13 +82,6 @@ namespace Klyte.TransportLinesManager.Overrides
         public static void preDoAutomation(ushort lineID, ref TransportLine.Flags __state)
         {
             __state = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags;
-            if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None &&
-                (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.CustomColor) != TransportLine.Flags.None
-                )
-            {
-                Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~TransportLine.Flags.CustomColor;
-            }
-
         }
 
         public static void doAutomation(ushort lineID, TransportLine.Flags __state)
@@ -107,7 +101,14 @@ namespace Klyte.TransportLinesManager.Overrides
                         TLMController.instance.AutoName(lineID);
                     }
                     TLMController.instance.LineCreationToolbox.incrementNumber();
+                    TLMTransportLineExtension.instance.SafeCleanEntry(lineID);
                 }
+            }
+            if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None &&
+                (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.CustomColor) != TransportLine.Flags.None
+                )
+            {
+                Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~TransportLine.Flags.CustomColor;
             }
 
         }
@@ -119,10 +120,40 @@ namespace Klyte.TransportLinesManager.Overrides
             try
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
-                if (t.m_lineNumber != 0 && t.m_stops != 0 && TLMLineUtils.hasPrefix(lineID))
+                bool activeDayNightManagedByTLM = TLMLineUtils.isPerHourBudget(lineID);
+                if (t.m_lineNumber != 0 && t.m_stops != 0)
                 {
-                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort)(TLMLineUtils.getBudgetMultiplierPrefix(ref t) * 100);
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort)(TLMLineUtils.getBudgetMultiplierLine(lineID) * 100);
                 }
+
+                unchecked
+                {
+                    TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], out bool day, out bool night);
+                    bool isNight = Singleton<SimulationManager>.instance.m_isNightTime;
+                    bool zeroed = false;
+                    if ((activeDayNightManagedByTLM || (isNight && night) || (!isNight && day)) && Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget == 0)
+                    {
+                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags |= (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
+                        zeroed = true;
+                    }
+                    else
+                    {
+                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~(TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
+                    }
+                    TLMUtils.doLog("activeDayNightManagedByTLM = {0}; zeroed = {1}", activeDayNightManagedByTLM, zeroed);
+                    if (activeDayNightManagedByTLM)
+                    {
+                        if (zeroed)
+                        {
+                            TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], false, false);
+                        }
+                        else
+                        {
+                            TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], true, true);
+                        }
+                    }
+                }
+
             }
             catch (Exception e)
             {
@@ -136,42 +167,42 @@ namespace Klyte.TransportLinesManager.Overrides
         public static void GetTicketPricePost_PassengerPlaneAI(ushort vehicleID, ref Vehicle vehicleData, PassengerPlaneAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerShipAI(ushort vehicleID, ref Vehicle vehicleData, PassengerShipAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_TramAI(ushort vehicleID, ref Vehicle vehicleData, TramAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerTrainAI(ushort vehicleID, ref Vehicle vehicleData, PassengerTrainAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerBlimpAI(ushort vehicleID, ref Vehicle vehicleData, PassengerBlimpAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerFerryAI(ushort vehicleID, ref Vehicle vehicleData, PassengerFerryAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_BusAI(ushort vehicleID, ref Vehicle vehicleData, BusAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
         public static void GetTicketPricePost_CableCarAI(ushort vehicleID, ref Vehicle vehicleData, CableCarAI __instance, ref int __result)
         {
             if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = (__result / __instance.m_ticketPrice) * ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice);
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
         }
 
         private static int ticketPriceForPrefix(ushort vehicleID, ref Vehicle vehicleData, int defaultPrice)
@@ -180,20 +211,26 @@ namespace Klyte.TransportLinesManager.Overrides
 
             if (def == default(TransportSystemDefinition))
             {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("NULL TSysDef! {0}+{1}+{2}", vehicleData.Info.GetAI().GetType(), vehicleData.Info.m_class.m_subService, vehicleData.Info.m_vehicleType);
                 return defaultPrice;
             }
             if (vehicleData.m_transportLine == 0)
             {
-                var value = (int)BasicTransportExtensionSingleton.Instance(def).GetDefaultTicketPrice();
+                var value = (int)def.GetTransportExtension().GetDefaultTicketPrice(0);
                 return value;
             }
             else
             {
-                var value = (int)(BasicTransportExtensionSingleton.Instance(def).GetTicketPrice((uint)vehicleData.m_transportLine));
+                if (TLMTransportLineExtension.instance.GetUseCustomConfig(vehicleData.m_transportLine))
+                {
+                    return (int)TLMTransportLineExtension.instance.GetTicketPrice(vehicleData.m_transportLine);
+                }
+                else
+                {
+                    return (int)def.GetTransportExtension().GetTicketPrice(TLMLineUtils.getPrefix(vehicleData.m_transportLine));
+                }
 
-                return value;
             }
         }
         #endregion

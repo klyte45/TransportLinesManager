@@ -13,12 +13,13 @@ using Klyte.TransportLinesManager.LineList;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.UI;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 
 namespace Klyte.TransportLinesManager.LineList
 {
-    public class TLMDepotInfoPanel
+    internal class TLMDepotInfoPanel : MonoBehaviour
     {
-        private TLMController m_controller;
+        private TLMController m_controller => TLMController.instance;
 
         //line info	
         private UIPanel depotInfoPanel;
@@ -37,14 +38,14 @@ namespace Klyte.TransportLinesManager.LineList
         private bool isLoading = false;
         private bool m_secondary = false;
 
-        public Transform transform
+        public Transform panelTransform
         {
             get {
                 return depotInfoPanel.transform;
             }
         }
 
-        public GameObject gameObject
+        public GameObject panelGameObject
         {
             get {
                 try {
@@ -88,9 +89,8 @@ namespace Klyte.TransportLinesManager.LineList
             }
         }
 
-        public TLMDepotInfoPanel(TLMController controller)
+        public TLMDepotInfoPanel()
         {
-            this.m_controller = controller;
             GameObject gameObject = GameObject.FindGameObjectWithTag("MainCamera");
             if (gameObject != null) {
                 m_CameraController = gameObject.GetComponent<CameraController>();
@@ -128,7 +128,7 @@ namespace Klyte.TransportLinesManager.LineList
         {
             //line info painel
 
-            TLMUtils.createUIElement<UIPanel>(ref depotInfoPanel, m_controller.mainRef.transform);
+            TLMUtils.createUIElement(out depotInfoPanel, m_controller.mainRef.transform);
             depotInfoPanel.Hide();
             depotInfoPanel.relativePosition = new Vector3(394.0f, 0.0f);
             depotInfoPanel.width = 650;
@@ -146,7 +146,7 @@ namespace Klyte.TransportLinesManager.LineList
 
 
 
-            TLMUtils.createUIElement<UIButton>(ref lineTransportIconTypeLabel, depotInfoPanel.transform);
+            TLMUtils.createUIElement(out lineTransportIconTypeLabel, depotInfoPanel.transform);
             lineTransportIconTypeLabel.autoSize = false;
             lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 12f);
             lineTransportIconTypeLabel.width = 30;
@@ -159,7 +159,7 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.createDragHandle(lineTransportIconTypeLabel, depotInfoPanel);
 
 
-            TLMUtils.createUIElement<UITextField>(ref depotNameField, depotInfoPanel.transform);
+            TLMUtils.createUIElement(out depotNameField, depotInfoPanel.transform);
             depotNameField.autoSize = false;
             depotNameField.relativePosition = new Vector3(160f, 10f);
             depotNameField.horizontalAlignment = UIHorizontalAlignment.Center;
@@ -179,7 +179,7 @@ namespace Klyte.TransportLinesManager.LineList
                 }
             };
 
-            TLMUtils.createUIElement<UILabel>(ref vehiclesInUseLabel, depotInfoPanel.transform);
+            TLMUtils.createUIElement(out vehiclesInUseLabel, depotInfoPanel.transform);
             vehiclesInUseLabel.autoSize = false;
             vehiclesInUseLabel.relativePosition = new Vector3(10f, 60f);
             vehiclesInUseLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -189,7 +189,7 @@ namespace Klyte.TransportLinesManager.LineList
             vehiclesInUseLabel.name = "VehiclesInUseLabel";
             vehiclesInUseLabel.textScale = 0.8f;
 
-            TLMUtils.createUIElement<UILabel>(ref passengersLastWeek, depotInfoPanel.transform);
+            TLMUtils.createUIElement(out passengersLastWeek, depotInfoPanel.transform);
             passengersLastWeek.autoSize = false;
             passengersLastWeek.relativePosition = new Vector3(10f, 90);
             passengersLastWeek.textAlignment = UIHorizontalAlignment.Left;
@@ -199,7 +199,7 @@ namespace Klyte.TransportLinesManager.LineList
             passengersLastWeek.name = "PassengersLastWeek";
             passengersLastWeek.textScale = 0.8f;
 
-            TLMUtils.createUIElement<UILabel>(ref upkeepCost, depotInfoPanel.transform);
+            TLMUtils.createUIElement(out upkeepCost, depotInfoPanel.transform);
             upkeepCost.autoSize = false;
             upkeepCost.relativePosition = new Vector3(10f, 75);
             upkeepCost.textAlignment = UIHorizontalAlignment.Left;
@@ -208,7 +208,7 @@ namespace Klyte.TransportLinesManager.LineList
             upkeepCost.name = "AvoidedTravelsLabel";
             upkeepCost.textScale = 0.8f;
 
-            TLMUtils.createUIElement<UILabel>(ref prefixesSpawned, depotInfoPanel.transform);
+            TLMUtils.createUIElement(out prefixesSpawned, depotInfoPanel.transform);
             prefixesSpawned.autoSize = false;
             prefixesSpawned.relativePosition = new Vector3(10f, 120f);
             prefixesSpawned.textAlignment = UIHorizontalAlignment.Left;
@@ -219,8 +219,7 @@ namespace Klyte.TransportLinesManager.LineList
             prefixesSpawned.name = "TouristAndPassagersLabel";
             prefixesSpawned.textScale = 0.8f;
 
-            UIPanel prefixesPanel = null;
-            TLMUtils.createUIElement<UIPanel>(ref prefixesPanel, depotInfoPanel.transform);
+            TLMUtils.createUIElement(out UIPanel prefixesPanel, depotInfoPanel.transform);
             prefixesPanel.autoSize = false;
             prefixesPanel.relativePosition = new Vector3(10f, 135f);
             prefixesPanel.width = 630;
@@ -237,7 +236,7 @@ namespace Klyte.TransportLinesManager.LineList
                 prefixesCheckboxes[i].GetComponentInChildren<UILabel>().relativePosition = new Vector3(20, 2);
                 uint j = i;
                 prefixesCheckboxes[i].eventCheckChanged += (x, y) => {
-                    if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                    if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                         TLMUtils.doLog("prefixesCheckboxes[i].eventCheckChanged; j = {0}; check = {1}; loading = {2}", j, y, isLoading);
                     if (!isLoading) {
                         togglePrefix(j, y, m_secondary);
@@ -249,8 +248,7 @@ namespace Klyte.TransportLinesManager.LineList
             prefixesCheckboxes[65].width = prefixesPanel.width / 2.1f;
             prefixesCheckboxes[65].zOrder = 0;
 
-            UIButton voltarButton2 = null;
-            TLMUtils.createUIElement<UIButton>(ref voltarButton2, depotInfoPanel.transform);
+            TLMUtils.createUIElement(out UIButton voltarButton2, depotInfoPanel.transform);
             voltarButton2.relativePosition = new Vector3(depotInfoPanel.width - 33f, 5f);
             voltarButton2.width = 28;
             voltarButton2.height = 28;
@@ -258,10 +256,9 @@ namespace Klyte.TransportLinesManager.LineList
             voltarButton2.name = "LineInfoCloseButton";
             voltarButton2.eventClick += closeDepotInfo;
 
-            workerChart = new TLMWorkerChartPanel(this, new Vector3(400f, 60f));
+            workerChart = new TLMWorkerChartPanel(this.panelTransform, new Vector3(400f, 60f));
 
-            UIButton addAllPrefixesButton = null;
-            TLMUtils.createUIElement(ref addAllPrefixesButton, transform);
+            TLMUtils.createUIElement(out UIButton addAllPrefixesButton, panelTransform);
             addAllPrefixesButton.relativePosition = new Vector3(300, 100f);
             addAllPrefixesButton.localeID = "TLM_ADD_ALL";
             addAllPrefixesButton.isLocalized = true;
@@ -277,8 +274,7 @@ namespace Klyte.TransportLinesManager.LineList
                 updateCheckboxes();
             };
 
-            UIButton removeAllPrefixesButton = null;
-            TLMUtils.createUIElement<UIButton>(ref removeAllPrefixesButton, transform);
+            TLMUtils.createUIElement(out UIButton removeAllPrefixesButton, panelTransform);
             removeAllPrefixesButton.relativePosition = new Vector3(300, 120f);
             removeAllPrefixesButton.localeID = "TLM_REMOVE_ALL";
             removeAllPrefixesButton.isLocalized = true;

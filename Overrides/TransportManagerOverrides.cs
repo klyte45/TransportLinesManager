@@ -5,7 +5,7 @@ using ICities;
 using Klyte.Extensions;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return false;
         }
 
-        public override void EnableHooks()
+        public override void Awake()
         {
             MethodInfo preventDefault = typeof(TransportLineOverrides).GetMethod("PreventDefault", allFlags);
 

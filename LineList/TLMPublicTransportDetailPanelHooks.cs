@@ -6,7 +6,7 @@ using Klyte.Extensions;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
-using Klyte.TransportLinesManager.Extensors.VehicleAIExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.LineList.ExtraUI;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -65,7 +65,7 @@ namespace Klyte.TransportLinesManager.LineList
 
 
 
-        public override void EnableHooks()
+        public override void Awake()
         {
             MethodInfo preventDefault = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("preventDefault", allFlags);
             MethodInfo OpenDetailPanel = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OpenDetailPanel", allFlags);
@@ -91,10 +91,9 @@ namespace Klyte.TransportLinesManager.LineList
             AddRedirect(typeof(PublicTransportInfoViewPanel).GetMethod("OpenDetailPanel", allFlags), preventDefault, OpenDetailPanel);
 
             TLMUtils.doLog("Remove PublicTransportDetailPanel Hooks!");
-            update();
         }
 
-        public void update()
+        public void Update()
         {
             if (tryCount < 100 && !panelOverriden)
             {
@@ -409,7 +408,7 @@ namespace Klyte.TransportLinesManager.LineList
             icon.atlas = TLMController.taTLM;
 
             var title = Find<UILabel>("Label");
-            title.suffix = " - TLM v" + TransportLinesManagerMod.version;
+            title.suffix = " - TLM v" + TLMSingleton.version;
 
             component.relativePosition = new Vector3(395, 58);
         }
@@ -473,8 +472,7 @@ namespace Klyte.TransportLinesManager.LineList
             addIcon("Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref bus_strip, false, tabIt++, "PUBLICTRANSPORT_BUSLINES");
             addIcon("EvacBus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref evac_strip, false, tabIt++, "TLM_PUBLICTRANSPORT_EVACBUSLINES");
 
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
-                TLMUtils.doLog("Tab init - depots");
+            TLMUtils.doLog("Tab init - depots");
             tabIt = 0;
             addIcon("PlaneLine", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref planeDepot_strip, false, NUM_TRANSPORT_SYSTEMS + tabIt++, "TLM_PUBLICTRANSPORT_AIRPLANE_DEPOTS");
             addIcon("Blimp", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Airplane), ref blimpDepot_strip, false, NUM_TRANSPORT_SYSTEMS + tabIt++, "TLM_PUBLICTRANSPORT_BLIMP_DEPOTS");
@@ -487,7 +485,7 @@ namespace Klyte.TransportLinesManager.LineList
             addIcon("Bus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref busDepot_strip, false, NUM_TRANSPORT_SYSTEMS + tabIt++, "TLM_PUBLICTRANSPORT_BUS_DEPOTS");
             addIcon("EvacBus", PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.Bus), ref evacDepot_strip, false, NUM_TRANSPORT_SYSTEMS + tabIt++, "TLM_PUBLICTRANSPORT_EVACBUS_DEPOTS");
 
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Tab init - star");
             var prefixEditor = m_Strip.AddTab("");
             prefixEditor.textScale = 2.25f;
@@ -607,13 +605,13 @@ namespace Klyte.TransportLinesManager.LineList
         private void AwakeLinesTitleComponents()
         {
 
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Find Panel title");
             m_linesTitle = Find<UIPanel>("LineTitle");
             this.m_ToggleAllState = new bool[this.m_Strip.tabCount / 2];
             this.m_Strip.eventSelectedIndexChanged += null;
             this.m_Strip.eventSelectedIndexChanged += new PropertyChangedEventHandler<int>(this.OnTabChanged);
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Find Toggle button");
             this.m_ToggleAll = m_linesTitle.Find<UICheckBox>("ToggleAll");
             this.m_ToggleAll.eventCheckChanged += new PropertyChangedEventHandler<bool>(this.CheckChangedFunction);
@@ -637,7 +635,7 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 this.OnPassengerSort();
             };
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Find Color title");
             var colorTitle = m_linesTitle.Find<UIButton>("ColorTitle");
             colorTitle.text += "/" + Locale.Get("TLM_CODE_SHORT");
@@ -652,7 +650,7 @@ namespace Klyte.TransportLinesManager.LineList
         private void AwakeTopButtons()
         {
             //Auto color & Auto Name
-            TLMUtils.createUIElement<UIButton>(ref m_buttonAutoName, transform);
+            TLMUtils.createUIElement(out m_buttonAutoName, transform);
             m_buttonAutoName.pivot = UIPivotPoint.TopRight;
             m_buttonAutoName.textScale = 0.6f;
             m_buttonAutoName.width = 40;
@@ -673,7 +671,7 @@ namespace Klyte.TransportLinesManager.LineList
             icon.width = 36;
             icon.height = 36;
 
-            TLMUtils.createUIElement<UIButton>(ref m_buttonAutoColor, transform);
+            TLMUtils.createUIElement(out m_buttonAutoColor, transform);
             m_buttonAutoColor.pivot = UIPivotPoint.TopRight;
             m_buttonAutoColor.textScale = 0.6f;
             m_buttonAutoColor.width = 40;
@@ -694,7 +692,7 @@ namespace Klyte.TransportLinesManager.LineList
             icon.height = 36;
             icon.spriteName = "AutoColorIcon";
 
-            TLMUtils.createUIElement<UIButton>(ref m_buttonRemoveUnwanted, transform);
+            TLMUtils.createUIElement(out m_buttonRemoveUnwanted, transform);
             m_buttonRemoveUnwanted.pivot = UIPivotPoint.TopRight;
             m_buttonRemoveUnwanted.textScale = 0.6f;
             m_buttonRemoveUnwanted.width = 40;
@@ -702,7 +700,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_buttonRemoveUnwanted.tooltip = Locale.Get("TLM_REMOVE_UNWANTED_TOOLTIP");
             TLMUtils.initButton(m_buttonRemoveUnwanted, true, "ButtonMenu");
             m_buttonRemoveUnwanted.name = "RemoveUnwanted";
-            m_buttonRemoveUnwanted.isVisible = !TransportLinesManagerMod.isIPTLoaded;
+            m_buttonRemoveUnwanted.isVisible = !TLMSingleton.isIPTLoaded;
             m_buttonRemoveUnwanted.eventClick += (component, eventParam) =>
             {
                 OnRemoveUnwanted();
@@ -715,7 +713,7 @@ namespace Klyte.TransportLinesManager.LineList
             icon.height = 36;
             icon.spriteName = "RemoveUnwantedIcon";
 
-            TLMUtils.createUIElement<UIButton>(ref m_buttonDepotToggle, transform);
+            TLMUtils.createUIElement(out m_buttonDepotToggle, transform);
             m_buttonDepotToggle.pivot = UIPivotPoint.TopRight;
             m_buttonDepotToggle.textScale = 0.6f;
             m_buttonDepotToggle.width = 40;
@@ -737,7 +735,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_depotIcon.spriteName = "DepotIcon";
 
 
-            TLMUtils.createUIElement<UIButton>(ref m_buttonPrefixConfig, transform);
+            TLMUtils.createUIElement(out m_buttonPrefixConfig, transform);
             m_buttonPrefixConfig.pivot = UIPivotPoint.TopRight;
             m_buttonPrefixConfig.textScale = 0.6f;
             m_buttonPrefixConfig.width = 40;
@@ -745,7 +743,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_buttonPrefixConfig.tooltip = Locale.Get("TLM_CITY_ASSETS_SELECTION");
             TLMUtils.initButton(m_buttonPrefixConfig, true, "ButtonMenu");
             m_buttonPrefixConfig.name = "DepotToggleButton";
-            m_buttonPrefixConfig.isVisible = !TransportLinesManagerMod.isIPTLoaded;
+            m_buttonPrefixConfig.isVisible = !TLMSingleton.isIPTLoaded;
             m_buttonPrefixConfig.eventClick += (component, eventParam) =>
             {
                 SetActiveTab(NUM_TRANSPORT_SYSTEMS * 2);
@@ -768,19 +766,19 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void AwakeDayNightOptions()
         {
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Find Original buttons");
             m_DayIcon = m_linesTitle.Find<UIButton>("DayButton");
             m_NightIcon = m_linesTitle.Find<UIButton>("NightButton");
             m_DayNightIcon = m_linesTitle.Find<UIButton>("DayNightButton");
 
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Set Tooltips");
             m_DayIcon.tooltip = Locale.Get("TLM_DAY_FILTER_TOOLTIP");
             m_NightIcon.tooltip = Locale.Get("TLM_NIGHT_FILTER_TOOLTIP");
             m_DayNightIcon.tooltip = Locale.Get("TLM_DAY_NIGHT_FILTER_TOOLTIP");
 
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Set events");
             m_DayIcon.eventClick += (x, y) =>
             {
@@ -800,9 +798,9 @@ namespace Klyte.TransportLinesManager.LineList
                 m_DayNightIcon.color = m_showDayNightLines ? Color.white : Color.black;
                 m_DayNightIcon.focusedColor = !m_showDayLines ? Color.white : Color.black;
             };
-            if (!TransportLinesManagerMod.isIPTLoaded)
+            if (!TLMSingleton.isIPTLoaded)
             {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("Create disabled button");
                 m_DisabledIcon = GameObject.Instantiate(m_DayIcon.gameObject).GetComponent<UIButton>();
                 m_DisabledIcon.transform.SetParent(m_DayIcon.transform.parent);
@@ -840,7 +838,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void addIcon(string namePrefix, string iconName, ref UIButton targetButton, bool alternativeIconAtlas, int tabIdx, string tooltipText = "", bool isTooltipLocale = true)
         {
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("addIcon: init " + namePrefix);
 
             TLMUtils.initButtonFg(targetButton, false, "");
@@ -870,9 +868,9 @@ namespace Klyte.TransportLinesManager.LineList
                     SetActiveTab(tabIdx);
                 };
             }
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("addIcon: pre eventClick");
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("addIcon: init label icon");
             UILabel icon = targetButton.AddUIComponent<UILabel>();
             if (alternativeIconAtlas)
@@ -899,7 +897,7 @@ namespace Klyte.TransportLinesManager.LineList
             }
 
             icon.backgroundSprite = iconName;
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("addIcon: end");
         }
 
@@ -1370,13 +1368,13 @@ namespace Klyte.TransportLinesManager.LineList
         private int AddToList(int count, ushort lineIdIterator, ref UIComponent component)
         {
             TLMPublicTransportLineInfoItem publicTransportLineInfo;
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("PreIF");
-            if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Count = {0}; Component = {1}; components count = {2}", count, component.ToString(), component.components.Count);
             if (count >= component.components.Count)
             {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("IF TRUE");
                 var temp = UITemplateManager.Get<PublicTransportLineInfo>(kLineTemplate).gameObject;
                 GameObject.Destroy(temp.GetComponent<PublicTransportLineInfo>());
@@ -1385,9 +1383,9 @@ namespace Klyte.TransportLinesManager.LineList
             }
             else
             {
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("IF FALSE");
-                if (TransportLinesManagerMod.instance != null && TransportLinesManagerMod.debugMode)
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("component.components[count] = {0};", component.components[count]);
                 publicTransportLineInfo = component.components[count].GetComponent<TLMPublicTransportLineInfoItem>();
             }
@@ -1449,7 +1447,7 @@ namespace Klyte.TransportLinesManager.LineList
             m_linesTitle.isVisible = m_isLineView;
             m_buttonAutoName.isVisible = m_isLineView;
             m_buttonAutoColor.isVisible = m_isLineView;
-            m_buttonRemoveUnwanted.isVisible = !m_isDepotView && !TransportLinesManagerMod.isIPTLoaded;
+            m_buttonRemoveUnwanted.isVisible = !m_isDepotView && !TLMSingleton.isIPTLoaded;
 
             if (m_isDepotView && !m_isPrefixEditor)
             {
@@ -1462,7 +1460,7 @@ namespace Klyte.TransportLinesManager.LineList
             }
 
             m_depotsTitle.relativePosition = m_linesTitle.relativePosition;
-            if (!TransportLinesManagerMod.isIPTLoaded)
+            if (!TLMSingleton.isIPTLoaded)
             {
                 m_DisabledIcon.relativePosition = new Vector3(736, 14);
             }
@@ -1534,7 +1532,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnRemoveUnwanted()
         {
-            BasicTransportExtension.removeAllUnwantedVehicles();
+            TLMTransportExtensionUtils.RemoveAllUnwantedVehicles();
         }
 
         private void OnAutoColorAll()

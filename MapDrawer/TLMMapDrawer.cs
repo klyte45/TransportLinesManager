@@ -87,9 +87,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         //						Debug.Log ("ULT POS:" + ultPos);
                         ushort nextStop = t.GetStop(j % stopsCount);
-                        string name = TLMUtils.getStationName(nextStop, lineId, t.Info.m_stationSubService, out ItemClass.Service service, out ItemClass.SubService nil2, out string prefix, out ushort buildingId);
+                        string name = TLMLineUtils.getStationName(nextStop, lineId, t.Info.m_stationSubService, out ItemClass.Service service, out ItemClass.SubService nil2, out string prefix, out ushort buildingId);
 
-                        Vector3 worldPos = TLMUtils.getStationBuildingPosition(nextStop, t.Info.m_stationSubService);
+                        Vector3 worldPos = TLMLineUtils.getStationBuildingPosition(nextStop, t.Info.m_stationSubService);
                         Vector2 pos2D = calc(worldPos, invPrecision);
                         Vector2 gridAdd = Vector2.zero;
 
@@ -733,7 +733,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 return 0;
             }
-            if (object.ReferenceEquals(left, null))
+            if (object.ReferenceEquals(left, default(CardinalPoint)))
             {
                 return -1;
             }
