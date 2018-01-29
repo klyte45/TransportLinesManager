@@ -327,7 +327,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         #region Hooking
 
-        public override void EnableHooks()
+        public override void Awake()
         {
             TLMUtils.doLog("Loading Depot Hooks!");
             AddRedirect(typeof(DepotAI).GetMethod("StartTransfer", allFlags), typeof(TLMDepotAI).GetMethod("StartTransfer", allFlags));

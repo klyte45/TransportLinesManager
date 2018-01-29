@@ -34,7 +34,7 @@ namespace Klyte.TransportLinesManager
             TLMSingleton.instance.LoadSettingsUI(lastUIHelper);
         }
 
-        public void OnCreated(ILoading loading) {  }
+        public void OnCreated(ILoading loading) { }
 
         public void OnLevelLoaded(LoadMode mode)
         {
@@ -189,12 +189,7 @@ namespace Klyte.TransportLinesManager
             Assembly asm = Assembly.GetAssembly(typeof(TLMSingleton));
             Type[] types = asm.GetTypes();
 
-            TLMPublicTransportDetailPanelHooks.instance.EnableHooks();
-            TransportLineOverrides.instance.EnableHooks();
-            TLMDepotAI.instance.EnableHooks();
-            TransportToolOverrides.instance.EnableHooks();
-            TransportManagerOverrides.instance.EnableHooks();
-            loadTLMLocale(false);
+            TLMController.instance.Awake();
         }
 
         public void Awake()
@@ -793,7 +788,7 @@ namespace Klyte.TransportLinesManager
             }
         }
     }
-    
+
     public class UIButtonLineInfo : UIButton
     {
         public ushort lineID;

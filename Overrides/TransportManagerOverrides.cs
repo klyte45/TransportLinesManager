@@ -38,7 +38,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return false;
         }
 
-        public override void EnableHooks()
+        public override void Awake()
         {
             MethodInfo preventDefault = typeof(TransportLineOverrides).GetMethod("PreventDefault", allFlags);
 

@@ -167,6 +167,23 @@ namespace Klyte.TransportLinesManager.Utils
             target.pressedFgSprite = source.pressedFgSprite;
 
         }
+
+        public static Type GetImplementationForGenericType(Type typeOr, params Type[] typeArgs)
+        {
+            var typeTarg = typeOr.MakeGenericType(typeArgs);
+
+            var instances = from t in Assembly.GetAssembly(typeOr).GetTypes()
+                            where t.IsClass && !t.IsAbstract && typeTarg.IsAssignableFrom(t) && !t.IsGenericType
+                            select t;
+            if (instances.Count() != 1)
+            {
+                throw new Exception($"Defininções inválidas para [{ String.Join(", ", typeArgs.Select(x => x.ToString()).ToArray()) }] no tipo genérico {typeOr}");
+            }
+
+            Type targetType = instances.First();
+            return targetType;
+        }
+
         public UISlider GenerateSliderField(UIHelperExtension uiHelper, OnValueChanged action, out UILabel label, out UIPanel container)
         {
             UISlider budgetMultiplier = (UISlider)uiHelper.AddSlider("", 0f, 5, 0.05f, 1, action);
@@ -533,7 +550,7 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static T GetPrivateField<T>(object o, string fieldName)
         {
-            var fields = o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var fields = o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
             FieldInfo field = null;
 
             foreach (var f in fields)
@@ -552,6 +569,38 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 return default(T);
             }
+        }
+        public static void ExecuteReflectionMethod(object o, string methodName, params object[] args)
+        {
+            var methods = o.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            MethodInfo method = null;
+
+            foreach (var m in methods)
+            {
+                if (m.Name == methodName)
+                {
+                    method = m;
+                    break;
+                }
+            }
+            method?.Invoke(o, args);
+        }
+
+        public static void ExecuteReflectionMethod(Type t, string methodName, params object[] args)
+        {
+            var methods = t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            MethodInfo method = null;
+
+            foreach (var m in methods)
+            {
+                if (m.Name == methodName)
+                {
+                    method = m;
+                    break;
+                }
+            }
+            method?.Invoke(null, args);
+
         }
         public static bool HasField(object o, string fieldName)
         {

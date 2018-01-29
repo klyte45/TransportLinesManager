@@ -1006,7 +1006,7 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static void setStopName(string newName, uint stopId, ushort lineId, OnEndProcessingBuildingName callback)
         {
-            TLMUtils.doLog("setStopName! {0} - {1} - {2}", newName, stopId);
+            TLMUtils.doLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
             ushort buildingId = getStationBuilding(stopId, toSubService(Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_transportType), true, true);
             if (buildingId == 0)
             {

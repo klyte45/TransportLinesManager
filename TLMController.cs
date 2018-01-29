@@ -14,6 +14,7 @@ using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Interfaces;
 using System.Reflection;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using System.Linq;
 
 namespace Klyte.TransportLinesManager
 {
@@ -88,7 +89,6 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-
         public override TransportInfo CurrentTransportInfo
         {
             get {
@@ -120,32 +120,46 @@ namespace Klyte.TransportLinesManager
             }
 
             lastLineCount = tm.m_lineCount;
-            TLMPublicTransportDetailPanelHooks.instance?.update();
 
             m_lineInfoPanel?.assetSelectorWindow?.RotateCamera();
         }
 
         public void Awake()
         {
-            TLMSingleton.instance.loadTLMLocale(false);
-
-            uiView = GameObject.FindObjectOfType<UIView>();
-            if (!uiView)
-                return;
-            mainRef = uiView.FindUIComponent<UIPanel>("InfoPanel").Find<UITabContainer>("InfoViewsContainer").Find<UIPanel>("InfoViewsPanel");
-            if (!mainRef)
-                return;
-            mainRef.eventVisibilityChanged += delegate (UIComponent component, bool b)
+            if (!initialized)
             {
-                if (b)
+                TLMSingleton.instance.loadTLMLocale(false);
+
+                uiView = GameObject.FindObjectOfType<UIView>();
+                if (!uiView)
+                    return;
+                mainRef = uiView.FindUIComponent<UIPanel>("InfoPanel").Find<UITabContainer>("InfoViewsContainer").Find<UIPanel>("InfoViewsPanel");
+                if (!mainRef)
+                    return;
+                mainRef.eventVisibilityChanged += delegate (UIComponent component, bool b)
                 {
-                    TLMSingleton.instance.showVersionInfoPopup();
+                    if (b)
+                    {
+                        TLMSingleton.instance.showVersionInfoPopup();
+                    }
+                };
+                createViews();
+                mainRef.clipChildren = false;
+                initNearLinesOnWorldInfoPanel();
+
+                var typeTarg = typeof(Redirector<>);
+                var instances = from t in Assembly.GetAssembly(typeof(TLMController)).GetTypes()
+                                let y = t.BaseType
+                                where t.IsClass && !t.IsAbstract && y != null && y.IsGenericType && y.GetGenericTypeDefinition() == typeTarg
+                                select t;
+
+                foreach (Type t in instances)
+                {
+                    gameObject.AddComponent(t);
                 }
-            };
-            createViews();
-            mainRef.clipChildren = false;
-            initNearLinesOnWorldInfoPanel();
-            initialized = true;
+
+                initialized = true;
+            }
         }
 
         public Color AutoColor(ushort i)

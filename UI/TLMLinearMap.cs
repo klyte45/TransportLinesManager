@@ -129,7 +129,7 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.getIconForLine(lineID);
             m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
             linearMapLineNumber.tooltip = m_autoName;
-            string stationName = null;
+            string stationName;
             Vector3 local;
             string airport, taxi, harbor, regionalStation, cableCarStation;
             string namePrefix;
@@ -605,6 +605,7 @@ namespace Klyte.TransportLinesManager.UI
             TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)lineID];
             TransportManager tm = Singleton<TransportManager>.instance;
 
+            if (stationName == null) stationName = "???";
 
             TLMUtils.createUIElement(out UIButton stationButton, lineStationsPanel.transform);
             stationButton.relativePosition = new Vector3(offsetX - 13, 15f);

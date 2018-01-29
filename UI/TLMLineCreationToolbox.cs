@@ -20,7 +20,7 @@ namespace Klyte.TransportLinesManager.UI
             return false;
         }
 
-        public override void EnableHooks()
+        public override void Awake()
         {
             MethodInfo preventDefault = typeof(TLMLineCreationToolbox).GetMethod("preventDefault", allFlags);
 

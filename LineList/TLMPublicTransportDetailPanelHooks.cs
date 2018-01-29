@@ -65,7 +65,7 @@ namespace Klyte.TransportLinesManager.LineList
 
 
 
-        public override void EnableHooks()
+        public override void Awake()
         {
             MethodInfo preventDefault = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("preventDefault", allFlags);
             MethodInfo OpenDetailPanel = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OpenDetailPanel", allFlags);
@@ -91,10 +91,9 @@ namespace Klyte.TransportLinesManager.LineList
             AddRedirect(typeof(PublicTransportInfoViewPanel).GetMethod("OpenDetailPanel", allFlags), preventDefault, OpenDetailPanel);
 
             TLMUtils.doLog("Remove PublicTransportDetailPanel Hooks!");
-            update();
         }
 
-        public void update()
+        public void Update()
         {
             if (tryCount < 100 && !panelOverriden)
             {

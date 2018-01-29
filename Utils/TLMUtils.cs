@@ -432,27 +432,41 @@ namespace Klyte.TransportLinesManager.Utils
         #region Logging
         public static void doLog(string format, params object[] args)
         {
-            if (TLMSingleton.instance != null)
+            try
             {
-                if (TLMSingleton.debugMode)
+                if (TLMSingleton.instance != null)
                 {
-                    Debug.LogWarningFormat("TLMRv" + TLMSingleton.version + " " + format, args);
+                    if (TLMSingleton.debugMode)
+                    {
+                        Debug.LogWarningFormat("TLMRv" + TLMSingleton.version + " " + format, args);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
                 }
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
+                Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " Erro ao fazer log: {0} (args = {1})", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
             }
         }
         public static void doErrorLog(string format, params object[] args)
         {
-            if (TLMSingleton.instance != null)
+            try
             {
-                Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " " + format, args);
+                if (TLMSingleton.instance != null)
+                {
+                    Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " " + format, args);
+                }
+                else
+                {
+                    Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
+                }
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
+                Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " Erro ao logar ERRO!!!: {0} (args = [{1}])", format, args == null ? "" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
             }
 
         }
