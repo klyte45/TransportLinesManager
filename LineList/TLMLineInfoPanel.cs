@@ -629,9 +629,8 @@ namespace Klyte.TransportLinesManager.LineList
             m_lineTransportIconTypeLabel.clipChildren = true;
             TLMUtils.createDragHandle(m_lineTransportIconTypeLabel, m_lineInfoPanel);
 
-            GameObject lpddgo = GameObject.Instantiate(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate).GetComponent<UIPanel>().Find<UIDropDown>("Dropdown").gameObject);
+            GameObject lpddgo = GameObject.Instantiate(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate).GetComponent<UIPanel>().Find<UIDropDown>("Dropdown").gameObject, m_lineInfoPanel.transform);
             m_linePrefixDropDown = lpddgo.GetComponent<UIDropDown>();
-            m_lineInfoPanel.AttachUIComponent(m_linePrefixDropDown.gameObject);
             m_linePrefixDropDown.isLocalized = false;
             m_linePrefixDropDown.autoSize = false;
             m_linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
@@ -693,7 +692,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
 
-            m_lineColorPicker = KlyteUtils.CreatColorField(m_lineInfoPanel);
+            m_lineColorPicker = KlyteUtils.CreateColorField(m_lineInfoPanel);
             m_lineColorPicker.name = "LineColorPicker";
             m_lineColorPicker.anchor = UIAnchorStyle.Top & UIAnchorStyle.Left;
             m_lineColorPicker.relativePosition = new Vector3(42f, 10f);

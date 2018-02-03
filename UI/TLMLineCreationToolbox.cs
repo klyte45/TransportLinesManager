@@ -162,9 +162,8 @@ namespace Klyte.TransportLinesManager.UI
             TLMUtils.createDragHandle(title, mainContainer);
 
 
-            GameObject lpddgo = GameObject.Instantiate(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate).GetComponent<UIPanel>().Find<UIDropDown>("Dropdown").gameObject);
+            GameObject lpddgo = GameObject.Instantiate(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate).GetComponent<UIPanel>().Find<UIDropDown>("Dropdown").gameObject, mainContainer.transform);
             linePrefixDropDown = lpddgo.GetComponent<UIDropDown>();
-            mainContainer.AttachUIComponent(linePrefixDropDown.gameObject);
             linePrefixDropDown.isLocalized = false;
             linePrefixDropDown.autoSize = false;
             linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;

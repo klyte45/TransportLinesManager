@@ -802,8 +802,7 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("Create disabled button");
-                m_DisabledIcon = GameObject.Instantiate(m_DayIcon.gameObject).GetComponent<UIButton>();
-                m_DisabledIcon.transform.SetParent(m_DayIcon.transform.parent);
+                m_DisabledIcon = GameObject.Instantiate(m_DayIcon.gameObject, m_DayIcon.transform.parent).GetComponent<UIButton>();
                 m_NightIcon.relativePosition = new Vector3(678, 14);
                 m_DayNightIcon.relativePosition = new Vector3(704, 14);
                 m_DisabledIcon.normalBgSprite = "Niet";
@@ -823,11 +822,9 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void CopyContainerFromBus(int idx, ref UIComponent item)
         {
-            item = GameObject.Instantiate(m_BusLinesContainer.gameObject).GetComponent<UIComponent>();
-            item.transform.SetParent(m_Strip.tabContainer.gameObject.transform.GetChild(idx));
+            item = GameObject.Instantiate(m_BusLinesContainer.gameObject, m_Strip.tabContainer.gameObject.transform.GetChild(idx)).GetComponent<UIComponent>();
             item.name = "Container";
-            var scroll = GameObject.Instantiate(Find<UIComponent>("BusDetail").Find("Scrollbar"));
-            scroll.transform.SetParent(m_Strip.tabContainer.gameObject.transform.GetChild(idx));
+            var scroll = GameObject.Instantiate(Find<UIComponent>("BusDetail").Find("Scrollbar"), m_Strip.tabContainer.gameObject.transform.GetChild(idx));
             scroll.name = "Scrollbar";
             item.transform.localPosition = m_BusLinesContainer.transform.localPosition;
             scroll.transform.localPosition = Find<UIComponent>("BusDetail").Find("Scrollbar").transform.localPosition;

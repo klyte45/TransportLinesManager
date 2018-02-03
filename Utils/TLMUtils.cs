@@ -446,7 +446,7 @@ namespace Klyte.TransportLinesManager.Utils
                     Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
                 }
             }
-            catch (Exception e)
+            catch
             {
                 Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " Erro ao fazer log: {0} (args = {1})", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
             }
@@ -464,7 +464,7 @@ namespace Klyte.TransportLinesManager.Utils
                     Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
                 }
             }
-            catch (Exception e)
+            catch 
             {
                 Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " Erro ao logar ERRO!!!: {0} (args = [{1}])", format, args == null ? "" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
             }

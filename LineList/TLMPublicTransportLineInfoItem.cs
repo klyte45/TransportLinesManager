@@ -340,8 +340,7 @@ namespace Klyte.TransportLinesManager.LineList
             this.m_DayLine = base.Find<UICheckBox>("DayLine");
             this.m_NightLine = base.Find<UICheckBox>("NightLine");
             this.m_DayNightLine = base.Find<UICheckBox>("DayNightLine");
-            m_DisabledLine = GameObject.Instantiate(base.Find<UICheckBox>("DayLine"));
-            m_DisabledLine.transform.SetParent(m_DayLine.transform.parent);
+            m_DisabledLine = GameObject.Instantiate(base.Find<UICheckBox>("DayLine"), m_DayLine.transform.parent);
             this.m_DayLine.eventClicked += delegate (UIComponent comp, UIMouseEventParameter c)
             {
                 ushort lineID = this.m_LineID;
@@ -417,8 +416,7 @@ namespace Klyte.TransportLinesManager.LineList
             this.m_LineVehicles = base.Find<UILabel>("LineVehicles");
             //m_LinePassengers.relativePosition -= new Vector3(0, 6, 0);
             m_LineVehicles.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 5, 0);
-            m_lineBudgetLabel = GameObject.Instantiate(this.m_LineStops);
-            m_lineBudgetLabel.transform.SetParent(m_LineStops.transform.parent);
+            m_lineBudgetLabel = GameObject.Instantiate(this.m_LineStops, m_LineStops.transform.parent);
 
             //m_LineEarnings = GameObject.Instantiate(this.m_LinePassengers);
             //m_LineEarnings.transform.SetParent(m_LineStops.transform.parent);

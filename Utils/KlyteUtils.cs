@@ -206,6 +206,15 @@ namespace Klyte.TransportLinesManager.Utils
                 clearAllVisibilityEvents(u.components[i]);
             }
         }
+        public static PropertyChangedEventHandler<Vector2> LimitWidth(UIComponent x, uint maxWidth)
+        {
+            void callback(UIComponent y, Vector2 z)
+            {
+                x.transform.localScale = new Vector3(Math.Min(1, maxWidth / x.width), x.transform.localScale.y, x.transform.localScale.z);
+            }
+            x.eventSizeChanged += callback;
+            return callback;
+        }
         #endregion
 
         #region Numbering Utils
@@ -570,7 +579,7 @@ namespace Klyte.TransportLinesManager.Utils
                 return default(T);
             }
         }
-        public static void ExecuteReflectionMethod(object o, string methodName, params object[] args)
+        public static object ExecuteReflectionMethod(object o, string methodName, params object[] args)
         {
             var methods = o.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
             MethodInfo method = null;
@@ -583,10 +592,10 @@ namespace Klyte.TransportLinesManager.Utils
                     break;
                 }
             }
-            method?.Invoke(o, args);
+            return method?.Invoke(o, args);
         }
 
-        public static void ExecuteReflectionMethod(Type t, string methodName, params object[] args)
+        public static object ExecuteReflectionMethod(Type t, string methodName, params object[] args)
         {
             var methods = t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
             MethodInfo method = null;
@@ -599,8 +608,7 @@ namespace Klyte.TransportLinesManager.Utils
                     break;
                 }
             }
-            method?.Invoke(null, args);
-
+            return method?.Invoke(null, args);
         }
         public static bool HasField(object o, string fieldName)
         {
@@ -869,7 +877,7 @@ namespace Klyte.TransportLinesManager.Utils
             return @unchecked.StartsWith("VEHICLE_TITLE") || @unchecked.StartsWith("Trailer");
         }
         private static UIColorField s_colorFieldTemplate;
-        internal static UIColorField CreatColorField(UIComponent parent)
+        public static UIColorField CreateColorField(UIComponent parent)
         {
             if (s_colorFieldTemplate == null)
             {
@@ -884,10 +892,10 @@ namespace Klyte.TransportLinesManager.Utils
                     return null;
                 }
             }
-            UIColorField component = UnityEngine.Object.Instantiate<GameObject>(s_colorFieldTemplate.gameObject).GetComponent<UIColorField>();
-            parent.AttachUIComponent(component.gameObject);
-            component.size = new Vector2(40f, 26f);
+            var go = GameObject.Instantiate(s_colorFieldTemplate.gameObject, parent.transform);
+            UIColorField component = go.GetComponent<UIColorField>();
             component.pickerPosition = UIColorField.ColorPickerPosition.LeftAbove;
+            component.transform.SetParent(parent.transform);
             return component;
         }
         #endregion
@@ -922,23 +930,20 @@ namespace Klyte.TransportLinesManager.Utils
         /// Presents the Range in readable format
         /// </summary>
         /// <returns>String representation of the Range</returns>
-        public override string ToString() { return String.Format("[{0} - {1}]", Minimum, Maximum); }
+        public override string ToString() => $"[{Minimum} - {Maximum}]";
 
         /// <summary>
         /// Determines if the range is valid
         /// </summary>
         /// <returns>True if range is valid, else false</returns>
-        public Boolean IsValid() { return Minimum.CompareTo(Maximum) <= 0; }
+        public Boolean IsValid() => Minimum.CompareTo(Maximum) <= 0;
 
         /// <summary>
         /// Determines if the provided value is inside the range
         /// </summary>
         /// <param name="value">The value to test</param>
         /// <returns>True if the value is inside Range, else false</returns>
-        public Boolean ContainsValue(T value)
-        {
-            return (Minimum.CompareTo(value) <= 0) && (value.CompareTo(Maximum) <= 0);
-        }
+        public Boolean ContainsValue(T value) => (Minimum.CompareTo(value) <= 0) && (value.CompareTo(Maximum) <= 0);
 
 
         /// <summary>
@@ -946,20 +951,14 @@ namespace Klyte.TransportLinesManager.Utils
         /// </summary>
         /// <param name="value">The value to test</param>
         /// <returns>True if the value is inside Range, else false</returns>
-        public Boolean IsBetweenLimits(T value)
-        {
-            return (Minimum.CompareTo(value) < 0) && (value.CompareTo(Maximum) < 0);
-        }
+        public Boolean IsBetweenLimits(T value) => (Minimum.CompareTo(value) < 0) && (value.CompareTo(Maximum) < 0);
 
         /// <summary>
         /// Determines if this Range is inside the bounds of another range
         /// </summary>
         /// <param name="Range">The parent range to test on</param>
         /// <returns>True if range is inclusive, else false</returns>
-        public Boolean IsInsideRange(Range<T> Range)
-        {
-            return this.IsValid() && Range.IsValid() && Range.ContainsValue(this.Minimum) && Range.ContainsValue(this.Maximum);
-        }
+        public Boolean IsInsideRange(Range<T> Range) => this.IsValid() && Range.IsValid() && Range.ContainsValue(this.Minimum) && Range.ContainsValue(this.Maximum);
 
 
 
@@ -968,25 +967,16 @@ namespace Klyte.TransportLinesManager.Utils
         /// </summary>
         /// <param name="Range">The child range to test</param>
         /// <returns>True if range is inside, else false</returns>
-        public Boolean ContainsRange(Range<T> Range)
-        {
-            return this.IsValid() && Range.IsValid() && this.ContainsValue(Range.Minimum) && this.ContainsValue(Range.Maximum);
-        }
+        public Boolean ContainsRange(Range<T> Range) => this.IsValid() && Range.IsValid() && this.ContainsValue(Range.Minimum) && this.ContainsValue(Range.Maximum);
 
         /// <summary>
         /// Determines if another range intersect this range
         /// </summary>
         /// <param name="Range">The child range to test</param>
         /// <returns>True if range is inside, else false</returns>
-        public Boolean IntersectRange(Range<T> Range)
-        {
-            return this.IsValid() && Range.IsValid() && (this.ContainsValue(Range.Minimum) || this.ContainsValue(Range.Maximum) || Range.ContainsValue(this.Maximum) || Range.ContainsValue(this.Maximum));
-        }
+        public Boolean IntersectRange(Range<T> Range) => this.IsValid() && Range.IsValid() && (this.ContainsValue(Range.Minimum) || this.ContainsValue(Range.Maximum) || Range.ContainsValue(this.Maximum) || Range.ContainsValue(this.Maximum));
 
-        public Boolean IsBorderSequence(Range<T> Range)
-        {
-            return this.IsValid() && Range.IsValid() && (this.Maximum.Equals(Range.Minimum) || this.Minimum.Equals(Range.Maximum));
-        }
+        public Boolean IsBorderSequence(Range<T> Range) => this.IsValid() && Range.IsValid() && (this.Maximum.Equals(Range.Minimum) || this.Minimum.Equals(Range.Maximum));
     }
 
     public static class Vector2Extensions

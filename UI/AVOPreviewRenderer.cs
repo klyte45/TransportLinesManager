@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
 {
-    class AVOPreviewRenderer : MonoBehaviour
+    public class AVOPreviewRenderer : MonoBehaviour
     {
         private Camera m_camera;
 

@@ -16,7 +16,7 @@ namespace Klyte.TransportLinesManager.Extensors
 {
     public sealed class RedirectorUtils
     {
-        public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.GetField | BindingFlags.GetProperty;
+        public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.GetField | BindingFlags.GetProperty ;
     }
     public abstract class Redirector<T> : MonoBehaviour where T : Redirector<T>, new()
     {
