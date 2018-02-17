@@ -51,7 +51,7 @@ namespace Klyte.TransportLinesManager.Interfaces
                 }
                 catch (Exception e)
                 {
-                    TLMUtils.doLog("ERRO AO OBTER VALOR STR ARR: {0}", e.StackTrace);
+                    TLMUtils.doLog("ERRO AO OBTER VALOR STR ARR: {0}\r\n{1}", e.Message, e.StackTrace);
                     continue;
                 }
 

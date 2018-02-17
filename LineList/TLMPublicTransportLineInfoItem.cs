@@ -462,8 +462,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
             //Auto color & Auto Name
-            UIButton buttonAutoName = null;
-            TLMUtils.createUIElement(out buttonAutoName, transform);
+            TLMUtils.createUIElement(out UIButton buttonAutoName, transform);
             buttonAutoName.pivot = UIPivotPoint.TopRight;
             buttonAutoName.relativePosition = new Vector3(164, 2);
             buttonAutoName.text = "A";
@@ -479,8 +478,7 @@ namespace Klyte.TransportLinesManager.LineList
                 DoAutoName();
             };
 
-            UIButton buttonAutoColor = null;
-            TLMUtils.createUIElement(out buttonAutoColor, transform);
+            TLMUtils.createUIElement(out UIButton buttonAutoColor, transform);
             buttonAutoColor.pivot = UIPivotPoint.TopRight;
             buttonAutoColor.relativePosition = new Vector3(90, 2);
             buttonAutoColor.text = "A";

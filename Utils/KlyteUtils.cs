@@ -9,6 +9,7 @@ using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -522,6 +523,109 @@ namespace Klyte.TransportLinesManager.Utils
         }
         #endregion
 
+        #region Reflection
+        public static T GetPrivateField<T>(object o, string fieldName)
+        {
+            var field = o.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            if (field != null)
+            {
+                return (T)field.GetValue(o);
+            }
+            else
+            {
+                return default(T);
+            }
+        }
+        public static object GetPrivateStaticField(string fieldName, Type type)
+        {
+            FieldInfo field = type.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+            if (field != null)
+            {
+                return field.GetValue(null);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static object ExecuteReflectionMethod(object o, string methodName, params object[] args)
+        {
+            var method = o.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            try
+            {
+                return method?.Invoke(o, args);
+            }
+            catch (Exception e)
+            {
+                TLMUtils.doErrorLog("ERROR REFLECTING METHOD: {0} ({1}) => {2}\r\n{3}\r\n{4}", o, methodName, args, e.Message, e.StackTrace);
+                return null;
+            }
+        }
+        public static object ExecuteReflectionMethod(Type t, string methodName, params object[] args)
+        {
+            var method = t.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            try
+            {
+                return method?.Invoke(null, args);
+            }
+            catch (Exception e)
+            {
+                TLMUtils.doErrorLog("ERROR REFLECTING METHOD: {0} ({1}) => {2}\r\n{3}\r\n{4}", null, methodName, args, e.Message, e.StackTrace);
+                return null;
+            }
+        }
+        public static bool HasField(object o, string fieldName)
+        {
+            var fields = o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var f in fields)
+            {
+                if (f.Name == fieldName)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static List<Type> GetSubtypesRecursive(Type typeTarg, Type refType)
+        {
+            var classes = from t in Assembly.GetAssembly(refType).GetTypes()
+                          let y = t.BaseType
+                          where t.IsClass && y != null && y.IsGenericType == typeTarg.IsGenericType && (y.GetGenericTypeDefinition() == typeTarg || y.BaseType == typeTarg)
+                          select t;
+            List<Type> result = new List<Type>();
+            foreach (Type t in classes)
+            {
+                if (t.IsAbstract)
+                {
+                    result.AddRange(GetSubtypesRecursive(t, refType));
+                }
+                else
+                {
+                    result.Add(t);
+                }
+            }
+            return result;
+        }
+        #endregion
+
+        public static void doLocaleDump()
+        {
+            string localeDump = "LOCALE DUMP:\r\n";
+            try
+            {
+                var locale = GetPrivateField<Dictionary<Locale.Key, string>>(GetPrivateField<Locale>(LocaleManager.instance, "m_Locale"), "m_LocalizedStrings");
+                foreach (Locale.Key k in locale.Keys)
+                {
+                    localeDump += string.Format("{0}  =>  {1}\n", k.ToString(), locale[k]);
+                }
+            }
+            catch (Exception e)
+            {
+
+                TLMUtils.doErrorLog("LOCALE DUMP FAIL: {0}", e.ToString());
+            }
+            Debug.LogWarning(localeDump);
+        }
         public static bool findSimetry(int[] array, out int middle)
         {
             middle = -1;
@@ -556,89 +660,6 @@ namespace Klyte.TransportLinesManager.Utils
                 return false;
             }
             return true;
-        }
-        public static T GetPrivateField<T>(object o, string fieldName)
-        {
-            var fields = o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-            FieldInfo field = null;
-
-            foreach (var f in fields)
-            {
-                if (f.Name == fieldName)
-                {
-                    field = f;
-                    break;
-                }
-            }
-            if (field != null)
-            {
-                return (T)field.GetValue(o);
-            }
-            else
-            {
-                return default(T);
-            }
-        }
-        public static object ExecuteReflectionMethod(object o, string methodName, params object[] args)
-        {
-            var methods = o.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-            MethodInfo method = null;
-
-            foreach (var m in methods)
-            {
-                if (m.Name == methodName)
-                {
-                    method = m;
-                    break;
-                }
-            }
-            return method?.Invoke(o, args);
-        }
-
-        public static object ExecuteReflectionMethod(Type t, string methodName, params object[] args)
-        {
-            var methods = t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-            MethodInfo method = null;
-
-            foreach (var m in methods)
-            {
-                if (m.Name == methodName)
-                {
-                    method = m;
-                    break;
-                }
-            }
-            return method?.Invoke(null, args);
-        }
-        public static bool HasField(object o, string fieldName)
-        {
-            var fields = o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            foreach (var f in fields)
-            {
-                if (f.Name == fieldName)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        public static void doLocaleDump()
-        {
-            string localeDump = "LOCALE DUMP:\r\n";
-            try
-            {
-                var locale = GetPrivateField<Dictionary<Locale.Key, string>>(GetPrivateField<Locale>(LocaleManager.instance, "m_Locale"), "m_LocalizedStrings");
-                foreach (Locale.Key k in locale.Keys)
-                {
-                    localeDump += string.Format("{0}  =>  {1}\n", k.ToString(), locale[k]);
-                }
-            }
-            catch (Exception e)
-            {
-
-                TLMUtils.doErrorLog("LOCALE DUMP FAIL: {0}", e.ToString());
-            }
-            Debug.LogWarning(localeDump);
         }
 
         #region Utility Numbering Arrays
@@ -897,6 +918,21 @@ namespace Klyte.TransportLinesManager.Utils
             component.pickerPosition = UIColorField.ColorPickerPosition.LeftAbove;
             component.transform.SetParent(parent.transform);
             return component;
+        }
+        #endregion
+
+        #region File Utils
+        public static FileInfo EnsureFolderCreation(string folderName)
+        {
+            if (File.Exists(folderName) && (File.GetAttributes(folderName) & FileAttributes.Directory) != FileAttributes.Directory)
+            {
+                File.Delete(folderName);
+            }
+            if (!Directory.Exists(folderName))
+            {
+                Directory.CreateDirectory(folderName);
+            }
+            return new FileInfo(folderName);
         }
         #endregion
     }

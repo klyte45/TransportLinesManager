@@ -18,7 +18,7 @@ namespace Klyte.TransportLinesManager.Extensors
     {
         public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.GetField | BindingFlags.GetProperty ;
     }
-    public abstract class Redirector<T> : MonoBehaviour where T : Redirector<T>, new()
+    public abstract class Redirector<T> : MonoBehaviour where T : Redirector<T>
     {
         #region Class Base
         private readonly HarmonyInstance harmony = HarmonyInstance.Create("com.klyte.transportlinemanager." + typeof(T).Name);

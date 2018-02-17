@@ -126,7 +126,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     }
                 }
             }
-            //printToSVG(stations, transportLines, Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd"));
+            printToSVG(stations, transportLines, Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd"));
             printToJson(stations, transportLines, Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd"));
         }
 
@@ -139,14 +139,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             };
 
             String folder = "Transport Lines Manager";
-            if (File.Exists(folder) && (File.GetAttributes(folder) & FileAttributes.Directory) != FileAttributes.Directory)
-            {
-                File.Delete(folder);
-            }
-            if (!Directory.Exists(folder))
-            {
-                Directory.CreateDirectory(folder);
-            }
+            TLMUtils.EnsureFolderCreation(folder);
             String filename = folder + Path.DirectorySeparatorChar + "TLM_MAP_" + mapName + ".json";
             if (File.Exists(filename))
             {
@@ -219,14 +212,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 svg.addStation(station, transportLines);
             }
             String folder = "Transport Lines Manager";
-            if (File.Exists(folder) && (File.GetAttributes(folder) & FileAttributes.Directory) != FileAttributes.Directory)
-            {
-                File.Delete(folder);
-            }
-            if (!Directory.Exists(folder))
-            {
-                Directory.CreateDirectory(folder);
-            }
+            TLMUtils.EnsureFolderCreation(folder);
             String filename = folder + Path.DirectorySeparatorChar + "TLM_MAP_" + mapName + ".html";
             if (File.Exists(filename))
             {
