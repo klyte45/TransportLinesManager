@@ -1,6 +1,7 @@
 ﻿TLMRv 8.0.4
 - Service Vehicle Manager compatibility update.
 - Added chinese translation, by Lost Time (and team: http://steamcommunity.com/sharedfiles/filedetails/?id=812789818)
+- Fixed renaming station
 
 TLMRv 8.0.3
 - Now disables line if the its budget equals 0%, preventing cims to wait in the stops

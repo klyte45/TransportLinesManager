@@ -24,7 +24,6 @@ namespace Klyte.TransportLinesManager
            ConfigIndex.METRO_PALETTE_MAIN ,
            ConfigIndex.BUS_PALETTE_MAIN ,
            ConfigIndex.PLANE_PALETTE_MAIN ,
-           ConfigIndex.CABLE_CAR_PALETTE_MAIN ,
            ConfigIndex.MONORAIL_PALETTE_MAIN ,
            ConfigIndex.PLANE_PALETTE_SUBLINE,
            ConfigIndex.SHIP_PALETTE_SUBLINE,
@@ -32,7 +31,6 @@ namespace Klyte.TransportLinesManager
            ConfigIndex.TRAM_PALETTE_SUBLINE,
            ConfigIndex.METRO_PALETTE_SUBLINE,
            ConfigIndex.BUS_PALETTE_SUBLINE,
-           ConfigIndex.CABLE_CAR_PALETTE_SUBLINE,
            ConfigIndex.MONORAIL_PALETTE_SUBLINE,
         };
         public bool unsafeMode = false;
@@ -107,8 +105,6 @@ namespace Klyte.TransportLinesManager
                     return 50f / 70;
                 case ConfigIndex.BUS_CONFIG:
                     return 50f / 60;
-                case ConfigIndex.CABLE_CAR_CONFIG:
-                    return 50f / 30;
                 default:
                     return 50f / 30;
 
@@ -218,10 +214,6 @@ namespace Klyte.TransportLinesManager
                     return Locale.Get("VEHICLE_TITLE", "Ferry");
                 case ConfigIndex.MONORAIL_CONFIG:
                     return Locale.Get("VEHICLE_TITLE", "Monorail Front");
-                case ConfigIndex.CABLE_CAR_CONFIG:
-                    return Locale.Get("VEHICLE_TITLE", "Cable Car");
-                case ConfigIndex.TAXI_CONFIG:
-                    return Locale.Get("VEHICLE_TITLE", "Taxi");
                 case ConfigIndex.EVAC_BUS_CONFIG:
                     return Locale.Get("VEHICLE_TITLE", "Evacuation Bus");
                 default:
@@ -279,10 +271,6 @@ namespace Klyte.TransportLinesManager
             {
                 return ConfigIndex.PREFIX_BASED_ASSETS_PLANE;
             }
-            else if (tsd == TransportSystemDefinition.CABLE_CAR)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_CABLE_CAR;
-            }
             else if (tsd == TransportSystemDefinition.MONORAIL)
             {
                 return ConfigIndex.PREFIX_BASED_ASSETS_MONORAIL;
@@ -331,10 +319,6 @@ namespace Klyte.TransportLinesManager
             {
                 return ConfigIndex.DEPOT_PREFIXES_PLANE;
             }
-            else if (tsd == TransportSystemDefinition.CABLE_CAR)
-            {
-                return ConfigIndex.DEPOT_PREFIXES_CABLE_CAR;
-            }
             else if (tsd == TransportSystemDefinition.MONORAIL)
             {
                 return ConfigIndex.DEPOT_PREFIXES_MONORAIL;
@@ -380,10 +364,6 @@ namespace Klyte.TransportLinesManager
             {
                 return ConfigIndex.BLIMP_CONFIG;
             }
-            else if (tsd == TransportSystemDefinition.CABLE_CAR)
-            {
-                return ConfigIndex.CABLE_CAR_CONFIG;
-            }
             else if (tsd == TransportSystemDefinition.MONORAIL)
             {
                 return ConfigIndex.MONORAIL_CONFIG;
@@ -414,14 +394,10 @@ namespace Klyte.TransportLinesManager
                     return TransportSystemDefinition.TRAM;
                 case ConfigIndex.SHIP_CONFIG:
                     return TransportSystemDefinition.SHIP;
-                case ConfigIndex.TAXI_CONFIG:
-                    return TransportSystemDefinition.TAXI;
                 case ConfigIndex.PLANE_CONFIG:
                     return TransportSystemDefinition.PLANE;
                 case ConfigIndex.METRO_CONFIG:
                     return TransportSystemDefinition.METRO;
-                case ConfigIndex.CABLE_CAR_CONFIG:
-                    return TransportSystemDefinition.CABLE_CAR;
                 case ConfigIndex.MONORAIL_CONFIG:
                     return TransportSystemDefinition.MONORAIL;
                 case ConfigIndex.BLIMP_CONFIG:
@@ -440,7 +416,6 @@ namespace Klyte.TransportLinesManager
         public static readonly ConfigIndex[] configurableAutoNameTransportCategories = {
             ConfigIndex.PLANE_CONFIG,
             ConfigIndex.BLIMP_CONFIG,
-            ConfigIndex.CABLE_CAR_CONFIG,
             ConfigIndex.SHIP_CONFIG,
             ConfigIndex.FERRY_CONFIG,
             ConfigIndex.TRAIN_CONFIG,
@@ -448,7 +423,6 @@ namespace Klyte.TransportLinesManager
             ConfigIndex.TRAM_CONFIG,
             ConfigIndex.METRO_CONFIG,
             ConfigIndex.BUS_CONFIG,
-            ConfigIndex.TAXI_CONFIG,
         };
         public static readonly ConfigIndex[] configurableAutoNameCategories = {
             ConfigIndex.MONUMENT_SERVICE_CONFIG,
@@ -545,9 +519,7 @@ namespace Klyte.TransportLinesManager
             PREFIX_BASED_ASSETS_PLANE = GLOBAL_CONFIG | 0x19 | TYPE_DICTIONARY,
             LINES_CONFIG = GLOBAL_CONFIG | 0x1A | TYPE_DICTIONARY,
             STOPS_CONFIG = GLOBAL_CONFIG | 0x1B | TYPE_DICTIONARY,
-            PREFIX_BASED_ASSETS_CABLE_CAR = GLOBAL_CONFIG | 0x1C | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_MONORAIL = GLOBAL_CONFIG | 0x1D | TYPE_DICTIONARY,
-            DEPOT_PREFIXES_CABLE_CAR = GLOBAL_CONFIG | 0x1E | TYPE_DICTIONARY,
             DEPOT_PREFIXES_MONORAIL = GLOBAL_CONFIG | 0x1F | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_METRO = GLOBAL_CONFIG | 0x20 | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_EVAC_BUS = GLOBAL_CONFIG | 0x21 | TYPE_DICTIONARY,
@@ -558,9 +530,9 @@ namespace Klyte.TransportLinesManager
             BUS_CONFIG = TransportInfo.TransportType.Bus << 16,
             EVAC_BUS_CONFIG = TransportInfo.TransportType.EvacuationBus << 16,
             PLANE_CONFIG = TransportInfo.TransportType.Airplane << 16,
-            TAXI_CONFIG = TransportInfo.TransportType.Taxi << 16,
             SHIP_CONFIG = TransportInfo.TransportType.Ship << 16,
             MONORAIL_CONFIG = TransportInfo.TransportType.Monorail << 16,
+            TAXI_CONFIG = TransportInfo.TransportType.Taxi << 16,
             CABLE_CAR_CONFIG = TransportInfo.TransportType.CableCar << 16,
             BLIMP_CONFIG = TransportInfo.TransportType.Airplane << 16 | 0x800000,
             FERRY_CONFIG = TransportInfo.TransportType.Ship << 16 | 0x800000,
@@ -611,7 +583,6 @@ namespace Klyte.TransportLinesManager
             BUS_PREFIX = BUS_CONFIG | PREFIX,
             SHIP_PREFIX = SHIP_CONFIG | PREFIX,
             PLANE_PREFIX = PLANE_CONFIG | PREFIX,
-            CABLE_CAR_PREFIX = CABLE_CAR_CONFIG | PREFIX,
             MONORAIL_PREFIX = MONORAIL_CONFIG | PREFIX,
             FERRY_PREFIX = FERRY_CONFIG | PREFIX,
             BLIMP_PREFIX = BLIMP_CONFIG | PREFIX,
@@ -622,7 +593,6 @@ namespace Klyte.TransportLinesManager
             BUS_SEPARATOR = BUS_CONFIG | SEPARATOR,
             SHIP_SEPARATOR = SHIP_CONFIG | SEPARATOR,
             PLANE_SEPARATOR = PLANE_CONFIG | SEPARATOR,
-            CABLE_CAR_SEPARATOR = CABLE_CAR_CONFIG | SEPARATOR,
             MONORAIL_SEPARATOR = MONORAIL_CONFIG | SEPARATOR,
             FERRY_SEPARATOR = FERRY_CONFIG | SEPARATOR,
             BLIMP_SEPARATOR = BLIMP_CONFIG | SEPARATOR,
@@ -633,7 +603,6 @@ namespace Klyte.TransportLinesManager
             BUS_SUFFIX = BUS_CONFIG | SUFFIX,
             SHIP_SUFFIX = SHIP_CONFIG | SUFFIX,
             PLANE_SUFFIX = PLANE_CONFIG | SUFFIX,
-            CABLE_CAR_SUFFIX = CABLE_CAR_CONFIG | SUFFIX,
             MONORAIL_SUFFIX = MONORAIL_CONFIG | SUFFIX,
             FERRY_SUFFIX = FERRY_CONFIG | SUFFIX,
             BLIMP_SUFFIX = BLIMP_CONFIG | SUFFIX,
@@ -645,7 +614,6 @@ namespace Klyte.TransportLinesManager
             BUS_NON_PREFIX = BUS_CONFIG | NON_PREFIX,
             SHIP_NON_PREFIX = SHIP_CONFIG | NON_PREFIX,
             PLANE_NON_PREFIX = PLANE_CONFIG | NON_PREFIX,
-            CABLE_CAR_NON_PREFIX = CABLE_CAR_CONFIG | NON_PREFIX,
             MONORAIL_NON_PREFIX = MONORAIL_CONFIG | NON_PREFIX,
             FERRY_NON_PREFIX = FERRY_CONFIG | NON_PREFIX,
             BLIMP_NON_PREFIX = BLIMP_CONFIG | NON_PREFIX,
@@ -656,7 +624,6 @@ namespace Klyte.TransportLinesManager
             BUS_LEADING_ZEROS = BUS_CONFIG | LEADING_ZEROS,
             SHIP_LEADING_ZEROS = SHIP_CONFIG | LEADING_ZEROS,
             PLANE_LEADING_ZEROS = PLANE_CONFIG | LEADING_ZEROS,
-            CABLE_CAR_LEADING_ZEROS = CABLE_CAR_CONFIG | LEADING_ZEROS,
             MONORAIL_LEADING_ZEROS = MONORAIL_CONFIG | LEADING_ZEROS,
             FERRY_LEADING_ZEROS = FERRY_CONFIG | LEADING_ZEROS,
             BLIMP_LEADING_ZEROS = BLIMP_CONFIG | LEADING_ZEROS,
@@ -667,7 +634,6 @@ namespace Klyte.TransportLinesManager
             BUS_INVERT_PREFIX_SUFFIX = BUS_CONFIG | INVERT_PREFIX_SUFFIX,
             SHIP_INVERT_PREFIX_SUFFIX = SHIP_CONFIG | INVERT_PREFIX_SUFFIX,
             PLANE_INVERT_PREFIX_SUFFIX = PLANE_CONFIG | INVERT_PREFIX_SUFFIX,
-            CABLE_CAR_INVERT_PREFIX_SUFFIX = CABLE_CAR_CONFIG | INVERT_PREFIX_SUFFIX,
             MONORAIL_INVERT_PREFIX_SUFFIX = MONORAIL_CONFIG | INVERT_PREFIX_SUFFIX,
             FERRY_INVERT_PREFIX_SUFFIX = FERRY_CONFIG | INVERT_PREFIX_SUFFIX,
             BLIMP_INVERT_PREFIX_SUFFIX = BLIMP_CONFIG | INVERT_PREFIX_SUFFIX,
@@ -678,7 +644,6 @@ namespace Klyte.TransportLinesManager
             BUS_PALETTE_MAIN = BUS_CONFIG | PALETTE_MAIN,
             SHIP_PALETTE_MAIN = SHIP_CONFIG | PALETTE_MAIN,
             PLANE_PALETTE_MAIN = PLANE_CONFIG | PALETTE_MAIN,
-            CABLE_CAR_PALETTE_MAIN = CABLE_CAR_CONFIG | PALETTE_MAIN,
             MONORAIL_PALETTE_MAIN = MONORAIL_CONFIG | PALETTE_MAIN,
             FERRY_PALETTE_MAIN = FERRY_CONFIG | PALETTE_MAIN,
             BLIMP_PALETTE_MAIN = BLIMP_CONFIG | PALETTE_MAIN,
@@ -689,7 +654,6 @@ namespace Klyte.TransportLinesManager
             BUS_PALETTE_SUBLINE = BUS_CONFIG | PALETTE_SUBLINE,
             SHIP_PALETTE_SUBLINE = SHIP_CONFIG | PALETTE_SUBLINE,
             PLANE_PALETTE_SUBLINE = PLANE_CONFIG | PALETTE_SUBLINE,
-            CABLE_CAR_PALETTE_SUBLINE = CABLE_CAR_CONFIG | PALETTE_SUBLINE,
             MONORAIL_PALETTE_SUBLINE = MONORAIL_CONFIG | PALETTE_SUBLINE,
             FERRY_PALETTE_SUBLINE = FERRY_CONFIG | PALETTE_SUBLINE,
             BLIMP_PALETTE_SUBLINE = BLIMP_CONFIG | PALETTE_SUBLINE,
@@ -700,7 +664,6 @@ namespace Klyte.TransportLinesManager
             BUS_PALETTE_RANDOM_ON_OVERFLOW = BUS_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             SHIP_PALETTE_RANDOM_ON_OVERFLOW = SHIP_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             PLANE_PALETTE_RANDOM_ON_OVERFLOW = PLANE_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
-            CABLE_CAR_PALETTE_RANDOM_ON_OVERFLOW = CABLE_CAR_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             MONORAIL_PALETTE_RANDOM_ON_OVERFLOW = MONORAIL_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             FERRY_PALETTE_RANDOM_ON_OVERFLOW = FERRY_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             BLIMP_PALETTE_RANDOM_ON_OVERFLOW = BLIMP_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
@@ -711,7 +674,6 @@ namespace Klyte.TransportLinesManager
             BUS_PALETTE_PREFIX_BASED = BUS_CONFIG | PALETTE_PREFIX_BASED,
             SHIP_PALETTE_PREFIX_BASED = SHIP_CONFIG | PALETTE_PREFIX_BASED,
             PLANE_PALETTE_PREFIX_BASED = PLANE_CONFIG | PALETTE_PREFIX_BASED,
-            CABLE_CAR_PALETTE_PREFIX_BASED = CABLE_CAR_CONFIG | PALETTE_PREFIX_BASED,
             MONORAIL_PALETTE_PREFIX_BASED = MONORAIL_CONFIG | PALETTE_PREFIX_BASED,
             FERRY_PALETTE_PREFIX_BASED = FERRY_CONFIG | PALETTE_PREFIX_BASED,
             BLIMP_PALETTE_PREFIX_BASED = BLIMP_CONFIG | PALETTE_PREFIX_BASED,
@@ -721,12 +683,12 @@ namespace Klyte.TransportLinesManager
             METRO_SHOW_IN_LINEAR_MAP = METRO_CONFIG | SHOW_IN_LINEAR_MAP,
             BUS_SHOW_IN_LINEAR_MAP = BUS_CONFIG | SHOW_IN_LINEAR_MAP,
             PLANE_SHOW_IN_LINEAR_MAP = PLANE_CONFIG | SHOW_IN_LINEAR_MAP,
-            TAXI_SHOW_IN_LINEAR_MAP = TAXI_CONFIG | SHOW_IN_LINEAR_MAP,
             SHIP_SHOW_IN_LINEAR_MAP = SHIP_CONFIG | SHOW_IN_LINEAR_MAP,
-            CABLE_CAR_SHOW_IN_LINEAR_MAP = CABLE_CAR_CONFIG | SHOW_IN_LINEAR_MAP,
             MONORAIL_SHOW_IN_LINEAR_MAP = MONORAIL_CONFIG | SHOW_IN_LINEAR_MAP,
             FERRY_SHOW_IN_LINEAR_MAP = FERRY_CONFIG | SHOW_IN_LINEAR_MAP,
             BLIMP_SHOW_IN_LINEAR_MAP = BLIMP_CONFIG | SHOW_IN_LINEAR_MAP,
+            CABLE_CAR_SHOW_IN_LINEAR_MAP = CABLE_CAR_CONFIG | SHOW_IN_LINEAR_MAP,
+            TAXI_SHOW_IN_LINEAR_MAP = TAXI_CONFIG | SHOW_IN_LINEAR_MAP,
 
             TRAIN_DEFAULT_COST_PER_PASSENGER_CAPACITY = TRAIN_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             TRAM_DEFAULT_COST_PER_PASSENGER_CAPACITY = TRAM_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
@@ -734,7 +696,6 @@ namespace Klyte.TransportLinesManager
             BUS_DEFAULT_COST_PER_PASSENGER_CAPACITY = BUS_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             SHIP_DEFAULT_COST_PER_PASSENGER_CAPACITY = SHIP_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             PLANE_DEFAULT_COST_PER_PASSENGER_CAPACITY = PLANE_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
-            CABLE_CAR_DEFAULT_COST_PER_PASSENGER_CAPACITY = CABLE_CAR_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             MONORAIL_DEFAULT_COST_PER_PASSENGER_CAPACITY = MONORAIL_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             FERRY_DEFAULT_COST_PER_PASSENGER_CAPACITY = FERRY_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             BLIMP_DEFAULT_COST_PER_PASSENGER_CAPACITY = BLIMP_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
@@ -744,9 +705,7 @@ namespace Klyte.TransportLinesManager
             BUS_PREFIX_INCREMENT = BUS_CONFIG | PREFIX_INCREMENT,
             TRAM_PREFIX_INCREMENT = TRAM_CONFIG | PREFIX_INCREMENT,
             PLANE_PREFIX_INCREMENT = PLANE_CONFIG | PREFIX_INCREMENT,
-            TAXI_PREFIX_INCREMENT = TAXI_CONFIG | PREFIX_INCREMENT,
             SHIP_PREFIX_INCREMENT = SHIP_CONFIG | PREFIX_INCREMENT,
-            CABLE_CAR_PREFIX_INCREMENT = CABLE_CAR_CONFIG | PREFIX_INCREMENT,
             MONORAIL_PREFIX_INCREMENT = MONORAIL_CONFIG | PREFIX_INCREMENT,
             FERRY_PREFIX_INCREMENT = FERRY_CONFIG | PREFIX_INCREMENT,
             BLIMP_PREFIX_INCREMENT = BLIMP_CONFIG | PREFIX_INCREMENT,
@@ -910,9 +869,9 @@ namespace Klyte.TransportLinesManager
                     break;
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG:
                     saida = TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx) ? (uint)Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
                     break;
+                case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG:

@@ -198,8 +198,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
     internal sealed class TLMTransportTypeExtensionShip : TLMTransportTypeExtension<TLMSysDefShip, TLMTransportTypeExtensionShip> { }
     internal sealed class TLMTransportTypeExtensionTrain : TLMTransportTypeExtension<TLMSysDefTrain, TLMTransportTypeExtensionTrain> { }
     internal sealed class TLMTransportTypeExtensionTram : TLMTransportTypeExtension<TLMSysDefTram, TLMTransportTypeExtensionTram> { }
-    internal sealed class TLMTransportTypeExtensionCableCar : TLMTransportTypeExtension<TLMSysDefCableCar, TLMTransportTypeExtensionCableCar> { }
-
+    
     internal sealed class TLMTransportExtensionUtils
     {
 

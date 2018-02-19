@@ -59,6 +59,12 @@ namespace Klyte.TransportLinesManager.Utils
             container.transform.parent = parent;
             uiItem = (T)container.AddComponent(typeof(T));
         }
+        public static void createElement(Type type, Transform parent)
+        {
+            GameObject container = new GameObject();
+            container.transform.parent = parent;
+            container.AddComponent(type);
+        }
         public static void createUIElement<T>(out T uiItem, Transform parent, String name = null, Vector4 area = default(Vector4)) where T : UIComponent
         {
             GameObject container = new GameObject();

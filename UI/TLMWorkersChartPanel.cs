@@ -36,6 +36,7 @@ namespace Klyte.TransportLinesManager.UI
             legendL2.prefix = workers[2] + "/" + workplaces[2] + " ";
             legendL3.prefix = workers[3] + "/" + workplaces[3] + " ";
             int sum = workplaces.Sum();
+            if (sum == 0) sum = 1;
             legendFr.prefix = (sum - workers.Sum()) + " ";
             int porc0 = workers[0] * 100 / sum;
             int porc1 = workers[1] * 100 / sum;

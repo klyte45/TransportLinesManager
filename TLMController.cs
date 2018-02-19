@@ -441,19 +441,22 @@ namespace Klyte.TransportLinesManager
                 {
                     byte count = 0;
                     List<string> lines = new List<string>();
-                    if (ai.m_transportInfo != null && ai.m_maxVehicleCount > 0)
+                    if (ai.m_transportInfo != null && ai.m_maxVehicleCount > 0 && TransportSystemDefinition.from(ai.m_transportInfo) != null)
                     {
                         lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_transportInfo).toConfigIndex()), TLMLineUtils.getPrefixesServedAbstract(buildingId, false)));
                         count++;
                     }
-                    if (ai.m_secondaryTransportInfo != null && ai.m_maxVehicleCount2 > 0)
+                    if (ai.m_secondaryTransportInfo != null && ai.m_maxVehicleCount2 > 0 && TransportSystemDefinition.from(ai.m_secondaryTransportInfo) != null)
                     {
                         lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_secondaryTransportInfo).toConfigIndex()), TLMLineUtils.getPrefixesServedAbstract(buildingId, true)));
                         count++;
                     }
-                    UILabel label = depotShortcut.GetComponentInChildren<UILabel>();
-                    label.text = string.Join("\n", lines.ToArray());
                     depotShortcut.isVisible = count > 0;
+                    if (depotShortcut.isVisible)
+                    {
+                        UILabel label = depotShortcut.GetComponentInChildren<UILabel>();
+                        label.text = string.Join("\n", lines.ToArray());
+                    }
                 }
                 else
                 {

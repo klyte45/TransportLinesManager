@@ -18,12 +18,10 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         public static readonly TransportSystemDefinition TRAIN = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTrain, VehicleInfo.VehicleType.Train);
         public static readonly TransportSystemDefinition FERRY = new TransportSystemDefinition(ItemClass.SubService.PublicTransportShip, VehicleInfo.VehicleType.Ferry);
         public static readonly TransportSystemDefinition BLIMP = new TransportSystemDefinition(ItemClass.SubService.PublicTransportPlane, VehicleInfo.VehicleType.Blimp);
-        public static readonly TransportSystemDefinition CABLE_CAR = new TransportSystemDefinition(ItemClass.SubService.PublicTransportCableCar, VehicleInfo.VehicleType.CableCar);
         public static readonly TransportSystemDefinition SHIP = new TransportSystemDefinition(ItemClass.SubService.PublicTransportShip, VehicleInfo.VehicleType.Ship);
         public static readonly TransportSystemDefinition PLANE = new TransportSystemDefinition(ItemClass.SubService.PublicTransportPlane, VehicleInfo.VehicleType.Plane);
-        public static readonly TransportSystemDefinition TAXI = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTaxi, VehicleInfo.VehicleType.Car);
         public static readonly TransportSystemDefinition EVAC_BUS = new TransportSystemDefinition(ItemClass.SubService.None, VehicleInfo.VehicleType.Car);
-        public static readonly List<TransportSystemDefinition> availableDefinitions = new List<TransportSystemDefinition>(new TransportSystemDefinition[] { EVAC_BUS, BUS, TRAM, METRO, MONORAIL, TRAIN, FERRY, BLIMP, CABLE_CAR, SHIP, PLANE, TAXI });
+        public static readonly List<TransportSystemDefinition> availableDefinitions = new List<TransportSystemDefinition>(new TransportSystemDefinition[] { EVAC_BUS, BUS, TRAM, METRO, MONORAIL, TRAIN, FERRY, BLIMP,  SHIP, PLANE });
 
         public ItemClass.SubService subService
         {
@@ -54,7 +52,6 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             if (this == BLIMP) { return TLMTransportTypeExtensionBlimp.instance; }
             if (this == SHIP) { return TLMTransportTypeExtensionShip.instance; }
             if (this == PLANE) { return TLMTransportTypeExtensionPlane.instance; }
-            if (this == CABLE_CAR) { return TLMTransportTypeExtensionCableCar.instance; }
             return null;
 
         }
@@ -160,5 +157,4 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
     internal sealed class TLMSysDefBlimp : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.BLIMP; } }
     internal sealed class TLMSysDefShip : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.SHIP; } }
     internal sealed class TLMSysDefPlane : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.PLANE; } }
-    internal sealed class TLMSysDefCableCar : TLMSysDef { public override TransportSystemDefinition GetTSD() { return TransportSystemDefinition.CABLE_CAR; } }
 }
