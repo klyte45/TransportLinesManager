@@ -1,4 +1,7 @@
-﻿TLMRv 8.0.4
+﻿TLMRv 8.0.5
+- Service Vehicle Manager fix update.
+
+TLMRv 8.0.4
 - Service Vehicle Manager compatibility update.
 - Added chinese translation, by Lost Time (and team: http://steamcommunity.com/sharedfiles/filedetails/?id=812789818)
 - Fixed renaming station

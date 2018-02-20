@@ -898,7 +898,7 @@ namespace Klyte.TransportLinesManager.Utils
             return capacity;
         }
 
-        protected static bool IsTrailer(PrefabInfo prefab)
+        public static bool IsTrailer(PrefabInfo prefab)
         {
             string @unchecked = Locale.GetUnchecked("VEHICLE_TITLE", prefab.name);
             return @unchecked.StartsWith("VEHICLE_TITLE") || @unchecked.StartsWith("Trailer");
