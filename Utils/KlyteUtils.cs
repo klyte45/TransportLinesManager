@@ -222,6 +222,61 @@ namespace Klyte.TransportLinesManager.Utils
             x.eventSizeChanged += callback;
             return callback;
         }
+        public static UIHelperExtension CreateScrollPanel(UIComponent parent, out UIScrollablePanel scrollablePanel, out UIScrollbar scrollbar, float width, float height, Vector3 relativePosition)
+        {
+            createUIElement(out scrollablePanel, parent?.transform);
+            scrollablePanel.width = width;
+            scrollablePanel.height = height;
+            scrollablePanel.autoLayoutDirection = LayoutDirection.Vertical;
+            scrollablePanel.autoLayoutStart = LayoutStart.TopLeft;
+            scrollablePanel.autoLayoutPadding = new RectOffset(0, 0, 0, 0);
+            scrollablePanel.autoLayout = true;
+            scrollablePanel.clipChildren = true;
+            scrollablePanel.relativePosition = relativePosition;
+
+            createUIElement(out UIPanel trackballPanel, parent?.transform);
+            trackballPanel.width = 10f;
+            trackballPanel.height = scrollablePanel.height;
+            trackballPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+            trackballPanel.autoLayoutStart = LayoutStart.TopLeft;
+            trackballPanel.autoLayoutPadding = new RectOffset(0, 0, 0, 0);
+            trackballPanel.autoLayout = true;
+            trackballPanel.relativePosition = new Vector3(relativePosition.x + width + 5, relativePosition.y);
+
+
+            createUIElement(out scrollbar, trackballPanel.transform);
+            scrollbar.width = 10f;
+            scrollbar.height = scrollbar.parent.height;
+            scrollbar.orientation = UIOrientation.Vertical;
+            scrollbar.pivot = UIPivotPoint.BottomLeft;
+            scrollbar.AlignTo(trackballPanel, UIAlignAnchor.TopRight);
+            scrollbar.minValue = 0f;
+            scrollbar.value = 0f;
+            scrollbar.incrementAmount = 25f;
+
+            createUIElement(out UISlicedSprite scrollBg, scrollbar.transform);
+            scrollBg.relativePosition = Vector2.zero;
+            scrollBg.autoSize = true;
+            scrollBg.size = scrollBg.parent.size;
+            scrollBg.fillDirection = UIFillDirection.Vertical;
+            scrollBg.spriteName = "ScrollbarTrack";
+            scrollbar.trackObject = scrollBg;
+
+            createUIElement(out UISlicedSprite scrollFg, scrollBg.transform);
+            scrollFg.relativePosition = Vector2.zero;
+            scrollFg.fillDirection = UIFillDirection.Vertical;
+            scrollFg.autoSize = true;
+            scrollFg.width = scrollFg.parent.width - 4f;
+            scrollFg.spriteName = "ScrollbarThumb";
+            scrollbar.thumbObject = scrollFg;
+            scrollablePanel.verticalScrollbar = scrollbar;
+            scrollablePanel.eventMouseWheel += delegate (UIComponent component, UIMouseEventParameter param)
+            {
+                ((UIScrollablePanel)component).scrollPosition += new Vector2(0f, Mathf.Sign(param.wheelDelta) * -1f * ((UIScrollablePanel)component).verticalScrollbar.incrementAmount);
+            };
+
+            return new UIHelperExtension(scrollablePanel);
+        }
         #endregion
 
         #region Numbering Utils
@@ -939,6 +994,10 @@ namespace Klyte.TransportLinesManager.Utils
                 Directory.CreateDirectory(folderName);
             }
             return new FileInfo(folderName);
+        }
+        public static bool IsFileCreated(string fileName)
+        {
+            return File.Exists(fileName);
         }
         #endregion
     }

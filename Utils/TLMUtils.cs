@@ -37,7 +37,7 @@ namespace Klyte.TransportLinesManager.Utils
             TransferManager.TransferReason.Tram ,
             TransferManager.TransferReason.Bus
         };
-
+        
         #region Prefix Operations
         internal static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, bool avoidRandom = false)
         {

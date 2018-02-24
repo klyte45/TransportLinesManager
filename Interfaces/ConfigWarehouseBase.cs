@@ -15,14 +15,14 @@ namespace Klyte.TransportLinesManager.Interfaces
     public abstract class ConfigWarehouseBase<T, I> : Singleton<I> where T : struct, IConvertible where I : ConfigWarehouseBase<T, I>, new()
     {
 
-        protected const string LIST_SEPARATOR     = "∂";
+        protected const string LIST_SEPARATOR = "∂";
         public const string GLOBAL_CONFIG_INDEX = "DEFAULT";
         public abstract string ConfigFilename { get; }
-        protected const  int TYPE_STRING     = 0x100;
-        protected const  int TYPE_INT        = 0x200;
-        protected const  int TYPE_BOOL       = 0x300;
-        protected const  int TYPE_LIST       = 0x400;
-        protected const  int TYPE_PART       = 0xF00;
+        protected const int TYPE_STRING = 0x100;
+        protected const int TYPE_INT = 0x200;
+        protected const int TYPE_BOOL = 0x300;
+        protected const int TYPE_LIST = 0x400;
+        protected const int TYPE_PART = 0xF00;
 
         protected static Dictionary<string, I> loadedCities = new Dictionary<string, I>();
 
@@ -70,31 +70,38 @@ namespace Klyte.TransportLinesManager.Interfaces
                 cityId = cityId,
                 cityName = cityName
             };
-            SettingsFile tlmSettings = new SettingsFile
+            SettingsFile settingFile = new SettingsFile
             {
                 fileName = result.thisFileName
             };
-            GameSettings.AddSettingsFile(tlmSettings);
+            GameSettings.AddSettingsFile(settingFile);
 
-            if (!tlmSettings.IsValid() && cityId != GLOBAL_CONFIG_INDEX)
+            if (!settingFile.IsValid() && cityId != GLOBAL_CONFIG_INDEX)
             {
-                I defaultFile = getConfig(GLOBAL_CONFIG_INDEX, GLOBAL_CONFIG_INDEX);
-                foreach (string key in GameSettings.FindSettingsFileByName(defaultFile.thisFileName).ListKeys())
+                try
                 {
-                    T ci = (T)Enum.Parse(typeof(T), key);
-                    switch (ci.ToInt32(CultureInfo.CurrentCulture.NumberFormat) & TYPE_PART)
+                    I defaultFile = getConfig(GLOBAL_CONFIG_INDEX, GLOBAL_CONFIG_INDEX);
+                    foreach (string key in GameSettings.FindSettingsFileByName(defaultFile.thisFileName).ListKeys())
                     {
-                        case TYPE_BOOL:
-                            result.setBool(ci, defaultFile.getBool(ci));
-                            break;
-                        case TYPE_STRING:
-                        case TYPE_LIST:
-                            result.setString(ci, defaultFile.getString(ci));
-                            break;
-                        case TYPE_INT:
-                            result.setInt(ci, defaultFile.getInt(ci));
-                            break;
+                        T ci = (T)Enum.Parse(typeof(T), key);
+                        switch (ci.ToInt32(CultureInfo.CurrentCulture.NumberFormat) & TYPE_PART)
+                        {
+                            case TYPE_BOOL:
+                                result.setBool(ci, defaultFile.getBool(ci));
+                                break;
+                            case TYPE_STRING:
+                            case TYPE_LIST:
+                                result.setString(ci, defaultFile.getString(ci));
+                                break;
+                            case TYPE_INT:
+                                result.setInt(ci, defaultFile.getInt(ci));
+                                break;
+                        }
                     }
+                }
+                catch
+                {
+
                 }
             }
             return result;
@@ -136,13 +143,19 @@ namespace Klyte.TransportLinesManager.Interfaces
         #endregion
 
         protected string serializeList<K>(List<K> l) => string.Join(LIST_SEPARATOR, l.Select(x => x.ToString()).ToArray());
-        protected string getFromFileString(T i) => new SavedString(i.ToString(), thisFileName, string.Empty, false).value;
+        protected string getFromFileString(T i) => new SavedString(i.ToString(), thisFileName, getDefaultStringValueForProperty(i), false).value;
         protected int getFromFileInt(T i) => new SavedInt(i.ToString(), thisFileName, getDefaultIntValueForProperty(i), false).value;
         protected bool getFromFileBool(T i) => new SavedBool(i.ToString(), thisFileName, getDefaultBoolValueForProperty(i), false).value;
-        protected void setToFile(T i, string value) => new SavedString(i.ToString(), thisFileName, value, true).value = value;
+        protected void setToFile(T i, string value)
+        {
+            var data = new SavedString(i.ToString(), thisFileName, value, true);
+            if (value == null) data.Delete();
+            else data.value = value;
+        }
         protected void setToFile(T i, bool value) => new SavedBool(i.ToString(), thisFileName, value, true).value = value;
         protected void setToFile(T i, int value) => new SavedInt(i.ToString(), thisFileName, value, true).value = value;
         public abstract bool getDefaultBoolValueForProperty(T i);
         public abstract int getDefaultIntValueForProperty(T i);
+        public virtual string getDefaultStringValueForProperty(T i) => string.Empty;
     }
 }
