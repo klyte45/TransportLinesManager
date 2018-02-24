@@ -1086,17 +1086,25 @@ namespace Klyte.TransportLinesManager.Utils
         {
             float ca = to.x - from.x;
             float co = to.y - from.y;
+            TLMUtils.doLog($"ca = {ca},co = {co};");
             if (co == 0)
             {
-                return ca > 0 ? 0 : 180;
+                if (ca > 0)
+                {
+                    return 90;
+                }
+                else
+                {
+                    return 270;
+                }
             }
-            else if (ca < 0)
+            if (ca < 0)
             {
-                return Mathf.Atan(co / ca) * Mathf.Rad2Deg + 180;
+                return (Mathf.Atan(ca / co) * Mathf.Rad2Deg + 180 + 360) % 360;
             }
             else
             {
-                return Mathf.Atan(co / ca) * Mathf.Rad2Deg;
+                return (Mathf.Atan(ca / co) * Mathf.Rad2Deg + 360) % 360;
             }
         }
     }
