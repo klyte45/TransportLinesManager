@@ -18,7 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using static Klyte.TransportLinesManager.Utils.KlyteUtils;
+using static Klyte.Commons.Utils.KlyteUtils;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils

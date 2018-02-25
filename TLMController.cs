@@ -15,6 +15,7 @@ using Klyte.TransportLinesManager.Interfaces;
 using System.Reflection;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using System.Linq;
+using Klyte.Commons.Extensors;
 
 namespace Klyte.TransportLinesManager
 {

@@ -13,11 +13,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
 {
-    internal class ResourceLoader
+    public class ResourceLoader
     {
 
         public static Assembly ResourceAssembly

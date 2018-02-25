@@ -17,8 +17,9 @@ using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using ColossalFramework.PlatformServices;
+using Klyte.Commons.Extensors;
 
-[assembly: AssemblyVersion("8.0.6.*")]
+[assembly: AssemblyVersion("8.1.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TLMMod : IUserMod, ILoadingExtension
@@ -27,9 +28,30 @@ namespace Klyte.TransportLinesManager
         public string Name => "TLM Reborn " + TLMSingleton.version;
         public string Description => "Reviewed version of TLM.";
 
+        private static bool m_isKlyteCommonsLoaded = false;
+        public static bool IsKlyteCommonsEnabled()
+        {
+            if (!m_isKlyteCommonsLoaded)
+            {
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var assembly = (from a in assemblies
+                                where a.GetType("Klyte.Commons.KlyteCommonsMod") != null
+                                select a).SingleOrDefault();
+                if (assembly != null)
+                {
+                    m_isKlyteCommonsLoaded = true;
+                }
+            }
+            return m_isKlyteCommonsLoaded;
+        }
+
 
         public void OnSettingsUI(UIHelperBase helperDefault)
         {
+            if (!IsKlyteCommonsEnabled())
+            {
+                return;
+            }
             UIHelperExtension lastUIHelper = new UIHelperExtension((UIHelper)helperDefault);
             TLMSingleton.instance.LoadSettingsUI(lastUIHelper);
         }
@@ -38,6 +60,10 @@ namespace Klyte.TransportLinesManager
 
         public void OnLevelLoaded(LoadMode mode)
         {
+            if (!IsKlyteCommonsEnabled())
+            {
+                throw new Exception("Transport Lines Manager Reborn now requires Klyte Commons active!");
+            }
             TLMSingleton.instance.doOnLevelLoad(mode);
         }
 
@@ -567,6 +593,7 @@ namespace Klyte.TransportLinesManager
             group9.AddButton(Locale.Get("TLM_DRAW_CITY_MAP"), TLMMapDrawer.drawCityMap);
             group9.AddCheckbox(Locale.Get("TLM_DEBUG_MODE"), m_debugMode.value, delegate (bool val) { m_debugMode.value = val; });
             group9.AddLabel("Version: " + version + " rev" + typeof(TLMSingleton).Assembly.GetName().Version.Revision);
+            group9.AddLabel(Locale.Get("TLM_ORIGINAL_KC_VERSION") + " " + string.Join(".", ResourceLoader.loadResourceString("TLMVersion.txt").Split(".".ToCharArray()).Take(3).ToArray()));
             group9.AddButton(Locale.Get("TLM_RELEASE_NOTES"), delegate ()
             {
                 showVersionInfoPopup(true);
@@ -794,20 +821,6 @@ namespace Klyte.TransportLinesManager
         public ushort lineID;
     }
 
-
-    public class UIRadialChartAge : UIRadialChart
-    {
-        public void AddSlice(Color32 innerColor, Color32 outterColor)
-        {
-            SliceSettings slice = new UIRadialChart.SliceSettings
-            {
-                outterColor = outterColor,
-                innerColor = innerColor
-            };
-            this.m_Slices.Add(slice);
-            this.Invalidate();
-        }
-    }
 
 
 }

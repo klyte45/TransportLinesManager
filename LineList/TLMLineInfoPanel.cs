@@ -12,6 +12,8 @@ using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.LineList.ExtraUI;
+using Klyte.Commons.UI;
+using Klyte.Commons.Utils;
 
 namespace Klyte.TransportLinesManager.LineList
 {
@@ -692,7 +694,7 @@ namespace Klyte.TransportLinesManager.LineList
             };
 
 
-            m_lineColorPicker = KlyteUtils.CreateColorField(m_lineInfoPanel);
+            m_lineColorPicker = TLMUtils.CreateColorField(m_lineInfoPanel);
             m_lineColorPicker.name = "LineColorPicker";
             m_lineColorPicker.anchor = UIAnchorStyle.Top & UIAnchorStyle.Left;
             m_lineColorPicker.relativePosition = new Vector3(42f, 10f);
