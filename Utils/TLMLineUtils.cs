@@ -458,21 +458,6 @@ namespace Klyte.TransportLinesManager.Utils
             return noneFound;
         }
 
-        public static Vector2 gridPositionGameDefault(Vector3 pos)
-        {
-            int x = Mathf.Max((int)((pos.x) / 64f + 135f), 0);
-            int z = Mathf.Max((int)((-pos.z) / 64f + 135f), 0);
-            return new Vector2(x, z);
-        }
-
-
-        public static Vector2 gridPosition81Tiles(Vector3 pos, float invResolution = 24f)
-        {
-            int x = Mathf.Max((int)((pos.x) / invResolution + 648), 0);
-            int z = Mathf.Max((int)((-pos.z) / invResolution + 648), 0);
-            return new Vector2(x, z);
-        }
-
         /// <summary>
         /// Index the lines.
         /// </summary>
