@@ -19,14 +19,14 @@ using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using ColossalFramework.PlatformServices;
 using Klyte.Commons.Extensors;
 
-[assembly: AssemblyVersion("8.1.0.*")]
+[assembly: AssemblyVersion("8.1.1.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TLMMod : IUserMod, ILoadingExtension
     {
 
         public string Name => "TLM Reborn " + TLMSingleton.version;
-        public string Description => "Reviewed version of TLM.";
+        public string Description => "Reviewed version of TLM. Requires Klyte Commons.";
 
         private static bool m_isKlyteCommonsLoaded = false;
         public static bool IsKlyteCommonsEnabled()
@@ -192,7 +192,7 @@ namespace Klyte.TransportLinesManager
         {
 
             TLMUtils.doLog("LEVEL LOAD");
-            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame)
+            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame && mode != LoadMode.NewGameFromScenario)
             {
                 TLMUtils.doLog("NOT GAME ({0})", mode);
                 return;
@@ -331,12 +331,6 @@ namespace Klyte.TransportLinesManager
             catch
             {
 
-            }
-            var oldTLMid = new PublishedFileId(408875519);
-            if (!string.IsNullOrEmpty(PlatformService.workshop.GetSubscribedItemPath(oldTLMid)))
-            {
-                TLMUtils.doLog("Removing old TLM");
-                PlatformService.workshop.Unsubscribe(oldTLMid);
             }
 
             if (TLMSingleton.instance != null && TLMSingleton.debugMode)

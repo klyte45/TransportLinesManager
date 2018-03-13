@@ -38,7 +38,7 @@ namespace Klyte.TransportLinesManager.Utils
             TransferManager.TransferReason.Tram ,
             TransferManager.TransferReason.Bus
         };
-        
+
         #region Prefix Operations
         internal static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, bool avoidRandom = false)
         {
@@ -417,15 +417,15 @@ namespace Klyte.TransportLinesManager.Utils
             }
             InstanceID iid = default(InstanceID);
             iid.Building = buildingId;
-            serviceFound = b.Info.GetService();
-            subserviceFound = b.Info.GetSubService();
+            serviceFound = b.Info?.GetService() ?? default(ItemClass.Service);
+            subserviceFound = b.Info?.GetSubService() ?? default(ItemClass.SubService);
             TLMCW.ConfigIndex index = GameServiceExtensions.toConfigIndex(serviceFound, subserviceFound);
             if (index == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
             {
                 var tsd = TransportSystemDefinition.from(b.Info.GetAI());
-                index = tsd.toConfigIndex();
+                index = tsd?.toConfigIndex() ?? index;
             }
-            prefix = index.getPrefixTextNaming().Trim();
+            prefix = index.getPrefixTextNaming()?.Trim();
 
             return bm.GetBuildingName(buildingId, iid);
         }
@@ -435,16 +435,17 @@ namespace Klyte.TransportLinesManager.Utils
         {
             try
             {
-                if (TLMSingleton.instance != null)
+                if (TLMSingleton.debugMode)
                 {
-                    if (TLMSingleton.debugMode)
+                    if (TLMSingleton.instance != null)
                     {
                         Debug.LogWarningFormat("TLMRv" + TLMSingleton.version + " " + format, args);
+
                     }
-                }
-                else
-                {
-                    Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
+                    else
+                    {
+                        Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
+                    }
                 }
             }
             catch
@@ -465,7 +466,7 @@ namespace Klyte.TransportLinesManager.Utils
                     Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
                 }
             }
-            catch 
+            catch
             {
                 Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " Erro ao logar ERRO!!!: {0} (args = [{1}])", format, args == null ? "" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
             }

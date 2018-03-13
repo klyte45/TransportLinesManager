@@ -1,33 +1,5 @@
-﻿TLMRv 8.0.5
-- Service Vehicle Manager fix update.
-
-TLMRv 8.0.4
-- Service Vehicle Manager compatibility update.
-- Added chinese translation, by Lost Time (and team: http://steamcommunity.com/sharedfiles/filedetails/?id=812789818)
-- Fixed renaming station
-
-TLMRv 8.0.3
-- Now disables line if the its budget equals 0%, preventing cims to wait in the stops
-
-TLMRv 8.0.2
-- Fixed Cable Car ticket error
-
-TLMRv 8.0.1
-- Fixed line monitor updating
-- German i18n file updated (thanks Weoiss)
-
-8.0.0
---> INDIVIDUAL LINE CONFIGURATION
-- Individual configured lines have font color in yellow (at line icon) - prefix based still white
-- Can set budget per line (per-hour and all day)
-- Can set vehicle models
-- Can set ticket prices
-
---> Others
-- Added model preview on asset selection (Based on SamsamTS's AVO preview)
-- Added prefix name on prefix listing at prefix editor window
-- Added first stop edit funcionality
-- Finally, the prefix ticket price is working!
-- Added target vehicles count at line detail window (as "Current count/Budget target")
-- Added asset selection at the line info window
-- Added icon when line is out of budget (a red dollar sign at bottom left of line icon as sun/moon)
+﻿TLMRv8.1.1
+   -Fixed: possible non-mapped transport type prefix bug
+   -Fixed: debug not turned off when unselected
+   -Improvement in the generated html map (missing the MT update yet)
+   -Updated ko translation
