@@ -59,13 +59,13 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         public Dictionary<string, string> GetSelectedBasicAssets(uint lineId)
         {
             TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);
-            if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(tsd);
+            if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
             return GetAssetList(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", TLMUtils.getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
         public Dictionary<string, string> GetAllBasicAssets(uint lineId)
         {
             TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);
-            if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(tsd);
+            if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
             return basicAssetsList[tsd].ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", TLMUtils.getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
         public void AddAsset(uint lineId, string assetId)
@@ -88,7 +88,18 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         }
         public VehicleInfo GetAModel(ushort lineId)
         {
-            return TLMUtils.GetRandomModel(GetAssetList(lineId));
+            VehicleInfo info = null;
+            List<string> assetList = GetAssetList(lineId);
+            while (info == null && assetList.Count > 0)
+            {
+                info = TLMUtils.GetRandomModel(assetList, out string modelName);
+                if (info == null)
+                {
+                    RemoveAsset(lineId, modelName);
+                    assetList = GetAssetList(lineId);
+                }
+            }
+            return info;
         }
 
         #endregion
@@ -175,8 +186,18 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
                     {
                         return 500;
                     }
+                case ItemClass.SubService.PublicTransportTours:
+                    if (tsd.vehicleType == VehicleInfo.VehicleType.Car)
+                    {
+                        return 100;
+                    }
+                    else if (tsd.vehicleType == VehicleInfo.VehicleType.None)
+                    {
+                        return 0;
+                    }
+                    return 102;
                 default:
-                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("subservice not found: {0}", tsd?.subService);
+                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("subservice not found: {0}", tsd.subService);
                     return 103;
             }
 

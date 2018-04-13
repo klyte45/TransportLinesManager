@@ -28,7 +28,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return false;
         }
 
-        public override void Awake()
+        public override void AwakeBody()
         {
             MethodInfo preventDefault = typeof(TransportToolOverrides).GetMethod("preventDefault", allFlags);
 
@@ -164,6 +164,10 @@ namespace Klyte.TransportLinesManager.Overrides
             NewLine,
             AddStops,
             MoveStops
+        }
+        public override void doLog(string text, params object[] param)
+        {
+            TLMUtils.doLog(text, param);
         }
 
     }

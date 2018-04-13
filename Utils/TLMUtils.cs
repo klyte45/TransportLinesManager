@@ -170,7 +170,7 @@ namespace Klyte.TransportLinesManager.Utils
         internal static string[] getPrefixesOptions(TLMCW.ConfigIndex transportType, Boolean addDefaults = true)
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
-            var m = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+            ModoNomenclatura m = GetPrefixModoNomenclatura(transportType);
             List<string> saida = new List<string>();
             if (addDefaults)
             {
@@ -225,6 +225,12 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return saida.ToArray();
         }
+
+        internal static ModoNomenclatura GetPrefixModoNomenclatura(TLMCW.ConfigIndex transportType)
+        {
+            return (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+        }
+
         internal static List<string> getDepotPrefixesOptions(TLMCW.ConfigIndex transportType)
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
@@ -423,7 +429,7 @@ namespace Klyte.TransportLinesManager.Utils
             if (index == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
             {
                 var tsd = TransportSystemDefinition.from(b.Info.GetAI());
-                index = tsd?.toConfigIndex() ?? index;
+                index = tsd.toConfigIndex();
             }
             prefix = index.getPrefixTextNaming()?.Trim();
 
@@ -474,7 +480,7 @@ namespace Klyte.TransportLinesManager.Utils
         }
         #endregion
 
-        internal static List<string> LoadBasicAssets(TransportSystemDefinition definition)
+        internal static List<string> LoadBasicAssets(ref TransportSystemDefinition definition)
         {
             List<string> basicAssetsList = new List<string>();
 

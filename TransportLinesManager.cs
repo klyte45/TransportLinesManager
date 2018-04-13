@@ -19,7 +19,7 @@ using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using ColossalFramework.PlatformServices;
 using Klyte.Commons.Extensors;
 
-[assembly: AssemblyVersion("8.1.1.*")]
+[assembly: AssemblyVersion("9.0.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TLMMod : IUserMod, ILoadingExtension
@@ -200,14 +200,14 @@ namespace Klyte.TransportLinesManager
 
             if (TLMController.taTLM == null)
             {
-                TLMController.taTLM = CreateTextureAtlas("UI.Images.sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
+                TLMController.taTLM = TLMResourceLoader.instance.CreateTextureAtlas("UI.Images.sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
                     "TransportLinesManagerIcon","TransportLinesManagerIconHovered","AutoNameIcon","AutoColorIcon","RemoveUnwantedIcon","ConfigIcon","24hLineIcon", "PerHourIcon"
                 });
             }
             if (TLMController.taLineNumber == null)
             {
-                TLMController.taLineNumber = CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                "EvacBusIcon","DepotIcon", "LinearHalfStation","LinearStation","LinearBg","PlaneLineIcon","TramIcon","ShipLineIcon","FerryIcon","CableCarIcon", "BlimpIcon","BusIcon","SubwayIcon","TrainIcon","MonorailIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon",
+                TLMController.taLineNumber = TLMResourceLoader.instance.CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
+                "TourBusIcon","TourPedIcon",  "CableCarTabIcon","TaxiTabIcon",  "EvacBusIcon","DepotIcon", "LinearHalfStation","LinearStation","LinearBg","PlaneLineIcon","TramIcon","ShipLineIcon","FerryIcon","CableCarIcon", "BlimpIcon","BusIcon","SubwayIcon","TrainIcon","MonorailIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon",
                     "NightIcon","DisabledIcon","NoBudgetIcon","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap","RegionalTrainIcon"
                 });
             }
@@ -282,7 +282,7 @@ namespace Klyte.TransportLinesManager
                         if (component != null)
                         {
                             string title = "Transport Lines Manager v" + version;
-                            string notes = ResourceLoader.loadResourceString("UI.VersionNotes.txt");
+                            string notes = TLMResourceLoader.instance.loadResourceString("UI.VersionNotes.txt");
                             string text = "Transport Lines Manager was updated! Release notes:\r\n\r\n" + notes;
                             string img = "IconMessage";
                             component.SetProperties(TooltipHelper.Format(new string[]
@@ -396,7 +396,9 @@ namespace Klyte.TransportLinesManager
                 TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG,
                 TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG ,
                 TLMConfigWarehouse.ConfigIndex.METRO_CONFIG,
-                TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG
+                TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG,
+                TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG
             })
             {
                 UIHelperExtension group1 = helper.AddGroupExtended(string.Format(Locale.Get("TLM_CONFIGS_FOR"), TLMConfigWarehouse.getNameForTransportType(transportType)));
@@ -431,10 +433,10 @@ namespace Klyte.TransportLinesManager
                     prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
                     autoColorBasedContainer.isVisible = isPrefixed;
                     paletteLabel.text = isPrefixed ? Locale.Get("TLM_PALETTE_UNPREFIXED") : Locale.Get("TLM_PALETTE");
-                    if (TLMPublicTransportDetailPanel.instance != null && TLMPublicTransportDetailPanel.instance.prefixEditor.m_systemTypeDropDown != null)
-                    {
-                        TLMPublicTransportDetailPanel.instance.prefixEditor.m_systemTypeDropDown.selectedIndex = 0;
-                    }
+                    //if (TLMPublicTransportDetailPanel.instance != null && TLMPublicTransportDetailPanel.instance.prefixEditor.m_systemTypeDropDown != null)
+                    //{
+                    //    TLMPublicTransportDetailPanel.instance.prefixEditor.m_systemTypeDropDown.selectedIndex = 0;
+                    //}
                 };
                 prefixDD.eventSelectedIndexChanged += updateFunction;
                 suffixDD.eventSelectedIndexChanged += delegate (UIComponent c, int sel)
@@ -463,6 +465,9 @@ namespace Klyte.TransportLinesManager
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TAXI"), TLMConfigWarehouse.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_MONORAIL"), TLMConfigWarehouse.ConfigIndex.MONORAIL_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_CABLE_CAR"), TLMConfigWarehouse.ConfigIndex.CABLE_CAR_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TOUR_BUS"), TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TOUR_PED"), TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG_SHOW_IN_LINEAR_MAP);
+            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_EVAC_BUS"), TLMConfigWarehouse.ConfigIndex.EVAC_BUS_SHOW_IN_LINEAR_MAP);
 
             UIHelperExtension group8 = helper.AddGroupExtended(Locale.Get("TLM_AUTOMATION_CONFIG"));
             generateCheckboxConfig(group8, Locale.Get("TLM_AUTO_COLOR_ENABLED"), TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);
@@ -587,7 +592,7 @@ namespace Klyte.TransportLinesManager
             group9.AddButton(Locale.Get("TLM_DRAW_CITY_MAP"), TLMMapDrawer.drawCityMap);
             group9.AddCheckbox(Locale.Get("TLM_DEBUG_MODE"), m_debugMode.value, delegate (bool val) { m_debugMode.value = val; });
             group9.AddLabel("Version: " + version + " rev" + typeof(TLMSingleton).Assembly.GetName().Version.Revision);
-            group9.AddLabel(Locale.Get("TLM_ORIGINAL_KC_VERSION") + " " + string.Join(".", ResourceLoader.loadResourceString("TLMVersion.txt").Split(".".ToCharArray()).Take(3).ToArray()));
+            group9.AddLabel(Locale.Get("TLM_ORIGINAL_KC_VERSION") + " " + string.Join(".", TLMResourceLoader.instance.loadResourceString("TLMVersion.txt").Split(".".ToCharArray()).Take(3).ToArray()));
             group9.AddButton(Locale.Get("TLM_RELEASE_NOTES"), delegate ()
             {
                 showVersionInfoPopup(true);
@@ -749,39 +754,6 @@ namespace Klyte.TransportLinesManager
                 }
                 paletteDD.selectedIndex = paletteDD.items.ToList().IndexOf(idxSel);
             }
-        }
-
-
-        UITextureAtlas CreateTextureAtlas(string textureFile, string atlasName, Material baseMaterial, int spriteWidth, int spriteHeight, string[] spriteNames)
-        {
-            Texture2D tex = new Texture2D(spriteWidth * spriteNames.Length, spriteHeight, TextureFormat.ARGB32, false)
-            {
-                filterMode = FilterMode.Bilinear
-            };
-            { // LoadTexture
-                tex.LoadImage(ResourceLoader.loadResourceData(textureFile));
-                tex.Apply(true, true);
-            }
-            UITextureAtlas atlas = ScriptableObject.CreateInstance<UITextureAtlas>();
-            { // Setup atlas
-                Material material = (Material)Material.Instantiate(baseMaterial);
-                material.mainTexture = tex;
-                atlas.material = material;
-                atlas.name = atlasName;
-            }
-            // Add sprites
-            for (int i = 0; i < spriteNames.Length; ++i)
-            {
-                float uw = 1.0f / spriteNames.Length;
-                var spriteInfo = new UITextureAtlas.SpriteInfo()
-                {
-                    name = spriteNames[i],
-                    texture = tex,
-                    region = new Rect(i * uw, 0, uw, 1),
-                };
-                atlas.AddSprite(spriteInfo);
-            }
-            return atlas;
         }
 
 

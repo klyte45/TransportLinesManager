@@ -14,6 +14,7 @@ namespace Klyte.TransportLinesManager.i18n
         private const string idxSeparator = ">";
         private const string localeKeySeparator = "|";
         private const string commentChar = "#";
+        private const string ignorePrefixChar = "%";
         private static string language = "";
         private static string[] locales = new string[] { "en", "pt", "ko", "de", "cn", "pl", "nl" };
 
@@ -57,11 +58,11 @@ namespace Klyte.TransportLinesManager.i18n
         }
         private static void loadLocaleIntern(string localeId, bool setLocale, string prefix, string packagePrefix)
         {
-            string load = ResourceLoader.loadResourceString("UI.i18n." + localeId + ".properties");
+            string load = TLMResourceLoader.instance.loadResourceString("UI.i18n." + localeId + ".properties");
             if (load == null)
             {
                 TLMUtils.doErrorLog("FILE " + "UI.i18n." + localeId + ".properties" + " NOT LOADED!!!!");
-                load = ResourceLoader.loadResourceString("UI.i18n.en.properties");
+                load = TLMResourceLoader.instance.loadResourceString("UI.i18n.en.properties");
                 if (load == null)
                 {
                     TLMUtils.doErrorLog("LOCALE NOT LOADED!!!!");
@@ -77,6 +78,7 @@ namespace Klyte.TransportLinesManager.i18n
             {
                 if (myString.StartsWith(commentChar)) continue;
                 if (!myString.Contains(kvSeparator)) continue;
+                bool noPrefix = myString.StartsWith(ignorePrefixChar);
                 var array = myString.Split(kvSeparator.ToCharArray(), 2);
                 string value = array[1];
                 int idx = 0;
@@ -99,7 +101,7 @@ namespace Klyte.TransportLinesManager.i18n
 
                 k = new Locale.Key()
                 {
-                    m_Identifier = prefix + array[0],
+                    m_Identifier = noPrefix ? array[0].Substring(1) : prefix + array[0],
                     m_Key = localeKey,
                     m_Index = idx
                 };

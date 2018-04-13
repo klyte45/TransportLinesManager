@@ -376,8 +376,7 @@ namespace Klyte.TransportLinesManager.LineList
             BuildingInfo basicInfo = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingIdSelecionado.Building].Info;
             DepotAI basicAI = basicInfo.GetAI() as DepotAI;
             Hide();
-            m_controller.defaultListingLinesPanel.Show();
-            TLMPublicTransportDetailPanel.instance.SetActiveTab(TLMPublicTransportDetailPanel.tabSystemOrder.Length + Array.IndexOf(TLMPublicTransportDetailPanel.tabSystemOrder, TLMCW.getConfigIndexForTransportInfo(basicAI.m_transportInfo)));
+            //TLMPublicTransportDetailPanel.instance.SetActiveTab(TLMPublicTransportDetailPanel.tabSystemOrder.Length + Array.IndexOf(TLMPublicTransportDetailPanel.tabSystemOrder, TLMCW.getConfigIndexForTransportInfo(basicAI.m_transportInfo)));
         }
 
         public void openDepotInfo(ushort buildingID, bool secondary)
@@ -419,7 +418,7 @@ namespace Klyte.TransportLinesManager.LineList
             }
 
             Show();
-            m_controller.defaultListingLinesPanel.Hide();
+            m_controller.CloseTLMPanel();
 
             updateCheckboxes();
 
@@ -431,7 +430,7 @@ namespace Klyte.TransportLinesManager.LineList
             bool oldIsLoading = isLoading;
             isLoading = true;
             DepotAI depotAI = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingIdSelecionado.Building].Info.GetAI() as DepotAI;
-            List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TLMCW.getConfigIndexForTransportInfo(m_secondary ? depotAI.m_secondaryTransportInfo : depotAI.m_transportInfo));
+            List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TransportSystemDefinition.from(m_secondary ? depotAI.m_secondaryTransportInfo : depotAI.m_transportInfo).toConfigIndex());
             var prefixesServedList = TLMDepotAI.getPrefixesServedByDepot(m_buildingIdSelecionado.Building, m_secondary);
             for (uint i = 0; i <= 64; i++) {
                 if (i < prefixOptions.Count) {

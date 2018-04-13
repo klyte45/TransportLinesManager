@@ -28,7 +28,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return false;
         }
 
-        public override void Awake()
+        public override void AwakeBody()
         {
             MethodInfo preventDefault = typeof(TransportLineOverrides).GetMethod("preventDefault", allFlags);
 
@@ -167,43 +167,38 @@ namespace Klyte.TransportLinesManager.Overrides
         #region Ticket Override
         public static void GetTicketPricePost_PassengerPlaneAI(ushort vehicleID, ref Vehicle vehicleData, PassengerPlaneAI __instance, ref int __result)
         {
-            if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
+            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerShipAI(ushort vehicleID, ref Vehicle vehicleData, PassengerShipAI __instance, ref int __result)
         {
-            if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
+            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
         }
         public static void GetTicketPricePost_TramAI(ushort vehicleID, ref Vehicle vehicleData, TramAI __instance, ref int __result)
         {
-            if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
+            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerTrainAI(ushort vehicleID, ref Vehicle vehicleData, PassengerTrainAI __instance, ref int __result)
         {
-            if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
+            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerBlimpAI(ushort vehicleID, ref Vehicle vehicleData, PassengerBlimpAI __instance, ref int __result)
         {
-            if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
+            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
         }
         public static void GetTicketPricePost_PassengerFerryAI(ushort vehicleID, ref Vehicle vehicleData, PassengerFerryAI __instance, ref int __result)
         {
-            if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
+            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
         }
         public static void GetTicketPricePost_BusAI(ushort vehicleID, ref Vehicle vehicleData, BusAI __instance, ref int __result)
         {
-            if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
-        }
-        public static void GetTicketPricePost_CableCarAI(ushort vehicleID, ref Vehicle vehicleData, CableCarAI __instance, ref int __result)
-        {
-            if (__instance.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_ticketPrice) * __result / __instance.m_ticketPrice;
+            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
+            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
         }
 
         private static int ticketPriceForPrefix(ushort vehicleID, ref Vehicle vehicleData, int defaultPrice)
@@ -235,5 +230,10 @@ namespace Klyte.TransportLinesManager.Overrides
             }
         }
         #endregion
+        public override void doLog(string text, params object[] param)
+        {
+            TLMUtils.doLog(text, param);
+        }
+
     }
 }

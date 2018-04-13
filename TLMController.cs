@@ -16,6 +16,8 @@ using System.Reflection;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using System.Linq;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.UI;
+using Klyte.Commons;
 
 namespace Klyte.TransportLinesManager
 {
@@ -36,9 +38,8 @@ namespace Klyte.TransportLinesManager
         private TLMLineCreationToolbox m_lineCreationToolbox;
         private int lastLineCount = 0;
 
-        private UIPanel _cachedDefaultListingLinesPanel;
-
-        public UIPanel defaultListingLinesPanel => _cachedDefaultListingLinesPanel ?? (_cachedDefaultListingLinesPanel = GameObject.Find("UIView").GetComponentInChildren<TLMPublicTransportDetailPanel>().GetComponent<UIPanel>());
+        //private UIPanel _cachedDefaultListingLinesPanel;
+        
 
 
         public TLMLineInfoPanel lineInfoPanel => m_lineInfoPanel;
@@ -127,7 +128,7 @@ namespace Klyte.TransportLinesManager
 
         public void Awake()
         {
-            if (!initialized)
+            if (!initialized && gameObject != null)
             {
                 TLMSingleton.instance.loadTLMLocale(false);
 
@@ -168,7 +169,7 @@ namespace Klyte.TransportLinesManager
             TransportLine t = tm.m_lines.m_buffer[(int)i];
             try
             {
-                var tsd = TLMCW.getDefinitionForLine(i);
+                var tsd = TransportSystemDefinition.getDefinitionForLine(i);
                 if (tsd == default(TransportSystemDefinition))
                 {
                     return Color.clear;
@@ -194,46 +195,7 @@ namespace Klyte.TransportLinesManager
 
 
         //NAVEGACAO
-
-        private void swapWindow(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            if (m_lineInfoPanel.isVisible || defaultListingLinesPanel.isVisible || m_depotInfoPanel.isVisible)
-            {
-                fecharTelaTransportes(component, eventParam);
-            }
-            else
-            {
-                abrirTelaTransportes(component, eventParam);
-            }
-
-        }
-
-        private void abrirTelaTransportes(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "ABRE1!");
-            m_lineInfoPanel.Hide();
-            m_depotInfoPanel.Hide();
-            defaultListingLinesPanel.Show();
-            tm.LinesVisible = 0x7FFFFFFF;
-            //			MainMenu ();
-            //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "ABRE2!");
-        }
-
-        private void fecharTelaTransportes(UIComponent component, UIFocusEventParameter eventParam)
-        {
-            fecharTelaTransportes(component, (UIMouseEventParameter)null);
-        }
-
-        private void fecharTelaTransportes(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            defaultListingLinesPanel.Hide();
-            m_lineInfoPanel.Hide();
-            m_depotInfoPanel.Hide();
-            tm.LinesVisible = 0;
-            InfoManager im = Singleton<InfoManager>.instance;
-            //			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Warning, "FECHA!");
-        }
-
+              
         private void createViews()
         {
             TLMUtils.createElement(out m_lineInfoPanel, transform);
@@ -248,36 +210,27 @@ namespace Klyte.TransportLinesManager
         {
             if (!initializedWIP)
             {
-                UIPanel parent = GameObject.Find("UIView").transform.GetComponentInChildren<CityServiceWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
+                List<Type> buildingWorldInfoPanelImplList = TLMUtils.GetSubtypesRecursive(typeof(BuildingWorldInfoPanel), typeof(BuildingWorldInfoPanel));
 
-                if (parent == null)
-                    return;
-                parent.eventVisibilityChanged += (component, value) =>
+                foreach (Type wip in buildingWorldInfoPanelImplList)
                 {
-                    updateNearLines(TLMSingleton.savedShowNearLinesInCityServicesWorldInfoPanel.value ? parent : null, true);
-                    updateDepotEditShortcutButton(parent);
-                };
-                parent.eventPositionChanged += (component, value) =>
-                {
-                    updateNearLines(TLMSingleton.savedShowNearLinesInCityServicesWorldInfoPanel.value ? parent : null, true);
-                    updateDepotEditShortcutButton(parent);
-                };
+                    UIPanel parent2 = GameObject.Find("UIView").transform.GetComponentInChildren(wip)?.gameObject?.GetComponent<UIPanel>();
 
-                UIPanel parent2 = GameObject.Find("UIView").transform.GetComponentInChildren<ZonedBuildingWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
+                    if (parent2 == null)
+                        continue;
 
-                if (parent2 == null)
-                    return;
+                    parent2.eventVisibilityChanged += (component, value) =>
+                    {
+                        updateNearLines(TLMSingleton.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
+                        updateDepotEditShortcutButton(parent2);
+                    };
+                    parent2.eventPositionChanged += (component, value) =>
+                    {
+                        updateNearLines(TLMSingleton.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
+                        updateDepotEditShortcutButton(parent2);
+                    };
+                }
 
-                parent2.eventVisibilityChanged += (component, value) =>
-                {
-                    updateNearLines(TLMSingleton.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
-                    updateDepotEditShortcutButton(parent2);
-                };
-                parent2.eventPositionChanged += (component, value) =>
-                {
-                    updateNearLines(TLMSingleton.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
-                    updateDepotEditShortcutButton(parent2);
-                };
                 UIPanel parent3 = GameObject.Find("UIView").transform.GetComponentInChildren<PublicTransportWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
 
                 if (parent3 == null)
@@ -442,12 +395,12 @@ namespace Klyte.TransportLinesManager
                 {
                     byte count = 0;
                     List<string> lines = new List<string>();
-                    if (ai.m_transportInfo != null && ai.m_maxVehicleCount > 0 && TransportSystemDefinition.from(ai.m_transportInfo) != null)
+                    if (ai.m_transportInfo != null && ai.m_maxVehicleCount > 0 && TransportSystemDefinition.from(ai.m_transportInfo).isPrefixable())
                     {
                         lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_transportInfo).toConfigIndex()), TLMLineUtils.getPrefixesServedAbstract(buildingId, false)));
                         count++;
                     }
-                    if (ai.m_secondaryTransportInfo != null && ai.m_maxVehicleCount2 > 0 && TransportSystemDefinition.from(ai.m_secondaryTransportInfo) != null)
+                    if (ai.m_secondaryTransportInfo != null && ai.m_maxVehicleCount2 > 0 && TransportSystemDefinition.from(ai.m_secondaryTransportInfo).isPrefixable())
                     {
                         lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_secondaryTransportInfo).toConfigIndex()), TLMLineUtils.getPrefixesServedAbstract(buildingId, true)));
                         count++;
@@ -471,6 +424,23 @@ namespace Klyte.TransportLinesManager
         {
 
         }
+
+        //------------------------------------
+
+        public void Start()
+        {
+            KlyteModsPanel.instance.AddTab(ModTab.TransportLinesManager, typeof(TLMPublicTransportManagementPanel), taTLM, "TransportLinesManagerIconHovered", "Transport Lines Manager (v" + TLMSingleton.version + ")");
+        }
+
+        public void OpenTLMPanel()
+        {
+            KlyteModsPanel.instance.OpenAt(ModTab.TransportLinesManager);
+        }
+        public void CloseTLMPanel()
+        {
+            KCController.instance.CloseKCPanel();
+        }
+
     }
 
 

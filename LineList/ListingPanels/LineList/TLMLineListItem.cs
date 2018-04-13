@@ -3,22 +3,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
+using ColossalFramework;
+using ColossalFramework.Globalization;
+using ColossalFramework.Math;
+using ColossalFramework.UI;
+using Klyte.Commons.Utils;
+using System.Collections;
+using System.Diagnostics;
+using UnityEngine;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
-namespace Klyte.TransportLinesManager.LineList
+namespace Klyte.TransportLinesManager.UI
 {
-    using ColossalFramework;
-    using ColossalFramework.Globalization;
-    using ColossalFramework.UI;
-    using Extensions;
-    using Extensors;
-    using Klyte.TransportLinesManager.Extensors.TransportLineExt;
-    using System;
-    using System.Collections;
-    using System.Diagnostics;
-    using UnityEngine;
-    using Utils;
-    public class TLMPublicTransportLineInfoItem : ToolsModifierControl
+    internal abstract class TLMLineListItem<T> : ToolsModifierControl where T : TLMSysDef<T>
     {
         private ushort m_LineID;
 
@@ -132,23 +131,15 @@ namespace Klyte.TransportLinesManager.LineList
             this.m_LineID = id;
         }
 
-        public void RefreshData(bool colors, bool visible)
+        public void RefreshData(bool updateColors, bool updateVisibility)
         {
             if (Singleton<TransportManager>.exists)
             {
 
-                bool isRowVisible;
+                bool isRowVisible = true;
 
                 if (this.m_LineOperation == null || this.m_LineOperation.completedOrFailed)
                 {
-
-                    //this.m_DayLine.isVisible = (!isZeroed);
-                    //this.m_NightLine.isVisible = (!isZeroed);
-                    //this.m_DayNightLine.isVisible = (!isZeroed);
-                    //this.m_DisabledLine.isVisible = (!isZeroed);
-                    //this.m_noBudgetWarn.isVisible = (isZeroed);
-
-
                     TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[m_LineID], out bool dayActive, out bool nightActive);
                     bool zeroed;
                     unchecked
@@ -169,13 +160,13 @@ namespace Klyte.TransportLinesManager.LineList
                     this.m_DayNightLine.isChecked = (dayActive && nightActive);
                     this.m_DisabledLine.isChecked = (!dayActive && !nightActive);
                     m_DisabledLine.relativePosition = new Vector3(730, 8);
-                    isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(dayActive, nightActive) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber);
+                    //isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(dayActive, nightActive) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber);
 
                 }
                 else
                 {
                     m_LineColor.normalBgSprite = "DisabledIcon";
-                    isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(false, false) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber);
+                    //isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(false, false) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber);
                 }
                 if (!isRowVisible)
                 {
@@ -188,31 +179,18 @@ namespace Klyte.TransportLinesManager.LineList
                 this.m_LineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountStops(this.m_LineID).ToString("N0");
                 this.m_LineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountVehicles(this.m_LineID).ToString("N0");
                 uint prefix = 0;
-                TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].Info;
-                if (TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.getConfigIndexForTransportInfo(info) | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+
+                var tsd = Singleton<T>.instance.GetTSD();                
+                if (TLMConfigWarehouse.getCurrentConfigInt(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
                 {
                     prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
                 }
-
-                float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
-
-                this.m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.getEffectiveBugdet(lineID));//585+1/7 = frames/week                
-
-                string vehTooltip = string.Format("{0} {1}", this.m_LineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
-
-
-                this.m_LineVehicles.tooltip = vehTooltip;
 
 
                 int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_passengers.m_residentPassengers.m_averageCount;
                 int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_passengers.m_touristPassengers.m_averageCount;
                 this.m_LinePassengers.text = (averageCount + averageCount2).ToString("N0");
-
-
-                //   this.m_LineEarnings.text = string.Format("~₡ {0:0.00}", (averageCount + averageCount2) / 50f);
-                //    m_LineEarnings.relativePosition = m_LinePassengers.relativePosition + new Vector3(0, 20, 0);
-
-
+                
                 this.m_LinePassengers.tooltip = string.Format("{0}", LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
                 {
                 averageCount,
@@ -221,33 +199,50 @@ namespace Klyte.TransportLinesManager.LineList
                 TLMLineUtils.setLineNumberCircleOnRef(lineID, m_LineNumberFormatted, 0.8f);
                 m_LineColor.normalFgSprite = TLMLineUtils.getIconForLine(lineID);
 
-                m_lineBudgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
-                    TLMCW.getNameForTransportType(TLMCW.getConfigIndexForTransportInfo(info)),
-                    overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f, TLMLineUtils.getEffectiveBugdet(lineID));
-
                 this.m_PassengerCount = averageCount + averageCount2;
 
                 this.m_lineIncompleteWarning.isVisible = ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None);
-                if (colors)
+
+                if (updateColors)
                 {
                     this.m_LineColor.selectedColor = Singleton<TransportManager>.instance.GetLineColor(this.m_LineID);
                 }
-                if (visible)
+                if (updateVisibility)
                 {
                     this.m_LineIsVisible.isChecked = ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_flags & TransportLine.Flags.Hidden) == TransportLine.Flags.None);
                 }
 
 
-                m_lineBudgetLabel.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 19, 0);
+                if (tsd.hasVehicles())
+                {
+                    TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].Info;
+                    float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
+                    this.m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.getEffectiveBugdet(lineID));//585+1/7 = frames/week     
+                    string vehTooltip = string.Format("{0} {1}", this.m_LineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
+                    this.m_LineVehicles.tooltip = vehTooltip;
 
-                bool tlmPerHour = TLMLineUtils.isPerHourBudget(m_LineID);
-                m_DayLine.isVisible = !tlmPerHour;
-                m_DayNightLine.isVisible = !tlmPerHour;
-                m_NightLine.isVisible = !tlmPerHour;
-                m_DisabledLine.isVisible = !tlmPerHour;
-                m_perHourBudgetInfo.isVisible=tlmPerHour;
+                    m_lineBudgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
+                        TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()),
+                        overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f, TLMLineUtils.getEffectiveBugdet(lineID));
+                    m_lineBudgetLabel.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 19, 0);
+                    bool tlmPerHour = TLMLineUtils.isPerHourBudget(m_LineID);
+                    m_DayLine.isVisible = !tlmPerHour;
+                    m_DayNightLine.isVisible = !tlmPerHour;
+                    m_NightLine.isVisible = !tlmPerHour;
+                    m_DisabledLine.isVisible = !tlmPerHour;
+                    m_perHourBudgetInfo.isVisible = tlmPerHour;
 
-                m_perHourBudgetInfo.relativePosition = new Vector3(615, 2);
+                    m_perHourBudgetInfo.relativePosition = new Vector3(615, 2);
+                }
+                else
+                {
+                    m_DayLine.isVisible = true;
+                    m_DayNightLine.isVisible = true;
+                    m_NightLine.isVisible = true;
+                    m_DisabledLine.isVisible = true;
+                }
+
+
             }
         }
 
@@ -274,33 +269,12 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void Awake()
         {
-            TLMUtils.clearAllVisibilityEvents(this.GetComponent<UIPanel>());
             base.component.eventZOrderChanged += delegate (UIComponent c, int r)
             {
                 this.SetBackgroundColor();
             };
             this.m_LineIsVisible = base.Find<UICheckBox>("LineVisible");
-            this.m_LineIsVisible.eventCheckChanged += delegate (UIComponent c, bool r)
-            {
-                if (this.m_LineID != 0)
-                {
-                    Singleton<SimulationManager>.instance.AddAction(delegate
-                    {
-                        if (r)
-                        {
-                            TransportLine[] expr_2A_cp_0 = Singleton<TransportManager>.instance.m_lines.m_buffer;
-                            ushort expr_2A_cp_1 = this.m_LineID;
-                            expr_2A_cp_0[(int)expr_2A_cp_1].m_flags = (expr_2A_cp_0[(int)expr_2A_cp_1].m_flags & ~TransportLine.Flags.Hidden);
-                        }
-                        else
-                        {
-                            TransportLine[] expr_5C_cp_0 = Singleton<TransportManager>.instance.m_lines.m_buffer;
-                            ushort expr_5C_cp_1 = this.m_LineID;
-                            expr_5C_cp_0[(int)expr_5C_cp_1].m_flags = (expr_5C_cp_0[(int)expr_5C_cp_1].m_flags | TransportLine.Flags.Hidden);
-                        }
-                    });
-                }
-            };
+            this.m_LineIsVisible.eventCheckChanged += (x, y) => ChangeLineVisibility(y);
             this.m_LineColor = base.Find<UIColorField>("LineColor");
             this.m_LineColor.normalBgSprite = "";
             this.m_LineColor.focusedBgSprite = "";
@@ -397,30 +371,23 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 m_NightLine.relativePosition = new Vector3(678, 8);
                 m_DayNightLine.relativePosition = new Vector3(704, 8);
-            }
-
-
-            //this.m_noBudgetWarn = GameObject.Instantiate(base.Find<UILabel>("LineName"));
-            //m_noBudgetWarn.transform.SetParent(m_DayLine.transform.parent);
-            //m_noBudgetWarn.isInteractive = false;
-            //m_noBudgetWarn.relativePosition = new Vector3(615, 2);
-            //m_noBudgetWarn.width = 145;
-            //m_noBudgetWarn.isVisible = false;
-            //m_noBudgetWarn.text = "";
-            //m_noBudgetWarn.textScale = 0.9f;
-            //m_noBudgetWarn.localeID = "TLM_LINE_DISABLED_NO_BUDGET";
-
+            }           
 
             this.m_LineStops = base.Find<UILabel>("LineStops");
             this.m_LinePassengers = base.Find<UILabel>("LinePassengers");
+            
+            var tsd = Singleton<T>.instance.GetTSD();
             this.m_LineVehicles = base.Find<UILabel>("LineVehicles");
-            //m_LinePassengers.relativePosition -= new Vector3(0, 6, 0);
-            m_LineVehicles.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 5, 0);
-            m_lineBudgetLabel = GameObject.Instantiate(this.m_LineStops, m_LineStops.transform.parent);
-
-            //m_LineEarnings = GameObject.Instantiate(this.m_LinePassengers);
-            //m_LineEarnings.transform.SetParent(m_LineStops.transform.parent);
-            //m_LineEarnings.textColor = Color.green;
+            if (tsd.hasVehicles())
+            {
+                m_LineVehicles.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 5, 0);
+                m_lineBudgetLabel = GameObject.Instantiate(this.m_LineStops, m_LineStops.transform.parent);
+            }
+            else
+            {
+                Destroy(m_LineVehicles.gameObject);
+            }
+            
             this.m_Background = base.Find("Background");
             this.m_BackgroundColor = this.m_Background.color;
             this.m_mouseIsOver = false;
@@ -450,7 +417,7 @@ namespace Klyte.TransportLinesManager.LineList
                     InstanceID instanceID = default(InstanceID);
                     instanceID.TransportLine = this.m_LineID;
                     TLMController.instance.lineInfoPanel.openLineInfo(lineID);
-                    TLMController.instance.defaultListingLinesPanel.Hide();
+                    TLMController.instance.CloseTLMPanel();
                 }
             };
             base.component.eventVisibilityChanged += delegate (UIComponent c, bool v)
@@ -496,31 +463,57 @@ namespace Klyte.TransportLinesManager.LineList
 
             m_lineIncompleteWarning = base.Find<UIPanel>("WarningIncomplete");
 
-            TLMUtils.createUIElement(out m_perHourBudgetInfo, transform);
-            m_perHourBudgetInfo.name="PerHourIndicator";
-            m_perHourBudgetInfo.autoSize = false;
-            m_perHourBudgetInfo.autoHeight = true;
-            m_perHourBudgetInfo.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
-            m_perHourBudgetInfo.width = 180;
-            m_perHourBudgetInfo.height = m_perHourBudgetInfo.parent.height ;
-            m_perHourBudgetInfo.verticalAlignment = UIVerticalAlignment.Middle;
-            m_perHourBudgetInfo.textAlignment = UIHorizontalAlignment.Center;
-            m_perHourBudgetInfo.textScale = 1f;
-            m_perHourBudgetInfo.localeID = "TLM_PER_HOUR_BUDGET_ACTIVE_LABEL";
-            m_perHourBudgetInfo.wordWrap = true;
-            m_perHourBudgetInfo.eventTextChanged += constraintedScale;
-            constraintedScale(m_perHourBudgetInfo, "");
+            if (tsd.hasVehicles())
+            {
+                TLMUtils.createUIElement(out m_perHourBudgetInfo, transform);
+                m_perHourBudgetInfo.name = "PerHourIndicator";
+                m_perHourBudgetInfo.autoSize = false;
+                m_perHourBudgetInfo.autoHeight = true;
+                m_perHourBudgetInfo.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
+                m_perHourBudgetInfo.width = 180;
+                m_perHourBudgetInfo.height = m_perHourBudgetInfo.parent.height;
+                m_perHourBudgetInfo.verticalAlignment = UIVerticalAlignment.Middle;
+                m_perHourBudgetInfo.textAlignment = UIHorizontalAlignment.Center;
+                m_perHourBudgetInfo.textScale = 1f;
+                m_perHourBudgetInfo.localeID = "TLM_PER_HOUR_BUDGET_ACTIVE_LABEL";
+                m_perHourBudgetInfo.wordWrap = true;
+                m_perHourBudgetInfo.eventTextChanged += constraintedScale;
+                constraintedScale(m_perHourBudgetInfo, "");
+            }
+        }
+
+        public void ChangeLineVisibility(bool r)
+        {
+            if (m_LineID != 0)
+            {
+                Singleton<SimulationManager>.instance.AddAction(delegate
+                {
+                    if (r)
+                    {
+                        TransportLine[] expr_2A_cp_0 = Singleton<TransportManager>.instance.m_lines.m_buffer;
+                        ushort expr_2A_cp_1 = this.m_LineID;
+                        expr_2A_cp_0[(int)expr_2A_cp_1].m_flags = (expr_2A_cp_0[(int)expr_2A_cp_1].m_flags & ~TransportLine.Flags.Hidden);
+                    }
+                    else
+                    {
+                        TransportLine[] expr_5C_cp_0 = Singleton<TransportManager>.instance.m_lines.m_buffer;
+                        ushort expr_5C_cp_1 = this.m_LineID;
+                        expr_5C_cp_0[(int)expr_5C_cp_1].m_flags = (expr_5C_cp_0[(int)expr_5C_cp_1].m_flags | TransportLine.Flags.Hidden);
+                    }
+                });
+            }
         }
 
         private void constraintedScale(UIComponent component, string value)
         {
             component.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
-            float ratio = Math.Min(1,component.height/component.parent.height);
-            component.transform.localScale= new Vector3(ratio, ratio);
+            float ratio = Math.Min(1, component.height / component.parent.height);
+            component.transform.localScale = new Vector3(ratio, ratio);
         }
 
         public void DoAutoColor()
         {
+            TLMUtils.doLog("AutoColor");
             m_LineColor.selectedColor = TLMController.instance.AutoColor(m_LineID);
         }
 
@@ -598,6 +591,7 @@ namespace Klyte.TransportLinesManager.LineList
 
         private void OnColorChanged(UIComponent comp, Color color)
         {
+            TLMUtils.doLog($"OnColorChanged {m_LineID}=>{color.r},{color.g},{color.b} \r\n {Environment.StackTrace}");
             TLMLineUtils.setLineColor(this.m_LineID, color);
         }
         private void changeLineTime(bool day, bool night)
@@ -607,5 +601,19 @@ namespace Klyte.TransportLinesManager.LineList
                 TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)m_LineID], day, night);
             });
         }
+
     }
+
+    internal sealed class TLMLineListItemNorBus : TLMLineListItem<TLMSysDefNorBus> { }
+    internal sealed class TLMLineListItemEvcBus : TLMLineListItem<TLMSysDefEvcBus> { }
+    internal sealed class TLMLineListItemNorTrm : TLMLineListItem<TLMSysDefNorTrm> { }
+    internal sealed class TLMLineListItemNorMnr : TLMLineListItem<TLMSysDefNorMnr> { }
+    internal sealed class TLMLineListItemNorMet : TLMLineListItem<TLMSysDefNorMet> { }
+    internal sealed class TLMLineListItemNorTrn : TLMLineListItem<TLMSysDefNorTrn> { }
+    internal sealed class TLMLineListItemNorFer : TLMLineListItem<TLMSysDefNorFer> { }
+    internal sealed class TLMLineListItemNorBlp : TLMLineListItem<TLMSysDefNorBlp> { }
+    internal sealed class TLMLineListItemNorShp : TLMLineListItem<TLMSysDefNorShp> { }
+    internal sealed class TLMLineListItemNorPln : TLMLineListItem<TLMSysDefNorPln> { }
+    internal sealed class TLMLineListItemTouBus : TLMLineListItem<TLMSysDefTouBus> { }
+    internal sealed class TLMLineListItemTouPed : TLMLineListItem<TLMSysDefTouPed> { }
 }

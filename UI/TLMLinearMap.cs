@@ -87,7 +87,7 @@ namespace Klyte.TransportLinesManager.UI
                 return m_autoName;
             }
         }
-        
+
         public void setLinearMapColor(Color c)
         {
             linearMapLineNumberFormat.color = c;
@@ -97,8 +97,12 @@ namespace Klyte.TransportLinesManager.UI
         public void setLineNumberCircle(ushort lineID)
         {
             TLMLineUtils.setLineNumberCircleOnRef(lineID, linearMapLineNumber);
-            m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
-            linearMapLineNumber.tooltip = m_autoName;
+            try
+            {
+                m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
+                linearMapLineNumber.tooltip = m_autoName;
+            }
+            catch { }
         }
 
 
@@ -119,13 +123,13 @@ namespace Klyte.TransportLinesManager.UI
                 var tsd = TransportSystemDefinition.from(parent.CurrentTransportInfo);
                 if (tsd != default(TransportSystemDefinition))
                 {
-                    linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.GetIconForIndex(tsd.toConfigIndex());
+                    linearMapLineNumberFormat.backgroundSprite = TLMCW.getBgIconForIndex(tsd.toConfigIndex());
                 }
                 lineStationsPanel.width = 0;
                 return;
             }
 
-            ItemClass.SubService ss = TLMCW.getDefinitionForLine(lineID).subService;
+            ItemClass.SubService ss = TransportSystemDefinition.getDefinitionForLine(lineID).subService;
             linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.getIconForLine(lineID);
             m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
             linearMapLineNumber.tooltip = m_autoName;
@@ -265,11 +269,11 @@ namespace Klyte.TransportLinesManager.UI
                 TLMUtils.doLog("onVehicleDrop! {0}", component.name);
                 DraggableVehicleInfo dvi = eventParam.source.parent.GetComponentInChildren<DraggableVehicleInfo>();
                 UIView view = GameObject.FindObjectOfType<UIView>();
-                UIHitInfo[] hits = view.RaycastAll(eventParam.ray);
+                PoolList<UIHitInfo> hits = view.RaycastAll(eventParam.ray);
                 DroppableStationInfo dsi = null;
                 UIComponent res = null;
                 int idxRes = -1;
-                for (int i = hits.Length - 1; i >= 0; i--)
+                for (int i = hits.Count - 1; i >= 0; i--)
                 {
                     UIHitInfo hit = hits[i];
                     DroppableStationInfo[] dsiList = hit.component.GetComponentsInChildren<DroppableStationInfo>();
@@ -365,7 +369,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void clearStations()
         {
-            UnityEngine.Object.Destroy(lineStationsPanel.gameObject);
+            GameObject.Destroy(lineStationsPanel.gameObject);
             residentCounters.Clear();
             touristCounters.Clear();
             lineVehicles.Clear();

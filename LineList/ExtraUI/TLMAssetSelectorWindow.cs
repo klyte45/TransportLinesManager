@@ -42,7 +42,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
         private VehicleInfo m_lastInfo;
         private Dictionary<string, string> m_defaultAssets = new Dictionary<string, string>();
         private Dictionary<string, UICheckBox> m_checkboxes = new Dictionary<string, UICheckBox>();
-        private TransportSystemDefinition m_lastDef = null;
+        private TransportSystemDefinition m_lastDef = default(TransportSystemDefinition);
         private bool m_isLoading;
         
         private void CreateWindow()
