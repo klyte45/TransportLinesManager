@@ -28,7 +28,7 @@ namespace Klyte.TransportLinesManager.UI
             TransportLine tl = TransportManager.instance.m_lines.m_buffer[lineID];
             if (__result && TLMBasicTabControllerLineList<V>.exists && (Singleton<V>.instance?.GetTSD().isFromSystem(tl) ?? false))
             {
-                TLMBasicTabControllerLineList<V>.instance.m_LinesUpdated = false;
+                TLMBasicTabControllerLineList<V>.instance.isUpdated = false;
             }
         }
         public static void BeforeReleaseLine(ushort lineID, ref bool __state)
@@ -40,7 +40,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (__result && __state && TLMBasicTabControllerLineList<V>.exists)
             {
-                TLMBasicTabControllerLineList<V>.instance.m_LinesUpdated = false;
+                TLMBasicTabControllerLineList<V>.instance.isUpdated = false;
             }
         }
 
@@ -83,43 +83,31 @@ namespace Klyte.TransportLinesManager.UI
 
 
 
-    internal abstract class TLMBasicTabControllerLineList<T> : UICustomControl where T : TLMSysDef<T>
+    internal abstract class TLMBasicTabControllerLineList<T> : TLMTabControllerListBase<T> where T : TLMSysDef<T>
     {
-        public static TLMBasicTabControllerLineList<T> instance { get; private set; }
-        public static bool exists
-        {
-            get { return instance != null; }
-        }
+
 
         private UICheckBox m_visibilityToggle;
-        private UIScrollablePanel mainPanel;
-        private UIPanel titleLine;
-        private static readonly string kLineTemplate = "LineTemplate";
-        public bool m_LinesUpdated = false;
         private LineSortCriterion m_LastSortCriterionLines;
         private bool reverseOrder = false;
         private UIButton m_DayIcon;
         private UIButton m_NightIcon;
         private UIButton m_DayNightIcon;
         private UIButton m_DisabledIcon;
-        private UIDropDown m_prefixFilter;
-        private ModoNomenclatura m_modoNomenclaturaCache = (ModoNomenclatura)(-1);
+
+        protected override void OnUpdateStateChange(bool state) { }
+        protected override bool HasRegionalPrefixFilter => false;
 
         #region Awake
-        private void Awake()
+        protected override void Awake()
         {
-            instance = this;
-            UIComponent parent = this.GetComponent<UIComponent>();
-            CreateTitleRowBuilding(out titleLine, parent);
-
-            TLMUtils.CreateScrollPanel(parent, out mainPanel, out UIScrollbar scrollbar, parent.width - 30, parent.height - 50, new Vector3(5, 40));
-            mainPanel.autoLayout = true;
-            mainPanel.autoLayoutDirection = LayoutDirection.Vertical;
-
+            base.Awake();
             m_LastSortCriterionLines = LineSortCriterion.DEFAULT;
         }
+        #endregion
 
-        private void CreateTitleRowBuilding(out UIPanel titleLine, UIComponent parent)
+        #region title row
+        protected override void CreateTitleRow(out UIPanel titleLine, UIComponent parent)
         {
             TLMUtils.createUIElement(out titleLine, parent.transform, "TLMtitleline", new Vector4(5, 0, parent.width - 10, 40));
 
@@ -235,62 +223,9 @@ namespace Klyte.TransportLinesManager.UI
                 TLMLineListItem<T> comp = (TLMLineListItem<T>)item.GetComponent(ImplClassChildren);
                 comp.ChangeLineVisibility(value);
             }
-            m_LinesUpdated = false;
+            isUpdated = false;
         }
-
-        private void AwakePrefixFilter()
-        {
-            m_prefixFilter = UIHelperExtension.CloneBasicDropDownNoLabel(new string[] {
-                    "All"
-                }, (x) =>
-                {
-                    m_LinesUpdated = false;
-                }, titleLine);
-
-
-            var prefixFilterLabel = m_prefixFilter.AddUIComponent<UILabel>();
-            prefixFilterLabel.text = Locale.Get("TLM_PREFIX_FILTER");
-            prefixFilterLabel.relativePosition = new Vector3(0, -35);
-            prefixFilterLabel.textAlignment = UIHorizontalAlignment.Center;
-            prefixFilterLabel.wordWrap = true;
-            prefixFilterLabel.autoSize = false;
-            prefixFilterLabel.width = 100;
-            prefixFilterLabel.height = 36;
-            m_prefixFilter.area = new Vector4(765, 0, 100, 35);
-
-            ReloadPrefixFilter();
-        }
-
         #endregion
-        private void ReloadPrefixFilter()
-        {
-            ConfigIndex tsdCi = Singleton<T>.instance.GetTSD().toConfigIndex();
-            ModoNomenclatura prefixMn = TLMUtils.GetPrefixModoNomenclatura(tsdCi);
-            if (prefixMn != m_modoNomenclaturaCache)
-            {
-                string[] filterOptions = TLMUtils.getPrefixesOptions(tsdCi);
-
-                m_prefixFilter.items = filterOptions;
-                m_prefixFilter.isVisible = filterOptions.Length >= 3;
-                m_prefixFilter.selectedIndex = 0;
-                m_modoNomenclaturaCache = prefixMn;
-            }
-        }
-
-
-        private void Update()
-        {
-            if (!mainPanel.isVisible) return;
-            if (!this.m_LinesUpdated)
-            {
-                m_DayIcon.relativePosition = new Vector3(655, 14);
-                m_NightIcon.relativePosition = new Vector3(682, 14);
-                m_DayNightIcon.relativePosition = new Vector3(701, 14);
-                m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
-                ReloadPrefixFilter();
-                this.RefreshLines();
-            }
-        }
 
         private void AddToList(ushort lineID, ref int count)
         {
@@ -314,64 +249,37 @@ namespace Klyte.TransportLinesManager.UI
 
         private static Type ImplClassChildren => TLMUtils.GetImplementationForGenericType(typeof(TLMLineListItem<>), typeof(T));
 
-        private void RefreshLines()
+        protected override void RefreshLines()
         {
+
+            m_DayIcon.relativePosition = new Vector3(655, 14);
+            m_NightIcon.relativePosition = new Vector3(682, 14);
+            m_DayNightIcon.relativePosition = new Vector3(701, 14);
+            m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
+
             var tsd = Singleton<T>.instance.GetTSD();
             bool hasPrefix = TLMLineUtils.hasPrefix(ref tsd);
-            if (Singleton<TransportManager>.exists)
+            int count = 0;
+            for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
             {
-                int count = 0;
-
-                for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
+                TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
+                if (tl.Complete && Singleton<T>.instance.GetTSD().isFromSystem(tl) && (!hasPrefix || m_prefixFilter.selectedIndex == 0 || m_prefixFilter.selectedIndex - 1 == TLMLineUtils.getPrefix(lineID)))
                 {
-                    TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
-
-                    if (tl.Complete && Singleton<T>.instance.GetTSD().isFromSystem(tl) && (!hasPrefix || m_prefixFilter.selectedIndex == 0 || m_prefixFilter.selectedIndex - 1 == TLMLineUtils.getPrefix(lineID)))
-                    {
-                        AddToList(lineID, ref count);
-                    }
-
+                    AddToList(lineID, ref count);
                 }
-                RemoveExtraLines(count);
+
             }
-            if (this.m_LastSortCriterionLines != LineSortCriterion.DEFAULT)
+            RemoveExtraLines(count);
+
+            switch (m_LastSortCriterionLines)
             {
-                if (this.m_LastSortCriterionLines == LineSortCriterion.NAME)
-                {
-                    this.OnNameSort();
-                }
-                else if (this.m_LastSortCriterionLines == LineSortCriterion.PASSENGER)
-                {
-                    this.OnPassengerSort();
-                }
-                else if (this.m_LastSortCriterionLines == LineSortCriterion.STOP)
-                {
-                    this.OnStopSort();
-                }
-                else if (this.m_LastSortCriterionLines == LineSortCriterion.VEHICLE)
-                {
-                    this.OnVehicleSort();
-                }
-                else if (this.m_LastSortCriterionLines == LineSortCriterion.LINE_NUMBER)
-                {
-                    this.OnLineNumberSort();
-                }
+                case LineSortCriterion.NAME: OnNameSort(); break;
+                case LineSortCriterion.PASSENGER: OnPassengerSort(); break;
+                case LineSortCriterion.STOP: OnStopSort(); break;
+                case LineSortCriterion.VEHICLE: OnVehicleSort(); break;
+                case LineSortCriterion.LINE_NUMBER: default: OnLineNumberSort(); break;
             }
-            else
-            {
-                this.OnLineNumberSort();
-            }
-            this.m_LinesUpdated = true;
-        }
-
-        private void RemoveExtraLines(int linesCount)
-        {
-            while (mainPanel.components.Count > linesCount)
-            {
-                UIComponent uIComponent = mainPanel.components[linesCount];
-                mainPanel.RemoveUIComponent(uIComponent);
-                Destroy(uIComponent.gameObject);
-            }
+            isUpdated = true;
         }
 
         #region Sorting
@@ -424,10 +332,6 @@ namespace Klyte.TransportLinesManager.UI
             TLMLineListItem<T> component2 = right.GetComponent<TLMLineListItem<T>>();
             return component2.passengerCountsInt.CompareTo(component.passengerCountsInt);
         }
-        private static int NaturalCompare(string left, string right)
-        {
-            return (int)typeof(PublicTransportDetailPanel).GetMethod("NaturalCompare", Redirector<TLMTabControllerLineHooksTouPed>.allFlags).Invoke(null, new object[] { left, right });
-        }
 
         private void OnNameSort()
         {
@@ -472,48 +376,6 @@ namespace Klyte.TransportLinesManager.UI
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareLineNumbers), reverseOrder);
             this.m_LastSortCriterionLines = LineSortCriterion.LINE_NUMBER;
             mainPanel.Invalidate();
-        }
-
-        public static void Quicksort(IList<UIComponent> elements, Comparison<UIComponent> comp, bool invert)
-        {
-            Quicksort(elements, 0, elements.Count - 1, comp, invert);
-        }
-
-        public static void Quicksort(IList<UIComponent> elements, int left, int right, Comparison<UIComponent> comp, bool invert)
-        {
-            int i = left;
-            int num = right;
-            UIComponent y = elements[(left + right) / 2];
-            int multiplier = invert ? -1 : 1;
-            while (i <= num)
-            {
-                while (comp(elements[i], y) * multiplier < 0)
-                {
-                    i++;
-                }
-                while (comp(elements[num], y) * multiplier > 0)
-                {
-                    num--;
-                }
-                if (i <= num)
-                {
-                    UIComponent value = elements[i];
-                    elements[i] = elements[num];
-                    elements[i].forceZOrder = i;
-                    elements[num] = value;
-                    elements[num].forceZOrder = num;
-                    i++;
-                    num--;
-                }
-            }
-            if (left < num)
-            {
-                Quicksort(elements, left, num, comp, invert);
-            }
-            if (i < right)
-            {
-                Quicksort(elements, i, right, comp, invert);
-            }
         }
         #endregion
 

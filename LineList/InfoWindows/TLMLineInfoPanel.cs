@@ -1,19 +1,17 @@
 using ColossalFramework;
+using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Klyte.Commons.UI;
 using Klyte.Extensions;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.LineList.ExtraUI;
+using Klyte.TransportLinesManager.UI;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
-using Klyte.TransportLinesManager.Extensors;
-using ColossalFramework.Globalization;
-using Klyte.TransportLinesManager.UI;
-using Klyte.TransportLinesManager.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
-using Klyte.TransportLinesManager.LineList.ExtraUI;
-using Klyte.Commons.UI;
-using Klyte.Commons.Utils;
 
 namespace Klyte.TransportLinesManager.LineList
 {
@@ -1006,8 +1004,9 @@ namespace Klyte.TransportLinesManager.LineList
                 }
             }
 
-            m_disableBudgetPerHour.isVisible = multipliers.Length == 8;
-            m_enableBudgetPerHour.isVisible = multipliers.Length == 1;
+            bool budgetPerHourEnabled = multipliers.Length == 8;
+            m_disableBudgetPerHour.isVisible = budgetPerHourEnabled;
+            m_enableBudgetPerHour.isVisible = !budgetPerHourEnabled && tsd.hasVehicles();
             for (int i = 0; i < m_budgetSliders.Length; i++)
             {
                 UILabel budgetSliderLabel = m_budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>();
@@ -1024,8 +1023,8 @@ namespace Klyte.TransportLinesManager.LineList
                 }
                 else
                 {
-                    m_budgetSliders[i].isEnabled = multipliers.Length == 8;
-                    m_budgetSliders[i].parent.isVisible = multipliers.Length == 8;
+                    m_budgetSliders[i].isEnabled = budgetPerHourEnabled;
+                    m_budgetSliders[i].parent.isVisible = budgetPerHourEnabled;
                 }
 
                 if (i < multipliers.Length)
@@ -1034,10 +1033,10 @@ namespace Klyte.TransportLinesManager.LineList
                 }
             }
 
-            m_DayLine.isVisible = m_enableBudgetPerHour.isVisible;
-            m_DayNightLine.isVisible = m_enableBudgetPerHour.isVisible;
-            m_NightLine.isVisible = m_enableBudgetPerHour.isVisible;
-            m_DisabledLine.isVisible = m_enableBudgetPerHour.isVisible;
+            m_DayLine.isVisible = !budgetPerHourEnabled;
+            m_DayNightLine.isVisible = !budgetPerHourEnabled;
+            m_NightLine.isVisible = !budgetPerHourEnabled;
+            m_DisabledLine.isVisible = !budgetPerHourEnabled;
 
         }
 
@@ -1271,6 +1270,7 @@ namespace Klyte.TransportLinesManager.LineList
             UpdateTicketPrice();
 
             EventOnLineChanged(lineID);
+            SetViewMode();
         }
 
         private void UpdateTicketPrice()
@@ -1302,6 +1302,19 @@ namespace Klyte.TransportLinesManager.LineList
         public event OnLineLoad EventOnLineChanged;
         #endregion
 
+        private void SetViewMode()
+        {
+            var tsd = TransportSystemDefinition.from(lineIdSelecionado.TransportLine);
+            if (tsd == default(TransportSystemDefinition)) return;
+            if (tsd.isTour())
+            {
+                InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.Tours, InfoManager.SubInfoMode.Default);
+            }
+            else
+            {
+                InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.Transport, InfoManager.SubInfoMode.Default);
+            }
+        }
     }
 
     public delegate void OnLineLoad(ushort lineId);

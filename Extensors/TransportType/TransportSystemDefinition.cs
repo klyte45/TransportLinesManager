@@ -164,6 +164,10 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         {
             return subService == ItemClass.SubService.PublicTransportTours;
         }
+        public bool isShelterAiDepot()
+        {
+            return this == EVAC_BUS;
+        }
         public bool hasVehicles()
         {
             return vehicleType != VehicleInfo.VehicleType.None;
@@ -176,6 +180,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                 case TransportInfo.TransportType.Taxi:
                 case TransportInfo.TransportType.CableCar:
                 case TransportInfo.TransportType.Pedestrian:
+                case TransportInfo.TransportType.EvacuationBus:
                     return false;
                 default: return true;
             }
@@ -196,10 +201,15 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             return info.m_class.m_subService == subService && info.m_vehicleType == vehicleType && TLMUtils.HasField(info.GetAI(), "m_transportInfo") && TLMUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo").m_transportType == transportType && TLMUtils.HasField(info.GetAI(), "m_passengerCapacity");
         }
 
+        public bool isFromSystem(TransportInfo info)
+        {
+            return info != null && info.m_class.m_subService == subService && info.m_vehicleType == vehicleType && info.m_transportType == transportType;
+        }
+
         public bool isFromSystem(DepotAI p)
         {
-            return (p.m_info.m_class.m_subService == subService && p.m_transportInfo.m_vehicleType == vehicleType && p.m_maxVehicleCount > 0 && p.m_transportInfo.m_transportType == transportType)
-                || (p.m_secondaryTransportInfo != null && p.m_secondaryTransportInfo.m_vehicleType == vehicleType && p.m_maxVehicleCount2 > 0 && p.m_secondaryTransportInfo.m_transportType == transportType);
+            return p != null && ((p.m_info.m_class.m_subService == subService && p.m_transportInfo.m_vehicleType == vehicleType && p.m_maxVehicleCount > 0 && p.m_transportInfo.m_transportType == transportType)
+                || (p.m_secondaryTransportInfo != null && p.m_secondaryTransportInfo.m_vehicleType == vehicleType && p.m_maxVehicleCount2 > 0 && p.m_secondaryTransportInfo.m_transportType == transportType));
         }
         public bool isFromSystem(TransportLine tl)
         {

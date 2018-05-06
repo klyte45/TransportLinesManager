@@ -133,116 +133,99 @@ namespace Klyte.TransportLinesManager.UI
 
         public void RefreshData(bool updateColors, bool updateVisibility)
         {
-            if (Singleton<TransportManager>.exists)
+            if (this.m_LineOperation == null || this.m_LineOperation.completedOrFailed)
             {
-
-                bool isRowVisible = true;
-
-                if (this.m_LineOperation == null || this.m_LineOperation.completedOrFailed)
+                TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[m_LineID], out bool dayActive, out bool nightActive);
+                bool zeroed;
+                unchecked
                 {
-                    TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[m_LineID], out bool dayActive, out bool nightActive);
-                    bool zeroed;
-                    unchecked
-                    {
-                        zeroed = (Singleton<TransportManager>.instance.m_lines.m_buffer[m_LineID].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
-                    }
-                    if (!dayActive || !nightActive || zeroed)
-                    {
-                        m_LineColor.normalBgSprite = zeroed ? "NoBudgetIcon" : dayActive ? "DayIcon" : nightActive ? "NightIcon" : "DisabledIcon";
-                    }
-                    else
-                    {
-                        m_LineColor.normalBgSprite = "";
-                    }
-
-                    this.m_DayLine.isChecked = (dayActive && !nightActive);
-                    this.m_NightLine.isChecked = (nightActive && !dayActive);
-                    this.m_DayNightLine.isChecked = (dayActive && nightActive);
-                    this.m_DisabledLine.isChecked = (!dayActive && !nightActive);
-                    m_DisabledLine.relativePosition = new Vector3(730, 8);
-                    //isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(dayActive, nightActive) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber);
-
+                    zeroed = (Singleton<TransportManager>.instance.m_lines.m_buffer[m_LineID].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
+                }
+                if (!dayActive || !nightActive || zeroed)
+                {
+                    m_LineColor.normalBgSprite = zeroed ? "NoBudgetIcon" : dayActive ? "DayIcon" : nightActive ? "NightIcon" : "DisabledIcon";
                 }
                 else
                 {
-                    m_LineColor.normalBgSprite = "DisabledIcon";
-                    //isRowVisible = TLMPublicTransportDetailPanel.instance.isActivityVisible(false, false) && TLMPublicTransportDetailPanel.instance.isOnCurrentPrefixFilter(m_LineNumber);
-                }
-                if (!isRowVisible)
-                {
-                    GetComponent<UIComponent>().isVisible = false;
-                    return;
-                }
-                GetComponent<UIComponent>().isVisible = true;
-                this.m_LineName.text = Singleton<TransportManager>.instance.GetLineName(this.m_LineID);
-                m_LineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_lineNumber;
-                this.m_LineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountStops(this.m_LineID).ToString("N0");
-                this.m_LineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountVehicles(this.m_LineID).ToString("N0");
-                uint prefix = 0;
-
-                var tsd = Singleton<T>.instance.GetTSD();                
-                if (TLMConfigWarehouse.getCurrentConfigInt(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
-                {
-                    prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
+                    m_LineColor.normalBgSprite = "";
                 }
 
+                this.m_DayLine.isChecked = (dayActive && !nightActive);
+                this.m_NightLine.isChecked = (nightActive && !dayActive);
+                this.m_DayNightLine.isChecked = (dayActive && nightActive);
+                this.m_DisabledLine.isChecked = (!dayActive && !nightActive);
+                m_DisabledLine.relativePosition = new Vector3(730, 8);
+            }
+            else
+            {
+                m_LineColor.normalBgSprite = "DisabledIcon";
+            }
+            this.m_LineName.text = Singleton<TransportManager>.instance.GetLineName(this.m_LineID);
+            m_LineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_lineNumber;
+            this.m_LineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountStops(this.m_LineID).ToString("N0");
+            this.m_LineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].CountVehicles(this.m_LineID).ToString("N0");
+            uint prefix = 0;
 
-                int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_passengers.m_residentPassengers.m_averageCount;
-                int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_passengers.m_touristPassengers.m_averageCount;
-                this.m_LinePassengers.text = (averageCount + averageCount2).ToString("N0");
-                
-                this.m_LinePassengers.tooltip = string.Format("{0}", LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
-                {
+            var tsd = Singleton<T>.instance.GetTSD();
+            if (TLMConfigWarehouse.getCurrentConfigInt(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+            {
+                prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
+            }
+
+
+            int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_passengers.m_residentPassengers.m_averageCount;
+            int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_passengers.m_touristPassengers.m_averageCount;
+            this.m_LinePassengers.text = (averageCount + averageCount2).ToString("N0");
+
+            this.m_LinePassengers.tooltip = string.Format("{0}", LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
+            {
                 averageCount,
                 averageCount2
-                }));
-                TLMLineUtils.setLineNumberCircleOnRef(lineID, m_LineNumberFormatted, 0.8f);
-                m_LineColor.normalFgSprite = TLMLineUtils.getIconForLine(lineID);
+            }));
+            TLMLineUtils.setLineNumberCircleOnRef(lineID, m_LineNumberFormatted, 0.8f);
+            m_LineColor.normalFgSprite = TLMLineUtils.getIconForLine(lineID);
 
-                this.m_PassengerCount = averageCount + averageCount2;
+            this.m_PassengerCount = averageCount + averageCount2;
 
-                this.m_lineIncompleteWarning.isVisible = ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None);
+            this.m_lineIncompleteWarning.isVisible = ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None);
 
-                if (updateColors)
-                {
-                    this.m_LineColor.selectedColor = Singleton<TransportManager>.instance.GetLineColor(this.m_LineID);
-                }
-                if (updateVisibility)
-                {
-                    this.m_LineIsVisible.isChecked = ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_flags & TransportLine.Flags.Hidden) == TransportLine.Flags.None);
-                }
-
-
-                if (tsd.hasVehicles())
-                {
-                    TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].Info;
-                    float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
-                    this.m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.getEffectiveBugdet(lineID));//585+1/7 = frames/week     
-                    string vehTooltip = string.Format("{0} {1}", this.m_LineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
-                    this.m_LineVehicles.tooltip = vehTooltip;
-
-                    m_lineBudgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
-                        TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()),
-                        overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f, TLMLineUtils.getEffectiveBugdet(lineID));
-                    m_lineBudgetLabel.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 19, 0);
-                    bool tlmPerHour = TLMLineUtils.isPerHourBudget(m_LineID);
-                    m_DayLine.isVisible = !tlmPerHour;
-                    m_DayNightLine.isVisible = !tlmPerHour;
-                    m_NightLine.isVisible = !tlmPerHour;
-                    m_DisabledLine.isVisible = !tlmPerHour;
-                    m_perHourBudgetInfo.isVisible = tlmPerHour;
-
-                    m_perHourBudgetInfo.relativePosition = new Vector3(615, 2);
-                }
-                else
-                {
-                    m_DayLine.isVisible = true;
-                    m_DayNightLine.isVisible = true;
-                    m_NightLine.isVisible = true;
-                    m_DisabledLine.isVisible = true;
-                }
+            if (updateColors)
+            {
+                this.m_LineColor.selectedColor = Singleton<TransportManager>.instance.GetLineColor(this.m_LineID);
+            }
+            if (updateVisibility)
+            {
+                this.m_LineIsVisible.isChecked = ((Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].m_flags & TransportLine.Flags.Hidden) == TransportLine.Flags.None);
+            }
 
 
+            if (tsd.hasVehicles())
+            {
+                TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].Info;
+                float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
+                this.m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.getEffectiveBugdet(lineID));//585+1/7 = frames/week     
+                string vehTooltip = string.Format("{0} {1}", this.m_LineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
+                this.m_LineVehicles.tooltip = vehTooltip;
+
+                m_lineBudgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
+                    TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()),
+                    overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f, TLMLineUtils.getEffectiveBugdet(lineID));
+                m_lineBudgetLabel.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 19, 0);
+                bool tlmPerHour = TLMLineUtils.isPerHourBudget(m_LineID);
+                m_DayLine.isVisible = !tlmPerHour;
+                m_DayNightLine.isVisible = !tlmPerHour;
+                m_NightLine.isVisible = !tlmPerHour;
+                m_DisabledLine.isVisible = !tlmPerHour;
+                m_perHourBudgetInfo.isVisible = tlmPerHour;
+
+                m_perHourBudgetInfo.relativePosition = new Vector3(615, 2);
+            }
+            else
+            {
+                m_DayLine.isVisible = true;
+                m_DayNightLine.isVisible = true;
+                m_NightLine.isVisible = true;
+                m_DisabledLine.isVisible = true;
             }
         }
 
@@ -371,11 +354,11 @@ namespace Klyte.TransportLinesManager.UI
             {
                 m_NightLine.relativePosition = new Vector3(678, 8);
                 m_DayNightLine.relativePosition = new Vector3(704, 8);
-            }           
+            }
 
             this.m_LineStops = base.Find<UILabel>("LineStops");
             this.m_LinePassengers = base.Find<UILabel>("LinePassengers");
-            
+
             var tsd = Singleton<T>.instance.GetTSD();
             this.m_LineVehicles = base.Find<UILabel>("LineVehicles");
             if (tsd.hasVehicles())
@@ -387,7 +370,7 @@ namespace Klyte.TransportLinesManager.UI
             {
                 Destroy(m_LineVehicles.gameObject);
             }
-            
+
             this.m_Background = base.Find("Background");
             this.m_BackgroundColor = this.m_Background.color;
             this.m_mouseIsOver = false;
@@ -591,7 +574,6 @@ namespace Klyte.TransportLinesManager.UI
 
         private void OnColorChanged(UIComponent comp, Color color)
         {
-            TLMUtils.doLog($"OnColorChanged {m_LineID}=>{color.r},{color.g},{color.b} \r\n {Environment.StackTrace}");
             TLMLineUtils.setLineColor(this.m_LineID, color);
         }
         private void changeLineTime(bool day, bool night)

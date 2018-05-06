@@ -1249,7 +1249,7 @@ namespace Klyte.TransportLinesManager.Utils
             return buildingId;
 
         }
-        public static string getPrefixesServedAbstract(ushort m_buildingID, bool secondary)
+        public static string getPrefixesServedString(ushort m_buildingID, bool secondary)
         {
             Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];
             DepotAI ai = b.Info.GetAI() as DepotAI;

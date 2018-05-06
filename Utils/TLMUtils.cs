@@ -73,10 +73,14 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return c;
         }
-        internal static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false, TLMCW.ConfigIndex nameReferenceSystem = TLMCW.ConfigIndex.NIL)
+        internal static string[] getStringOptionsForPrefix(TLMCW.ConfigIndex transportSystem, bool showUnprefixed = false, bool noneOption = true)
+        {
+            return getStringOptionsForPrefix(GetPrefixModoNomenclatura(transportSystem), showUnprefixed, transportSystem, noneOption);
+        }
+        internal static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false, TLMCW.ConfigIndex nameReferenceSystem = TLMCW.ConfigIndex.NIL, bool noneOption = true)
         {
 
-            List<string> saida = new List<string>(new string[] { "" });
+            List<string> saida = new List<string>(new string[noneOption ? 1 : 0]);
             if (showUnprefixed)
             {
                 string unprefixedName = Locale.Get("TLM_UNPREFIXED");
@@ -167,7 +171,7 @@ namespace Klyte.TransportLinesManager.Utils
                 }
             }
         }
-        internal static string[] getPrefixesOptions(TLMCW.ConfigIndex transportType, Boolean addDefaults = true)
+        internal static List<string> getPrefixesOptions(TLMCW.ConfigIndex transportType, Boolean addDefaults = true)
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
             ModoNomenclatura m = GetPrefixModoNomenclatura(transportType);
@@ -223,7 +227,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 saida.AddRange(numeros.Select(x => x.ToString()));
             }
-            return saida.ToArray();
+            return saida;
         }
 
         internal static ModoNomenclatura GetPrefixModoNomenclatura(TLMCW.ConfigIndex transportType)

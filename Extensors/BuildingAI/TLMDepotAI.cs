@@ -91,7 +91,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                 string depotList = TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.getConfigDepotPrefix(ref tsd));
                 if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("getConfigForTransportType STRING FOR {0}: {1}", tsd.ToString(), depotList);
-                cached_lists[tsd] = getDictionaryFromConfigString(depotList,ref tsd);
+                cached_lists[tsd] = getDictionaryFromConfigString(depotList, ref tsd);
             }
             return cached_lists[tsd];
         }
@@ -185,7 +185,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             foreach (ushort i in buildings)
             {
                 PrefabAI prefAI = bm.m_buildings.m_buffer[i].Info.GetAI();
-                if (prefAI is DepotAI buildingAI && buildingAI.m_maxVehicleCount > 0)
+                if ((prefAI is DepotAI buildingAI && buildingAI.m_maxVehicleCount > 0) || (prefAI is ShelterAI))
                 {
                     saida.Add(i);
                 }

@@ -43,25 +43,32 @@ namespace Klyte.TransportLinesManager.Overrides
             #region Ticket Override Hooks
             if (!TLMSingleton.isIPTLoaded)
             {
-                MethodInfo GetTicketPricePost_PassengerPlaneAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerPlaneAI", allFlags);
-                MethodInfo GetTicketPricePost_PassengerShipAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerShipAI", allFlags);
-                MethodInfo GetTicketPricePost_TramAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_TramAI", allFlags);
-                MethodInfo GetTicketPricePost_PassengerTrainAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerTrainAI", allFlags);
-                MethodInfo GetTicketPricePost_PassengerBlimpAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerBlimpAI", allFlags);
-                MethodInfo GetTicketPricePost_PassengerFerryAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_PassengerFerryAI", allFlags);
-                MethodInfo GetTicketPricePost_BusAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_BusAI", allFlags);
-                MethodInfo GetTicketPricePost_CableCarAI = typeof(TransportLineOverrides).GetMethod("GetTicketPricePost_CableCarAI", allFlags);
+                MethodInfo GetTicketPricePre = typeof(TransportLineOverrides).GetMethod("GetTicketPricePre", allFlags);
 
                 TLMUtils.doLog("Loading Ticket Override Hooks");
-                AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerPlaneAI);
-                AddRedirect(typeof(PassengerShipAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerShipAI);
-                AddRedirect(typeof(TramAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_TramAI);
-                AddRedirect(typeof(PassengerTrainAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerTrainAI);
-                AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerBlimpAI);
-                AddRedirect(typeof(PassengerFerryAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_PassengerFerryAI);
-                AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_BusAI);
-                AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), null, GetTicketPricePost_CableCarAI);
+                AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+                AddRedirect(typeof(PassengerShipAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+                AddRedirect(typeof(TramAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+                AddRedirect(typeof(PassengerTrainAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+                AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+                AddRedirect(typeof(PassengerFerryAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+                AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+                AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+                //AddRedirect(typeof(TaxiAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre); // Waiting fix
             }
+            #endregion
+
+            #region Color Override Hooks
+            MethodInfo GetColorFor = typeof(TransportLineOverrides).GetMethod("GetColorFor", allFlags);
+
+            TLMUtils.doLog("Loading Color Override Hooks");
+            AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            AddRedirect(typeof(PassengerShipAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            AddRedirect(typeof(TramAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            AddRedirect(typeof(PassengerTrainAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            AddRedirect(typeof(PassengerFerryAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            AddRedirect(typeof(BusAI).GetMethod("GetColor", allFlags), null, GetColorFor);
             #endregion
 
             #region Budget Override Hooks
@@ -165,71 +172,141 @@ namespace Klyte.TransportLinesManager.Overrides
         #endregion
 
         #region Ticket Override
-        public static void GetTicketPricePost_PassengerPlaneAI(ushort vehicleID, ref Vehicle vehicleData, PassengerPlaneAI __instance, ref int __result)
+        public static bool GetTicketPricePre(ushort vehicleID, ref Vehicle vehicleData, ref int __result)
         {
-            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
-        }
-        public static void GetTicketPricePost_PassengerShipAI(ushort vehicleID, ref Vehicle vehicleData, PassengerShipAI __instance, ref int __result)
-        {
-            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
-        }
-        public static void GetTicketPricePost_TramAI(ushort vehicleID, ref Vehicle vehicleData, TramAI __instance, ref int __result)
-        {
-            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
-        }
-        public static void GetTicketPricePost_PassengerTrainAI(ushort vehicleID, ref Vehicle vehicleData, PassengerTrainAI __instance, ref int __result)
-        {
-            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
-        }
-        public static void GetTicketPricePost_PassengerBlimpAI(ushort vehicleID, ref Vehicle vehicleData, PassengerBlimpAI __instance, ref int __result)
-        {
-            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
-        }
-        public static void GetTicketPricePost_PassengerFerryAI(ushort vehicleID, ref Vehicle vehicleData, PassengerFerryAI __instance, ref int __result)
-        {
-            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
-        }
-        public static void GetTicketPricePost_BusAI(ushort vehicleID, ref Vehicle vehicleData, BusAI __instance, ref int __result)
-        {
-            if (__instance.m_transportInfo.m_ticketPrice == 0) __result = 0;
-            else __result = ticketPriceForPrefix(vehicleID, ref vehicleData, __instance.m_transportInfo.m_ticketPrice) * __result / __instance.m_transportInfo.m_ticketPrice;
+            if (vehicleData.Info.m_class.m_subService == ItemClass.SubService.PublicTransportTours)
+                return true;
+
+            return ticketPriceForPrefix(vehicleID, ref vehicleData, ref __result);
         }
 
-        private static int ticketPriceForPrefix(ushort vehicleID, ref Vehicle vehicleData, int defaultPrice)
+        private static bool ticketPriceForPrefix(ushort vehicleID, ref Vehicle vehicleData, ref int __result)
         {
             var def = TransportSystemDefinition.from(vehicleData.Info);
 
             if (def == default(TransportSystemDefinition))
             {
-                if (TLMSingleton.instance != null && TLMSingleton.debugMode)
-                    TLMUtils.doLog("NULL TSysDef! {0}+{1}+{2}", vehicleData.Info.GetAI().GetType(), vehicleData.Info.m_class.m_subService, vehicleData.Info.m_vehicleType);
-                return defaultPrice;
+                return true;
+            }
+
+            DistrictManager instance = Singleton<DistrictManager>.instance;
+            byte district = instance.GetDistrict(vehicleData.m_targetPos3);
+            DistrictPolicies.Services servicePolicies = instance.m_districts.m_buffer[(int)district].m_servicePolicies;
+            DistrictPolicies.Event @event = instance.m_districts.m_buffer[(int)district].m_eventPolicies & Singleton<EventManager>.instance.GetEventPolicyMask();
+            float multiplier;
+            if (vehicleData.Info.m_class.m_subService == ItemClass.SubService.PublicTransportTours)
+            {
+                multiplier = 1;
+            }
+            else
+            {
+                if ((servicePolicies & DistrictPolicies.Services.FreeTransport) != DistrictPolicies.Services.None)
+                {
+                    __result = 0;
+                    return false;
+                }
+                if ((@event & DistrictPolicies.Event.ComeOneComeAll) != DistrictPolicies.Event.None)
+                {
+                    __result = 0;
+                    return false;
+                }
+                if ((servicePolicies & DistrictPolicies.Services.HighTicketPrices) != DistrictPolicies.Services.None)
+                {
+                    District[] expr_114_cp_0 = instance.m_districts.m_buffer;
+                    byte expr_114_cp_1 = district;
+                    expr_114_cp_0[(int)expr_114_cp_1].m_servicePoliciesEffect = (expr_114_cp_0[(int)expr_114_cp_1].m_servicePoliciesEffect | DistrictPolicies.Services.HighTicketPrices);
+                    multiplier = 5f / 4f;
+                }
+                else
+                {
+                    multiplier = 1;
+                }
             }
             if (vehicleData.m_transportLine == 0)
             {
-                var value = (int)def.GetTransportExtension().GetDefaultTicketPrice(0);
-                return value;
+                __result = (int)(def.GetTransportExtension().GetDefaultTicketPrice(0) * multiplier);
+                return false;
             }
             else
             {
                 if (TLMTransportLineExtension.instance.GetUseCustomConfig(vehicleData.m_transportLine))
                 {
-                    return (int)TLMTransportLineExtension.instance.GetTicketPrice(vehicleData.m_transportLine);
+                    __result = (int)(TLMTransportLineExtension.instance.GetTicketPrice(vehicleData.m_transportLine) * multiplier);
                 }
                 else
                 {
-                    return (int)def.GetTransportExtension().GetTicketPrice(TLMLineUtils.getPrefix(vehicleData.m_transportLine));
+                    __result = (int)(def.GetTransportExtension().GetTicketPrice(TLMLineUtils.getPrefix(vehicleData.m_transportLine)) * multiplier);
                 }
-
+                return false;
             }
         }
         #endregion
+
+        #region Color Override
+        private static void GetColorFor(ushort vehicleID, ref Vehicle data, ref Color __result, InfoManager.InfoMode infoMode)
+        {
+            switch (infoMode)
+            {
+                case InfoManager.InfoMode.TrafficRoutes:
+                    return;
+                case InfoManager.InfoMode.Underground:
+                case InfoManager.InfoMode.ParkMaintenance:
+                    IL_1D:
+                    if (infoMode != InfoManager.InfoMode.None)
+                    {
+                        if (infoMode != InfoManager.InfoMode.Transport)
+                        {
+                            if (infoMode != InfoManager.InfoMode.EscapeRoutes)
+                            {
+                                return;
+                            }
+                            goto IL_1G;
+                        }
+                        else
+                        {
+                            return;
+                            //goto IL_1G;
+                        }
+                    }
+                    IL_1G:
+                    ushort transportLine = data.m_transportLine;
+                    if (transportLine != 0)
+                    {
+                        var tsd = TransportSystemDefinition.getDefinitionForLine(transportLine);
+                        if (tsd.transportType == TransportInfo.TransportType.EvacuationBus)
+                        {
+                            return;
+                        }
+
+                        var ext = tsd.GetTransportExtension();
+                        var prefix = TLMLineUtils.getPrefix(transportLine);                        
+
+                        if (ext.UsingColorForModel(prefix))
+                        {
+                            __result = ext.GetColor(prefix);
+                        }
+                        else
+                        {
+                            __result = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)transportLine].GetColor();
+                        }
+                    }
+                    return;
+                case InfoManager.InfoMode.Tours:
+                    ushort transportLine2 = data.m_transportLine;
+                    var tsd2 = TransportSystemDefinition.getDefinitionForLine(transportLine2);
+                    if (tsd2.transportType != TransportInfo.TransportType.TouristBus)
+                    {
+                        return;
+                    }
+                    goto IL_1G;
+                case InfoManager.InfoMode.Tourism:
+                    return;
+                default:
+                    goto IL_1D;
+            }
+        }
+        #endregion
+
         public override void doLog(string text, params object[] param)
         {
             TLMUtils.doLog(text, param);

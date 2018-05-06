@@ -310,7 +310,7 @@ namespace Klyte.TransportLinesManager.UI
             if (TLMLineUtils.hasPrefix(transportTool.m_prefab))
             {
                 linePrefixDropDown.isVisible = true;
-                linePrefixDropDown.items = TLMUtils.getPrefixesOptions(configIdx, false);
+                linePrefixDropDown.items = TLMUtils.getPrefixesOptions(configIdx, false).ToArray();
                 linePrefixDropDown.selectedIndex = getCurrentPrefix();
                 lineNumberTxtBox.text = getCurrentNumber().ToString();
                 lineNumberTxtBox.width = 90;

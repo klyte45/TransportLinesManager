@@ -397,12 +397,12 @@ namespace Klyte.TransportLinesManager
                     List<string> lines = new List<string>();
                     if (ai.m_transportInfo != null && ai.m_maxVehicleCount > 0 && TransportSystemDefinition.from(ai.m_transportInfo).isPrefixable())
                     {
-                        lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_transportInfo).toConfigIndex()), TLMLineUtils.getPrefixesServedAbstract(buildingId, false)));
+                        lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_transportInfo).toConfigIndex()), TLMLineUtils.getPrefixesServedString(buildingId, false)));
                         count++;
                     }
                     if (ai.m_secondaryTransportInfo != null && ai.m_maxVehicleCount2 > 0 && TransportSystemDefinition.from(ai.m_secondaryTransportInfo).isPrefixable())
                     {
-                        lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_secondaryTransportInfo).toConfigIndex()), TLMLineUtils.getPrefixesServedAbstract(buildingId, true)));
+                        lines.Add(string.Format("{0}: {1}", TLMConfigWarehouse.getNameForTransportType(TransportSystemDefinition.from(ai.m_secondaryTransportInfo).toConfigIndex()), TLMLineUtils.getPrefixesServedString(buildingId, true)));
                         count++;
                     }
                     depotShortcut.isVisible = count > 0;

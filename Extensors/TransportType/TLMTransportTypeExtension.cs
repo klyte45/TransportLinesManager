@@ -13,7 +13,7 @@ using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
-    internal interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension { }
+    internal interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension, IUseColorForModelExtension, IColorSelectableExtension { }
 
     internal abstract class TLMTransportTypeExtension<TSD, SG> : ExtensionInterfaceDefaultImpl<PrefixConfigIndex, SG>, ITLMTransportTypeExtension where TSD : TLMSysDef<TSD>, new() where SG : TLMTransportTypeExtension<TSD, SG>
     {
@@ -85,7 +85,6 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         #region Ticket Price
         public uint GetTicketPrice(uint prefix)
         {
-
             if (uint.TryParse(SafeGet(prefix, PrefixConfigIndex.TICKET_PRICE), out uint result))
             {
                 return result;
@@ -94,41 +93,12 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         }
         public uint GetDefaultTicketPrice(uint x = 0)
         {
-
-            switch (definition.subService)
+            var savedVal = TLMConfigWarehouse.instance.getInt(TLMConfigWarehouse.ConfigIndex.DEFAULT_TICKET_PRICE | Singleton<TSD>.instance.GetTSD().toConfigIndex());
+            if (savedVal > 0)
             {
-                case ItemClass.SubService.PublicTransportCableCar:
-                case ItemClass.SubService.PublicTransportBus:
-                case ItemClass.SubService.PublicTransportMonorail:
-                    return 100;
-                case ItemClass.SubService.PublicTransportMetro:
-                case ItemClass.SubService.PublicTransportTaxi:
-                case ItemClass.SubService.PublicTransportTrain:
-                case ItemClass.SubService.PublicTransportTram:
-                    return 200;
-                case ItemClass.SubService.PublicTransportPlane:
-                    if (definition.vehicleType == VehicleInfo.VehicleType.Blimp)
-                    {
-                        return 100;
-                    }
-                    else
-                    {
-                        return 1000;
-                    }
-                case ItemClass.SubService.PublicTransportShip:
-                    if (definition.vehicleType == VehicleInfo.VehicleType.Ferry)
-                    {
-                        return 100;
-                    }
-                    else
-                    {
-                        return 500;
-                    }
-                default:
-                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("subservice not found: {0}", definition.subService);
-                    return 103;
+                return (uint)savedVal;
             }
-
+            return (uint)TransportManager.instance.GetTransportInfo(Singleton<TSD>.instance.GetTSD().transportType).m_ticketPrice;
         }
         public void SetTicketPrice(uint prefix, uint price)
         {
@@ -197,6 +167,43 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         {
             var tsd = definition;
             basicAssetsList = TLMUtils.LoadBasicAssets(ref tsd);
+        }
+
+        #endregion
+
+        #region Color
+        public Color GetColor(uint prefix)
+        {
+            return TLMUtils.DeserializeColor(SafeGet(prefix, PrefixConfigIndex.COLOR), ItSepLvl3);
+        }
+
+        public void SetColor(uint prefix, Color value)
+        {
+            if (value.a < 1)
+            {
+                CleanColor(prefix);
+            }
+            else
+            {
+                SafeSet(prefix, PrefixConfigIndex.COLOR, TLMUtils.SerializeColor(value, ItSepLvl3));
+            }
+        }
+
+        public void CleanColor(uint prefix)
+        {
+            SafeCleanProperty(prefix, PrefixConfigIndex.COLOR);
+        }
+        #endregion
+
+        #region Use Color For Model
+        public bool UsingColorForModel(uint prefix)
+        {
+            return SafeGet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL) == "1" && GetColor(prefix) != Color.clear;
+        }
+
+        public void SetUsingColorForModel(uint prefix, bool val)
+        {
+            SafeSet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL, val ? "1" : "0");
         }
         #endregion
 
@@ -281,6 +288,8 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         MODELS,
         PREFIX_NAME,
         BUDGET_MULTIPLIER,
-        TICKET_PRICE
+        TICKET_PRICE,
+        COLOR,
+        USE_COLOR_FOR_MODEL
     }
 }

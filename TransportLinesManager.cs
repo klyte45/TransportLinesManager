@@ -433,10 +433,6 @@ namespace Klyte.TransportLinesManager
                     prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
                     autoColorBasedContainer.isVisible = isPrefixed;
                     paletteLabel.text = isPrefixed ? Locale.Get("TLM_PALETTE_UNPREFIXED") : Locale.Get("TLM_PALETTE");
-                    //if (TLMPublicTransportDetailPanel.instance != null && TLMPublicTransportDetailPanel.instance.prefixEditor.m_systemTypeDropDown != null)
-                    //{
-                    //    TLMPublicTransportDetailPanel.instance.prefixEditor.m_systemTypeDropDown.selectedIndex = 0;
-                    //}
                 };
                 prefixDD.eventSelectedIndexChanged += updateFunction;
                 suffixDD.eventSelectedIndexChanged += delegate (UIComponent c, int sel)
@@ -446,6 +442,18 @@ namespace Klyte.TransportLinesManager
                     prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)sel == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
                 };
                 updateFunction.Invoke(null, prefixDD.selectedIndex);
+            }
+            UIHelperExtension group72 = helper.AddGroupExtended(Locale.Get("TLM_DEFAULT_PRICE"));
+            ((UIPanel)group72.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group72.self).wrapLayout = true;
+            ((UIPanel)group72.self).width = 730;
+            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableTicketTransportCategories)
+            {
+                var textField = generateNumberFieldConfig(group72, TLMConfigWarehouse.getNameForTransportType(ci), TLMConfigWarehouse.ConfigIndex.DEFAULT_TICKET_PRICE | ci);
+                var textFieldPanel = textField.GetComponentInParent<UIPanel>();
+                textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+                textFieldPanel.autoFitChildrenVertically = true;
+                group72.AddSpace(2);
             }
 
             if (TLMSingleton.instance != null && TLMSingleton.debugMode)
@@ -663,6 +671,13 @@ namespace Klyte.TransportLinesManager
             return textFields[configIndex];
         }
 
+        private UITextField generateNumberFieldConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
+        {
+            textFields[configIndex] = group.AddTextField(title, delegate (string s) { if (int.TryParse(s, out int val)) currentConfigWarehouseEditor.setInt(configIndex, val); }, currentConfigWarehouseEditor.getInt(configIndex).ToString());
+            textFields[configIndex].numericalOnly = true;
+            return textFields[configIndex];
+        }
+
         private void reloadData(int selection)
         {
             if (TLMSingleton.instance != null && TLMSingleton.debugMode)
@@ -688,9 +703,7 @@ namespace Klyte.TransportLinesManager
                             break;
                     }
                 }
-#pragma warning disable CS0168 // Variable is declared but never used
-                catch (Exception e)
-#pragma warning restore CS0168 // Variable is declared but never used
+                catch
                 {
                     if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                         TLMUtils.doLog("EXCEPTION! {0} | {1} | [{2}]", i.Key, currentConfigWarehouseEditor.getString(i.Key), string.Join(",", i.Value.items));

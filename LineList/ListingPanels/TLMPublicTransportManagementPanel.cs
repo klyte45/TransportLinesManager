@@ -79,7 +79,7 @@ namespace Klyte.TransportLinesManager.UI
             }
             m_StripMain.selectedIndex = 0;
             m_StripMain.selectedIndex = -1;
-            m_StripMain.eventTabIndexChanged += SetViewMode;
+            m_StripMain.eventSelectedIndexChanged += SetViewMode;
             m_StripMain.eventVisibilityChanged += OnOpenClosePanel;
         }
 
@@ -379,8 +379,8 @@ namespace Klyte.TransportLinesManager.UI
             {
                 case UiCategoryTab.LineListing: return typeof(TLMTabControllerLineListTransport<>);
                 case UiCategoryTab.TourListing: return typeof(TLMTabControllerLineListTourism<>);
-                //case UiCategoryTab.DepotListing: return "IconRightArrow";
-                //case UiCategoryTab.PrefixEditor: return "ToolbarIconPolice";
+                case UiCategoryTab.DepotListing: return typeof(TLMTabControllerDepotList<>);
+                case UiCategoryTab.PrefixEditor: return typeof(TLMTabControllerPrefixList<>);
                 default:
                     throw new Exception($"Not supported: {tab}");
             }

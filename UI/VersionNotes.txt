@@ -1,5 +1,6 @@
-﻿TLMRv8.1.1
-   -Fixed: possible non-mapped transport type prefix bug
-   -Fixed: debug not turned off when unselected
-   -Improvement in the generated html map (missing the MT update yet)
-   -Updated ko translation
+﻿TLMRv9
+   -New listing interface, using 45's menu from Klyte Commons
+   -UI: Now tabs separates the editor functions of the mod
+   -UI: Fixed fps drop when the list of lines is too long
+   -Fixed: Incorrect spawning on deleting assets previously selected for use in a depot
+  
