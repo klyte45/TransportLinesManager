@@ -185,7 +185,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                     return;
                 }
                 m_isLoading = true;
-                bool isCustomLine = TLMTransportLineExtension.instance.GetUseCustomConfig(lineId);
+                bool isCustomLine = TLMTransportLineExtension.instance.IsUsingCustomConfig(lineId);
                 TLMUtils.doLog("tsd = {0}", tsd);
                 if (m_lastDef != tsd)
                 {
@@ -205,7 +205,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                             if (m_isLoading) return;
                             if (x)
                             {
-                                if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineIdx))
+                                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineIdx))
                                 {
                                     TLMTransportLineExtension.instance.AddAsset(lineIdx, i);
                                 }
@@ -216,7 +216,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                             }
                             else
                             {
-                                if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineIdx))
+                                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineIdx))
                                 {
                                     TLMTransportLineExtension.instance.RemoveAsset(lineIdx, i);
                                 }

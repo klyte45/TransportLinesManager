@@ -3,6 +3,7 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using ICities;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.Utils;
 using Klyte.Extensions;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Extensors;
@@ -84,6 +85,9 @@ namespace Klyte.TransportLinesManager.Overrides
 
         }
         #endregion
+
+        private static Dictionary<uint, Tuple<ushort, ushort>> m_counterIdx = new Dictionary<uint, Tuple<ushort, ushort>>();
+
 
         #region On Line Create
 
@@ -169,6 +173,8 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             return true;
         }
+
+
         #endregion
 
         #region Ticket Override
@@ -229,7 +235,7 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             else
             {
-                if (TLMTransportLineExtension.instance.GetUseCustomConfig(vehicleData.m_transportLine))
+                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(vehicleData.m_transportLine))
                 {
                     __result = (int)(TLMTransportLineExtension.instance.GetTicketPrice(vehicleData.m_transportLine) * multiplier);
                 }
@@ -279,9 +285,9 @@ namespace Klyte.TransportLinesManager.Overrides
                         }
 
                         var ext = tsd.GetTransportExtension();
-                        var prefix = TLMLineUtils.getPrefix(transportLine);                        
+                        var prefix = TLMLineUtils.getPrefix(transportLine);
 
-                        if (ext.UsingColorForModel(prefix))
+                        if (ext.IsUsingColorForModel(prefix))
                         {
                             __result = ext.GetColor(prefix);
                         }

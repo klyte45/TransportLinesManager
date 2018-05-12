@@ -25,10 +25,11 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         USE_CUSTOM_CONFIG,
         LOCAL_MODEL_LIST,
         LOCAL_TICKET_PRICE,
-        LOCAL_BUDGET
+        LOCAL_BUDGET,
+        USE_ABSOLUTE_BUDGET
     }
 
-    class TLMTransportLineExtension : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtension>, IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension
+    class TLMTransportLineExtension : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtension>, IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension, IUseAbsoluteVehicleCountExtension
     {
         protected override TLMCW.ConfigIndex ConfigIndexKey => TLMCW.ConfigIndex.LINES_CONFIG;
         private Dictionary<TransportSystemDefinition, List<string>> basicAssetsList = new Dictionary<TransportSystemDefinition, List<string>>();
@@ -38,7 +39,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
             SafeSet(lineId, TLMTransportLineExtensionsKey.USE_CUSTOM_CONFIG, value.ToString());
         }
 
-        public bool GetUseCustomConfig(ushort lineId)
+        public bool IsUsingCustomConfig(ushort lineId)
         {
             return Boolean.TryParse(SafeGet(lineId, TLMTransportLineExtensionsKey.USE_CUSTOM_CONFIG), out bool result) && result;
         }
@@ -205,6 +206,18 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         public void SetTicketPrice(uint prefix, uint price)
         {
             SafeSet(prefix, TLMTransportLineExtensionsKey.LOCAL_TICKET_PRICE, price.ToString());
+        }
+        #endregion
+
+        #region Using Absolute Vehicle Count
+        public bool IsUsingAbsoluteVehicleCount(uint lineId)
+        {
+            return Boolean.TryParse(SafeGet(lineId, TLMTransportLineExtensionsKey.USE_ABSOLUTE_BUDGET), out bool result) && result;
+        }
+
+        public void SetUsingAbsoluteVehicleCount(uint lineId, bool value)
+        {
+            SafeSet(lineId, TLMTransportLineExtensionsKey.USE_ABSOLUTE_BUDGET, value.ToString());
         }
         #endregion
     }

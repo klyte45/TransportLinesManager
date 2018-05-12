@@ -211,9 +211,10 @@ namespace Klyte.TransportLinesManager
             if (!initializedWIP)
             {
                 List<Type> buildingWorldInfoPanelImplList = TLMUtils.GetSubtypesRecursive(typeof(BuildingWorldInfoPanel), typeof(BuildingWorldInfoPanel));
-
+                buildingWorldInfoPanelImplList.Add(typeof(BuildingWorldInfoPanel));
                 foreach (Type wip in buildingWorldInfoPanelImplList)
                 {
+                    TLMUtils.doLog("LOADING WIP HOOK FOR: {0}",wip.Name);
                     UIPanel parent2 = GameObject.Find("UIView").transform.GetComponentInChildren(wip)?.gameObject?.GetComponent<UIPanel>();
 
                     if (parent2 == null)

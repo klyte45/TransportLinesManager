@@ -121,16 +121,26 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static float getBudgetMultiplierLine(ushort lineId)
         {
-            TransportLine __instance = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
-            TransportInfo info = __instance.Info;
+            TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
+            TransportInfo info = tl.Info;
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineId))
+            if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineId))
             {
-                return TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
+                if (TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(lineId))
+                {
+                    int targetCount = (int)TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 5;
+                    tl.m_budget = 1;
+                    float unitCount = tl.CalculateTargetVehicleCount();
+                    return targetCount / unitCount / 5f + 0.005f;
+                }
+                else
+                {
+                    return TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
+                }
             }
             else
             {
-                var tsd = TransportSystemDefinition.getDefinitionForLine(ref __instance);
+                var tsd = TransportSystemDefinition.getDefinitionForLine(ref tl);
                 uint prefix = TLMLineUtils.getPrefix(lineId);
                 return TLMLineUtils.getExtensionFromConfigIndex(tsd.toConfigIndex()).GetBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
             }
@@ -140,9 +150,9 @@ namespace Klyte.TransportLinesManager.Utils
             TransportLine __instance = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
             TransportInfo info = __instance.Info;
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineId))
+            if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineId))
             {
-                return TLMTransportLineExtension.instance.GetBudgetsMultiplier(lineId).Length ==8;
+                return TLMTransportLineExtension.instance.GetBudgetsMultiplier(lineId).Length == 8;
             }
             else
             {
@@ -203,7 +213,7 @@ namespace Klyte.TransportLinesManager.Utils
             return tsd;
         }
 
-        public static bool isNumberUsed(int numLinha,ref TransportSystemDefinition tsdOr, int exclude)
+        public static bool isNumberUsed(int numLinha, ref TransportSystemDefinition tsdOr, int exclude)
         {
             numLinha = numLinha & 0xFFFF;
             if (numLinha == 0) return true;
@@ -689,7 +699,7 @@ namespace Klyte.TransportLinesManager.Utils
                 textScale = 2.3f * ratio;
                 relativePosition = new Vector3(-0.5f, 0f);
             }
-            textColor = TLMTransportLineExtension.instance.GetUseCustomConfig(lineID) ? Color.yellow : Color.white;
+            textColor = TLMTransportLineExtension.instance.IsUsingCustomConfig(lineID) ? Color.yellow : Color.white;
         }
 
         public static int getVehicleCapacity(ushort vehicleId)
@@ -1331,7 +1341,7 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (t.m_lineNumber != 0 && t.m_stops != 0)
             {
-                if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineID))
+                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineID))
                 {
                     return TLMTransportLineExtension.instance;
                 }

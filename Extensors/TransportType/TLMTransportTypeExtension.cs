@@ -196,14 +196,14 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         #endregion
 
         #region Use Color For Model
-        public bool UsingColorForModel(uint prefix)
+        public bool IsUsingColorForModel(uint prefix)
         {
-            return SafeGet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL) == "1" && GetColor(prefix) != Color.clear;
+            return Boolean.TryParse(SafeGet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL), out bool result) && result;
         }
 
-        public void SetUsingColorForModel(uint prefix, bool val)
+        public void SetUsingColorForModel(uint prefix, bool value)
         {
-            SafeSet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL, val ? "1" : "0");
+            SafeSet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL, value.ToString());
         }
         #endregion
 
@@ -236,7 +236,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                 {
                     uint idx;
                     IAssetSelectorExtension extension;
-                    if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineId))
+                    if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineId))
                     {
                         idx = lineId;
                         extension = TLMTransportLineExtension.instance;

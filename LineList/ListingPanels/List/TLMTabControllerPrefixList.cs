@@ -373,7 +373,7 @@ namespace Klyte.TransportLinesManager.UI
             if (sel >= 0)
             {
                 m_prefixColor.selectedColor = extension.GetColor((uint)sel);
-                m_useColorForModel.isChecked = extension.UsingColorForModel((uint)sel);
+                m_useColorForModel.isChecked = extension.IsUsingColorForModel((uint)sel);
                 m_prefixTicketPrice.text = extension.GetTicketPrice((uint)sel).ToString();
                 m_prefixName.text = extension.GetName((uint)sel) ?? "";
                 updateSliders();

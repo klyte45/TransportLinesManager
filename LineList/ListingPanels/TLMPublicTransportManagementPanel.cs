@@ -93,6 +93,10 @@ namespace Klyte.TransportLinesManager.UI
 
         private void SetViewMode(UIComponent component, int value)
         {
+            if (!this.GetComponent<UIComponent>().isVisible)
+            {
+                return;
+            }
             switch ((UiCategoryTab)value)
             {
                 case UiCategoryTab.LineListing:

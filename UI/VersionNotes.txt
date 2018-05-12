@@ -1,5 +1,7 @@
 ﻿TLMRv9
    -New listing interface, using 45's menu from Klyte Commons
+   -Added prefix color - and possibility to assign the same model color to all models of lines from that prefix
+   -Added vehicle count based budget (all day and per hour). You can set a fixed number of vehicles for a line (only available when line based budget is enabled, disabled for prefix based)
    -UI: Now tabs separates the editor functions of the mod
    -UI: Fixed fps drop when the list of lines is too long
    -Fixed: Incorrect spawning on deleting assets previously selected for use in a depot

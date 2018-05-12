@@ -50,6 +50,8 @@ namespace Klyte.TransportLinesManager.LineList
         private UIButton m_enableBudgetPerHour;
         private UIButton m_disableBudgetPerHour;
         private UIButton m_goToWorldInfoPanel;
+        private UIButton m_absoluteCountMode;
+        private UIButton m_multiplierMode;
         private UILabel m_lineBudgetSlidersTitle;
 
         private UIDropDown m_firstStopSelect;
@@ -467,7 +469,7 @@ namespace Klyte.TransportLinesManager.LineList
                 TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
                 IBudgetableExtension bte;
                 uint idx;
-                if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
+                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(m_lineIdSelecionado.TransportLine))
                 {
 
                     bte = TLMTransportLineExtension.instance;
@@ -514,7 +516,7 @@ namespace Klyte.TransportLinesManager.LineList
 
                 IBudgetableExtension bte;
                 uint idx;
-                if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
+                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(m_lineIdSelecionado.TransportLine))
                 {
 
                     bte = TLMTransportLineExtension.instance;
@@ -554,6 +556,82 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(Vector3.zero, m_lineIdSelecionado);
             };
+
+            //Absolute toggle
+            TLMUtils.createUIElement(out m_absoluteCountMode, m_lineInfoPanel.transform);
+            m_absoluteCountMode.relativePosition = new Vector3(m_lineInfoPanel.width - 250f, m_lineInfoPanel.height - 230f);
+            m_absoluteCountMode.textScale = 0.6f;
+            m_absoluteCountMode.width = 40;
+            m_absoluteCountMode.height = 40;
+            m_absoluteCountMode.tooltip = Locale.Get("TLM_USE_ABSOLUTE_BUDGET");
+            TLMUtils.initButton(m_absoluteCountMode, true, "ButtonMenu");
+            m_absoluteCountMode.name = "AbsoluteBudget";
+            m_absoluteCountMode.isVisible = true;
+            m_absoluteCountMode.eventClick += (component, eventParam) =>
+            {
+                TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
+
+                IUseAbsoluteVehicleCountExtension bte;
+                uint idx;
+                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(m_lineIdSelecionado.TransportLine))
+                {
+
+                    bte = TLMTransportLineExtension.instance;
+                    idx = m_lineIdSelecionado.TransportLine;
+                }
+                else
+                {
+                    return;
+                }
+                bte.SetUsingAbsoluteVehicleCount(idx, true);
+
+                updateSliders();
+            };
+
+            icon = m_absoluteCountMode.AddUIComponent<UISprite>();
+            icon.relativePosition = new Vector3(2, 2);
+            icon.atlas = TLMController.taTLM;
+            icon.width = 36;
+            icon.height = 36;
+            icon.spriteName = "AbsoluteMode";
+
+            TLMUtils.createUIElement(out m_multiplierMode, m_lineInfoPanel.transform);
+            m_multiplierMode.relativePosition = new Vector3(m_lineInfoPanel.width - 250f, m_lineInfoPanel.height - 230f);
+            m_multiplierMode.textScale = 0.6f;
+            m_multiplierMode.width = 40;
+            m_multiplierMode.height = 40;
+            m_multiplierMode.tooltip = Locale.Get("TLM_USE_RELATIVE_BUDGET");
+            TLMUtils.initButton(m_multiplierMode, true, "ButtonMenu");
+            m_multiplierMode.name = "RelativeBudget";
+            m_multiplierMode.isVisible = true;
+            m_multiplierMode.eventClick += (component, eventParam) =>
+            {
+                TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
+
+                IUseAbsoluteVehicleCountExtension bte;
+                uint idx;
+                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(m_lineIdSelecionado.TransportLine))
+                {
+
+                    bte = TLMTransportLineExtension.instance;
+                    idx = m_lineIdSelecionado.TransportLine;
+                }
+                else
+                {
+                    return;
+                }
+                bte.SetUsingAbsoluteVehicleCount(idx, false);
+
+                updateSliders();
+            };
+
+            icon = m_multiplierMode.AddUIComponent<UISprite>();
+            icon.relativePosition = new Vector3(2, 2);
+            icon.atlas = TLMController.taTLM;
+            icon.width = 36;
+            icon.height = 36;
+            icon.spriteName = "RelativeMode";
+
         }
 
         private void createLineInfoLabels()
@@ -831,7 +909,7 @@ namespace Klyte.TransportLinesManager.LineList
             if (!res) return;
             ITicketPriceExtension tpe;
             uint idx;
-            if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
+            if (TLMTransportLineExtension.instance.IsUsingCustomConfig(m_lineIdSelecionado.TransportLine))
             {
                 tpe = TLMTransportLineExtension.instance;
                 idx = m_lineIdSelecionado.TransportLine;
@@ -874,7 +952,7 @@ namespace Klyte.TransportLinesManager.LineList
             IBudgetableExtension bte;
             uint[] saveData;
             uint idx;
-            if (TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine))
+            if (TLMTransportLineExtension.instance.IsUsingCustomConfig(m_lineIdSelecionado.TransportLine))
             {
                 saveData = TLMTransportLineExtension.instance.GetBudgetsMultiplier(m_lineIdSelecionado.TransportLine);
                 bte = TLMTransportLineExtension.instance;
@@ -936,7 +1014,23 @@ namespace Klyte.TransportLinesManager.LineList
             var idx_loc = idx;
             bugdetSlider.eventValueChanged += delegate (UIComponent c, float val)
             {
-                budgetSliderLabel.text = string.Format(" x{0:0.00}", val);
+                var lineid = m_lineIdSelecionado.TransportLine;
+                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineid) && TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(lineid))
+                {
+                    budgetSliderLabel.text = string.Format(" {0:0}", val * 20);
+                    if (budgetSliderLabel.suffix == string.Empty)
+                    {
+                        budgetSliderLabel.suffix = Locale.Get("TLM_BUDGET_MULTIPLIER_SUFFIX_ABSOLUTE_SHORT");
+                    }
+                }
+                else
+                {
+                    budgetSliderLabel.text = string.Format(" x{0:0.00}", val);
+                    if (budgetSliderLabel.suffix != string.Empty)
+                    {
+                        budgetSliderLabel.suffix = string.Empty;
+                    }
+                }
                 setBudgetHour(val, idx_loc);
             };
 
@@ -950,6 +1044,8 @@ namespace Klyte.TransportLinesManager.LineList
                 m_goToWorldInfoPanel.isVisible = true;
                 m_disableBudgetPerHour.isVisible = false;
                 m_enableBudgetPerHour.isVisible = false;
+                m_absoluteCountMode.isVisible = false;
+                m_multiplierMode.isVisible = false;
                 m_IgnorePrefix.isVisible = false;
                 for (int i = 0; i < m_budgetSliders.Length; i++)
                 {
@@ -961,6 +1057,7 @@ namespace Klyte.TransportLinesManager.LineList
             }
             else
             {
+
                 m_IgnorePrefix.isVisible = true;
                 m_goToWorldInfoPanel.isVisible = false;
             }
@@ -980,19 +1077,25 @@ namespace Klyte.TransportLinesManager.LineList
             IBudgetableExtension bte;
             uint idx;
 
-            m_IgnorePrefix.isChecked = TLMTransportLineExtension.instance.GetUseCustomConfig(m_lineIdSelecionado.TransportLine);
+            m_IgnorePrefix.isChecked = TLMTransportLineExtension.instance.IsUsingCustomConfig(m_lineIdSelecionado.TransportLine);
             if (m_IgnorePrefix.isChecked)
             {
                 idx = m_lineIdSelecionado.TransportLine;
                 multipliers = TLMTransportLineExtension.instance.GetBudgetsMultiplier(m_lineIdSelecionado.TransportLine);
                 bte = TLMTransportLineExtension.instance;
                 m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(m_lineIdSelecionado.TransportLine), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+                m_absoluteCountMode.isVisible = !TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(idx);
+                m_multiplierMode.isVisible = TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(idx);
+                m_budgetLabel.isVisible = false;
             }
             else
             {
                 idx = TLMLineUtils.getPrefix(m_lineIdSelecionado.TransportLine);
                 bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsd);
                 multipliers = bte.GetBudgetsMultiplier(idx);
+                m_absoluteCountMode.isVisible = false;
+                m_multiplierMode.isVisible = false;
+                m_budgetLabel.isVisible = true;
 
                 if (mnPrefixo != ModoNomenclatura.Nenhum)
                 {
@@ -1029,6 +1132,7 @@ namespace Klyte.TransportLinesManager.LineList
 
                 if (i < multipliers.Length)
                 {
+                    m_budgetSliders[i].value = 0;
                     m_budgetSliders[i].value = multipliers[i] / 100f;
                 }
             }
@@ -1278,7 +1382,7 @@ namespace Klyte.TransportLinesManager.LineList
             ushort lineID = m_lineIdSelecionado.TransportLine;
             ITicketPriceExtension tpe;
             uint idx;
-            if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineID))
+            if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineID))
             {
                 tpe = TLMTransportLineExtension.instance;
                 idx = lineID;

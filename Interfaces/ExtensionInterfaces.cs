@@ -45,7 +45,12 @@ namespace Klyte.TransportLinesManager.Interfaces
     }
     internal interface IUseColorForModelExtension
     {
-        bool UsingColorForModel(uint prefix);
+        bool IsUsingColorForModel(uint prefix);
         void SetUsingColorForModel(uint prefix, bool val);
+    }
+    internal interface IUseAbsoluteVehicleCountExtension
+    {
+        bool IsUsingAbsoluteVehicleCount(uint line);
+        void SetUsingAbsoluteVehicleCount(uint line, bool val);
     }
 }

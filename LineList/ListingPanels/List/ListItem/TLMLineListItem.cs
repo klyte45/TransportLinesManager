@@ -203,14 +203,24 @@ namespace Klyte.TransportLinesManager.UI
             {
                 TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].Info;
                 float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
-                this.m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.getEffectiveBugdet(lineID));//585+1/7 = frames/week     
+                
                 string vehTooltip = string.Format("{0} {1}", this.m_LineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
                 this.m_LineVehicles.tooltip = vehTooltip;
+                if (!TLMTransportLineExtension.instance.IsUsingCustomConfig(this.lineID) || !TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(this.lineID))
+                {
+                    this.m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.getEffectiveBugdet(lineID));//585+1/7 = frames/week  
+                    m_lineBudgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
+                        TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()),
+                        overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f, TLMLineUtils.getEffectiveBugdet(lineID));
+                    m_lineBudgetLabel.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 19, 0);
+                    m_lineBudgetLabel.isVisible = true;
+                }
+                else
+                {
+                    m_lineBudgetLabel.isVisible = false;
+                }
 
-                m_lineBudgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
-                    TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()),
-                    overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f, TLMLineUtils.getEffectiveBugdet(lineID));
-                m_lineBudgetLabel.relativePosition = new Vector3(m_LineVehicles.relativePosition.x, 19, 0);
+
                 bool tlmPerHour = TLMLineUtils.isPerHourBudget(m_LineID);
                 m_DayLine.isVisible = !tlmPerHour;
                 m_DayNightLine.isVisible = !tlmPerHour;
