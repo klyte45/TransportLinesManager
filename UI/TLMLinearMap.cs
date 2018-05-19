@@ -109,15 +109,18 @@ namespace Klyte.TransportLinesManager.UI
 
         public void redrawLine()
         {
+            TLMUtils.doLog("init RedrawLine");
             ushort lineID = parent.CurrentSelectedId;
             TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)lineID];
             int stopsCount = t.CountStops(lineID);
             int vehicleCount = t.CountVehicles(lineID);
             Color lineColor = TLMController.instance.tm.GetLineColor(lineID);
+            TLMUtils.doLog("p1");
             setLinearMapColor(lineColor);
             clearStations();
             updateSubIconLayer();
             setLineNumberCircle(lineID);
+            TLMUtils.doLog("p2");
             if (lineID == 0)
             {
                 var tsd = TransportSystemDefinition.from(parent.CurrentTransportInfo);
@@ -129,14 +132,17 @@ namespace Klyte.TransportLinesManager.UI
                 return;
             }
 
+            TLMUtils.doLog("p3");
             ItemClass.SubService ss = TransportSystemDefinition.getDefinitionForLine(lineID).subService;
             linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.getIconForLine(lineID);
+            TLMUtils.doLog("p4");
             m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
             linearMapLineNumber.tooltip = m_autoName;
             string stationName;
             Vector3 local;
             string airport, taxi, harbor, regionalStation, cableCarStation;
             string namePrefix;
+            TLMUtils.doLog("p5");
             bool isComplete = (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None;
             bool simmetric = TLMLineUtils.CalculateSimmetry(ss, stopsCount, t, out int middle);
             float addedWidth = 0;
@@ -180,6 +186,7 @@ namespace Klyte.TransportLinesManager.UI
                     lineStationsPanel.width += addedWidth;
                 }
             }
+            TLMUtils.doLog("p6");
             lineStationsPanel.width -= addedWidth;
             if (showExtraStopInfo)
             {
@@ -191,7 +198,7 @@ namespace Klyte.TransportLinesManager.UI
                     AddVehicleToLinearMap(lineColor, vehicleId);
                 }
             }
-
+            TLMUtils.doLog("end RedrawLine");
         }
 
         public TransportLine updateSubIconLayer()

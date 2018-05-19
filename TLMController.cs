@@ -39,7 +39,7 @@ namespace Klyte.TransportLinesManager
         private int lastLineCount = 0;
 
         //private UIPanel _cachedDefaultListingLinesPanel;
-        
+
 
 
         public TLMLineInfoPanel lineInfoPanel => m_lineInfoPanel;
@@ -97,7 +97,7 @@ namespace Klyte.TransportLinesManager
                 return Singleton<TransportTool>.instance.m_prefab;
             }
         }
-
+        int delayCount = 5;
         public void Update()
         {
             if (!GameObject.FindGameObjectWithTag("GameController") || ((GameObject.FindGameObjectWithTag("GameController")?.GetComponent<ToolController>())?.m_mode & ItemClass.Availability.Game) == ItemClass.Availability.None)
@@ -109,7 +109,6 @@ namespace Klyte.TransportLinesManager
             {
                 Awake();
             }
-
 
             if (m_lineInfoPanel?.isVisible ?? false)
             {
@@ -147,7 +146,6 @@ namespace Klyte.TransportLinesManager
                 };
                 createViews();
                 mainRef.clipChildren = false;
-                initNearLinesOnWorldInfoPanel();
 
                 var typeTarg = typeof(Redirector<>);
                 var instances = from t in Assembly.GetAssembly(typeof(TLMController)).GetTypes()
@@ -164,7 +162,8 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public Color AutoColor(ushort i)
+
+        public Color AutoColor(ushort i, bool ignoreRandomIfSet = true)
         {
             TransportLine t = tm.m_lines.m_buffer[(int)i];
             try
@@ -175,8 +174,11 @@ namespace Klyte.TransportLinesManager
                     return Color.clear;
                 }
                 TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
-                Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType);
-                TLMLineUtils.setLineColor(i, c);
+                Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
+                if (c != Color.clear)
+                {
+                    TLMLineUtils.setLineColor(i, c);
+                }
                 //TLMUtils.doLog("Colocada a cor {0} na linha {1} ({3} {2})", c, i, t.m_lineNumber, t.Info.m_transportType);
                 return c;
             }
@@ -195,7 +197,7 @@ namespace Klyte.TransportLinesManager
 
 
         //NAVEGACAO
-              
+
         private void createViews()
         {
             TLMUtils.createElement(out m_lineInfoPanel, transform);
@@ -210,12 +212,13 @@ namespace Klyte.TransportLinesManager
         {
             if (!initializedWIP)
             {
-                List<Type> buildingWorldInfoPanelImplList = TLMUtils.GetSubtypesRecursive(typeof(BuildingWorldInfoPanel), typeof(BuildingWorldInfoPanel));
-                buildingWorldInfoPanelImplList.Add(typeof(BuildingWorldInfoPanel));
-                foreach (Type wip in buildingWorldInfoPanelImplList)
+                BuildingWorldInfoPanel[] panelList = GameObject.Find("UIView").GetComponentsInChildren<BuildingWorldInfoPanel>();
+                TLMUtils.doLog("WIP LIST: [{0}]", string.Join(", ", panelList.Select(x => x.name).ToArray()));
+
+                foreach (BuildingWorldInfoPanel wip in panelList)
                 {
-                    TLMUtils.doLog("LOADING WIP HOOK FOR: {0}",wip.Name);
-                    UIPanel parent2 = GameObject.Find("UIView").transform.GetComponentInChildren(wip)?.gameObject?.GetComponent<UIPanel>();
+                    TLMUtils.doLog("LOADING WIP HOOK FOR: {0}", wip.name);
+                    UIComponent parent2 = wip.GetComponent<UIComponent>();
 
                     if (parent2 == null)
                         continue;
@@ -230,23 +233,24 @@ namespace Klyte.TransportLinesManager
                         updateNearLines(TLMSingleton.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? parent2 : null, true);
                         updateDepotEditShortcutButton(parent2);
                     };
-                }
 
-                UIPanel parent3 = GameObject.Find("UIView").transform.GetComponentInChildren<PublicTransportWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
 
-                if (parent3 == null)
-                    return;
+                    UIPanel parent3 = GameObject.Find("UIView").transform.GetComponentInChildren<PublicTransportWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
 
-                parent3.eventVisibilityChanged += (component, value) =>
-                {
-                    if (TLMSingleton.overrideWorldInfoPanelLine && value)
+                    if (parent3 == null)
+                        return;
+
+                    parent3.eventVisibilityChanged += (component, value) =>
                     {
-                        PublicTransportWorldInfoPanel ptwip = parent3.gameObject.GetComponent<PublicTransportWorldInfoPanel>();
-                        ptwip.StartCoroutine(OpenLineInfo(ptwip));
-                        ptwip.Hide();
-                    }
-                };
+                        if (TLMSingleton.overrideWorldInfoPanelLine && value)
+                        {
+                            PublicTransportWorldInfoPanel ptwip = parent3.gameObject.GetComponent<PublicTransportWorldInfoPanel>();
+                            ptwip.StartCoroutine(OpenLineInfo(ptwip));
+                            ptwip.Hide();
+                        }
+                    };
 
+                }
                 initializedWIP = true;
             }
         }
@@ -266,7 +270,7 @@ namespace Klyte.TransportLinesManager
 
         private ushort lastBuildingSelected = 0;
 
-        private void updateNearLines(UIPanel parent, bool force = false)
+        private void updateNearLines(UIComponent parent, bool force = false)
         {
             if (parent != null)
             {
@@ -324,7 +328,7 @@ namespace Klyte.TransportLinesManager
         private float scale = 1f;
         private int perLine = 9;
 
-        private Transform initPanelNearLinesOnWorldInfoPanel(UIPanel parent)
+        private Transform initPanelNearLinesOnWorldInfoPanel(UIComponent parent)
         {
             UIPanel saida = parent.AddUIComponent<UIPanel>();
             saida.relativePosition = new Vector3(0, parent.height);
@@ -348,7 +352,7 @@ namespace Klyte.TransportLinesManager
             return saida.transform;
         }
 
-        private UIButton initDepotShortcutOnWorldInfoPanel(UIPanel parent)
+        private UIButton initDepotShortcutOnWorldInfoPanel(UIComponent parent)
         {
             UIButton saida = parent.AddUIComponent<UIButton>();
             saida.relativePosition = new Vector3(10, parent.height - 50);
@@ -380,7 +384,7 @@ namespace Klyte.TransportLinesManager
             return saida;
         }
 
-        private void updateDepotEditShortcutButton(UIPanel parent)
+        private void updateDepotEditShortcutButton(UIComponent parent)
         {
             if (parent != null)
             {
@@ -431,6 +435,7 @@ namespace Klyte.TransportLinesManager
         public void Start()
         {
             KlyteModsPanel.instance.AddTab(ModTab.TransportLinesManager, typeof(TLMPublicTransportManagementPanel), taTLM, "TransportLinesManagerIconHovered", "Transport Lines Manager (v" + TLMSingleton.version + ")");
+            initNearLinesOnWorldInfoPanel();
         }
 
         public void OpenTLMPanel()

@@ -453,6 +453,7 @@ namespace Klyte.TransportLinesManager
                 var textFieldPanel = textField.GetComponentInParent<UIPanel>();
                 textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
                 textFieldPanel.autoFitChildrenVertically = true;
+                textFieldPanel.GetComponentInChildren<UILabel>().minimumSize = new Vector2(420, 0);
                 group72.AddSpace(2);
             }
 
@@ -463,19 +464,34 @@ namespace Klyte.TransportLinesManager
             group7.AddCheckbox(Locale.Get("TLM_NEAR_LINES_SHOW_IN_ZONED_BUILDINGS"), m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value, toggleShowNearLinesInZonedBuildingWorldInfoPanel);
             group7.AddSpace(20);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_BUS"), TLMConfigWarehouse.ConfigIndex.BUS_SHOW_IN_LINEAR_MAP);
-            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TRAM"), TLMConfigWarehouse.ConfigIndex.TRAM_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_METRO"), TLMConfigWarehouse.ConfigIndex.METRO_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TRAIN"), TLMConfigWarehouse.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_SHIP"), TLMConfigWarehouse.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP);
             generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_PLANE"), TLMConfigWarehouse.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP);
-            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_FERRY"), TLMConfigWarehouse.ConfigIndex.FERRY_SHOW_IN_LINEAR_MAP);
-            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_BLIMP"), TLMConfigWarehouse.ConfigIndex.BLIMP_SHOW_IN_LINEAR_MAP);
-            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TAXI"), TLMConfigWarehouse.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP);
-            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_MONORAIL"), TLMConfigWarehouse.ConfigIndex.MONORAIL_SHOW_IN_LINEAR_MAP);
-            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_CABLE_CAR"), TLMConfigWarehouse.ConfigIndex.CABLE_CAR_SHOW_IN_LINEAR_MAP);
-            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TOUR_BUS"), TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG_SHOW_IN_LINEAR_MAP);
-            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TOUR_PED"), TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG_SHOW_IN_LINEAR_MAP);
-            generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_EVAC_BUS"), TLMConfigWarehouse.ConfigIndex.EVAC_BUS_SHOW_IN_LINEAR_MAP);
+            if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.AfterDark))
+            {
+                generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TAXI"), TLMConfigWarehouse.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP);
+            }
+            if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Snowfall))
+            {
+                generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TRAM"), TLMConfigWarehouse.ConfigIndex.TRAM_SHOW_IN_LINEAR_MAP);
+            }
+            if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.NaturalDisasters))
+            {
+                generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_EVAC_BUS"), TLMConfigWarehouse.ConfigIndex.EVAC_BUS_SHOW_IN_LINEAR_MAP);
+            }
+            if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.InMotion))
+            {
+                generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_FERRY"), TLMConfigWarehouse.ConfigIndex.FERRY_SHOW_IN_LINEAR_MAP);
+                generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_BLIMP"), TLMConfigWarehouse.ConfigIndex.BLIMP_SHOW_IN_LINEAR_MAP);
+                generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_MONORAIL"), TLMConfigWarehouse.ConfigIndex.MONORAIL_SHOW_IN_LINEAR_MAP);
+                generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_CABLE_CAR"), TLMConfigWarehouse.ConfigIndex.CABLE_CAR_SHOW_IN_LINEAR_MAP);
+            }
+            if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Parks))
+            {
+                generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TOUR_BUS"), TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG_SHOW_IN_LINEAR_MAP);
+                generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_TOUR_PED"), TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG_SHOW_IN_LINEAR_MAP);
+            }
 
             UIHelperExtension group8 = helper.AddGroupExtended(Locale.Get("TLM_AUTOMATION_CONFIG"));
             generateCheckboxConfig(group8, Locale.Get("TLM_AUTO_COLOR_ENABLED"), TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED);

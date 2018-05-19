@@ -5,4 +5,6 @@
    -UI: Now tabs separates the editor functions of the mod
    -UI: Fixed fps drop when the list of lines is too long
    -Fixed: Incorrect spawning on deleting assets previously selected for use in a depot
-  
+   -Now unnamed bus & trams stops shows its addresses as name (like the generated in Addresses & Names mod)
+   -Fixed: Near lines are also shown at stadium, shelters and other special buildings (which have a different info panel)
+   -Fixed: Slowdown and crashing game when creating a new line 

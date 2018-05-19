@@ -129,9 +129,9 @@ namespace Klyte.TransportLinesManager.Utils
                 if (TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(lineId))
                 {
                     int targetCount = (int)TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 5;
-                    tl.m_budget = 1;
+                    tl.m_budget = 100;
                     float unitCount = tl.CalculateTargetVehicleCount();
-                    return targetCount / unitCount / 5f + 0.005f;
+                    return targetCount / unitCount + 0.005f;
                 }
                 else
                 {
@@ -1072,70 +1072,17 @@ namespace Klyte.TransportLinesManager.Utils
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
             buildingID = getStationBuilding(stopId, ss, excludeCargo);
 
-            Vector3 location = nn.m_position;
             if (buildingID > 0)
             {
                 return TLMUtils.getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix);
             }
-
-
-
-            NetNode nextNode = nm.m_nodes.m_buffer[nn.m_nextGridNode];
-            //return nm.GetSegmentName(segId);
-            ushort segId = FindNearNamedRoad(nn.m_position);
-            string segName = nm.GetSegmentName(segId);
-            NetSegment seg = nm.m_segments.m_buffer[segId];
-            ushort cross1nodeId = seg.m_startNode;
-            ushort cross2nodeId = seg.m_endNode;
-
-            string crossSegName = string.Empty;
-
-            NetNode cross1node = nm.m_nodes.m_buffer[cross1nodeId];
-            for (int i = 0; i < 8; i++)
-            {
-                var iSegId = cross1node.GetSegment(i);
-                if (iSegId > 0 && iSegId != segId)
-                {
-                    string iSegName = nm.GetSegmentName(iSegId);
-                    if (iSegName != string.Empty && segName != iSegName)
-                    {
-                        crossSegName = iSegName;
-                        break;
-                    }
-                }
-            }
-            if (crossSegName == string.Empty)
-            {
-                NetNode cross2node = nm.m_nodes.m_buffer[cross2nodeId];
-                for (int i = 0; i < 8; i++)
-                {
-                    var iSegId = cross2node.GetSegment(i);
-                    if (iSegId > 0 && iSegId != segId)
-                    {
-                        string iSegName = nm.GetSegmentName(iSegId);
-                        if (iSegName != string.Empty && segName != iSegName)
-                        {
-                            crossSegName = iSegName;
-                            break;
-                        }
-                    }
-                }
-            }
+            Vector3 location = nn.m_position;
             prefix = "";
-            if (segName != string.Empty)
+            if (GetAddressStreetAndNumber(location, location, out int number, out string steetName))
             {
                 serviceFound = ItemClass.Service.Road;
                 subserviceFound = ItemClass.SubService.PublicTransportBus;
-                if (crossSegName == string.Empty)
-                {
-                    return segName;
-                }
-                else
-                {
-                    prefix = segName + " x ";
-                    return crossSegName;
-                }
-
+                return steetName + ", " + number;
             }
             else
             {

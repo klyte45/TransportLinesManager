@@ -255,6 +255,10 @@ namespace Klyte.TransportLinesManager
                     return Locale.Get("TOOLTIP_TOURISTBUSLINES");
                 case ConfigIndex.TOUR_PED_CONFIG:
                     return Locale.Get("TOOLTIP_WALKINGTOURS");
+                case ConfigIndex.CABLE_CAR_CONFIG:
+                    return Locale.Get("VEHICLE_TITLE", "Cable Car");
+                case ConfigIndex.TAXI_CONFIG:
+                    return Locale.Get("VEHICLE_TITLE", "Taxi");
                 default:
                     return "???";
 

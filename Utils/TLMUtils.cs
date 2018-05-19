@@ -40,7 +40,7 @@ namespace Klyte.TransportLinesManager.Utils
         };
 
         #region Prefix Operations
-        internal static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, bool avoidRandom = false)
+        internal static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, bool avoidRandom = false, bool allowClear = false)
         {
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
             {
@@ -67,7 +67,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             Color c;
             c = TLMAutoColorPalettes.getColor(num, pal, randomOnOverflow, avoidRandom);
-            if (c == Color.clear)
+            if (c == Color.clear && !allowClear)
             {
                 c = TLMCW.getColorForTransportType(transportType);
             }

@@ -331,16 +331,19 @@ namespace Klyte.TransportLinesManager.UI
             updateUI();
         }
 
-        public void eachFrame()
+        public void Update()
         {
-            if (lastPrefab != transportTool.m_prefab)
+            if (mainContainer.isVisible)
             {
-                lastPrefab = transportTool.m_prefab;
-                syncForm();
-            }
-            else
-            {
-                updateUI(true);
+                if (lastPrefab != transportTool.m_prefab)
+                {
+                    lastPrefab = transportTool.m_prefab;
+                    syncForm();
+                }
+                else
+                {
+                    updateUI(true);
+                }
             }
         }
 

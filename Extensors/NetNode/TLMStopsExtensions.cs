@@ -28,13 +28,13 @@ namespace Klyte.TransportLinesManager.Extensors.NetNodeExt
 
         public void SetStopName(string newName, uint stopId)
         {
-            if (newName == null)
+            if (string.IsNullOrEmpty(newName?.Trim()))
             {
                 SafeCleanEntry(stopId);
             }
             else
             {
-                SafeSet(stopId, TLMStopExtensionProperty.STOP_NAME, newName);
+                SafeSet(stopId, TLMStopExtensionProperty.STOP_NAME, newName.Trim());
             }
         }
     }
