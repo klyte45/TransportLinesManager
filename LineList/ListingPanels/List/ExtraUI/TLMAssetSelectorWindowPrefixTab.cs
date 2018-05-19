@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Extensions;
+using Klyte.Commons.Extensors;
 using Klyte.Commons.UI;
 using Klyte.Commons.Utils;
 using System;

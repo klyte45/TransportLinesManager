@@ -26,6 +26,8 @@ namespace Klyte.TransportLinesManager
            ConfigIndex.BUS_PALETTE_MAIN ,
            ConfigIndex.PLANE_PALETTE_MAIN ,
            ConfigIndex.MONORAIL_PALETTE_MAIN ,
+           ConfigIndex.TOUR_BUS_CONFIG_PALETTE_MAIN ,
+           ConfigIndex.TOUR_PED_CONFIG_PALETTE_MAIN ,
            ConfigIndex.PLANE_PALETTE_SUBLINE,
            ConfigIndex.SHIP_PALETTE_SUBLINE,
            ConfigIndex.TRAIN_PALETTE_SUBLINE,
@@ -33,6 +35,8 @@ namespace Klyte.TransportLinesManager
            ConfigIndex.METRO_PALETTE_SUBLINE,
            ConfigIndex.BUS_PALETTE_SUBLINE,
            ConfigIndex.MONORAIL_PALETTE_SUBLINE,
+           ConfigIndex.TOUR_BUS_CONFIG_PALETTE_SUBLINE,
+           ConfigIndex.TOUR_PED_CONFIG_PALETTE_SUBLINE,
         };
         public bool unsafeMode = false;
         public TLMConfigWarehouse() { }

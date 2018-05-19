@@ -5,7 +5,7 @@ using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using Klyte.Commons.Utils;
-using Klyte.Extensions;
+using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using Klyte.TransportLinesManager.Extensors.NetNodeExt;

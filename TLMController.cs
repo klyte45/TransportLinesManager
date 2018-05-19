@@ -24,8 +24,37 @@ namespace Klyte.TransportLinesManager
     internal class TLMController : LinearMapParentInterface<TLMController>
     {
 
-        public static UITextureAtlas taTLM = null;
-        public static UITextureAtlas taLineNumber = null;
+        public static UITextureAtlas taTLM
+        {
+            get {
+                if (_taTLM == null)
+                {
+                    TLMResourceLoader.Ensure();
+                    _taTLM = TLMResourceLoader.instance.CreateTextureAtlas("UI.Images.sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIPanel>().atlas.material, 64, 64, new string[] {
+                    "TransportLinesManagerIcon","TransportLinesManagerIconHovered","AutoNameIcon","AutoColorIcon","RemoveUnwantedIcon","ConfigIcon","24hLineIcon", "PerHourIcon","AbsoluteMode","RelativeMode"
+                });
+                }
+                return _taTLM;
+            }
+        }
+        public static UITextureAtlas taLineNumber
+        {
+            get {
+                if (_taLineNumber == null)
+                {
+                    TLMResourceLoader.Ensure();
+                    _taLineNumber = TLMResourceLoader.instance.CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIPanel>().atlas.material, 64, 64, new string[] {
+                "TourBusIcon","TourPedIcon",  "CableCarTabIcon","TaxiTabIcon",  "EvacBusIcon","DepotIcon", "LinearHalfStation","LinearStation","LinearBg","PlaneLineIcon","TramIcon","ShipLineIcon","FerryIcon","CableCarIcon", "BlimpIcon","BusIcon","SubwayIcon","TrainIcon","MonorailIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon",
+                    "NightIcon","DisabledIcon","NoBudgetIcon","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap","RegionalTrainIcon"
+                });
+                }
+                return _taLineNumber;
+            }
+        }
+
+        private static UITextureAtlas _taTLM = null;
+        private static UITextureAtlas _taLineNumber = null;
+
         public UIView uiView;
         public UIComponent mainRef;
         public TransportManager tm => Singleton<TransportManager>.instance;
@@ -97,7 +126,6 @@ namespace Klyte.TransportLinesManager
                 return Singleton<TransportTool>.instance.m_prefab;
             }
         }
-        int delayCount = 5;
         public void Update()
         {
             if (!GameObject.FindGameObjectWithTag("GameController") || ((GameObject.FindGameObjectWithTag("GameController")?.GetComponent<ToolController>())?.m_mode & ItemClass.Availability.Game) == ItemClass.Availability.None)
@@ -175,7 +203,7 @@ namespace Klyte.TransportLinesManager
                 }
                 TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
                 Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
-                if (c != Color.clear)
+                if (c.a == 1)
                 {
                     TLMLineUtils.setLineColor(i, c);
                 }

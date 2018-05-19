@@ -1,8 +1,12 @@
+using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -13,6 +17,7 @@ namespace Klyte.TransportLinesManager
     {
         public const string PALETTE_RANDOM = "<RANDOM>";
         public const char SERIALIZER_ITEM_SEPARATOR = '∞';
+        public const string EXT_PALETTE = ".txt";
         private static RandomPastelColorGenerator gen = new RandomPastelColorGenerator();
         private static Dictionary<string, AutoColorPalette> m_palettes = null;
         public readonly static List<Color32> SaoPaulo2035 = new List<Color32>(new Color32[]{
@@ -174,7 +179,7 @@ namespace Klyte.TransportLinesManager
 
         public readonly static List<Color32> SP_BUS_2000 = new List<Color32>(new Color32[]{
             new Color32  (200, 200, 200, 255),
-            new Color32   (5,225,31,255),
+            new Color32  (5,225,31,255),
             new Color32  (0, 77, 133, 255),
             new Color32  (255, 245, 0, 255),
             new Color32  (218, 37, 28, 255),
@@ -200,13 +205,6 @@ namespace Klyte.TransportLinesManager
                     new AutoColorPalette("São Paulo CPTM 2000", CPTM_SP_2000),
                     new AutoColorPalette("São Paulo Bus Area 2000", SP_BUS_2000),
                 };
-
-        public static string defaultPaletteList
-        {
-            get {
-                return ToString(defaultPaletteArray);
-            }
-        }
 
         public static string[] paletteList
         {
@@ -235,46 +233,99 @@ namespace Klyte.TransportLinesManager
         private static void init()
         {
             if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("TLMAutoColorPalettes init()");
-            m_palettes = new Dictionary<string, AutoColorPalette>();
-            load();
+            Reload();
         }
 
-        private static void load()
+        public static void Reload()
         {
-            string serializedInfo = TLMSingleton.savedPalettes.value;
+            m_palettes = new Dictionary<string, AutoColorPalette>();
+            Load();
+        }
 
-            if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("Loading palettes - separator: {1} ; save Value: {0}", serializedInfo, SERIALIZER_ITEM_SEPARATOR);
-            string[] items = serializedInfo.Split(SERIALIZER_ITEM_SEPARATOR);
-            foreach (string item in items)
+        public static void ConvertLegacyPalettes(SavedString oldFile)
+        {
+            if (m_palettes == null)
             {
-                if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("Loading palette {0}", items);
-                AutoColorPalette acp = AutoColorPalette.parseFromString(item);
-                if (acp != null)
+                init();
+            }
+            if (LoadLegacy(oldFile))
+            {
+                TLMUtils.doLog("Converting Palettes");
+                SaveAll();
+            }
+        }
+
+        private static Dictionary<string, string> GetPalettesAsDictionary()
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            foreach (var pal in m_palettes)
+            {
+                if (!result.ContainsKey(pal.Key))
                 {
-                    m_palettes.Add(acp.name, acp);
+                    result[pal.Key] = pal.Value.ToFileContent();
                 }
+            }
+            return result;
+        }
+
+        public static void SaveAll()
+        {
+            TLMUtils.EnsureFolderCreation(TLMSingleton.palettesFolder);
+            var filesToSave = GetPalettesAsDictionary();
+            foreach (var file in filesToSave)
+            {
+                File.WriteAllText(TLMSingleton.palettesFolder + Path.DirectorySeparatorChar + file.Key + EXT_PALETTE, file.Value);
+            }
+        }
+
+        public static void Save(string palette)
+        {
+            var filesToSave = GetPalettesAsDictionary();
+            if (m_palettes.ContainsKey(palette))
+            {
+                File.WriteAllText(TLMSingleton.palettesFolder + Path.DirectorySeparatorChar + palette + EXT_PALETTE, m_palettes[palette].ToFileContent());
+            }
+        }
+
+        private static void Load()
+        {
+            m_palettes = new Dictionary<string, AutoColorPalette>();
+            foreach (var filename in Directory.GetFiles(TLMSingleton.palettesFolder, "*" + EXT_PALETTE).Select(x => x.Split(Path.DirectorySeparatorChar).Last()))
+            {
+                string fileContents = File.ReadAllText(TLMSingleton.palettesFolder + Path.DirectorySeparatorChar + filename, Encoding.UTF8);
+                var name = filename.Substring(0, filename.Length - 4);
+                m_palettes[name] = AutoColorPalette.FromFileContent(name, fileContents.Split(AutoColorPalette.ENTRY_SEPARATOR).Select(x => x?.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray());
+                TLMUtils.doLog("LOADED PALETTE ({0}) QTT: {1}", filename, m_palettes[name].Count);
+            }
+        }
+
+        private static bool LoadLegacy(SavedString oldFile)
+        {
+            string serializedInfo = oldFile.value;
+            if (!string.IsNullOrEmpty(serializedInfo))
+            {
+                if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("Loading palettes - separator: {1} ; save Value: {0}", serializedInfo, SERIALIZER_ITEM_SEPARATOR);
+                string[] items = serializedInfo.Split(SERIALIZER_ITEM_SEPARATOR);
+                foreach (string item in items)
+                {
+                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("Loading palette {0}", items);
+                    AutoColorPalette acp = AutoColorPalette.parseFromString_Legacy(item);
+                    if (acp != null)
+                    {
+                        m_palettes.Add(acp.name, acp);
+                    }
+                }
+            }
+            else
+            {
+                return false;
             }
             foreach (AutoColorPalette p in defaultPaletteArray)
             {
                 m_palettes[p.name] = p;
             }
+            return true;
 
-        }
-
-        public static string ToString(IEnumerable<AutoColorPalette> list)
-        {
-            List<string> vals = new List<string>();
-            foreach (AutoColorPalette item in list)
-            {
-                string val = item.serialize();
-                vals.Add(val);
-            }
-            return string.Join(SERIALIZER_ITEM_SEPARATOR.ToString(), vals.ToArray());
-        }
-
-        public static void save()
-        {
-            TLMSingleton.savedPalettes.value = ToString(m_palettes.Values);
         }
 
         public static Color32 getColor(int number, string paletteName, bool randomOnPaletteOverflow, bool avoidRandom = false)
@@ -297,19 +348,6 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static void setColor(int number, string paletteName, Color newColor)
-        {
-            if (m_palettes.ContainsKey(paletteName))
-            {
-                AutoColorPalette palette = m_palettes[paletteName];
-                if (number <= palette.Count && number > 0)
-                {
-                    palette[number % palette.Count] = newColor;
-                    save();
-                }
-            }
-        }
-
         public static List<Color32> getColors(string paletteName)
         {
             if (m_palettes.ContainsKey(paletteName))
@@ -322,69 +360,13 @@ namespace Klyte.TransportLinesManager
             return null;
         }
 
-        public static string renamePalette(string oldName, string newName)
-        {
-            if (m_palettes.ContainsKey(oldName) && !m_palettes.ContainsKey(newName))
-            {
-                m_palettes[newName] = m_palettes[oldName];
-                m_palettes.Remove(oldName);
-                m_palettes[newName].name = newName;
-                save();
-                return newName;
-            }
-            else
-                return oldName;
-        }
-
-        public static void addColor(string paletteName)
-        {
-            if (m_palettes.ContainsKey(paletteName))
-            {
-                m_palettes[paletteName].Add();
-                save();
-            }
-        }
-
-        public static void removeColor(string paletteName, int index)
-        {
-            if (m_palettes.ContainsKey(paletteName) && m_palettes[paletteName].Count > 1)
-            {
-                m_palettes[paletteName].RemoveColor(index);
-                save();
-            }
-        }
-
-        public static string addPalette()
-        {
-
-            int id = 0;
-            string name = "New Palette";
-            if (m_palettes.ContainsKey(name))
-            {
-                while (m_palettes.ContainsKey(name + id))
-                {
-                    id++;
-                }
-                name = name + id;
-            }
-
-            m_palettes[name] = new AutoColorPalette(name, new Color32[] { Color.white }.ToList());
-            save();
-            return name;
-        }
-
-        public static void removePalette(string paletteName)
-        {
-            m_palettes.Remove(paletteName);
-            save();
-        }
-
     }
 
     public class AutoColorPalette
     {
-        public const char SERIALIZER_SEPARATOR = '∂';
-        public const char COLOR_COMP_SEPARATOR = '∫';
+        public const char SERIALIZER_SEPARATOR_LEGACY = '∂';
+        public const char COLOR_COMP_SEPARATOR_LEGACY = '∫';
+        public const char ENTRY_SEPARATOR = '\n';
         private List<Color32> m_colors;
 
         public string name
@@ -445,25 +427,9 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public string serialize()
+        public static AutoColorPalette parseFromString_Legacy(string data)
         {
-            StringBuilder result = new StringBuilder();
-            result.Append(name);
-            foreach (Color32 color in m_colors)
-            {
-                result.Append(SERIALIZER_SEPARATOR);
-                result.Append(color.r);
-                result.Append(COLOR_COMP_SEPARATOR);
-                result.Append(color.g);
-                result.Append(COLOR_COMP_SEPARATOR);
-                result.Append(color.b);
-            }
-            return result.ToString();
-        }
-
-        public static AutoColorPalette parseFromString(string data)
-        {
-            string[] parts = data.Split(SERIALIZER_SEPARATOR);
+            string[] parts = data.Split(SERIALIZER_SEPARATOR_LEGACY);
             if (parts.Length <= 1)
             {
                 return null;
@@ -473,7 +439,7 @@ namespace Klyte.TransportLinesManager
             for (int i = 1; i < parts.Length; i++)
             {
                 string thisColor = parts[i];
-                string[] thisColorCompounds = thisColor.Split(COLOR_COMP_SEPARATOR);
+                string[] thisColorCompounds = thisColor.Split(COLOR_COMP_SEPARATOR_LEGACY);
                 if (thisColorCompounds.Length != 3)
                 {
                     TLMUtils.doErrorLog("[TLM Palette '" + name + "'] Corrupted serialized color: " + thisColor);
@@ -490,6 +456,17 @@ namespace Klyte.TransportLinesManager
                 }
                 colors.Add(new Color32(r, g, b, 255));
             }
+            return new AutoColorPalette(name, colors);
+        }
+
+        public string ToFileContent()
+        {
+            return string.Join(ENTRY_SEPARATOR.ToString(), colors.Select(x => x.ToRGB()).ToArray());
+        }
+
+        public static AutoColorPalette FromFileContent(string name, string[] fileContentLines)
+        {
+            var colors = fileContentLines.Select(x => ColorExtensions.FromRGB(x));
             return new AutoColorPalette(name, colors);
         }
 

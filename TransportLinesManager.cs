@@ -1,23 +1,19 @@
 using ColossalFramework;
 using ColossalFramework.UI;
 using ICities;
-using Klyte.Extensions;
+using Klyte.Commons.Extensors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using ColossalFramework.DataBinding;
-using Klyte.TransportLinesManager.LineList;
 using Klyte.TransportLinesManager.MapDrawer;
 using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.i18n;
 using Klyte.TransportLinesManager.Utils;
-using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
-using ColossalFramework.PlatformServices;
-using Klyte.Commons.Extensors;
+using System.IO;
 
 [assembly: AssemblyVersion("9.0.0.*")]
 namespace Klyte.TransportLinesManager
@@ -89,6 +85,11 @@ namespace Klyte.TransportLinesManager
 
     internal class TLMSingleton : Singleton<TLMSingleton>
     {
+        public static readonly string FOLDER_NAME = TLMUtils.BASE_FOLDER_PATH + "TransportLinesManager";
+        public const string PALETTE_SUBFOLDER_NAME = "ColorPalettes";
+
+        public static string palettesFolder => FOLDER_NAME + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
+
         public static string minorVersion
         {
             get {
@@ -132,7 +133,6 @@ namespace Klyte.TransportLinesManager
         private SavedBool m_debugMode;
         private SavedBool m_betaMapGen;
         private SavedBool m_showDistanceInLinearMap;
-        private SavedString m_savedPalettes;
 
 
         private UIDropDown editorSelector;
@@ -164,8 +164,6 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static SavedString savedPalettes => TLMSingleton.instance.m_savedPalettes;
-
         public static SavedBool savedShowNearLinesInZonedBuildingWorldInfoPanel => TLMSingleton.instance.m_savedShowNearLinesInZonedBuildingWorldInfoPanel;
 
         public static SavedBool savedShowNearLinesInCityServicesWorldInfoPanel => TLMSingleton.instance.m_savedShowNearLinesInCityServicesWorldInfoPanel;
@@ -196,20 +194,6 @@ namespace Klyte.TransportLinesManager
             {
                 TLMUtils.doLog("NOT GAME ({0})", mode);
                 return;
-            }
-
-            if (TLMController.taTLM == null)
-            {
-                TLMController.taTLM = TLMResourceLoader.instance.CreateTextureAtlas("UI.Images.sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                    "TransportLinesManagerIcon","TransportLinesManagerIconHovered","AutoNameIcon","AutoColorIcon","RemoveUnwantedIcon","ConfigIcon","24hLineIcon", "PerHourIcon","AbsoluteMode","RelativeMode"
-                });
-            }
-            if (TLMController.taLineNumber == null)
-            {
-                TLMController.taLineNumber = TLMResourceLoader.instance.CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("InfoPanel").atlas.material, 64, 64, new string[] {
-                "TourBusIcon","TourPedIcon",  "CableCarTabIcon","TaxiTabIcon",  "EvacBusIcon","DepotIcon", "LinearHalfStation","LinearStation","LinearBg","PlaneLineIcon","TramIcon","ShipLineIcon","FerryIcon","CableCarIcon", "BlimpIcon","BusIcon","SubwayIcon","TrainIcon","MonorailIcon","ShipIcon","AirplaneIcon","TaxiIcon","DayIcon",
-                    "NightIcon","DisabledIcon","NoBudgetIcon","BulletTrainImage","LowBusImage","HighBusImage","VehicleLinearMap","RegionalTrainIcon"
-                });
             }
 
             Assembly asm = Assembly.GetAssembly(typeof(TLMSingleton));
@@ -246,7 +230,7 @@ namespace Klyte.TransportLinesManager
             }
             Debug.LogWarningFormat("TLMRv" + TLMSingleton.majorVersion + " LOADING VARS ");
 
-            m_savedPalettes = new SavedString("savedPalettesTLM", Settings.gameSettingsFile, "", true);
+
             m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
             m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
             m_savedOverrideDefaultLineInfoPanel = new SavedBool("TLMOverrideDefaultLineInfoPanel", Settings.gameSettingsFile, true, true);
@@ -264,6 +248,14 @@ namespace Klyte.TransportLinesManager
             LocaleManager.eventLocaleChanged += new LocaleManager.LocaleChangedHandler(this.autoLoadTLMLocale);
             if (instance != null) GameObject.Destroy(instance);
             loadTLMLocale(false);
+
+            var fipalette = TLMUtils.EnsureFolderCreation(palettesFolder);
+            if (Directory.GetFiles(TLMSingleton.palettesFolder, "*" + TLMAutoColorPalettes.EXT_PALETTE).Length == 0)
+            {
+                SavedString savedPalettes = new SavedString("savedPalettesTLM", Settings.gameSettingsFile, "", false);
+                TLMAutoColorPalettes.ConvertLegacyPalettes(savedPalettes);
+                //savedPalettes.Delete();
+            }
             onAwake?.Invoke();
         }
 
@@ -530,81 +522,43 @@ namespace Klyte.TransportLinesManager
 
             if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Loading Group 3");
-            UIHelperExtension group6 = helper.AddGroupExtended(Locale.Get("TLM_CUSTOM_PALETTE_CONFIG") + " [" + UIHelperExtension.version + "]");
+
+            var fiPalette = TLMUtils.EnsureFolderCreation(TLMSingleton.palettesFolder);
+
+            UIHelperExtension group6 = helper.AddGroupExtended(Locale.Get("TLM_CUSTOM_PALETTE_CONFIG"));
             ((group6.self) as UIPanel).autoLayoutDirection = LayoutDirection.Horizontal;
             ((group6.self) as UIPanel).wrapLayout = true;
+            group6.AddLabel(Locale.Get("TLM_PALETTE_FOLDER_LABEL") + ":");
+            var namesFilesButton = ((UIButton)group6.AddButton("/", () => { ColossalFramework.Utils.OpenInFileBrowser(fiPalette.FullName); }));
+            namesFilesButton.textColor = Color.yellow;
+            TLMUtils.LimitWidth(namesFilesButton, 710);
+            namesFilesButton.text = fiPalette.FullName + Path.DirectorySeparatorChar;
+            ((UIButton)group6.AddButton(Locale.Get("TLM_RELOAD_PALETTES"), delegate ()
+            {
+                TLMAutoColorPalettes.Reload();
+                updateDropDowns();
+            })).width = 710;
 
-            UITextField paletteName = null;
-            DropDownColorSelector colorEditor = null;
             NumberedColorList colorList = null;
-
-            editorSelector = group6.AddDropdown(Locale.Get("TLM_PALETTE_SELECT"), TLMAutoColorPalettes.paletteListForEditing, 0, delegate (int sel)
+            editorSelector = group6.AddDropdown(Locale.Get("TLM_PALETTE_VIEW"), TLMAutoColorPalettes.paletteListForEditing, 0, delegate (int sel)
             {
                 if (sel <= 0 || sel >= TLMAutoColorPalettes.paletteListForEditing.Length)
                 {
-                    paletteName.enabled = false;
-                    colorEditor.Disable();
                     colorList.Disable();
                 }
                 else
                 {
-                    paletteName.enabled = true;
-                    colorEditor.Disable();
                     colorList.colorList = TLMAutoColorPalettes.getColors(TLMAutoColorPalettes.paletteListForEditing[sel]);
                     colorList.Enable();
-                    paletteName.text = TLMAutoColorPalettes.paletteListForEditing[sel];
                 }
             }) as UIDropDown;
+            editorSelector.GetComponentInParent<UIPanel>().width = 710;
+            editorSelector.width = 710;
 
-            group6.AddButton(Locale.Get("CREATE"), delegate ()
-            {
-                string newName = TLMAutoColorPalettes.addPalette();
-                updateDropDowns("", "");
-                editorSelector.selectedValue = newName;
-            });
-            group6.AddButton(Locale.Get("TLM_DELETE"), delegate ()
-            {
-                TLMAutoColorPalettes.removePalette(editorSelector.selectedValue);
-                updateDropDowns("", "");
-            });
-            paletteName = group6.AddTextField(Locale.Get("TLM_PALETTE_NAME"), delegate (string val)
-            {
-
-            }, "", (string value) =>
-            {
-                string oldName = editorSelector.selectedValue;
-                paletteName.text = TLMAutoColorPalettes.renamePalette(oldName, value);
-                updateDropDowns(oldName, value);
-            });
-            paletteName.parent.width = 500;
-
-            colorEditor = group6.AddColorField(Locale.Get("TLM_COLORS"), Color.black, delegate (Color c)
-            {
-                TLMAutoColorPalettes.setColor(colorEditor.id, editorSelector.selectedValue, c);
-                colorList.colorList = TLMAutoColorPalettes.getColors(editorSelector.selectedValue);
-            }, delegate
-            {
-                TLMAutoColorPalettes.removeColor(editorSelector.selectedValue, colorEditor.id);
-                colorList.colorList = TLMAutoColorPalettes.getColors(editorSelector.selectedValue);
-            });
-
-            colorList = group6.AddNumberedColorList(null, new List<Color32>(), delegate (int c)
-            {
-                colorEditor.id = c;
-                colorEditor.selectedColor = TLMAutoColorPalettes.getColor(c, editorSelector.selectedValue, false);
-                colorEditor.title = c.ToString();
-                colorEditor.Enable();
-            }, colorEditor.parent.GetComponentInChildren<UILabel>(), delegate ()
-            {
-                TLMAutoColorPalettes.addColor(editorSelector.selectedValue);
-            });
-
-            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
-                TLMUtils.doLog("Loading Group 3½");
-            paletteName.enabled = false;
-            colorEditor.Disable();
-            colorList.Disable();
-
+            colorList = group6.AddNumberedColorList(null, new List<Color32>(), (c) => { }, null, null);
+            colorList.m_atlasToUse = TLMController.taLineNumber;
+            colorList.m_spriteName = "SubwayIcon";
+            
             if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Loading Group 4");
             UIHelperExtension group9 = helper.AddGroupExtended(Locale.Get("TLM_BETAS_EXTRA_INFO"));
@@ -741,27 +695,11 @@ namespace Klyte.TransportLinesManager
         }
 
 
-        private void updateDropDowns(string oldName, string newName)
+        private void updateDropDowns()
         {
-
             string idxSel = editorSelector.selectedValue;
             editorSelector.items = TLMAutoColorPalettes.paletteListForEditing;
-            if (!TLMAutoColorPalettes.paletteListForEditing.Contains(idxSel))
-            {
-                if (idxSel != oldName || !TLMAutoColorPalettes.paletteListForEditing.Contains(newName))
-                {
-                    editorSelector.selectedIndex = 0;
-                }
-                else
-                {
-                    idxSel = newName;
-                    editorSelector.selectedIndex = TLMAutoColorPalettes.paletteListForEditing.ToList().IndexOf(idxSel);
-                }
-            }
-            else
-            {
-                editorSelector.selectedIndex = TLMAutoColorPalettes.paletteListForEditing.ToList().IndexOf(idxSel);
-            }
+            editorSelector.selectedIndex = TLMAutoColorPalettes.paletteListForEditing.ToList().IndexOf(idxSel);
 
             foreach (var ci in TLMConfigWarehouse.PALETTES_INDEXES)
             {
@@ -772,14 +710,7 @@ namespace Klyte.TransportLinesManager
                 paletteDD.items = TLMAutoColorPalettes.paletteList;
                 if (!paletteDD.items.Contains(idxSel))
                 {
-                    if (idxSel != oldName || !paletteDD.items.Contains(newName))
-                    {
-                        idxSel = TLMAutoColorPalettes.PALETTE_RANDOM;
-                    }
-                    else
-                    {
-                        idxSel = newName;
-                    }
+                    idxSel = TLMAutoColorPalettes.PALETTE_RANDOM;
                 }
                 paletteDD.selectedIndex = paletteDD.items.ToList().IndexOf(idxSel);
             }

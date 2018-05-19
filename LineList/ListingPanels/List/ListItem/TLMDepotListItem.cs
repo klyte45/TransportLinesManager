@@ -10,7 +10,7 @@ namespace Klyte.TransportLinesManager.UI
     using ColossalFramework;
     using ColossalFramework.Globalization;
     using ColossalFramework.UI;
-    using Extensions;
+    using Commons.Extensors;
     using Extensors;
     using Extensors.BuildingAIExt;
     using Klyte.TransportLinesManager.Extensors.TransportTypeExt;

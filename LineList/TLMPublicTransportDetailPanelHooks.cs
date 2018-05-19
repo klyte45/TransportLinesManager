@@ -3,7 +3,7 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using ICities;
 using Klyte.Commons.Extensors;
-using Klyte.Extensions;
+using Klyte.Commons.Extensors;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
