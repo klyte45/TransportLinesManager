@@ -1,19 +1,19 @@
 using ColossalFramework;
+using ColossalFramework.DataBinding;
+using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using ICities;
 using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
+using Klyte.TransportLinesManager.i18n;
+using Klyte.TransportLinesManager.MapDrawer;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using ColossalFramework.DataBinding;
-using Klyte.TransportLinesManager.MapDrawer;
-using ColossalFramework.Globalization;
-using Klyte.TransportLinesManager.i18n;
-using Klyte.TransportLinesManager.Utils;
-using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
-using System.IO;
 
 [assembly: AssemblyVersion("9.0.0.*")]
 namespace Klyte.TransportLinesManager
@@ -507,6 +507,7 @@ namespace Klyte.TransportLinesManager
                 textFieldPanel.autoFitChildrenVertically = true;
                 group13.AddSpace(1);
             }
+
             UIHelperExtension group14 = helper.AddGroupExtended(Locale.Get("TLM_AUTO_NAME_SETTINGS_OTHER"));
             ((UIPanel)group14.self).autoLayoutDirection = LayoutDirection.Horizontal;
             ((UIPanel)group14.self).wrapLayout = true;
@@ -520,8 +521,20 @@ namespace Klyte.TransportLinesManager
                 group14.AddSpace(2);
             }
 
-            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
-                TLMUtils.doLog("Loading Group 3");
+            UIHelperExtension group15 = helper.AddGroupExtended(Locale.Get("TLM_AUTO_NAME_SETTINGS_PUBLIC_AREAS"));
+            ((UIPanel)group15.self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group15.self).wrapLayout = true;
+            ((UIPanel)group15.self).width = 730;
+            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.extraAutoNameCategories)
+            {
+                generateCheckboxConfig(group15, TLMConfigWarehouse.getNameForServiceType(ci), TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci).width = 300;
+                var textFieldPanel = generateTextFieldConfig(group15, Locale.Get("TLM_PREFIX_OPTIONAL"), TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | ci).GetComponentInParent<UIPanel>();
+                textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+                textFieldPanel.autoFitChildrenVertically = true;
+                group15.AddSpace(2);
+            }
+
+            TLMUtils.doLog("Loading Group 3");
 
             var fiPalette = TLMUtils.EnsureFolderCreation(TLMSingleton.palettesFolder);
 
@@ -558,7 +571,7 @@ namespace Klyte.TransportLinesManager
             colorList = group6.AddNumberedColorList(null, new List<Color32>(), (c) => { }, null, null);
             colorList.m_atlasToUse = TLMController.taLineNumber;
             colorList.m_spriteName = "SubwayIcon";
-            
+
             if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                 TLMUtils.doLog("Loading Group 4");
             UIHelperExtension group9 = helper.AddGroupExtended(Locale.Get("TLM_BETAS_EXTRA_INFO"));

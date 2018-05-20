@@ -1,20 +1,11 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using ICities;
 using Klyte.Commons.Extensors;
-using Klyte.Harmony;
-using Klyte.Commons.Extensors;
-using Klyte.Commons.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using UnityEngine;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
-using static Klyte.TransportLinesManager.TLMConfigWarehouse;
+using System;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -249,7 +240,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private static Type ImplClassChildren => TLMUtils.GetImplementationForGenericType(typeof(TLMLineListItem<>), typeof(T));
 
-        protected override void RefreshLines()
+        public override void RefreshLines()
         {
 
             m_DayIcon.relativePosition = new Vector3(655, 14);

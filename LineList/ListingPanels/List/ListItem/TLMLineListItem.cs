@@ -1,19 +1,12 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using ColossalFramework;
 using ColossalFramework.Globalization;
-using ColossalFramework.Math;
 using ColossalFramework.UI;
-using Klyte.Commons.Utils;
-using System.Collections;
-using System.Diagnostics;
-using UnityEngine;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using System;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -203,7 +196,7 @@ namespace Klyte.TransportLinesManager.UI
             {
                 TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)this.m_LineID].Info;
                 float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
-                
+
                 string vehTooltip = string.Format("{0} {1}", this.m_LineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
                 this.m_LineVehicles.tooltip = vehTooltip;
                 if (!TLMTransportLineExtension.instance.IsUsingCustomConfig(this.lineID) || !TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(this.lineID))
@@ -397,6 +390,7 @@ namespace Klyte.TransportLinesManager.UI
                             Singleton<SimulationManager>.instance.AddAction(delegate
                             {
                                 Singleton<TransportManager>.instance.ReleaseLine(this.m_LineID);
+                                GameObject.Destroy(gameObject);
                             });
                         }
                     });

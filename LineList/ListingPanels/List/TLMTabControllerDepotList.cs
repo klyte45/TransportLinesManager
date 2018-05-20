@@ -1,21 +1,12 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using ICities;
 using Klyte.Commons.Extensors;
-using Klyte.Harmony;
-using Klyte.Commons.Extensors;
-using Klyte.Commons.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using UnityEngine;
+using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
-using static Klyte.TransportLinesManager.TLMConfigWarehouse;
-using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
+using System;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -184,7 +175,7 @@ namespace Klyte.TransportLinesManager.UI
         }
 
 
-        protected override void RefreshLines()
+        public override void RefreshLines()
         {
             var tsd = Singleton<T>.instance.GetTSD();
             bool hasPrefix = TLMLineUtils.hasPrefix(ref tsd);

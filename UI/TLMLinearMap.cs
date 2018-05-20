@@ -1,19 +1,15 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
-using Klyte.TransportLinesManager.LineList;
+using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
-using Klyte.TransportLinesManager.Utils;
-using Klyte.Commons.Extensors;
-using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.Extensors;
-using System.Reflection;
-using Klyte.TransportLinesManager.Overrides;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -99,7 +95,7 @@ namespace Klyte.TransportLinesManager.UI
             TLMLineUtils.setLineNumberCircleOnRef(lineID, linearMapLineNumber);
             try
             {
-                m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
+                m_autoName = TLMLineUtils.calculateAutoName(lineID);
                 linearMapLineNumber.tooltip = m_autoName;
             }
             catch { }
@@ -136,7 +132,7 @@ namespace Klyte.TransportLinesManager.UI
             ItemClass.SubService ss = TransportSystemDefinition.getDefinitionForLine(lineID).subService;
             linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.getIconForLine(lineID);
             TLMUtils.doLog("p4");
-            m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
+            m_autoName = TLMLineUtils.calculateAutoName(lineID);
             linearMapLineNumber.tooltip = m_autoName;
             string stationName;
             Vector3 local;
@@ -659,7 +655,7 @@ namespace Klyte.TransportLinesManager.UI
                 TLMLineUtils.setStopName(y, stationNodeId, lineID, () =>
                 {
                     stationLabel.text = TLMLineUtils.getFullStationName(stationNodeId, lineID, ss);
-                    m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
+                    m_autoName = TLMLineUtils.calculateAutoName(lineID);
                     parent.OnRenameStationAction(autoName);
                 });
             };
@@ -870,7 +866,7 @@ namespace Klyte.TransportLinesManager.UI
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-            stationName = TLMLineUtils.getStationName(stopId, lineId, ss, out ItemClass.Service servFound, out ItemClass.SubService subServFound, out prefix, out ushort buildingId);
+            stationName = TLMLineUtils.getStationName(stopId, lineId, ss, out ItemClass.Service servFound, out ItemClass.SubService subServFound, out prefix, out ushort buildingId, out NamingType namingType);
 
             //paradas proximas (metro e trem)
             TransportManager tm = Singleton<TransportManager>.instance;

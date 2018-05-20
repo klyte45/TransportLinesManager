@@ -1,8 +1,5 @@
 ﻿using Klyte.TransportLinesManager.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
@@ -31,7 +28,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case ItemClass.Service.Road:
                     if (ss == ItemClass.SubService.PublicTransportBus)
                     {
-                        return TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG;
+                        return TLMConfigWarehouse.ConfigIndex.ADDRESS_NAME_CONFIG;
                     }
                     else
                     {
@@ -57,7 +54,20 @@ namespace Klyte.TransportLinesManager.Extensors
                 case ItemClass.Service.FireDepartment:
                     return TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG;
                 case ItemClass.Service.PublicTransport:
-                    return TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                    switch (ss)
+                    {
+                        case ItemClass.SubService.PublicTransportBus: return TLMConfigWarehouse.ConfigIndex.BUS_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportCableCar: return TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportMetro: return TLMConfigWarehouse.ConfigIndex.METRO_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportMonorail: return TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportPlane: return TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportShip: return TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportTaxi: return TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportTours: return TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportTrain: return TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportTram: return TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        default: return TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                    }
                 case ItemClass.Service.Disaster:
                     return TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG;
                 default:
@@ -69,7 +79,7 @@ namespace Klyte.TransportLinesManager.Extensors
             uint saida;
             switch (idx)
             {
-                case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.ADDRESS_NAME_CONFIG:
                     return (uint)TLMConfigWarehouse.namingOrder.Length;
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
@@ -123,8 +133,6 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             switch (idx)
             {
-                case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
-                    return "";
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
@@ -145,6 +153,9 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.DISTRICT_NAME_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.ADDRESS_NAME_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.PARKAREA_NAME_CONFIG:
                     return TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | idx);
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
@@ -169,7 +180,7 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             switch (idx)
             {
-                case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.ADDRESS_NAME_CONFIG:
                     return true;
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
@@ -215,7 +226,7 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             switch (idx)
             {
-                case TLMConfigWarehouse.ConfigIndex.ROAD_NAME_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.ADDRESS_NAME_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:

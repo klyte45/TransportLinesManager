@@ -220,7 +220,7 @@ namespace Klyte.TransportLinesManager
 
         public void AutoName(ushort m_LineID)
         {
-            TLMLineUtils.setLineName(m_LineID, TLMLineUtils.calculateAutoName(m_LineID, true));
+            TLMLineUtils.setLineName(m_LineID, TLMLineUtils.calculateAutoName(m_LineID));
         }
 
 

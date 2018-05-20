@@ -1,10 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
-using ColossalFramework.Math;
-using ColossalFramework.Plugins;
 using ColossalFramework.UI;
-using ICities;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using Klyte.TransportLinesManager.Extensors.NetNodeExt;
@@ -12,11 +9,8 @@ using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 using static Klyte.Commons.Utils.KlyteUtils;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
@@ -784,210 +778,100 @@ namespace Klyte.TransportLinesManager.Utils
                 Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags &= ~TransportLine.Flags.CustomName;
             }
         }
-        public static string calculateAutoName(ushort lineIdx, bool complete = false)
+        public static string calculateAutoName(ushort lineIdx)
         {
-            TransportManager tm = Singleton<TransportManager>.instance;
-            TransportLine t = tm.m_lines.m_buffer[(int)lineIdx];
-            ItemClass.SubService ss = ItemClass.SubService.None;
-            string resultName;
-            if (t.Info.m_transportType == TransportInfo.TransportType.EvacuationBus)
+            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx];
+            if ((t.m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None)
             {
                 return null;
             }
-            if (t.Info.m_transportType == TransportInfo.TransportType.Train)
+            ushort nextStop = t.m_stops;
+            List<Tuple<NamingType, string>> stations = new List<Tuple<NamingType, string>>();
+            do
             {
-                ss = ItemClass.SubService.PublicTransportTrain;
+                var stopNode = NetManager.instance.m_nodes.m_buffer[nextStop];
+                var stationName = getStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true);
+                var tuple = Tuple.New(namingType, $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim());
+                stations.Add(tuple);
+                nextStop = TransportLine.GetNextStop(nextStop);
+            } while (nextStop != t.m_stops && nextStop != 0);
+            string prefix = "";
+            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME))
+            {
+                prefix = $"[{getLineStringId(lineIdx)}] ";
             }
-            else if (t.Info.m_transportType == TransportInfo.TransportType.Metro)
+            TLMUtils.doLog($"stations => [{string.Join(" ; ", stations.Select(x => $"{x.First}|{x.Second}").ToArray())}]");
+            if (stations.Count % 2 == 0 && stations.Count > 2)
             {
-                ss = ItemClass.SubService.PublicTransportMetro;
-            }
-            int stopsCount = t.CountStops(lineIdx);
-            ushort[] stopBuildings = new ushort[stopsCount];
-            MultiMap<ushort, Vector3> bufferToDraw = new MultiMap<ushort, Vector3>();
-            if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && CalculateSimmetry(ss, stopsCount, t, out int middle))
-            {
-                string station1Name = getStationName(t.GetStop(middle), lineIdx, ss);
-
-                string station2Name = getStationName(t.GetStop(middle + stopsCount / 2), lineIdx, ss);
-
-                resultName = station1Name + " - " + station2Name;
-            }
-            else
-            {
-                //float autoNameSimmetryImprecision = 0.075f;
-                DistrictManager dm = Singleton<DistrictManager>.instance;
-                Dictionary<int, KeyValuePair<TLMCW.ConfigIndex, String>> stationsList = new Dictionary<int, KeyValuePair<TLMCW.ConfigIndex, String>>();
-                NetManager nm = Singleton<NetManager>.instance;
-                for (int j = 0; j < stopsCount; j++)
+                TLMUtils.doLog($"Try Simmetric");
+                int middle = -1;
+                for (int i = 1; i <= stations.Count / 2; i++)
                 {
-                    String value = getStationName(t.GetStop(j), lineIdx, ss, out ItemClass.Service service, out ItemClass.SubService subservice, out string prefix, out ushort buidingId, true);
-                    var tsd = TransportSystemDefinition.from(Singleton<BuildingManager>.instance.m_buildings.m_buffer[buidingId].Info.GetAI());
-                    stationsList.Add(j, new KeyValuePair<TLMCW.ConfigIndex, string>(tsd != null ? tsd.toConfigIndex() : GameServiceExtensions.toConfigIndex(service, subservice), value));
-                }
-                uint mostImportantCategoryInLine = stationsList.Select(x => (x.Value.Key).getPriority()).Min();
-                if (mostImportantCategoryInLine < int.MaxValue)
-                {
-                    var mostImportantPlaceIdx = stationsList.Where(x => x.Value.Key.getPriority() == mostImportantCategoryInLine).Min(x => x.Key);
-                    var destiny = stationsList[mostImportantPlaceIdx];
-
-                    var inverseIdxCenter = (mostImportantPlaceIdx + stopsCount / 2) % stopsCount;
-                    int resultIdx = inverseIdxCenter;
-                    //int simmetryMargin = (int)Math.Ceiling(stopsCount * autoNameSimmetryImprecision);
-                    //int resultIdx = -1;
-                    //var destBuilding = getStationBuilding((uint)mostImportantPlaceIdx, ss);
-                    //BuildingManager bm = Singleton<BuildingManager>.instance;
-                    //for (int i = 0; i <= simmetryMargin; i++)
-                    //{
-                    //    int currentI = (inverseIdxCenter + i + stopsCount) % stopsCount;
-
-
-                    //    var iBuilding = getStationBuilding((uint)currentI, ss);
-                    //    if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority()) && iBuilding != destBuilding)
-                    //    {
-                    //        resultIdx = currentI;
-                    //    }
-                    //    if (i == 0) continue;
-                    //    currentI = (inverseIdxCenter - i + stopsCount) % stopsCount;
-                    //    iBuilding = getStationBuilding((uint)currentI, ss);
-                    //    if ((resultIdx == -1 || stationsList[currentI].Key.getPriority() < stationsList[resultIdx].Key.getPriority()) && iBuilding != destBuilding)
-                    //    {
-                    //        resultIdx = currentI;
-                    //    }
-                    //}
-                    string originName = "";
-                    //int districtOriginId = -1;
-                    if (resultIdx >= 0 && stationsList[resultIdx].Key.isLineNamingEnabled())
+                    if (stations[i - 1].First == stations[i + 1].First && stations[i - 1].Second == stations[i + 1].Second)
                     {
-                        var origin = stationsList[resultIdx];
-                        var transportType = origin.Key;
-                        var name = origin.Value;
-                        originName = GetStationNameWithPrefix(transportType, name);
-                        originName += " - ";
+                        middle = i;
+                        break;
                     }
-                    //else
-                    //{
-                    //    NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
-                    //    Vector3 location = nn.m_position;
-                    //    districtOriginId = dm.GetDistrict(location);
-                    //    if (districtOriginId > 0)
-                    //    {
-                    //        District d = dm.m_districts.m_buffer[districtOriginId];
-                    //        originName = dm.GetDistrictName(districtOriginId) + " - ";
-                    //    }
-                    //    else {
-                    //        originName = "";
-                    //    }
-                    //}
-                    if (!destiny.Key.isLineNamingEnabled())
+                }
+                TLMUtils.doLog($"middle => {middle}");
+                if (middle != -1)
+                {
+                    bool simmetric = true;
+                    middle += stations.Count;
+                    for (int i = 1; i < stations.Count / 2; i++)
                     {
-                        NetNode nn = nm.m_nodes.m_buffer[t.GetStop((int)resultIdx)];
-                        Vector3 location = nn.m_position;
-                        int districtDestinyId = dm.GetDistrict(location);
-                        //if (districtDestinyId == districtOriginId)
-                        //{
-                        //    District d = dm.m_districts.m_buffer[districtDestinyId];
-                        //    return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtDestinyId);
-                        //}
-                        //else
-                        if (districtDestinyId > 0)
+                        var A = stations[(middle + i) % stations.Count];
+                        var B = stations[(middle - i) % stations.Count];
+                        if (A.First != B.First || A.Second != B.Second)
                         {
-                            District d = dm.m_districts.m_buffer[districtDestinyId];
-                            return originName + dm.GetDistrictName(districtDestinyId);
+                            simmetric = false;
+                            break;
                         }
                     }
-                    resultName = originName + GetStationNameWithPrefix(destiny.Key, destiny.Value);
-                }
-                else
-                {
-                    resultName = autoNameByDistrict(t, stopsCount, out middle);
+                    if (simmetric)
+                    {
+                        return $"{prefix}{stations[(middle) % stations.Count].Second } - { stations[(middle + stations.Count / 2) % stations.Count].Second}";
+                    }
                 }
             }
-            if (TLMCW.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME) && complete)
+            List<Tuple<int, NamingType, string>> idxStations = stations.Select((x, y) => Tuple.New(y, x.First, x.Second)).OrderBy(x => x.Second.GetNamePrecedenceRate()).ToList();
+
+            int targetStart = 0;
+            int mostRelevantEndIdx = -1;
+            int j = 0;
+            int maxDistanceEnd = (int)(idxStations.Count / 8f + 0.5f);
+            TLMUtils.doLog("idxStations");
+            do
             {
-                string format = "[{0}] {1}";
-                return string.Format(format, TLMLineUtils.getLineStringId(lineIdx).Replace('\n', ' '), resultName);
+                var peerCandidate = idxStations.Where(x => x.Third != idxStations[j].Third && Math.Abs((x.First < idxStations[j].First ? x.First + idxStations.Count : x.First) - idxStations.Count / 2 - idxStations[j].First) <= maxDistanceEnd).OrderBy(x => x.Second.GetNamePrecedenceRate()).FirstOrDefault();
+                if (peerCandidate != null && (mostRelevantEndIdx == -1 || stations[mostRelevantEndIdx].First.GetNamePrecedenceRate() > peerCandidate.Second.GetNamePrecedenceRate()))
+                {
+                    targetStart = j;
+                    mostRelevantEndIdx = peerCandidate.First;
+                }
+                j++;
+            } while (j < idxStations.Count && idxStations[j].Second.GetNamePrecedenceRate() == idxStations[0].Second.GetNamePrecedenceRate());
+
+            if (mostRelevantEndIdx >= 0)
+            {
+                return $"{prefix}{idxStations[targetStart].Third} - {stations[mostRelevantEndIdx].Second}";
             }
             else
             {
-                return resultName;
+                return prefix + (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + idxStations[0].Third;
             }
+
         }
+
         private static string GetStationNameWithPrefix(TLMCW.ConfigIndex transportType, string name)
         {
             return transportType.getPrefixTextNaming().Trim() + (transportType.getPrefixTextNaming().Trim() != string.Empty ? " " : "") + name;
         }
-        private static string autoNameByDistrict(TransportLine t, int stopsCount, out int middle)
-        {
 
-            DistrictManager dm = Singleton<DistrictManager>.instance;
-            NetManager nm = Singleton<NetManager>.instance;
-            string result = "";
-            byte lastDistrict = 0;
-            Vector3 local;
-            byte district;
-            List<int> districtList = new List<int>();
-            for (int j = 0; j < stopsCount; j++)
-            {
-                local = nm.m_nodes.m_buffer[(int)t.GetStop(j)].m_bounds.center;
-                district = dm.GetDistrict(local);
-                if ((district != lastDistrict) && district != 0)
-                {
-                    districtList.Add(district);
-                }
-                if (district != 0)
-                {
-                    lastDistrict = district;
-                }
-            }
-
-            local = nm.m_nodes.m_buffer[(int)t.GetStop(0)].m_bounds.center;
-            district = dm.GetDistrict(local);
-            if ((district != lastDistrict) && district != 0)
-            {
-                districtList.Add(district);
-            }
-            middle = -1;
-            int[] districtArray = districtList.ToArray();
-            if (districtArray.Length == 1)
-            {
-                return (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + dm.GetDistrictName(districtArray[0]);
-            }
-            else if (findSimetry(districtArray, out middle))
-            {
-                int firstIdx = middle;
-                int lastIdx = middle + districtArray.Length / 2;
-
-                result = dm.GetDistrictName(districtArray[firstIdx % districtArray.Length]) + " - " + dm.GetDistrictName(districtArray[lastIdx % districtArray.Length]);
-                if (lastIdx - firstIdx > 1)
-                {
-                    result += ", via ";
-                    for (int k = firstIdx + 1; k < lastIdx; k++)
-                    {
-                        result += dm.GetDistrictName(districtArray[k % districtArray.Length]);
-                        if (k + 1 != lastIdx)
-                        {
-                            result += ", ";
-                        }
-                    }
-                }
-                return result;
-            }
-            else
-            {
-                bool inicio = true;
-                foreach (int i in districtArray)
-                {
-                    result += (inicio ? "" : " - ") + dm.GetDistrictName(i);
-                    inicio = false;
-                }
-                return result;
-            }
-        }
         public static void setStopName(string newName, uint stopId, ushort lineId, OnEndProcessingBuildingName callback)
         {
             TLMUtils.doLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
-            ushort buildingId = getStationBuilding(stopId, toSubService(Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_transportType), true, true);
+            ushort buildingId = getStationBuilding(stopId, Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService, true, true);
             if (buildingId == 0)
             {
                 TLMUtils.doLog("b=0");
@@ -1056,48 +940,88 @@ namespace Klyte.TransportLinesManager.Utils
             }
 
         }
-        public static string getStationName(uint stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, bool excludeCargo = false)
+        public static string getStationName(uint stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, out NamingType resultNamingType, bool excludeCargo = false, bool useRestrictionForAreas = false)
         {
             string savedName = TLMStopsExtension.instance.GetStopName(stopId);
             if (savedName != null)
             {
                 serviceFound = ItemClass.Service.PublicTransport;
-                subserviceFound = toSubService(Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_transportType);
+                subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService;
                 prefix = "";
                 buildingID = 0;
+                resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
                 return savedName;
             }
+
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
             buildingID = getStationBuilding(stopId, ss, excludeCargo);
 
+            var nearStops = FindNearStops(nn.m_position);
+            foreach (var stop in nearStops)
+            {
+                if (stop != stopId)
+                {
+                    savedName = TLMStopsExtension.instance.GetStopName(stopId);
+                    if (savedName != null)
+                    {
+                        serviceFound = ItemClass.Service.PublicTransport;
+                        subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService;
+                        prefix = "";
+                        buildingID = 0;
+                        resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
+                        return savedName;
+                    }
+                }
+            }
+
             if (buildingID > 0)
             {
-                return TLMUtils.getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix);
+                var name = TLMUtils.getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix);
+                resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
+                return name;
             }
             Vector3 location = nn.m_position;
             prefix = "";
-            if (GetAddressStreetAndNumber(location, location, out int number, out string steetName))
+            if (GetPark(location) > 0 && (!useRestrictionForAreas || TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)))
             {
+                prefix = TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG.getPrefixTextNaming();
+                serviceFound = ItemClass.Service.Natural;
+                subserviceFound = ItemClass.SubService.BeautificationParks;
+                resultNamingType = NamingType.PARKAREA;
+                return DistrictManager.instance.GetParkName(GetPark(location));
+            }
+            else if (GetAddressStreetAndNumber(location, location, out int number, out string streetName) && (!useRestrictionForAreas || TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)) && !string.IsNullOrEmpty(streetName))
+            {
+                prefix = TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG.getPrefixTextNaming();
                 serviceFound = ItemClass.Service.Road;
                 subserviceFound = ItemClass.SubService.PublicTransportBus;
-                return steetName + ", " + number;
+                resultNamingType = NamingType.ADDRESS;
+                return streetName + ", " + number;
+
+            }
+            else if (GetDistrict(location) > 0 && (!useRestrictionForAreas || TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)))
+            {
+                prefix = TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG.getPrefixTextNaming();
+                serviceFound = ItemClass.Service.Natural;
+                subserviceFound = ItemClass.SubService.None;
+                resultNamingType = NamingType.DISTRICT;
+                return DistrictManager.instance.GetDistrictName(GetDistrict(location));
             }
             else
             {
                 serviceFound = ItemClass.Service.None;
                 subserviceFound = ItemClass.SubService.None;
+                resultNamingType = NamingType.NONE;
                 return "????????";
             }
-            //}
-
-            //}
         }
         public static readonly ItemClass.Service[] seachOrder = new ItemClass.Service[]{
             ItemClass.Service.PublicTransport,
             ItemClass.Service.Monument,
             ItemClass.Service.Beautification,
+            ItemClass.Service.Natural,
             ItemClass.Service.Disaster,
             ItemClass.Service.HealthCare,
             ItemClass.Service.FireDepartment,
@@ -1112,35 +1036,13 @@ namespace Klyte.TransportLinesManager.Utils
             ItemClass.Service.Electricity,
             ItemClass.Service.Water
         };
-        private static ItemClass.SubService toSubService(TransportInfo.TransportType t)
-        {
-            switch (t)
-            {
-                case TransportInfo.TransportType.Airplane:
-                    return ItemClass.SubService.PublicTransportPlane;
-                case TransportInfo.TransportType.Bus:
-                    return ItemClass.SubService.PublicTransportBus;
-                case TransportInfo.TransportType.Metro:
-                    return ItemClass.SubService.PublicTransportMetro;
-                case TransportInfo.TransportType.Ship:
-                    return ItemClass.SubService.PublicTransportShip;
-                case TransportInfo.TransportType.Taxi:
-                    return ItemClass.SubService.PublicTransportTaxi;
-                case TransportInfo.TransportType.Train:
-                    return ItemClass.SubService.PublicTransportTrain;
-                case TransportInfo.TransportType.Tram:
-                    return ItemClass.SubService.PublicTransportTram;
-                default:
-                    return ItemClass.SubService.None;
-            }
-        }
         public static string getStationName(ushort stopId, ushort lineId, ItemClass.SubService ss)
         {
-            return getStationName(stopId, lineId, ss, out ItemClass.Service serv, out ItemClass.SubService subServ, out string prefix, out ushort buildingId, true);
+            return getStationName(stopId, lineId, ss, out ItemClass.Service serv, out ItemClass.SubService subServ, out string prefix, out ushort buildingId, out NamingType namingType, true);
         }
         public static string getFullStationName(ushort stopId, ushort lineId, ItemClass.SubService ss)
         {
-            string result = getStationName(stopId, lineId, ss, out ItemClass.Service serv, out ItemClass.SubService subServ, out string prefix, out ushort buildingId, true);
+            string result = getStationName(stopId, lineId, ss, out ItemClass.Service serv, out ItemClass.SubService subServ, out string prefix, out ushort buildingId, out NamingType namingType, true);
             return string.IsNullOrEmpty(prefix) ? result : prefix + " " + result;
         }
         public static Vector3 getStationBuildingPosition(uint stopId, ItemClass.SubService ss)
@@ -1308,7 +1210,101 @@ namespace Klyte.TransportLinesManager.Utils
         ModoNomenclatura. CirilicoMinusculoNumero,
         ModoNomenclatura. CirilicoMaiusculoNumero
         };
+
         #endregion
+    }
+
+    internal enum NamingType
+    {
+        NONE,
+        PLANE,
+        BLIMP,
+        SHIP,
+        FERRY,
+        TRAIN,
+        MONORAIL,
+        TRAM,
+        METRO,
+        BUS,
+        TOUR_BUS,
+        MONUMENT,
+        BEAUTIFICATION,
+        HEALTHCARE,
+        POLICEDEPARTMENT,
+        FIREDEPARTMENT,
+        EDUCATION,
+        DISASTER,
+        GARBAGE,
+        PARKAREA,
+        DISTRICT,
+        ADDRESS,
+    }
+
+    internal static class NamingTypeExtensions
+    {
+        public static int GetNamePrecedenceRate(this NamingType namingType)
+        {
+            switch (namingType)
+            {
+                case NamingType.NONE: return 0x7FFFFFFF;
+                case NamingType.PLANE: return -0x00000005;
+                case NamingType.BLIMP: return 0x00000001;
+                case NamingType.SHIP: return -0x00000002;
+                case NamingType.FERRY: return 0x00000001;
+                case NamingType.TRAIN: return 0x00000003;
+                case NamingType.MONORAIL: return 0x00000004;
+                case NamingType.TRAM: return 0x00000006;
+                case NamingType.METRO: return 0x00000005;
+                case NamingType.BUS: return 0x00000007;
+                case NamingType.TOUR_BUS: return 0x00000009;
+                case NamingType.MONUMENT: return 0x00000005;
+                case NamingType.BEAUTIFICATION: return 0x0000000a;
+                case NamingType.HEALTHCARE: return 0x0000000b;
+                case NamingType.POLICEDEPARTMENT: return 0x0000000b;
+                case NamingType.FIREDEPARTMENT: return 0x0000000b;
+                case NamingType.EDUCATION: return 0x0000000c;
+                case NamingType.DISASTER: return 0x0000000d;
+                case NamingType.GARBAGE: return 0x0000000f;
+                case NamingType.PARKAREA: return 0x00000005;
+                case NamingType.DISTRICT: return 0x00000010;
+                case NamingType.ADDRESS: return 0x00000011;
+                default: return 0x7FFFFFFF;
+            }
+        }
+
+        public static NamingType from(ItemClass.Service service, ItemClass.SubService subService)
+        {
+            return from(GameServiceExtensions.toConfigIndex(service, subService));
+        }
+        public static NamingType from(TLMCW.ConfigIndex ci)
+        {
+            switch (ci & (TLMCW.ConfigIndex.SYSTEM_PART | TLMCW.ConfigIndex.DESC_DATA))
+            {
+                case TLMCW.ConfigIndex.PLANE_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.PLANE;
+                case TLMCW.ConfigIndex.BLIMP_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.BLIMP;
+                case TLMCW.ConfigIndex.SHIP_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.SHIP;
+                case TLMCW.ConfigIndex.FERRY_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.FERRY;
+                case TLMCW.ConfigIndex.TRAIN_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.TRAIN;
+                case TLMCW.ConfigIndex.MONORAIL_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.MONORAIL;
+                case TLMCW.ConfigIndex.TRAM_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.TRAM;
+                case TLMCW.ConfigIndex.METRO_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.METRO;
+                case TLMCW.ConfigIndex.BUS_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.BUS;
+                case TLMCW.ConfigIndex.TOUR_BUS_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.TOUR_BUS;
+                case TLMCW.ConfigIndex.MONUMENT_SERVICE_CONFIG: return NamingType.MONUMENT;
+                case TLMCW.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG: return NamingType.BEAUTIFICATION;
+                case TLMCW.ConfigIndex.HEALTHCARE_SERVICE_CONFIG: return NamingType.HEALTHCARE;
+                case TLMCW.ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG: return NamingType.POLICEDEPARTMENT;
+                case TLMCW.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG: return NamingType.FIREDEPARTMENT;
+                case TLMCW.ConfigIndex.EDUCATION_SERVICE_CONFIG: return NamingType.EDUCATION;
+                case TLMCW.ConfigIndex.DISASTER_SERVICE_CONFIG: return NamingType.DISASTER;
+                case TLMCW.ConfigIndex.GARBAGE_SERVICE_CONFIG: return NamingType.GARBAGE;
+                case TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG: return NamingType.PARKAREA;
+                case TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG: return NamingType.DISTRICT;
+                case TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG: return NamingType.ADDRESS;
+                default: throw new Exception($"UNKNOWN NAME TYPE:{ci} ({((int)ci).ToString("X8")})");
+
+            }
+        }
     }
 
 }

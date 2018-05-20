@@ -1,12 +1,7 @@
-﻿using ColossalFramework;
-using ColossalFramework.Globalization;
+﻿using ColossalFramework.Globalization;
 using Klyte.Commons.Interfaces;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.Utils;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -114,6 +109,7 @@ namespace Klyte.TransportLinesManager
         }
 
         public static string getNameForServiceType(ConfigIndex i) => Locale.Get(getLocaleIdForIndex(i, out string key), key);
+
         private static string getLocaleIdForIndex(ConfigIndex i, out string key)
         {
             switch (i & ConfigIndex.DESC_DATA)
@@ -154,8 +150,11 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.DISASTER_SERVICE_CONFIG:
                     key = "Government";
                     break;
+                case ConfigIndex.DISTRICT_NAME_CONFIG:
+                    key = "District";
+                    break;
                 default:
-                    key = "";
+                    key = null;
                     break;
             }
             switch (i & ConfigIndex.DESC_DATA)
@@ -167,7 +166,7 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
                     return "DISTRICT_INDUSTRIAL";
                 case ConfigIndex.NATURAL_SERVICE_CONFIG:
-                    return "Unused1";
+                    return "NATURAL_SERVICE";
                 case ConfigIndex.UNUSED2_SERVICE_CONFIG:
                     return "Unused2";
                 case ConfigIndex.CITIZEN_SERVICE_CONFIG:
@@ -176,6 +175,10 @@ namespace Klyte.TransportLinesManager
                     return "INCOME_TOURIST";
                 case ConfigIndex.OFFICE_SERVICE_CONFIG:
                     return "DISTRICT_OFFICE";
+                case ConfigIndex.ADDRESS_NAME_CONFIG:
+                    return "TLM_ROAD_NAMING_STOP";
+                case ConfigIndex.PARKAREA_NAME_CONFIG:
+                    return "TLM_PARKAREA_NAMING_STOP";
                 case ConfigIndex.ROAD_SERVICE_CONFIG:
                 case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG:
                 case ConfigIndex.GARBAGE_SERVICE_CONFIG:
@@ -188,6 +191,7 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                 case ConfigIndex.DISASTER_SERVICE_CONFIG:
+                case ConfigIndex.DISTRICT_NAME_CONFIG:
                     return "MAIN_TOOL";
                 default:
                     return "???";
@@ -533,6 +537,11 @@ namespace Klyte.TransportLinesManager
             ConfigIndex.DISASTER_SERVICE_CONFIG,
             ConfigIndex.GARBAGE_SERVICE_CONFIG,
         };
+        public static readonly ConfigIndex[] extraAutoNameCategories = {
+            ConfigIndex. PARKAREA_NAME_CONFIG       ,
+            ConfigIndex. DISTRICT_NAME_CONFIG       ,
+            ConfigIndex. ADDRESS_NAME_CONFIG
+        };
         public static readonly ConfigIndex[] defaultTrueBoolProperties = {
              ConfigIndex.MONUMENT_USE_FOR_AUTO_NAMING_REF,
              ConfigIndex.BEAUTIFICATION_USE_FOR_AUTO_NAMING_REF,
@@ -541,12 +550,16 @@ namespace Klyte.TransportLinesManager
              ConfigIndex.BUS_USE_FOR_AUTO_NAMING_REF,
              ConfigIndex.PLANE_USE_FOR_AUTO_NAMING_REF,
              ConfigIndex.SHIP_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.PARKAREA_USE_FOR_AUTO_NAMING_REF,
+             ConfigIndex.DISTRICT_USE_FOR_AUTO_NAMING_REF,
              ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME,
              ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP ,
              ConfigIndex.METRO_SHOW_IN_LINEAR_MAP ,
              ConfigIndex.BUS_SHOW_IN_LINEAR_MAP ,
              ConfigIndex.MONORAIL_SHOW_IN_LINEAR_MAP ,
              ConfigIndex.CABLE_CAR_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP ,
              ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP ,
              ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP ,
         };
@@ -563,11 +576,12 @@ namespace Klyte.TransportLinesManager
             TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG ,
             TLMConfigWarehouse.ConfigIndex.BUS_CONFIG   ,
             TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG  ,
-            TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG    ,
+            TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG   ,
             TLMConfigWarehouse.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.HEALTHCARE_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.EDUCATION_SERVICE_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.GARBAGE_SERVICE_CONFIG   ,
@@ -580,7 +594,6 @@ namespace Klyte.TransportLinesManager
             TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG   ,
-            TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG   ,
             TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG
         };
 
@@ -662,7 +675,9 @@ namespace Klyte.TransportLinesManager
             FIREDEPARTMENT_SERVICE_CONFIG = ItemClass.Service.FireDepartment,
             PUBLICTRANSPORT_SERVICE_CONFIG = ItemClass.Service.PublicTransport,
             DISASTER_SERVICE_CONFIG = ItemClass.Service.Disaster,
-            ROAD_NAME_CONFIG = 0xff,
+            PARKAREA_NAME_CONFIG = 0xfd,
+            DISTRICT_NAME_CONFIG = 0xfe,
+            ADDRESS_NAME_CONFIG = 0xff,
 
 
 
@@ -875,6 +890,12 @@ namespace Klyte.TransportLinesManager
             PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF = PUBLICTRANSPORT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             GOVERNMENT_USE_FOR_AUTO_NAMING_REF = DISASTER_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
 
+
+            PARKAREA_USE_FOR_AUTO_NAMING_REF = PARKAREA_NAME_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            DISTRICT_USE_FOR_AUTO_NAMING_REF = DISTRICT_NAME_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            ADDRESS_USE_FOR_AUTO_NAMING_REF = ADDRESS_NAME_CONFIG | USE_FOR_AUTO_NAMING_REF,
+
+
             TRAIN_USE_FOR_AUTO_NAMING_REF = TRAIN_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
             METRO_USE_FOR_AUTO_NAMING_REF = METRO_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
             BUS_USE_FOR_AUTO_NAMING_REF = BUS_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
@@ -909,6 +930,10 @@ namespace Klyte.TransportLinesManager
             FIREDEPARTMENT_AUTO_NAMING_REF_TEXT = FIREDEPARTMENT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT = PUBLICTRANSPORT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             GOVERNMENT_AUTO_NAMING_REF_TEXT = DISASTER_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+
+            PARKAREA_NAMING_REF_TEXT = PARKAREA_NAME_CONFIG | AUTO_NAMING_REF_TEXT,
+            DISTRICT_NAMING_REF_TEXT = DISTRICT_NAME_CONFIG | AUTO_NAMING_REF_TEXT,
+            ADDRESS_NAMING_REF_TEXT = ADDRESS_NAME_CONFIG | AUTO_NAMING_REF_TEXT,
 
             TRAIN_AUTO_NAMING_REF_TEXT = TRAIN_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
             METRO_AUTO_NAMING_REF_TEXT = METRO_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,

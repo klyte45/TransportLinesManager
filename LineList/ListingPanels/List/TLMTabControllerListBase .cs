@@ -1,19 +1,12 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using ICities;
 using Klyte.Commons.Extensors;
-using Klyte.Harmony;
-using Klyte.Commons.Extensors;
-using Klyte.Commons.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using UnityEngine;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 using static Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.UI
@@ -55,6 +48,15 @@ namespace Klyte.TransportLinesManager.UI
             TLMUtils.CreateScrollPanel(parent, out mainPanel, out UIScrollbar scrollbar, parent.width - 30, parent.height - 50, new Vector3(5, 40));
             mainPanel.autoLayout = true;
             mainPanel.autoLayoutDirection = LayoutDirection.Vertical;
+            mainPanel.eventVisibilityChanged += OnToggleVisible;
+        }
+
+        private void OnToggleVisible(UIComponent component, bool value)
+        {
+            if (value)
+            {
+                RefreshLines();
+            }
         }
 
         protected abstract void CreateTitleRow(out UIPanel titleLine, UIComponent parent);
@@ -112,7 +114,7 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        protected abstract void RefreshLines();
+        public abstract void RefreshLines();
 
         protected void RemoveExtraLines(int linesCount)
         {

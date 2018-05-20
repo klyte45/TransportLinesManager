@@ -1,9 +1,7 @@
 ﻿using ColossalFramework;
-using ColossalFramework.Threading;
 using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System;
-using System.Collections;
 using System.Reflection;
 using UnityEngine;
 
@@ -58,7 +56,7 @@ namespace Klyte.TransportLinesManager.Overrides
             TLMController.instance.LinearMapCreatingLine?.setVisible(true);
             TLMController.instance.LineCreationToolbox?.setVisible(true);
             TLMController.instance.setCurrentSelectedId(0);
-            TLMController.instance.LinearMapCreatingLine?.redrawLine();
+            frameCountRedraw = 99;
             TLMController.instance.lineInfoPanel?.Hide();
         }
 
@@ -109,6 +107,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 resetLength();
             }
         }
+        private static bool redrawing = false;
 
         private static void SimulationStepPos(ref TransportTool __instance)
         {
@@ -118,11 +117,13 @@ namespace Klyte.TransportLinesManager.Overrides
                 {
                     frameCountRedraw++;
                 }
-                else
+                else if (!redrawing)
                 {
+                    redrawing = true;
                     frameCountRedraw = 0;
                     lastLength = Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength;
                     TLMController.instance.LinearMapCreatingLine.redrawLine();
+                    redrawing = false;
                 }
             }
         }
