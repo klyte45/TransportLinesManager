@@ -1,10 +1,8 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
-using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

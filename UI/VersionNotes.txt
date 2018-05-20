@@ -1,5 +1,9 @@
 ﻿TLMRv9
+   -Added support for ParkLife
    -New listing interface, using 45's menu from Klyte Commons
+   -Now is possible to configure the autoname behaviour for accept districts and park areas also
+   -New palette editing mode: now it can be done adding files into a directory (like Addresses & Names mod)
+   -Added text field at color picker (from Klyte Commons' new version)
    -Added prefix color - and possibility to assign the same model color to all models of lines from that prefix
    -Added vehicle count based budget (all day and per hour). You can set a fixed number of vehicles for a line (only available when line based budget is enabled, disabled for prefix based)
    -UI: Now tabs separates the editor functions of the mod

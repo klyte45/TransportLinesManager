@@ -135,7 +135,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 TLMController.instance.setCurrentSelectedId(__state.m_lineCurrent);
                 if (__state.m_lineCurrent > 0 && TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
                 {
-                    TLMController.instance.AutoColor(__state.m_lineCurrent);
+                    TLMController.instance.AutoColor(__state.m_lineCurrent, true, true);
                 }
             }
         }

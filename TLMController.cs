@@ -1,23 +1,21 @@
 using ColossalFramework;
-using ColossalFramework.Plugins;
+using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Klyte.Commons;
+using Klyte.Commons.Extensors;
+using Klyte.Commons.UI;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.LineList;
+using Klyte.TransportLinesManager.UI;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
-using Klyte.TransportLinesManager.UI;
-using Klyte.TransportLinesManager.LineList;
-using ColossalFramework.Globalization;
-using Klyte.TransportLinesManager.Utils;
-using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Interfaces;
-using System.Reflection;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using System.Linq;
-using Klyte.Commons.Extensors;
-using Klyte.Commons.UI;
-using Klyte.Commons;
 
 namespace Klyte.TransportLinesManager
 {
@@ -191,13 +189,13 @@ namespace Klyte.TransportLinesManager
         }
 
 
-        public Color AutoColor(ushort i, bool ignoreRandomIfSet = true)
+        public Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
             TransportLine t = tm.m_lines.m_buffer[(int)i];
             try
             {
                 var tsd = TransportSystemDefinition.getDefinitionForLine(i);
-                if (tsd == default(TransportSystemDefinition))
+                if (tsd == default(TransportSystemDefinition) || (((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreAnyIfSet))
                 {
                     return Color.clear;
                 }
