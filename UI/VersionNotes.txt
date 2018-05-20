@@ -1,14 +1,14 @@
 ﻿TLMRv9
-   -Added support for ParkLife
+   -Added support for ParkLife (Tour Bus lines and alike things)
    -New listing interface, using 45's menu from Klyte Commons
-   -Now is possible to configure the autoname behaviour for accept districts and park areas also
+   -Now is possible to configure the autoname behaviour for accept districts and park areas also (and remove street names, if you like)
    -New palette editing mode: now it can be done adding files into a directory (like Addresses & Names mod)
-   -Added text field at color picker (from Klyte Commons' new version)
-   -Added prefix color - and possibility to assign the same model color to all models of lines from that prefix
+   -Added text field for hex color input at color pickers (from Klyte Commons' new version)
+   -Added prefix color for model - and possibility to assign the same model color to all models of lines from that prefix
    -Added vehicle count based budget (all day and per hour). You can set a fixed number of vehicles for a line (only available when line based budget is enabled, disabled for prefix based)
    -UI: Now tabs separates the editor functions of the mod
    -UI: Fixed fps drop when the list of lines is too long
    -Fixed: Incorrect spawning on deleting assets previously selected for use in a depot
    -Now unnamed bus & trams stops shows its addresses as name (like the generated in Addresses & Names mod)
    -Fixed: Near lines are also shown at stadium, shelters and other special buildings (which have a different info panel)
-   -Fixed: Slowdown and crashing game when creating a new line 
+   -Fixed: Slowdown and crashing game when creating/editing a new line 

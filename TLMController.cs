@@ -163,13 +163,6 @@ namespace Klyte.TransportLinesManager
                 mainRef = uiView.FindUIComponent<UIPanel>("InfoPanel").Find<UITabContainer>("InfoViewsContainer").Find<UIPanel>("InfoViewsPanel");
                 if (!mainRef)
                     return;
-                mainRef.eventVisibilityChanged += delegate (UIComponent component, bool b)
-                {
-                    if (b)
-                    {
-                        TLMSingleton.instance.showVersionInfoPopup();
-                    }
-                };
                 createViews();
                 mainRef.clipChildren = false;
 

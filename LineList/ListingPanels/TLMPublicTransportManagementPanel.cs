@@ -1,21 +1,12 @@
-﻿using ColossalFramework;
-using ColossalFramework.Globalization;
+﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using ICities;
-using Klyte.Commons.Extensors;
-using Klyte.Harmony;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.UI;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using UnityEngine;
-using Klyte.Commons.Overrides;
-using Klyte.TransportLinesManager.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.Commons.UI;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -87,6 +78,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (value)
             {
+                TLMSingleton.instance.showVersionInfoPopup();
                 SetViewMode(null, m_StripMain.selectedIndex);
             }
         }
