@@ -578,6 +578,8 @@ namespace Klyte.TransportLinesManager.UI
 
         private void OnColorChanged(UIComponent comp, Color color)
         {
+            TLMUtils.doLog($"COLOR CHANGED!! {color}\n{Environment.StackTrace}");
+
             TLMLineUtils.setLineColor(this.m_LineID, color);
         }
         private void changeLineTime(bool day, bool night)

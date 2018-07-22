@@ -1,4 +1,9 @@
-﻿TLMv10
+﻿TLMv10.0.1
+   -Fixed "all lines are white" bug
+   -Fixed crashing when placing stop on line creation
+   -Fixed sorting on clicking at the title row caption
+   -Fixed autoname name priority for RICO buildings
+TLMv10
    -The autoname all lines and autocolor all buttons are back!
    -Fixed empty linear map/failure on autoname bug.
    -Added Spanish language translation. Thanks zeldslayer!

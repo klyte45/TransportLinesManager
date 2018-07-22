@@ -61,6 +61,10 @@ namespace Klyte.TransportLinesManager.LineList
 
         #region Hooking
 
+        public static bool preventDefault()
+        {
+            return false;
+        }
 
         public override void AwakeBody()
         {
@@ -72,6 +76,11 @@ namespace Klyte.TransportLinesManager.LineList
             AddRedirect(typeof(PublicTransportInfoViewPanel).GetMethod("OpenDetailPanel", allFlags), OpenDetailPanel);
             AddRedirect(typeof(PublicTransportInfoViewPanel).GetMethod("OpenDetailPanelDefaultTab", allFlags), OpenDetailPanelDefaultTab);
             AddRedirect(typeof(ToursInfoViewPanel).GetMethod("OpenDetailPanel", allFlags), OpenDetailPanel);
+
+            var preventDefault = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("preventDefault", allFlags);
+            var from3 = typeof(PublicTransportLineInfo).GetMethod("RefreshData", allFlags);
+            TLMUtils.doErrorLog("Muting PublicTransportLineInfo: {0} ({1}=>{2}})", typeof(PublicTransportLineInfo), from3, preventDefault);
+            AddRedirect(from3, preventDefault);
         }
 
         private string getOrdinal(int nth)

@@ -45,9 +45,9 @@ namespace Klyte.TransportLinesManager.UI
             var from2 = typeof(TransportManager).GetMethod("ReleaseLine", allFlags);
             var to2b = typeof(TLMTabControllerLineHooks<T, V>).GetMethod("BeforeReleaseLine", allFlags);
             var to2a = typeof(TLMTabControllerLineHooks<T, V>).GetMethod("AfterReleaseLine", allFlags);
-            TLMUtils.doLog("Loading After Hooks: {0} ({1}=>{2})", typeof(BuildingManager), from, to);
-            TLMUtils.doLog("Loading After & Before Hooks: {0} ({1}=>{2}+{3})", typeof(BuildingManager), from2, to2a, to2b);
+            TLMUtils.doLog("Loading After Hooks: {0} ({1}=>{2})", typeof(TransportManager), from, to);
             AddRedirect(from, null, to);
+            TLMUtils.doLog("Loading After & Before Hooks: {0} ({1}=>{2}+{3})", typeof(TransportManager), from2, to2a, to2b);
             AddRedirect(from2, to2a, to2b);
         }
 
@@ -207,6 +207,7 @@ namespace Klyte.TransportLinesManager.UI
             AwakeDayNightOptions();
             AwakePrefixFilter();
             TLMUtils.doLog("End creating Title Row " + typeof(T));
+
         }
 
         private void TryCreateVisibilityToggleButton()
@@ -234,30 +235,35 @@ namespace Klyte.TransportLinesManager.UI
         private void LineName_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
             reverseOrder = m_LastSortCriterionLines == LineSortCriterion.NAME ? !reverseOrder : false;
+            m_LastSortCriterionLines = LineSortCriterion.NAME;
             RefreshLines();
         }
 
         private void Passengers_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
             reverseOrder = m_LastSortCriterionLines == LineSortCriterion.PASSENGER ? !reverseOrder : false;
+            m_LastSortCriterionLines = LineSortCriterion.PASSENGER;
             RefreshLines();
         }
 
         private void Vehicles_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
             reverseOrder = m_LastSortCriterionLines == LineSortCriterion.VEHICLE ? !reverseOrder : false;
+            m_LastSortCriterionLines = LineSortCriterion.VEHICLE;
             RefreshLines();
         }
 
         private void Stops_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
             reverseOrder = m_LastSortCriterionLines == LineSortCriterion.STOP ? !reverseOrder : false;
+            m_LastSortCriterionLines = LineSortCriterion.STOP;
             RefreshLines();
         }
 
         private void CodColor_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
             reverseOrder = m_LastSortCriterionLines == LineSortCriterion.LINE_NUMBER ? !reverseOrder : false;
+            m_LastSortCriterionLines = LineSortCriterion.LINE_NUMBER;
             RefreshLines();
         }
 
@@ -348,9 +354,9 @@ namespace Klyte.TransportLinesManager.UI
                     case LineSortCriterion.VEHICLE: OnVehicleSort(); break;
                     case LineSortCriterion.LINE_NUMBER: default: OnLineNumberSort(); break;
                 }
-                isUpdated = true;
             }
             catch { }
+            isUpdated = true;
         }
 
         #region Sorting

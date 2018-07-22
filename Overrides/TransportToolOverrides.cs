@@ -71,6 +71,8 @@ namespace Klyte.TransportLinesManager.Overrides
         private static ToolStatus lastState = new ToolStatus();
         private static float lastLength = 0;
         private static int frameCountRedraw = 0;
+        private static bool needsUpdate = false;
+        private static TransportTool ttInstance;
 
         public static void resetLength()
         {
@@ -92,19 +94,13 @@ namespace Klyte.TransportLinesManager.Overrides
 
         private static void OnToolGUIPos(ref TransportTool __instance, ref Event e)
         {
-            if (e.type == EventType.MouseUp && !isInsideUI)
+            lock (__instance)
             {
-                TLMUtils.doLog("OnToolGUIPostTransportTool");
-                ToolStatus currentState = new ToolStatus();
-                TLMUtils.doLog("__state => {0} | tt_mode=> {1} | tt_lineCurrent => {2}", currentState, tt_mode, tt_lineCurrent);
-                currentState.m_mode = (Mode)tt_mode.GetValue(__instance);
-                currentState.m_lineCurrent = (ushort)tt_lineCurrent.GetValue(__instance);
-                currentState.m_lineTemp = (ushort)tt_lineTemp.GetValue(__instance);
-                TLMUtils.doLog("__state = {0} => {1}, newMode = {2}", lastState, currentState, currentState.m_mode);
-                lastState = currentState;
-                redrawMap(currentState);
-                frameCountRedraw = 99;
-                resetLength();
+                if (e.type == EventType.MouseUp && !isInsideUI)
+                {
+                    ttInstance = __instance;
+                    needsUpdate = true;
+                }
             }
         }
         private static bool redrawing = false;
@@ -163,5 +159,23 @@ namespace Klyte.TransportLinesManager.Overrides
             TLMUtils.doLog(text, param);
         }
 
+        private void Update()
+        {
+            if (needsUpdate)
+            {
+                TLMUtils.doLog("OnToolGUIPostTransportTool");
+                ToolStatus currentState = new ToolStatus();
+                TLMUtils.doLog("__state => {0} | tt_mode=> {1} | tt_lineCurrent => {2}", currentState, tt_mode, tt_lineCurrent);
+                currentState.m_mode = (Mode)tt_mode.GetValue(ttInstance);
+                currentState.m_lineCurrent = (ushort)tt_lineCurrent.GetValue(ttInstance);
+                currentState.m_lineTemp = (ushort)tt_lineTemp.GetValue(ttInstance);
+                TLMUtils.doLog("__state = {0} => {1}, newMode = {2}", lastState, currentState, currentState.m_mode);
+                lastState = currentState;
+                redrawMap(currentState);
+                frameCountRedraw = 99;
+                resetLength();
+                needsUpdate = false;
+            }
+        }
     }
 }

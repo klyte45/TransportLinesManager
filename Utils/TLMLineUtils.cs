@@ -1240,6 +1240,7 @@ namespace Klyte.TransportLinesManager.Utils
         PARKAREA,
         DISTRICT,
         ADDRESS,
+        RICO
     }
 
     internal static class NamingTypeExtensions
@@ -1270,6 +1271,7 @@ namespace Klyte.TransportLinesManager.Utils
                 case NamingType.PARKAREA: return 0x00000005;
                 case NamingType.DISTRICT: return 0x00000010;
                 case NamingType.ADDRESS: return 0x00000011;
+                case NamingType.RICO: return 0x000000e;
                 default: return 0x7FFFFFFF;
             }
         }
@@ -1303,6 +1305,10 @@ namespace Klyte.TransportLinesManager.Utils
                 case TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG: return NamingType.PARKAREA;
                 case TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG: return NamingType.DISTRICT;
                 case TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG: return NamingType.ADDRESS;
+                case TLMCW.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
+                case TLMCW.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
+                case TLMCW.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
+                case TLMCW.ConfigIndex.OFFICE_SERVICE_CONFIG: return NamingType.RICO;
                 default: throw new Exception($"UNKNOWN NAME TYPE:{ci} ({((int)ci).ToString("X8")})");
 
             }

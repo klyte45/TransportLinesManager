@@ -174,6 +174,7 @@ namespace Klyte.TransportLinesManager
 
                 foreach (Type t in instances)
                 {
+                    TLMUtils.doLog($"Adding hooks: {t}");
                     gameObject.AddComponent(t);
                 }
 
