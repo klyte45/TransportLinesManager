@@ -1,19 +1,13 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using ICities;
 using Klyte.Commons.Extensors;
-using Klyte.Harmony;
 using Klyte.Commons.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using UnityEngine;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.Utils;
+using System;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -275,7 +269,7 @@ namespace Klyte.TransportLinesManager.UI
         private void ReloadPrefixOptions()
         {
             int selIdx = m_prefixSelector.selectedIndex;
-            m_prefixSelector.items = TLMUtils.getStringOptionsForPrefix(Singleton<T>.instance.GetTSD().toConfigIndex(), true, false);
+            m_prefixSelector.items = TLMUtils.getStringOptionsForPrefix(Singleton<T>.instance.GetTSD().toConfigIndex(), true, true, false);
             m_prefixSelector.selectedIndex = selIdx;
         }
 
@@ -392,7 +386,6 @@ namespace Klyte.TransportLinesManager.UI
 
 
             TLMConfigWarehouse.ConfigIndex transportType = tsd.toConfigIndex();
-            ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
             uint[] multipliers;
             IBudgetableExtension bte;
@@ -404,7 +397,7 @@ namespace Klyte.TransportLinesManager.UI
             bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
             multipliers = bte.GetBudgetsMultiplier(idx);
 
-            m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(mnPrefixo), (int)idx + 1) : Locale.Get("TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsdRef.toConfigIndex()));
+            m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int)idx + 1) : Locale.Get("TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsdRef.toConfigIndex()));
 
 
             bool budgetPerHourEnabled = multipliers.Length == 8;

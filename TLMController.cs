@@ -198,6 +198,10 @@ namespace Klyte.TransportLinesManager
                 {
                     TLMLineUtils.setLineColor(i, c);
                 }
+                else
+                {
+                    c = Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_color;
+                }
                 //TLMUtils.doLog("Colocada a cor {0} na linha {1} ({3} {2})", c, i, t.m_lineNumber, t.Info.m_transportType);
                 return c;
             }

@@ -1,22 +1,13 @@
 ﻿using ColossalFramework;
-using ColossalFramework.Globalization;
-using ColossalFramework.UI;
-using ICities;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
-using Klyte.Commons.Extensors;
-using Klyte.Harmony;
-using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Overrides
 {

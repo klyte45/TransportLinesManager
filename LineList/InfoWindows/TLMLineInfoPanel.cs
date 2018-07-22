@@ -1,8 +1,8 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.UI;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
@@ -1071,7 +1071,6 @@ namespace Klyte.TransportLinesManager.LineList
             ushort lineNumber = t.m_lineNumber;
 
             TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
-            ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMCW.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
             uint[] multipliers;
             IBudgetableExtension bte;
@@ -1097,9 +1096,9 @@ namespace Klyte.TransportLinesManager.LineList
                 m_multiplierMode.isVisible = false;
                 m_budgetLabel.isVisible = true;
 
-                if (mnPrefixo != ModoNomenclatura.Nenhum)
+                if (TLMUtils.GetPrefixModoNomenclatura(transportType) != ModoNomenclatura.Nenhum)
                 {
-                    m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(mnPrefixo), (int)idx + 1) : Locale.Get("TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+                    m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int)idx + 1) : Locale.Get("TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
                 }
                 else
                 {
@@ -1307,7 +1306,7 @@ namespace Klyte.TransportLinesManager.LineList
                 m_lineNumberLabel.width = 55;
                 m_linePrefixDropDown.enabled = false;
 
-                var temp = TLMUtils.getStringOptionsForPrefix(mnPrefixo);
+                var temp = TLMUtils.getStringOptionsForPrefix(transportType, true, true, false);
                 m_linePrefixDropDown.items = temp;
                 m_linePrefixDropDown.selectedIndex = lineNumber / 1000;
                 m_linePrefixDropDown.enabled = true;

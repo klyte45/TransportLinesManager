@@ -1,6 +1,7 @@
 using ColossalFramework;
 using ColossalFramework.DataBinding;
 using ColossalFramework.Globalization;
+using ColossalFramework.IO;
 using ColossalFramework.UI;
 using ICities;
 using Klyte.Commons.Extensors;
@@ -15,28 +16,32 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-[assembly: AssemblyVersion("9.0.0.*")]
+[assembly: AssemblyVersion("10.0.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TLMMod : IUserMod, ILoadingExtension
     {
 
-        public string Name => "TLM Reborn " + TLMSingleton.version;
-        public string Description => "Reviewed version of TLM. Requires Klyte Commons.";
+        public string Name => "Transport Lines Manager " + TLMSingleton.version;
+        public string Description => "Allows to customize and manage your public transport systems. Requires Klyte Commons.";
 
         private static bool m_isKlyteCommonsLoaded = false;
         public static bool IsKlyteCommonsEnabled()
         {
             if (!m_isKlyteCommonsLoaded)
             {
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                var assembly = (from a in assemblies
-                                where a.GetType("Klyte.Commons.KlyteCommonsMod") != null
-                                select a).SingleOrDefault();
-                if (assembly != null)
+                try
                 {
-                    m_isKlyteCommonsLoaded = true;
+                    var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                    var assembly = (from a in assemblies
+                                    where a.GetType("Klyte.Commons.KlyteCommonsMod") != null
+                                    select a).SingleOrDefault();
+                    if (assembly != null)
+                    {
+                        m_isKlyteCommonsLoaded = true;
+                    }
                 }
+                catch { }
             }
             return m_isKlyteCommonsLoaded;
         }
@@ -85,10 +90,12 @@ namespace Klyte.TransportLinesManager
 
     internal class TLMSingleton : Singleton<TLMSingleton>
     {
-        public static readonly string FOLDER_NAME = TLMUtils.BASE_FOLDER_PATH + "TransportLinesManager";
+        public static readonly string FOLDER_NAME = "TransportLinesManager";
+        public static readonly string FOLDER_PATH = TLMUtils.BASE_FOLDER_PATH + FOLDER_NAME;
         public const string PALETTE_SUBFOLDER_NAME = "ColorPalettes";
 
-        public static string palettesFolder => FOLDER_NAME + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
+        public static string palettesFolder => FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
+        public static string configsFolder => TLMConfigWarehouse.CONFIG_PATH;
 
         public static string minorVersion
         {
@@ -205,27 +212,14 @@ namespace Klyte.TransportLinesManager
         public void Awake()
         {
             Debug.LogWarningFormat("TLMRv" + TLMSingleton.majorVersion + " LOADING TLM ");
-            SettingsFile tlmSettings = new SettingsFile
+            TLMUtils.EnsureFolderCreation(configsFolder);
+            string currentConfigPath = PathUtils.AddExtension(TLMConfigWarehouse.CONFIG_PATH + TLMConfigWarehouse.CONFIG_FILENAME + "_" + TLMConfigWarehouse.GLOBAL_CONFIG_INDEX, GameSettings.extension);
+            if (!File.Exists(currentConfigPath))
             {
-                fileName = TLMConfigWarehouse.CONFIG_FILENAME
-            };
-            Debug.LogWarningFormat("TLMRv" + TLMSingleton.majorVersion + " SETTING FILES");
-            try
-            {
-                GameSettings.AddSettingsFile(tlmSettings);
-            }
-            catch (Exception e)
-            {
-                SettingsFile tryLoad = GameSettings.FindSettingsFileByName(TLMConfigWarehouse.CONFIG_FILENAME);
-                if (tryLoad == null)
+                var legacyFilename = Path.Combine(DataLocation.localApplicationData, PathUtils.AddExtension("TransportsLinesManager5_DEFAULT", GameSettings.extension));
+                if (File.Exists(legacyFilename))
                 {
-                    Debug.LogErrorFormat("TLMRv" + majorVersion + " SETTING FILES FAIL!!! ");
-                    Debug.LogError(e.Message);
-                    Debug.LogError(e.StackTrace);
-                }
-                else
-                {
-                    tlmSettings = tryLoad;
+                    File.Copy(legacyFilename, currentConfigPath);
                 }
             }
             Debug.LogWarningFormat("TLMRv" + TLMSingleton.majorVersion + " LOADING VARS ");

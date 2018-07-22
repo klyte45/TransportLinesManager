@@ -1,9 +1,6 @@
 ﻿using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Klyte.TransportLinesManager.i18n
 {
@@ -16,7 +13,7 @@ namespace Klyte.TransportLinesManager.i18n
         private const string commentChar = "#";
         private const string ignorePrefixChar = "%";
         private static string language = "";
-        private static string[] locales = new string[] { "en", "pt", "ko", "de", "cn", "pl", "nl", "fr" };
+        private static string[] locales = new string[] { "en", "pt", "ko", "de", "cn", "pl", "nl", "fr", "es" };
 
         public static string loadedLanguage
         {

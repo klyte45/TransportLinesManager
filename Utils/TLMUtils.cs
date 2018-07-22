@@ -61,15 +61,16 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return c;
         }
-        internal static string[] getStringOptionsForPrefix(TLMCW.ConfigIndex transportSystem, bool showUnprefixed = false, bool noneOption = true)
+        internal static string[] getStringOptionsForPrefix(TLMCW.ConfigIndex transportSystem, bool showUnprefixed = false, bool useNameRefSystem = false, bool noneOption = true)
         {
-            return getStringOptionsForPrefix(GetPrefixModoNomenclatura(transportSystem), showUnprefixed, transportSystem, noneOption);
+            return getStringOptionsForPrefix(GetPrefixModoNomenclatura(transportSystem), showUnprefixed, useNameRefSystem ? transportSystem : TLMCW.ConfigIndex.NIL, noneOption);
         }
-        internal static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false, TLMCW.ConfigIndex nameReferenceSystem = TLMCW.ConfigIndex.NIL, bool noneOption = true)
+        private static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false, TLMCW.ConfigIndex nameReferenceSystem = TLMCW.ConfigIndex.NIL, bool noneOption = true)
         {
 
             List<string> saida = new List<string>(new string[noneOption ? 1 : 0]);
-            if (showUnprefixed)
+
+            if (!noneOption)
             {
                 string unprefixedName = Locale.Get("TLM_UNPREFIXED");
                 if (nameReferenceSystem != TLMCW.ConfigIndex.NIL)
@@ -133,10 +134,15 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 addToArrayWithName(numeros, saida, nameReferenceSystem);
             }
+            if (!noneOption && !showUnprefixed)
+            {
+                saida.RemoveAt(0);
+            }
             return saida.ToArray();
         }
         private static void addToArrayWithName(string[] input, List<string> saida, TLMCW.ConfigIndex nameReferenceSystem)
         {
+            ushort offset = (ushort)saida.Count;
             if (nameReferenceSystem == TLMCW.ConfigIndex.NIL)
             {
                 saida.AddRange(input);
@@ -146,7 +152,7 @@ namespace Klyte.TransportLinesManager.Utils
                 for (uint i = 0; i < input.Length; i++)
                 {
                     string item = input[i];
-                    string prefixName = TLMLineUtils.getTransportSystemPrefixName(nameReferenceSystem, i + 1);
+                    string prefixName = TLMLineUtils.getTransportSystemPrefixName(nameReferenceSystem, offset + i);
                     if (string.IsNullOrEmpty(prefixName))
                     {
                         saida.Add(item);
@@ -163,6 +169,7 @@ namespace Klyte.TransportLinesManager.Utils
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
             ModoNomenclatura m = GetPrefixModoNomenclatura(transportType);
+            doLog("getPrefixesOptions: MODO NOMENCLATURA = " + m);
             List<string> saida = new List<string>();
             if (addDefaults)
             {
@@ -409,7 +416,7 @@ namespace Klyte.TransportLinesManager.Utils
             Building b = bm.m_buildings.m_buffer[buildingId];
             while (b.m_parentBuilding > 0)
             {
-                doLog("getStationNameWithPrefix(): building id {0} - parent = {1}", buildingId, b.m_parentBuilding);
+                doLog("getBuildingName(): building id {0} - parent = {1}", buildingId, b.m_parentBuilding);
                 buildingId = b.m_parentBuilding;
                 b = bm.m_buildings.m_buffer[buildingId];
             }
@@ -418,12 +425,14 @@ namespace Klyte.TransportLinesManager.Utils
             serviceFound = b.Info?.GetService() ?? default(ItemClass.Service);
             subserviceFound = b.Info?.GetSubService() ?? default(ItemClass.SubService);
             TLMCW.ConfigIndex index = GameServiceExtensions.toConfigIndex(serviceFound, subserviceFound);
-            if (index == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
+            TransportSystemDefinition tsd = default(TransportSystemDefinition);
+            if ((index & TLMCW.ConfigIndex.DESC_DATA) == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
             {
-                var tsd = TransportSystemDefinition.from(b.Info.GetAI());
+                tsd = TransportSystemDefinition.from(b.Info.GetAI());
                 index = tsd.toConfigIndex();
             }
             prefix = index.getPrefixTextNaming()?.Trim();
+            doLog($"getBuildingName(): serviceFound {serviceFound} - subserviceFound = {subserviceFound} - tsd = {tsd} - index = {index} - prefix = {prefix}");
 
             return bm.GetBuildingName(buildingId, iid);
         }

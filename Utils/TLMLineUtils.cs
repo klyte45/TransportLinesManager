@@ -953,10 +953,10 @@ namespace Klyte.TransportLinesManager.Utils
                 return savedName;
             }
 
+
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-            buildingID = getStationBuilding(stopId, ss, excludeCargo);
 
             var nearStops = FindNearStops(nn.m_position);
             foreach (var stop in nearStops)
@@ -975,6 +975,8 @@ namespace Klyte.TransportLinesManager.Utils
                     }
                 }
             }
+
+            buildingID = getStationBuilding(stopId, ss, excludeCargo);
 
             if (buildingID > 0)
             {
@@ -1017,7 +1019,7 @@ namespace Klyte.TransportLinesManager.Utils
                 return "????????";
             }
         }
-        public static readonly ItemClass.Service[] seachOrder = new ItemClass.Service[]{
+        public static readonly ItemClass.Service[] searchOrder = new ItemClass.Service[]{
             ItemClass.Service.PublicTransport,
             ItemClass.Service.Monument,
             ItemClass.Service.Beautification,
@@ -1097,9 +1099,9 @@ namespace Klyte.TransportLinesManager.Utils
                     if (buildingId == 0)
                     {
                         int iterator = 1;
-                        while (buildingId == 0 && iterator < seachOrder.Count())
+                        while (buildingId == 0 && iterator < searchOrder.Count())
                         {
-                            buildingId = TLMUtils.FindBuilding(nn.m_position, 100f, seachOrder[iterator], ItemClass.SubService.None, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                            buildingId = TLMUtils.FindBuilding(nn.m_position, 100f, searchOrder[iterator], ItemClass.SubService.None, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                             iterator++;
                         }
                     }

@@ -85,26 +85,79 @@ namespace Klyte.TransportLinesManager.UI
         private UIButton m_NightIcon;
         private UIButton m_DayNightIcon;
         private UIButton m_DisabledIcon;
+        private UIButton m_autoNameAll;
+        private UIButton m_autoColorAll;
+
+        private bool pendentCreateViewToggleButton = true;
+        private UIPanel createdTitleLine;
 
         protected override void OnUpdateStateChange(bool state) { }
         protected override bool HasRegionalPrefixFilter => false;
 
         #region Awake
-        protected override void Awake()
+        protected void Start()
         {
-            base.Awake();
             m_LastSortCriterionLines = LineSortCriterion.DEFAULT;
+
+            var parent = GetComponent<UIComponent>();
+            TLMUtils.createUIElement(out m_autoNameAll, parent.transform);
+            m_autoNameAll.relativePosition = new Vector3(parent.width - 60f, -80);
+            m_autoNameAll.textScale = 0.6f;
+            m_autoNameAll.width = 40;
+            m_autoNameAll.height = 40;
+            m_autoNameAll.tooltip = Locale.Get("TLM_AUTO_NAME_ALL_TOOLTIP");
+            TLMUtils.initButton(m_autoNameAll, true, "ButtonMenu");
+            m_autoNameAll.name = "AutoNameAll";
+            m_autoNameAll.isVisible = true;
+            m_autoNameAll.eventClick += (component, eventParam) =>
+            {
+                foreach (TLMLineListItem<T> item in mainPanel.GetComponentsInChildren<TLMLineListItem<T>>())
+                {
+                    item.DoAutoName();
+                }
+            };
+
+            var icon = m_autoNameAll.AddUIComponent<UISprite>();
+            icon.relativePosition = new Vector3(2, 2);
+            icon.atlas = TLMController.taTLM;
+            icon.width = 36;
+            icon.height = 36;
+            icon.spriteName = "AutoNameIcon";
+
+
+            TLMUtils.createUIElement(out m_autoColorAll, parent.transform);
+            m_autoColorAll.relativePosition = new Vector3(parent.width - 120f, -80);
+            m_autoColorAll.textScale = 0.6f;
+            m_autoColorAll.width = 40;
+            m_autoColorAll.height = 40;
+            m_autoColorAll.tooltip = Locale.Get("TLM_AUTO_COLOR_ALL_TOOLTIP");
+            TLMUtils.initButton(m_autoColorAll, true, "ButtonMenu");
+            m_autoColorAll.name = "AutoColorAll";
+            m_autoColorAll.isVisible = true;
+            m_autoColorAll.eventClick += (component, eventParam) =>
+            {
+                foreach (TLMLineListItem<T> item in mainPanel.GetComponentsInChildren<TLMLineListItem<T>>())
+                {
+                    item.DoAutoColor();
+                }
+            };
+
+            icon = m_autoColorAll.AddUIComponent<UISprite>();
+            icon.relativePosition = new Vector3(2, 2);
+            icon.atlas = TLMController.taTLM;
+            icon.width = 36;
+            icon.height = 36;
+            icon.spriteName = "AutoColorIcon";
         }
         #endregion
 
         #region title row
         protected override void CreateTitleRow(out UIPanel titleLine, UIComponent parent)
         {
+            TLMUtils.doLog("Creating Title Row " + typeof(T));
             TLMUtils.createUIElement(out titleLine, parent.transform, "TLMtitleline", new Vector4(5, 0, parent.width - 10, 40));
-
-            m_visibilityToggle = Instantiate(FindObjectOfType<UIView>().FindUIComponent<UICheckBox>("LineVisible"));
-            m_visibilityToggle.transform.SetParent(titleLine.transform);
-            m_visibilityToggle.eventCheckChanged += toggleAllLinesVisibility;
+            createdTitleLine = titleLine;
+            TryCreateVisibilityToggleButton();
 
             TLMUtils.createUIElement(out UILabel codColor, titleLine.transform, "codColor");
             codColor.minimumSize = new Vector2(60, 0);
@@ -153,6 +206,29 @@ namespace Klyte.TransportLinesManager.UI
 
             AwakeDayNightOptions();
             AwakePrefixFilter();
+            TLMUtils.doLog("End creating Title Row " + typeof(T));
+        }
+
+        private void TryCreateVisibilityToggleButton()
+        {
+            if (pendentCreateViewToggleButton)
+            {
+                try
+                {
+                    m_visibilityToggle = Instantiate(FindObjectOfType<UIView>().FindUIComponent<UICheckBox>("LineVisible"));
+                    m_visibilityToggle.transform.SetParent(createdTitleLine.transform);
+                    m_visibilityToggle.eventCheckChanged += toggleAllLinesVisibility;
+                    pendentCreateViewToggleButton = false;
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        protected override void DoOnUpdate()
+        {
+            TryCreateVisibilityToggleButton();
         }
 
         private void LineName_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
@@ -242,35 +318,39 @@ namespace Klyte.TransportLinesManager.UI
 
         public override void RefreshLines()
         {
-
-            m_DayIcon.relativePosition = new Vector3(655, 14);
-            m_NightIcon.relativePosition = new Vector3(682, 14);
-            m_DayNightIcon.relativePosition = new Vector3(701, 14);
-            m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
-
-            var tsd = Singleton<T>.instance.GetTSD();
-            bool hasPrefix = TLMLineUtils.hasPrefix(ref tsd);
-            int count = 0;
-            for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
+            try
             {
-                TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
-                if (tl.Complete && Singleton<T>.instance.GetTSD().isFromSystem(tl) && (!hasPrefix || m_prefixFilter.selectedIndex == 0 || m_prefixFilter.selectedIndex - 1 == TLMLineUtils.getPrefix(lineID)))
+                TryCreateVisibilityToggleButton();
+                m_DayIcon.relativePosition = new Vector3(655, 14);
+                m_NightIcon.relativePosition = new Vector3(682, 14);
+                m_DayNightIcon.relativePosition = new Vector3(701, 14);
+                m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
+
+                var tsd = Singleton<T>.instance.GetTSD();
+                bool hasPrefix = TLMLineUtils.hasPrefix(ref tsd);
+                int count = 0;
+                for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
                 {
-                    AddToList(lineID, ref count);
+                    TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
+                    if (tl.Complete && Singleton<T>.instance.GetTSD().isFromSystem(tl) && (!hasPrefix || m_prefixFilter.selectedIndex == 0 || m_prefixFilter.selectedIndex - 1 == TLMLineUtils.getPrefix(lineID)))
+                    {
+                        AddToList(lineID, ref count);
+                    }
+
                 }
+                RemoveExtraLines(count);
 
+                switch (m_LastSortCriterionLines)
+                {
+                    case LineSortCriterion.NAME: OnNameSort(); break;
+                    case LineSortCriterion.PASSENGER: OnPassengerSort(); break;
+                    case LineSortCriterion.STOP: OnStopSort(); break;
+                    case LineSortCriterion.VEHICLE: OnVehicleSort(); break;
+                    case LineSortCriterion.LINE_NUMBER: default: OnLineNumberSort(); break;
+                }
+                isUpdated = true;
             }
-            RemoveExtraLines(count);
-
-            switch (m_LastSortCriterionLines)
-            {
-                case LineSortCriterion.NAME: OnNameSort(); break;
-                case LineSortCriterion.PASSENGER: OnPassengerSort(); break;
-                case LineSortCriterion.STOP: OnStopSort(); break;
-                case LineSortCriterion.VEHICLE: OnVehicleSort(); break;
-                case LineSortCriterion.LINE_NUMBER: default: OnLineNumberSort(); break;
-            }
-            isUpdated = true;
+            catch { }
         }
 
         #region Sorting

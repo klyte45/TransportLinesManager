@@ -1,9 +1,4 @@
-
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -11,12 +6,8 @@ namespace Klyte.TransportLinesManager.UI
     using ColossalFramework.Globalization;
     using ColossalFramework.UI;
     using Commons.Extensors;
-    using Extensors;
     using Extensors.BuildingAIExt;
     using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-    using System;
-    using System.Collections;
-    using System.Diagnostics;
     using UnityEngine;
     using Utils;
     internal class TLMDepotListItem<T> : ToolsModifierControl where T : TLMSysDef<T>
@@ -110,6 +101,7 @@ namespace Klyte.TransportLinesManager.UI
                 m_prefixesServed.relativePosition = new Vector2(340, 0);
                 //prefix
                 m_prefixesServed.text = TLMLineUtils.getPrefixesServedString(m_buildingID, secondary);
+                m_prefixesServedList = TLMDepotAI.getPrefixesServedByDepot(m_buildingID, secondary);
                 DepotAI buildingAI = b.Info.GetAI() as DepotAI;
                 List<string> prefixOptions = TLMUtils.getDepotPrefixesOptions(TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo).toConfigIndex());
                 prefixOptions.Add(Locale.Get("TLM_REGIONAL"));

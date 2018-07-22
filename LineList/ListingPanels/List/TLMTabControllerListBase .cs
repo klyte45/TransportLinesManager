@@ -112,7 +112,10 @@ namespace Klyte.TransportLinesManager.UI
                 ReloadPrefixFilter();
                 RefreshLines();
             }
+            DoOnUpdate();
         }
+
+        protected virtual void DoOnUpdate() { }
 
         public abstract void RefreshLines();
 

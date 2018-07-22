@@ -1,32 +1,31 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.UI;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.LineList.ExtraUI
 {
-    internal class TLMAssetSelectorWindow :MonoBehaviour
+    internal class TLMAssetSelectorWindow : MonoBehaviour
     {
         private UIPanel m_parent => m_lineInfo.mainPanel;
         private UIPanel m_mainPanel;
         private UIHelperExtension m_uiHelper;
         private UILabel m_title;
         private TLMLineInfoPanel m_lineInfo;
-        public TLMLineInfoPanel lineInfo {
+        public TLMLineInfoPanel lineInfo
+        {
             get {
                 return m_lineInfo;
             }
             set {
-                if(m_lineInfo == null)
+                if (m_lineInfo == null)
                 {
                     m_lineInfo = value;
                     CreateWindow();
@@ -44,7 +43,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
         private Dictionary<string, UICheckBox> m_checkboxes = new Dictionary<string, UICheckBox>();
         private TransportSystemDefinition m_lastDef = default(TransportSystemDefinition);
         private bool m_isLoading;
-        
+
         private void CreateWindow()
         {
             CreateMainPanel();
@@ -256,9 +255,8 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                 else
                 {
                     TLMConfigWarehouse.ConfigIndex transportType = tsd.toConfigIndex();
-                    ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
                     var prefix = TLMLineUtils.getPrefix(lineId);
-                    m_title.text = string.Format(Locale.Get("TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(mnPrefixo), (int)prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
+                    m_title.text = string.Format(Locale.Get("TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int)prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
                 }
 
                 m_isLoading = false;

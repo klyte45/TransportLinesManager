@@ -1,15 +1,10 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
-using Klyte.Commons.Extensors;
-using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI

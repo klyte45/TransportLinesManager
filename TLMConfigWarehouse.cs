@@ -2,6 +2,8 @@
 using Klyte.Commons.Interfaces;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Utils;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -9,8 +11,10 @@ namespace Klyte.TransportLinesManager
 {
     internal class TLMConfigWarehouse : ConfigWarehouseBase<TLMConfigWarehouse.ConfigIndex, TLMConfigWarehouse>
     {
-        public const string CONFIG_FILENAME = "TransportsLinesManager5";
+        public const string CONFIG_FILENAME = "CityConfigV10";
+        public static readonly string CONFIG_PATH = TLMUtils.BASE_FOLDER_PATH + TLMSingleton.FOLDER_NAME + Path.DirectorySeparatorChar + "CityConfigs" + Path.DirectorySeparatorChar;
         public override string ConfigFilename => CONFIG_FILENAME;
+        public override string ConfigPath => CONFIG_PATH;
         public const string TRUE_VALUE = "1";
         public const string FALSE_VALUE = "0";
         public static readonly ConfigIndex[] PALETTES_INDEXES = new ConfigIndex[] {
@@ -280,7 +284,7 @@ namespace Klyte.TransportLinesManager
 
         public override int getDefaultIntValueForProperty(ConfigIndex i)
         {
-            if ((i & ConfigIndex.DEFAULT_TICKET_PRICE) > 0 & TransportManager.exists)
+            if ((i & ConfigIndex.DEFAULT_TICKET_PRICE) == ConfigIndex.DEFAULT_TICKET_PRICE && (i & ConfigIndex.ADC_DESC_PART) == 0 && TransportManager.exists)
             {
                 var tsd = getTransportSystemDefinitionForConfigTransport(i & ConfigIndex.SYSTEM_PART);
                 if (tsd != default(TransportSystemDefinition))
@@ -600,6 +604,7 @@ namespace Klyte.TransportLinesManager
         public enum ConfigIndex
         {
             NIL = -1,
+            ADC_DESC_PART = 0x7F000000,
             SYSTEM_PART = 0xFF0000,
             TYPE_PART = 0x00FF00,
             DESC_DATA = 0xFF,

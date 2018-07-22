@@ -3,15 +3,12 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.UI;
-using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -267,8 +264,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
 
                 TLMConfigWarehouse.ConfigIndex transportType = tsd.toConfigIndex();
-                ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMConfigWarehouse.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
-                m_title.text = string.Format(Locale.Get("TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(mnPrefixo), (int)prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
+                m_title.text = string.Format(Locale.Get("TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int)prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
 
                 m_isLoading = false;
             };
