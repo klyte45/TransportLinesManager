@@ -56,7 +56,6 @@ namespace Klyte.TransportLinesManager.Overrides
             TLMController.instance.LinearMapCreatingLine?.setVisible(true);
             TLMController.instance.LineCreationToolbox?.setVisible(true);
             TLMController.instance.setCurrentSelectedId(0);
-            frameCountRedraw = 99;
             TLMController.instance.lineInfoPanel?.Hide();
         }
 
@@ -70,14 +69,10 @@ namespace Klyte.TransportLinesManager.Overrides
 
         private static ToolStatus lastState = new ToolStatus();
         private static float lastLength = 0;
-        private static int frameCountRedraw = 0;
         private static bool needsUpdate = false;
         private static TransportTool ttInstance;
 
-        public static void resetLength()
-        {
-            lastLength = 0;
-        }
+
         private static bool isInsideUI
         {
             get {
@@ -103,24 +98,13 @@ namespace Klyte.TransportLinesManager.Overrides
                 }
             }
         }
-        private static bool redrawing = false;
 
         private static void SimulationStepPos(ref TransportTool __instance)
         {
-            if (frameCountRedraw > 30 || (lastState.m_lineCurrent > 0 && lastLength != Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength))
+            if (lastState.m_lineCurrent > 0 && Math.Abs(lastLength - Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength) > 0.001f)
             {
-                if (frameCountRedraw < 30 || HasInputFocus)
-                {
-                    frameCountRedraw++;
-                }
-                else if (!redrawing)
-                {
-                    redrawing = true;
-                    frameCountRedraw = 0;
-                    lastLength = Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength;
-                    TLMController.instance.LinearMapCreatingLine.redrawLine();
-                    redrawing = false;
-                }
+                ttInstance = __instance;
+                needsUpdate = true;
             }
         }
 
@@ -133,6 +117,8 @@ namespace Klyte.TransportLinesManager.Overrides
                 {
                     TLMController.instance.AutoColor(__state.m_lineCurrent, true, true);
                 }
+                TLMController.instance.LinearMapCreatingLine.redrawLine();
+                lastLength = Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength;
             }
         }
 
@@ -161,7 +147,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
         private void Update()
         {
-            if (needsUpdate)
+            if (needsUpdate && ttInstance != null)
             {
                 TLMUtils.doLog("OnToolGUIPostTransportTool");
                 ToolStatus currentState = new ToolStatus();
@@ -172,8 +158,6 @@ namespace Klyte.TransportLinesManager.Overrides
                 TLMUtils.doLog("__state = {0} => {1}, newMode = {2}", lastState, currentState, currentState.m_mode);
                 lastState = currentState;
                 redrawMap(currentState);
-                frameCountRedraw = 99;
-                resetLength();
                 needsUpdate = false;
             }
         }

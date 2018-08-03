@@ -1,4 +1,7 @@
-﻿TLMv10.0.1
+﻿TLMv10.0.2
+   -Fixed exception when naming with unlisted types
+   -Added cable car to naming rule
+TLMv10.0.1
    -Fixed "all lines are white" bug
    -Fixed crashing when placing stop on line creation
    -Fixed sorting on clicking at the title row caption

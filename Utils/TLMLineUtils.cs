@@ -1229,6 +1229,7 @@ namespace Klyte.TransportLinesManager.Utils
         METRO,
         BUS,
         TOUR_BUS,
+        CABLE_CAR,
         MONUMENT,
         BEAUTIFICATION,
         HEALTHCARE,
@@ -1272,6 +1273,7 @@ namespace Klyte.TransportLinesManager.Utils
                 case NamingType.DISTRICT: return 0x00000010;
                 case NamingType.ADDRESS: return 0x00000011;
                 case NamingType.RICO: return 0x000000e;
+                case NamingType.CABLE_CAR: return 0x00000004;
                 default: return 0x7FFFFFFF;
             }
         }
@@ -1294,6 +1296,7 @@ namespace Klyte.TransportLinesManager.Utils
                 case TLMCW.ConfigIndex.METRO_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.METRO;
                 case TLMCW.ConfigIndex.BUS_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.BUS;
                 case TLMCW.ConfigIndex.TOUR_BUS_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.TOUR_BUS;
+                case TLMCW.ConfigIndex.CABLE_CAR_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG: return NamingType.CABLE_CAR;
                 case TLMCW.ConfigIndex.MONUMENT_SERVICE_CONFIG: return NamingType.MONUMENT;
                 case TLMCW.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG: return NamingType.BEAUTIFICATION;
                 case TLMCW.ConfigIndex.HEALTHCARE_SERVICE_CONFIG: return NamingType.HEALTHCARE;
@@ -1309,7 +1312,7 @@ namespace Klyte.TransportLinesManager.Utils
                 case TLMCW.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
                 case TLMCW.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMCW.ConfigIndex.OFFICE_SERVICE_CONFIG: return NamingType.RICO;
-                default: throw new Exception($"UNKNOWN NAME TYPE:{ci} ({((int)ci).ToString("X8")})");
+                default: TLMUtils.doErrorLog($"UNKNOWN NAME TYPE:{ci} ({((int)ci).ToString("X8")})"); return NamingType.NONE;
 
             }
         }

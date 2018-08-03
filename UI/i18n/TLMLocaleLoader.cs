@@ -13,7 +13,7 @@ namespace Klyte.TransportLinesManager.i18n
         private const string commentChar = "#";
         private const string ignorePrefixChar = "%";
         private static string language = "";
-        private static string[] locales = new string[] { "en", "pt", "ko", "de", "cn", "pl", "nl", "fr", "es" };
+        private static string[] locales = new string[] { "en", "pt", "ko", "de", "cn", "pl", "nl", "fr", "es", "ru" };
 
         public static string loadedLanguage
         {
