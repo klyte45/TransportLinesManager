@@ -1,14 +1,9 @@
-﻿using ColossalFramework;
-using ColossalFramework.Math;
-using ColossalFramework.UI;
+﻿using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using UnityEngine;
-using Klyte.TransportLinesManager.Utils;
-using Klyte.Commons.Utils;
 
 namespace Klyte.TransportLinesManager.MapDrawer
 {
@@ -80,28 +75,69 @@ namespace Klyte.TransportLinesManager.MapDrawer
         }
         public List<Vector2> getPath(Vector2 originalPos, Vector2 toPos, CardinalPoint s1Exit, CardinalPoint s2Exit)
         {
+            //var angle = originalPos.GetAngleToPoint(toPos);
+            //var tan = Math.Tan(angle / Mathf.Rad2Deg - 0.000001);
+            Vector2 p1, p2;
+            CardinalPoint c1, c2;
+            //if (angle == 90 || angle == 270 || tan >= 0)
+            //{
+            p1 = originalPos;
+            p2 = toPos;
+            c1 = s1Exit;
+            c2 = s2Exit;
+            //}
+            //else
+            //{
+            //    p1 = toPos;
+            //    p2 = originalPos;
+            //    c1 = s2Exit;
+            //    c2 = s1Exit;
+            //}
 
-            CardinalPoint currentDirection = s1Exit;
 
-            List<Vector2> saida = new List<Vector2>
+
+            List<Vector2> saida = new List<Vector2>();
+
+            GetPointsLine(ref p1, ref p2, ref c1, ref c2, ref saida);
+
+            for (int i = 1; i < saida.Count; i++)
             {
-                originalPos
-            };
+                addSegmentToIndex(saida[i - 1], saida[i]);
+            }
+            if (TLMSingleton.instance == null || TLMSingleton.debugMode)
+            {
+                string points = string.Join(",", saida.Select(x => "(" + x.x + "," + x.y + ")").ToArray());
+                TLMUtils.doLog("Points: [{0}]", points);
+            }
 
+            return saida;
+
+        }
+
+        private void GetPointsLine(ref Vector2 p1, ref Vector2 p2, ref CardinalPoint c1, ref CardinalPoint c2, ref List<Vector2> saida, bool retrying = false)
+        {
+
+
+
+            saida.Add(p1);
+
+            CardinalPoint currentDirection = c1;
 
 
             //int iterationCount = 0;
             //DiagCheck:
             //iterationCount++;
-            var dirS1 = s1Exit.getCardinalOffset2D();
-            var dirS2 = s2Exit.getCardinalOffset2D();
-            Vector2 currentPos = originalPos + dirS1;
-            Vector2 targetPos = toPos + dirS2;
+            var dirS1 = c1.getCardinalOffset2D();
+            var dirS2 = c2.getCardinalOffset2D();
+
+            TLMUtils.doLog("c1 = {0};dirS1 = {1}", c1, dirS1);
+            TLMUtils.doLog("c2 = {0};dirS2 = {1}", c2, dirS2);
+
+
+            Vector2 currentPos = p1 + dirS1;
+            Vector2 targetPos = p2 + dirS2;
 
             saida.Add(currentPos);
-
-            TLMUtils.doLog("s1Exit = {0};dirS1 = {1}", s1Exit, dirS1);
-            TLMUtils.doLog("s2Exit = {0};dirS2 = {1}", s2Exit, dirS2);
 
             var isHorizontalS1 = Math.Abs(dirS1.x) > Math.Abs(dirS1.y);
             var isVerticalS1 = Math.Abs(dirS1.x) < Math.Abs(dirS1.y);
@@ -112,6 +148,12 @@ namespace Klyte.TransportLinesManager.MapDrawer
             var isVerticalS2 = Math.Abs(dirS2.x) < Math.Abs(dirS2.y);
             var isD1S2 = (dirS2.y + dirS2.x) == 0 && (dirS2.x - dirS2.y) != 0;
             var isD2S2 = (dirS2.x - dirS2.y) == 0 && (dirS2.y + dirS2.x) != 0;
+
+            var Δx = targetPos.x - currentPos.x;
+            var Δy = targetPos.y - currentPos.y;
+
+            var iΔx = Math.Abs(Δx);
+            var iΔy = Math.Abs(Δy);
 
             #region D1S1
             if (isD1S1)
@@ -139,7 +181,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     int targetX = indexSumS1 - s2y;
                     if (!calcIntersecHV(currentPos, targetPos, dirS1, dirS2, targetX, s2y, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE!");
+                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        c1++;
+                        if (!retrying) GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, true);
                     }
 
                 }
@@ -150,7 +194,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     int targetY = indexSumS1 - s2x;
                     if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s2x, targetY, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE!");
+                        TLMUtils.doLog("WORST CASE - RETRYING");
+                        c1--;
+                        if (!retrying) GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, true);
                     }
                 }
             }
@@ -184,7 +230,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     int targetX = indexSubS1 + s2y;
                     if (!calcIntersecHV(currentPos, targetPos, dirS1, dirS2, targetX, s2y, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE!");
+                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        c1--;
+                        if (!retrying) GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, true);
                     }
                 }
                 else if (isVerticalS2)
@@ -194,7 +242,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     int targetY = indexSubS1 + s2x;
                     if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s2x, targetY, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE!");
+                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        c1++;
+                        if (!retrying) GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, true);
                     }
                 }
             }
@@ -210,7 +260,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     int targetX = indexSumS2 - s1y;
                     if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, targetX, s1y, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE!");
+                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        c2++;
+                        if (!retrying) GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, true);
                     }
                 }
                 else if (isD2S2)
@@ -220,7 +272,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     int targetX = indexSubS2 + s1y;
                     if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, targetX, s1y, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE!");
+                        TLMUtils.doLog("WORST CASE!- RETRYING");
+                        c2--;
+                        if (!retrying) GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, true);
                     }
                 }
                 else if (isHorizontalS2)
@@ -234,10 +288,23 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 else if (isVerticalS2)
                 {
                     TLMUtils.doLog("(H - V)");
-                    int s2x = (int)targetPos.x;
-                    if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s2x, s1y, ref saida))
+
+                    if (iΔx != iΔy)
                     {
-                        TLMUtils.doLog("WORST CASE!");
+                        int s2x = (int)currentPos.x;
+                        var ΔiΔ = Math.Abs(iΔx - iΔy);
+                        if (iΔx > iΔy)
+                        {
+                            s2x += (int)(Math.Sign(Δx) * (iΔx - ΔiΔ));
+                        }
+                        else
+                        {
+                            s1y += (int)(Math.Sign(Δy) * (iΔy - ΔiΔ));
+                        }
+                        if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s2x, s1y, ref saida))
+                        {
+                            TLMUtils.doLog("WORST CASE!");
+                        }
                     }
                 }
             }
@@ -253,7 +320,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     int targetY = indexSumS2 - s1x;
                     if (!calcIntersecHV(currentPos, targetPos, dirS1, dirS2, s1x, targetY, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE!");
+                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        c2--;
+                        if (!retrying) GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, true);
                     }
                 }
                 else if (isD2S2)
@@ -263,16 +332,30 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     int targetY = s1x - indexSubS2;
                     if (!calcIntersecHV(currentPos, targetPos, dirS1, dirS2, s1x, targetY, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE!");
+                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        c2++;
+                        if (!retrying) GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, true);
                     }
                 }
                 else if (isHorizontalS2)
                 {
                     TLMUtils.doLog("(V - H)");
-                    int s2y = (int)targetPos.y;
-                    if (!calcIntersecHV(currentPos, targetPos, dirS1, dirS2, s1x, s2y, ref saida))
+                    if (iΔx != iΔy)
                     {
-                        TLMUtils.doLog("WORST CASE!");
+                        int s2y = (int)targetPos.y;
+                        var ΔiΔ = Math.Abs(iΔx - iΔy);
+                        if (iΔx > iΔy)
+                        {
+                            s1x += (int)(Math.Sign(Δx) * (iΔx - ΔiΔ));
+                        }
+                        else
+                        {
+                            s2y += (int)(Math.Sign(Δy) * (iΔy - ΔiΔ));
+                        }
+                        if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s1x, s2y, ref saida))
+                        {
+                            TLMUtils.doLog("WORST CASE!");
+                        }
                     }
                 }
                 else if (isVerticalS2)
@@ -285,122 +368,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
             }
             #endregion 
-            //Vector2 offsetRemove = Vector2.zero;
-            //if (isD1)
-            //{
-            //    //diag
-            //    int index = (int)(diagPointEnd.y + diagPointEnd.x);
-            //    var targetPointD1 = getFreeD1Point(currentPos, diagPointEnd);
-            //    if (iterationCount > 4)
-            //    {
-            //        targetPointD1 = targetPos;
-            //    }
-            //    if (targetPointD1 == currentPos)
-            //    {
-            //        currentPos += currentDirection.getCardinalOffset2D();
-            //        goto DiagCheck;
-            //    }
-
-            //    if (targetPointD1 != targetPos)
-            //    {
-            //        saida.Add(currentPos);
-            //        saida.Add(targetPointD1);
-            //        currentPos = targetPointD1;
-            //        currentDirection = CardinalPoint.getCardinal2D(currentPos, targetPos);
-            //        goto DiagCheck;
-            //    }
-            //}
-            //else if (isD2)
-            //{
-            //    //diag
-            //    int index = (int)(diagPointEnd.x - diagPointEnd.y);
-            //    var targetPointD2 = getFreeD2Point(currentPos, diagPointEnd);
-            //    if (iterationCount > 4)
-            //    {
-            //        targetPointD2 = targetPos;
-            //    }
-            //    if (targetPointD2 == currentPos)
-            //    {
-            //        currentPos += currentDirection.getCardinalOffset2D();
-            //        goto DiagCheck;
-            //    }
-            //    if (targetPointD2 != targetPos)
-            //    {
-            //        saida.Add(currentPos);
-            //        saida.Add(targetPointD2);
-            //        currentPos = targetPointD2;
-            //        currentDirection = CardinalPoint.getCardinal2D(currentPos, targetPos);
-            //        goto DiagCheck;
-            //    }
-            //}
-            //else if (isHorizontal)
-            //{
-            //    var targetPointX = getFreeHorizontal(currentPos, targetPos);
-            //    if(iterationCount > 4)
-            //    {
-            //        targetPointX = targetPos;
-            //    }
-            //    if (targetPos != targetPointX)
-            //    {
-            //        if (targetPointX == currentPos)
-            //        {
-            //            currentPos += 0.5f * currentDirection.getCardinalOffset2D();
-            //            saida.Add(currentPos);
-            //            currentPos = targetPos - 0.5f * currentDirection.getCardinalOffset2D();
-            //            saida.Add(currentPos);
-            //            saida.Add(targetPos);
-            //        }
-            //        else {
-            //            saida.Add(targetPointX);
-            //            currentDirection++;
-            //            currentPos = targetPointX + currentDirection.getCardinalOffset2D();
-            //            saida.Add(currentPos);
-            //            goto DiagCheck;
-            //        }
-            //    }
-            //}
-            //else if (isVertical)
-            //{
-            //    var targetPointY = getFreeVertical(currentPos, targetPos);
-            //    if (iterationCount > 4)
-            //    {
-            //        targetPointY = targetPos;
-            //    }
-            //    if (targetPos != targetPointY)
-            //    {
-            //        if (targetPointY == currentPos)
-            //        {
-            //            currentPos += 0.5f * currentDirection.getCardinalOffset2D();
-            //            saida.Add(currentPos);
-            //            currentPos = targetPos - 0.5f * currentDirection.getCardinalOffset2D();
-            //            saida.Add(currentPos);
-            //            saida.Add(targetPos);
-            //        }
-            //        else {
-            //            saida.Add(targetPointY);
-            //            currentDirection++;
-            //            currentPos = targetPointY + currentDirection.getCardinalOffset2D();
-            //            saida.Add(currentPos);
-            //            goto DiagCheck;
-            //        }
-            //    }
-            //}
 
             saida.Add(targetPos);
-            saida.Add(toPos);
-
-            for (int i = 1; i < saida.Count; i++)
-            {
-                addSegmentToIndex(saida[i - 1], saida[i]);
-            }
-            if (TLMSingleton.instance == null || TLMSingleton.debugMode)
-            {
-                string points = string.Join(",", saida.Select(x => "(" + x.x + "," + x.y + ")").ToArray());
-                TLMUtils.doLog("Points: [{0}]", points);
-            }
-
-            return saida;
-
+            saida.Add(p2);
         }
 
         private static List<Vector2> pathParallelDiag(Vector2 dirS1, Vector2 dirS2, Vector2 currentPos, Vector2 targetPos)
@@ -716,8 +686,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             }
             public int id
             {
-                get
-                {
+                get {
                     return getIdForSegments(s1, s2, out bool x);
                 }
             }

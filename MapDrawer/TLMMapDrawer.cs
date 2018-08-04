@@ -34,7 +34,8 @@ namespace Klyte.TransportLinesManager.MapDrawer
             for (ushort lineId = 0; lineId < controller.tm.m_lines.m_size; lineId++)
             {
                 TransportLine t = controller.tm.m_lines.m_buffer[(int)lineId];
-                if (t.m_lineNumber > 0 && (t.m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None)
+
+                if (t.m_lineNumber > 0 && allowedTypesToDraw.Contains(t.Info.m_transportType) && (t.m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None)
                 {
                     linesByType[t.Info.m_transportType].Add(lineId);
                 }
@@ -125,7 +126,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
             }
             printToSVG(stations, transportLines, Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd"));
-            printToJson(stations, transportLines, Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd"));
+            //printToJson(stations, transportLines, Singleton<SimulationManager>.instance.m_metaData.m_CityName + "_" + Singleton<SimulationManager>.instance.m_currentGameTime.ToString("yyyy.MM.dd"));
         }
 
 
@@ -148,6 +149,17 @@ namespace Klyte.TransportLinesManager.MapDrawer
             sr.Close();
             return filename;
         }
+
+        private static TransportInfo.TransportType[] allowedTypesToDraw =
+        {
+            TransportInfo.TransportType.Monorail,
+            TransportInfo.TransportType.Airplane,
+            TransportInfo.TransportType.Metro,
+            TransportInfo.TransportType.Ship,
+            TransportInfo.TransportType.TouristBus,
+            TransportInfo.TransportType.Train,
+            TransportInfo.TransportType.Tram,
+        };
 
         public static string printToSVG(List<Station> stations, Dictionary<ushort, MapTransportLine> transportLines, string mapName)
         {
@@ -275,7 +287,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         break;
                     }
                 }
-                return direction.getCardinalAngle();
+                return direction.getCardinalAngle() - 90;
             }
         }
 

@@ -44,6 +44,10 @@ div.stationContainer > p > b {
     stroke-width: 2.5px;
     fill: none;
 }
+.pathMonorail {
+    stroke-width: 3.5px;
+    fill: none;
+}
 
 .pathTrain {
     stroke-width: 5px;

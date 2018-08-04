@@ -1,12 +1,8 @@
 ﻿using ColossalFramework;
-using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.MapDrawer
@@ -15,7 +11,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
     {
         public ushort lineId;
         private List<Station> stations;
-        private TransportInfo.TransportType transportType;
+        public TransportInfo.TransportType transportType { get; private set; }
         private ItemClass.SubService subservice;
         private VehicleInfo.VehicleType vehicleType;
         public string lineName;
