@@ -1,20 +1,9 @@
 ﻿using ColossalFramework;
-using ColossalFramework.Globalization;
-using ColossalFramework.UI;
-using ICities;
 using Klyte.Commons.Extensors;
-using Klyte.Extensions;
-using Klyte.Harmony;
-using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
@@ -28,7 +17,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return false;
         }
 
-        public override void Awake()
+        public override void AwakeBody()
         {
             MethodInfo preventDefault = typeof(TransportToolOverrides).GetMethod("preventDefault", allFlags);
 
@@ -67,7 +56,7 @@ namespace Klyte.TransportLinesManager.Overrides
             TLMController.instance.LinearMapCreatingLine?.setVisible(true);
             TLMController.instance.LineCreationToolbox?.setVisible(true);
             TLMController.instance.setCurrentSelectedId(0);
-            TLMController.instance.LinearMapCreatingLine?.redrawLine();
+            frameCountRedraw = 99;
             TLMController.instance.lineInfoPanel?.Hide();
         }
 
@@ -111,30 +100,30 @@ namespace Klyte.TransportLinesManager.Overrides
                 currentState.m_mode = (Mode)tt_mode.GetValue(__instance);
                 currentState.m_lineCurrent = (ushort)tt_lineCurrent.GetValue(__instance);
                 currentState.m_lineTemp = (ushort)tt_lineTemp.GetValue(__instance);
-                TLMUtils.doLog("__state = {0} | {1}, newMode = {2}", lastState.m_mode, lastState.m_lineCurrent, currentState.m_mode);
-                redrawMap(currentState);
+                TLMUtils.doLog("__state = {0} => {1}, newMode = {2}", lastState, currentState, currentState.m_mode);
                 lastState = currentState;
+                redrawMap(currentState);
+                frameCountRedraw = 99;
                 resetLength();
             }
-            if (TLMController.instance.LineCreationToolbox.isVisible())
-            {
-                TLMController.instance.LineCreationToolbox.eachFrame();
-            }
         }
+        private static bool redrawing = false;
 
         private static void SimulationStepPos(ref TransportTool __instance)
         {
-            if (lastState.m_lineCurrent > 0 && lastLength != Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength)
+            if (frameCountRedraw > 30 || (lastState.m_lineCurrent > 0 && lastLength != Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength))
             {
-                if (frameCountRedraw < 5 || HasInputFocus)
+                if (frameCountRedraw < 30 || HasInputFocus)
                 {
                     frameCountRedraw++;
                 }
-                else
+                else if (!redrawing)
                 {
+                    redrawing = true;
                     frameCountRedraw = 0;
                     lastLength = Singleton<TransportManager>.instance.m_lines.m_buffer[lastState.m_lineCurrent].m_totalLength;
                     TLMController.instance.LinearMapCreatingLine.redrawLine();
+                    redrawing = false;
                 }
             }
         }
@@ -146,10 +135,9 @@ namespace Klyte.TransportLinesManager.Overrides
                 TLMController.instance.setCurrentSelectedId(__state.m_lineCurrent);
                 if (__state.m_lineCurrent > 0 && TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
                 {
-                    TLMController.instance.AutoColor(__state.m_lineCurrent);
+                    TLMController.instance.AutoColor(__state.m_lineCurrent, true, true);
                 }
             }
-            TLMController.instance.LinearMapCreatingLine.redrawLine();
         }
 
         private struct ToolStatus
@@ -158,12 +146,21 @@ namespace Klyte.TransportLinesManager.Overrides
             public ushort m_lineTemp;
             public ushort m_lineCurrent;
 
+            public override string ToString()
+            {
+                return $"mode={m_mode};lineTemp={m_lineTemp};lineCurrent={m_lineCurrent}";
+            }
+
         }
         private enum Mode
         {
             NewLine,
             AddStops,
             MoveStops
+        }
+        public override void doLog(string text, params object[] param)
+        {
+            TLMUtils.doLog(text, param);
         }
 
     }

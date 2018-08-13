@@ -23,7 +23,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         private static Dictionary<TransportSystemDefinition, Dictionary<ushort, List<uint>>> cached_lists = new Dictionary<TransportSystemDefinition, Dictionary<ushort, List<uint>>>();
 
-        private static Dictionary<ushort, List<uint>> getDictionaryFromConfigString(string s, TransportSystemDefinition tsd)
+        private static Dictionary<ushort, List<uint>> getDictionaryFromConfigString(string s, ref TransportSystemDefinition tsd)
         {
             Dictionary<ushort, List<uint>> saida = new Dictionary<ushort, List<uint>>();
             var tempArray = s.Split(COMMA.ToCharArray());
@@ -54,6 +54,12 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             return saida;
         }
 
+
+        public override void doLog(string text, params object[] param)
+        {
+            TLMUtils.doLog(text, param);
+        }
+
         private static string getConfigStringFromDictionary(Dictionary<ushort, List<uint>> d)
         {
             List<string> temp = new List<string>();
@@ -64,10 +70,10 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             return string.Join(COMMA, temp.ToArray());
         }
 
-        private static void saveConfigForTransportType(TransportSystemDefinition tsd, Dictionary<ushort, List<uint>> value)
+        private static void saveConfigForTransportType(ref TransportSystemDefinition tsd, Dictionary<ushort, List<uint>> value)
         {
             string depotList = getConfigStringFromDictionary(value);
-            TLMConfigWarehouse.setCurrentConfigString(TLMConfigWarehouse.getConfigDepotPrefix(tsd), depotList);
+            TLMConfigWarehouse.setCurrentConfigString(TLMConfigWarehouse.getConfigDepotPrefix(ref tsd), depotList);
             cached_lists[tsd] = value;
         }
         #endregion
@@ -78,14 +84,14 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             cached_lists = new Dictionary<TransportSystemDefinition, Dictionary<ushort, List<uint>>>();
         }
 
-        private static Dictionary<ushort, List<uint>> getConfigForTransportType(TransportSystemDefinition tsd)
+        private static Dictionary<ushort, List<uint>> getConfigForTransportType(ref TransportSystemDefinition tsd)
         {
             if (!cached_lists.ContainsKey(tsd))
             {
-                string depotList = TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.getConfigDepotPrefix(tsd));
+                string depotList = TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.getConfigDepotPrefix(ref tsd));
                 if (TLMSingleton.instance != null && TLMSingleton.debugMode)
                     TLMUtils.doLog("getConfigForTransportType STRING FOR {0}: {1}", tsd.ToString(), depotList);
-                cached_lists[tsd] = getDictionaryFromConfigString(depotList, tsd);
+                cached_lists[tsd] = getDictionaryFromConfigString(depotList, ref tsd);
             }
             return cached_lists[tsd];
         }
@@ -99,14 +105,14 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             if (bm.m_buildings.m_buffer[buildingID].Info.GetAI() is DepotAI buildingAI)
             {
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
-                var dic = getConfigForTransportType(tsd);
+                var dic = getConfigForTransportType(ref tsd);
                 if (!dic.ContainsKey(buildingID))
                 {
                     dic[buildingID] = new List<uint>(defaultPrefixList);
                 }
                 dic[buildingID].Add(prefix);
 
-                saveConfigForTransportType(tsd, dic);
+                saveConfigForTransportType(ref tsd, dic);
             }
         }
 
@@ -116,12 +122,12 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             if (bm.m_buildings.m_buffer[buildingID].Info.GetAI() is DepotAI buildingAI)
             {
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
-                var dic = getConfigForTransportType(tsd);
+                var dic = getConfigForTransportType(ref tsd);
                 if (dic.ContainsKey(buildingID))
                 {
                     dic.Remove(buildingID);
                 }
-                saveConfigForTransportType(tsd, dic);
+                saveConfigForTransportType(ref tsd, dic);
             }
         }
 
@@ -131,13 +137,13 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             if (bm.m_buildings.m_buffer[buildingID].Info.GetAI() is DepotAI buildingAI)
             {
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
-                var dic = getConfigForTransportType(tsd);
+                var dic = getConfigForTransportType(ref tsd);
                 if (!dic.ContainsKey(buildingID))
                 {
                     dic[buildingID] = new List<uint>(defaultPrefixList);
                 }
                 dic[buildingID].Remove(prefix);
-                saveConfigForTransportType(tsd, dic);
+                saveConfigForTransportType(ref tsd, dic);
             }
         }
 
@@ -147,9 +153,9 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             if (bm.m_buildings.m_buffer[buildingID].Info.GetAI() is DepotAI buildingAI)
             {
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
-                var dic = getConfigForTransportType(tsd);
+                var dic = getConfigForTransportType(ref tsd);
                 dic[buildingID] = new List<uint>();
-                saveConfigForTransportType(tsd, dic);
+                saveConfigForTransportType(ref tsd, dic);
             }
         }
 
@@ -157,7 +163,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         #region Utility methods
 
-        public static List<ushort> getAllDepotsFromCity(TransportSystemDefinition tsd)
+        public static List<ushort> getAllDepotsFromCity(ref TransportSystemDefinition tsd)
         {
             List<ushort> saida = new List<ushort>();
             var bm = Singleton<BuildingManager>.instance;
@@ -179,7 +185,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             foreach (ushort i in buildings)
             {
                 PrefabAI prefAI = bm.m_buildings.m_buffer[i].Info.GetAI();
-                if (prefAI is DepotAI buildingAI && buildingAI.m_maxVehicleCount > 0)
+                if ((prefAI is DepotAI buildingAI && buildingAI.m_maxVehicleCount > 0) || (prefAI is ShelterAI))
                 {
                     saida.Add(i);
                 }
@@ -196,7 +202,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
                 if (tsd != default(TransportSystemDefinition))
                 {
-                    var dic = getConfigForTransportType(tsd);
+                    var dic = getConfigForTransportType(ref tsd);
                     if (!dic.ContainsKey(buildingID))
                     {
                         return defaultPrefixList;
@@ -207,10 +213,10 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             return null;
         }
 
-        public static List<ushort> getAllowedDepotsForPrefix(TransportSystemDefinition tsd, uint prefix)
+        public static List<ushort> getAllowedDepotsForPrefix(ref TransportSystemDefinition tsd, uint prefix)
         {
-            var dic = getConfigForTransportType(tsd);
-            List<ushort> saida = getAllDepotsFromCity(tsd);
+            var dic = getConfigForTransportType(ref tsd);
+            List<ushort> saida = getAllDepotsFromCity(ref tsd);
             foreach (ushort i in dic.Keys)
             {
                 if (TLMSingleton.instance != null && TLMSingleton.debugMode)
@@ -234,9 +240,9 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             return randomInfo;
         }
 
-        public static void setRandomBuildingByPrefix(TransportSystemDefinition tsd, uint prefix, ref ushort currentId)
+        public static void setRandomBuildingByPrefix(ref TransportSystemDefinition tsd, uint prefix, ref ushort currentId)
         {
-            var allowedDepots = getAllowedDepotsForPrefix(tsd, prefix);
+            var allowedDepots = getAllowedDepotsForPrefix(ref tsd, prefix);
             if (allowedDepots.Count == 0 || allowedDepots.Contains(currentId))
             {
                 if (TLMSingleton.instance != null && TLMSingleton.debugMode)
@@ -292,11 +298,11 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
                 if (TLMLineUtils.hasPrefix(ref tl))
                 {
-                    setRandomBuildingByPrefix(tsd, tl.m_lineNumber / 1000u, ref buildingID);
+                    setRandomBuildingByPrefix(ref tsd, tl.m_lineNumber / 1000u, ref buildingID);
                 }
                 else
                 {
-                    setRandomBuildingByPrefix(tsd, 0, ref buildingID);
+                    setRandomBuildingByPrefix(ref tsd, 0, ref buildingID);
                 }
 
                 TLMUtils.doLog("randomVehicleInfo");
@@ -328,7 +334,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         #region Hooking
 
-        public override void Awake()
+        public override void AwakeBody()
         {
             TLMUtils.doLog("Loading Depot Hooks!");
             AddRedirect(typeof(DepotAI).GetMethod("StartTransfer", allFlags), typeof(TLMDepotAI).GetMethod("StartTransfer", allFlags));

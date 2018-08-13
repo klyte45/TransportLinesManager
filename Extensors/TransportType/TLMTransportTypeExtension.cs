@@ -13,15 +13,16 @@ using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
-    internal interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension { }
+    internal interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension, IUseColorForModelExtension, IColorSelectableExtension { }
 
-    internal abstract class TLMTransportTypeExtension<TSD, SG> : ExtensionInterfaceDefaultImpl<PrefixConfigIndex, SG>, ITLMTransportTypeExtension where TSD : TLMSysDef, new() where SG : TLMTransportTypeExtension<TSD, SG>
+    internal abstract class TLMTransportTypeExtension<TSD, SG> : ExtensionInterfaceDefaultImpl<PrefixConfigIndex, SG>, ITLMTransportTypeExtension where TSD : TLMSysDef<TSD>, new() where SG : TLMTransportTypeExtension<TSD, SG>
     {
 
         protected override TLMConfigWarehouse.ConfigIndex ConfigIndexKey
         {
             get {
-                return TLMConfigWarehouse.getConfigAssetsForAI(definition);
+                var tsd = definition;
+                return TLMConfigWarehouse.getConfigAssetsForAI(ref tsd);
             }
         }
         protected override bool AllowGlobal { get { return false; } }
@@ -84,7 +85,6 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         #region Ticket Price
         public uint GetTicketPrice(uint prefix)
         {
-
             if (uint.TryParse(SafeGet(prefix, PrefixConfigIndex.TICKET_PRICE), out uint result))
             {
                 return result;
@@ -93,41 +93,12 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         }
         public uint GetDefaultTicketPrice(uint x = 0)
         {
-
-            switch (definition.subService)
+            var savedVal = TLMConfigWarehouse.instance.getInt(TLMConfigWarehouse.ConfigIndex.DEFAULT_TICKET_PRICE | Singleton<TSD>.instance.GetTSD().toConfigIndex());
+            if (savedVal > 0)
             {
-                case ItemClass.SubService.PublicTransportCableCar:
-                case ItemClass.SubService.PublicTransportBus:
-                case ItemClass.SubService.PublicTransportMonorail:
-                    return 100;
-                case ItemClass.SubService.PublicTransportMetro:
-                case ItemClass.SubService.PublicTransportTaxi:
-                case ItemClass.SubService.PublicTransportTrain:
-                case ItemClass.SubService.PublicTransportTram:
-                    return 200;
-                case ItemClass.SubService.PublicTransportPlane:
-                    if (definition.vehicleType == VehicleInfo.VehicleType.Blimp)
-                    {
-                        return 100;
-                    }
-                    else
-                    {
-                        return 1000;
-                    }
-                case ItemClass.SubService.PublicTransportShip:
-                    if (definition.vehicleType == VehicleInfo.VehicleType.Ferry)
-                    {
-                        return 100;
-                    }
-                    else
-                    {
-                        return 500;
-                    }
-                default:
-                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("subservice not found: {0}", definition.subService);
-                    return 103;
+                return (uint)savedVal;
             }
-
+            return (uint)TransportManager.instance.GetTransportInfo(Singleton<TSD>.instance.GetTSD().transportType).m_ticketPrice;
         }
         public void SetTicketPrice(uint prefix, uint price)
         {
@@ -178,27 +149,82 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         }
         public VehicleInfo GetAModel(ushort lineID)
         {
-            return TLMUtils.GetRandomModel(GetAssetList(TLMLineUtils.getPrefix(lineID)));
+            var prefix = TLMLineUtils.getPrefix(lineID);
+            VehicleInfo info = null;
+            List<string> assetList = GetAssetList(prefix);
+            while (info == null && assetList.Count > 0)
+            {
+                info = TLMUtils.GetRandomModel(assetList, out string modelName);
+                if (info == null)
+                {
+                    RemoveAsset(prefix, modelName);
+                    assetList = GetAssetList(prefix);
+                }
+            }
+            return info;
         }
         public void LoadBasicAssets()
         {
-            basicAssetsList = TLMUtils.LoadBasicAssets(definition);
+            var tsd = definition;
+            basicAssetsList = TLMUtils.LoadBasicAssets(ref tsd);
+        }
+
+        #endregion
+
+        #region Color
+        public Color GetColor(uint prefix)
+        {
+            return TLMUtils.DeserializeColor(SafeGet(prefix, PrefixConfigIndex.COLOR), ItSepLvl3);
+        }
+
+        public void SetColor(uint prefix, Color value)
+        {
+            if (value.a < 1)
+            {
+                CleanColor(prefix);
+            }
+            else
+            {
+                SafeSet(prefix, PrefixConfigIndex.COLOR, TLMUtils.SerializeColor(value, ItSepLvl3));
+            }
+        }
+
+        public void CleanColor(uint prefix)
+        {
+            SafeCleanProperty(prefix, PrefixConfigIndex.COLOR);
+        }
+        #endregion
+
+        #region Use Color For Model
+        public bool IsUsingColorForModel(uint prefix)
+        {
+            return Boolean.TryParse(SafeGet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL), out bool result) && result;
+        }
+
+        public void SetUsingColorForModel(uint prefix, bool value)
+        {
+            SafeSet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL, value.ToString());
         }
         #endregion
 
     }
 
-    internal sealed class TLMTransportTypeExtensionBus : TLMTransportTypeExtension<TLMSysDefBus, TLMTransportTypeExtensionBus> { }
-    internal sealed class TLMTransportTypeExtensionBlimp : TLMTransportTypeExtension<TLMSysDefBlimp, TLMTransportTypeExtensionBlimp> { }
-    internal sealed class TLMTransportTypeExtensionEvacBus : TLMTransportTypeExtension<TLMSysDefBlimp, TLMTransportTypeExtensionEvacBus> { }
-    internal sealed class TLMTransportTypeExtensionFerry : TLMTransportTypeExtension<TLMSysDefFerry, TLMTransportTypeExtensionFerry> { }
-    internal sealed class TLMTransportTypeExtensionMetro : TLMTransportTypeExtension<TLMSysDefMetro, TLMTransportTypeExtensionMetro> { }
-    internal sealed class TLMTransportTypeExtensionMonorail : TLMTransportTypeExtension<TLMSysDefMonorail, TLMTransportTypeExtensionMonorail> { }
-    internal sealed class TLMTransportTypeExtensionPlane : TLMTransportTypeExtension<TLMSysDefPlane, TLMTransportTypeExtensionPlane> { }
-    internal sealed class TLMTransportTypeExtensionShip : TLMTransportTypeExtension<TLMSysDefShip, TLMTransportTypeExtensionShip> { }
-    internal sealed class TLMTransportTypeExtensionTrain : TLMTransportTypeExtension<TLMSysDefTrain, TLMTransportTypeExtensionTrain> { }
-    internal sealed class TLMTransportTypeExtensionTram : TLMTransportTypeExtension<TLMSysDefTram, TLMTransportTypeExtensionTram> { }
-    
+    internal sealed class TLMTransportTypeExtensionNorBus : TLMTransportTypeExtension<TLMSysDefNorBus, TLMTransportTypeExtensionNorBus> { }
+    internal sealed class TLMTransportTypeExtensionNorBlp : TLMTransportTypeExtension<TLMSysDefNorBlp, TLMTransportTypeExtensionNorBlp> { }
+    internal sealed class TLMTransportTypeExtensionEvcBus : TLMTransportTypeExtension<TLMSysDefEvcBus, TLMTransportTypeExtensionEvcBus> { }
+    internal sealed class TLMTransportTypeExtensionNorFer : TLMTransportTypeExtension<TLMSysDefNorFer, TLMTransportTypeExtensionNorFer> { }
+    internal sealed class TLMTransportTypeExtensionNorMet : TLMTransportTypeExtension<TLMSysDefNorMet, TLMTransportTypeExtensionNorMet> { }
+    internal sealed class TLMTransportTypeExtensionNorMnr : TLMTransportTypeExtension<TLMSysDefNorMnr, TLMTransportTypeExtensionNorMnr> { }
+    internal sealed class TLMTransportTypeExtensionNorPln : TLMTransportTypeExtension<TLMSysDefNorPln, TLMTransportTypeExtensionNorPln> { }
+    internal sealed class TLMTransportTypeExtensionNorShp : TLMTransportTypeExtension<TLMSysDefNorShp, TLMTransportTypeExtensionNorShp> { }
+    internal sealed class TLMTransportTypeExtensionNorTrn : TLMTransportTypeExtension<TLMSysDefNorTrn, TLMTransportTypeExtensionNorTrn> { }
+    internal sealed class TLMTransportTypeExtensionNorTrm : TLMTransportTypeExtension<TLMSysDefNorTrm, TLMTransportTypeExtensionNorTrm> { }
+    internal sealed class TLMTransportTypeExtensionTouBus : TLMTransportTypeExtension<TLMSysDefTouBus, TLMTransportTypeExtensionTouBus> { }
+    internal sealed class TLMTransportTypeExtensionTouPed : TLMTransportTypeExtension<TLMSysDefTouPed, TLMTransportTypeExtensionTouPed> { }
+    internal sealed class TLMTransportTypeExtensionTouBal : TLMTransportTypeExtension<TLMSysDefTouBal, TLMTransportTypeExtensionTouBal> { }
+    internal sealed class TLMTransportTypeExtensionNorCcr : TLMTransportTypeExtension<TLMSysDefNorCcr, TLMTransportTypeExtensionNorCcr> { }
+    internal sealed class TLMTransportTypeExtensionNorTax : TLMTransportTypeExtension<TLMSysDefNorTax, TLMTransportTypeExtensionNorTax> { }
+
     internal sealed class TLMTransportExtensionUtils
     {
 
@@ -210,7 +236,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                 {
                     uint idx;
                     IAssetSelectorExtension extension;
-                    if (TLMTransportLineExtension.instance.GetUseCustomConfig(lineId))
+                    if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineId))
                     {
                         idx = lineId;
                         extension = TLMTransportLineExtension.instance;
@@ -262,6 +288,8 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         MODELS,
         PREFIX_NAME,
         BUDGET_MULTIPLIER,
-        TICKET_PRICE
+        TICKET_PRICE,
+        COLOR,
+        USE_COLOR_FOR_MODEL
     }
 }

@@ -1,24 +1,12 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
-using ColossalFramework.Math;
-using ColossalFramework.Plugins;
 using ColossalFramework.UI;
-using ICities;
 using Klyte.Commons.Utils;
-using Klyte.Extensions;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
-using Klyte.TransportLinesManager.Extensors.NetNodeExt;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
@@ -40,7 +28,7 @@ namespace Klyte.TransportLinesManager.Utils
         };
 
         #region Prefix Operations
-        internal static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, bool avoidRandom = false)
+        internal static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, bool avoidRandom = false, bool allowClear = false)
         {
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
             {
@@ -67,16 +55,20 @@ namespace Klyte.TransportLinesManager.Utils
             }
             Color c;
             c = TLMAutoColorPalettes.getColor(num, pal, randomOnOverflow, avoidRandom);
-            if (c == Color.clear)
+            if (c == Color.clear && !allowClear)
             {
                 c = TLMCW.getColorForTransportType(transportType);
             }
             return c;
         }
-        internal static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false, TLMCW.ConfigIndex nameReferenceSystem = TLMCW.ConfigIndex.NIL)
+        internal static string[] getStringOptionsForPrefix(TLMCW.ConfigIndex transportSystem, bool showUnprefixed = false, bool noneOption = true)
+        {
+            return getStringOptionsForPrefix(GetPrefixModoNomenclatura(transportSystem), showUnprefixed, transportSystem, noneOption);
+        }
+        internal static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false, TLMCW.ConfigIndex nameReferenceSystem = TLMCW.ConfigIndex.NIL, bool noneOption = true)
         {
 
-            List<string> saida = new List<string>(new string[] { "" });
+            List<string> saida = new List<string>(new string[noneOption ? 1 : 0]);
             if (showUnprefixed)
             {
                 string unprefixedName = Locale.Get("TLM_UNPREFIXED");
@@ -167,10 +159,10 @@ namespace Klyte.TransportLinesManager.Utils
                 }
             }
         }
-        internal static string[] getPrefixesOptions(TLMCW.ConfigIndex transportType, Boolean addDefaults = true)
+        internal static List<string> getPrefixesOptions(TLMCW.ConfigIndex transportType, Boolean addDefaults = true)
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
-            var m = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+            ModoNomenclatura m = GetPrefixModoNomenclatura(transportType);
             List<string> saida = new List<string>();
             if (addDefaults)
             {
@@ -223,8 +215,14 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 saida.AddRange(numeros.Select(x => x.ToString()));
             }
-            return saida.ToArray();
+            return saida;
         }
+
+        internal static ModoNomenclatura GetPrefixModoNomenclatura(TLMCW.ConfigIndex transportType)
+        {
+            return (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+        }
+
         internal static List<string> getDepotPrefixesOptions(TLMCW.ConfigIndex transportType)
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
@@ -423,7 +421,7 @@ namespace Klyte.TransportLinesManager.Utils
             if (index == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
             {
                 var tsd = TransportSystemDefinition.from(b.Info.GetAI());
-                index = tsd?.toConfigIndex() ?? index;
+                index = tsd.toConfigIndex();
             }
             prefix = index.getPrefixTextNaming()?.Trim();
 
@@ -474,7 +472,7 @@ namespace Klyte.TransportLinesManager.Utils
         }
         #endregion
 
-        internal static List<string> LoadBasicAssets(TransportSystemDefinition definition)
+        internal static List<string> LoadBasicAssets(ref TransportSystemDefinition definition)
         {
             List<string> basicAssetsList = new List<string>();
 

@@ -1,6 +1,4 @@
 using ColossalFramework;
-using ColossalFramework.Math;
-using ColossalFramework.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -87,7 +85,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         //						Debug.Log ("ULT POS:" + ultPos);
                         ushort nextStop = t.GetStop(j % stopsCount);
-                        string name = TLMLineUtils.getStationName(nextStop, lineId, t.Info.m_stationSubService, out ItemClass.Service service, out ItemClass.SubService nil2, out string prefix, out ushort buildingId);
+                        string name = TLMLineUtils.getStationName(nextStop, lineId, t.Info.m_stationSubService, out ItemClass.Service service, out ItemClass.SubService nil2, out string prefix, out ushort buildingId, out NamingType namingType);
 
                         Vector3 worldPos = TLMLineUtils.getStationBuildingPosition(nextStop, t.Info.m_stationSubService);
                         Vector2 pos2D = calc(worldPos, invPrecision);
@@ -432,7 +430,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             return "<!DOCTYPE html>" +
              "<html><head> <meta charset=\"UTF-8\"> " +
              "<style>" +
-            ResourceLoader.loadResourceString("MapDrawer.lineDrawBasicCss.css") +
+            TLMResourceLoader.instance.loadResourceString("MapDrawer.lineDrawBasicCss.css") +
              "</style>" +
              "</head><body>" +
              string.Format("<svg height='{0}' width='{1}'>", height, width) +

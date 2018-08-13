@@ -1,19 +1,15 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
-using Klyte.TransportLinesManager.LineList;
+using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
-using Klyte.TransportLinesManager.Utils;
-using Klyte.Extensions;
-using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.Extensors;
-using System.Reflection;
-using Klyte.TransportLinesManager.Overrides;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -87,7 +83,7 @@ namespace Klyte.TransportLinesManager.UI
                 return m_autoName;
             }
         }
-        
+
         public void setLinearMapColor(Color c)
         {
             linearMapLineNumberFormat.color = c;
@@ -97,42 +93,52 @@ namespace Klyte.TransportLinesManager.UI
         public void setLineNumberCircle(ushort lineID)
         {
             TLMLineUtils.setLineNumberCircleOnRef(lineID, linearMapLineNumber);
-            m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
-            linearMapLineNumber.tooltip = m_autoName;
+            try
+            {
+                m_autoName = TLMLineUtils.calculateAutoName(lineID);
+                linearMapLineNumber.tooltip = m_autoName;
+            }
+            catch { }
         }
 
 
 
         public void redrawLine()
         {
+            TLMUtils.doLog("init RedrawLine");
             ushort lineID = parent.CurrentSelectedId;
             TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)lineID];
             int stopsCount = t.CountStops(lineID);
             int vehicleCount = t.CountVehicles(lineID);
             Color lineColor = TLMController.instance.tm.GetLineColor(lineID);
+            TLMUtils.doLog("p1");
             setLinearMapColor(lineColor);
             clearStations();
             updateSubIconLayer();
             setLineNumberCircle(lineID);
+            TLMUtils.doLog("p2");
             if (lineID == 0)
             {
                 var tsd = TransportSystemDefinition.from(parent.CurrentTransportInfo);
                 if (tsd != default(TransportSystemDefinition))
                 {
-                    linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.GetIconForIndex(tsd.toConfigIndex());
+                    linearMapLineNumberFormat.backgroundSprite = TLMCW.getBgIconForIndex(tsd.toConfigIndex());
                 }
                 lineStationsPanel.width = 0;
                 return;
             }
 
-            ItemClass.SubService ss = TLMCW.getDefinitionForLine(lineID).subService;
+            TLMUtils.doLog("p3");
+            ItemClass.SubService ss = TransportSystemDefinition.getDefinitionForLine(lineID).subService;
             linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.getIconForLine(lineID);
-            m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
+            TLMUtils.doLog("p4");
+            m_autoName = TLMLineUtils.calculateAutoName(lineID);
             linearMapLineNumber.tooltip = m_autoName;
             string stationName;
             Vector3 local;
             string airport, taxi, harbor, regionalStation, cableCarStation;
             string namePrefix;
+            TLMUtils.doLog("p5");
             bool isComplete = (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None;
             bool simmetric = TLMLineUtils.CalculateSimmetry(ss, stopsCount, t, out int middle);
             float addedWidth = 0;
@@ -176,6 +182,7 @@ namespace Klyte.TransportLinesManager.UI
                     lineStationsPanel.width += addedWidth;
                 }
             }
+            TLMUtils.doLog("p6");
             lineStationsPanel.width -= addedWidth;
             if (showExtraStopInfo)
             {
@@ -187,7 +194,7 @@ namespace Klyte.TransportLinesManager.UI
                     AddVehicleToLinearMap(lineColor, vehicleId);
                 }
             }
-
+            TLMUtils.doLog("end RedrawLine");
         }
 
         public TransportLine updateSubIconLayer()
@@ -265,11 +272,11 @@ namespace Klyte.TransportLinesManager.UI
                 TLMUtils.doLog("onVehicleDrop! {0}", component.name);
                 DraggableVehicleInfo dvi = eventParam.source.parent.GetComponentInChildren<DraggableVehicleInfo>();
                 UIView view = GameObject.FindObjectOfType<UIView>();
-                UIHitInfo[] hits = view.RaycastAll(eventParam.ray);
+                PoolList<UIHitInfo> hits = view.RaycastAll(eventParam.ray);
                 DroppableStationInfo dsi = null;
                 UIComponent res = null;
                 int idxRes = -1;
-                for (int i = hits.Length - 1; i >= 0; i--)
+                for (int i = hits.Count - 1; i >= 0; i--)
                 {
                     UIHitInfo hit = hits[i];
                     DroppableStationInfo[] dsiList = hit.component.GetComponentsInChildren<DroppableStationInfo>();
@@ -365,7 +372,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void clearStations()
         {
-            UnityEngine.Object.Destroy(lineStationsPanel.gameObject);
+            GameObject.Destroy(lineStationsPanel.gameObject);
             residentCounters.Clear();
             touristCounters.Clear();
             lineVehicles.Clear();
@@ -648,7 +655,7 @@ namespace Klyte.TransportLinesManager.UI
                 TLMLineUtils.setStopName(y, stationNodeId, lineID, () =>
                 {
                     stationLabel.text = TLMLineUtils.getFullStationName(stationNodeId, lineID, ss);
-                    m_autoName = TLMLineUtils.calculateAutoName(lineID, true);
+                    m_autoName = TLMLineUtils.calculateAutoName(lineID);
                     parent.OnRenameStationAction(autoName);
                 });
             };
@@ -859,7 +866,7 @@ namespace Klyte.TransportLinesManager.UI
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-            stationName = TLMLineUtils.getStationName(stopId, lineId, ss, out ItemClass.Service servFound, out ItemClass.SubService subServFound, out prefix, out ushort buildingId);
+            stationName = TLMLineUtils.getStationName(stopId, lineId, ss, out ItemClass.Service servFound, out ItemClass.SubService subServFound, out prefix, out ushort buildingId, out NamingType namingType);
 
             //paradas proximas (metro e trem)
             TransportManager tm = Singleton<TransportManager>.instance;

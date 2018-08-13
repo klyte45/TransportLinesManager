@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
-using Klyte.Extensions;
+using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
@@ -21,7 +21,7 @@ namespace Klyte.TransportLinesManager.UI
             return false;
         }
 
-        public override void Awake()
+        public override void AwakeBody()
         {
             MethodInfo preventDefault = typeof(TLMLineCreationToolbox).GetMethod("preventDefault", allFlags);
 
@@ -33,6 +33,11 @@ namespace Klyte.TransportLinesManager.UI
             AddRedirect(typeof(GeneratedScrollPanel).GetMethod("OnClick", allFlags), OnButtonClickedPre, OnButtonClickedPos);
             #endregion
         }
+        public override void doLog(string text, params object[] param)
+        {
+            TLMUtils.doLog(text, param);
+        }
+
     }
 
     internal class TLMLineCreationToolbox : MonoBehaviour
@@ -227,11 +232,12 @@ namespace Klyte.TransportLinesManager.UI
 
             prefixIncrementChk = uiHelper.AddCheckboxLocale("TLM_AUTOINCREMENT_PREFIX", false, delegate (bool value)
              {
+                 var tsd = TransportSystemDefinition.from(transportTool.m_prefab);
                  if (TLMSingleton.debugMode)
                  {
-                     TLMUtils.doLog("Type = " + TLMConfigWarehouse.getConfigIndexForTransportInfo(transportTool.m_prefab) + "|prop=" + (TLMConfigWarehouse.getConfigIndexForTransportInfo(transportTool.m_prefab) | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT) + "|valToSet = " + value);
+                     TLMUtils.doLog("Type = " + tsd.toConfigIndex() + "|prop=" + (tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT) + "|valToSet = " + value);
                  }
-                 TLMConfigWarehouse.setCurrentConfigBool(TLMConfigWarehouse.getConfigIndexForTransportInfo(transportTool.m_prefab) | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT, value);
+                 TLMConfigWarehouse.setCurrentConfigBool(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT, value);
              });
             prefixIncrementChk.relativePosition = new Vector3(5f, 162.5f);
 
@@ -275,7 +281,7 @@ namespace Klyte.TransportLinesManager.UI
             int num = nextLineNumber;
             bool prefixIncrementVal = TLMConfigWarehouse.getCurrentConfigBool(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT);
             //TLMUtils.doLog("prefixIncrement = " + prefixIncrementVal + "| num = " + num);
-            while (((num + 1) & 0xFFFF) == 0 || TLMLineUtils.isNumberUsed((num + 1) & 0xFFFF, tsd, 0))
+            while (((num + 1) & 0xFFFF) == 0 || TLMLineUtils.isNumberUsed((num + 1) & 0xFFFF, ref tsd, 0))
             {
                 if (!TLMLineUtils.hasPrefix(transportTool.m_prefab) || !prefixIncrementVal)
                 {
@@ -304,7 +310,7 @@ namespace Klyte.TransportLinesManager.UI
             if (TLMLineUtils.hasPrefix(transportTool.m_prefab))
             {
                 linePrefixDropDown.isVisible = true;
-                linePrefixDropDown.items = TLMUtils.getPrefixesOptions(configIdx, false);
+                linePrefixDropDown.items = TLMUtils.getPrefixesOptions(configIdx, false).ToArray();
                 linePrefixDropDown.selectedIndex = getCurrentPrefix();
                 lineNumberTxtBox.text = getCurrentNumber().ToString();
                 lineNumberTxtBox.width = 90;
@@ -325,16 +331,19 @@ namespace Klyte.TransportLinesManager.UI
             updateUI();
         }
 
-        public void eachFrame()
+        public void Update()
         {
-            if (lastPrefab != transportTool.m_prefab)
+            if (mainContainer.isVisible)
             {
-                lastPrefab = transportTool.m_prefab;
-                syncForm();
-            }
-            else
-            {
-                updateUI(true);
+                if (lastPrefab != transportTool.m_prefab)
+                {
+                    lastPrefab = transportTool.m_prefab;
+                    syncForm();
+                }
+                else
+                {
+                    updateUI(true);
+                }
             }
         }
 
@@ -366,7 +375,7 @@ namespace Klyte.TransportLinesManager.UI
 
             if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
             {
-                color = TLMUtils.CalculateAutoColor((ushort)(nextLineNumber + 1), TLMConfigWarehouse.getConfigIndexForTransportInfo(transportTool.m_prefab), true);
+                color = TLMUtils.CalculateAutoColor((ushort)(nextLineNumber + 1), configIdx, true);
             }
             else
             {
@@ -375,7 +384,7 @@ namespace Klyte.TransportLinesManager.UI
 
             lineNumberTxtBox.color = color;
             lineFormat.color = color;
-            lineFormat.backgroundSprite = TLMLineUtils.GetIconForIndex(configIdx);
+            lineFormat.backgroundSprite = TLMConfigWarehouse.getBgIconForIndex(configIdx);
             lineNumber.text = TLMUtils.getString(prefixo, sep, sufixo, nonPrefix, (nextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix);
             lineNumber.textColor = TLMUtils.contrastColor(color);
             int txtLen = lineNumber.text.Length;

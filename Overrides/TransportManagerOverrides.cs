@@ -3,7 +3,7 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using ICities;
 using Klyte.Commons.Extensors;
-using Klyte.Extensions;
+using Klyte.Commons.Extensors;
 using Klyte.Harmony;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
@@ -39,7 +39,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return false;
         }
 
-        public override void Awake()
+        public override void AwakeBody()
         {
             MethodInfo preventDefault = typeof(TransportLineOverrides).GetMethod("PreventDefault", allFlags);
 
@@ -54,6 +54,10 @@ namespace Klyte.TransportLinesManager.Overrides
         }
         #endregion
 
+        public override void doLog(string text, params object[] param)
+        {
+            TLMUtils.doLog(text, param);
+        }
 
 
     }

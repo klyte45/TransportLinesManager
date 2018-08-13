@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Interfaces
 {
@@ -34,5 +35,22 @@ namespace Klyte.TransportLinesManager.Interfaces
         void RemoveAsset(uint rel, string assetId);
         void UseDefaultAssets(uint rel);
         VehicleInfo GetAModel(ushort lineId);
+    }
+
+    internal interface IColorSelectableExtension
+    {
+        Color GetColor(uint id);
+        void SetColor(uint id, Color value);
+        void CleanColor(uint id);
+    }
+    internal interface IUseColorForModelExtension
+    {
+        bool IsUsingColorForModel(uint prefix);
+        void SetUsingColorForModel(uint prefix, bool val);
+    }
+    internal interface IUseAbsoluteVehicleCountExtension
+    {
+        bool IsUsingAbsoluteVehicleCount(uint line);
+        void SetUsingAbsoluteVehicleCount(uint line, bool val);
     }
 }

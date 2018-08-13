@@ -25,10 +25,11 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         USE_CUSTOM_CONFIG,
         LOCAL_MODEL_LIST,
         LOCAL_TICKET_PRICE,
-        LOCAL_BUDGET
+        LOCAL_BUDGET,
+        USE_ABSOLUTE_BUDGET
     }
 
-    class TLMTransportLineExtension : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtension>, IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension
+    class TLMTransportLineExtension : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtension>, IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension, IUseAbsoluteVehicleCountExtension
     {
         protected override TLMCW.ConfigIndex ConfigIndexKey => TLMCW.ConfigIndex.LINES_CONFIG;
         private Dictionary<TransportSystemDefinition, List<string>> basicAssetsList = new Dictionary<TransportSystemDefinition, List<string>>();
@@ -38,7 +39,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
             SafeSet(lineId, TLMTransportLineExtensionsKey.USE_CUSTOM_CONFIG, value.ToString());
         }
 
-        public bool GetUseCustomConfig(ushort lineId)
+        public bool IsUsingCustomConfig(ushort lineId)
         {
             return Boolean.TryParse(SafeGet(lineId, TLMTransportLineExtensionsKey.USE_CUSTOM_CONFIG), out bool result) && result;
         }
@@ -59,13 +60,13 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         public Dictionary<string, string> GetSelectedBasicAssets(uint lineId)
         {
             TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);
-            if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(tsd);
+            if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
             return GetAssetList(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", TLMUtils.getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
         public Dictionary<string, string> GetAllBasicAssets(uint lineId)
         {
             TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);
-            if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(tsd);
+            if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
             return basicAssetsList[tsd].ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", TLMUtils.getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
         public void AddAsset(uint lineId, string assetId)
@@ -88,7 +89,18 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         }
         public VehicleInfo GetAModel(ushort lineId)
         {
-            return TLMUtils.GetRandomModel(GetAssetList(lineId));
+            VehicleInfo info = null;
+            List<string> assetList = GetAssetList(lineId);
+            while (info == null && assetList.Count > 0)
+            {
+                info = TLMUtils.GetRandomModel(assetList, out string modelName);
+                if (info == null)
+                {
+                    RemoveAsset(lineId, modelName);
+                    assetList = GetAssetList(lineId);
+                }
+            }
+            return info;
         }
 
         #endregion
@@ -175,8 +187,18 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
                     {
                         return 500;
                     }
+                case ItemClass.SubService.PublicTransportTours:
+                    if (tsd.vehicleType == VehicleInfo.VehicleType.Car)
+                    {
+                        return 100;
+                    }
+                    else if (tsd.vehicleType == VehicleInfo.VehicleType.None)
+                    {
+                        return 0;
+                    }
+                    return 102;
                 default:
-                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("subservice not found: {0}", tsd?.subService);
+                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("subservice not found: {0}", tsd.subService);
                     return 103;
             }
 
@@ -184,6 +206,18 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         public void SetTicketPrice(uint prefix, uint price)
         {
             SafeSet(prefix, TLMTransportLineExtensionsKey.LOCAL_TICKET_PRICE, price.ToString());
+        }
+        #endregion
+
+        #region Using Absolute Vehicle Count
+        public bool IsUsingAbsoluteVehicleCount(uint lineId)
+        {
+            return Boolean.TryParse(SafeGet(lineId, TLMTransportLineExtensionsKey.USE_ABSOLUTE_BUDGET), out bool result) && result;
+        }
+
+        public void SetUsingAbsoluteVehicleCount(uint lineId, bool value)
+        {
+            SafeSet(lineId, TLMTransportLineExtensionsKey.USE_ABSOLUTE_BUDGET, value.ToString());
         }
         #endregion
     }
