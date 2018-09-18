@@ -114,10 +114,14 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
         }
 
-        private void GetPointsLine(ref Vector2 p1, ref Vector2 p2, ref CardinalPoint c1, ref CardinalPoint c2, ref List<Vector2> saida, bool retrying = false)
+        private void GetPointsLine(ref Vector2 p1, ref Vector2 p2, ref CardinalPoint c1, ref CardinalPoint c2, ref List<Vector2> saida, int retrying = 0)
         {
 
-
+            if (retrying > 7)
+            {
+                TLMUtils.doLog("MAX RETRYING REACHED!");
+                return;
+            }
 
             saida.Add(p1);
 
@@ -183,7 +187,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         TLMUtils.doLog("WORST CASE! - RETRYING");
                         c1++;
-                        if (!retrying) GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, true);
+                        GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, retrying++);
                     }
 
                 }
@@ -196,7 +200,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         TLMUtils.doLog("WORST CASE - RETRYING");
                         c1--;
-                        if (!retrying) GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, true);
+                        GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
             }
@@ -232,7 +236,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         TLMUtils.doLog("WORST CASE! - RETRYING");
                         c1--;
-                        if (!retrying) GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, true);
+                        GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
                 else if (isVerticalS2)
@@ -244,7 +248,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         TLMUtils.doLog("WORST CASE! - RETRYING");
                         c1++;
-                        if (!retrying) GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, true);
+                        GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
             }
@@ -262,7 +266,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         TLMUtils.doLog("WORST CASE! - RETRYING");
                         c2++;
-                        if (!retrying) GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, true);
+                        GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
                 else if (isD2S2)
@@ -274,7 +278,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         TLMUtils.doLog("WORST CASE!- RETRYING");
                         c2--;
-                        if (!retrying) GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, true);
+                        GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
                 else if (isHorizontalS2)
@@ -303,7 +307,17 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         }
                         if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s2x, s1y, ref saida))
                         {
-                            TLMUtils.doLog("WORST CASE!");
+                            TLMUtils.doLog("WORST CASE! - RETRYING");
+                            var nextP1 = new Vector2(p1.x + dirS1.x, p1.y + Math.Sign(Δy));
+                            if (Math.Sign(Δy) == Math.Sign(dirS1.x))
+                            {
+                                c1++;
+                            }
+                            else
+                            {
+                                c1--;
+                            }
+                            GetPointsLine(ref nextP1, ref p2, ref c1, ref c2, ref saida, retrying++);
                         }
                     }
                 }
@@ -322,7 +336,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         TLMUtils.doLog("WORST CASE! - RETRYING");
                         c2--;
-                        if (!retrying) GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, true);
+                        GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
                 else if (isD2S2)
@@ -334,7 +348,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     {
                         TLMUtils.doLog("WORST CASE! - RETRYING");
                         c2++;
-                        if (!retrying) GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, true);
+                        GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
                 else if (isHorizontalS2)
@@ -354,7 +368,17 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         }
                         if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s1x, s2y, ref saida))
                         {
-                            TLMUtils.doLog("WORST CASE!");
+                            TLMUtils.doLog("WORST CASE - RETRYING!");
+                            var nextP1 = new Vector2(p1.x + Math.Sign(Δx), p1.y + dirS1.y);
+                            if (Math.Sign(Δx) == Math.Sign(dirS1.y))
+                            {
+                                c1--;
+                            }
+                            else
+                            {
+                                c1++;
+                            }
+                            GetPointsLine(ref nextP1, ref p2, ref c1, ref c2, ref saida, retrying++);
                         }
                     }
                 }

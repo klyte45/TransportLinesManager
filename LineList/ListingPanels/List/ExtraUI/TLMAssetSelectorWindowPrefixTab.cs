@@ -232,16 +232,14 @@ namespace Klyte.TransportLinesManager.UI
                         {
                             if (!m_isLoading)
                             {
-                                ushort lineIdx = (ushort)m_parent.SelectedPrefix;
-                                if (lineIdx > 100) return;
                                 if (x)
                                 {
-                                    tsd.GetTransportExtension().AddAsset(TLMLineUtils.getPrefix(lineIdx), i);
+                                    tsd.GetTransportExtension().AddAsset((ushort)m_prefixIdx, i);
 
                                 }
                                 else
                                 {
-                                    tsd.GetTransportExtension().RemoveAsset(TLMLineUtils.getPrefix(lineIdx), i);
+                                    tsd.GetTransportExtension().RemoveAsset((ushort)m_prefixIdx, i);
 
                                 }
                             }

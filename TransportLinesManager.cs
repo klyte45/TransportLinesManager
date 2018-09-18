@@ -16,7 +16,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-[assembly: AssemblyVersion("10.0.2.*")]
+[assembly: AssemblyVersion("10.0.3.0")]
 namespace Klyte.TransportLinesManager
 {
     public class TLMMod : IUserMod, ILoadingExtension
@@ -93,9 +93,11 @@ namespace Klyte.TransportLinesManager
         public static readonly string FOLDER_NAME = "TransportLinesManager";
         public static readonly string FOLDER_PATH = TLMUtils.BASE_FOLDER_PATH + FOLDER_NAME;
         public const string PALETTE_SUBFOLDER_NAME = "ColorPalettes";
+        public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
 
         public static string palettesFolder => FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
         public static string configsFolder => TLMConfigWarehouse.CONFIG_PATH;
+        public static string exportedMapsFolder => FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;
 
         public static string minorVersion
         {

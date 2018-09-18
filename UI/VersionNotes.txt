@@ -1,4 +1,9 @@
-﻿TLMv10.0.2
+﻿TLMv10.0.3
+    -Improvements in the transport map generation (not final yet, still alpha)
+    -Fixed "'CityConfigV10_' is not found or cannot be loaded." error in log
+    -Fixed wrong setting assets for prefixes in prefix editor tab
+    -Fixed 0 earnings from public transport
+TLMv10.0.2
    -Fixed exception when naming with unlisted types
    -Added cable car to naming rule
 TLMv10.0.1

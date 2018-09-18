@@ -22,6 +22,13 @@ namespace Klyte.TransportLinesManager.i18n
             }
         }
 
+        public static string loadedLanguageEffective
+        {
+            get {
+                return language.Length == 0 ? "en" : language.Substring(0, 2);
+            }
+        }
+
         public static string[] getLanguageIndex()
         {
             Array8<string> saida = new Array8<string>((uint)locales.Length + 1);
