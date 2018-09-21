@@ -32,9 +32,10 @@ namespace Klyte.TransportLinesManager.Overrides
             AddRedirect(typeof(TransportLine).GetMethod("AddStop", allFlags), preDoAutomation, doAutomation);
             #endregion
 
-            #region Ticket Override Hooks
+
             if (!TLMSingleton.isIPTLoaded)
             {
+                #region Ticket Override Hooks
                 MethodInfo GetTicketPricePre = typeof(TransportLineOverrides).GetMethod("GetTicketPricePre", allFlags);
 
                 TLMUtils.doLog("Loading Ticket Override Hooks");
@@ -47,8 +48,13 @@ namespace Klyte.TransportLinesManager.Overrides
                 AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
                 AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
                 //AddRedirect(typeof(TaxiAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre); // Waiting fix
+                #endregion
+                #region Bus Spawn Unbunching
+                MethodInfo BusUnbuncher = typeof(TransportLineOverrides).GetMethod("BusUnbuncher", allFlags);
+                AddRedirect(typeof(TransportLine).GetMethod("AddVehicle", allFlags), null, BusUnbuncher);
+                #endregion
             }
-            #endregion
+
 
             #region Color Override Hooks
             MethodInfo GetColorFor = typeof(TransportLineOverrides).GetMethod("GetColorFor", allFlags);
@@ -300,6 +306,17 @@ namespace Klyte.TransportLinesManager.Overrides
                     return;
                 default:
                     goto IL_1D;
+            }
+        }
+        #endregion
+
+        #region Bus Spawn Unbunching
+        private static void BusUnbuncher(ushort vehicleID, ref Vehicle data, bool findTargetStop)
+        {
+            if (findTargetStop && (data.Info.GetAI() is BusAI || data.Info.GetAI() is TramAI) && data.m_transportLine > 0)
+            {
+                TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[data.m_transportLine];
+                data.m_targetBuilding = t.GetStop(SimulationManager.instance.m_randomizer.Int32((uint)t.CountStops(data.m_transportLine)));
             }
         }
         #endregion

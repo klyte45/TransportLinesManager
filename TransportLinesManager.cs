@@ -16,7 +16,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-[assembly: AssemblyVersion("10.0.3.0")]
+[assembly: AssemblyVersion("10.1.0.0")]
 namespace Klyte.TransportLinesManager
 {
     public class TLMMod : IUserMod, ILoadingExtension

@@ -1,20 +1,2 @@
-﻿TLMv10.0.3
-    -Improvements in the transport map generation (not final yet, still alpha)
-    -Fixed "'CityConfigV10_' is not found or cannot be loaded." error in log
-    -Fixed wrong setting assets for prefixes in prefix editor tab
-    -Fixed 0 earnings from public transport
-TLMv10.0.2
-   -Fixed exception when naming with unlisted types
-   -Added cable car to naming rule
-TLMv10.0.1
-   -Fixed "all lines are white" bug
-   -Fixed crashing when placing stop on line creation
-   -Fixed sorting on clicking at the title row caption
-   -Fixed autoname name priority for RICO buildings
-TLMv10
-   -The autoname all lines and autocolor all buttons are back!
-   -Fixed empty linear map/failure on autoname bug.
-   -Added Spanish language translation. Thanks zeldslayer!
-   -Fixed AutoName rules
-   -Fixed building names prefixes weren't respected when naming stops
-   -Fixed error at lists when loading a city with no transport lines yet
+﻿TLMv10.1
+    -Added depot unbuncher intelligence: now buses and trams will target different stops (rather than finding the nearest stop, whcich will result in a faster vehicle distribution along the line path)

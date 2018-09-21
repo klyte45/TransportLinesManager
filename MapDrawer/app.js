@@ -9,10 +9,10 @@
         case "Monorail":
             return "M 0 8 A 8 8 0 0 1 8 0 L 37 0 A 8 8 0 0 1 45 8 L 45 37 A 8 8 0 0 1 37 45 L 8 45 A 8 8 0 0 1 0 37 Z";
         case "Ship":
-            if (vehicleType == "Ship") return "M22.5 0 L45 22.5 L22.5 45 L0 22.5 Z";
+            if (vehicleType === "Ship") return "M22.5 0 L45 22.5 L22.5 45 L0 22.5 Z";
             else return "M22.5 0 L45 22.5 L22.5 45 L0 22.5 ZM 37.5 7.5 L37.5 37.5 L7.5 37.5 L7.5 7.5 Z";
         case "Airplane":
-            if (vehicleType == "Plane") return "M22.5,0 L45,16.5 L36.5,42.75 L8.75,42.75 L0,16.5 Z";
+            if (vehicleType === "Plane") return "M22.5,0 L45,16.5 L36.5,42.75 L8.75,42.75 L0,16.5 Z";
             else return "M22.5,45 L45,15 A 22.5 15 0 0 0 0 15 Z";
         case "Bus":
             return "M45,22.5 L35,45 L10,45 L0,22.5 L10,00 L35,00 Z";
@@ -55,8 +55,8 @@ $(document).ready(function () {
     $("#linesPanel #content").html("");
     var lines = Object.values(_infoLines.transportLines);
     lines.sort(function (a, b) {
-        if (a.transportType == b.transportType) {
-            if (a.vehicleType == b.vehicleType) {
+        if (a.transportType === b.transportType) {
+            if (a.vehicleType === b.vehicleType) {
                 return a.lineStringIdentifier.localeCompare(b.lineStringIdentifier)
             }
             return a.vehicleType.localeCompare(b.vehicleType)
