@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static Klyte.Commons.Utils.KlyteUtils;
+using CIdx = Klyte.TransportLinesManager.TLMConfigWarehouse.ConfigIndex;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
@@ -778,6 +779,9 @@ namespace Klyte.TransportLinesManager.Utils
                 Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags &= ~TransportLine.Flags.CustomName;
             }
         }
+
+        private static TransportInfo.TransportType[] roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram };
+
         public static string calculateAutoName(ushort lineIdx)
         {
             TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx];
@@ -786,12 +790,13 @@ namespace Klyte.TransportLinesManager.Utils
                 return null;
             }
             ushort nextStop = t.m_stops;
+            bool allowPrefixInStations = roadTransportTypes.Contains(t.Info.m_transportType);
             List<Tuple<NamingType, string>> stations = new List<Tuple<NamingType, string>>();
             do
             {
                 var stopNode = NetManager.instance.m_nodes.m_buffer[nextStop];
                 var stationName = getStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true);
-                var tuple = Tuple.New(namingType, $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim());
+                var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName);
                 stations.Add(tuple);
                 nextStop = TransportLine.GetNextStop(nextStop);
             } while (nextStop != t.m_stops && nextStop != 0);
@@ -1067,49 +1072,100 @@ namespace Klyte.TransportLinesManager.Utils
                 return nn.m_position;
             }
         }
+
+        //ORDEM DE BUSCA DE CONFIG
+        private static CIdx[] searchOrderStationNamingRule = new CIdx[] {
+        CIdx.PLANE_USE_FOR_AUTO_NAMING_REF                  ,
+        CIdx.SHIP_USE_FOR_AUTO_NAMING_REF                   ,
+        CIdx.BLIMP_USE_FOR_AUTO_NAMING_REF                  ,
+        CIdx.FERRY_USE_FOR_AUTO_NAMING_REF                  ,
+        CIdx.CABLE_CAR_USE_FOR_AUTO_NAMING_REF              ,
+        CIdx.TRAIN_USE_FOR_AUTO_NAMING_REF                  ,
+        CIdx.METRO_USE_FOR_AUTO_NAMING_REF                  ,
+        CIdx.MONORAIL_USE_FOR_AUTO_NAMING_REF               ,
+        CIdx.TRAM_USE_FOR_AUTO_NAMING_REF                   ,
+        CIdx.BUS_USE_FOR_AUTO_NAMING_REF                    ,
+        CIdx.TOUR_PED_USE_FOR_AUTO_NAMING_REF               ,
+        CIdx.TOUR_BUS_USE_FOR_AUTO_NAMING_REF               ,
+        CIdx.BALOON_USE_FOR_AUTO_NAMING_REF                 ,
+        CIdx.TAXI_USE_FOR_AUTO_NAMING_REF                   ,
+        CIdx.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF        ,
+        CIdx.MONUMENT_USE_FOR_AUTO_NAMING_REF               ,
+        CIdx.BEAUTIFICATION_USE_FOR_AUTO_NAMING_REF         ,
+        CIdx.TOURISM_USE_FOR_AUTO_NAMING_REF                ,
+        CIdx.NATURAL_USE_FOR_AUTO_NAMING_REF                ,
+        CIdx.DISASTER_USE_FOR_AUTO_NAMING_REF             ,
+        CIdx.HEALTHCARE_USE_FOR_AUTO_NAMING_REF             ,
+        CIdx.FIREDEPARTMENT_USE_FOR_AUTO_NAMING_REF         ,
+        CIdx.POLICEDEPARTMENT_USE_FOR_AUTO_NAMING_REF       ,
+        CIdx.EDUCATION_USE_FOR_AUTO_NAMING_REF              ,
+        CIdx.GARBAGE_USE_FOR_AUTO_NAMING_REF                ,
+        CIdx.ROAD_USE_FOR_AUTO_NAMING_REF                   ,
+        CIdx.CITIZEN_USE_FOR_AUTO_NAMING_REF                ,
+        CIdx.ELECTRICITY_USE_FOR_AUTO_NAMING_REF            ,
+        CIdx.WATER_USE_FOR_AUTO_NAMING_REF                  ,
+
+        CIdx.OFFICE_USE_FOR_AUTO_NAMING_REF                 ,
+        CIdx.COMMERCIAL_USE_FOR_AUTO_NAMING_REF             ,
+        CIdx.INDUSTRIAL_USE_FOR_AUTO_NAMING_REF             ,
+        CIdx.RESIDENTIAL_USE_FOR_AUTO_NAMING_REF            ,
+
+        //CIdx.UNUSED2_USE_FOR_AUTO_NAMING_REF                ,
+        //CIdx.PARKAREA_USE_FOR_AUTO_NAMING_REF               ,
+        //CIdx.DISTRICT_USE_FOR_AUTO_NAMING_REF               ,
+        //CIdx.ADDRESS_USE_FOR_AUTO_NAMING_REF                ,
+        };
+
         public static ushort getStationBuilding(uint stopId, ItemClass.SubService ss, bool excludeCargo = false, bool restrictToTransportType = false)
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-            ushort buildingId = 0, tempBuildingId;
+            ushort tempBuildingId;
+
 
             if (ss != ItemClass.SubService.None)
             {
                 tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
+                if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
                 {
-                    buildingId = tempBuildingId;
+                    return tempBuildingId;
                 }
             }
-            if (buildingId == 0 && !restrictToTransportType)
+            if (!restrictToTransportType)
             {
-                tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.Active, Building.Flags.Untouchable);
-                if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
+                if (nn.m_transportLine > 0)
                 {
-                    buildingId = tempBuildingId;
-                }
-                if (buildingId == 0)
-                {
-                    tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                    if (!excludeCargo || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI)
+                    tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, TLMCW.getTransferReasonFromSystemId(TransportSystemDefinition.from(TransportManager.instance.m_lines.m_buffer[nn.m_transportLine].Info).toConfigIndex()), Building.Flags.None, Building.Flags.Untouchable);
+                    if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
                     {
-                        buildingId = tempBuildingId;
+                        return tempBuildingId;
                     }
-                    if (buildingId == 0)
+                }
+
+
+                foreach (var idx in searchOrderStationNamingRule)
+                {
+                    if (TLMCW.getCurrentConfigBool(idx))
                     {
-                        int iterator = 1;
-                        while (buildingId == 0 && iterator < searchOrder.Count())
+                        tempBuildingId = TLMUtils.FindBuilding(nn.m_position, 100f, (ItemClass.Service)(idx & CIdx.DESC_DATA), TLMCW.getSubserviceFromSystemId(idx), null, Building.Flags.None, Building.Flags.Untouchable);
+                        if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
                         {
-                            buildingId = TLMUtils.FindBuilding(nn.m_position, 100f, searchOrder[iterator], ItemClass.SubService.None, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                            iterator++;
+                            return tempBuildingId;
                         }
                     }
+
                 }
             }
-            return buildingId;
+            return 0;
 
         }
+
+        private static bool IsBuildingValidForStation(bool excludeCargo, BuildingManager bm, ushort tempBuildingId)
+        {
+            return tempBuildingId > 0 && (!excludeCargo || !(bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is DepotAI || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is CargoStationAI) || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI);
+        }
+
         public static string getPrefixesServedString(ushort m_buildingID, bool secondary)
         {
             Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];

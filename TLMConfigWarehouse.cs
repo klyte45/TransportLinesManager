@@ -299,6 +299,60 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public static ItemClass.SubService getSubserviceFromSystemId(ConfigIndex idx)
+        {
+            var systemIdx = idx & ConfigIndex.SYSTEM_PART;
+            switch (systemIdx)
+            {
+                case ConfigIndex.TRAIN_CONFIG: return ItemClass.SubService.PublicTransportTrain;
+                case ConfigIndex.TRAM_CONFIG: return ItemClass.SubService.PublicTransportTram;
+                case ConfigIndex.METRO_CONFIG: return ItemClass.SubService.PublicTransportMetro;
+                case ConfigIndex.BUS_CONFIG: return ItemClass.SubService.PublicTransportBus;
+                case ConfigIndex.EVAC_BUS_CONFIG: return ItemClass.SubService.PublicTransportBus;
+                case ConfigIndex.PLANE_CONFIG: return ItemClass.SubService.PublicTransportPlane;
+                case ConfigIndex.SHIP_CONFIG: return ItemClass.SubService.PublicTransportShip;
+                case ConfigIndex.MONORAIL_CONFIG: return ItemClass.SubService.PublicTransportMonorail;
+                case ConfigIndex.TAXI_CONFIG: return ItemClass.SubService.PublicTransportTaxi;
+                case ConfigIndex.CABLE_CAR_CONFIG: return ItemClass.SubService.PublicTransportCableCar;
+                case ConfigIndex.TOUR_PED_CONFIG: return ItemClass.SubService.PublicTransportTours;
+                case ConfigIndex.TOUR_BUS_CONFIG: return ItemClass.SubService.PublicTransportTours;
+                case ConfigIndex.BALLOON_CONFIG: return ItemClass.SubService.PublicTransportTours;
+                case ConfigIndex.BLIMP_CONFIG: return ItemClass.SubService.PublicTransportPlane;
+                case ConfigIndex.FERRY_CONFIG: return ItemClass.SubService.PublicTransportShip;
+
+                default:
+                    return ItemClass.SubService.None;
+            }
+        }
+        public static TransferManager.TransferReason[] getTransferReasonFromSystemId(ConfigIndex idx)
+        {
+
+
+
+            var systemIdx = idx & ConfigIndex.SYSTEM_PART;
+            switch (systemIdx)
+            {
+                case ConfigIndex.TRAIN_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerTrain };
+                case ConfigIndex.TRAM_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.Tram };
+                case ConfigIndex.METRO_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.MetroTrain, TransferManager.TransferReason.PassengerTrain };
+                case ConfigIndex.BUS_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.Bus };
+                case ConfigIndex.EVAC_BUS_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.EvacuateA, TransferManager.TransferReason.EvacuateB, TransferManager.TransferReason.EvacuateC, TransferManager.TransferReason.EvacuateD, TransferManager.TransferReason.EvacuateVipA, TransferManager.TransferReason.EvacuateVipB, TransferManager.TransferReason.EvacuateVipC, TransferManager.TransferReason.EvacuateVipD };
+                case ConfigIndex.PLANE_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerPlane };
+                case ConfigIndex.SHIP_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerShip };
+                case ConfigIndex.MONORAIL_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.Monorail };
+                case ConfigIndex.TAXI_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.Taxi };
+                case ConfigIndex.CABLE_CAR_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.CableCar };
+                case ConfigIndex.TOUR_PED_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.TouristA, TransferManager.TransferReason.TouristB, TransferManager.TransferReason.TouristC, TransferManager.TransferReason.TouristD };
+                case ConfigIndex.TOUR_BUS_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.TouristBus };
+                case ConfigIndex.BALLOON_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.TouristA, TransferManager.TransferReason.TouristB, TransferManager.TransferReason.TouristC, TransferManager.TransferReason.TouristD };
+                case ConfigIndex.BLIMP_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.Blimp };
+                case ConfigIndex.FERRY_CONFIG: return new TransferManager.TransferReason[] { TransferManager.TransferReason.Ferry };
+
+                default:
+                    return null;
+            }
+        }
+
         public static bool isServiceLineNameable(ItemClass.Service s) => getCurrentConfigBool(ConfigIndex.USE_FOR_AUTO_NAMING_REF | GameServiceExtensions.toConfigIndex(s, ItemClass.SubService.None));
         public static string getPrefixForServiceLineNameable(ItemClass.Service s) => getCurrentConfigString(ConfigIndex.AUTO_NAMING_REF_TEXT | GameServiceExtensions.toConfigIndex(s, ItemClass.SubService.None));
         public static bool isPublicTransportLineNameable(ref TransportSystemDefinition tsd) => getCurrentConfigBool(ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | getConfigTransportSystemForDefinition(ref tsd));
@@ -645,7 +699,7 @@ namespace Klyte.TransportLinesManager
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = TransportInfo.TransportType.Tram << 16,
             METRO_CONFIG = TransportInfo.TransportType.Metro << 16,
-            BUS_CONFIG = TransportInfo.TransportType.Bus << 16,
+            BUS_CONFIG = TransportInfo.TransportType.Bus << 16 | 0x800000,
             EVAC_BUS_CONFIG = TransportInfo.TransportType.EvacuationBus << 16,
             PLANE_CONFIG = TransportInfo.TransportType.Airplane << 16,
             SHIP_CONFIG = TransportInfo.TransportType.Ship << 16,
@@ -893,7 +947,7 @@ namespace Klyte.TransportLinesManager
             MONUMENT_USE_FOR_AUTO_NAMING_REF = MONUMENT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             FIREDEPARTMENT_USE_FOR_AUTO_NAMING_REF = FIREDEPARTMENT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF = PUBLICTRANSPORT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
-            GOVERNMENT_USE_FOR_AUTO_NAMING_REF = DISASTER_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            DISASTER_USE_FOR_AUTO_NAMING_REF = DISASTER_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
 
 
             PARKAREA_USE_FOR_AUTO_NAMING_REF = PARKAREA_NAME_CONFIG | USE_FOR_AUTO_NAMING_REF,
@@ -902,6 +956,7 @@ namespace Klyte.TransportLinesManager
 
 
             TRAIN_USE_FOR_AUTO_NAMING_REF = TRAIN_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
+            TRAM_USE_FOR_AUTO_NAMING_REF = TRAM_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
             METRO_USE_FOR_AUTO_NAMING_REF = METRO_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
             BUS_USE_FOR_AUTO_NAMING_REF = BUS_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
             PLANE_USE_FOR_AUTO_NAMING_REF = PLANE_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
