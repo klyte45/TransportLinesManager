@@ -60,7 +60,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
             return result;
         }
-        public uint GetBudgetMultiplierForHour(uint prefix, int hour)
+        public uint GetBudgetMultiplierForHour(uint prefix, float hour)
         {
             uint[] savedMultipliers = GetBudgetsMultiplier(prefix);
             if (savedMultipliers.Length == 1)
@@ -69,7 +69,20 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
             else if (savedMultipliers.Length == 8)
             {
-                return savedMultipliers[((hour + 23) / 3) % 8];
+                int refMultiplierIdx = (((int)hour + 23) / 3) % 8;
+                var phasePercentage = (hour + 23) % 3;
+                if (phasePercentage < .5f)
+                {
+                    return (uint)Mathf.Lerp(savedMultipliers[(refMultiplierIdx + 7) % 8], savedMultipliers[refMultiplierIdx], 0.5f + phasePercentage);
+                }
+                else if (phasePercentage > 2.5f)
+                {
+                    return (uint)Mathf.Lerp(savedMultipliers[refMultiplierIdx], savedMultipliers[(refMultiplierIdx + 1) % 8], (phasePercentage) - 2.5f);
+                }
+                else
+                {
+                    return savedMultipliers[refMultiplierIdx];
+                }
             }
             return 100;
         }

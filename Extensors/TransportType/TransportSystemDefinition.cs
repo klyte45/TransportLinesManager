@@ -143,10 +143,6 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                 tempDef[TOUR_PED] = typeof(TLMSysDefTouPed);
                 tempDef[BALLOON] = typeof(TLMSysDefTouBal);
             }
-            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Industry))
-            {
-                //NONE
-            }
         }
 
         public ItemClass.SubService subService

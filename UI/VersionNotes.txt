@@ -1,5 +1,6 @@
 ﻿TLMv11
-    -Added depot unbuncher intelligence: now buses and trams will target different stops (rather than finding the nearest stop, whcich will result in a faster vehicle distribution along the line path)
+    -Added depot unbuncher intelligence: now buses and trams will target different stops (rather than finding the nearest stop, which will result in a faster vehicle distribution along the line path) - Disabled with IPT2
+    -Now the budget transition between the hours groups are smooth, starting 30 before the end of the hour group and ending 30 minutes after the start of entering hour group. It avoids a lot of vehicles being spawned at once at 7 AM... - Not managed with IPT2
     -Autoname fixed
     -Mod config options in pause menu redesigned
     -Now is possible to set a pallete to autocolor lines in a prefix (Ex: lines A1 and E1 can have different generated colors now)

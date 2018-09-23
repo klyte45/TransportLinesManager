@@ -6,7 +6,7 @@ namespace Klyte.TransportLinesManager.Interfaces
     internal interface IBudgetableExtension
     {
         uint[] GetBudgetsMultiplier(uint prefix);
-        uint GetBudgetMultiplierForHour(uint prefix, int hour);
+        uint GetBudgetMultiplierForHour(uint prefix, float hour);
         void SetBudgetMultiplier(uint prefix, uint[] multipliers);
     }
 
