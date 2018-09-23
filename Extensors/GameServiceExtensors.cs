@@ -17,8 +17,8 @@ namespace Klyte.TransportLinesManager.Extensors
                     return TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG;
                 case ItemClass.Service.Natural:
                     return TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG;
-                case ItemClass.Service.Unused2:
-                    return TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG;
+                //case ItemClass.Service.Unused2:
+                //    return TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG;
                 case ItemClass.Service.Citizen:
                     return TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG;
                 case ItemClass.Service.Tourism:
@@ -85,7 +85,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
+                //case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.OFFICE_SERVICE_CONFIG:
@@ -137,7 +137,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
+                //case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.OFFICE_SERVICE_CONFIG:
@@ -186,7 +186,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
+                //case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.OFFICE_SERVICE_CONFIG:
@@ -231,7 +231,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG:
-                case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
+                //case TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.OFFICE_SERVICE_CONFIG:

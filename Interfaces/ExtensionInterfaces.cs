@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Interfaces
@@ -52,5 +49,10 @@ namespace Klyte.TransportLinesManager.Interfaces
     {
         bool IsUsingAbsoluteVehicleCount(uint line);
         void SetUsingAbsoluteVehicleCount(uint line, bool val);
+    }
+    internal interface ICustomPaletteExtension
+    {
+        string GetUsingCustomPalette(uint prefix);
+        void SetCustomPalette(uint prefix, string paletteName);
     }
 }

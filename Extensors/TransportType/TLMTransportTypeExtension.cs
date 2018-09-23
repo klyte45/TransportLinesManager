@@ -1,19 +1,16 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
-using ColossalFramework.Math;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using UnityEngine;
-using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
-    internal interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension, IUseColorForModelExtension, IColorSelectableExtension { }
+    internal interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension, IUseColorForModelExtension, IColorSelectableExtension, ICustomPaletteExtension { }
 
     internal abstract class TLMTransportTypeExtension<TSD, SG> : ExtensionInterfaceDefaultImpl<PrefixConfigIndex, SG>, ITLMTransportTypeExtension where TSD : TLMSysDef<TSD>, new() where SG : TLMTransportTypeExtension<TSD, SG>
     {
@@ -207,6 +204,18 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         }
         #endregion
 
+        #region Custom Palette
+        public string GetUsingCustomPalette(uint prefix)
+        {
+            return SafeGet(prefix, PrefixConfigIndex.CUSTOM_PALETTE) ?? string.Empty;
+        }
+
+        public void SetCustomPalette(uint prefix, string paletteName)
+        {
+            SafeSet(prefix, PrefixConfigIndex.CUSTOM_PALETTE, paletteName);
+        }
+        #endregion
+
     }
 
     internal sealed class TLMTransportTypeExtensionNorBus : TLMTransportTypeExtension<TLMSysDefNorBus, TLMTransportTypeExtensionNorBus> { }
@@ -290,6 +299,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         BUDGET_MULTIPLIER,
         TICKET_PRICE,
         COLOR,
-        USE_COLOR_FOR_MODEL
+        USE_COLOR_FOR_MODEL,
+        CUSTOM_PALETTE
     }
 }

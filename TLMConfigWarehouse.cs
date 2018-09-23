@@ -171,8 +171,8 @@ namespace Klyte.TransportLinesManager
                     return "DISTRICT_INDUSTRIAL";
                 case ConfigIndex.NATURAL_SERVICE_CONFIG:
                     return "NATURAL_SERVICE";
-                case ConfigIndex.UNUSED2_SERVICE_CONFIG:
-                    return "Unused2";
+                //case ConfigIndex.UNUSED2_SERVICE_CONFIG:
+                //return "Unused2";
                 case ConfigIndex.CITIZEN_SERVICE_CONFIG:
                     return "INCOME_CITIZEN";
                 case ConfigIndex.TOURISM_SERVICE_CONFIG:
@@ -652,7 +652,7 @@ namespace Klyte.TransportLinesManager
             TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG   ,
-            TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG
+            //TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG
         };
 
         public enum ConfigIndex
@@ -718,7 +718,7 @@ namespace Klyte.TransportLinesManager
             COMMERCIAL_SERVICE_CONFIG = ItemClass.Service.Commercial,
             INDUSTRIAL_SERVICE_CONFIG = ItemClass.Service.Industrial,
             NATURAL_SERVICE_CONFIG = ItemClass.Service.Natural,
-            UNUSED2_SERVICE_CONFIG = ItemClass.Service.Unused2,
+            //UNUSED2_SERVICE_CONFIG = ItemClass.Service.Unused2,
             CITIZEN_SERVICE_CONFIG = ItemClass.Service.Citizen,
             TOURISM_SERVICE_CONFIG = ItemClass.Service.Tourism,
             OFFICE_SERVICE_CONFIG = ItemClass.Service.Office,
@@ -932,7 +932,7 @@ namespace Klyte.TransportLinesManager
             COMMERCIAL_USE_FOR_AUTO_NAMING_REF = COMMERCIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             INDUSTRIAL_USE_FOR_AUTO_NAMING_REF = INDUSTRIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             NATURAL_USE_FOR_AUTO_NAMING_REF = NATURAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
-            UNUSED2_USE_FOR_AUTO_NAMING_REF = UNUSED2_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            //UNUSED2_USE_FOR_AUTO_NAMING_REF = UNUSED2_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             CITIZEN_USE_FOR_AUTO_NAMING_REF = CITIZEN_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             TOURISM_USE_FOR_AUTO_NAMING_REF = TOURISM_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             OFFICE_USE_FOR_AUTO_NAMING_REF = OFFICE_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
@@ -974,7 +974,7 @@ namespace Klyte.TransportLinesManager
             COMMERCIAL_AUTO_NAMING_REF_TEXT = COMMERCIAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             INDUSTRIAL_AUTO_NAMING_REF_TEXT = INDUSTRIAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             UNUSED1_AUTO_NAMING_REF_TEXT = NATURAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
-            UNUSED2_AUTO_NAMING_REF_TEXT = UNUSED2_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            //UNUSED2_AUTO_NAMING_REF_TEXT = UNUSED2_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             CITIZEN_AUTO_NAMING_REF_TEXT = CITIZEN_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             TOURISM_AUTO_NAMING_REF_TEXT = TOURISM_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             OFFICE_AUTO_NAMING_REF_TEXT = OFFICE_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,

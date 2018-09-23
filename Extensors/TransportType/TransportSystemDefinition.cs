@@ -1,17 +1,15 @@
 ﻿using ColossalFramework;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
     internal struct TransportSystemDefinition
     {
-        private static readonly Dictionary<TransportSystemDefinition, Type> m_sysDefinitions = new Dictionary<TransportSystemDefinition, Type>();
+        private static Dictionary<TransportSystemDefinition, Type> m_sysDefinitions = new Dictionary<TransportSystemDefinition, Type>();
 
 
         public static readonly TransportSystemDefinition BUS = new TransportSystemDefinition(ItemClass.SubService.PublicTransportBus, VehicleInfo.VehicleType.Car, TransportInfo.TransportType.Bus);
@@ -87,48 +85,67 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             get {
                 if (m_sysDefinitions.Count == 0)
                 {
-                    m_sysDefinitions[BUS] = typeof(TLMSysDefNorBus);
-                    m_sysDefinitions[METRO] = typeof(TLMSysDefNorMet);
-                    m_sysDefinitions[TRAIN] = typeof(TLMSysDefNorTrn);
-                    m_sysDefinitions[SHIP] = typeof(TLMSysDefNorShp);
-                    m_sysDefinitions[PLANE] = typeof(TLMSysDefNorPln);
-
-                    if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.AfterDark))
+                    bool isLoading = Singleton<LoadingManager>.instance.m_currentlyLoading;
+                    if (isLoading)
                     {
-                        m_sysDefinitions[TAXI] = typeof(TLMSysDefNorTax);
+                        TLMUtils.doErrorLog("STILL LOADING!");
+                        var tempDef = new Dictionary<TransportSystemDefinition, Type>();
+                        InitTypes(isLoading, ref tempDef);
+                        return tempDef;
                     }
-
-                    if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Snowfall))
+                    else
                     {
-                        m_sysDefinitions[TRAM] = typeof(TLMSysDefNorTrm);
-                    }
-
-                    if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.NaturalDisasters))
-                    {
-                        m_sysDefinitions[EVAC_BUS] = typeof(TLMSysDefEvcBus);
-                    }
-
-                    if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.InMotion))
-                    {
-                        m_sysDefinitions[MONORAIL] = typeof(TLMSysDefNorMnr);
-                        m_sysDefinitions[FERRY] = typeof(TLMSysDefNorFer);
-                        m_sysDefinitions[BLIMP] = typeof(TLMSysDefNorBlp);
-                        m_sysDefinitions[CABLE_CAR] = typeof(TLMSysDefNorCcr);
-                    }
-
-                    if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.GreenCities))
-                    {
-                        //NONE
-                    }
-
-                    if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Parks))
-                    {
-                        m_sysDefinitions[TOUR_BUS] = typeof(TLMSysDefTouBus);
-                        m_sysDefinitions[TOUR_PED] = typeof(TLMSysDefTouPed);
-                        m_sysDefinitions[BALLOON] = typeof(TLMSysDefTouBal);
+                        InitTypes(isLoading, ref m_sysDefinitions);
                     }
                 }
                 return m_sysDefinitions;
+            }
+        }
+
+        private static void InitTypes(bool isLoading, ref Dictionary<TransportSystemDefinition, Type> tempDef)
+        {
+            tempDef[BUS] = typeof(TLMSysDefNorBus);
+            tempDef[METRO] = typeof(TLMSysDefNorMet);
+            tempDef[TRAIN] = typeof(TLMSysDefNorTrn);
+            tempDef[SHIP] = typeof(TLMSysDefNorShp);
+            tempDef[PLANE] = typeof(TLMSysDefNorPln);
+            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.AfterDark))
+            {
+                tempDef[TAXI] = typeof(TLMSysDefNorTax);
+            }
+
+            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Snowfall))
+            {
+                tempDef[TRAM] = typeof(TLMSysDefNorTrm);
+            }
+
+            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.NaturalDisasters))
+            {
+                tempDef[EVAC_BUS] = typeof(TLMSysDefEvcBus);
+            }
+
+            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.InMotion))
+            {
+                tempDef[MONORAIL] = typeof(TLMSysDefNorMnr);
+                tempDef[FERRY] = typeof(TLMSysDefNorFer);
+                tempDef[BLIMP] = typeof(TLMSysDefNorBlp);
+                tempDef[CABLE_CAR] = typeof(TLMSysDefNorCcr);
+            }
+
+            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.GreenCities))
+            {
+                //NONE
+            }
+
+            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Parks))
+            {
+                tempDef[TOUR_BUS] = typeof(TLMSysDefTouBus);
+                tempDef[TOUR_PED] = typeof(TLMSysDefTouPed);
+                tempDef[BALLOON] = typeof(TLMSysDefTouBal);
+            }
+            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Industry))
+            {
+                //NONE
             }
         }
 

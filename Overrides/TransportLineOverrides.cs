@@ -177,9 +177,6 @@ namespace Klyte.TransportLinesManager.Overrides
         #region Ticket Override
         public static bool GetTicketPricePre(ushort vehicleID, ref Vehicle vehicleData, ref int __result)
         {
-            if (vehicleData.Info.m_class.m_subService == ItemClass.SubService.PublicTransportTours)
-                return true;
-
             return ticketPriceForPrefix(vehicleID, ref vehicleData, ref __result);
         }
 

@@ -1,3 +1,5 @@
 ﻿TLMv10.1
     -Added depot unbuncher intelligence: now buses and trams will target different stops (rather than finding the nearest stop, whcich will result in a faster vehicle distribution along the line path)
     -Autoname fixed
+    -Mod config options in pause menu redesigned
+    -Fixed: Tours ticket prices doesn't follow prefix value

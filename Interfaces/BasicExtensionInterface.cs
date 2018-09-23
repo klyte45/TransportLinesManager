@@ -1,12 +1,10 @@
 ﻿using ColossalFramework;
+using Klyte.TransportLinesManager.OptionsMenu;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Klyte.TransportLinesManager.Interfaces
 {
@@ -142,7 +140,7 @@ namespace Klyte.TransportLinesManager.Interfaces
             }
             else
             {
-                loadedConfig = TLMSingleton.instance.currentLoadedCityConfig;
+                loadedConfig = TLMConfigOptions.instance.currentLoadedCityConfig;
             }
             var value = RecursiveEncode(target);
             if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("saveConfig ({0}) NEW VALUE: {1}", idx, value);
