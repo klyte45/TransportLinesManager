@@ -28,7 +28,7 @@ namespace Klyte.TransportLinesManager.Utils
         };
 
         #region Prefix Operations
-        internal static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, bool avoidRandom = false, bool allowClear = false)
+        internal static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, ref TransportSystemDefinition tsdRef, bool avoidRandom = false, bool allowClear = false)
         {
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
             {
@@ -39,22 +39,37 @@ namespace Klyte.TransportLinesManager.Utils
 
             bool randomOnOverflow = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
 
-            string pal = TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_SUBLINE);
+            List<string> pal = new List<string>();
 
             if (num >= 1000 && TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
             {
-                pal = TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_MAIN);
-                if (prefixBased)
+                uint prefix = num / 1000u;
+                var ext = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
+                string tempPal = ext.GetCustomPalette(prefix) ?? string.Empty;
+                if (tempPal != string.Empty)
                 {
-                    num /= 1000;
+                    pal.Add(tempPal);
+                    num %= 1000;
                 }
                 else
                 {
-                    num %= 1000;
+                    if (prefixBased)
+                    {
+                        num /= 1000;
+                    }
+                    else
+                    {
+                        num %= 1000;
+                    }
                 }
+                pal.Add(TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_MAIN));
+            }
+            else
+            {
+                pal.Add(TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_SUBLINE));
             }
             Color c;
-            c = TLMAutoColorPalettes.getColor(num, pal, randomOnOverflow, avoidRandom);
+            c = TLMAutoColorPalettes.getColor(num, pal.ToArray(), randomOnOverflow, avoidRandom);
             if (c == Color.clear && !allowClear)
             {
                 c = TLMCW.getColorForTransportType(transportType);

@@ -52,7 +52,7 @@ namespace Klyte.TransportLinesManager.Interfaces
     }
     internal interface ICustomPaletteExtension
     {
-        string GetUsingCustomPalette(uint prefix);
+        string GetCustomPalette(uint prefix);
         void SetCustomPalette(uint prefix, string paletteName);
     }
 }

@@ -370,7 +370,7 @@ namespace Klyte.TransportLinesManager.UI
 
             if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
             {
-                color = TLMUtils.CalculateAutoColor((ushort)(nextLineNumber + 1), configIdx, true);
+                color = TLMUtils.CalculateAutoColor((ushort)(nextLineNumber + 1), configIdx, ref tsd, true);
             }
             else
             {

@@ -194,7 +194,7 @@ namespace Klyte.TransportLinesManager
                     return Color.clear;
                 }
                 TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
-                Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
+                Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType, ref tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
                 if (c.a == 1)
                 {
                     TLMLineUtils.setLineColor(i, c);

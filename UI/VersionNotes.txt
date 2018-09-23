@@ -1,5 +1,7 @@
-﻿TLMv10.1
+﻿TLMv11
     -Added depot unbuncher intelligence: now buses and trams will target different stops (rather than finding the nearest stop, whcich will result in a faster vehicle distribution along the line path)
     -Autoname fixed
     -Mod config options in pause menu redesigned
+    -Now is possible to set a pallete to autocolor lines in a prefix (Ex: lines A1 and E1 can have different generated colors now)
+    -Fixed the layout of the prefixes options tab
     -Fixed: Tours ticket prices doesn't follow prefix value

@@ -5,8 +5,10 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.OptionsMenu;
 using Klyte.TransportLinesManager.Utils;
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
@@ -32,6 +34,8 @@ namespace Klyte.TransportLinesManager.UI
         UISlider[] m_budgetSliders = new UISlider[8];
         private UIButton m_enableBudgetPerHour;
         private UIButton m_disableBudgetPerHour;
+
+        private UIDropDown m_paletteDD;
 
         private TLMAssetSelectorWindowPrefixTab<T> m_assetSelectorWindow;
 
@@ -98,8 +102,24 @@ namespace Klyte.TransportLinesManager.UI
             CreateBudgetSliders(m_budgetPanel);
             CreateToggleBudgetButtons(m_budgetPanel);
 
+            TLMUtils.doLog("Palette");
+            m_paletteDD = m_subpanel.AddDropdownLocalized("TLM_PALETTE", new string[0], -1, SetPalettePrefix);
+
+            TLMUtils.doLog("PaletteDD Panel");
+            var palettePanel = m_paletteDD.GetComponentInParent<UIPanel>();
+            ConfigComponentPanel(m_paletteDD);
+            reloadPalettes();
+            TLMPaletteOptionsTab.onPaletteReloaded += reloadPalettes;
+
+
             GetComponent<UIComponent>().eventVisibilityChanged += (x, y) => forceRefresh();
             TLMConfigWarehouse.eventOnPropertyChanged += OnWarehouseChange;
+        }
+
+        private void SetPalettePrefix(int value)
+        {
+            extension.SetCustomPalette((uint)SelectedPrefix, value == 0 ? null : m_paletteDD.selectedValue);
+
         }
 
         private void OnWarehouseChange(TLMConfigWarehouse.ConfigIndex idx, bool? newValueBool, int? newValueInt, string newValueString)
@@ -108,6 +128,18 @@ namespace Klyte.TransportLinesManager.UI
             {
                 ReloadPrefixOptions();
             }
+        }
+
+        private void reloadPalettes()
+        {
+            string valSel = (m_paletteDD.selectedValue);
+            m_paletteDD.items = TLMAutoColorPalettes.paletteList;
+            if (!m_paletteDD.items.Contains(valSel))
+            {
+                valSel = TLMAutoColorPalettes.PALETTE_RANDOM;
+            }
+            m_paletteDD.selectedIndex = m_paletteDD.items.ToList().IndexOf(valSel);
+            m_paletteDD.items[0] = "-------------------";
         }
 
         private void CreateToggleBudgetButtons(UIPanel reference)
@@ -254,16 +286,16 @@ namespace Klyte.TransportLinesManager.UI
             reference.GetComponentInParent<UIPanel>().wrapLayout = false;
             reference.GetComponentInParent<UIPanel>().height = 40;
             TLMUtils.createElement(out UIPanel labelContainer, reference.parent.transform);
-            labelContainer.size = new Vector2(210, reference.height);
+            labelContainer.size = new Vector2(0, reference.height);
             labelContainer.zOrder = 0;
             UILabel lbl = reference.parent.GetComponentInChildren<UILabel>();
             lbl.transform.SetParent(labelContainer.transform);
-            lbl.textAlignment = UIHorizontalAlignment.Left;
-            lbl.relativePosition = new Vector3(0, lbl.relativePosition.y);
-            TLMUtils.LimitWidth(lbl, 200);
-            lbl.height = reference.height;
+            lbl.textAlignment = UIHorizontalAlignment.Center;
+            lbl.minimumSize = new Vector2(240, reference.height);
+            TLMUtils.LimitWidth(lbl, 240);
             lbl.verticalAlignment = UIVerticalAlignment.Middle;
             lbl.pivot = UIPivotPoint.TopCenter;
+            lbl.relativePosition = new Vector3(0, lbl.relativePosition.y);
         }
 
         private void ReloadPrefixOptions()
@@ -370,6 +402,7 @@ namespace Klyte.TransportLinesManager.UI
                 m_useColorForModel.isChecked = extension.IsUsingColorForModel((uint)sel);
                 m_prefixTicketPrice.text = extension.GetTicketPrice((uint)sel).ToString();
                 m_prefixName.text = extension.GetName((uint)sel) ?? "";
+                m_paletteDD.selectedIndex = Math.Max(0, m_paletteDD.items.ToList().IndexOf(extension.GetCustomPalette((uint)sel)));
                 updateSliders();
 
                 eventOnPrefixChange?.Invoke(sel);

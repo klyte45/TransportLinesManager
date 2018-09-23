@@ -15,6 +15,8 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         UIComponent parent;
         private UIDropDown editorSelector;
 
+        public static event OnPalettesChanged onPaletteReloaded;
+
         private void Awake()
         {
             parent = GetComponentInParent<UIComponent>();
@@ -40,6 +42,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 editorSelector.items = TLMAutoColorPalettes.paletteListForEditing;
                 editorSelector.selectedIndex = TLMAutoColorPalettes.paletteListForEditing.ToList().IndexOf(idxSel);
                 TLMConfigOptions.instance.updateDropDowns();
+                onPaletteReloaded?.Invoke();
             })).width = 710;
 
             NumberedColorList colorList = null;
@@ -63,6 +66,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             colorList.m_spriteName = "SubwayIcon";
         }
 
-
+        public delegate void OnPalettesChanged();
     }
 }

@@ -326,14 +326,17 @@ namespace Klyte.TransportLinesManager
 
         }
 
-        public static Color32 getColor(int number, string paletteName, bool randomOnPaletteOverflow, bool avoidRandom = false)
+        public static Color32 getColor(int number, string[] paletteOrderSearch, bool randomOnPaletteOverflow, bool avoidRandom = false)
         {
-            if (m_palettes.ContainsKey(paletteName))
+            foreach (var paletteName in paletteOrderSearch)
             {
-                AutoColorPalette palette = m_palettes[paletteName];
-                if (!randomOnPaletteOverflow || number <= palette.colors.Count)
+                if (m_palettes.ContainsKey(paletteName))
                 {
-                    return palette[number % palette.Count];
+                    AutoColorPalette palette = m_palettes[paletteName];
+                    if (!randomOnPaletteOverflow || number <= palette.colors.Count)
+                    {
+                        return palette[number % palette.Count];
+                    }
                 }
             }
             if (avoidRandom)

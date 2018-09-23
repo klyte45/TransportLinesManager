@@ -205,7 +205,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         #endregion
 
         #region Custom Palette
-        public string GetUsingCustomPalette(uint prefix)
+        public string GetCustomPalette(uint prefix)
         {
             return SafeGet(prefix, PrefixConfigIndex.CUSTOM_PALETTE) ?? string.Empty;
         }
