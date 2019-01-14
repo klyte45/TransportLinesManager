@@ -95,7 +95,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         #region Ticket Price
         public uint GetTicketPrice(uint prefix)
         {
-            if (uint.TryParse(SafeGet(prefix, PrefixConfigIndex.TICKET_PRICE), out uint result))
+            if (uint.TryParse(SafeGet(prefix, PrefixConfigIndex.TICKET_PRICE), out uint result) && result > 0)
             {
                 return result;
             }

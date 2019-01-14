@@ -66,7 +66,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else
             {
-                pal.Add(TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_SUBLINE));
+                pal.Add(TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_MAIN));
             }
             Color c;
             c = TLMAutoColorPalettes.getColor(num, pal.ToArray(), randomOnOverflow, avoidRandom);

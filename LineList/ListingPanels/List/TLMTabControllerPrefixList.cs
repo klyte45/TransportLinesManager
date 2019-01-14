@@ -14,7 +14,7 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.UI
 {
 
-    internal abstract class TLMTabControllerPrefixList<T> : UICustomControl where T : TLMSysDef<T>
+    internal abstract class TLMTabControllerPrefixList<T> : UICustomControl, IBudgetControlParentInterface where T : TLMSysDef<T>
     {
         public UIScrollablePanel mainPanel { get; private set; }
         public UIHelperExtension m_uiHelper;
@@ -42,11 +42,19 @@ namespace Klyte.TransportLinesManager.UI
         public static OnPrefixLoad eventOnPrefixChange;
         public static OnColorChanged eventOnColorChange;
         public int SelectedPrefix => m_prefixSelector?.selectedIndex ?? -1;
-        private static TransportSystemDefinition tsd => Singleton<T>.instance.GetTSD();
+
 
         private static ITLMTransportTypeExtension extension => Singleton<T>.instance.GetTSD().GetTransportExtension();
 
         private static Type ImplClassChildren => TLMUtils.GetImplementationForGenericType(typeof(TLMAssetSelectorWindowPrefixTab<>), typeof(T));
+
+        public ushort CurrentSelectedId => throw new NotImplementedException();
+
+        public bool PrefixSelectionMode => true;
+
+
+        public TransportSystemDefinition TransportSystem => Singleton<T>.instance.GetTSD();
+
 
         #region Awake
         private void Awake()
@@ -124,7 +132,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void OnWarehouseChange(TLMConfigWarehouse.ConfigIndex idx, bool? newValueBool, int? newValueInt, string newValueString)
         {
-            if (idx == (tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX))
+            if (idx == (TransportSystem.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX))
             {
                 ReloadPrefixOptions();
             }
@@ -157,7 +165,7 @@ namespace Klyte.TransportLinesManager.UI
             {
                 IBudgetableExtension bte;
                 uint idx;
-                var tsdRef = tsd;
+                var tsdRef = TransportSystem;
                 bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
                 idx = (uint)SelectedPrefix;
 
@@ -192,7 +200,7 @@ namespace Klyte.TransportLinesManager.UI
             {
                 IBudgetableExtension bte;
                 uint idx;
-                var tsdRef = tsd;
+                var tsdRef = TransportSystem;
                 bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
                 idx = (uint)SelectedPrefix;
 
@@ -286,7 +294,7 @@ namespace Klyte.TransportLinesManager.UI
             reference.GetComponentInParent<UIPanel>().wrapLayout = false;
             reference.GetComponentInParent<UIPanel>().height = 40;
             TLMUtils.createElement(out UIPanel labelContainer, reference.parent.transform);
-            labelContainer.size = new Vector2(0, reference.height);
+            labelContainer.size = new Vector2(240, reference.height);
             labelContainer.zOrder = 0;
             UILabel lbl = reference.parent.GetComponentInChildren<UILabel>();
             lbl.transform.SetParent(labelContainer.transform);
@@ -376,7 +384,7 @@ namespace Klyte.TransportLinesManager.UI
                 IBudgetableExtension bte;
                 uint[] saveData;
 
-                var tsdRef = tsd;
+                var tsdRef = TransportSystem;
                 bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
                 saveData = bte.GetBudgetsMultiplier(idx);
                 if (selectedHourIndex >= saveData.Length || saveData[selectedHourIndex] == val)
@@ -391,6 +399,10 @@ namespace Klyte.TransportLinesManager.UI
 
         #region On Selection Changed
         private bool isChanging = false;
+
+        public event OnItemSelectedChanged onSelectionChanged;
+        public event OnItemSelectedChanged onLineUpdated;
+
         private void onChangePrefix(int sel)
         {
             isChanging = true;
@@ -418,13 +430,13 @@ namespace Klyte.TransportLinesManager.UI
             }
 
 
-            TLMConfigWarehouse.ConfigIndex transportType = tsd.toConfigIndex();
+            TLMConfigWarehouse.ConfigIndex transportType = TransportSystem.toConfigIndex();
 
             uint[] multipliers;
             IBudgetableExtension bte;
             uint idx;
 
-            var tsdRef = tsd;
+            var tsdRef = TransportSystem;
 
             idx = (uint)SelectedPrefix;
             bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);

@@ -123,21 +123,21 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 if (TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(lineId))
                 {
-                    int targetCount = (int)TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 5;
+                    int targetCount = (int)TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 5;
                     tl.m_budget = 100;
                     float unitCount = tl.CalculateTargetVehicleCount();
                     return targetCount / unitCount + 0.005f;
                 }
                 else
                 {
-                    return TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
+                    return TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
                 }
             }
             else
             {
                 var tsd = TransportSystemDefinition.getDefinitionForLine(ref tl);
                 uint prefix = TLMLineUtils.getPrefix(lineId);
-                return TLMLineUtils.getExtensionFromConfigIndex(tsd.toConfigIndex()).GetBudgetMultiplierForHour(prefix, (int)Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
+                return TLMLineUtils.getExtensionFromConfigIndex(tsd.toConfigIndex()).GetBudgetMultiplierForHour(prefix, Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
             }
         }
         public static bool isPerHourBudget(ushort lineId)
@@ -745,7 +745,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static string[] getAllStopsFromLine(ushort lineID)
         {
-            TransportLine t = TLMController.instance.tm.m_lines.m_buffer[lineID];
+            TransportLine t = TransportManager.instance.m_lines.m_buffer[lineID];
             int stopsCount = t.CountStops(lineID);
             string[] result = new string[stopsCount];
             ItemClass.SubService ss = TransportSystemDefinition.getDefinitionForLine(lineID).subService;

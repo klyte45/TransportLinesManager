@@ -19,13 +19,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         private TLMConfigOptions m_tlmCo = TLMConfigOptions.instance;
 
         UIPanel separatorContainer;
-        UIPanel prefixedPaletteContainer;
+        UIPanel paletteContainer;
         UICheckBox prefixIncrement;
         UIPanel suffixDDContainer;
         UICheckBox zerosContainer;
         UICheckBox prefixAsSuffixContainer;
         UICheckBox autoColorBasedContainer;
-        UILabel paletteLabel;
         UIDropDown suffixDD;
         UIDropDown nonPrefixDD;
         UIDropDown prefixDD;
@@ -56,8 +55,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             suffixDD = m_tlmCo.generateDropdownConfig(m_uiHelper, Locale.Get("TLM_SUFFIX"), m_tlmCo.namingOptionsSufixo, transportType | TLMConfigWarehouse.ConfigIndex.SUFFIX);
             suffixDDContainer = suffixDD.transform.parent.GetComponent<UIPanel>();
             nonPrefixDD = m_tlmCo.generateDropdownConfig(m_uiHelper, Locale.Get("TLM_IDENTIFIER_NON_PREFIXED"), m_tlmCo.namingOptionsSufixo, transportType | TLMConfigWarehouse.ConfigIndex.NON_PREFIX);
-            prefixedPaletteContainer = m_tlmCo.generateDropdownStringValueConfig(m_uiHelper, Locale.Get("TLM_PALETTE_PREFIXED"), TLMAutoColorPalettes.paletteList, transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_MAIN).transform.parent.GetComponent<UIPanel>();
-            paletteLabel = m_tlmCo.generateDropdownStringValueConfig(m_uiHelper, Locale.Get("TLM_PALETTE_UNPREFIXED"), TLMAutoColorPalettes.paletteList, transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_SUBLINE).transform.parent.GetComponentInChildren<UILabel>();
+            paletteContainer = m_tlmCo.generateDropdownStringValueConfig(m_uiHelper, Locale.Get("TLM_PALETTE_PREFIXED"), TLMAutoColorPalettes.paletteList, transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_MAIN).transform.parent.GetComponent<UIPanel>();
             zerosContainer = m_tlmCo.generateCheckboxConfig(m_uiHelper, Locale.Get("TLM_LEADING_ZEROS_SUFFIX"), transportType | TLMConfigWarehouse.ConfigIndex.LEADING_ZEROS);
             prefixAsSuffixContainer = m_tlmCo.generateCheckboxConfig(m_uiHelper, Locale.Get("TLM_INVERT_PREFIX_SUFFIX_ORDER"), transportType | TLMConfigWarehouse.ConfigIndex.INVERT_PREFIX_SUFFIX);
             m_tlmCo.generateCheckboxConfig(m_uiHelper, Locale.Get("TLM_RANDOM_ON_PALETTE_OVERFLOW"), transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
@@ -72,14 +70,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         private void OnPrefixOptionChange(UIComponent c, int sel)
         {
             bool isPrefixed = (ModoNomenclatura)sel != ModoNomenclatura.Nenhum;
-            separatorContainer.isVisible = isPrefixed;
-            prefixedPaletteContainer.isVisible = isPrefixed;
+            separatorContainer.isVisible = isPrefixed;            
             prefixIncrement.isVisible = isPrefixed;
             suffixDDContainer.isVisible = isPrefixed;
             zerosContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero;
             prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
             autoColorBasedContainer.isVisible = isPrefixed;
-            paletteLabel.text = isPrefixed ? Locale.Get("TLM_PALETTE_UNPREFIXED") : Locale.Get("TLM_PALETTE");
         }
 
         private void OnSuffixOptionChange(UIComponent c, int sel)

@@ -109,40 +109,40 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             tempDef[TRAIN] = typeof(TLMSysDefNorTrn);
             tempDef[SHIP] = typeof(TLMSysDefNorShp);
             tempDef[PLANE] = typeof(TLMSysDefNorPln);
-            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.AfterDark))
-            {
+            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.AfterDark))
+            //{
                 tempDef[TAXI] = typeof(TLMSysDefNorTax);
-            }
+            //}
 
-            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Snowfall))
-            {
+            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Snowfall))
+            //{
                 tempDef[TRAM] = typeof(TLMSysDefNorTrm);
-            }
+            //}
 
-            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.NaturalDisasters))
-            {
+            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.NaturalDisasters))
+            //{
                 tempDef[EVAC_BUS] = typeof(TLMSysDefEvcBus);
-            }
+            //}
 
-            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.InMotion))
-            {
+            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.InMotion))
+            //{
                 tempDef[MONORAIL] = typeof(TLMSysDefNorMnr);
                 tempDef[FERRY] = typeof(TLMSysDefNorFer);
                 tempDef[BLIMP] = typeof(TLMSysDefNorBlp);
                 tempDef[CABLE_CAR] = typeof(TLMSysDefNorCcr);
-            }
+            //}
 
-            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.GreenCities))
-            {
+            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.GreenCities))
+            //{
                 //NONE
-            }
+            //}
 
-            if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Parks))
-            {
+            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Parks))
+            //{
                 tempDef[TOUR_BUS] = typeof(TLMSysDefTouBus);
                 tempDef[TOUR_PED] = typeof(TLMSysDefTouPed);
                 tempDef[BALLOON] = typeof(TLMSysDefTouBal);
-            }
+            //}
         }
 
         public ItemClass.SubService subService

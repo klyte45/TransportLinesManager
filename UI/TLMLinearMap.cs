@@ -107,10 +107,10 @@ namespace Klyte.TransportLinesManager.UI
         {
             TLMUtils.doLog("init RedrawLine");
             ushort lineID = parent.CurrentSelectedId;
-            TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)lineID];
+            TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)lineID];
             int stopsCount = t.CountStops(lineID);
             int vehicleCount = t.CountVehicles(lineID);
-            Color lineColor = TLMController.instance.tm.GetLineColor(lineID);
+            Color lineColor = TransportManager.instance.GetLineColor(lineID);
             TLMUtils.doLog("p1");
             setLinearMapColor(lineColor);
             clearStations();
@@ -199,7 +199,7 @@ namespace Klyte.TransportLinesManager.UI
 
         public TransportLine updateSubIconLayer()
         {
-            var t = TLMController.instance.tm.m_lines.m_buffer[parent.CurrentSelectedId];
+            var t = TransportManager.instance.m_lines.m_buffer[parent.CurrentSelectedId];
             TLMLineUtils.getLineActive(ref t, out bool day, out bool night);
             bool zeroed;
             unchecked
@@ -533,8 +533,8 @@ namespace Klyte.TransportLinesManager.UI
                     ttbTimers[resLabel.Key].color = getColorForTTB(ttb);
                 }
                 ushort lineID = parent.CurrentSelectedId;
-                TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)lineID];
-                Color lineColor = TLMController.instance.tm.GetLineColor(lineID);
+                TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)lineID];
+                Color lineColor = TransportManager.instance.GetLineColor(lineID);
                 int vehicleCount = t.CountVehicles(lineID);
                 List<ushort> oldItems = lineVehicles.Keys.ToList();
                 vehiclesOnStation.Clear();
@@ -601,7 +601,7 @@ namespace Klyte.TransportLinesManager.UI
             lineStationsPanel.backgroundSprite = "LinearBg";
             lineStationsPanel.pivot = UIPivotPoint.MiddleLeft;
             lineStationsPanel.relativePosition = new Vector3(75f, 10f);
-            lineStationsPanel.color = TLMController.instance.tm.GetLineColor(parent.CurrentSelectedId);
+            lineStationsPanel.color = TransportManager.instance.GetLineColor(parent.CurrentSelectedId);
         }
 
         private float addStationToLinearMap(string stationPrefix, string stationName, Vector3 location, float offsetX, List<ushort> intersections,
@@ -609,7 +609,7 @@ namespace Klyte.TransportLinesManager.UI
             ushort stationNodeId, ItemClass.SubService ss, Color lineColor, bool simple)//, out float intersectionPanelHeight)
         {
             ushort lineID = parent.CurrentSelectedId;
-            TransportLine t = TLMController.instance.tm.m_lines.m_buffer[(int)lineID];
+            TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)lineID];
             TransportManager tm = Singleton<TransportManager>.instance;
 
             if (stationName == null) stationName = "???";

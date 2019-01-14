@@ -174,7 +174,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
 
         private void BindParentChanges()
         {
-            m_lineInfo.EventOnLineChanged += (lineId) =>
+            m_lineInfo.onLineChanged += (lineId) =>
             {
                 TLMUtils.doLog("EventOnLineChanged");
                 TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);

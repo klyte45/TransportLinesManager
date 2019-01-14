@@ -1,8 +1,7 @@
-﻿TLMv11
-    -Added depot unbuncher intelligence: now buses and trams will target different stops (rather than finding the nearest stop, which will result in a faster vehicle distribution along the line path) - Disabled with IPT2
-    -Now the budget transition between the hours groups are smooth, starting 30 before the end of the hour group and ending 30 minutes after the start of entering hour group. It avoids a lot of vehicles being spawned at once at 7 AM... - Not managed with IPT2
-    -Autoname fixed
-    -Mod config options in pause menu redesigned
-    -Now is possible to set a pallete to autocolor lines in a prefix (Ex: lines A1 and E1 can have different generated colors now)
-    -Fixed the layout of the prefixes options tab
-    -Fixed: Tours ticket prices doesn't follow prefix value
+﻿TLMv11.1
+    -Budget controls refactoring
+    -Fixed: the dynamic budget change between the hours ranges isn't working smoothly
+    -Temp Fix: Now all transport modal tabs appears for everyone, despite not having the DLC's (note the transport system's funcionality will be missing in that cases)
+    -Removed redundant old non-prefixed palette (now can be setted at the prefix options)
+    -Fixed: the Labels of the prefix panel aren't fitting in the space correctly at first load
+    -Fixed: zeroed ticket price behaviour now is to inherit from parent layer (in order: line price -> prefix price -> default city price -> default game price)

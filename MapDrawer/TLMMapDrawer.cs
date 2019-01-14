@@ -34,9 +34,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
             //			List<int> usedX = new List<int> ();
             //			List<int> usedY = new List<int> ();
             int nextStationId = 1;
-            for (ushort lineId = 0; lineId < controller.tm.m_lines.m_size; lineId++)
+            for (ushort lineId = 0; lineId < TransportManager.instance.m_lines.m_size; lineId++)
             {
-                TransportLine t = controller.tm.m_lines.m_buffer[(int)lineId];
+                TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)lineId];
 
                 if (t.m_lineNumber > 0 && allowedTypesToDraw.Contains(t.Info.m_transportType) && (t.m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None)
                 {
@@ -57,7 +57,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 if (!linesByType.ContainsKey(tt)) continue;
                 foreach (ushort lineId in linesByType[tt])
                 {
-                    TransportLine t = controller.tm.m_lines.m_buffer[(int)lineId];
+                    TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)lineId];
                     float range = 75f;
                     switch (tt)
                     {

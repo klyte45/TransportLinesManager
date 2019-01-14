@@ -19,7 +19,7 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
-    internal class TLMController : LinearMapParentInterface<TLMController>
+    internal class TLMController : Singleton<TLMController>, ILinearMapParentInterface
     {
 
         public static UITextureAtlas taTLM
@@ -54,9 +54,7 @@ namespace Klyte.TransportLinesManager
         private static UITextureAtlas _taLineNumber = null;
 
         public UIView uiView;
-        public UIComponent mainRef;
-        public TransportManager tm => Singleton<TransportManager>.instance;
-        public InfoManager im => Singleton<InfoManager>.instance;
+        private UIComponent mainRef;
         public bool initialized = false;
         public bool initializedWIP = false;
         private TLMLineInfoPanel m_lineInfoPanel;
@@ -72,14 +70,14 @@ namespace Klyte.TransportLinesManager
         public TLMLineInfoPanel lineInfoPanel => m_lineInfoPanel;
         public TLMDepotInfoPanel depotInfoPanel => m_depotInfoPanel;
         public Transform TargetTransform => mainRef?.transform;
-        public override Transform TransformLinearMap => uiView?.transform;
+        public Transform TransformLinearMap => uiView?.transform;
 
         private ushort m_currentSelectedId;
 
-        public override ushort CurrentSelectedId => m_currentSelectedId;
+        public ushort CurrentSelectedId => m_currentSelectedId;
         public void setCurrentSelectedId(ushort line) => m_currentSelectedId = line;
 
-        public override bool CanSwitchView => false;
+        public bool CanSwitchView => false;
 
         public TLMLinearMap LinearMapCreatingLine
         {
@@ -111,14 +109,14 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public override bool ForceShowStopsDistances
+        public bool ForceShowStopsDistances
         {
             get {
                 return true;
             }
         }
 
-        public override TransportInfo CurrentTransportInfo
+        public TransportInfo CurrentTransportInfo
         {
             get {
                 return Singleton<TransportTool>.instance.m_prefab;
@@ -146,7 +144,7 @@ namespace Klyte.TransportLinesManager
                 m_depotInfoPanel?.updateBidings();
             }
 
-            lastLineCount = tm.m_lineCount;
+            lastLineCount = TransportManager.instance.m_lineCount;
 
             m_lineInfoPanel?.assetSelectorWindow?.RotateCamera();
         }
@@ -185,7 +183,7 @@ namespace Klyte.TransportLinesManager
 
         public Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
-            TransportLine t = tm.m_lines.m_buffer[(int)i];
+            TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)i];
             try
             {
                 var tsd = TransportSystemDefinition.getDefinitionForLine(i);
@@ -224,8 +222,8 @@ namespace Klyte.TransportLinesManager
 
         private void createViews()
         {
-            TLMUtils.createElement(out m_lineInfoPanel, transform);
-            TLMUtils.createElement(out m_depotInfoPanel, transform);
+            TLMUtils.createElement(out m_lineInfoPanel, TLMController.instance.mainRef.transform);
+            TLMUtils.createElement(out m_depotInfoPanel, TLMController.instance.mainRef.transform);
             TLMUtils.createElement(out m_linearMapCreatingLine, transform);
             TLMUtils.createElement(out m_lineCreationToolbox, transform);
             m_linearMapCreatingLine.parent = this;
@@ -305,7 +303,8 @@ namespace Klyte.TransportLinesManager
                 }
                 var prop = typeof(WorldInfoPanel).GetField("m_InstanceID", System.Reflection.BindingFlags.NonPublic
                     | System.Reflection.BindingFlags.Instance);
-                ushort buildingId = ((InstanceID)(prop.GetValue(parent.gameObject.GetComponent<WorldInfoPanel>()))).Building;
+                var wip = parent.gameObject.GetComponent<WorldInfoPanel>();
+                ushort buildingId = ((InstanceID)(prop.GetValue(wip))).Building;
                 if (lastBuildingSelected == buildingId && !force)
                 {
                     return;
@@ -334,6 +333,7 @@ namespace Klyte.TransportLinesManager
                     TLMLineUtils.PrintIntersections("", "", "", "", "", linesPanelObj.GetComponent<UIPanel>(), lines, scale, perLine);
                 }
                 linesPanelObj.GetComponent<UIPanel>().isVisible = showPanel;
+                linesPanelObj.GetComponent<UIPanel>().relativePosition = new Vector3(0, parent.height);
             }
             else
             {
@@ -449,7 +449,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public override void OnRenameStationAction(string autoName)
+        public void OnRenameStationAction(string autoName)
         {
 
         }

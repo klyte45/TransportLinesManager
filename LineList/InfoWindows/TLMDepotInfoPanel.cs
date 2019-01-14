@@ -1,20 +1,15 @@
 using ColossalFramework;
-using ColossalFramework.Math;
+using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.UI;
+using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.UI;
+using Klyte.TransportLinesManager.Utils;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
-using Klyte.TransportLinesManager.Extensors;
-using System.Collections.Generic;
-using ColossalFramework.Globalization;
-using Klyte.TransportLinesManager.LineList;
-using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
-using Klyte.TransportLinesManager.Utils;
-using Klyte.TransportLinesManager.UI;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.Commons.UI;
 
 namespace Klyte.TransportLinesManager.LineList
 {
@@ -133,7 +128,7 @@ namespace Klyte.TransportLinesManager.LineList
         {
             //line info painel
 
-            TLMUtils.createUIElement(out depotInfoPanel, m_controller.mainRef.transform);
+            TLMUtils.createUIElement(out depotInfoPanel, transform);
             depotInfoPanel.Hide();
             depotInfoPanel.relativePosition = new Vector3(394.0f, 0.0f);
             depotInfoPanel.width = 650;

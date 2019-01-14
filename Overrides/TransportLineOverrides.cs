@@ -229,14 +229,17 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             else
             {
+                uint prefixValue = 0;
                 if (TLMTransportLineExtension.instance.IsUsingCustomConfig(vehicleData.m_transportLine))
                 {
-                    __result = (int)(TLMTransportLineExtension.instance.GetTicketPrice(vehicleData.m_transportLine) * multiplier);
+                    prefixValue = TLMTransportLineExtension.instance.GetTicketPrice(vehicleData.m_transportLine);
                 }
-                else
+                if (prefixValue == 0)
                 {
-                    __result = (int)(def.GetTransportExtension().GetTicketPrice(TLMLineUtils.getPrefix(vehicleData.m_transportLine)) * multiplier);
+                    prefixValue = def.GetTransportExtension().GetTicketPrice(TLMLineUtils.getPrefix(vehicleData.m_transportLine));
                 }
+
+                __result = (int)(multiplier * prefixValue);
                 return false;
             }
         }
@@ -251,7 +254,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     return;
                 case InfoManager.InfoMode.Underground:
                 case InfoManager.InfoMode.ParkMaintenance:
-                    IL_1D:
+                IL_1D:
                     if (infoMode != InfoManager.InfoMode.None)
                     {
                         if (infoMode != InfoManager.InfoMode.Transport)
@@ -268,7 +271,7 @@ namespace Klyte.TransportLinesManager.Overrides
                             //goto IL_1G;
                         }
                     }
-                    IL_1G:
+                IL_1G:
                     ushort transportLine = data.m_transportLine;
                     if (transportLine != 0)
                     {
