@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Klyte.TransportLinesManager.UI;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Interfaces
@@ -54,5 +55,10 @@ namespace Klyte.TransportLinesManager.Interfaces
     {
         string GetCustomPalette(uint prefix);
         void SetCustomPalette(uint prefix, string paletteName);
+    }
+    internal interface ICustomGeometricFormatExtension
+    {
+        TLMLineIcon GetCustomFormat(uint prefix);
+        void SetCustomFormat(uint prefix, TLMLineIcon icon);
     }
 }

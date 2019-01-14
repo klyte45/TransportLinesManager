@@ -36,6 +36,7 @@ namespace Klyte.TransportLinesManager.UI
         private UIButton m_disableBudgetPerHour;
 
         private UIDropDown m_paletteDD;
+        private UIDropDown m_formatDD;
 
         private TLMAssetSelectorWindowPrefixTab<T> m_assetSelectorWindow;
 
@@ -81,6 +82,7 @@ namespace Klyte.TransportLinesManager.UI
             subpanel.autoLayout = true;
             subpanel.autoLayoutDirection = LayoutDirection.Vertical;
             subpanel.autoSize = true;
+            subpanel.autoFitChildrenVertically = true;
             m_subpanel = new UIHelperExtension(subpanel);
 
             TLMUtils.doLog("AssetSelector");
@@ -119,6 +121,10 @@ namespace Klyte.TransportLinesManager.UI
             reloadPalettes();
             TLMPaletteOptionsTab.onPaletteReloaded += reloadPalettes;
 
+            TLMUtils.doLog("Format");
+            m_formatDD = m_subpanel.AddDropdownLocalized("TLM_ICON", TLMLineIconExtension.getDropDownOptions(Locale.Get("TLM_LINE_ICON_ENUM_TT_DEFAULT")), -1, SetFormatPrefix);
+            ConfigComponentPanel(m_formatDD);
+
 
             GetComponent<UIComponent>().eventVisibilityChanged += (x, y) => forceRefresh();
             TLMConfigWarehouse.eventOnPropertyChanged += OnWarehouseChange;
@@ -127,6 +133,11 @@ namespace Klyte.TransportLinesManager.UI
         private void SetPalettePrefix(int value)
         {
             extension.SetCustomPalette((uint)SelectedPrefix, value == 0 ? null : m_paletteDD.selectedValue);
+
+        }
+        private void SetFormatPrefix(int value)
+        {
+            extension.SetCustomFormat((uint)SelectedPrefix, (TLMLineIcon)Enum.Parse(typeof(TLMLineIcon), value.ToString()));
 
         }
 
@@ -415,6 +426,7 @@ namespace Klyte.TransportLinesManager.UI
                 m_prefixTicketPrice.text = extension.GetTicketPrice((uint)sel).ToString();
                 m_prefixName.text = extension.GetName((uint)sel) ?? "";
                 m_paletteDD.selectedIndex = Math.Max(0, m_paletteDD.items.ToList().IndexOf(extension.GetCustomPalette((uint)sel)));
+                m_formatDD.selectedIndex = Math.Max(0, (int)extension.GetCustomFormat((uint)sel));
                 updateSliders();
 
                 eventOnPrefixChange?.Invoke(sel);

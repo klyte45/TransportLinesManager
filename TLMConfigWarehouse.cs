@@ -196,16 +196,16 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static string getBgIconForIndex(TLMConfigWarehouse.ConfigIndex transportType)
+        public static TLMLineIcon getBgIconForIndex(TLMConfigWarehouse.ConfigIndex transportType)
         {
             var iconName = getCurrentConfigString((transportType & TLMConfigWarehouse.ConfigIndex.SYSTEM_PART) | ConfigIndex.TRANSPORT_ICON_TLM);
             if (iconName == null || !Enum.IsDefined(typeof(TLMLineIcon), iconName))
             {
-                return getDefaultBgIconForIndex(transportType).getImageName();
+                return getDefaultBgIconForIndex(transportType);
             }
             else
             {
-                return ((TLMLineIcon)Enum.Parse(typeof(TLMLineIcon), iconName)).getImageName();
+                return ((TLMLineIcon)Enum.Parse(typeof(TLMLineIcon), iconName));
             }
         }
 

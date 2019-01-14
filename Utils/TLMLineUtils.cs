@@ -8,6 +8,7 @@ using Klyte.TransportLinesManager.Extensors.NetNodeExt;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -323,7 +324,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 transportType = TLMConfigWarehouse.ConfigIndex.BUS_CONFIG;
             }
-            return TLMCW.getBgIconForIndex(transportType);
+            return TLMUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, transportType, ref tsd).getImageName();
         }
 
 

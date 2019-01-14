@@ -83,20 +83,20 @@ namespace Klyte.TransportLinesManager.UI
 
         }
 
-        private static string[] m_dropDownOptions = null;
 
-        public static string[] dropDownOptions
+        public static string[] getDropDownOptions(string option0 = null)
         {
-            get {
-                if (m_dropDownOptions == null)
-                {
-                    m_dropDownOptions = Enum.GetValues(typeof(TLMLineIcon)).OfType<TLMLineIcon>().Select(x =>
-                    {
-                        return Locale.Get("TLM_LINE_ICON_ENUM", x.ToString());
-                    }).ToArray();
-                }
-                return m_dropDownOptions;
+            var result = Enum.GetValues(typeof(TLMLineIcon)).OfType<TLMLineIcon>().Select(x =>
+            {
+                return Locale.Get("TLM_LINE_ICON_ENUM", x.ToString());
+            }).ToArray();
+
+            if (option0 != null)
+            {
+                result[0] = option0;
             }
+            return result;
+
         }
     }
 }

@@ -2,6 +2,7 @@
 using ColossalFramework.Globalization;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
-    internal interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension, IUseColorForModelExtension, IColorSelectableExtension, ICustomPaletteExtension { }
+    internal interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension, IUseColorForModelExtension, IColorSelectableExtension, ICustomPaletteExtension, ICustomGeometricFormatExtension { }
 
     internal abstract class TLMTransportTypeExtension<TSD, SG> : ExtensionInterfaceDefaultImpl<PrefixConfigIndex, SG>, ITLMTransportTypeExtension where TSD : TLMSysDef<TSD>, new() where SG : TLMTransportTypeExtension<TSD, SG>
     {
@@ -227,6 +228,28 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         {
             SafeSet(prefix, PrefixConfigIndex.CUSTOM_PALETTE, paletteName);
         }
+
+        #endregion
+
+        #region Custom Format
+        public TLMLineIcon GetCustomFormat(uint prefix)
+        {
+            var valueSet = SafeGet(prefix, PrefixConfigIndex.CUSTOM_FORMAT);
+            if (valueSet == null || !Enum.IsDefined(typeof(TLMLineIcon), valueSet))
+            {
+                return TLMLineIcon.NULL;
+            }
+            else
+            {
+                return (TLMLineIcon)Enum.Parse(typeof(TLMLineIcon), valueSet);
+            }
+        }
+
+        public void SetCustomFormat(uint prefix, TLMLineIcon icon)
+        {
+            SafeSet(prefix, PrefixConfigIndex.CUSTOM_FORMAT, icon.ToString());
+        }
+
         #endregion
 
     }
@@ -313,6 +336,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         TICKET_PRICE,
         COLOR,
         USE_COLOR_FOR_MODEL,
-        CUSTOM_PALETTE
+        CUSTOM_PALETTE,
+        CUSTOM_FORMAT
     }
 }

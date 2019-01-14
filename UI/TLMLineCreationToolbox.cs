@@ -379,7 +379,7 @@ namespace Klyte.TransportLinesManager.UI
 
             lineNumberTxtBox.color = color;
             lineFormat.color = color;
-            lineFormat.backgroundSprite = TLMConfigWarehouse.getBgIconForIndex(configIdx);
+            lineFormat.backgroundSprite = TLMUtils.GetLineIcon((ushort)(nextLineNumber + 1), configIdx, ref tsd).getImageName();
             lineNumber.text = TLMUtils.getString(prefixo, sep, sufixo, nonPrefix, (nextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix);
             lineNumber.textColor = TLMUtils.contrastColor(color);
             int txtLen = lineNumber.text.Length;

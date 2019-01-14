@@ -144,13 +144,13 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     continue;
                 }
-
+                var tsd = kv.Key;
                 GameObject tab = Instantiate(tabTemplate.gameObject);
                 GameObject body = Instantiate(bodyContent.gameObject);
                 var configIdx = kv.Key.toConfigIndex();
                 String name = kv.Value.Name;
                 TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
-                String bgIcon = TLMConfigWarehouse.getBgIconForIndex(configIdx);
+                String bgIcon = TLMUtils.GetLineIcon(0, configIdx, ref tsd).getImageName();
                 String fgIcon = kv.Key.getTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();
                 tabButton.tooltip = TLMConfigWarehouse.getNameForTransportType(configIdx);

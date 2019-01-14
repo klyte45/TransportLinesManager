@@ -122,7 +122,8 @@ namespace Klyte.TransportLinesManager.UI
                 var tsd = TransportSystemDefinition.from(parent.CurrentTransportInfo);
                 if (tsd != default(TransportSystemDefinition))
                 {
-                    linearMapLineNumberFormat.backgroundSprite = TLMCW.getBgIconForIndex(tsd.toConfigIndex());
+
+                    linearMapLineNumberFormat.backgroundSprite = TLMUtils.GetLineIcon(0, tsd.toConfigIndex(), ref tsd).getImageName();
                 }
                 lineStationsPanel.width = 0;
                 return;

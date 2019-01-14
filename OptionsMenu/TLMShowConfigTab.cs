@@ -57,7 +57,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             suffixDDContainer = suffixDD.transform.parent.GetComponent<UIPanel>();
             nonPrefixDD = m_tlmCo.generateDropdownConfig(m_uiHelper, Locale.Get("TLM_IDENTIFIER_NON_PREFIXED"), m_tlmCo.namingOptionsSufixo, transportType | TLMConfigWarehouse.ConfigIndex.NON_PREFIX);
             paletteContainer = m_tlmCo.generateDropdownStringValueConfig(m_uiHelper, Locale.Get("TLM_PALETTE"), TLMAutoColorPalettes.paletteList, transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_MAIN).transform.parent.GetComponent<UIPanel>();
-            m_tlmCo.generateDropdownEnumStringValueConfig<TLMLineIcon>(m_uiHelper, Locale.Get("TLM_ICON"), TLMLineIconExtension.dropDownOptions, transportType | TLMConfigWarehouse.ConfigIndex.TRANSPORT_ICON_TLM);
+            m_tlmCo.generateDropdownEnumStringValueConfig<TLMLineIcon>(m_uiHelper, Locale.Get("TLM_ICON"), TLMLineIconExtension.getDropDownOptions(), transportType | TLMConfigWarehouse.ConfigIndex.TRANSPORT_ICON_TLM);
             zerosContainer = m_tlmCo.generateCheckboxConfig(m_uiHelper, Locale.Get("TLM_LEADING_ZEROS_SUFFIX"), transportType | TLMConfigWarehouse.ConfigIndex.LEADING_ZEROS);
             prefixAsSuffixContainer = m_tlmCo.generateCheckboxConfig(m_uiHelper, Locale.Get("TLM_INVERT_PREFIX_SUFFIX_ORDER"), transportType | TLMConfigWarehouse.ConfigIndex.INVERT_PREFIX_SUFFIX);
             m_tlmCo.generateCheckboxConfig(m_uiHelper, Locale.Get("TLM_RANDOM_ON_PALETTE_OVERFLOW"), transportType | TLMConfigWarehouse.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);

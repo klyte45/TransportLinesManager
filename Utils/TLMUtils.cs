@@ -4,6 +4,7 @@ using ColossalFramework.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace Klyte.TransportLinesManager.Utils
 
             List<string> pal = new List<string>();
 
-            if (num >= 1000 && TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+            if (num >= 0 && TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
             {
                 uint prefix = num / 1000u;
                 var ext = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
@@ -75,6 +76,22 @@ namespace Klyte.TransportLinesManager.Utils
                 c = TLMCW.getColorForTransportType(transportType);
             }
             return c;
+        }
+        internal static TLMLineIcon GetLineIcon(ushort num, TLMCW.ConfigIndex transportType, ref TransportSystemDefinition tsdRef)
+        {
+
+            if (num > 0 && TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+            {
+                uint prefix = num / 1000u;
+                var ext = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
+                var format = ext.GetCustomFormat(prefix);
+                if (format != TLMLineIcon.NULL)
+                {
+                    return format;
+                }
+
+            }
+            return TLMCW.getBgIconForIndex(transportType);
         }
         internal static string[] getStringOptionsForPrefix(TLMCW.ConfigIndex transportSystem, bool showUnprefixed = false, bool useNameRefSystem = false, bool noneOption = true)
         {
