@@ -2,7 +2,9 @@
 using Klyte.Commons.Interfaces;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
+using System;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -26,7 +28,7 @@ namespace Klyte.TransportLinesManager
            ConfigIndex.PLANE_PALETTE_MAIN ,
            ConfigIndex.MONORAIL_PALETTE_MAIN ,
            ConfigIndex.TOUR_BUS_CONFIG_PALETTE_MAIN ,
-           ConfigIndex.TOUR_PED_CONFIG_PALETTE_MAIN 
+           ConfigIndex.TOUR_PED_CONFIG_PALETTE_MAIN
         };
         public bool unsafeMode = false;
         public TLMConfigWarehouse() { }
@@ -196,38 +198,36 @@ namespace Klyte.TransportLinesManager
 
         public static string getBgIconForIndex(TLMConfigWarehouse.ConfigIndex transportType)
         {
+            var iconName = getCurrentConfigString((transportType & TLMConfigWarehouse.ConfigIndex.SYSTEM_PART) | ConfigIndex.TRANSPORT_ICON_TLM);
+            if (iconName == null || !Enum.IsDefined(typeof(TLMLineIcon), iconName))
+            {
+                return getDefaultBgIconForIndex(transportType).getImageName();
+            }
+            else
+            {
+                return ((TLMLineIcon)Enum.Parse(typeof(TLMLineIcon), iconName)).getImageName();
+            }
+        }
+
+        private static TLMLineIcon getDefaultBgIconForIndex(TLMConfigWarehouse.ConfigIndex transportType)
+        {
             switch (transportType & TLMConfigWarehouse.ConfigIndex.SYSTEM_PART)
             {
-                case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
-                    return "TrainIcon";
-                case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
-                    return "SubwayIcon";
-                case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
-                    return "BusIcon";
-                case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
-                    return "TramIcon";
-                case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
-                    return "ShipLineIcon";
-                case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
-                    return "CableCarTabIcon";
-                case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
-                    return "MonorailIcon";
-                case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
-                    return "PlaneLineIcon";
-                case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG:
-                    return "FerryIcon";
-                case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG:
-                    return "BlimpIcon";
-                case TLMConfigWarehouse.ConfigIndex.EVAC_BUS_CONFIG:
-                    return "EvacBusIcon";
-                case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
-                    return "TourPedIcon";
-                case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
-                    return "TourBusIcon";
-                case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG:
-                    return "TaxiTabIcon";
+                case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG: return TLMLineIcon.Circle;
+                case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG: return TLMLineIcon.Square;
                 default:
-                    return "BusIcon";
+                case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG: return TLMLineIcon.Hexagon;
+                case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG: return TLMLineIcon.Trapeze;
+                case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG: return TLMLineIcon.Diamond;
+                case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG: return TLMLineIcon.Cone;
+                case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG: return TLMLineIcon.RoundedSquare;
+                case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG: return TLMLineIcon.Pentagon;
+                case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG: return TLMLineIcon.Star8;
+                case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG: return TLMLineIcon.Parachute;
+                case TLMConfigWarehouse.ConfigIndex.EVAC_BUS_CONFIG: return TLMLineIcon.Cross;
+                case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG: return TLMLineIcon.Mountain;
+                case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG: return TLMLineIcon.Camera;
+                case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG: return TLMLineIcon.Triangle;
             }
         }
         public static string getNameForTransportType(ConfigIndex i)
@@ -264,7 +264,6 @@ namespace Klyte.TransportLinesManager
                     return Locale.Get("VEHICLE_TITLE", "Taxi");
                 default:
                     return "???";
-
             }
         }
 
@@ -275,14 +274,6 @@ namespace Klyte.TransportLinesManager
 
         public override int getDefaultIntValueForProperty(ConfigIndex i)
         {
-            if ((i & ConfigIndex.DEFAULT_TICKET_PRICE) == ConfigIndex.DEFAULT_TICKET_PRICE && (i & ConfigIndex.ADC_DESC_PART) == 0 && TransportManager.exists)
-            {
-                var tsd = getTransportSystemDefinitionForConfigTransport(i & ConfigIndex.SYSTEM_PART);
-                if (tsd != default(TransportSystemDefinition))
-                {
-                    return TransportManager.instance.GetTransportInfo(tsd.transportType)?.m_ticketPrice ?? 0;
-                }
-            }
             switch (i)
             {
                 default:
@@ -687,6 +678,7 @@ namespace Klyte.TransportLinesManager
             PREFIX_BASED_ASSETS_EVAC_BUS = GLOBAL_CONFIG | 0x21 | TYPE_DICTIONARY,
             PREFIX_BASED_ASSETS_TOUR_BUS = GLOBAL_CONFIG | 0x22 | TYPE_DICTIONARY,
 
+
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = TransportInfo.TransportType.Tram << 16,
             METRO_CONFIG = TransportInfo.TransportType.Metro << 16,
@@ -736,7 +728,7 @@ namespace Klyte.TransportLinesManager
             SUFFIX = 0x3 | TYPE_INT,
             LEADING_ZEROS = 0x4 | TYPE_BOOL,
             PALETTE_MAIN = 0x5 | TYPE_STRING,
-           // PALETTE_SUBLINE = 0x6 | TYPE_STRING,
+            // PALETTE_SUBLINE = 0x6 | TYPE_STRING,
             PALETTE_RANDOM_ON_OVERFLOW = 0x7 | TYPE_BOOL,
             PALETTE_PREFIX_BASED = 0x8 | TYPE_BOOL,
             SHOW_IN_LINEAR_MAP = 0x9 | TYPE_BOOL,
@@ -745,6 +737,7 @@ namespace Klyte.TransportLinesManager
             NON_PREFIX = 0xC | TYPE_INT,
             PREFIX_INCREMENT = 0xD | TYPE_BOOL,
             DEFAULT_TICKET_PRICE = 0xE | TYPE_INT,
+            TRANSPORT_ICON_TLM = 0Xf | TYPE_STRING,
 
             TRAIN_PREFIX = TRAIN_CONFIG | PREFIX,
             TRAM_PREFIX = TRAM_CONFIG | PREFIX,
@@ -894,6 +887,19 @@ namespace Klyte.TransportLinesManager
             CABLE_CAR_DEFAULT_TICKET_PRICE = CABLE_CAR_CONFIG | DEFAULT_TICKET_PRICE,
             TAXI_DEFAULT_TICKET_PRICE = TAXI_CONFIG | DEFAULT_TICKET_PRICE,
             TOUR_BUS_CONFIG_DEFAULT_TICKET_PRICE = TOUR_BUS_CONFIG | DEFAULT_TICKET_PRICE,
+
+            TRAIN_DEFAULT_TRANSPORT_ICON_TLM = TRAIN_CONFIG | TRANSPORT_ICON_TLM,
+            TRAM_DEFAULT_TRANSPORT_ICON_TLM = TRAM_CONFIG | TRANSPORT_ICON_TLM,
+            METRO_DEFAULT_TRANSPORT_ICON_TLM = METRO_CONFIG | TRANSPORT_ICON_TLM,
+            BUS_DEFAULT_TRANSPORT_ICON_TLM = BUS_CONFIG | TRANSPORT_ICON_TLM,
+            PLANE_DEFAULT_TRANSPORT_ICON_TLM = PLANE_CONFIG | TRANSPORT_ICON_TLM,
+            SHIP_DEFAULT_TRANSPORT_ICON_TLM = SHIP_CONFIG | TRANSPORT_ICON_TLM,
+            MONORAIL_DEFAULT_TRANSPORT_ICON_TLM = MONORAIL_CONFIG | TRANSPORT_ICON_TLM,
+            FERRY_DEFAULT_TRANSPORT_ICON_TLM = FERRY_CONFIG | TRANSPORT_ICON_TLM,
+            BLIMP_DEFAULT_TRANSPORT_ICON_TLM = BLIMP_CONFIG | TRANSPORT_ICON_TLM,
+            CABLE_CAR_DEFAULT_TRANSPORT_ICON_TLM = CABLE_CAR_CONFIG | TRANSPORT_ICON_TLM,
+            TAXI_DEFAULT_TRANSPORT_ICON_TLM = TAXI_CONFIG | TRANSPORT_ICON_TLM,
+            TOUR_BUS_CONFIG_DEFAULT_TRANSPORT_ICON_TLM = TOUR_BUS_CONFIG | TRANSPORT_ICON_TLM,
 
             //TRAIN_DEFAULT_COST_PER_PASSENGER_CAPACITY = TRAIN_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             //TRAM_DEFAULT_COST_PER_PASSENGER_CAPACITY = TRAM_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,

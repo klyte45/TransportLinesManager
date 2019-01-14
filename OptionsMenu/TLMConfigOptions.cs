@@ -152,6 +152,22 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         }
 
 
+        internal UIDropDown generateDropdownEnumStringValueConfig<T>(UIHelperExtension group, string title, string[] options, TLMConfigWarehouse.ConfigIndex configIndex) where T : struct, IConvertible
+        {
+            int currentValue;
+            try
+            {
+                currentValue = (int)Enum.Parse(typeof(T), currentConfigWarehouseEditor.getString(configIndex));
+            }
+            catch
+            {
+                currentValue = 0;
+            }
+            dropDowns[configIndex] = (UIDropDown)group.AddDropdown(title, options, currentValue, delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, Enum.GetNames(typeof(T))[i]); });
+            return dropDowns[configIndex];
+        }
+
+
         internal UITextField generateTextFieldConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
         {
             textFields[configIndex] = group.AddTextField(title, delegate (string s) { currentConfigWarehouseEditor.setString(configIndex, s); }, currentConfigWarehouseEditor.getString(configIndex));

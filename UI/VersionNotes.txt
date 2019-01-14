@@ -1,7 +1,8 @@
 ﻿TLMv11.1
+    -NEW: Now transport type icons are customizable by the given options
     -Budget controls refactoring
     -Fixed: the dynamic budget change between the hours ranges isn't working smoothly
     -Temp Fix: Now all transport modal tabs appears for everyone, despite not having the DLC's (note the transport system's funcionality will be missing in that cases)
     -Removed redundant old non-prefixed palette (now can be setted at the prefix options)
     -Fixed: the Labels of the prefix panel aren't fitting in the space correctly at first load
-    -Fixed: zeroed ticket price behaviour now is to inherit from parent layer (in order: line price -> prefix price -> default city price -> default game price)
+    -Fixed: zeroed ticket price behaviour now is to inherit from parent layer (in order: line price -> prefix price -> default city price -> default game price) 
