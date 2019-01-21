@@ -303,9 +303,9 @@ namespace Klyte.TransportLinesManager.UI
         {
             reference.GetComponentInParent<UIPanel>().autoLayoutDirection = LayoutDirection.Horizontal;
             reference.GetComponentInParent<UIPanel>().wrapLayout = false;
+            reference.GetComponentInParent<UIPanel>().autoLayout = false;
             reference.GetComponentInParent<UIPanel>().height = 40;
-            TLMUtils.createElement(out UIPanel labelContainer, reference.parent.transform);
-            labelContainer.size = new Vector2(240, reference.height);
+            TLMUtils.createUIElement(out UIPanel labelContainer, reference.parent.transform, "lblContainer",new Vector4(0,0, 240, reference.height));
             labelContainer.zOrder = 0;
             UILabel lbl = reference.parent.GetComponentInChildren<UILabel>();
             lbl.transform.SetParent(labelContainer.transform);
@@ -315,6 +315,7 @@ namespace Klyte.TransportLinesManager.UI
             lbl.verticalAlignment = UIVerticalAlignment.Middle;
             lbl.pivot = UIPivotPoint.TopCenter;
             lbl.relativePosition = new Vector3(0, lbl.relativePosition.y);
+            reference.relativePosition = new Vector3(240, 0);
         }
 
         private void ReloadPrefixOptions()

@@ -141,13 +141,13 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         internal UIDropDown generateDropdownConfig(UIHelperExtension group, string title, string[] options, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            dropDowns[configIndex] = (UIDropDown)group.AddDropdown(title, options, currentConfigWarehouseEditor.getInt(configIndex), delegate (int i) { currentConfigWarehouseEditor.setInt(configIndex, i); });
+            dropDowns[configIndex] = (UIDropDown)group.AddDropdown(title, options, currentConfigWarehouseEditor.getInt(configIndex), delegate (int i) { currentConfigWarehouseEditor.setInt(configIndex, i); }, true);
             return dropDowns[configIndex];
         }
 
         internal UIDropDown generateDropdownStringValueConfig(UIHelperExtension group, string title, string[] options, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.getString(configIndex), delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, options[i]); });
+            dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.getString(configIndex), delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, options[i]); }, true);
             return dropDowns[configIndex];
         }
 
@@ -163,7 +163,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             {
                 currentValue = 0;
             }
-            dropDowns[configIndex] = (UIDropDown)group.AddDropdown(title, options, currentValue, delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, Enum.GetNames(typeof(T))[i]); });
+            dropDowns[configIndex] = (UIDropDown)group.AddDropdown(title, options, currentValue, delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, Enum.GetNames(typeof(T))[i]); }, true);
             return dropDowns[configIndex];
         }
 

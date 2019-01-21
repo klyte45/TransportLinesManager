@@ -49,6 +49,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
                 throw new Exception("TLMBudgetControlSliders: PARENT PANEL ISN'T A BUDGET CONTROL PARENT!");
             }
             TLMUtils.createUIElement(out UIPanel m_budgetPanel, transform.parent, "BudgetPanel", new Vector4(0, 0, 600, 180));
+            m_budgetPanel.isInteractive = false;
             m_uiHelper = new UIHelperExtension(m_budgetPanel);
             CreateIgnorePrefixBudgetOption();
             if (!parent.PrefixSelectionMode)
@@ -192,7 +193,7 @@ namespace Klyte.TransportLinesManager.LineList.ExtraUI
             icon.spriteName = "AbsoluteMode";
 
             TLMUtils.createUIElement(out m_multiplierMode, m_uiHelper.self.transform);
-            m_multiplierMode.relativePosition = new Vector3(m_uiHelper.self.width - 250f, m_uiHelper.self.height - 30f);
+            m_multiplierMode.relativePosition = new Vector3(m_uiHelper.self.width - 200f, m_uiHelper.self.height - 30f);
             m_multiplierMode.textScale = 0.6f;
             m_multiplierMode.width = 40;
             m_multiplierMode.height = 40;

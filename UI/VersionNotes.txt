@@ -1,4 +1,12 @@
-﻿TLMv11.1
+﻿TLMv11.1.2
+    -Fixed: Some sorting methods were wrong in the line listing
+    -Fixed: Budged panel were preventing edit color and name of the line in the line window
+TLMv11.1.1
+    -Fixed: Can't edit line information at top bar of line window.
+    -Fixed: Relative button is misplaced over the budget bars
+    -Fixed: Pallete preview not display the colors
+
+TLMv11.1
     -NEW: Now transport type icons are customizable (general and by prefix)
     -NEW: Beyond the already known formats, are available now these formats for lines background icon:
            -> Map

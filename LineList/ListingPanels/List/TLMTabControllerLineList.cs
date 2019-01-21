@@ -393,14 +393,14 @@ namespace Klyte.TransportLinesManager.UI
         {
             TLMLineListItem<T> component = left.GetComponent<TLMLineListItem<T>>();
             TLMLineListItem<T> component2 = right.GetComponent<TLMLineListItem<T>>();
-            return NaturalCompare(component2.stopCounts, component.stopCounts);
+            return component2.stopCounts.CompareTo(component.stopCounts);
         }
 
         private static int CompareVehicles(UIComponent left, UIComponent right)
         {
             TLMLineListItem<T> component = left.GetComponent<TLMLineListItem<T>>();
             TLMLineListItem<T> component2 = right.GetComponent<TLMLineListItem<T>>();
-            return NaturalCompare(component2.vehicleCounts, component.vehicleCounts);
+            return component2.vehicleCounts.CompareTo(component.vehicleCounts);
         }
 
         private static int ComparePassengers(UIComponent left, UIComponent right)

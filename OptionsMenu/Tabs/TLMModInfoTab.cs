@@ -23,7 +23,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             group9.AddLabel(Locale.Get("TLM_BETAS_EXTRA_INFO"));
             group9.AddSpace(15);
 
-            group9.AddDropdownLocalized("TLM_MOD_LANG", TLMLocaleUtils.getLanguageIndex(), TLMSingleton.instance.currentLanguageIdx, delegate (int idx)
+            group9.AddDropdownLocalized("TLM_MOD_LANG", TLMLocaleUtils.instance.getLanguageIndex(), TLMSingleton.instance.currentLanguageIdx, delegate (int idx)
             {
                 TLMSingleton.instance.loadTLMLocale(true, idx);
             });

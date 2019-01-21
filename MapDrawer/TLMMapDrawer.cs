@@ -440,7 +440,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
         }
         public string getHtmlFooter(String cityName, DateTime date)
         {
-            return $@"<div id=""linesPanel""><div id=""title"">{cityName}</div><div id=""date"">{date.ToString(CultureInfo.GetCultures(CultureTypes.SpecificCultures).Where(c => c.TwoLetterISOLanguageName == TLMLocaleUtils.loadedLanguageEffective).FirstOrDefault())}</div><div id=""content""></div></body></html>";
+            return $@"<div id=""linesPanel""><div id=""title"">{cityName}</div><div id=""date"">{date.ToString(CultureInfo.GetCultures(CultureTypes.SpecificCultures).Where(c => c.TwoLetterISOLanguageName == TLMLocaleUtils.instance.loadedLanguageEffective).FirstOrDefault())}</div><div id=""content""></div></body></html>";
 
         }
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
 using System.IO;
@@ -63,7 +64,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
             colorList = group6.AddNumberedColorList(null, new List<Color32>(), (c) => { }, null, null);
             colorList.m_atlasToUse = TLMController.taLineNumber;
-            colorList.m_spriteName = "SubwayIcon";
+            colorList.m_spriteName = TLMLineIcon.Square.getImageName();
         }
 
         public delegate void OnPalettesChanged();

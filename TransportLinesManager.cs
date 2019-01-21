@@ -15,7 +15,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-[assembly: AssemblyVersion("11.1.0.0")]
+[assembly: AssemblyVersion("11.1.2.0")]
 namespace Klyte.TransportLinesManager
 {
     public class TLMMod : IUserMod, ILoadingExtension
@@ -318,7 +318,7 @@ namespace Klyte.TransportLinesManager
             }
             if (SingletonLite<LocaleManager>.exists)
             {
-                TLMLocaleUtils.loadLocale(currentLanguageId.value == 0 ? SingletonLite<LocaleManager>.instance.language : TLMLocaleUtils.getSelectedLocaleByIndex(currentLanguageId.value), force);
+                TLMLocaleUtils.instance.loadLocale(currentLanguageId.value == 0 ? SingletonLite<LocaleManager>.instance.language : TLMLocaleUtils.instance.getSelectedLocaleByIndex(currentLanguageId.value), force);
                 if (!isLocaleLoaded)
                 {
                     isLocaleLoaded = true;

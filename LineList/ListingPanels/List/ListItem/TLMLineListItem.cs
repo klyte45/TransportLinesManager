@@ -77,17 +77,17 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        public string stopCounts
+        public int stopCounts
         {
             get {
-                return this.m_LineStops.text;
+                return int.Parse(m_LineStops.text);
             }
         }
 
-        public string vehicleCounts
+        public int vehicleCounts
         {
             get {
-                return this.m_LineVehicles.text;
+                return int.Parse(m_LineVehicles.text);
             }
         }
 
