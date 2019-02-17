@@ -33,27 +33,25 @@ namespace Klyte.TransportLinesManager.Overrides
             #endregion
 
 
-            if (!TLMSingleton.isIPTLoaded)
-            {
-                #region Ticket Override Hooks
-                MethodInfo GetTicketPricePre = typeof(TransportLineOverrides).GetMethod("GetTicketPricePre", allFlags);
+            #region Ticket Override Hooks
+            MethodInfo GetTicketPricePre = typeof(TransportLineOverrides).GetMethod("GetTicketPricePre", allFlags);
 
-                TLMUtils.doLog("Loading Ticket Override Hooks");
-                AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-                AddRedirect(typeof(PassengerShipAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-                AddRedirect(typeof(TramAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-                AddRedirect(typeof(PassengerTrainAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-                AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-                AddRedirect(typeof(PassengerFerryAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-                AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-                AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-                //AddRedirect(typeof(TaxiAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre); // Waiting fix
-                #endregion
-                #region Bus Spawn Unbunching
-                MethodInfo BusUnbuncher = typeof(TransportLineOverrides).GetMethod("BusUnbuncher", allFlags);
-                AddRedirect(typeof(TransportLine).GetMethod("AddVehicle", allFlags), null, BusUnbuncher);
-                #endregion
-            }
+            TLMUtils.doLog("Loading Ticket Override Hooks");
+            AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            AddRedirect(typeof(PassengerShipAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            AddRedirect(typeof(TramAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            AddRedirect(typeof(PassengerTrainAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            AddRedirect(typeof(PassengerFerryAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            //AddRedirect(typeof(TaxiAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre); // Waiting fix
+            #endregion
+            #region Bus Spawn Unbunching
+            MethodInfo BusUnbuncher = typeof(TransportLineOverrides).GetMethod("BusUnbuncher", allFlags);
+            AddRedirect(typeof(TransportLine).GetMethod("AddVehicle", allFlags), null, BusUnbuncher);
+            #endregion
+
 
 
             #region Color Override Hooks
@@ -71,13 +69,9 @@ namespace Klyte.TransportLinesManager.Overrides
 
             #region Budget Override Hooks
 
-            if (!TLMSingleton.isIPTLoaded)
-            {
-                MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("SimulationStepPre", allFlags);
-
-                TLMUtils.doLog("Loading SimulationStepPre Hook");
-                AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), SimulationStepPre);
-            }
+            MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("SimulationStepPre", allFlags);
+            TLMUtils.doLog("Loading SimulationStepPre Hook");
+            AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), SimulationStepPre);
             #endregion
 
         }
@@ -254,7 +248,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     return;
                 case InfoManager.InfoMode.Underground:
                 case InfoManager.InfoMode.ParkMaintenance:
-                IL_1D:
+                    IL_1D:
                     if (infoMode != InfoManager.InfoMode.None)
                     {
                         if (infoMode != InfoManager.InfoMode.Transport)
@@ -271,7 +265,7 @@ namespace Klyte.TransportLinesManager.Overrides
                             //goto IL_1G;
                         }
                     }
-                IL_1G:
+                    IL_1G:
                     ushort transportLine = data.m_transportLine;
                     if (transportLine != 0)
                     {

@@ -102,10 +102,7 @@ namespace Klyte.TransportLinesManager.LineList
 
             CreateTicketPriceEditor();
 
-            TLMUtils.doLog("SLIDERS");
-            TLMUtils.createElement(out m_budgetSliders, this.transform, "Budget Sliders");
-
-
+            CreateBudgetSliders();
 
             TLMUtils.doLog("AGES");
             TLMUtils.createElement(out m_agesPanel, this.transform);
@@ -118,6 +115,13 @@ namespace Klyte.TransportLinesManager.LineList
             TLMUtils.doLog("ASSET SEL");
             TLMUtils.createElement(out m_assetSelectorWindow, transform);
             m_assetSelectorWindow.lineInfo = this;
+        }
+
+        private void CreateBudgetSliders()
+        {
+            TLMUtils.doLog("SLIDERS");
+            TLMUtils.createElement(out m_budgetSliders, this.transform, "Budget Sliders");
+            m_budgetSliders.mainPanel.relativePosition = new Vector2(0, 100);
         }
 
         public override void Start()
@@ -284,23 +288,6 @@ namespace Klyte.TransportLinesManager.LineList
             icon.height = 36;
             icon.spriteName = "AutoColorIcon";
 
-            if (TLMSingleton.isIPTLoaded)
-            {
-                TLMUtils.createUIElement(out m_goToWorldInfoPanel, m_uiHelper.self.transform);
-                m_goToWorldInfoPanel.relativePosition = new Vector3(m_uiHelper.self.width - 200f, m_uiHelper.self.height - 230f);
-                m_goToWorldInfoPanel.text = "IPT2";
-                m_goToWorldInfoPanel.textScale = 0.6f;
-                m_goToWorldInfoPanel.width = 40;
-                m_goToWorldInfoPanel.height = 40;
-                m_goToWorldInfoPanel.tooltip = Locale.Get("TLM_GO_TO_WORLD_INFO_PANEL_LINE");
-                TLMUtils.initButton(m_goToWorldInfoPanel, true, "ButtonMenu");
-                m_goToWorldInfoPanel.name = "IPT2WorldInfoButton";
-                m_goToWorldInfoPanel.isVisible = true;
-                m_goToWorldInfoPanel.eventClick += (component, eventParam) =>
-                {
-                    WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(Vector3.zero, m_lineIdSelecionado);
-                };
-            }
 
         }
 

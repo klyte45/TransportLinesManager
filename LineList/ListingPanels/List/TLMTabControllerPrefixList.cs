@@ -5,6 +5,7 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.LineList.ExtraUI;
 using Klyte.TransportLinesManager.OptionsMenu;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -30,13 +31,9 @@ namespace Klyte.TransportLinesManager.UI
         private UICheckBox m_useColorForModel;
         private UITextField m_prefixTicketPrice;
 
-        UILabel m_lineBudgetSlidersTitle;
-        UISlider[] m_budgetSliders = new UISlider[8];
-        private UIButton m_enableBudgetPerHour;
-        private UIButton m_disableBudgetPerHour;
-
         private UIDropDown m_paletteDD;
         private UIDropDown m_formatDD;
+        private TLMBudgetControlSliders m_budgetSliders;
 
         private TLMAssetSelectorWindowPrefixTab<T> m_assetSelectorWindow;
 
@@ -49,7 +46,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private static Type ImplClassChildren => TLMUtils.GetImplementationForGenericType(typeof(TLMAssetSelectorWindowPrefixTab<>), typeof(T));
 
-        public ushort CurrentSelectedId => throw new NotImplementedException();
+        public ushort CurrentSelectedId => (ushort)SelectedPrefix;
 
         public bool PrefixSelectionMode => true;
 
@@ -110,7 +107,7 @@ namespace Klyte.TransportLinesManager.UI
             TLMUtils.doLog("Budget");
             TLMUtils.createUIElement(out UIPanel m_budgetPanel, subpanel.transform, "BudgetPanel", new Vector4(0, 0, 460, 180));
             CreateBudgetSliders(m_budgetPanel);
-            CreateToggleBudgetButtons(m_budgetPanel);
+            m_budgetPanel.relativePosition = new Vector3(550, 0);
 
             TLMUtils.doLog("Palette");
             m_paletteDD = m_subpanel.AddDropdownLocalized("TLM_PALETTE", new string[0], -1, SetPalettePrefix);
@@ -161,142 +158,10 @@ namespace Klyte.TransportLinesManager.UI
             m_paletteDD.items[0] = "-------------------";
         }
 
-        private void CreateToggleBudgetButtons(UIPanel reference)
-        {
-            TLMUtils.createUIElement(out m_enableBudgetPerHour, reference.transform);
-            m_enableBudgetPerHour.relativePosition = new Vector3(reference.width - 65f, 0f);
-            m_enableBudgetPerHour.textScale = 0.6f;
-            m_enableBudgetPerHour.width = 40;
-            m_enableBudgetPerHour.height = 40;
-            m_enableBudgetPerHour.tooltip = Locale.Get("TLM_USE_PER_PERIOD_BUDGET");
-            TLMUtils.initButton(m_enableBudgetPerHour, true, "ButtonMenu");
-            m_enableBudgetPerHour.name = "EnableBudgetPerHour";
-            m_enableBudgetPerHour.isVisible = true;
-            m_enableBudgetPerHour.eventClick += (component, eventParam) =>
-            {
-                IBudgetableExtension bte;
-                uint idx;
-                var tsdRef = TransportSystem;
-                bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
-                idx = (uint)SelectedPrefix;
-
-                uint[] saveData = bte.GetBudgetsMultiplier(idx);
-                uint[] newSaveData = new uint[8];
-                for (int i = 0; i < 8; i++)
-                {
-                    newSaveData[i] = saveData[0];
-                }
-                bte.SetBudgetMultiplier(idx, newSaveData);
-                updateSliders();
-            };
-
-            var icon = m_enableBudgetPerHour.AddUIComponent<UISprite>();
-            icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
-            icon.width = 36;
-            icon.height = 36;
-            icon.spriteName = "PerHourIcon";
-
-
-            TLMUtils.createUIElement(out m_disableBudgetPerHour, reference.transform);
-            m_disableBudgetPerHour.relativePosition = new Vector3(reference.width - 65f, 0f);
-            m_disableBudgetPerHour.textScale = 0.6f;
-            m_disableBudgetPerHour.width = 40;
-            m_disableBudgetPerHour.height = 40;
-            m_disableBudgetPerHour.tooltip = Locale.Get("TLM_USE_SINGLE_BUDGET");
-            TLMUtils.initButton(m_disableBudgetPerHour, true, "ButtonMenu");
-            m_disableBudgetPerHour.name = "DisableBudgetPerHour";
-            m_disableBudgetPerHour.isVisible = true;
-            m_disableBudgetPerHour.eventClick += (component, eventParam) =>
-            {
-                IBudgetableExtension bte;
-                uint idx;
-                var tsdRef = TransportSystem;
-                bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
-                idx = (uint)SelectedPrefix;
-
-                uint[] saveData = bte.GetBudgetsMultiplier(idx);
-                uint[] newSaveData = new uint[] { saveData[0] };
-                bte.SetBudgetMultiplier(idx, newSaveData);
-
-                updateSliders();
-            };
-
-            icon = m_disableBudgetPerHour.AddUIComponent<UISprite>();
-            icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
-            icon.width = 36;
-            icon.height = 36;
-            icon.spriteName = "24hLineIcon";
-        }
-
         private void CreateBudgetSliders(UIPanel reference)
         {
-            TLMUtils.createUIElement(out m_lineBudgetSlidersTitle, reference.transform);
-            m_lineBudgetSlidersTitle.autoSize = false;
-            m_lineBudgetSlidersTitle.relativePosition = new Vector3(0f, 0f);
-            m_lineBudgetSlidersTitle.width = 400f;
-            m_lineBudgetSlidersTitle.height = 36f;
-            m_lineBudgetSlidersTitle.textScale = 0.9f;
-            m_lineBudgetSlidersTitle.textAlignment = UIHorizontalAlignment.Center;
-            m_lineBudgetSlidersTitle.name = "LineBudgetSlidersTitle";
-            m_lineBudgetSlidersTitle.font = UIHelperExtension.defaultFontCheckbox;
-            m_lineBudgetSlidersTitle.wordWrap = true;
-
-            var uiHelper = new UIHelperExtension(reference);
-
-            for (int i = 0; i < m_budgetSliders.Length; i++)
-            {
-                m_budgetSliders[i] = GenerateVerticalBudgetMultiplierField(uiHelper, i);
-            }
-        }
-
-        private UISlider GenerateVerticalBudgetMultiplierField(UIHelperExtension uiHelper, int idx)
-        {
-            UISlider bugdetSlider = (UISlider)uiHelper.AddSlider(Locale.Get("TLM_BUDGET_MULTIPLIER_LABEL"), 0f, 5, 0.05f, -1,
-                (x) =>
-                {
-
-                });
-            UILabel budgetSliderLabel = bugdetSlider.transform.parent.GetComponentInChildren<UILabel>();
-            UIPanel budgetSliderPanel = bugdetSlider.GetComponentInParent<UIPanel>();
-
-            budgetSliderPanel.relativePosition = new Vector2(45 * idx + 15, 50);
-            budgetSliderPanel.width = 40;
-            budgetSliderPanel.height = 160;
-            bugdetSlider.zOrder = 0;
-            budgetSliderPanel.autoLayout = true;
-
-            bugdetSlider.size = new Vector2(40, 100);
-            bugdetSlider.scrollWheelAmount = 0;
-            bugdetSlider.orientation = UIOrientation.Vertical;
-            bugdetSlider.clipChildren = true;
-            bugdetSlider.thumbOffset = new Vector2(0, -100);
-            bugdetSlider.color = Color.black;
-
-            bugdetSlider.thumbObject.width = 40;
-            bugdetSlider.thumbObject.height = 200;
-            ((UISprite)bugdetSlider.thumbObject).spriteName = "ScrollbarThumb";
-            ((UISprite)bugdetSlider.thumbObject).color = new Color32(1, 140, 46, 255);
-
-            budgetSliderLabel.textScale = 0.5f;
-            budgetSliderLabel.autoSize = false;
-            budgetSliderLabel.wordWrap = true;
-            budgetSliderLabel.pivot = UIPivotPoint.TopCenter;
-            budgetSliderLabel.textAlignment = UIHorizontalAlignment.Center;
-            budgetSliderLabel.text = string.Format(" x{0:0.00}", 0);
-            budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", idx);
-            budgetSliderLabel.width = 40;
-            budgetSliderLabel.font = UIHelperExtension.defaultFontCheckbox;
-
-            var idx_loc = idx;
-            bugdetSlider.eventValueChanged += delegate (UIComponent c, float val)
-            {
-                budgetSliderLabel.text = string.Format(" x{0:0.00}", val);
-                setBudgetHour(val, idx_loc);
-            };
-
-            return bugdetSlider;
+            TLMUtils.doLog("SLIDERS");
+            TLMUtils.createElement(out m_budgetSliders, reference.transform, "Budget Sliders");
         }
 
         private void ConfigComponentPanel(UIComponent reference)
@@ -305,7 +170,7 @@ namespace Klyte.TransportLinesManager.UI
             reference.GetComponentInParent<UIPanel>().wrapLayout = false;
             reference.GetComponentInParent<UIPanel>().autoLayout = false;
             reference.GetComponentInParent<UIPanel>().height = 40;
-            TLMUtils.createUIElement(out UIPanel labelContainer, reference.parent.transform, "lblContainer",new Vector4(0,0, 240, reference.height));
+            TLMUtils.createUIElement(out UIPanel labelContainer, reference.parent.transform, "lblContainer", new Vector4(0, 0, 240, reference.height));
             labelContainer.zOrder = 0;
             UILabel lbl = reference.parent.GetComponentInChildren<UILabel>();
             lbl.transform.SetParent(labelContainer.transform);
@@ -413,7 +278,6 @@ namespace Klyte.TransportLinesManager.UI
         private bool isChanging = false;
 
         public event OnItemSelectedChanged onSelectionChanged;
-        public event OnItemSelectedChanged onLineUpdated;
 
         private void onChangePrefix(int sel)
         {
@@ -428,65 +292,13 @@ namespace Klyte.TransportLinesManager.UI
                 m_prefixName.text = extension.GetName((uint)sel) ?? "";
                 m_paletteDD.selectedIndex = Math.Max(0, m_paletteDD.items.ToList().IndexOf(extension.GetCustomPalette((uint)sel)));
                 m_formatDD.selectedIndex = Math.Max(0, (int)extension.GetCustomFormat((uint)sel));
-                updateSliders();
 
                 eventOnPrefixChange?.Invoke(sel);
+                onSelectionChanged?.Invoke();
             }
             isChanging = false;
         }
-        private void updateSliders()
-        {
-            if (TLMSingleton.isIPTLoaded)
-            {
-                m_lineBudgetSlidersTitle.parent.isVisible = false;
-                return;
-            }
 
-
-            TLMConfigWarehouse.ConfigIndex transportType = TransportSystem.toConfigIndex();
-
-            uint[] multipliers;
-            IBudgetableExtension bte;
-            uint idx;
-
-            var tsdRef = TransportSystem;
-
-            idx = (uint)SelectedPrefix;
-            bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
-            multipliers = bte.GetBudgetsMultiplier(idx);
-
-            m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int)idx + 1) : Locale.Get("TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsdRef.toConfigIndex()));
-
-
-            bool budgetPerHourEnabled = multipliers.Length == 8;
-            m_disableBudgetPerHour.isVisible = budgetPerHourEnabled;
-            m_enableBudgetPerHour.isVisible = !budgetPerHourEnabled && tsdRef.hasVehicles();
-            for (int i = 0; i < m_budgetSliders.Length; i++)
-            {
-                UILabel budgetSliderLabel = m_budgetSliders[i].transform.parent.GetComponentInChildren<UILabel>();
-                if (i == 0)
-                {
-                    if (multipliers.Length == 1)
-                    {
-                        budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL_ALL");
-                    }
-                    else
-                    {
-                        budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", 0);
-                    }
-                }
-                else
-                {
-                    m_budgetSliders[i].isEnabled = budgetPerHourEnabled;
-                    m_budgetSliders[i].parent.isVisible = budgetPerHourEnabled;
-                }
-
-                if (i < multipliers.Length)
-                {
-                    m_budgetSliders[i].value = multipliers[i] / 100f;
-                }
-            }
-        }
         public void forceRefresh()
         {
             onChangePrefix(SelectedPrefix);

@@ -15,7 +15,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-[assembly: AssemblyVersion("11.1.2.0")]
+[assembly: AssemblyVersion("11.1.9999.0")]
 namespace Klyte.TransportLinesManager
 {
     public class TLMMod : IUserMod, ILoadingExtension
@@ -147,8 +147,6 @@ namespace Klyte.TransportLinesManager
         private bool isLocaleLoaded = false;
 
 
-        public static bool isIPTLoaded => (bool)(Type.GetType("ImprovedPublicTransport2.ImprovedPublicTransportMod")?.GetField("inGame", Redirector<TLMDepotAI>.allFlags)?.GetValue(null) ?? false);
-
         public static SavedBool debugMode => TLMSingleton.instance.m_debugMode;
 
 
@@ -172,7 +170,7 @@ namespace Klyte.TransportLinesManager
 
         public int currentLanguageIdx => currentLanguageId.value;
 
-        public static bool overrideWorldInfoPanelLine => instance.m_savedOverrideDefaultLineInfoPanel.value && !isIPTLoaded;
+        public static bool overrideWorldInfoPanelLine => instance.m_savedOverrideDefaultLineInfoPanel.value;
 
 
 
