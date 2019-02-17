@@ -2,7 +2,7 @@
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 
-namespace Klyte.TransportLinesManager.OptionsMenu
+namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {
     internal class TLMAutomationOptionsTab : UICustomControl
     {

@@ -11,7 +11,7 @@ using System.Linq;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
-namespace Klyte.TransportLinesManager.LineList.ExtraUI
+namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 {
     internal class TLMBudgetControlSliders : UICustomControl
     {

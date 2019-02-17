@@ -3,16 +3,19 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.CommonsWindow.Components;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.LineList.ExtraUI;
+using Klyte.TransportLinesManager.LineDetailWindow.Components;
 using Klyte.TransportLinesManager.OptionsMenu;
+using Klyte.TransportLinesManager.OptionsMenu.Tabs;
+using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Linq;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.UI
+namespace Klyte.TransportLinesManager.CommonsWindow
 {
 
     internal abstract class TLMTabControllerPrefixList<T> : UICustomControl, IBudgetControlParentInterface where T : TLMSysDef<T>

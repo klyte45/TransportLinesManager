@@ -262,56 +262,6 @@ namespace Klyte.TransportLinesManager.Utils
             return (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
         }
 
-        internal static List<string> getDepotPrefixesOptions(TLMCW.ConfigIndex transportType)
-        {
-            transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
-            var m = (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
-            List<string> saida = new List<string>(new string[] { Locale.Get("TLM_UNPREFIXED") });
-            switch (m)
-            {
-                case ModoNomenclatura.GregoMaiusculo:
-                case ModoNomenclatura.GregoMaiusculoNumero:
-                    saida.AddRange(gregoMaiusculo);
-                    break;
-                case ModoNomenclatura.GregoMinusculo:
-                case ModoNomenclatura.GregoMinusculoNumero:
-                    saida.AddRange(gregoMinusculo);
-                    break;
-                case ModoNomenclatura.CirilicoMaiusculo:
-                case ModoNomenclatura.CirilicoMaiusculoNumero:
-                    saida.AddRange(cirilicoMaiusculo);
-                    break;
-                case ModoNomenclatura.CirilicoMinusculo:
-                case ModoNomenclatura.CirilicoMinusculoNumero:
-                    saida.AddRange(cirilicoMinusculo);
-                    break;
-                case ModoNomenclatura.LatinoMaiusculo:
-                case ModoNomenclatura.LatinoMaiusculoNumero:
-                    saida.AddRange(latinoMaiusculo);
-                    break;
-                case ModoNomenclatura.LatinoMinusculo:
-                case ModoNomenclatura.LatinoMinusculoNumero:
-                    saida.AddRange(latinoMinusculo);
-                    break;
-                case ModoNomenclatura.Numero:
-                    for (int i = 1; i <= 64; i++)
-                    {
-                        saida.Add(i.ToString());
-                    }
-                    break;
-                case ModoNomenclatura.Romano:
-                    for (ushort i = 1; i <= 64; i++)
-                    {
-                        saida.Add(ToRomanNumeral(i));
-                    }
-                    break;
-            }
-            if (TLMLineUtils.nomenclaturasComNumeros.Contains(m))
-            {
-                saida.AddRange(numeros.Select(x => x.ToString()));
-            }
-            return saida;
-        }
         #endregion
 
         #region Naming Utils

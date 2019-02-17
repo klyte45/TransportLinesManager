@@ -8,7 +8,7 @@ using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.UI
+namespace Klyte.TransportLinesManager.CommonsWindow.Components
 {
     internal abstract class TLMLineListItem<T> : ToolsModifierControl where T : TLMSysDef<T>
     {

@@ -1,12 +1,13 @@
 ﻿using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
 
-namespace Klyte.TransportLinesManager.LineList
+namespace Klyte.TransportLinesManager.Overrides
 {
-    class TLMPublicTransportDetailPanelHooks : Redirector<TLMPublicTransportDetailPanelHooks>
+    class PublicTransportWorldInfoPanelOverrides : Redirector<PublicTransportWorldInfoPanelOverrides>
     {
 
         private static bool OpenDetailPanel(int idx)
@@ -69,15 +70,15 @@ namespace Klyte.TransportLinesManager.LineList
         public override void AwakeBody()
         {
 
-            MethodInfo OpenDetailPanel = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OpenDetailPanel", allFlags);
-            MethodInfo OpenDetailPanelDefaultTab = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("OpenDetailPanelDefaultTab", allFlags);
+            MethodInfo OpenDetailPanel = typeof(PublicTransportWorldInfoPanelOverrides).GetMethod("OpenDetailPanel", allFlags);
+            MethodInfo OpenDetailPanelDefaultTab = typeof(PublicTransportWorldInfoPanelOverrides).GetMethod("OpenDetailPanelDefaultTab", allFlags);
 
             TLMUtils.doLog("Loading PublicTransportInfoViewPanel Hooks!");
             AddRedirect(typeof(PublicTransportInfoViewPanel).GetMethod("OpenDetailPanel", allFlags), OpenDetailPanel);
             AddRedirect(typeof(PublicTransportInfoViewPanel).GetMethod("OpenDetailPanelDefaultTab", allFlags), OpenDetailPanelDefaultTab);
             AddRedirect(typeof(ToursInfoViewPanel).GetMethod("OpenDetailPanel", allFlags), OpenDetailPanel);
 
-            var preventDefault = typeof(TLMPublicTransportDetailPanelHooks).GetMethod("preventDefault", allFlags);
+            var preventDefault = typeof(PublicTransportWorldInfoPanelOverrides).GetMethod("preventDefault", allFlags);
             var from3 = typeof(PublicTransportLineInfo).GetMethod("RefreshData", allFlags);
             TLMUtils.doErrorLog("Muting PublicTransportLineInfo: {0} ({1}=>{2}})", typeof(PublicTransportLineInfo), from3, preventDefault);
             AddRedirect(from3, preventDefault);

@@ -6,7 +6,7 @@ using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.OptionsMenu
+namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {
     internal class TLMShowConfigTabContainer : UICustomControl
     {

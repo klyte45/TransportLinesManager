@@ -2,12 +2,13 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.CommonsWindow.Components;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.UI
+namespace Klyte.TransportLinesManager.CommonsWindow
 {
     internal abstract class TLMTabControllerLineHooks<T, V> : Redirector<T> where T : TLMTabControllerLineHooks<T, V> where V : TLMSysDef<V>
     {

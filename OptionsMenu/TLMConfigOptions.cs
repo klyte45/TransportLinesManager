@@ -2,6 +2,7 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.OptionsMenu.Tabs;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;

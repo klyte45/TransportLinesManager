@@ -6,7 +6,7 @@ using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.Utils;
 using System.Linq;
 
-namespace Klyte.TransportLinesManager.OptionsMenu
+namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {
     internal class TLMModInfoTab : UICustomControl
     {

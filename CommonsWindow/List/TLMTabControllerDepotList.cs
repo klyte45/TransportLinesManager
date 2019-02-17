@@ -2,13 +2,15 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.CommonsWindow;
+using Klyte.TransportLinesManager.CommonsWindow.Components;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.UI
+namespace Klyte.TransportLinesManager.CommonsWindow
 {
     internal abstract class TLMTabControllerDepotHooks<T, V> : Redirector<T> where T : TLMTabControllerDepotHooks<T, V> where V : TLMSysDef<V>
     {
@@ -126,14 +128,6 @@ namespace Klyte.TransportLinesManager.UI
             prefixesServed.textAlignment = UIHorizontalAlignment.Center;
             prefixesServed.text = Locale.Get("TLM_PREFIXES_SERVED");
 
-
-            TLMUtils.createUIElement(out UILabel addRemove, titleLine.transform, "AddRemove");
-            addRemove.minimumSize = new Vector2(180, 0);
-            addRemove.area = new Vector4(550, 10, addRemove.minimumSize.x, 18);
-            TLMUtils.LimitWidth(addRemove, (uint)addRemove.width);
-            addRemove.textAlignment = UIHorizontalAlignment.Center;
-            addRemove.text = Locale.Get("TLM_ADD_REMOVE");
-
             AwakePrefixFilter();
         }
 
@@ -158,10 +152,9 @@ namespace Klyte.TransportLinesManager.UI
             Type implClass = ImplClassChildren;
             if (count >= mainPanel.components.Count)
             {
-                var temp = UITemplateManager.Get<PublicTransportLineInfo>(kLineTemplate).gameObject;
-                GameObject.Destroy(temp.GetComponent<PublicTransportLineInfo>());
-                lineInfoItem = (TLMDepotListItem<T>)temp.AddComponent(implClass);
-                mainPanel.AttachUIComponent(lineInfoItem.gameObject);
+                UIPanel bg = mainPanel.AddUIComponent<UIPanel>();
+                bg.gameObject.AddComponent(implClass);
+                lineInfoItem = bg.GetComponent<TLMDepotListItem<T>>();
             }
             else
             {

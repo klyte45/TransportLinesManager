@@ -3,19 +3,20 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.UI;
+using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.LineList.ExtraUI;
+using Klyte.TransportLinesManager.LineDetailWindow.Components;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
-namespace Klyte.TransportLinesManager.LineList
+namespace Klyte.TransportLinesManager.LineDetailWindow
 {
-    internal class TLMLineInfoPanel : UIPanel, ILinearMapParentInterface, IBudgetControlParentInterface
+    internal class TLMLineDetailWindow : UIPanel, ILinearMapParentInterface, IBudgetControlParentInterface
     {
         private TLMAgesChartPanel m_agesPanel;
         private TLMLinearMap m_linearMap;
@@ -736,7 +737,7 @@ namespace Klyte.TransportLinesManager.LineList
             {
                 return;
             }
-            WorldInfoPanel.HideAllWorldInfoPanels();
+            global::WorldInfoPanel.HideAllWorldInfoPanels();
             m_linePrefixDropDown.eventSelectedIndexChanged -= saveLineNumber;
             m_lineNumberLabel.eventLostFocus -= saveLineNumber;
 
@@ -792,7 +793,6 @@ namespace Klyte.TransportLinesManager.LineList
 
             Show();
             TLMController.instance.CloseTLMPanel();
-            TLMController.instance.depotInfoPanel.Hide();
 
             m_linePrefixDropDown.eventSelectedIndexChanged += saveLineNumber;
             m_lineNumberLabel.eventLostFocus += saveLineNumber;

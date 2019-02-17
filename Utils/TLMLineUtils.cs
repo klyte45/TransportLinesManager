@@ -1173,7 +1173,7 @@ namespace Klyte.TransportLinesManager.Utils
             DepotAI ai = b.Info.GetAI() as DepotAI;
             if (ai == null)
                 return "";
-            List<string> options = TLMUtils.getDepotPrefixesOptions(TransportSystemDefinition.from(secondary ? ai.m_secondaryTransportInfo : ai.m_transportInfo).toConfigIndex());
+            string[] options = TLMUtils.getStringOptionsForPrefix(TransportSystemDefinition.from(secondary ? ai.m_secondaryTransportInfo : ai.m_transportInfo).toConfigIndex(), true);
             var prefixes = TLMDepotAI.getPrefixesServedByDepot(m_buildingID, secondary);
             if (prefixes == null)
             {
@@ -1185,7 +1185,7 @@ namespace Klyte.TransportLinesManager.Utils
                 saida.Add(Locale.Get("TLM_UNPREFIXED_SHORT"));
             uint sequenceInit = 0;
             bool isInSequence = false;
-            for (uint i = 1; i < options.Count; i++)
+            for (uint i = 1; i < options.Length; i++)
             {
                 if (prefixes.Contains(i))
                 {
@@ -1210,13 +1210,13 @@ namespace Klyte.TransportLinesManager.Utils
             }
             if (sequenceInit != 0 && isInSequence)
             {
-                if (sequenceInit == options.Count - 1)
+                if (sequenceInit == options.Length - 1)
                 {
                     saida.Add(options[(int)sequenceInit]);
                 }
                 else
                 {
-                    saida.Add(options[(int)sequenceInit] + "-" + options[(int)(options.Count - 1)]);
+                    saida.Add(options[(int)sequenceInit] + "-" + options[(int)(options.Length - 1)]);
                 }
                 isInSequence = false;
             }

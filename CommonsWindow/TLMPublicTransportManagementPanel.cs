@@ -3,12 +3,13 @@ using ColossalFramework.UI;
 using Klyte.Commons.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.UI
+namespace Klyte.TransportLinesManager.CommonsWindow
 {
 
     internal class TLMPublicTransportManagementPanel : UICustomControl

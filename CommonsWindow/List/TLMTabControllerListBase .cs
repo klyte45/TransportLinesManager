@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Klyte.TransportLinesManager.TLMConfigWarehouse;
 
-namespace Klyte.TransportLinesManager.UI
+namespace Klyte.TransportLinesManager.CommonsWindow
 {
     internal abstract class TLMTabControllerListBase<T> : UICustomControl where T : TLMSysDef<T>
     {

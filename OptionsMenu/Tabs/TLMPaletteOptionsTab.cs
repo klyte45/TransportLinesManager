@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.OptionsMenu
+namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {
     internal class TLMPaletteOptionsTab : UICustomControl
     {

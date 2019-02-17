@@ -3,7 +3,7 @@ using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.OptionsMenu
+namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {
     internal class TLMDefaultTicketPriceConfigTab : UICustomControl
     {
