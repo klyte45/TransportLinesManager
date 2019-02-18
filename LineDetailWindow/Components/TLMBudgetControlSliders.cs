@@ -5,6 +5,7 @@ using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Linq;
@@ -102,7 +103,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             var icon = m_enableBudgetPerHour.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "PerHourIcon";
@@ -129,7 +130,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             icon = m_disableBudgetPerHour.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "24hLineIcon";
@@ -153,7 +154,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             icon = m_copyButton.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "Copy";
@@ -175,7 +176,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             icon = m_pasteButton.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "Paste";
@@ -214,7 +215,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             icon = m_absoluteCountMode.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "AbsoluteMode";
@@ -251,7 +252,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             icon = m_multiplierMode.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "RelativeMode";

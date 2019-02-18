@@ -424,40 +424,40 @@ namespace Klyte.TransportLinesManager.Utils
         {
             try
             {
-                if (TLMSingleton.debugMode)
+                if (TransportLinesManagerMod.debugMode)
                 {
-                    if (TLMSingleton.instance != null)
+                    if (TransportLinesManagerMod.instance != null)
                     {
-                        Debug.LogWarningFormat("TLMRv" + TLMSingleton.version + " " + format, args);
+                        Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
 
                     }
                     else
                     {
-                        Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
+                        Console.WriteLine("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
                     }
                 }
             }
             catch
             {
-                Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " Erro ao fazer log: {0} (args = {1})", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
+                Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.version + " Erro ao fazer log: {0} (args = {1})", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
             }
         }
         public static void doErrorLog(string format, params object[] args)
         {
             try
             {
-                if (TLMSingleton.instance != null)
+                if (TransportLinesManagerMod.instance != null)
                 {
-                    Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " " + format, args);
+                    Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
                 }
                 else
                 {
-                    Console.WriteLine("TLMRv" + TLMSingleton.version + " " + format, args);
+                    Console.WriteLine("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
                 }
             }
             catch
             {
-                Debug.LogErrorFormat("TLMRv" + TLMSingleton.version + " Erro ao logar ERRO!!!: {0} (args = [{1}])", format, args == null ? "" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
+                Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.version + " Erro ao logar ERRO!!!: {0} (args = [{1}])", format, args == null ? "" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
             }
 
         }

@@ -2,7 +2,7 @@
 
 namespace Klyte.TransportLinesManager.Utils
 {
-    internal sealed class TLMResourceLoader : KlyteResourceLoader<TLMResourceLoader>
+    public sealed class TLMResourceLoader : KlyteResourceLoader<TLMResourceLoader>
     {
         protected override string prefix => "Klyte.TransportLinesManager.";
     }

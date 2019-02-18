@@ -207,7 +207,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
                     }
                     return 102;
                 default:
-                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("subservice not found: {0}", tsd.subService);
+                    TLMUtils.doLog("subservice not found: {0}", tsd.subService);
                     return 103;
             }
 

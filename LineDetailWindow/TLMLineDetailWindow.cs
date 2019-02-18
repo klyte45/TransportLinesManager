@@ -8,6 +8,7 @@ using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.LineDetailWindow.Components;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -238,7 +239,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
             var icon = deleteLine.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "RemoveUnwantedIcon";
@@ -262,7 +263,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
             icon = buttonAutoName.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.spriteName = "AutoNameIcon";
             icon.width = 36;
             icon.height = 36;
@@ -284,7 +285,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
             icon = buttonAutoColor.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "AutoColorIcon";

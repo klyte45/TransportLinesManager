@@ -4,6 +4,7 @@ using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.CommonsWindow.Components;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
@@ -120,7 +121,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             var icon = m_autoNameAll.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "AutoNameIcon";
@@ -145,7 +146,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             icon = m_autoColorAll.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
             icon.spriteName = "AutoColorIcon";

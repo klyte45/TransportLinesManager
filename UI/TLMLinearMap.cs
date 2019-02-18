@@ -4,6 +4,7 @@ using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -170,7 +171,7 @@ namespace Klyte.TransportLinesManager.UI
                     local = getStation(lineID, stationId, ss, out stationName, out List<ushort> intersections, out airport, out harbor, out taxi, out regionalStation, out cableCarStation, out namePrefix);
                     lineStationsPanel.width += addStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, lineColor, true);
                 }
-                else if (TLMSingleton.showDistanceInLinearMap || parent.ForceShowStopsDistances)
+                else if (TransportLinesManagerMod.showDistanceLinearMap || parent.ForceShowStopsDistances)
                 {
                     minI--;
                 }
@@ -232,7 +233,7 @@ namespace Klyte.TransportLinesManager.UI
             vehicleLabel.height = 33;
             vehicleLabel.pivot = UIPivotPoint.TopCenter;
             vehicleLabel.verticalAlignment = UIVerticalAlignment.Middle;
-            vehicleLabel.atlas = TLMController.taLineNumber;
+            vehicleLabel.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
 
             vehicleLabel.padding = new RectOffset(0, 0, 2, 0);
             vehicleLabel.textScale = 0.6f;
@@ -399,7 +400,7 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineNumberFormat.verticalAlignment = UIVerticalAlignment.Middle;
             linearMapLineNumberFormat.name = "LineFormat";
             linearMapLineNumberFormat.relativePosition = new Vector3(0f, 0f);
-            linearMapLineNumberFormat.atlas = TLMController.taLineNumber;
+            linearMapLineNumberFormat.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
             TLMUtils.createDragHandle(linearMapLineNumberFormat, mainContainer);
 
 
@@ -429,7 +430,7 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineTime.verticalAlignment = UIVerticalAlignment.Middle;
             linearMapLineTime.name = "LineTime";
             linearMapLineTime.relativePosition = new Vector3(0f, 0f);
-            linearMapLineTime.atlas = TLMController.taLineNumber;
+            linearMapLineTime.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
 
             //if (parent.PrefixSelector)
             //{
@@ -513,7 +514,7 @@ namespace Klyte.TransportLinesManager.UI
                 distanceToggle.text = "Δd";
                 distanceToggle.eventClick += (x, y) =>
                 {
-                    TLMSingleton.showDistanceInLinearMap = !TLMSingleton.showDistanceInLinearMap;
+                    TransportLinesManagerMod.showDistanceLinearMap = !TransportLinesManagerMod.showDistanceLinearMap;
                     redrawLine();
                 };
             }
@@ -598,7 +599,7 @@ namespace Klyte.TransportLinesManager.UI
             lineStationsPanel.autoLayout = false;
             lineStationsPanel.useCenter = true;
             lineStationsPanel.wrapLayout = false;
-            lineStationsPanel.atlas = TLMController.taLineNumber;
+            lineStationsPanel.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
             lineStationsPanel.backgroundSprite = "LinearBg";
             lineStationsPanel.pivot = UIPivotPoint.MiddleLeft;
             lineStationsPanel.relativePosition = new Vector3(75f, 10f);
@@ -621,7 +622,7 @@ namespace Klyte.TransportLinesManager.UI
             stationButton.height = 20;
             stationButton.color = lineColor;
             stationButton.name = "Station [" + stationName + "]";
-            stationButton.atlas = TLMController.taLineNumber;
+            stationButton.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
             stationButton.tooltip = stationName + "(id:" + stationNodeId + ")";
             TLMUtils.initButton(stationButton, true, "LinearStation");
 
@@ -688,7 +689,7 @@ namespace Klyte.TransportLinesManager.UI
                     UILabel distance = null;
                     int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0) + (cableCarStation != string.Empty ? 1 : 0);
 
-                    if ((TLMSingleton.showDistanceInLinearMap || parent.ForceShowStopsDistances) && offsetX > 0)
+                    if ((TransportLinesManagerMod.showDistanceLinearMap || parent.ForceShowStopsDistances) && offsetX > 0)
                     {
                         NetSegment seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment0];
                         if (seg.m_endNode != stationNodeId)

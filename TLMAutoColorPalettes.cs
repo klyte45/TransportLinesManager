@@ -207,7 +207,7 @@ namespace Klyte.TransportLinesManager
         public static string[] paletteList
         {
             get {
-                if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("TLMAutoColorPalettes paletteList");
+                TLMUtils.doLog("TLMAutoColorPalettes paletteList");
                 if (m_palettes == null)
                 {
                     init();
@@ -219,7 +219,7 @@ namespace Klyte.TransportLinesManager
         public static string[] paletteListForEditing
         {
             get {
-                if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("TLMAutoColorPalettes paletteListForEditing");
+                TLMUtils.doLog("TLMAutoColorPalettes paletteListForEditing");
                 if (m_palettes == null)
                 {
                     init();
@@ -230,7 +230,7 @@ namespace Klyte.TransportLinesManager
 
         private static void init()
         {
-            if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("TLMAutoColorPalettes init()");
+            TLMUtils.doLog("TLMAutoColorPalettes init()");
             Reload();
         }
 
@@ -268,11 +268,11 @@ namespace Klyte.TransportLinesManager
 
         public static void SaveAll()
         {
-            TLMUtils.EnsureFolderCreation(TLMSingleton.palettesFolder);
+            TLMUtils.EnsureFolderCreation(TransportLinesManagerMod.palettesFolder);
             var filesToSave = GetPalettesAsDictionary();
             foreach (var file in filesToSave)
             {
-                File.WriteAllText(TLMSingleton.palettesFolder + Path.DirectorySeparatorChar + file.Key + EXT_PALETTE, file.Value);
+                File.WriteAllText(TransportLinesManagerMod.palettesFolder + Path.DirectorySeparatorChar + file.Key + EXT_PALETTE, file.Value);
             }
         }
 
@@ -281,16 +281,16 @@ namespace Klyte.TransportLinesManager
             var filesToSave = GetPalettesAsDictionary();
             if (m_palettes.ContainsKey(palette))
             {
-                File.WriteAllText(TLMSingleton.palettesFolder + Path.DirectorySeparatorChar + palette + EXT_PALETTE, m_palettes[palette].ToFileContent());
+                File.WriteAllText(TransportLinesManagerMod.palettesFolder + Path.DirectorySeparatorChar + palette + EXT_PALETTE, m_palettes[palette].ToFileContent());
             }
         }
 
         private static void Load()
         {
             m_palettes = new Dictionary<string, AutoColorPalette>();
-            foreach (var filename in Directory.GetFiles(TLMSingleton.palettesFolder, "*" + EXT_PALETTE).Select(x => x.Split(Path.DirectorySeparatorChar).Last()))
+            foreach (var filename in Directory.GetFiles(TransportLinesManagerMod.palettesFolder, "*" + EXT_PALETTE).Select(x => x.Split(Path.DirectorySeparatorChar).Last()))
             {
-                string fileContents = File.ReadAllText(TLMSingleton.palettesFolder + Path.DirectorySeparatorChar + filename, Encoding.UTF8);
+                string fileContents = File.ReadAllText(TransportLinesManagerMod.palettesFolder + Path.DirectorySeparatorChar + filename, Encoding.UTF8);
                 var name = filename.Substring(0, filename.Length - 4);
                 m_palettes[name] = AutoColorPalette.FromFileContent(name, fileContents.Split(AutoColorPalette.ENTRY_SEPARATOR).Select(x => x?.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray());
                 TLMUtils.doLog("LOADED PALETTE ({0}) QTT: {1}", filename, m_palettes[name].Count);
@@ -302,11 +302,11 @@ namespace Klyte.TransportLinesManager
             string serializedInfo = oldFile.value;
             if (!string.IsNullOrEmpty(serializedInfo))
             {
-                if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("Loading palettes - separator: {1} ; save Value: {0}", serializedInfo, SERIALIZER_ITEM_SEPARATOR);
+                TLMUtils.doLog("Loading palettes - separator: {1} ; save Value: {0}", serializedInfo, SERIALIZER_ITEM_SEPARATOR);
                 string[] items = serializedInfo.Split(SERIALIZER_ITEM_SEPARATOR);
                 foreach (string item in items)
                 {
-                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("Loading palette {0}", items);
+                    TLMUtils.doLog("Loading palette {0}", items);
                     AutoColorPalette acp = AutoColorPalette.parseFromString_Legacy(item);
                     if (acp != null)
                     {

@@ -1,6 +1,7 @@
 ﻿using ColossalFramework.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -84,7 +85,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             tabTemplate.width = 40;
             tabTemplate.height = 40;
             tabTemplate.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
-            tabTemplate.atlas = TLMController.taLineNumber;
+            tabTemplate.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
             return tabTemplate;
         }
 

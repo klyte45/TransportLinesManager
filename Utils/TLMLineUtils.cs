@@ -8,6 +8,7 @@ using Klyte.TransportLinesManager.Extensors.NetNodeExt;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.UI;
 using System;
 using System.Collections.Generic;
@@ -551,7 +552,7 @@ namespace Klyte.TransportLinesManager.Utils
                 lineCircleIntersect.verticalAlignment = UIVerticalAlignment.Middle;
                 lineCircleIntersect.name = "LineFormat";
                 lineCircleIntersect.relativePosition = new Vector3(0f, 0f);
-                lineCircleIntersect.atlas = TLMController.taLineNumber;
+                lineCircleIntersect.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
                 lineCircleIntersect.normalBgSprite = bgSprite;
                 lineCircleIntersect.hoveredColor = Color.white;
                 lineCircleIntersect.hoveredTextColor = Color.red;
@@ -587,7 +588,7 @@ namespace Klyte.TransportLinesManager.Utils
                     daytimeIndicator.verticalAlignment = UIVerticalAlignment.Middle;
                     daytimeIndicator.name = "LineTime";
                     daytimeIndicator.relativePosition = new Vector3(0f, 0f);
-                    daytimeIndicator.atlas = TLMController.taLineNumber;
+                    daytimeIndicator.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
                     daytimeIndicator.backgroundSprite = zeroed ? "NoBudgetIcon" : day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
                 }
                 setLineNumberCircleOnRef(s.Value, lineNumberIntersect);
@@ -638,7 +639,7 @@ namespace Klyte.TransportLinesManager.Utils
             lineCircleIntersect.verticalAlignment = UIVerticalAlignment.Middle;
             lineCircleIntersect.name = "LineFormat";
             lineCircleIntersect.relativePosition = new Vector3(0f, 0f);
-            lineCircleIntersect.atlas = TLMController.taLineNumber;
+            lineCircleIntersect.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
             lineCircleIntersect.backgroundSprite = bgSprite;
             lineCircleIntersect.tooltip = description;
         }

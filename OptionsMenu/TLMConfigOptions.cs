@@ -76,9 +76,8 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         {
 
             TLMUtils.doLog("Loading Options");
-            TLMSingleton.instance.loadTLMLocale(false);
 
-            var overrideWorldInfoPanelLineOption = (UICheckBox)helper.AddCheckboxLocale("TLM_OVERRIDE_DEFAULT_LINE_INFO", TLMSingleton.instance.m_savedOverrideDefaultLineInfoPanel.value, toggleOverrideDefaultLineInfoPanel);
+            var overrideWorldInfoPanelLineOption = (UICheckBox)helper.AddCheckboxLocale("TLM_OVERRIDE_DEFAULT_LINE_INFO", TransportLinesManagerMod.overrideWorldInfoPanelLine, toggleOverrideDefaultLineInfoPanel);
 
             helper.AddSpace(10);
 
@@ -95,7 +94,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             {
                 if (b)
                 {
-                    TLMSingleton.instance.showVersionInfoPopup();
+                    TransportLinesManagerMod.instance.showVersionInfoPopup();
                 }
                 strip.selectedIndex = strip.tabCount - 1;
             };
@@ -248,7 +247,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         private void toggleOverrideDefaultLineInfoPanel(bool b)
         {
-            TLMSingleton.instance.m_savedOverrideDefaultLineInfoPanel.value = b;
+            TransportLinesManagerMod.overrideWorldInfoPanelLine = b;
         }
 
 

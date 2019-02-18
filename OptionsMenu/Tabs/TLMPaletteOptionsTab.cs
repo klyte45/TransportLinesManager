@@ -1,6 +1,7 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             group6.AddLabel(Locale.Get("TLM_CUSTOM_PALETTE_CONFIG"));
             group6.AddSpace(15);
 
-            var fiPalette = TLMUtils.EnsureFolderCreation(TLMSingleton.palettesFolder);
+            var fiPalette = TLMUtils.EnsureFolderCreation(TransportLinesManagerMod.palettesFolder);
 
             group6.AddLabel(Locale.Get("TLM_PALETTE_FOLDER_LABEL") + ":");
             var namesFilesButton = ((UIButton)group6.AddButton("/", () => { ColossalFramework.Utils.OpenInFileBrowser(fiPalette.FullName); }));
@@ -63,7 +64,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             editorSelector.width = 710;
 
             colorList = group6.AddNumberedColorList(null, new List<Color32>(), (c) => { }, null, null);
-            colorList.m_atlasToUse = TLMController.taLineNumber;
+            colorList.m_atlasToUse = TLMLineUtilsTextureAtlas.instance.atlas;
             colorList.m_spriteName = TLMLineIcon.Square.getImageName();
         }
 

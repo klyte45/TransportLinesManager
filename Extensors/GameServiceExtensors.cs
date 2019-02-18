@@ -125,8 +125,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     saida = uint.MaxValue;
                     break;
             }
-            if (TLMSingleton.instance != null && TLMSingleton.debugMode)
-                TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
+            TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
             return saida;
         }
         public static string getPrefixTextNaming(this TLMConfigWarehouse.ConfigIndex idx)

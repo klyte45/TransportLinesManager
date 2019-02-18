@@ -21,8 +21,8 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             group7.AddLabel(Locale.Get("TLM_NEAR_LINES_CONFIG"));
             group7.AddSpace(15);
 
-            group7.AddCheckbox(Locale.Get("TLM_NEAR_LINES_SHOW_IN_SERVICES_BUILDINGS"), TLMSingleton.instance.m_savedShowNearLinesInCityServicesWorldInfoPanel.value, toggleShowNearLinesInCityServicesWorldInfoPanel);
-            group7.AddCheckbox(Locale.Get("TLM_NEAR_LINES_SHOW_IN_ZONED_BUILDINGS"), TLMSingleton.instance.m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value, toggleShowNearLinesInZonedBuildingWorldInfoPanel);
+            group7.AddCheckbox(Locale.Get("TLM_NEAR_LINES_SHOW_IN_SERVICES_BUILDINGS"), TransportLinesManagerMod.showNearLinesPlop, toggleShowNearLinesInCityServicesWorldInfoPanel);
+            group7.AddCheckbox(Locale.Get("TLM_NEAR_LINES_SHOW_IN_ZONED_BUILDINGS"), TransportLinesManagerMod.showNearLinesGrow, toggleShowNearLinesInZonedBuildingWorldInfoPanel);
             group7.AddSpace(20);
             TLMConfigOptions.instance.generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_BUS"), TLMConfigWarehouse.ConfigIndex.BUS_SHOW_IN_LINEAR_MAP);
             TLMConfigOptions.instance.generateCheckboxConfig(group7, Locale.Get("TLM_NEAR_LINES_SHOW_METRO"), TLMConfigWarehouse.ConfigIndex.METRO_SHOW_IN_LINEAR_MAP);
@@ -57,12 +57,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         }
         private void toggleShowNearLinesInCityServicesWorldInfoPanel(bool b)
         {
-            TLMSingleton.instance.m_savedShowNearLinesInCityServicesWorldInfoPanel.value = b;
+            TransportLinesManagerMod.showNearLinesPlop = b;
         }
 
         private void toggleShowNearLinesInZonedBuildingWorldInfoPanel(bool b)
         {
-            TLMSingleton.instance.m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value = b;
+            TransportLinesManagerMod.showNearLinesGrow = b;
         }
 
 

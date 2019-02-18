@@ -4,6 +4,7 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.UI;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -75,7 +76,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             var icon = removeUndesired.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMController.taTLM;
+            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 18;
             icon.height = 18;
             icon.spriteName = "RemoveUnwantedIcon";

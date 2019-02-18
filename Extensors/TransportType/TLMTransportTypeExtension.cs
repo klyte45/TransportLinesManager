@@ -298,7 +298,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                     VehicleManager vm = Singleton<VehicleManager>.instance;
                     VehicleInfo info = vm.m_vehicles.m_buffer[Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].GetVehicle(0)].Info;
 
-                    if (TLMSingleton.instance != null && TLMSingleton.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
+                    if (TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
 
                     if (modelList.Count > 0)
                     {

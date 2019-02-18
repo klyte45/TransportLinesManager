@@ -3,6 +3,7 @@ using ColossalFramework.UI;
 using Klyte.Commons.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -79,7 +80,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             if (value)
             {
-                TLMSingleton.instance.showVersionInfoPopup();
+                TransportLinesManagerMod.instance.showVersionInfoPopup();
                 SetViewMode(null, m_StripMain.selectedIndex);
             }
         }
@@ -196,7 +197,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             tabTemplate.width = 40;
             tabTemplate.height = 40;
             tabTemplate.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
-            tabTemplate.atlas = TLMController.taLineNumber;
+            tabTemplate.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
             return tabTemplate;
         }
 
@@ -234,7 +235,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             TLMUtils.createUIElement(out UILabel titlebar, mainPanel.transform, "TLMListPanel", new Vector4(75, 10, mainPanel.width - 150, 20));
             titlebar.autoSize = false;
-            titlebar.text = "Transport Lines Manager v" + TLMSingleton.version;
+            titlebar.text = "Transport Lines Manager v" + TransportLinesManagerMod.version;
             titlebar.textAlignment = UIHorizontalAlignment.Center;
             TLMUtils.createDragHandle(titlebar, KlyteModsPanel.instance.mainPanel);
 
@@ -247,7 +248,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             };
 
             TLMUtils.createUIElement(out UISprite logo, mainPanel.transform, "TLMLogo", new Vector4(22, 5f, 32, 32));
-            logo.atlas = TLMController.taTLM;
+            logo.atlas = TLMCommonTextureAtlas.instance.atlas;
             logo.spriteName = "TransportLinesManagerIconHovered";
             TLMUtils.createDragHandle(logo, KlyteModsPanel.instance.mainPanel);
         }

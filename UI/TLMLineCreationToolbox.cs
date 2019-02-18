@@ -2,6 +2,7 @@
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Reflection;
@@ -158,7 +159,7 @@ namespace Klyte.TransportLinesManager.UI
             title.verticalAlignment = UIVerticalAlignment.Middle;
             title.name = "Title";
             title.relativePosition = new Vector3(0, 5);
-            title.atlas = TLMController.taLineNumber;
+            title.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
             title.localeID = "TLM_PREFIX_SELECTOR_WIN_TITLE";
             TLMUtils.createDragHandle(title, mainContainer);
 
@@ -210,7 +211,7 @@ namespace Klyte.TransportLinesManager.UI
             lineFormat.verticalAlignment = UIVerticalAlignment.Middle;
             lineFormat.name = "LineFormat";
             lineFormat.relativePosition = new Vector3(55f, 80f);
-            lineFormat.atlas = TLMController.taLineNumber;
+            lineFormat.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
             TLMUtils.createDragHandle(lineFormat, mainContainer);
 
             TLMUtils.createUIElement(out lineNumber, lineFormat.transform);
@@ -228,7 +229,7 @@ namespace Klyte.TransportLinesManager.UI
             prefixIncrementChk = uiHelper.AddCheckboxLocale("TLM_AUTOINCREMENT_PREFIX", false, delegate (bool value)
              {
                  var tsd = TransportSystemDefinition.from(transportTool.m_prefab);
-                 if (TLMSingleton.debugMode)
+                 if (TransportLinesManagerMod.debugMode)
                  {
                      TLMUtils.doLog("Type = " + tsd.toConfigIndex() + "|prop=" + (tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT) + "|valToSet = " + value);
                  }

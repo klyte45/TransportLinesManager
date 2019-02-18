@@ -9,6 +9,7 @@ using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.LineDetailWindow;
+using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.WorldInfoPanelExt;
@@ -25,81 +26,6 @@ namespace Klyte.TransportLinesManager
 {
     internal class TLMController : Singleton<TLMController>, ILinearMapParentInterface
     {
-
-        public static UITextureAtlas taTLM
-        {
-            get {
-                if (_taTLM == null)
-                {
-                    TLMResourceLoader.Ensure();
-                    _taTLM = TLMResourceLoader.instance.CreateTextureAtlas("UI.Images.sprites.png", "TransportLinesManagerSprites", GameObject.FindObjectOfType<UIPanel>().atlas.material, 64, 64, new string[] {
-                    "TransportLinesManagerIcon","TransportLinesManagerIconHovered","AutoNameIcon","AutoColorIcon","RemoveUnwantedIcon","ConfigIcon","24hLineIcon", "PerHourIcon","AbsoluteMode","RelativeMode","Copy","Paste"
-                });
-                }
-                return _taTLM;
-            }
-        }
-        public static UITextureAtlas taLineNumber
-        {
-            get {
-                if (_taLineNumber == null)
-                {
-                    TLMResourceLoader.Ensure();
-                    _taLineNumber = TLMResourceLoader.instance.CreateTextureAtlas("UI.Images.lineFormat.png", "TransportLinesManagerLinearLineSprites", GameObject.FindObjectOfType<UIPanel>().atlas.material, 64, 64, new string[] {
-                        "MapIcon",
-                        "OvalIcon",
-                        "RoundedHexagonIcon",
-                        "RoundedPentagonIcon",
-                        "RoundedTriangleIcon",
-                        "OctagonIcon",
-                        "HeptagonIcon",
-                        "10StarIcon",
-                        "9StarIcon",
-                        "7StarIcon",
-                        "6StarIcon",
-                        "5StarIcon",
-                        "4StarIcon",
-                        "3StarIcon",
-                        "CameraIcon",
-                        "MountainIcon",
-                        "ConeIcon",
-                        "TriangleIcon",
-                        "CrossIcon",
-                        "DepotIcon",
-                        "LinearHalfStation",
-                        "LinearStation",
-                        "LinearBg",
-                        "PentagonIcon",
-                        "TrapezeIcon",
-                        "DiamondIcon",
-                        "8StarIcon",
-                        "CableCarIcon",
-                        "ParachuteIcon",
-                        "HexagonIcon",
-                        "SquareIcon",
-                        "CircleIcon",
-                        "RoundedSquareIcon",
-                        "ShipIcon",
-                        "AirplaneIcon",
-                        "TaxiIcon",
-                        "DayIcon",
-                        "NightIcon",
-                        "DisabledIcon",
-                        "NoBudgetIcon",
-                        "BulletTrainImage",
-                        "LowBusImage",
-                        "HighBusImage",
-                        "VehicleLinearMap",
-                        "RegionalTrainIcon"
-                });
-                }
-                return _taLineNumber;
-            }
-        }
-
-        private static UITextureAtlas _taTLM = null;
-        private static UITextureAtlas _taLineNumber = null;
-
         public UIView uiView;
         private UIComponent mainRef;
         public bool initialized = false;
@@ -193,8 +119,6 @@ namespace Klyte.TransportLinesManager
         {
             if (!initialized && gameObject != null)
             {
-                TLMSingleton.instance.loadTLMLocale(false);
-
                 uiView = GameObject.FindObjectOfType<UIView>();
                 if (!uiView)
                     return;
@@ -295,7 +219,7 @@ namespace Klyte.TransportLinesManager
 
                     parent3.eventVisibilityChanged += (component, value) =>
                     {
-                        if (TLMSingleton.overrideWorldInfoPanelLine && value)
+                        if (TransportLinesManagerMod.overrideWorldInfoPanelLine && value)
                         {
                             PublicTransportWorldInfoPanel ptwip = parent3.gameObject.GetComponent<PublicTransportWorldInfoPanel>();
                             ptwip.StartCoroutine(OpenLineInfo(ptwip));
@@ -311,7 +235,7 @@ namespace Klyte.TransportLinesManager
 
         private void EventWIPChanged<T>(UIComponent component, T value)
         {
-            updateNearLines(TLMSingleton.savedShowNearLinesInZonedBuildingWorldInfoPanel.value ? component : null, true);
+            updateNearLines(TransportLinesManagerMod.showNearLinesGrow ? component : null, true);
             updateDepotPrefixLists(component);
         }
 
@@ -423,7 +347,7 @@ namespace Klyte.TransportLinesManager
 
         public void Start()
         {
-            KlyteModsPanel.instance.AddTab(ModTab.TransportLinesManager, typeof(TLMPublicTransportManagementPanel), taTLM, "TransportLinesManagerIconHovered", "Transport Lines Manager (v" + TLMSingleton.version + ")");
+            KlyteModsPanel.instance.AddTab(ModTab.TransportLinesManager, typeof(TLMPublicTransportManagementPanel), TLMCommonTextureAtlas.instance.atlas, "TransportLinesManagerIconHovered", "Transport Lines Manager (v" + TransportLinesManagerMod.version + ")");
             initNearLinesOnWorldInfoPanel();
         }
 
