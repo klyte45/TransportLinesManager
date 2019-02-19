@@ -96,7 +96,11 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 {
                     TransportLinesManagerMod.instance.showVersionInfoPopup();
                 }
-                strip.selectedIndex = strip.tabCount - 1;
+                try
+                {
+                    strip.selectedIndex = strip.tabCount - 1;
+                }
+                catch { }
             };
 
             foreach (ConfigTabs tab in Enum.GetValues(typeof(ConfigTabs)))

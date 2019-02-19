@@ -215,7 +215,6 @@ namespace Klyte.TransportLinesManager
             {
                 case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG: return TLMLineIcon.Circle;
                 case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG: return TLMLineIcon.Square;
-                default:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG: return TLMLineIcon.Hexagon;
                 case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG: return TLMLineIcon.Trapeze;
                 case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG: return TLMLineIcon.Diamond;
@@ -228,6 +227,7 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG: return TLMLineIcon.Mountain;
                 case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG: return TLMLineIcon.Camera;
                 case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG: return TLMLineIcon.Triangle;
+                default: TLMUtils.doErrorLog($"INVALID TT! {transportType}"); return TLMLineIcon.Star9;
             }
         }
         public static string getNameForTransportType(ConfigIndex i)
@@ -642,18 +642,19 @@ namespace Klyte.TransportLinesManager
             NIL = -1,
             ADC_DESC_PART = 0x7F000000,
             SYSTEM_PART = 0xFF0000,
-            TYPE_PART = 0x00FF00,
+            UNDEF_PART = 0xF000,
+            TYPE_PART = TLMConfigWarehouse.TYPE_PART,
             DESC_DATA = 0xFF,
 
             GLOBAL_CONFIG = 0x1000000,
             USE_FOR_AUTO_NAMING_REF = 0x2000000 | TYPE_BOOL,
             AUTO_NAMING_REF_TEXT = 0x3000000 | TYPE_STRING,
 
-            TYPE_STRING = 0x0100,
-            TYPE_INT = 0x0200,
-            TYPE_BOOL = 0x0300,
-            TYPE_LIST = 0x0400,
-            TYPE_DICTIONARY = 0x0500,
+            TYPE_STRING = TLMConfigWarehouse.TYPE_STRING,
+            TYPE_INT = TLMConfigWarehouse.TYPE_INT,
+            TYPE_BOOL = TLMConfigWarehouse.TYPE_BOOL,
+            TYPE_LIST = TLMConfigWarehouse.TYPE_LIST,
+            TYPE_DICTIONARY = TLMConfigWarehouse.TYPE_DICTIONARY,
 
             AUTO_COLOR_ENABLED = GLOBAL_CONFIG | 0x2 | TYPE_BOOL,
             CIRCULAR_IN_SINGLE_DISTRICT_LINE = GLOBAL_CONFIG | 0x3 | TYPE_BOOL,
