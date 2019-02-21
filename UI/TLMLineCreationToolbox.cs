@@ -140,7 +140,7 @@ namespace Klyte.TransportLinesManager.UI
         {
 
             TLMUtils.createUIElement(out mainContainer, m_controller.TransformLinearMap);
-            mainContainer.absolutePosition = new Vector3(2f, TLMController.instance.uiView.fixedHeight - 300f);
+            mainContainer.absolutePosition = new Vector3(2f, FindObjectOfType<UIView>().fixedHeight - 300f);
             mainContainer.name = "TLMLineCreationToolbox";
             mainContainer.height = 190;
             mainContainer.width = 180;

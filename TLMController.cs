@@ -24,10 +24,11 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
-    internal class TLMController : Singleton<TLMController>, ILinearMapParentInterface
+    public class TLMController : MonoBehaviour, ILinearMapParentInterface
     {
-        public UIView uiView;
-        private UIComponent mainRef;
+
+        internal static TLMController instance => TransportLinesManagerMod.instance.controller;
+
         public bool initialized = false;
         public bool initializedWIP = false;
         private TLMLineDetailWindow m_lineInfoPanel;
@@ -39,9 +40,8 @@ namespace Klyte.TransportLinesManager
 
 
 
-        public TLMLineDetailWindow lineInfoPanel => m_lineInfoPanel;
-        public Transform TargetTransform => mainRef?.transform;
-        public Transform TransformLinearMap => uiView?.transform;
+        internal TLMLineDetailWindow lineInfoPanel => m_lineInfoPanel;
+        public Transform TransformLinearMap => FindObjectOfType<UIView>()?.transform;
 
         private ushort m_currentSelectedId;
 
@@ -65,7 +65,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public TLMLineCreationToolbox LineCreationToolbox
+        internal TLMLineCreationToolbox LineCreationToolbox
         {
             get {
                 if (m_lineCreationToolbox != null)
@@ -100,50 +100,15 @@ namespace Klyte.TransportLinesManager
                 TLMUtils.doErrorLog("GameController NOT FOUND!");
                 return;
             }
-            if (!initialized)
-            {
-                Awake();
-            }
-
             if (m_lineInfoPanel?.isVisible ?? false)
             {
                 m_lineInfoPanel?.updateBidings();
-            }
 
-            lastLineCount = TransportManager.instance.m_lineCount;
+                lastLineCount = TransportManager.instance.m_lineCount;
 
-            m_lineInfoPanel?.assetSelectorWindow?.RotateCamera();
-        }
-
-        public void Awake()
-        {
-            if (!initialized && gameObject != null)
-            {
-                uiView = GameObject.FindObjectOfType<UIView>();
-                if (!uiView)
-                    return;
-                mainRef = uiView.FindUIComponent<UIPanel>("InfoPanel").Find<UITabContainer>("InfoViewsContainer").Find<UIPanel>("InfoViewsPanel");
-                if (!mainRef)
-                    return;
-                createViews();
-                mainRef.clipChildren = false;
-
-                var typeTarg = typeof(Redirector<>);
-                var instances = from t in Assembly.GetAssembly(typeof(TLMController)).GetTypes()
-                                let y = t.BaseType
-                                where t.IsClass && !t.IsAbstract && y != null && y.IsGenericType && y.GetGenericTypeDefinition() == typeTarg
-                                select t;
-
-                foreach (Type t in instances)
-                {
-                    TLMUtils.doLog($"Adding hooks: {t}");
-                    gameObject.AddComponent(t);
-                }
-
-                initialized = true;
+                m_lineInfoPanel?.assetSelectorWindow?.RotateCamera();
             }
         }
-
 
         public Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
@@ -181,17 +146,6 @@ namespace Klyte.TransportLinesManager
             TLMLineUtils.setLineName(m_LineID, TLMLineUtils.calculateAutoName(m_LineID));
         }
 
-
-        //NAVEGACAO
-
-        private void createViews()
-        {
-            TLMUtils.createElement(out m_lineInfoPanel, TLMController.instance.mainRef.transform);
-            TLMUtils.createElement(out m_linearMapCreatingLine, transform);
-            TLMUtils.createElement(out m_lineCreationToolbox, transform);
-            m_linearMapCreatingLine.parent = this;
-            m_linearMapCreatingLine.setVisible(false);
-        }
 
         private void initNearLinesOnWorldInfoPanel()
         {
@@ -347,7 +301,11 @@ namespace Klyte.TransportLinesManager
 
         public void Start()
         {
-            KlyteModsPanel.instance.AddTab(ModTab.TransportLinesManager, typeof(TLMPublicTransportManagementPanel), TLMCommonTextureAtlas.instance.atlas, "TransportLinesManagerIconHovered", "Transport Lines Manager (v" + TransportLinesManagerMod.version + ")");
+            TLMUtils.createElement(out m_lineInfoPanel, FindObjectOfType<UIView>().transform);
+            TLMUtils.createElement(out m_linearMapCreatingLine, transform);
+            TLMUtils.createElement(out m_lineCreationToolbox, transform);
+            m_linearMapCreatingLine.parent = this;
+            m_linearMapCreatingLine.setVisible(false);
             initNearLinesOnWorldInfoPanel();
         }
 
@@ -357,7 +315,7 @@ namespace Klyte.TransportLinesManager
         }
         public void CloseTLMPanel()
         {
-            KCController.instance.CloseKCPanel();
+            KlyteCommonsMod.CloseKCPanel();
         }
 
         private TLMDepotWorldInfoPanelPrefixListsParent initDepotAIPrefixListContainer(UIComponent parent)

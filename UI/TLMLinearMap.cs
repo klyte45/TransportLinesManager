@@ -385,7 +385,7 @@ namespace Klyte.TransportLinesManager.UI
         private void createLineStationsLinearView()
         {
             TLMUtils.createUIElement(out mainContainer, parent.TransformLinearMap);
-            mainContainer.absolutePosition = new Vector3(2f, TLMController.instance.uiView.fixedHeight - 300f);
+            mainContainer.absolutePosition = new Vector3(2f, FindObjectOfType<UIView>().fixedHeight - 300f);
             mainContainer.name = "LineStationsLinearView";
             mainContainer.height = 50;
             mainContainer.autoSize = true;

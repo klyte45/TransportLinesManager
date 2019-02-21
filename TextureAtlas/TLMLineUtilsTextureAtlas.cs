@@ -18,7 +18,7 @@ namespace Klyte.TransportLinesManager.TextureAtlas
     {
         protected override string ResourceName => "UI.Images.lineFormat.png";
         protected override string CommonName => "TransportLinesManagerLinearLineSprites";
-        protected override string[] SpriteNames => new string[] {
+        public override string[] SpriteNames => new string[] {
                         "MapIcon",
                         "OvalIcon",
                         "RoundedHexagonIcon",

@@ -32,7 +32,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         private void Awake()
         {
-            if (m_instance != null) throw new Exception("MULTIPLE INSTANTIATION!!!!!!!!");
             m_instance = this;
             mainPanel = GetComponent<UIPanel>();
             mainPanel.autoLayout = true;

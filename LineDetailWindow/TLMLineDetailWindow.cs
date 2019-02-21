@@ -38,7 +38,6 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
         private UILabel m_autoNameLabel;
         private UITextField m_lineNameField;
         private UIColorField m_lineColorPicker;
-        private UIButton m_goToWorldInfoPanel;
 
         private UIHelperExtension m_uiHelper;
 

@@ -6,6 +6,8 @@ using ColossalFramework.UI;
 using ICities;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Interfaces;
+using Klyte.Commons.UI;
+using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using Klyte.TransportLinesManager.i18n;
 using Klyte.TransportLinesManager.MapDrawer;
@@ -21,13 +23,15 @@ using UnityEngine;
 [assembly: AssemblyVersion("11.1.9999.0")]
 namespace Klyte.TransportLinesManager
 {
-    public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMLocaleUtils, TLMResourceLoader>
+    public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMLocaleUtils, TLMResourceLoader, TLMController, TLMCommonTextureAtlas, TLMPublicTransportManagementPanel>
     {
 
         public TransportLinesManagerMod()
         {
             Construct();
         }
+
+        protected override ModTab? Tab => ModTab.TransportLinesManager;
 
         public override string SimpleName => "Transport Lines Manager";
         public override string Description => "Allows to customize and manage your public transport systems. Requires Klyte Commons.";
@@ -44,30 +48,6 @@ namespace Klyte.TransportLinesManager
         }
 
         public override void LoadSettings()
-        {
-        }
-
-        public override void OnCreated(ILoading loading)
-        {
-        }
-
-        public override void OnLevelLoaded(LoadMode mode)
-        {
-            TLMUtils.doLog("LEVEL LOAD");
-            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame && mode != LoadMode.NewGameFromScenario)
-            {
-                TLMUtils.doLog("NOT GAME ({0})", mode);
-                return;
-            }
-
-            TLMController.Ensure();
-        }
-
-        public override void OnLevelUnloading()
-        {
-        }
-
-        public override void OnReleased()
         {
         }
 

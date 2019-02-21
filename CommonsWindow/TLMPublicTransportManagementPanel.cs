@@ -13,7 +13,7 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.CommonsWindow
 {
 
-    internal class TLMPublicTransportManagementPanel : UICustomControl
+    public class TLMPublicTransportManagementPanel : UICustomControl
     {
         private const int NUM_SERVICES = 0;
         private static TLMPublicTransportManagementPanel m_instance;

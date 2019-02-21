@@ -18,7 +18,7 @@ namespace Klyte.TransportLinesManager.TextureAtlas
     {
         protected override string ResourceName => "UI.Images.sprites.png";
         protected override string CommonName => "TransportLinesManagerSprites";
-        protected override string[] SpriteNames => new string[] {
+        public override string[] SpriteNames => new string[] {
                     "TransportLinesManagerIcon","TransportLinesManagerIconHovered","AutoNameIcon","AutoColorIcon","RemoveUnwantedIcon","ConfigIcon","24hLineIcon", "PerHourIcon","AbsoluteMode","RelativeMode","Copy","Paste"
                 };
     }
