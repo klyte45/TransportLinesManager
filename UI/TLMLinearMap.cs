@@ -4,7 +4,7 @@ using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.TextureAtlas;
+using Klyte.Commons.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -233,7 +233,7 @@ namespace Klyte.TransportLinesManager.UI
             vehicleLabel.height = 33;
             vehicleLabel.pivot = UIPivotPoint.TopCenter;
             vehicleLabel.verticalAlignment = UIVerticalAlignment.Middle;
-            vehicleLabel.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
+            vehicleLabel.atlas = LineUtilsTextureAtlas.instance.atlas;
 
             vehicleLabel.padding = new RectOffset(0, 0, 2, 0);
             vehicleLabel.textScale = 0.6f;
@@ -400,7 +400,7 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineNumberFormat.verticalAlignment = UIVerticalAlignment.Middle;
             linearMapLineNumberFormat.name = "LineFormat";
             linearMapLineNumberFormat.relativePosition = new Vector3(0f, 0f);
-            linearMapLineNumberFormat.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
+            linearMapLineNumberFormat.atlas = LineUtilsTextureAtlas.instance.atlas;
             TLMUtils.createDragHandle(linearMapLineNumberFormat, mainContainer);
 
 
@@ -430,7 +430,7 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineTime.verticalAlignment = UIVerticalAlignment.Middle;
             linearMapLineTime.name = "LineTime";
             linearMapLineTime.relativePosition = new Vector3(0f, 0f);
-            linearMapLineTime.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
+            linearMapLineTime.atlas = LineUtilsTextureAtlas.instance.atlas;
 
             //if (parent.PrefixSelector)
             //{
@@ -599,7 +599,7 @@ namespace Klyte.TransportLinesManager.UI
             lineStationsPanel.autoLayout = false;
             lineStationsPanel.useCenter = true;
             lineStationsPanel.wrapLayout = false;
-            lineStationsPanel.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
+            lineStationsPanel.atlas = LineUtilsTextureAtlas.instance.atlas;
             lineStationsPanel.backgroundSprite = "LinearBg";
             lineStationsPanel.pivot = UIPivotPoint.MiddleLeft;
             lineStationsPanel.relativePosition = new Vector3(75f, 10f);
@@ -622,7 +622,7 @@ namespace Klyte.TransportLinesManager.UI
             stationButton.height = 20;
             stationButton.color = lineColor;
             stationButton.name = "Station [" + stationName + "]";
-            stationButton.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
+            stationButton.atlas = LineUtilsTextureAtlas.instance.atlas;
             stationButton.tooltip = stationName + "(id:" + stationNodeId + ")";
             TLMUtils.initButton(stationButton, true, "LinearStation");
 

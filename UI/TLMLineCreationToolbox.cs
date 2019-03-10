@@ -2,7 +2,7 @@
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.TextureAtlas;
+using Klyte.Commons.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Reflection;
@@ -159,7 +159,7 @@ namespace Klyte.TransportLinesManager.UI
             title.verticalAlignment = UIVerticalAlignment.Middle;
             title.name = "Title";
             title.relativePosition = new Vector3(0, 5);
-            title.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
+            title.atlas = LineUtilsTextureAtlas.instance.atlas;
             title.localeID = "TLM_PREFIX_SELECTOR_WIN_TITLE";
             TLMUtils.createDragHandle(title, mainContainer);
 
@@ -211,7 +211,7 @@ namespace Klyte.TransportLinesManager.UI
             lineFormat.verticalAlignment = UIVerticalAlignment.Middle;
             lineFormat.name = "LineFormat";
             lineFormat.relativePosition = new Vector3(55f, 80f);
-            lineFormat.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
+            lineFormat.atlas = LineUtilsTextureAtlas.instance.atlas;
             TLMUtils.createDragHandle(lineFormat, mainContainer);
 
             TLMUtils.createUIElement(out lineNumber, lineFormat.transform);

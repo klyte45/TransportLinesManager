@@ -14,9 +14,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 {
     internal abstract class TLMTabControllerDepotHooks<T, V> : Redirector<T> where T : TLMTabControllerDepotHooks<T, V> where V : TLMSysDef<V>
     {
-        private static TLMTabControllerDepotHooks<T, V> instance;
 
-        public static void AfterCreateBuilding(bool __result, ushort building, BuildingInfo info)
+        public static void AfterCreateBuilding(bool __result,ref ushort building, BuildingInfo info)
         {
             if (building == 0) return;
             Building bd = BuildingManager.instance.m_buildings.m_buffer[building];
@@ -30,9 +29,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             Building bd = BuildingManager.instance.m_buildings.m_buffer[building];
             __state = building != 0 && Singleton<V>.instance.GetTSD().isFromSystem(bd.Info.GetAI() as DepotAI);
         }
-        public static void AfterReleaseBuilding(bool __result, ref bool __state)
+        public static void AfterReleaseBuilding(ref bool __state)
         {
-            if (__result && __state && TLMTabControllerDepotList<V>.exists)
+            if (__state && TLMTabControllerDepotList<V>.exists)
             {
                 TLMTabControllerDepotList<V>.instance.isUpdated = false;
             }
@@ -40,7 +39,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         public override void AwakeBody()
         {
-            instance = this;
             var from = typeof(BuildingManager).GetMethod("CreateBuilding", allFlags);
             var to = typeof(TLMTabControllerDepotHooks<T, V>).GetMethod("AfterCreateBuilding", allFlags);
             var from2 = typeof(BuildingManager).GetMethod("ReleaseBuilding", allFlags);

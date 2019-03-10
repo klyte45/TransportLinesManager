@@ -2,6 +2,7 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Klyte.Commons.TextureAtlas;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.TextureAtlas;
@@ -268,7 +269,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             this.m_LineColor.hoveredBgSprite = "";
             this.m_LineColor.width = 40;
             this.m_LineColor.height = 40;
-            this.m_LineColor.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
+            this.m_LineColor.atlas = LineUtilsTextureAtlas.instance.atlas;
             this.m_LineNumberFormatted = this.m_LineColor.GetComponentInChildren<UIButton>();
             m_LineNumberFormatted.textScale = 1.5f;
             m_LineNumberFormatted.useOutline = true;

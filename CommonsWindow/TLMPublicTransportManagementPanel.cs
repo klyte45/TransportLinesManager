@@ -1,5 +1,6 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Klyte.Commons.TextureAtlas;
 using Klyte.Commons.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
@@ -197,7 +198,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             tabTemplate.width = 40;
             tabTemplate.height = 40;
             tabTemplate.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
-            tabTemplate.atlas = TLMLineUtilsTextureAtlas.instance.atlas;
+            tabTemplate.atlas = LineUtilsTextureAtlas.instance.atlas;
             return tabTemplate;
         }
 

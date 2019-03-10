@@ -13,9 +13,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 {
     internal abstract class TLMTabControllerLineHooks<T, V> : Redirector<T> where T : TLMTabControllerLineHooks<T, V> where V : TLMSysDef<V>
     {
-        private static TLMTabControllerLineHooks<T, V> instance;
 
-        public static void AfterCreateLine(bool __result, ushort lineID, BuildingInfo info)
+        public static void AfterCreateLine(bool __result, ref ushort lineID, BuildingInfo info)
         {
             if (lineID == 0) return;
             TransportLine tl = TransportManager.instance.m_lines.m_buffer[lineID];
@@ -29,9 +28,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             TransportLine tl = TransportManager.instance.m_lines.m_buffer[lineID];
             __state = lineID != 0 && Singleton<V>.instance.GetTSD().isFromSystem(tl);
         }
-        public static void AfterReleaseLine(bool __result, ref bool __state)
+        public static void AfterReleaseLine(ref bool __state)
         {
-            if (__result && __state && TLMBasicTabControllerLineList<V>.exists)
+            if (__state && TLMBasicTabControllerLineList<V>.exists)
             {
                 TLMBasicTabControllerLineList<V>.instance.isUpdated = false;
             }
@@ -39,7 +38,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         public override void AwakeBody()
         {
-            instance = this;
             TransportSystemDefinition def = Singleton<V>.instance.GetTSD();
 
             var from = typeof(TransportManager).GetMethod("CreateLine", allFlags);
