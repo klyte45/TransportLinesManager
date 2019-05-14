@@ -21,7 +21,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         protected UIScrollablePanel mainPanel;
         protected UIPanel titleLine;
-        protected static readonly string kLineTemplate = "LineTemplate";
+        internal static readonly string kLineTemplate = "LineTemplate";
         private bool m_isUpdated;
         public bool isUpdated
         {

@@ -26,7 +26,7 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt
             clipChildren = false;
             autoLayoutDirection = LayoutDirection.Horizontal;
             wrapLayout = false;
-            height = parent.height;
+            height =320;
             foreach (var kv in TransportSystemDefinition.sysDefinitions)
             {
                 Type[] components;

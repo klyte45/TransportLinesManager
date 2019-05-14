@@ -149,7 +149,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
                 this.m_NightLine.isChecked = (nightActive && !dayActive);
                 this.m_DayNightLine.isChecked = (dayActive && nightActive);
                 this.m_DisabledLine.isChecked = (!dayActive && !nightActive);
-                m_DisabledLine.relativePosition = new Vector3(730, 8);
+                m_DisabledLine.relativePosition = new Vector3(755, 8);
             }
             else
             {
@@ -298,6 +298,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
                 this.m_LineName.text = this.m_LineNameField.text;
             };
 
+            Destroy(base.Find<UICheckBox>("LineModelSelectorContainer"));
 
             this.m_DayLine = base.Find<UICheckBox>("DayLine");
             this.m_NightLine = base.Find<UICheckBox>("NightLine");

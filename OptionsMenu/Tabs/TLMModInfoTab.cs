@@ -1,10 +1,13 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.i18n;
 using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.Utils;
+using System;
 using System.Linq;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {
@@ -21,7 +24,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             ((UIPanel)group9.self).width = 730;
             TransportLinesManagerMod.instance.PopulateGroup9(group9);
         }
-
-
+        
     }
 }
