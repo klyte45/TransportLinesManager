@@ -178,15 +178,15 @@ namespace Klyte.TransportLinesManager.Overrides
         {
             var def = TransportSystemDefinition.from(vehicleData.Info);
 
-            if (def == default(TransportSystemDefinition))
+            if (def == default)
             {
                 return true;
             }
 
             DistrictManager instance = Singleton<DistrictManager>.instance;
             byte district = instance.GetDistrict(vehicleData.m_targetPos3);
-            DistrictPolicies.Services servicePolicies = instance.m_districts.m_buffer[(int)district].m_servicePolicies;
-            DistrictPolicies.Event @event = instance.m_districts.m_buffer[(int)district].m_eventPolicies & Singleton<EventManager>.instance.GetEventPolicyMask();
+            DistrictPolicies.Services servicePolicies = instance.m_districts.m_buffer[district].m_servicePolicies;
+            DistrictPolicies.Event @event = instance.m_districts.m_buffer[district].m_eventPolicies & Singleton<EventManager>.instance.GetEventPolicyMask();
             float multiplier;
             if (vehicleData.Info.m_class.m_subService == ItemClass.SubService.PublicTransportTours)
             {
@@ -208,7 +208,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 {
                     District[] expr_114_cp_0 = instance.m_districts.m_buffer;
                     byte expr_114_cp_1 = district;
-                    expr_114_cp_0[(int)expr_114_cp_1].m_servicePoliciesEffect = (expr_114_cp_0[(int)expr_114_cp_1].m_servicePoliciesEffect | DistrictPolicies.Services.HighTicketPrices);
+                    expr_114_cp_0[expr_114_cp_1].m_servicePoliciesEffect = (expr_114_cp_0[expr_114_cp_1].m_servicePoliciesEffect | DistrictPolicies.Services.HighTicketPrices);
                     multiplier = 5f / 4f;
                 }
                 else
@@ -284,7 +284,7 @@ namespace Klyte.TransportLinesManager.Overrides
                         }
                         else
                         {
-                            __result = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)transportLine].GetColor();
+                            __result = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].GetColor();
                         }
                     }
                     return;

@@ -1,16 +1,5 @@
-﻿using ColossalFramework;
-using ColossalFramework.UI;
-using Klyte.Commons.Interfaces;
-using Klyte.Commons.Utils;
+﻿using Klyte.Commons.Interfaces;
 using Klyte.TransportLinesManager.Utils;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using UnityEngine;
 
 namespace Klyte.TransportLinesManager.TextureAtlas
 {

@@ -3,11 +3,9 @@ using ColossalFramework.Math;
 using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
@@ -24,32 +22,49 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 
         private static Dictionary<ushort, List<uint>> getDictionaryFromConfigString(string s, ref TransportSystemDefinition tsd)
         {
-            Dictionary<ushort, List<uint>> saida = new Dictionary<ushort, List<uint>>();
-            var tempArray = s.Split(COMMA.ToCharArray());
+            TLMUtils.doLog("A");
+            Dictionary<ushort, List<uint>> saida = new Dictionary<ushort, List<uint>>(); ;
+            TLMUtils.doLog("b");
+            var tempArray = (s ?? "").Split(COMMA.ToCharArray());
+            TLMUtils.doLog("c");
             var bm = Singleton<BuildingManager>.instance;
+            TLMUtils.doLog("d");
             foreach (string i in tempArray)
             {
+                TLMUtils.doLog("e");
                 var kv = i.Split(SEPARATOR.ToCharArray());
+                TLMUtils.doLog("f");
                 if (kv.Length == 2)
                 {
-
-                    if (ushort.TryParse(kv[0], out ushort key))
+                    try
                     {
-                        if (bm.m_buildings.m_buffer[key].Info.GetAI() is DepotAI buildingAI && tsd.isFromSystem(buildingAI))
+                        TLMUtils.doLog("g");
+                        if (ushort.TryParse(kv[0], out ushort key))
                         {
-                            saida[key] = new List<uint>();
-                            var subtempArray = kv[1].Split(SUBCOMMA.ToCharArray());
-                            foreach (string j in subtempArray)
+                            TLMUtils.doLog("h");
+                            if (bm?.m_buildings?.m_buffer?[key].Info?.GetAI() is DepotAI buildingAI && tsd.isFromSystem(buildingAI))
                             {
-                                if (uint.TryParse(j, out uint value))
+                                TLMUtils.doLog("i");
+                                saida[key] = new List<uint>();
+                                TLMUtils.doLog("j");
+                                var subtempArray = kv[1].Split(SUBCOMMA.ToCharArray());
+                                TLMUtils.doLog("k");
+                                foreach (string j in subtempArray)
                                 {
-                                    saida[key].Add(value);
+                                    TLMUtils.doLog("l");
+                                    if (uint.TryParse(j, out uint value))
+                                    {
+                                        TLMUtils.doLog("m");
+                                        saida[key].Add(value);
+                                    }
                                 }
                             }
                         }
                     }
+                    catch { }
                 }
             }
+            TLMUtils.doLog("n");
             return saida;
         }
 
@@ -198,7 +213,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
             if (bm.m_buildings.m_buffer[buildingID].Info.GetAI() is DepotAI buildingAI)
             {
                 var tsd = TransportSystemDefinition.from(secondary ? buildingAI.m_secondaryTransportInfo : buildingAI.m_transportInfo);
-                if (tsd != default(TransportSystemDefinition))
+                if (tsd != default)
                 {
                     var dic = getConfigForTransportType(ref tsd);
                     if (!dic.ContainsKey(buildingID))
@@ -313,8 +328,8 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
                     if (Singleton<VehicleManager>.instance.CreateVehicle(out ushort vehicleID, ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, position, reason, false, true))
                     {
                         TLMUtils.doLog("CreatedVehicle!!!");
-                        randomVehicleInfo.m_vehicleAI.SetSource(vehicleID, ref vehicles.m_buffer[(int)vehicleID], buildingID);
-                        randomVehicleInfo.m_vehicleAI.StartTransfer(vehicleID, ref vehicles.m_buffer[(int)vehicleID], reason, offer);
+                        randomVehicleInfo.m_vehicleAI.SetSource(vehicleID, ref vehicles.m_buffer[vehicleID], buildingID);
+                        randomVehicleInfo.m_vehicleAI.StartTransfer(vehicleID, ref vehicles.m_buffer[vehicleID], reason, offer);
                     }
                     return false;
                 }

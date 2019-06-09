@@ -77,11 +77,11 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
             TLMUtils.doLog("Loading Options");
 
-            var overrideWorldInfoPanelLineOption = (UICheckBox)helper.AddCheckboxLocale("TLM_OVERRIDE_DEFAULT_LINE_INFO", TransportLinesManagerMod.overrideWorldInfoPanelLine, toggleOverrideDefaultLineInfoPanel);
+            var overrideWorldInfoPanelLineOption = helper.AddCheckboxLocale("TLM_OVERRIDE_DEFAULT_LINE_INFO", TransportLinesManagerMod.overrideWorldInfoPanelLine, toggleOverrideDefaultLineInfoPanel);
 
             helper.AddSpace(10);
 
-            configSelector = (UIDropDown)helper.AddDropdownLocalized("TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, reloadData);
+            configSelector = helper.AddDropdownLocalized("TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, reloadData);
 
             TLMUtils.createUIElement(out UITabstrip strip, helper.self.transform, "TabListTLMopt", new Vector4(5, 0, 730, 40));
             var effectiveOffsetY = strip.height;
@@ -145,7 +145,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         internal UIDropDown generateDropdownConfig(UIHelperExtension group, string title, string[] options, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            dropDowns[configIndex] = (UIDropDown)group.AddDropdown(title, options, currentConfigWarehouseEditor.getInt(configIndex), delegate (int i) { currentConfigWarehouseEditor.setInt(configIndex, i); }, true);
+            dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.getInt(configIndex), delegate (int i) { currentConfigWarehouseEditor.setInt(configIndex, i); }, true);
             return dropDowns[configIndex];
         }
 
@@ -167,7 +167,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             {
                 currentValue = 0;
             }
-            dropDowns[configIndex] = (UIDropDown)group.AddDropdown(title, options, currentValue, delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, Enum.GetNames(typeof(T))[i]); }, true);
+            dropDowns[configIndex] = group.AddDropdown(title, options, currentValue, delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, Enum.GetNames(typeof(T))[i]); }, true);
             return dropDowns[configIndex];
         }
 

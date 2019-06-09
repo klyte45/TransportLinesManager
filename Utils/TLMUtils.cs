@@ -402,12 +402,12 @@ namespace Klyte.TransportLinesManager.Utils
                 buildingId = b.m_parentBuilding;
                 b = bm.m_buildings.m_buffer[buildingId];
             }
-            InstanceID iid = default(InstanceID);
+            InstanceID iid = default;
             iid.Building = buildingId;
-            serviceFound = b.Info?.GetService() ?? default(ItemClass.Service);
-            subserviceFound = b.Info?.GetSubService() ?? default(ItemClass.SubService);
+            serviceFound = b.Info?.GetService() ?? default;
+            subserviceFound = b.Info?.GetSubService() ?? default;
             TLMCW.ConfigIndex index = GameServiceExtensions.toConfigIndex(serviceFound, subserviceFound);
-            TransportSystemDefinition tsd = default(TransportSystemDefinition);
+            TransportSystemDefinition tsd = default;
             if ((index & TLMCW.ConfigIndex.DESC_DATA) == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
             {
                 tsd = TransportSystemDefinition.from(b.Info.GetAI());
@@ -468,7 +468,7 @@ namespace Klyte.TransportLinesManager.Utils
             List<string> basicAssetsList = new List<string>();
 
             TLMUtils.doLog("LoadBasicAssets: pre prefab read");
-            for (uint num = 0u; (ulong)num < (ulong)((long)PrefabCollection<VehicleInfo>.PrefabCount()); num += 1u)
+            for (uint num = 0u; num < (ulong)PrefabCollection<VehicleInfo>.PrefabCount(); num += 1u)
             {
                 VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
                 if (!(prefab == null) && definition.isFromSystem(prefab) && !IsTrailer(prefab))

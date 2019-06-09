@@ -4,7 +4,6 @@ using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
-using System;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.OptionsMenu

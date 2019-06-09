@@ -1,13 +1,4 @@
-﻿using ColossalFramework;
-using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using UnityEngine;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
+﻿using Klyte.TransportLinesManager.Interfaces;
 
 namespace Klyte.TransportLinesManager.Extensors.NetNodeExt
 {

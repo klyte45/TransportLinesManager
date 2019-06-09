@@ -24,8 +24,8 @@ namespace Klyte.TransportLinesManager.Utils
     {
         public static Vehicle GetVehicleCapacityAndFill(ushort vehicleID, Vehicle vehicleData, out int fill, out int cap)
         {
-            ushort firstVehicle = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)vehicleID].GetFirstVehicle(vehicleID);
-            vehicleData.Info.m_vehicleAI.GetBufferStatus(firstVehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[(int)firstVehicle], out string text, out fill, out cap);
+            ushort firstVehicle = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleID].GetFirstVehicle(vehicleID);
+            vehicleData.Info.m_vehicleAI.GetBufferStatus(firstVehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[firstVehicle], out string text, out fill, out cap);
             return vehicleData;
         }
 
@@ -34,9 +34,9 @@ namespace Klyte.TransportLinesManager.Utils
             ushort nextStop = TransportLine.GetNextStop(currentStop);
             CitizenManager cm = Singleton<CitizenManager>.instance;
             NetManager nm = Singleton<NetManager>.instance;
-            Vector3 position = nm.m_nodes.m_buffer[(int)currentStop].m_position;
-            Vector3 position2 = nm.m_nodes.m_buffer[(int)nextStop].m_position;
-            nm.m_nodes.m_buffer[(int)currentStop].m_maxWaitTime = 0;
+            Vector3 position = nm.m_nodes.m_buffer[currentStop].m_position;
+            Vector3 position2 = nm.m_nodes.m_buffer[nextStop].m_position;
+            nm.m_nodes.m_buffer[currentStop].m_maxWaitTime = 0;
             int minX = Mathf.Max((int)((position.x - 32f) / 8f + 1080f), 0);
             int minZ = Mathf.Max((int)((position.z - 32f) / 8f + 1080f), 0);
             int maxX = Mathf.Min((int)((position.x + 32f) / 8f + 1080f), 2159);
@@ -54,17 +54,17 @@ namespace Klyte.TransportLinesManager.Utils
                     int loopCounter = 0;
                     while (citizenIterator != 0)
                     {
-                        ushort nextGridInstance = cm.m_instances.m_buffer[(int)citizenIterator].m_nextGridInstance;
-                        if ((cm.m_instances.m_buffer[(int)citizenIterator].m_flags & CitizenInstance.Flags.WaitingTransport) != CitizenInstance.Flags.None)
+                        ushort nextGridInstance = cm.m_instances.m_buffer[citizenIterator].m_nextGridInstance;
+                        if ((cm.m_instances.m_buffer[citizenIterator].m_flags & CitizenInstance.Flags.WaitingTransport) != CitizenInstance.Flags.None)
                         {
-                            Vector3 a = cm.m_instances.m_buffer[(int)citizenIterator].m_targetPos;
+                            Vector3 a = cm.m_instances.m_buffer[citizenIterator].m_targetPos;
                             float distance = Vector3.SqrMagnitude(a - position);
                             if (distance < 1024f)
                             {
-                                CitizenInfo info = cm.m_instances.m_buffer[(int)citizenIterator].Info;
-                                if (info.m_citizenAI.TransportArriveAtSource(citizenIterator, ref cm.m_instances.m_buffer[(int)citizenIterator], position, position2))
+                                CitizenInfo info = cm.m_instances.m_buffer[citizenIterator].Info;
+                                if (info.m_citizenAI.TransportArriveAtSource(citizenIterator, ref cm.m_instances.m_buffer[citizenIterator], position, position2))
                                 {
-                                    if ((cm.m_citizens.m_buffer[(int)(citizenIterator)].m_flags & Citizen.Flags.Tourist) != Citizen.Flags.None)
+                                    if ((cm.m_citizens.m_buffer[citizenIterator].m_flags & Citizen.Flags.Tourist) != Citizen.Flags.None)
                                     {
                                         tourists++;
                                     }
@@ -91,15 +91,15 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static void RemoveAllFromLine(ushort lineId)
         {
-            var line = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineId];
+            var line = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
             VehicleManager instance = Singleton<VehicleManager>.instance;
             ushort num2 = line.m_vehicles;
             int num3 = 0;
             while (num2 != 0)
             {
-                ushort nextLineVehicle = instance.m_vehicles.m_buffer[(int)num2].m_nextLineVehicle;
-                VehicleInfo info2 = instance.m_vehicles.m_buffer[(int)num2].Info;
-                info2.m_vehicleAI.SetTransportLine(num2, ref instance.m_vehicles.m_buffer[(int)num2], 0);
+                ushort nextLineVehicle = instance.m_vehicles.m_buffer[num2].m_nextLineVehicle;
+                VehicleInfo info2 = instance.m_vehicles.m_buffer[num2].Info;
+                info2.m_vehicleAI.SetTransportLine(num2, ref instance.m_vehicles.m_buffer[num2], 0);
                 num2 = nextLineVehicle;
                 if (++num3 > 16384)
                 {
@@ -162,7 +162,7 @@ namespace Klyte.TransportLinesManager.Utils
         public static string getLineStringId(ushort lineIdx)
         {
             getLineNamingParameters(lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
-            return TLMUtils.getString(prefix, s, suffix, nonPrefix, Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_lineNumber, zeros, invertPrefixSuffix);
+            return TLMUtils.getString(prefix, s, suffix, nonPrefix, Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_lineNumber, zeros, invertPrefixSuffix);
         }
 
         public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix)
@@ -172,12 +172,12 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static int GetStopsCount(ushort lineID)
         {
-            return Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].CountStops(lineID);
+            return Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CountStops(lineID);
         }
 
         public static int GetVehiclesCount(ushort lineID)
         {
-            return Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].CountVehicles(lineID);
+            return Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CountVehicles(lineID);
         }
 
         public static float GetLineLength(ushort lineID)
@@ -187,22 +187,22 @@ namespace Klyte.TransportLinesManager.Utils
             //    Bezier3 bez = Singleton<TransportManager>.instance.m_lineCurves[(int) lineID][i];
             //    totalSize += TLMUtils.calcBezierLenght(bez.a, bez.b, bez.c, bez.d, 0.1f);
             //}
-            return Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineID].m_totalLength;
+            return Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_totalLength;
         }
 
         public static TransportSystemDefinition getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, out string icon)
         {
             var tsd = TransportSystemDefinition.getDefinitionForLine(lineIdx);
-            if (tsd != default(TransportSystemDefinition))
+            if (tsd != default)
             {
                 GetNamingRulesFromTSD(out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, tsd);
             }
             else
             {
-                suffix = default(ModoNomenclatura);
-                s = default(Separador);
-                prefix = default(ModoNomenclatura);
-                nonPrefix = default(ModoNomenclatura);
+                suffix = default;
+                s = default;
+                prefix = default;
+                nonPrefix = default;
                 zeros = false;
                 invertPrefixSuffix = false;
             }
@@ -226,7 +226,7 @@ namespace Klyte.TransportLinesManager.Utils
                 ushort lnum = Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber;
                 var tsd = TransportSystemDefinition.getDefinitionForLine(i);
                 TLMUtils.doLog("tsd = " + tsd + "| lineNum = " + lnum + "| I=" + i + "| cfgIdx = " + tsd.toConfigIndex());
-                if (tsd != default(TransportSystemDefinition) && i != exclude && tsd.toConfigIndex() == tipo && lnum == numLinha)
+                if (tsd != default && i != exclude && tsd.toConfigIndex() == tipo && lnum == numLinha)
                 {
                     return true;
                 }
@@ -258,7 +258,7 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static bool hasPrefix(ref TransportSystemDefinition tsd)
         {
-            if (tsd == default(TransportSystemDefinition))
+            if (tsd == default)
             {
                 return false;
             }
@@ -269,7 +269,7 @@ namespace Klyte.TransportLinesManager.Utils
         public static bool hasPrefix(ref TransportLine t)
         {
             var tsd = TransportSystemDefinition.getDefinitionForLine(ref t);
-            if (tsd == default(TransportSystemDefinition))
+            if (tsd == default)
             {
                 return false;
             }
@@ -280,7 +280,7 @@ namespace Klyte.TransportLinesManager.Utils
         public static bool hasPrefix(ushort idx)
         {
             var tsd = TransportSystemDefinition.getDefinitionForLine(idx);
-            if (tsd == default(TransportSystemDefinition))
+            if (tsd == default)
             {
                 return false;
             }
@@ -298,7 +298,7 @@ namespace Klyte.TransportLinesManager.Utils
         public static uint getPrefix(ushort idx)
         {
             var tsd = TransportSystemDefinition.getDefinitionForLine(idx);
-            if (tsd == default(TransportSystemDefinition))
+            if (tsd == default)
             {
                 return 0;
             }
@@ -317,7 +317,7 @@ namespace Klyte.TransportLinesManager.Utils
         {
             TLMCW.ConfigIndex transportType;
             var tsd = TransportSystemDefinition.getDefinitionForLine(lineIdx);
-            if (tsd != default(TransportSystemDefinition))
+            if (tsd != default)
             {
                 transportType = tsd.toConfigIndex();
             }
@@ -353,28 +353,28 @@ namespace Klyte.TransportLinesManager.Utils
                     int num7 = 0;
                     while (num6 != 0)
                     {
-                        NetInfo info = nm.m_nodes.m_buffer[(int)num6].Info;
+                        NetInfo info = nm.m_nodes.m_buffer[num6].Info;
                         if ((info.m_class.m_service == ItemClass.Service.PublicTransport))
                         {
-                            ushort transportLine = nm.m_nodes.m_buffer[(int)num6].m_transportLine;
+                            ushort transportLine = nm.m_nodes.m_buffer[num6].m_transportLine;
                             TransportSystemDefinition tsd = TransportSystemDefinition.getDefinitionForLine(transportLine);
-                            if (transportLine != 0 && tsd != default(TransportSystemDefinition) && TLMCW.getCurrentConfigBool(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.SHOW_IN_LINEAR_MAP))
+                            if (transportLine != 0 && tsd != default && TLMCW.getCurrentConfigBool(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.SHOW_IN_LINEAR_MAP))
                             {
-                                TransportInfo info2 = tm.m_lines.m_buffer[(int)transportLine].Info;
-                                if (!linesFound.Contains(transportLine) && (tm.m_lines.m_buffer[(int)transportLine].m_flags & TransportLine.Flags.Temporary) == TransportLine.Flags.None)
+                                TransportInfo info2 = tm.m_lines.m_buffer[transportLine].Info;
+                                if (!linesFound.Contains(transportLine) && (tm.m_lines.m_buffer[transportLine].m_flags & TransportLine.Flags.Temporary) == TransportLine.Flags.None)
                                 {
-                                    float num8 = Vector3.SqrMagnitude(pos - nm.m_nodes.m_buffer[(int)num6].m_position);
+                                    float num8 = Vector3.SqrMagnitude(pos - nm.m_nodes.m_buffer[num6].m_position);
                                     if (num8 < maxDistance * maxDistance || (info2.m_transportType == TransportInfo.TransportType.Ship && num8 < extendedMaxDistance * extendedMaxDistance))
                                     {
                                         linesFound.Add(transportLine);
-                                        GetNearLines(nm.m_nodes.m_buffer[(int)num6].m_position, maxDistance, ref linesFound);
+                                        GetNearLines(nm.m_nodes.m_buffer[num6].m_position, maxDistance, ref linesFound);
                                         noneFound = false;
                                     }
                                 }
                             }
                         }
 
-                        num6 = nm.m_nodes.m_buffer[(int)num6].m_nextGridNode;
+                        num6 = nm.m_nodes.m_buffer[num6].m_nextGridNode;
                         if (++num7 >= 32768)
                         {
                             CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
@@ -412,27 +412,27 @@ namespace Klyte.TransportLinesManager.Utils
                     int num7 = 0;
                     while (stopId != 0)
                     {
-                        NetInfo info = nm.m_nodes.m_buffer[(int)stopId].Info;
+                        NetInfo info = nm.m_nodes.m_buffer[stopId].Info;
 
                         if ((info.m_class.m_service == ItemClass.Service.PublicTransport) && subservicesAllowed.Contains(info.m_class.m_subService))
                         {
-                            ushort transportLine = nm.m_nodes.m_buffer[(int)stopId].m_transportLine;
+                            ushort transportLine = nm.m_nodes.m_buffer[stopId].m_transportLine;
                             if (transportLine != 0)
                             {
                                 if (!stopsFound.Keys.Contains(stopId))
                                 {
-                                    float num8 = Vector3.SqrMagnitude(pos - nm.m_nodes.m_buffer[(int)stopId].m_position);
+                                    float num8 = Vector3.SqrMagnitude(pos - nm.m_nodes.m_buffer[stopId].m_position);
                                     if (num8 < maxDistance * maxDistance)
                                     {
-                                        stopsFound[stopId] = nm.m_nodes.m_buffer[(int)stopId].m_position;
-                                        GetNearStopPoints(nm.m_nodes.m_buffer[(int)stopId].m_position, maxDistance, ref stopsFound, subservicesAllowed, maxDepht, depth + 1);
+                                        stopsFound[stopId] = nm.m_nodes.m_buffer[stopId].m_position;
+                                        GetNearStopPoints(nm.m_nodes.m_buffer[stopId].m_position, maxDistance, ref stopsFound, subservicesAllowed, maxDepht, depth + 1);
                                         noneFound = false;
                                     }
                                 }
                             }
                         }
 
-                        stopId = nm.m_nodes.m_buffer[(int)stopId].m_nextGridNode;
+                        stopId = nm.m_nodes.m_buffer[stopId].m_nextGridNode;
                         if (++num7 >= 32768)
                         {
                             CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
@@ -450,18 +450,18 @@ namespace Klyte.TransportLinesManager.Utils
         /// <returns>The lines indexed.</returns>
         /// <param name="intersections">Intersections.</param>
         /// <param name="t">Transport line to ignore.</param>
-        public static Dictionary<string, ushort> SortLines(List<ushort> intersections, TransportLine t = default(TransportLine))
+        public static Dictionary<string, ushort> SortLines(List<ushort> intersections, TransportLine t = default)
         {
             TransportManager tm = Singleton<TransportManager>.instance;
             Dictionary<String, ushort> otherLinesIntersections = new Dictionary<String, ushort>();
             foreach (ushort s in intersections)
             {
-                TransportLine tl = tm.m_lines.m_buffer[(int)s];
+                TransportLine tl = tm.m_lines.m_buffer[s];
                 if (t.Equals(default(TransportLine)) || tl.Info.GetSubService() != t.Info.GetSubService() || tl.m_lineNumber != t.m_lineNumber)
                 {
                     string transportTypeLetter = "";
                     var tsd = TransportSystemDefinition.getDefinitionForLine(s);
-                    if (tsd == default(TransportSystemDefinition))
+                    if (tsd == default)
                     {
                         continue;
                     }
@@ -541,7 +541,7 @@ namespace Klyte.TransportLinesManager.Utils
             float multiplier = scale * (intersectionCount > maxItemsForSizeSwap ? 0.4f : 0.8f);
             foreach (var s in otherLinesIntersections.OrderBy(x => x.Key))
             {
-                TransportLine intersectLine = tm.m_lines.m_buffer[(int)s.Value];
+                TransportLine intersectLine = tm.m_lines.m_buffer[s.Value];
                 ItemClass.SubService ss = getLineNamingParameters(s.Value, out ModoNomenclatura prefixo, out Separador separador, out ModoNomenclatura sufixo, out ModoNomenclatura naoPrefixado, out bool zeros, out bool invertPrefixSuffix, out string bgSprite).subService;
                 createUIElement(out UIButtonLineInfo lineCircleIntersect, intersectionsPanel.transform);
                 lineCircleIntersect.autoSize = false;
@@ -764,21 +764,21 @@ namespace Klyte.TransportLinesManager.Utils
         public static void setLineColor(ushort lineIdx, Color color)
         {
 
-            Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_color = color;
-            Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags |= TransportLine.Flags.CustomColor;
+            Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_color = color;
+            Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_flags |= TransportLine.Flags.CustomColor;
         }
         public static void setLineName(ushort lineIdx, string name)
         {
-            InstanceID lineIdSelecionado = default(InstanceID);
+            InstanceID lineIdSelecionado = default;
             lineIdSelecionado.TransportLine = lineIdx;
             if (name.Length > 0)
             {
                 Singleton<InstanceManager>.instance.SetName(lineIdSelecionado, name);
-                Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags |= TransportLine.Flags.CustomName;
+                Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_flags |= TransportLine.Flags.CustomName;
             }
             else
             {
-                Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx].m_flags &= ~TransportLine.Flags.CustomName;
+                Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_flags &= ~TransportLine.Flags.CustomName;
             }
         }
 
@@ -786,7 +786,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static string calculateAutoName(ushort lineIdx)
         {
-            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[(int)lineIdx];
+            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx];
             if ((t.m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None)
             {
                 return null;
@@ -906,8 +906,8 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 int offsetL = (j + stopsCount) % stopsCount;
                 int offsetH = (j + 2) % stopsCount;
-                NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
-                NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
+                NetNode nn1 = nm.m_nodes.m_buffer[t.GetStop(offsetL)];
+                NetNode nn2 = nm.m_nodes.m_buffer[t.GetStop(offsetH)];
                 ushort buildingId1 = TLMUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                 ushort buildingId2 = TLMUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                 //					TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
@@ -927,8 +927,8 @@ namespace Klyte.TransportLinesManager.Utils
                     int offsetH = (j + middle) % stopsCount;
                     //						TLMUtils.doLog("offsetL="+offsetL+"|offsetH="+offsetH);
                     //						TLMUtils.doLog("t.GetStop (offsetL)="+t.GetStop (offsetH)+"|t.GetStop (offsetH)="+t.GetStop (offsetH));
-                    NetNode nn1 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetL)];
-                    NetNode nn2 = nm.m_nodes.m_buffer[(int)t.GetStop(offsetH)];
+                    NetNode nn1 = nm.m_nodes.m_buffer[t.GetStop(offsetL)];
+                    NetNode nn2 = nm.m_nodes.m_buffer[t.GetStop(offsetH)];
                     ushort buildingId1 = TLMUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                     ushort buildingId2 = TLMUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                     //						TLMUtils.doLog("buildingId1="+buildingId1+"|buildingId2="+buildingId2);
@@ -1063,7 +1063,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 BuildingManager bm = Singleton<BuildingManager>.instance;
                 Building b = bm.m_buildings.m_buffer[buildingId];
-                InstanceID iid = default(InstanceID);
+                InstanceID iid = default;
                 iid.Building = buildingId;
                 return b.m_position;
             }
@@ -1178,7 +1178,7 @@ namespace Klyte.TransportLinesManager.Utils
             var prefixes = TLMDepotAI.getPrefixesServedByDepot(m_buildingID, secondary);
             if (prefixes == null)
             {
-                TLMUtils.doErrorLog("DEPOT AI WITH WRONG TYPE!!! id:{0} ({1})", m_buildingID, BuildingManager.instance.GetBuildingName(m_buildingID, default(InstanceID)));
+                TLMUtils.doErrorLog("DEPOT AI WITH WRONG TYPE!!! id:{0} ({1})", m_buildingID, BuildingManager.instance.GetBuildingName(m_buildingID, default));
                 return null;
             }
             List<string> saida = new List<string>();
@@ -1217,7 +1217,7 @@ namespace Klyte.TransportLinesManager.Utils
                 }
                 else
                 {
-                    saida.Add(options[(int)sequenceInit] + "-" + options[(int)(options.Length - 1)]);
+                    saida.Add(options[(int)sequenceInit] + "-" + options[options.Length - 1]);
                 }
                 isInSequence = false;
             }

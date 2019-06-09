@@ -291,12 +291,15 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void toggleAllLinesVisibility(UIComponent component, bool value)
         {
-            foreach (var item in mainPanel.components)
+            Singleton<SimulationManager>.instance.AddAction(() =>
             {
-                TLMLineListItem<T> comp = (TLMLineListItem<T>)item.GetComponent(ImplClassChildren);
-                comp.ChangeLineVisibility(value);
-            }
-            isUpdated = false;
+                foreach (var item in mainPanel.components)
+                {
+                    TLMLineListItem<T> comp = (TLMLineListItem<T>)item.GetComponent(ImplClassChildren);
+                    comp.ChangeLineVisibility(value);
+                }
+                isUpdated = false;
+            });
         }
         #endregion
 
@@ -306,8 +309,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             Type implClassBuildingLine = ImplClassChildren;
             if (count >= mainPanel.components.Count)
             {
-                var temp = UITemplateManager.Get<PublicTransportLineInfo>(kLineTemplate).gameObject;
-                GameObject.Destroy(temp.GetComponent<PublicTransportLineInfo>());
+                var temp = new GameObject();
+                temp.AddComponent<UIPanel>();
                 lineInfoItem = (TLMLineListItem<T>)temp.AddComponent(implClassBuildingLine);
                 mainPanel.AttachUIComponent(lineInfoItem.gameObject);
             }
@@ -415,7 +418,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             if (mainPanel.components.Count == 0)
                 return;
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareNames), reverseOrder);
-            this.m_LastSortCriterionLines = LineSortCriterion.NAME;
+            m_LastSortCriterionLines = LineSortCriterion.NAME;
             mainPanel.Invalidate();
         }
 
@@ -424,7 +427,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             if (mainPanel.components.Count == 0)
                 return;
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareStops), reverseOrder);
-            this.m_LastSortCriterionLines = LineSortCriterion.STOP;
+            m_LastSortCriterionLines = LineSortCriterion.STOP;
             mainPanel.Invalidate();
         }
 
@@ -433,7 +436,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             if (mainPanel.components.Count == 0)
                 return;
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareVehicles), reverseOrder);
-            this.m_LastSortCriterionLines = LineSortCriterion.VEHICLE;
+            m_LastSortCriterionLines = LineSortCriterion.VEHICLE;
             mainPanel.Invalidate();
         }
 
@@ -442,7 +445,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             if (mainPanel.components.Count == 0)
                 return;
             Quicksort(mainPanel.components, new Comparison<UIComponent>(ComparePassengers), reverseOrder);
-            this.m_LastSortCriterionLines = LineSortCriterion.PASSENGER;
+            m_LastSortCriterionLines = LineSortCriterion.PASSENGER;
             mainPanel.Invalidate();
         }
 
@@ -451,7 +454,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             if (mainPanel.components.Count == 0)
                 return;
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareLineNumbers), reverseOrder);
-            this.m_LastSortCriterionLines = LineSortCriterion.LINE_NUMBER;
+            m_LastSortCriterionLines = LineSortCriterion.LINE_NUMBER;
             mainPanel.Invalidate();
         }
         #endregion

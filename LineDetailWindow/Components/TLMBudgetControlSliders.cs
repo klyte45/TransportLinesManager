@@ -435,9 +435,9 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             {
                 m_IgnorePrefix.isVisible = true;
 
-                TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)parent.CurrentSelectedId];
+                TransportLine t = TransportManager.instance.m_lines.m_buffer[parent.CurrentSelectedId];
                 tsd = TransportSystemDefinition.getDefinitionForLine(parent.CurrentSelectedId);
-                if (parent.CurrentSelectedId <= 0 || tsd == default(TransportSystemDefinition))
+                if (parent.CurrentSelectedId <= 0 || tsd == default)
                 {
                     return;
                 }
@@ -612,7 +612,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 {
                     Singleton<SimulationManager>.instance.AddAction(delegate
                     {
-                        TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)parent.CurrentSelectedId], true, false);
+                        TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[parent.CurrentSelectedId], true, false);
                         onDayNightChanged?.Invoke();
                     });
                 }
@@ -623,7 +623,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 {
                     Singleton<SimulationManager>.instance.AddAction(delegate
                     {
-                        TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)parent.CurrentSelectedId], false, true);
+                        TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[parent.CurrentSelectedId], false, true);
                         onDayNightChanged?.Invoke();
                     });
                 }
@@ -634,7 +634,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 {
                     Singleton<SimulationManager>.instance.AddAction(delegate
                     {
-                        TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)parent.CurrentSelectedId], true, true);
+                        TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[parent.CurrentSelectedId], true, true);
                         onDayNightChanged?.Invoke();
                     });
                 }
@@ -645,7 +645,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 {
                     Singleton<SimulationManager>.instance.AddAction(delegate
                     {
-                        TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[(int)parent.CurrentSelectedId], false, false);
+                        TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[parent.CurrentSelectedId], false, false);
                         onDayNightChanged?.Invoke();
                     });
                 }

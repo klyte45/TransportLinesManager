@@ -2,15 +2,10 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
-using Klyte.Commons.UI;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components

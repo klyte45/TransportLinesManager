@@ -24,8 +24,8 @@ namespace Klyte.TransportLinesManager.MapDrawer
         public MapTransportLine(Color32 color, bool day, bool night, ushort lineId)
         {
             TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
-            this.lineName = Singleton<TransportManager>.instance.GetLineName(lineId);
-            this.lineStringIdentifier = TLMLineUtils.getLineStringId(lineId);
+            lineName = Singleton<TransportManager>.instance.GetLineName(lineId);
+            lineStringIdentifier = TLMLineUtils.getLineStringId(lineId);
             transportType = t.Info.m_transportType;
             subservice = t.Info.GetSubService();
             vehicleType = t.Info.m_vehicleType;
@@ -34,7 +34,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             activeDay = day;
             activeNight = night;
             this.lineId = lineId;
-            this.lineNumber = t.m_lineNumber;
+            lineNumber = t.m_lineNumber;
         }
 
         public void addStation(ref Station s)

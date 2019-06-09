@@ -2,7 +2,6 @@
 using Klyte.Commons.TextureAtlas;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;

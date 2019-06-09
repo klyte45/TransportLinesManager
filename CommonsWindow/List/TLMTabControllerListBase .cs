@@ -21,7 +21,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         protected UIScrollablePanel mainPanel;
         protected UIPanel titleLine;
-        internal static readonly string kLineTemplate = "LineTemplate";
         private bool m_isUpdated;
         public bool isUpdated
         {
@@ -42,7 +41,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         protected virtual void Awake()
         {
             instance = this;
-            UIComponent parent = this.GetComponent<UIComponent>();
+            UIComponent parent = GetComponent<UIComponent>();
             CreateTitleRow(out titleLine, parent);
 
             TLMUtils.CreateScrollPanel(parent, out mainPanel, out UIScrollbar scrollbar, parent.width - 30, parent.height - 50, new Vector3(5, 40));

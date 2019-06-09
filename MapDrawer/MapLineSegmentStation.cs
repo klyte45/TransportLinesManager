@@ -60,7 +60,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
         //d1 = x+y; d2 = x-y
         private Vector2 getIntersectionPoint(int d1Index, int d2Index)
         {
-            return new Vector2((int)((d1Index + d2Index) / 2), (int)((d1Index - d2Index) / 2));
+            return new Vector2((d1Index + d2Index) / 2, (d1Index - d2Index) / 2);
         }
 
         protected List<Vector2> getPathForStations(Station s1, Station s2)
@@ -735,7 +735,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     invert = false;
                 }
 
-                return (((int)aId) << 16) | bId;
+                return (aId << 16) | bId;
             }
 
 

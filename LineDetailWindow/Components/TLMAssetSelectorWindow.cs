@@ -42,7 +42,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
         private VehicleInfo m_lastInfo;
         private Dictionary<string, string> m_defaultAssets = new Dictionary<string, string>();
         private Dictionary<string, UICheckBox> m_checkboxes = new Dictionary<string, UICheckBox>();
-        private TransportSystemDefinition m_lastDef = default(TransportSystemDefinition);
+        private TransportSystemDefinition m_lastDef = default;
         private bool m_isLoading;
 
         private void CreateWindow()
@@ -284,11 +284,11 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_previewPanel.height = m_mainPanel.width;
             m_previewPanel.relativePosition = new Vector3(-50f, m_mainPanel.height);
             TLMUtils.createUIElement(out m_preview, m_previewPanel.transform);
-            this.m_preview.size = m_previewPanel.size;
-            this.m_preview.relativePosition = Vector3.zero;
+            m_preview.size = m_previewPanel.size;
+            m_preview.relativePosition = Vector3.zero;
             TLMUtils.createElement(out m_previewRenderer, m_mainPanel.transform);
-            this.m_previewRenderer.size = this.m_preview.size * 2f;
-            this.m_preview.texture = this.m_previewRenderer.texture;
+            m_previewRenderer.size = m_preview.size * 2f;
+            m_preview.texture = m_previewRenderer.texture;
             m_previewRenderer.zoom = 3;
             m_previewRenderer.cameraRotation = 40;
             m_previewPanel.isVisible = false;
@@ -298,7 +298,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
         {
             if (m_lastInfo != default(VehicleInfo) && m_previewPanel.isVisible)
             {
-                this.m_previewRenderer.cameraRotation -= 2;
+                m_previewRenderer.cameraRotation -= 2;
                 redrawModel();
             }
         }

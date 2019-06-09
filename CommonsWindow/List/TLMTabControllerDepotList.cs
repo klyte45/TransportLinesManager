@@ -2,7 +2,6 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
-using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.CommonsWindow.Components;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
@@ -231,7 +230,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             if (mainPanel.components.Count == 0)
                 return;
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareNames), reverseOrder);
-            this.m_LastSortCriterion = DepotSortCriterion.NAME;
+            m_LastSortCriterion = DepotSortCriterion.NAME;
             mainPanel.Invalidate();
         }
 
@@ -240,7 +239,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             if (mainPanel.components.Count == 0)
                 return;
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareDistricts), reverseOrder);
-            this.m_LastSortCriterion = DepotSortCriterion.DISTRICT;
+            m_LastSortCriterion = DepotSortCriterion.DISTRICT;
             mainPanel.Invalidate();
         }
 

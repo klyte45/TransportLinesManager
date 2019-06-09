@@ -534,7 +534,7 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.TOUR_PED_CONFIG:
                     return TransportSystemDefinition.TOUR_PED;
                 default:
-                    return default(TransportSystemDefinition);
+                    return default;
             }
         }
 

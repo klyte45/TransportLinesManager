@@ -415,7 +415,7 @@ namespace Klyte.TransportLinesManager
         public AutoColorPalette(string name, IEnumerable<Color32> colors)
         {
             this.name = name;
-            this.m_colors = new List<Color32>(colors);
+            m_colors = new List<Color32>(colors);
         }
 
         public Color32 this[int key]

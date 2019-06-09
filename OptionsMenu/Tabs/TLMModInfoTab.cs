@@ -1,13 +1,5 @@
-﻿using ColossalFramework.Globalization;
-using ColossalFramework.UI;
+﻿using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
-using Klyte.TransportLinesManager.CommonsWindow;
-using Klyte.TransportLinesManager.i18n;
-using Klyte.TransportLinesManager.MapDrawer;
-using Klyte.TransportLinesManager.Utils;
-using System;
-using System.Linq;
-using UnityEngine;
 
 namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {

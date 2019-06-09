@@ -88,7 +88,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void SetViewMode(UIComponent component, int value)
         {
-            if (!this.GetComponent<UIComponent>().isVisible)
+            if (!GetComponent<UIComponent>().isVisible)
             {
                 return;
             }
@@ -319,7 +319,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void SetActiveTab(int idx)
         {
-            this.m_StripMain.selectedIndex = idx;
+            m_StripMain.selectedIndex = idx;
         }
 
         private void Update()

@@ -5,10 +5,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
     using ColossalFramework;
     using ColossalFramework.Globalization;
     using ColossalFramework.UI;
-    using Commons.Extensors;
     using Extensors.BuildingAIExt;
     using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-    using System.Linq;
     using UnityEngine;
     using Utils;
     internal class TLMDepotListItem<T> : ToolsModifierControl where T : TLMSysDef<T>
@@ -27,7 +25,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
 
         private static readonly Color32 BackgroundColor = new Color32(49, 52, 58, 255);
         private static readonly Color32 ForegroundColor = new Color32(185, 221, 254, 255);
-        private static readonly Color32 SelectionBgColor = new Color32(233, 201, 148, 255);
 
         private bool m_mouseIsOver;
 
@@ -40,17 +37,17 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
         public ushort buildingId
         {
             get {
-                return this.m_buildingID;
+                return m_buildingID;
             }
             set {
-                this.SetBuildingID(value);
+                SetBuildingID(value);
             }
         }
 
         public bool secondary
         {
             get {
-                return this.m_secondary;
+                return m_secondary;
             }
             set {
                 m_secondary = value;
@@ -59,35 +56,35 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
         public string districtName
         {
             get {
-                return this.m_districtName.text;
+                return m_districtName.text;
             }
         }
 
         public string buidingName
         {
             get {
-                return this.m_depotName.text;
+                return m_depotName.text;
             }
         }
 
         public string prefixesServed
         {
             get {
-                return this.m_prefixesServed.text;
+                return m_prefixesServed.text;
             }
         }
 
         private void SetBuildingID(ushort id)
         {
-            this.m_buildingID = id;
+            m_buildingID = id;
         }
 
 
 
         public void RefreshData()
         {
-            Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[this.m_buildingID];
-            m_depotName.text = Singleton<BuildingManager>.instance.GetBuildingName(this.m_buildingID, default(InstanceID));
+            Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];
+            m_depotName.text = Singleton<BuildingManager>.instance.GetBuildingName(m_buildingID, default);
             byte districtID = Singleton<DistrictManager>.instance.GetDistrict(b.m_position);
             string districtName = districtID == 0 ? Locale.Get("TLM_DISTRICT_NONE") : Singleton<DistrictManager>.instance.GetDistrictName(districtID);
             m_districtName.text = districtName;
@@ -105,20 +102,20 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
         {
             Color32 backgroundColor = BackgroundColor;
             backgroundColor.a = (byte)((base.component.zOrder % 2 != 0) ? 127 : 255);
-            if (this.m_mouseIsOver)
+            if (m_mouseIsOver)
             {
                 backgroundColor.r = (byte)Mathf.Min(255, backgroundColor.r * 3 >> 1);
                 backgroundColor.g = (byte)Mathf.Min(255, backgroundColor.g * 3 >> 1);
                 backgroundColor.b = (byte)Mathf.Min(255, backgroundColor.b * 3 >> 1);
             }
-            this.m_Background.color = backgroundColor;
+            m_Background.color = backgroundColor;
         }
 
         private void LateUpdate()
         {
             if (m_isDirty)
             {
-                this.RefreshData();
+                RefreshData();
             }
         }
 
@@ -167,11 +164,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             TLMUtils.initButton(view, true, "LineDetailButton");
             view.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
-                if (this.m_buildingID != 0)
+                if (m_buildingID != 0)
                 {
-                    Vector3 position = Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)this.m_buildingID].m_position;
-                    InstanceID instanceID = default(InstanceID);
-                    instanceID.Building = this.m_buildingID;
+                    Vector3 position = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID].m_position;
+                    InstanceID instanceID = default;
+                    instanceID.Building = m_buildingID;
                     ToolsModifierControl.cameraController.SetTarget(instanceID, position, true);
                     DefaultTool.OpenWorldInfoPanel(instanceID, position);
                 }

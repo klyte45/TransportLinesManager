@@ -308,7 +308,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                             var vehicle = tl.GetVehicle(i);
                             if (vehicle != 0)
                             {
-                                VehicleInfo info2 = vm.m_vehicles.m_buffer[(int)vehicle].Info;
+                                VehicleInfo info2 = vm.m_vehicles.m_buffer[vehicle].Info;
                                 if (!modelList.Contains(info2.name))
                                 {
                                     vehiclesToRemove[vehicle] = info2;

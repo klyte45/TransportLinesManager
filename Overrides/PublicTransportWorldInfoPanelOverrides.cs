@@ -1,7 +1,6 @@
 ﻿using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
 

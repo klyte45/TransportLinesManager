@@ -1,24 +1,17 @@
 using ColossalFramework;
-using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons;
-using Klyte.Commons.Extensors;
 using Klyte.Commons.UI;
-using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.LineDetailWindow;
-using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.WorldInfoPanelExt;
-using Klyte.TransportLinesManager.WorldInfoPanelExt.Components;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
@@ -112,11 +105,11 @@ namespace Klyte.TransportLinesManager
 
         public Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
-            TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)i];
+            TransportLine t = TransportManager.instance.m_lines.m_buffer[i];
             try
             {
                 var tsd = TransportSystemDefinition.getDefinitionForLine(i);
-                if (tsd == default(TransportSystemDefinition) || (((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreAnyIfSet))
+                if (tsd == default || (((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreAnyIfSet))
                 {
                     return Color.clear;
                 }

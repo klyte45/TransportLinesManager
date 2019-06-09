@@ -108,7 +108,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             TLMUtils.doLog("init RedrawLine");
             ushort lineID = parent.CurrentSelectedId;
-            TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)lineID];
+            TransportLine t = TransportManager.instance.m_lines.m_buffer[lineID];
             int stopsCount = t.CountStops(lineID);
             int vehicleCount = t.CountVehicles(lineID);
             Color lineColor = TransportManager.instance.GetLineColor(lineID);
@@ -121,7 +121,7 @@ namespace Klyte.TransportLinesManager.UI
             if (lineID == 0)
             {
                 var tsd = TransportSystemDefinition.from(parent.CurrentTransportInfo);
-                if (tsd != default(TransportSystemDefinition))
+                if (tsd != default)
                 {
 
                     linearMapLineNumberFormat.backgroundSprite = TLMUtils.GetLineIcon(0, tsd.toConfigIndex(), ref tsd).getImageName();
@@ -244,7 +244,7 @@ namespace Klyte.TransportLinesManager.UI
 
             vehicleLabel.eventClick += (x, y) =>
             {
-                InstanceID id = default(InstanceID);
+                InstanceID id = default;
                 id.Vehicle = vehicleId;
                 Camera.main.GetComponent<CameraController>().SetTarget(id, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].GetLastFramePosition(), true);
             };
@@ -535,7 +535,7 @@ namespace Klyte.TransportLinesManager.UI
                     ttbTimers[resLabel.Key].color = getColorForTTB(ttb);
                 }
                 ushort lineID = parent.CurrentSelectedId;
-                TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)lineID];
+                TransportLine t = TransportManager.instance.m_lines.m_buffer[lineID];
                 Color lineColor = TransportManager.instance.GetLineColor(lineID);
                 int vehicleCount = t.CountVehicles(lineID);
                 List<ushort> oldItems = lineVehicles.Keys.ToList();
@@ -611,7 +611,7 @@ namespace Klyte.TransportLinesManager.UI
             ushort stationNodeId, ItemClass.SubService ss, Color lineColor, bool simple)//, out float intersectionPanelHeight)
         {
             ushort lineID = parent.CurrentSelectedId;
-            TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)lineID];
+            TransportLine t = TransportManager.instance.m_lines.m_buffer[lineID];
             TransportManager tm = Singleton<TransportManager>.instance;
 
             if (stationName == null) stationName = "???";
@@ -670,7 +670,7 @@ namespace Klyte.TransportLinesManager.UI
                 if (gameObject != null)
                 {
                     var cameraController = gameObject.GetComponent<CameraController>();
-                    InstanceID x = default(InstanceID);
+                    InstanceID x = default;
                     x.TransportLine = parent.CurrentSelectedId;
                     cameraController.SetTarget(x, location, false);
                     cameraController.ClearTarget();
@@ -722,7 +722,7 @@ namespace Klyte.TransportLinesManager.UI
                         }
                         if (seg.m_endNode != stationNodeId)
                         {
-                            seg = default(NetSegment);
+                            seg = default;
                         }
                         TLMUtils.createUIElement(out UIPanel distContainer, stationButton.transform);
                         distContainer.size = new Vector2(0, 0);
@@ -792,7 +792,7 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     float normalWidth = 42.5f;
 
-                    NetNode stopNode = Singleton<NetManager>.instance.m_nodes.m_buffer[(int)stationNodeId];
+                    NetNode stopNode = Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId];
 
                     TLMLineUtils.GetQuantityPassengerWaiting(stationNodeId, out int residents, out int tourists, out int ttb);
 
@@ -867,13 +867,13 @@ namespace Klyte.TransportLinesManager.UI
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
-            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+            NetNode nn = nm.m_nodes.m_buffer[stopId];
             stationName = TLMLineUtils.getStationName(stopId, lineId, ss, out ItemClass.Service servFound, out ItemClass.SubService subServFound, out prefix, out ushort buildingId, out NamingType namingType);
 
             //paradas proximas (metro e trem)
             TransportManager tm = Singleton<TransportManager>.instance;
-            TransportInfo thisLineInfo = tm.m_lines.m_buffer[(int)nn.m_transportLine].Info;
-            TransportLine thisLine = tm.m_lines.m_buffer[(int)nn.m_transportLine];
+            TransportInfo thisLineInfo = tm.m_lines.m_buffer[nn.m_transportLine].Info;
+            TransportLine thisLine = tm.m_lines.m_buffer[nn.m_transportLine];
             linhas = new List<ushort>();
             Vector3 location = nn.m_position;
             if (buildingId > 0 && ss == subServFound)
@@ -894,7 +894,7 @@ namespace Klyte.TransportLinesManager.UI
 
                 if (trainStation > 0)
                 {
-                    InstanceID iid = default(InstanceID);
+                    InstanceID iid = default;
                     iid.Building = trainStation;
                     regionalTrainStation = bm.GetBuildingName(trainStation, iid);
                 }
@@ -906,7 +906,7 @@ namespace Klyte.TransportLinesManager.UI
 
                 if (airportId > 0)
                 {
-                    InstanceID iid = default(InstanceID);
+                    InstanceID iid = default;
                     iid.Building = airportId;
                     airport = bm.GetBuildingName(airportId, iid);
                 }
@@ -918,7 +918,7 @@ namespace Klyte.TransportLinesManager.UI
 
                 if (harborId > 0)
                 {
-                    InstanceID iid = default(InstanceID);
+                    InstanceID iid = default;
                     iid.Building = harborId;
                     harbor = bm.GetBuildingName(harborId, iid);
                 }
@@ -929,7 +929,7 @@ namespace Klyte.TransportLinesManager.UI
 
                 if (taxiId > 0)
                 {
-                    InstanceID iid = default(InstanceID);
+                    InstanceID iid = default;
                     iid.Building = taxiId;
                     taxiStand = bm.GetBuildingName(taxiId, iid);
                 }
@@ -940,7 +940,7 @@ namespace Klyte.TransportLinesManager.UI
 
                 if (cableCarId > 0)
                 {
-                    InstanceID iid = default(InstanceID);
+                    InstanceID iid = default;
                     iid.Building = cableCarId;
                     cableCarStation = bm.GetBuildingName(cableCarId, iid);
                 }

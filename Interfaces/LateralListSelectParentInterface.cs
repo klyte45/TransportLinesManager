@@ -1,5 +1,4 @@
 ﻿using ColossalFramework.UI;
-using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Interfaces
 {

@@ -36,7 +36,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             int nextStationId = 1;
             for (ushort lineId = 0; lineId < TransportManager.instance.m_lines.m_size; lineId++)
             {
-                TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)lineId];
+                TransportLine t = TransportManager.instance.m_lines.m_buffer[lineId];
 
                 if (t.m_lineNumber > 0 && allowedTypesToDraw.Contains(t.Info.m_transportType) && (t.m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None)
                 {
@@ -57,7 +57,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 if (!linesByType.ContainsKey(tt)) continue;
                 foreach (ushort lineId in linesByType[tt])
                 {
-                    TransportLine t = TransportManager.instance.m_lines.m_buffer[(int)lineId];
+                    TransportLine t = TransportManager.instance.m_lines.m_buffer[lineId];
                     float range = 75f;
                     switch (tt)
                     {
@@ -317,7 +317,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             name = n;
             originalCentralPos = pos;
             centralPos = pos;
-            this.stopsWithWorldPos = stops;
+            stopsWithWorldPos = stops;
             id = stationId;
             this.stopId = stopId;
             this.service = service;
@@ -568,7 +568,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             this.multiplier = multiplier;
             this.width = (int)(width * multiplier);
             this.height = (int)(height * multiplier);
-            this.offset = new Vector2(offsetX, offsetY);
+            offset = new Vector2(offsetX, offsetY);
         }
 
         public string getResult(CityTransportObject cto, string cityName, DateTime currentTime)

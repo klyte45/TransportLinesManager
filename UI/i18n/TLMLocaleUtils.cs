@@ -1,7 +1,5 @@
-﻿using ColossalFramework.Globalization;
-using Klyte.Commons.i18n;
+﻿using Klyte.Commons.i18n;
 using Klyte.TransportLinesManager.Utils;
-using System;
 
 namespace Klyte.TransportLinesManager.i18n
 {

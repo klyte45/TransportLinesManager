@@ -263,7 +263,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
                 }
 
                 TLMConfigWarehouse.ConfigIndex transportType = tsd.toConfigIndex();
-                m_title.text = string.Format(Locale.Get("TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int)prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
+                m_title.text = string.Format(Locale.Get("TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
 
                 m_isLoading = false;
             };
@@ -278,11 +278,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             m_previewPanel.height = 140;
             m_previewPanel.relativePosition = new Vector3(7.5f, m_mainPanel.height - 150);
             TLMUtils.createUIElement(out m_preview, m_previewPanel.transform);
-            this.m_preview.size = m_previewPanel.size;
-            this.m_preview.relativePosition = Vector3.zero;
+            m_preview.size = m_previewPanel.size;
+            m_preview.relativePosition = Vector3.zero;
             TLMUtils.createElement(out m_previewRenderer, m_mainPanel.transform);
-            this.m_previewRenderer.size = this.m_preview.size * 2f;
-            this.m_preview.texture = this.m_previewRenderer.texture;
+            m_previewRenderer.size = m_preview.size * 2f;
+            m_preview.texture = m_previewRenderer.texture;
             m_previewRenderer.zoom = 3;
             m_previewRenderer.cameraRotation = 40;
         }
@@ -291,7 +291,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
         {
             if (m_lastInfo != default(VehicleInfo) && m_parent.GetComponent<UIComponent>().isVisible)
             {
-                this.m_previewRenderer.cameraRotation -= 2;
+                m_previewRenderer.cameraRotation -= 2;
                 redrawModel();
             }
         }

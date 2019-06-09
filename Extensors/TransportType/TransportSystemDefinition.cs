@@ -242,7 +242,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
             TransportSystemDefinition other = (TransportSystemDefinition)obj;
 
-            return this.subService == other.subService && this.vehicleType == other.vehicleType && this.transportType == other.transportType;
+            return subService == other.subService && vehicleType == other.vehicleType && transportType == other.transportType;
         }
 
         public static bool operator ==(TransportSystemDefinition a, TransportSystemDefinition b)
@@ -263,7 +263,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             DepotAI depotAI = buildingAI as DepotAI;
             if (depotAI == null)
             {
-                return default(TransportSystemDefinition);
+                return default;
             }
             return from(depotAI.m_transportInfo);
         }
@@ -272,10 +272,10 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         {
             if (info == null)
             {
-                return default(TransportSystemDefinition);
+                return default;
             }
             var result = availableDefinitions.Keys.FirstOrDefault(x => x.subService == info.m_class.m_subService && x.vehicleType == info.m_vehicleType && x.transportType == info.m_transportType);
-            if (result == default(TransportSystemDefinition))
+            if (result == default)
             {
                 TLMUtils.doErrorLog($"TSD NOT FOUND FOR TRANSPORT INFO: info.m_class.m_subService={info.m_class.m_subService}, info.m_vehicleType={info.m_vehicleType}, info.m_transportType={info.m_transportType}");
             }
@@ -285,7 +285,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         {
             if (info == null)
             {
-                return default(TransportSystemDefinition);
+                return default;
             }
             var result = availableDefinitions.Keys.FirstOrDefault(x => x.subService == info.m_class.m_subService && x.vehicleType == info.m_vehicleType && TLMUtils.HasField(info.GetAI(), "m_transportInfo") && TLMUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo").m_transportType == x.transportType);
             return result;
