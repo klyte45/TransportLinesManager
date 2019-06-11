@@ -317,14 +317,15 @@ namespace Klyte.TransportLinesManager.Utils
         {
             TLMCW.ConfigIndex transportType;
             var tsd = TransportSystemDefinition.getDefinitionForLine(lineIdx);
-            if (tsd != default)
-            {
-                transportType = tsd.toConfigIndex();
-            }
-            else
-            {
-                transportType = TLMConfigWarehouse.ConfigIndex.BUS_CONFIG;
-            }
+            transportType = tsd.toConfigIndex();
+            //if (tsd != default)
+            //{
+            //    transportType = tsd.toConfigIndex();
+            //}
+            //else
+            //{
+            //    transportType = TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG;
+            //}
             return TLMUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, transportType, ref tsd).getImageName();
         }
 

@@ -35,9 +35,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
 
         private UICheckBox m_DayNightLine;
 
-        private UICheckBox m_DisabledLine;
-
-        //private UILabel m_noBudgetWarn;
+        private UICheckBox m_DisabledLine;        
 
         private UILabel m_LineStops;
 
@@ -48,9 +46,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
         private UILabel m_lineBudgetLabel;
 
         private UILabel m_perHourBudgetInfo;
-
-        //    private UILabel m_LineEarnings;
-
+        
         private UIButton m_LineNumberFormatted;
 
         private UIPanel m_Background;

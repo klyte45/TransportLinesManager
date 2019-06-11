@@ -13,7 +13,7 @@ using Klyte.TransportLinesManager.Utils;
 using System.IO;
 using System.Reflection;
 
-[assembly: AssemblyVersion("11.1.10000.0")]
+[assembly: AssemblyVersion("11.2.0.0")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMLocaleUtils, TLMResourceLoader, TLMController, TLMCommonTextureAtlas, TLMPublicTransportManagementPanel>
@@ -57,6 +57,7 @@ namespace Klyte.TransportLinesManager
         public override void Group9SettingsUI(UIHelperExtension group9)
         {
             group9.AddButton(Locale.Get("TLM_DRAW_CITY_MAP"), TLMMapDrawer.drawCityMap);
+            group9.AddButton("Open generated map folder", () => ColossalFramework.Utils.OpenInFileBrowser(exportedMapsFolder));
         }
 
         private SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);

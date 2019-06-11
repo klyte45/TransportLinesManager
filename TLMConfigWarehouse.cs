@@ -199,12 +199,14 @@ namespace Klyte.TransportLinesManager
         public static TLMLineIcon getBgIconForIndex(TLMConfigWarehouse.ConfigIndex transportType)
         {
             var iconName = getCurrentConfigString((transportType & TLMConfigWarehouse.ConfigIndex.SYSTEM_PART) | ConfigIndex.TRANSPORT_ICON_TLM);
-            if (iconName == null || !Enum.IsDefined(typeof(TLMLineIcon), iconName))
+            if (iconName == null || !Enum.IsDefined(typeof(TLMLineIcon), iconName) || iconName == TLMLineIcon.NULL.ToString())
             {
+                TLMUtils.doLog($"GET DEFAULT FOR {transportType}");
                 return getDefaultBgIconForIndex(transportType);
             }
             else
             {
+                TLMUtils.doLog($"GETTING {iconName} FOR {transportType}");
                 return ((TLMLineIcon)Enum.Parse(typeof(TLMLineIcon), iconName));
             }
         }

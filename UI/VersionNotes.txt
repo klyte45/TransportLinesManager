@@ -2,5 +2,6 @@
     -Added copy'n'paste for budgets (at lines and prefix screens)
     -Completely removed the IPT2 compatibility mode
     -Depot detail window removed. Now all prefix configurations are done at World Info Panel of the building.
-    -Depot list rows are cleaner now. Links to World Info Panel of the building to making actions.
+    -Depot list rows are cleaner now. It links to building's panel to show available actions.
+	-Line list items rebuilt
     -Code reorganization
