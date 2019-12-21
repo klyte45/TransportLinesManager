@@ -160,7 +160,7 @@ namespace Klyte.TransportLinesManager.UI
             title.name = "Title";
             title.relativePosition = new Vector3(0, 5);
             title.atlas = LineUtilsTextureAtlas.instance.atlas;
-            title.localeID = "TLM_PREFIX_SELECTOR_WIN_TITLE";
+            title.localeID = "K45_TLM_PREFIX_SELECTOR_WIN_TITLE";
             TLMUtils.createDragHandle(title, mainContainer);
 
 
@@ -226,7 +226,7 @@ namespace Klyte.TransportLinesManager.UI
             lineNumber.textAlignment = UIHorizontalAlignment.Center;
             lineNumber.verticalAlignment = UIVerticalAlignment.Middle;
 
-            prefixIncrementChk = uiHelper.AddCheckboxLocale("TLM_AUTOINCREMENT_PREFIX", false, delegate (bool value)
+            prefixIncrementChk = uiHelper.AddCheckboxLocale("K45_TLM_AUTOINCREMENT_PREFIX", false, delegate (bool value)
              {
                  var tsd = TransportSystemDefinition.from(transportTool.m_prefab);
                  if (TransportLinesManagerMod.debugMode)

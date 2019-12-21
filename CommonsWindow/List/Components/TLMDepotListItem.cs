@@ -86,7 +86,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];
             m_depotName.text = Singleton<BuildingManager>.instance.GetBuildingName(m_buildingID, default);
             byte districtID = Singleton<DistrictManager>.instance.GetDistrict(b.m_position);
-            string districtName = districtID == 0 ? Locale.Get("TLM_DISTRICT_NONE") : Singleton<DistrictManager>.instance.GetDistrictName(districtID);
+            string districtName = districtID == 0 ? Locale.Get("K45_TLM_DISTRICT_NONE") : Singleton<DistrictManager>.instance.GetDistrictName(districtID);
             m_districtName.text = districtName;
             if (!(b.Info.GetAI() is ShelterAI))
             {

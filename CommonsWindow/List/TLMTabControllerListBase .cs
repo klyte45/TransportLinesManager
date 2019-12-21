@@ -71,7 +71,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
 
             var prefixFilterLabel = m_prefixFilter.AddUIComponent<UILabel>();
-            prefixFilterLabel.text = Locale.Get("TLM_PREFIX_FILTER");
+            prefixFilterLabel.text = Locale.Get("K45_TLM_PREFIX_FILTER");
             prefixFilterLabel.relativePosition = new Vector3(0, -35);
             prefixFilterLabel.textAlignment = UIHorizontalAlignment.Center;
             prefixFilterLabel.wordWrap = true;
@@ -93,7 +93,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 List<string> filterOptions = TLMUtils.getPrefixesOptions(tsdCi);
                 if (HasRegionalPrefixFilter)
                 {
-                    filterOptions.Add(Locale.Get("TLM_REGIONAL"));
+                    filterOptions.Add(Locale.Get("K45_TLM_REGIONAL"));
                 }
                 m_prefixFilter.items = filterOptions.ToArray();
                 m_prefixFilter.isVisible = filterOptions.Count >= 3;

@@ -68,7 +68,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             TLMUtils.doLog("PrefixDD");
 
-            m_prefixSelector = m_uiHelper.AddDropdownLocalized("TLM_PREFIX", new string[0], -1, onChangePrefix);
+            m_prefixSelector = m_uiHelper.AddDropdownLocalized("K45_TLM_PREFIX", new string[0], -1, onChangePrefix);
 
             ReloadPrefixOptions();
             TLMUtils.doLog("PrefixDD Panel");
@@ -92,15 +92,15 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_assetSelectorWindow.mainPanel.isVisible = false;
 
             TLMUtils.doLog("Name");
-            m_prefixName = m_subpanel.AddTextField(Locale.Get("TLM_PREFIX_NAME"), null, "", onPrefixNameChange);
+            m_prefixName = m_subpanel.AddTextField(Locale.Get("K45_TLM_PREFIX_NAME"), null, "", onPrefixNameChange);
             ConfigComponentPanel(m_prefixName);
 
             TLMUtils.doLog("Price");
-            m_prefixTicketPrice = m_subpanel.AddTextField(Locale.Get("TLM_TICKET_PRICE_LABEL"), null, "", onTicketChange);
+            m_prefixTicketPrice = m_subpanel.AddTextField(Locale.Get("K45_TLM_TICKET_PRICE_LABEL"), null, "", onTicketChange);
             ConfigComponentPanel(m_prefixTicketPrice);
 
             TLMUtils.doLog("ColorForModel");
-            m_useColorForModel = m_subpanel.AddCheckboxLocale("TLM_USE_PREFIX_COLOR_FOR_VEHICLE", false, onUseColorVehicleChange);
+            m_useColorForModel = m_subpanel.AddCheckboxLocale("K45_TLM_USE_PREFIX_COLOR_FOR_VEHICLE", false, onUseColorVehicleChange);
             TLMUtils.LimitWidth(m_useColorForModel.label, 420, true);
 
             TLMUtils.doLog("ColorSel");
@@ -112,7 +112,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_budgetPanel.relativePosition = new Vector3(550, 0);
 
             TLMUtils.doLog("Palette");
-            m_paletteDD = m_subpanel.AddDropdownLocalized("TLM_PALETTE", new string[0], -1, SetPalettePrefix);
+            m_paletteDD = m_subpanel.AddDropdownLocalized("K45_TLM_PALETTE", new string[0], -1, SetPalettePrefix);
 
             TLMUtils.doLog("PaletteDD Panel");
             var palettePanel = m_paletteDD.GetComponentInParent<UIPanel>();
@@ -121,7 +121,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             TLMPaletteOptionsTab.onPaletteReloaded += reloadPalettes;
 
             TLMUtils.doLog("Format");
-            m_formatDD = m_subpanel.AddDropdownLocalized("TLM_ICON", TLMLineIconExtension.getDropDownOptions(Locale.Get("TLM_LINE_ICON_ENUM_TT_DEFAULT")), -1, SetFormatPrefix);
+            m_formatDD = m_subpanel.AddDropdownLocalized("K45_TLM_ICON", TLMLineIconExtension.getDropDownOptions(Locale.Get("K45_TLM_LINE_ICON_ENUM_TT_DEFAULT")), -1, SetFormatPrefix);
             ConfigComponentPanel(m_formatDD);
 
 
@@ -203,7 +203,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             TLMUtils.createUIElement(out UILabel lbl, panelColorSelector.transform, "PrefixColorLabel", new Vector4(5, 12, 250, 40));
             TLMUtils.LimitWidth(lbl, 250, true);
-            lbl.localeID = "TLM_PREFIX_COLOR_LABEL";
+            lbl.localeID = "K45_TLM_PREFIX_COLOR_LABEL";
             lbl.verticalAlignment = UIVerticalAlignment.Middle;
             lbl.font = UIHelperExtension.defaultFontCheckbox;
 
@@ -215,7 +215,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             TLMUtils.LimitWidth(resetColor, 200);
             resetColor.textPadding = new RectOffset(5, 5, 5, 2);
             resetColor.autoSize = true;
-            resetColor.localeID = "TLM_RESET_COLOR";
+            resetColor.localeID = "K45_TLM_RESET_COLOR";
             resetColor.eventClick += onResetColor;
         }
         #endregion

@@ -53,12 +53,12 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components
         {
             TLMUtils.createUIElement(out m_addAllPrefixesButton, m_mainPanel.transform);
             m_addAllPrefixesButton.relativePosition = new Vector3(195, 25);
-            m_addAllPrefixesButton.text = Locale.Get("TLM_ADD_ALL_SHORT");
+            m_addAllPrefixesButton.text = Locale.Get("K45_TLM_ADD_ALL_SHORT");
             ;
             m_addAllPrefixesButton.textScale = 0.6f;
             m_addAllPrefixesButton.width = 50;
             m_addAllPrefixesButton.height = 15;
-            m_addAllPrefixesButton.tooltip = Locale.Get("TLM_ADD_ALL_PREFIX_TOOLTIP");
+            m_addAllPrefixesButton.tooltip = Locale.Get("K45_TLM_ADD_ALL_PREFIX_TOOLTIP");
             TLMUtils.initButton(m_addAllPrefixesButton, true, "ButtonMenu");
             m_addAllPrefixesButton.name = "AddAll";
             m_addAllPrefixesButton.isVisible = true;
@@ -76,11 +76,11 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components
 
             TLMUtils.createUIElement(out m_removeAllPrefixesButton, m_mainPanel.transform);
             m_removeAllPrefixesButton.relativePosition = new Vector3(195, 5);
-            m_removeAllPrefixesButton.text = Locale.Get("TLM_REMOVE_ALL_SHORT");
+            m_removeAllPrefixesButton.text = Locale.Get("K45_TLM_REMOVE_ALL_SHORT");
             m_removeAllPrefixesButton.textScale = 0.6f;
             m_removeAllPrefixesButton.width = 50;
             m_removeAllPrefixesButton.height = 15;
-            m_removeAllPrefixesButton.tooltip = Locale.Get("TLM_REMOVE_ALL_PREFIX_TOOLTIP");
+            m_removeAllPrefixesButton.tooltip = Locale.Get("K45_TLM_REMOVE_ALL_PREFIX_TOOLTIP");
             TLMUtils.initButton(m_removeAllPrefixesButton, true, "ButtonMenu");
             m_removeAllPrefixesButton.name = "RemoveAll";
             m_removeAllPrefixesButton.isVisible = true;
@@ -121,7 +121,7 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components
             m_title.width = m_mainPanel.width - 70f;
             m_title.relativePosition = new Vector3(5, 5);
             m_title.textScale = 0.9f;
-            m_title.prefix = Locale.Get("TLM_PREFIXES_SERVED") + "\n";
+            m_title.prefix = Locale.Get("K45_TLM_PREFIXES_SERVED") + "\n";
             m_title.text = TLMConfigWarehouse.getNameForTransportType(m_tsd.toConfigIndex());
         }
 
@@ -184,7 +184,7 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components
             for (uint i = 0; i <= 65; i++)
             {
                 uint j = i;
-                m_prefixesCheckboxes[i] = (UICheckBox)m_uiHelper.AddCheckbox(i == 0 ? Locale.Get("TLM_UNPREFIXED") : i == 65 ? Locale.Get("TLM_REGIONAL") : i.ToString(), false, (x) =>
+                m_prefixesCheckboxes[i] = (UICheckBox)m_uiHelper.AddCheckbox(i == 0 ? Locale.Get("K45_TLM_UNPREFIXED") : i == 65 ? Locale.Get("K45_TLM_REGIONAL") : i.ToString(), false, (x) =>
                 {
                     if (!m_isLoading)
                     {

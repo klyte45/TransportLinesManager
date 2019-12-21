@@ -115,7 +115,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             lineName.area = new Vector4(140, 10, lineName.minimumSize.x, 18);
             TLMUtils.LimitWidth(lineName, (uint)lineName.width);
             lineName.textAlignment = UIHorizontalAlignment.Center;
-            lineName.text = string.Format(Locale.Get("TLM_DEPOT_NAME_PATTERN"), Locale.Get("TLM_PUBLICTRANSPORT_OF_DEPOT", Singleton<T>.instance.GetTSD().toConfigIndex().ToString()));
+            lineName.text = string.Format(Locale.Get("K45_TLM_DEPOT_NAME_PATTERN"), Locale.Get("K45_TLM_PUBLICTRANSPORT_OF_DEPOT", Singleton<T>.instance.GetTSD().toConfigIndex().ToString()));
             lineName.eventClicked += Name_eventClicked;
 
             TLMUtils.createUIElement(out UILabel prefixesServed, titleLine.transform, "prefixesServed");
@@ -123,7 +123,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             prefixesServed.area = new Vector4(340, 10, prefixesServed.minimumSize.x, 18);
             TLMUtils.LimitWidth(prefixesServed, (uint)prefixesServed.width);
             prefixesServed.textAlignment = UIHorizontalAlignment.Center;
-            prefixesServed.text = Locale.Get("TLM_PREFIXES_SERVED");
+            prefixesServed.text = Locale.Get("K45_TLM_PREFIXES_SERVED");
 
             AwakePrefixFilter();
         }

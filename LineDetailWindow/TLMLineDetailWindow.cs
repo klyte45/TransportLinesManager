@@ -143,7 +143,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
         private void CreateFirstStopSelector()
         {
-            m_firstStopSelect = m_uiHelper.AddDropdownLocalized("TLM_FIRST_STOP_DD_LABEL", new String[1], 0, ChangeFirstStop);
+            m_firstStopSelect = m_uiHelper.AddDropdownLocalized("K45_TLM_FIRST_STOP_DD_LABEL", new String[1], 0, ChangeFirstStop);
             m_firstStopSelect.eventMouseWheel -= null;
 
             UIPanel parent = m_firstStopSelect.GetComponentInParent<UIPanel>();
@@ -179,7 +179,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             label.height = 40;
             label.verticalAlignment = UIVerticalAlignment.Middle;
             label.textAlignment = UIHorizontalAlignment.Center;
-            label.localeID = "TLM_TICKET_PRICE_LABEL";
+            label.localeID = "K45_TLM_TICKET_PRICE_LABEL";
             label.eventSizeChanged += (UIComponent component, Vector2 value) => { label.transform.localScale = new Vector3(Math.Min(300f / label.width, 1), 1); };
             label.relativePosition = new Vector3(0, 5);
             m_ticketPriceEditor.relativePosition = new Vector3(330, 0);
@@ -199,7 +199,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_autoNameLabel.autoSize = false;
             m_autoNameLabel.relativePosition = new Vector3(400f, 120f);
             m_autoNameLabel.textAlignment = UIHorizontalAlignment.Left;
-            m_autoNameLabel.prefix = Locale.Get("TLM_GENERATED_AUTO_NAME") + ": ";
+            m_autoNameLabel.prefix = Locale.Get("K45_TLM_GENERATED_AUTO_NAME") + ": ";
             m_autoNameLabel.width = 240;
             m_autoNameLabel.height = 100;
             m_autoNameLabel.name = "AutoNameLabel";
@@ -250,7 +250,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             buttonAutoName.relativePosition = new Vector3(width - 50f, height - 230f);
             buttonAutoName.width = 40;
             buttonAutoName.height = 40;
-            buttonAutoName.tooltip = Locale.Get("TLM_USE_AUTO_NAME");
+            buttonAutoName.tooltip = Locale.Get("K45_TLM_USE_AUTO_NAME");
             TLMUtils.initButton(buttonAutoName, true, "ButtonMenu");
             buttonAutoName.name = "AutoName";
             buttonAutoName.isVisible = true;
@@ -272,7 +272,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             buttonAutoColor.textScale = 0.6f;
             buttonAutoColor.width = 40;
             buttonAutoColor.height = 40;
-            buttonAutoColor.tooltip = Locale.Get("TLM_PICK_COLOR_FROM_PALETTE_TOOLTIP");
+            buttonAutoColor.tooltip = Locale.Get("K45_TLM_PICK_COLOR_FROM_PALETTE_TOOLTIP");
             TLMUtils.initButton(buttonAutoColor, true, "ButtonMenu");
             buttonAutoColor.name = "AutoColor";
             buttonAutoColor.isVisible = true;
@@ -348,7 +348,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_budgetLabel.height = 25;
             m_budgetLabel.name = "ExtraInfoLabel";
             m_budgetLabel.textScale = 0.6f;
-            m_budgetLabel.prefix = Locale.Get("TLM_LINE_EFFECTIVE_BUDGET") + ": ";
+            m_budgetLabel.prefix = Locale.Get("K45_TLM_LINE_EFFECTIVE_BUDGET") + ": ";
             m_budgetLabel.font = UIHelperExtension.defaultFontCheckbox;
         }
 
@@ -676,7 +676,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             if (m_lastStopsCount != stopsCount)
             {
                 float totalSize = TLMLineUtils.GetLineLength(lineID);
-                m_lineLenghtLabel.text = string.Format(Locale.Get("TLM_LENGHT_AND_STOPS"), totalSize, stopsCount);
+                m_lineLenghtLabel.text = string.Format(Locale.Get("K45_TLM_LENGHT_AND_STOPS"), totalSize, stopsCount);
                 m_lastStopsCount = stopsCount;
             }
 
@@ -692,7 +692,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             float baseBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
 
             m_budgetLabel.text = string.Format("{0:0%} ({1:0%})", getEffectiveBudget(), Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.004f);//585+1/7 = frames/week                ;
-            m_budgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
+            m_budgetLabel.tooltip = string.Format(Locale.Get("K45_TLM_LINE_BUDGET_EXPLAIN_2"),
                 TLMCW.getNameForTransportType(tsd.toConfigIndex()),
                 baseBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.004f, getEffectiveBudget());
             linearMap.updateBidings();

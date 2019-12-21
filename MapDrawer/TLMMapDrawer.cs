@@ -1,6 +1,6 @@
 using ColossalFramework;
+using Klyte.Commons.i18n;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.i18n;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -24,11 +24,11 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
 
             TLMController controller = TLMController.instance;
-            Dictionary<TransportInfo.TransportType, List<ushort>> linesByType = new Dictionary<TransportInfo.TransportType, List<ushort>>();
+            var linesByType = new Dictionary<TransportInfo.TransportType, List<ushort>>();
 
-            foreach (var type in Enum.GetValues(typeof(TransportInfo.TransportType)))
+            foreach (object type in Enum.GetValues(typeof(TransportInfo.TransportType)))
             {
-                linesByType[(TransportInfo.TransportType)type] = new List<ushort>();
+                linesByType[(TransportInfo.TransportType) type] = new List<ushort>();
             }
 
             //			List<int> usedX = new List<int> ();
@@ -49,12 +49,16 @@ namespace Klyte.TransportLinesManager.MapDrawer
             NetManager nm = NetManager.instance;
             float invPrecision = 32;
             //Restart:
-            Dictionary<int, List<int>> positions = new Dictionary<int, List<int>>();
-            List<Station> stations = new List<Station>();
-            Dictionary<ushort, MapTransportLine> transportLines = new Dictionary<ushort, MapTransportLine>();
+            var positions = new Dictionary<int, List<int>>();
+            var stations = new List<Station>();
+            var transportLines = new Dictionary<ushort, MapTransportLine>();
             foreach (TransportInfo.TransportType tt in linesByType.Keys)
             {
-                if (!linesByType.ContainsKey(tt)) continue;
+                if (!linesByType.ContainsKey(tt))
+                {
+                    continue;
+                }
+
                 foreach (ushort lineId in linesByType[tt])
                 {
                     TransportLine t = TransportManager.instance.m_lines.m_buffer[lineId];
@@ -96,7 +100,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         Vector2 gridAdd = Vector2.zero;
 
 
-                        var idx = stations.FirstOrDefault(x => x.stopsWithWorldPos.ContainsKey(nextStop) || x.centralPos == pos2D);
+                        Station idx = stations.FirstOrDefault(x => x.stopsWithWorldPos.ContainsKey(nextStop) || x.centralPos == pos2D);
                         if (idx != null)
                         {
                             transportLines[lineId].addStation(ref idx);
@@ -109,20 +113,20 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             //    invprecision = (float)math.pow(2, exp);
                             //    goto restart;
                             //}
-                            Dictionary<ushort, Vector3> nearStops = new Dictionary<ushort, Vector3>();
+                            var nearStops = new Dictionary<ushort, Vector3>();
                             TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportShip, ItemClass.SubService.PublicTransportPlane }, 10);
                             TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTrain, ItemClass.SubService.PublicTransportMonorail, ItemClass.SubService.PublicTransportCableCar, ItemClass.SubService.PublicTransportMetro }, 10);
                             TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTram, ItemClass.SubService.PublicTransportBus }, 10);
                             TLMUtils.doLog("Station: ${0}; nearStops: ${1}", name, string.Join(",", nearStops.Select(x => x.ToString()).ToArray()));
-                            Station thisStation = new Station(name, pos2D, worldPos, nearStops, nextStationId++, service, nextStop);
+                            var thisStation = new Station(name, pos2D, worldPos, nearStops, nextStationId++, service, nextStop);
                             stations.Add(thisStation);
                             transportLines[lineId].addStation(ref thisStation);
                         }
-                        if (!positions.ContainsKey((int)pos2D.x))
+                        if (!positions.ContainsKey((int) pos2D.x))
                         {
-                            positions[(int)pos2D.x] = new List<int>();
+                            positions[(int) pos2D.x] = new List<int>();
                         }
-                        positions[(int)pos2D.x].Add((int)pos2D.y);
+                        positions[(int) pos2D.x].Add((int) pos2D.y);
                         //						Debug.Log ("POS:" + pos);
                         ultPos = pos2D;
                     }
@@ -135,7 +139,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
         public static string getJson(List<Station> stations, Dictionary<ushort, MapTransportLine> transportLines)
         {
-            CityTransportObject cto = new CityTransportObject
+            var cto = new CityTransportObject
             {
                 transportLines = transportLines
             };
@@ -162,7 +166,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             float minY = float.PositiveInfinity;
             float maxX = float.NegativeInfinity;
             float maxY = float.NegativeInfinity;
-            foreach (var s in stations)
+            foreach (Station s in stations)
             {
                 if (s.centralPos.x > maxX)
                 {
@@ -188,17 +192,17 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
             float maxRadius = Math.Max(stations.Max(x => x.getAllStationOffsetPoints().Count) * 2 + 2, 10);
 
-            SVGTemplate svg = new SVGTemplate((int)((maxY - minY + 16)), (int)((maxX - minX + 16)), maxRadius, minX - maxRadius, minY - maxRadius);
+            var svg = new SVGTemplate((int) ((maxY - minY + 16)), (int) ((maxX - minX + 16)), maxRadius, minX - maxRadius, minY - maxRadius);
 
             var linesOrdened = transportLines.OrderBy(x => getLineUID(x.Key)).ToList();
             //ordena pela quantidade de linhas passando
             stations = stations.OrderBy(x => x.linesPassingCount).ToList();
 
             //calcula as posições de todas as estações no mapa
-            foreach (var line in linesOrdened)
+            foreach (KeyValuePair<ushort, MapTransportLine> line in linesOrdened)
             {
-                var station0 = line.Value[0];
-                var prevPos = station0.getPositionForLine(line.Key, line.Value[1].centralPos);
+                Station station0 = line.Value[0];
+                Vector2 prevPos = station0.getPositionForLine(line.Key, line.Value[1].centralPos);
                 for (int i = 1; i < line.Value.stationsCount(); i++)
                 {
                     prevPos = line.Value[i].getPositionForLine(line.Key, prevPos);
@@ -207,24 +211,24 @@ namespace Klyte.TransportLinesManager.MapDrawer
             //adiciona as exceções
             svg.addStationsToExceptionMap(stations);
             //pinta as linhas
-            foreach (var line in linesOrdened)
+            foreach (KeyValuePair<ushort, MapTransportLine> line in linesOrdened)
             {
                 svg.addTransportLine(line.Value, line.Key);
             }
             svg.drawAllLines();
-            foreach (var station in stations)
+            foreach (Station station in stations)
             {
                 svg.addStation(station, transportLines);
             }
-            var cityMapsFolder = TransportLinesManagerMod.exportedMapsFolder + Path.DirectorySeparatorChar + $"{cityName} ({cityId})";
-            var fipalette = TLMUtils.EnsureFolderCreation(cityMapsFolder);
-            String filename = cityMapsFolder + Path.DirectorySeparatorChar + currentTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".html";
+            string cityMapsFolder = TransportLinesManagerMod.exportedMapsFolder + Path.DirectorySeparatorChar + $"{cityName} ({cityId})";
+            FileInfo fipalette = TLMUtils.EnsureFolderCreation(cityMapsFolder);
+            string filename = cityMapsFolder + Path.DirectorySeparatorChar + currentTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".html";
             if (File.Exists(filename))
             {
                 File.Delete(filename);
             }
-            var sr = File.CreateText(filename);
-            CityTransportObject cto = new CityTransportObject
+            StreamWriter sr = File.CreateText(filename);
+            var cto = new CityTransportObject
             {
                 transportLines = transportLines
             };
@@ -233,10 +237,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             return filename;
         }
 
-        private static int getLineUID(ushort lineId)
-        {
-            return lineId;
-        }
+        private static int getLineUID(ushort lineId) => lineId;
 
 
         private delegate Vector2 CalculateCoords(Vector3 pos, float invPrecision);
@@ -245,10 +246,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
     public class CityTransportObject
     {
         public Dictionary<ushort, MapTransportLine> transportLines;
-        public string toJson()
-        {
-            return $"{{\"transportLines\":{{{String.Join(",", transportLines.Select(x => $"\"{x.Key}\":{x.Value.toJson()}").ToArray())}}}}}";
-        }
+        public string toJson() => $"{{\"transportLines\":{{{string.Join(",", transportLines.Select(x => $"\"{x.Key}\":{x.Value.toJson()}").ToArray())}}}}}";
     }
 
     public class Station
@@ -258,20 +256,10 @@ namespace Klyte.TransportLinesManager.MapDrawer
         private Vector2 originalCentralPos;
         public Vector2 centralPos;
         public Vector2 finalPos;
-        public int linesPassingCount
-        {
-            get {
-                return linesPassing.Count;
-            }
-        }
+        public int linesPassingCount => linesPassing.Count;
         public Dictionary<ushort, Vector3> stopsWithWorldPos = new Dictionary<ushort, Vector3>();
         public ushort stopId;
-        public Vector2 writePoint
-        {
-            get {
-                return centralPos + lastPoint;
-            }
-        }
+        public Vector2 writePoint => centralPos + lastPoint;
         public float writeAngle
         {
             get {
@@ -308,10 +296,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 ""id"":{id},""service"":""{service}"",""districtId"":{districtId},""districtName"":""{districtName}""}}";
         }
 
-        public Station(string n, Vector2 pos, Vector3 worldPos, Dictionary<ushort, Vector3> stops, int stationId, ItemClass.Service service, ushort stopId, ushort lineId) : this(n, pos, worldPos, stops, stationId, service, stopId)
-        {
-            addLine(lineId);
-        }
+        public Station(string n, Vector2 pos, Vector3 worldPos, Dictionary<ushort, Vector3> stops, int stationId, ItemClass.Service service, ushort stopId, ushort lineId) : this(n, pos, worldPos, stops, stationId, service, stopId) => addLine(lineId);
         public Station(string n, Vector2 pos, Vector3 worldPos, Dictionary<ushort, Vector3> stops, int stationId, ItemClass.Service service, ushort stopId)
         {
             name = n;
@@ -334,23 +319,12 @@ namespace Klyte.TransportLinesManager.MapDrawer
             }
         }
 
-        public int getLineIdx(ushort lineId)
-        {
-            return linesPassing.IndexOf(lineId);
-        }
+        public int getLineIdx(ushort lineId) => linesPassing.IndexOf(lineId);
 
-        public CardinalPoint getDirectionForStation(Station s)
-        {
-            return stationConnections.FirstOrDefault(x => x.Value.stopId == s.stopId).Key;
-        }
+        public CardinalPoint getDirectionForStation(Station s) => stationConnections.FirstOrDefault(x => x.Value.stopId == s.stopId).Key;
 
 
-        public Vector2 getPositionForLine(ushort lineIndex, Vector2 to)
-        {
-
-            return originalCentralPos;
-
-        }
+        public Vector2 getPositionForLine(ushort lineIndex, Vector2 to) => originalCentralPos;
 
 
         public CardinalPoint reserveExit(Station s2)
@@ -360,19 +334,19 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 return CardinalPoint.ZERO;
             }
-            var s = stationConnections.FirstOrDefault(x => x.Value.stopsWithWorldPos.ContainsKey(s2.stopId));
+            KeyValuePair<CardinalPoint, Station> s = stationConnections.FirstOrDefault(x => x.Value.stopsWithWorldPos.ContainsKey(s2.stopId));
             if (!s.Equals(default(KeyValuePair<CardinalPoint, Station>)))
             {
                 return s.Key;
             }
 
-            CardinalPoint direction = CardinalPoint.getCardinal2D(centralPos, s2.centralPos);
+            var direction = CardinalPoint.getCardinal2D(centralPos, s2.centralPos);
             CardinalPoint directionOr = direction;
             if (stationConnections.Count >= 8)
             {
                 return direction;
             }
-            CardinalPoint directionAlt = CardinalPoint.getCardinal2D4(centralPos, s2.centralPos);
+            var directionAlt = CardinalPoint.getCardinal2D4(centralPos, s2.centralPos);
 
             bool isForward = direction > directionAlt;
 
@@ -406,10 +380,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
         }
 
 
-        public List<ushort> getAllStationOffsetPoints()
-        {
-            return linesPassing;
-        }
+        public List<ushort> getAllStationOffsetPoints() => linesPassing;
 
     }
 
@@ -438,11 +409,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
              </defs>";
 
         }
-        public string getHtmlFooter(String cityName, DateTime date)
-        {
-            return $@"<div id=""linesPanel""><div id=""title"">{cityName}</div><div id=""date"">{date.ToString(CultureInfo.GetCultures(CultureTypes.SpecificCultures).Where(c => c.TwoLetterISOLanguageName == TLMLocaleUtils.instance.loadedLanguageEffective).FirstOrDefault())}</div><div id=""content""></div></body></html>";
-
-        }
+        public string getHtmlFooter(string cityName, DateTime date) => $@"<div id=""linesPanel""><div id=""title"">{cityName}</div><div id=""date"">{date.ToString(CultureInfo.GetCultures(CultureTypes.SpecificCultures).Where(c => c.TwoLetterISOLanguageName == KlyteLocaleManager.CurrentLanguageId).FirstOrDefault())}</div><div id=""content""></div></body></html>";
         /// <summary>
         /// The line segment. <>
         /// 0 = X1 
@@ -503,17 +470,17 @@ namespace Klyte.TransportLinesManager.MapDrawer
         private string getStationNameTemplate(string name, int stops, int stationId, float x, float y, float rotationDeg, List<ushort> lines)
         {
             float translate = stops + 2;
-            return $"<div class='stationContainer {String.Join(" ", lines.Select(z => "_lid_" + z).ToArray())}' style='top: {y}px; left: {x}px;' ><p style='transform: rotate({rotationDeg}deg) translate({ translate }px, { translate }px) ;'>{name}</p></div>";
+            return $"<div class='stationContainer {string.Join(" ", lines.Select(z => "_lid_" + z).ToArray())}' style='top: {y}px; left: {x}px;' ><p style='transform: rotate({rotationDeg}deg) translate({ translate }px, { translate }px) ;'>{name}</p></div>";
         }
         private string getStationNameInverseTemplate(string name, int stops, int stationId, float x, float y, float rotationDeg, List<ushort> lines)
         {
             float translate = stops + 2;
-            return $"<div class='stationContainer {String.Join(" ", lines.Select(z => "_lid_" + z).ToArray())}' style='top: {y}px; left: {x}px;' ><p style='transform: rotate({rotationDeg}deg) translate({ translate }px, { translate }px) ;'><y>{name}</y></p></div>";
+            return $"<div class='stationContainer {string.Join(" ", lines.Select(z => "_lid_" + z).ToArray())}' style='top: {y}px; left: {x}px;' ><p style='transform: rotate({rotationDeg}deg) translate({ translate }px, { translate }px) ;'><y>{name}</y></p></div>";
         }
         private string getStationNameVerticalTemplate(string name, int stops, int stationId, float x, float y, float rotationDeg, List<ushort> lines)
         {
             float translate = stops + 2;
-            return $"<div class='stationContainer {String.Join(" ", lines.Select(z => "_lid_" + z).ToArray())}' style='top: {y}px; left: {x}px;' ><p style='transform: rotate({rotationDeg}deg) translate({ translate }px, { translate }px) ;'><x  style='transform: rotate({-rotationDeg}deg)'>{name}</x></p></div>";
+            return $"<div class='stationContainer {string.Join(" ", lines.Select(z => "_lid_" + z).ToArray())}' style='top: {y}px; left: {x}px;' ><p style='transform: rotate({rotationDeg}deg) translate({ translate }px, { translate }px) ;'><x  style='transform: rotate({-rotationDeg}deg)'>{name}</x></p></div>";
         }
 
 
@@ -566,14 +533,14 @@ namespace Klyte.TransportLinesManager.MapDrawer
         public SVGTemplate(int width, int height, float multiplier = 1, float offsetX = 0, float offsetY = 0)
         {
             this.multiplier = multiplier;
-            this.width = (int)(width * multiplier);
-            this.height = (int)(height * multiplier);
+            this.width = (int) (width * multiplier);
+            this.height = (int) (height * multiplier);
             offset = new Vector2(offsetX, offsetY);
         }
 
         public string getResult(CityTransportObject cto, string cityName, DateTime currentTime)
         {
-            StringBuilder document = new StringBuilder(getHtmlHeader(width, height, cto));
+            var document = new StringBuilder(getHtmlHeader(width, height, cto));
             document.Append(svgPart);
             document.Append("</svg><div id=\"stationsContainer\">");
             document.Append(htmlStationsPart);
@@ -584,7 +551,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
         public void addStationsToExceptionMap(List<Station> stations)
         {
-            foreach (var s in stations)
+            foreach (Station s in stations)
             {
                 segmentManager.addStationToAllRangeMaps(s.centralPos);
             }
@@ -595,7 +562,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             bool inverse = false;
             bool vertical = false;
             string name = s.name;
-            var angle = s.writeAngle;
+            float angle = s.writeAngle;
             switch (CardinalPoint.getCardinalPoint(angle).Value)
             {
                 case CardinalPoint.CardinalInternal.SW:
@@ -609,13 +576,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     break;
             }
 
-            foreach (var pos in s.getAllStationOffsetPoints())
+            foreach (ushort pos in s.getAllStationOffsetPoints())
             {
-                var point = s.centralPos - offset;// + pos.Key;
-                var line = lines[pos];
+                Vector2 point = s.centralPos - offset;// + pos.Key;
+                MapTransportLine line = lines[pos];
                 svgPart.Append(getStationPointTemplate(s.getLineIdx(pos), line.lineColor, point.x * multiplier, point.y * multiplier, line.lineId, s.id));
             }
-            var namePoint = s.writePoint - offset;
+            Vector2 namePoint = s.writePoint - offset;
             htmlStationsPart.Append(vertical ?
                 getStationNameVerticalTemplate(s.name, s.getAllStationOffsetPoints().Count, s.id, (namePoint.x + 0.5f) * multiplier, ((namePoint.y + 0.5f) * multiplier), angle, s.linesPassing) : inverse ?
                 getStationNameInverseTemplate(s.name, s.getAllStationOffsetPoints().Count, s.id, (namePoint.x + 0.5f) * multiplier, ((namePoint.y + 0.5f) * multiplier), angle, s.linesPassing) :
@@ -625,7 +592,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
         public void addTransportLine(MapTransportLine points, ushort transportLineIdx)
         {
-            var count = points.stationsCount();
+            int count = points.stationsCount();
             for (int i = 1; i <= count; i++)
             {
                 Station s1 = points[i - 1];
@@ -637,9 +604,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
         internal void drawAllLines()
         {
             TransportLine[] tls = Singleton<TransportManager>.instance.m_lines.m_buffer;
-            var segments = segmentManager.getSegments();
-            var segmentDict = new List<Tuple<float, String>>();
-            foreach (var segment in segments)
+            List<LineSegmentStationsManager.LineSegmentStations> segments = segmentManager.getSegments();
+            var segmentDict = new List<Tuple<float, string>>();
+            foreach (LineSegmentStationsManager.LineSegmentStations segment in segments)
             {
                 List<Vector2> basePoints = segment.path;
                 for (int i = 0; i < basePoints.Count; i++)
@@ -648,11 +615,11 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
                 float offsetNeg = 0;
                 float offsetPos = 0;
-                CardinalPoint dir = CardinalPoint.getCardinal2D(segment.s1.centralPos, segment.s2.centralPos);
+                var dir = CardinalPoint.getCardinal2D(segment.s1.centralPos, segment.s2.centralPos);
                 dir++;
                 dir++;
                 Vector2 offsetDir = dir.getCardinalOffset2D();
-                foreach (var line in segment.lines)
+                foreach (KeyValuePair<MapTransportLine, LineSegmentStationsManager.Direction> line in segment.lines)
                 {
                     float width = 0;
                     TransportInfo.TransportType tt = tls[line.Key.lineId].Info.m_transportType;
@@ -692,20 +659,20 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         offsetNeg = width / 2;
                     }
 
-                    var lineTotalOffset = offsetDir * coordMultiplier * 2;
-                    Vector2[] points = new Vector2[basePoints.Count];
+                    Vector2 lineTotalOffset = offsetDir * coordMultiplier * 2;
+                    var points = new Vector2[basePoints.Count];
                     for (int i = 0; i < basePoints.Count; i++)
                     {
                         if (i == 0)
                         {
-                            var cp = segment.s1.getDirectionForStation(segment.s2);
+                            CardinalPoint cp = segment.s1.getDirectionForStation(segment.s2);
                             cp++;
                             cp++;
                             points[i] = basePoints[i] + cp.getCardinalOffset2D() * coordMultiplier * 2;
                         }
                         else if (i == basePoints.Count - 1)
                         {
-                            var cp = segment.s2.getDirectionForStation(segment.s1);
+                            CardinalPoint cp = segment.s2.getDirectionForStation(segment.s1);
                             cp++;
                             cp++;
                             points[i] = basePoints[i] + cp.getCardinalOffset2D() * coordMultiplier * 2;
@@ -719,15 +686,12 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
 
             }
-            segmentDict.Sort((x, y) => (int)(y.First - x.First));
-            svgPart.Append(String.Join("\n", segmentDict.Select(x => x.Second).ToArray()));
+            segmentDict.Sort((x, y) => (int) (y.First - x.First));
+            svgPart.Append(string.Join("\n", segmentDict.Select(x => x.Second).ToArray()));
 
         }
 
-        private string getLineElement(Vector2[] points, MapTransportLine line, TransportInfo.TransportType tt)
-        {
-            return $@"<polyline points=""{string.Join(",", points.Select(x => "" + x.x + "," + x.y).ToArray())}"" class=""path{tt.ToString()} _lid_{line.lineId}"" style='stroke:rgb({ line.lineColor.r},{ line.lineColor.g},{ line.lineColor.b});' stroke-linejoin=""round"" stroke-linecap=""round""/>";
-        }
+        private string getLineElement(Vector2[] points, MapTransportLine line, TransportInfo.TransportType tt) => $@"<polyline points=""{string.Join(",", points.Select(x => "" + x.x + "," + x.y).ToArray())}"" class=""path{tt.ToString()} _lid_{line.lineId}"" style='stroke:rgb({ line.lineColor.r},{ line.lineColor.g},{ line.lineColor.b});' stroke-linejoin=""round"" stroke-linecap=""round""/>";
 
 
 

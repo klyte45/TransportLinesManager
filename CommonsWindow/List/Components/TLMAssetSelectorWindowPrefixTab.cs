@@ -94,7 +94,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             removeUndesired.textScale = 0.6f;
             removeUndesired.width = 20;
             removeUndesired.height = 20;
-            removeUndesired.tooltip = Locale.Get("TLM_REMOVE_UNWANTED_TOOLTIP");
+            removeUndesired.tooltip = Locale.Get("K45_TLM_REMOVE_UNWANTED_TOOLTIP");
             TLMUtils.initButton(removeUndesired, true, "ButtonMenu");
             removeUndesired.name = "DeleteLineButton";
             removeUndesired.isVisible = true;
@@ -134,7 +134,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             m_title.width = m_mainPanel.width - 30f;
             m_title.relativePosition = new Vector3(5, 5);
             m_title.textScale = 0.9f;
-            m_title.localeID = "TLM_ASSETS_FOR_PREFIX";
+            m_title.localeID = "K45_TLM_ASSETS_FOR_PREFIX";
         }
 
         private void CreateScrollPanel()
@@ -263,7 +263,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
                 }
 
                 TLMConfigWarehouse.ConfigIndex transportType = tsd.toConfigIndex();
-                m_title.text = string.Format(Locale.Get("TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), prefix + 1) : Locale.Get("TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
+                m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
 
                 m_isLoading = false;
             };

@@ -36,39 +36,39 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
 
         internal readonly string[] namingOptionsSufixo = new string[] {
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 0)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 1)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 2)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 3)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 4)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 5)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 6)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 14))
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 0)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 1)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 2)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 3)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 4)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 5)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 6)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 14))
             };
         internal readonly string[] namingOptionsPrefixo = new string[] {
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 0)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 1)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 2)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 3)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 4)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 5)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 6)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 7)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 8)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 9)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 10)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 11)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 12)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 13)),
-                Locale.Get("TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 14))
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 0)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 1)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 2)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 3)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 4)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 5)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 6)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 7)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 8)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 9)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 10)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 11)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 12)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 13)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 14))
             };
         internal readonly string[] namingOptionsSeparador = new string[] {
-                Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 0)),
-                Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 1)),
-                Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 2)),
-                Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 3)),
-                Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 4)),
-                Locale.Get("TLM_SEPARATOR",Enum.GetName(typeof(Separador), 5)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 0)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 1)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 2)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 3)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 4)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 5)),
             };
 
 
@@ -77,11 +77,11 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
             TLMUtils.doLog("Loading Options");
 
-            var overrideWorldInfoPanelLineOption = helper.AddCheckboxLocale("TLM_OVERRIDE_DEFAULT_LINE_INFO", TransportLinesManagerMod.overrideWorldInfoPanelLine, toggleOverrideDefaultLineInfoPanel);
+            var overrideWorldInfoPanelLineOption = helper.AddCheckboxLocale("K45_TLM_OVERRIDE_DEFAULT_LINE_INFO", TransportLinesManagerMod.overrideWorldInfoPanelLine, toggleOverrideDefaultLineInfoPanel);
 
             helper.AddSpace(10);
 
-            configSelector = helper.AddDropdownLocalized("TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, reloadData);
+            configSelector = helper.AddDropdownLocalized("K45_TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, reloadData);
 
             TLMUtils.createUIElement(out UITabstrip strip, helper.self.transform, "TabListTLMopt", new Vector4(5, 0, 730, 40));
             var effectiveOffsetY = strip.height;
@@ -274,15 +274,15 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         {
             switch (tab)
             {
-                case ConfigTabs.TransportSystem: return Locale.Get("TLM_TRANSPORT_SYSTEM");
-                case ConfigTabs.TicketPrices: return Locale.Get("TLM_DEFAULT_PRICE");
-                case ConfigTabs.NearLines: return Locale.Get("TLM_NEAR_LINES_CONFIG");
-                case ConfigTabs.Automation: return Locale.Get("TLM_AUTOMATION_CONFIG");
-                case ConfigTabs.AutoName_PT: return Locale.Get("TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT");
-                case ConfigTabs.AutoName_BD: return Locale.Get("TLM_AUTO_NAME_SETTINGS_OTHER");
-                case ConfigTabs.AutoName_PA: return Locale.Get("TLM_AUTO_NAME_SETTINGS_PUBLIC_AREAS");
-                case ConfigTabs.Palettes: return Locale.Get("TLM_CUSTOM_PALETTE_CONFIG");
-                case ConfigTabs.About: return Locale.Get("TLM_BETAS_EXTRA_INFO");
+                case ConfigTabs.TransportSystem: return Locale.Get("K45_TLM_TRANSPORT_SYSTEM");
+                case ConfigTabs.TicketPrices: return Locale.Get("K45_TLM_DEFAULT_PRICE");
+                case ConfigTabs.NearLines: return Locale.Get("K45_TLM_NEAR_LINES_CONFIG");
+                case ConfigTabs.Automation: return Locale.Get("K45_TLM_AUTOMATION_CONFIG");
+                case ConfigTabs.AutoName_PT: return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT");
+                case ConfigTabs.AutoName_BD: return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_OTHER");
+                case ConfigTabs.AutoName_PA: return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_AREAS");
+                case ConfigTabs.Palettes: return Locale.Get("K45_TLM_CUSTOM_PALETTE_CONFIG");
+                case ConfigTabs.About: return Locale.Get("K45_TLM_BETAS_EXTRA_INFO");
                 default:
                     throw new Exception($"Not supported: {tab}");
             }

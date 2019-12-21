@@ -82,7 +82,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_enableBudgetPerHour.textScale = 0.6f;
             m_enableBudgetPerHour.width = 40;
             m_enableBudgetPerHour.height = 40;
-            m_enableBudgetPerHour.tooltip = Locale.Get("TLM_USE_PER_PERIOD_BUDGET");
+            m_enableBudgetPerHour.tooltip = Locale.Get("K45_TLM_USE_PER_PERIOD_BUDGET");
             TLMUtils.initButton(m_enableBudgetPerHour, true, "ButtonMenu");
             m_enableBudgetPerHour.name = "EnableBudgetPerHour";
             m_enableBudgetPerHour.isVisible = true;
@@ -114,7 +114,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_disableBudgetPerHour.textScale = 0.6f;
             m_disableBudgetPerHour.width = 40;
             m_disableBudgetPerHour.height = 40;
-            m_disableBudgetPerHour.tooltip = Locale.Get("TLM_USE_SINGLE_BUDGET");
+            m_disableBudgetPerHour.tooltip = Locale.Get("K45_TLM_USE_SINGLE_BUDGET");
             TLMUtils.initButton(m_disableBudgetPerHour, true, "ButtonMenu");
             m_disableBudgetPerHour.name = "DisableBudgetPerHour";
             m_disableBudgetPerHour.isVisible = true;
@@ -141,7 +141,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_copyButton.textScale = 0.6f;
             m_copyButton.width = 40;
             m_copyButton.height = 40;
-            m_copyButton.tooltip = Locale.Get("TLM_COPY_BUDGET");
+            m_copyButton.tooltip = Locale.Get("K45_TLM_COPY_BUDGET");
             TLMUtils.initButton(m_copyButton, true, "ButtonMenu");
             m_copyButton.name = "Copy";
             m_copyButton.isVisible = true;
@@ -165,7 +165,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_pasteButton.textScale = 0.6f;
             m_pasteButton.width = 40;
             m_pasteButton.height = 40;
-            m_pasteButton.tooltip = Locale.Get("TLM_PASTE_BUDGET");
+            m_pasteButton.tooltip = Locale.Get("K45_TLM_PASTE_BUDGET");
             TLMUtils.initButton(m_pasteButton, true, "ButtonMenu");
             m_pasteButton.name = "Copy";
             m_pasteButton.isVisible = clipboard != null;
@@ -188,7 +188,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_absoluteCountMode.textScale = 0.6f;
             m_absoluteCountMode.width = 40;
             m_absoluteCountMode.height = 40;
-            m_absoluteCountMode.tooltip = Locale.Get("TLM_USE_ABSOLUTE_BUDGET");
+            m_absoluteCountMode.tooltip = Locale.Get("K45_TLM_USE_ABSOLUTE_BUDGET");
             TLMUtils.initButton(m_absoluteCountMode, true, "ButtonMenu");
             m_absoluteCountMode.name = "AbsoluteBudget";
             m_absoluteCountMode.isVisible = true;
@@ -225,7 +225,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_multiplierMode.textScale = 0.6f;
             m_multiplierMode.width = 40;
             m_multiplierMode.height = 40;
-            m_multiplierMode.tooltip = Locale.Get("TLM_USE_RELATIVE_BUDGET");
+            m_multiplierMode.tooltip = Locale.Get("K45_TLM_USE_RELATIVE_BUDGET");
             TLMUtils.initButton(m_multiplierMode, true, "ButtonMenu");
             m_multiplierMode.name = "RelativeBudget";
             m_multiplierMode.isVisible = true;
@@ -285,7 +285,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
         {
             if (!parent.PrefixSelectionMode)
             {
-                m_IgnorePrefix = m_uiHelper.AddCheckboxLocale("TLM_IGNORE_PREFIX_BUDGETING", false);
+                m_IgnorePrefix = m_uiHelper.AddCheckboxLocale("K45_TLM_IGNORE_PREFIX_BUDGETING", false);
                 m_IgnorePrefix.relativePosition = new Vector3(5f, 200f);
                 m_IgnorePrefix.eventCheckChanged += delegate (UIComponent comp, bool value)
                 {
@@ -354,7 +354,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
         private UISlider GenerateVerticalBudgetMultiplierField(UIHelperExtension uiHelper, int idx)
         {
-            UISlider bugdetSlider = (UISlider)uiHelper.AddSlider(Locale.Get("TLM_BUDGET_MULTIPLIER_LABEL"), 0f, 5, 0.05f, -1,
+            UISlider bugdetSlider = (UISlider)uiHelper.AddSlider(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_LABEL"), 0f, 5, 0.05f, -1,
                 (x) =>
                 {
 
@@ -386,7 +386,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             budgetSliderLabel.pivot = UIPivotPoint.TopCenter;
             budgetSliderLabel.textAlignment = UIHorizontalAlignment.Center;
             budgetSliderLabel.text = string.Format(" x{0:0.00}", 0);
-            budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", idx);
+            budgetSliderLabel.prefix = Locale.Get("K45_TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", idx);
             budgetSliderLabel.width = 40;
             budgetSliderLabel.font = UIHelperExtension.defaultFontCheckbox;
 
@@ -401,7 +401,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                     budgetSliderLabel.text = string.Format(" {0:0}", val * 20);
                     if (budgetSliderLabel.suffix == string.Empty)
                     {
-                        budgetSliderLabel.suffix = Locale.Get("TLM_BUDGET_MULTIPLIER_SUFFIX_ABSOLUTE_SHORT");
+                        budgetSliderLabel.suffix = Locale.Get("K45_TLM_BUDGET_MULTIPLIER_SUFFIX_ABSOLUTE_SHORT");
                     }
                 }
                 else
@@ -473,11 +473,11 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 {
                     if (multipliers.Length == 1)
                     {
-                        budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL_ALL");
+                        budgetSliderLabel.prefix = Locale.Get("K45_TLM_BUDGET_MULTIPLIER_PERIOD_LABEL_ALL");
                     }
                     else
                     {
-                        budgetSliderLabel.prefix = Locale.Get("TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", 0);
+                        budgetSliderLabel.prefix = Locale.Get("K45_TLM_BUDGET_MULTIPLIER_PERIOD_LABEL", 0);
                     }
                 }
                 else
@@ -550,11 +550,11 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             if (!isFromLine || TLMUtils.GetPrefixModoNomenclatura(transportType) != ModoNomenclatura.Nenhum)
             {
-                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int)idx + 1) : Locale.Get("TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int)idx + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
             }
             else
             {
-                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(parent.CurrentSelectedId), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(parent.CurrentSelectedId), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
             }
 
             return tsd;
@@ -565,7 +565,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             idx = parent.CurrentSelectedId;
             multipliers = TLMTransportLineExtension.instance.GetBudgetsMultiplier(parent.CurrentSelectedId);
             bte = TLMTransportLineExtension.instance;
-            m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(parent.CurrentSelectedId), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
+            m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(parent.CurrentSelectedId), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
             m_absoluteCountMode.isVisible = !TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(idx);
             m_multiplierMode.isVisible = TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(idx);
             return tsd;
@@ -657,7 +657,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_DayLine = m_uiHelper.AddCheckboxLocale("TRANSPORT_LINE_DAY", false);
             m_NightLine = m_uiHelper.AddCheckboxLocale("TRANSPORT_LINE_NIGHT", false);
             m_DayNightLine = m_uiHelper.AddCheckboxLocale("TRANSPORT_LINE_DAYNNIGHT", false);
-            m_DisabledLine = m_uiHelper.AddCheckboxLocale("TLM_TRANSPORT_LINE_DISABLED", false);
+            m_DisabledLine = m_uiHelper.AddCheckboxLocale("K45_TLM_TRANSPORT_LINE_DISABLED", false);
         }
 
         #endregion

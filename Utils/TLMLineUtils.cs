@@ -1184,7 +1184,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             List<string> saida = new List<string>();
             if (prefixes.Contains(0))
-                saida.Add(Locale.Get("TLM_UNPREFIXED_SHORT"));
+                saida.Add(Locale.Get("K45_TLM_UNPREFIXED_SHORT"));
             uint sequenceInit = 0;
             bool isInSequence = false;
             for (uint i = 1; i < options.Length; i++)
@@ -1223,7 +1223,7 @@ namespace Klyte.TransportLinesManager.Utils
                 isInSequence = false;
             }
             if (prefixes.Contains(65))
-                saida.Add(Locale.Get("TLM_REGIONAL_SHORT"));
+                saida.Add(Locale.Get("K45_TLM_REGIONAL_SHORT"));
             return string.Join(" ", saida.ToArray());
         }
         internal static string getTransportSystemPrefixName(TLMConfigWarehouse.ConfigIndex index, uint prefix)

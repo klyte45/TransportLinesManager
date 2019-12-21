@@ -173,9 +173,9 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.OFFICE_SERVICE_CONFIG:
                     return "DISTRICT_OFFICE";
                 case ConfigIndex.ADDRESS_NAME_CONFIG:
-                    return "TLM_ROAD_NAMING_STOP";
+                    return "K45_TLM_ROAD_NAMING_STOP";
                 case ConfigIndex.PARKAREA_NAME_CONFIG:
-                    return "TLM_PARKAREA_NAMING_STOP";
+                    return "K45_TLM_PARKAREA_NAMING_STOP";
                 case ConfigIndex.ROAD_SERVICE_CONFIG:
                 case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG:
                 case ConfigIndex.GARBAGE_SERVICE_CONFIG:
@@ -685,7 +685,7 @@ namespace Klyte.TransportLinesManager
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
             TRAM_CONFIG = TransportInfo.TransportType.Tram << 16,
             METRO_CONFIG = TransportInfo.TransportType.Metro << 16,
-            BUS_CONFIG = TransportInfo.TransportType.Bus << 16 | 0x800000,
+            BUS_CONFIG = (TransportInfo.TransportType.Bus << 16) | 0x800000,
             EVAC_BUS_CONFIG = TransportInfo.TransportType.EvacuationBus << 16,
             PLANE_CONFIG = TransportInfo.TransportType.Airplane << 16,
             SHIP_CONFIG = TransportInfo.TransportType.Ship << 16,
@@ -695,8 +695,8 @@ namespace Klyte.TransportLinesManager
             TOUR_PED_CONFIG = TransportInfo.TransportType.Pedestrian << 16,
             TOUR_BUS_CONFIG = TransportInfo.TransportType.TouristBus << 16,
             BALLOON_CONFIG = TransportInfo.TransportType.HotAirBalloon << 16,
-            BLIMP_CONFIG = TransportInfo.TransportType.Airplane << 16 | 0x800000,
-            FERRY_CONFIG = TransportInfo.TransportType.Ship << 16 | 0x800000,
+            BLIMP_CONFIG = (TransportInfo.TransportType.Airplane << 16) | 0x800000,
+            FERRY_CONFIG = (TransportInfo.TransportType.Ship << 16) | 0x800000,
 
 
 

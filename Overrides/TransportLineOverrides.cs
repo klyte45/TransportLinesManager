@@ -11,14 +11,11 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
-    class TransportLineOverrides : Redirector<TransportLineOverrides>
+    internal class TransportLineOverrides : Redirector<TransportLineOverrides>
     {
         #region Hooking
 
-        private static bool preventDefault()
-        {
-            return false;
-        }
+        private static bool preventDefault() => false;
 
         public override void AwakeBody()
         {
@@ -82,10 +79,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
         #region On Line Create
 
-        public static void preDoAutomation(ushort lineID, ref TransportLine.Flags __state)
-        {
-            __state = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags;
-        }
+        public static void preDoAutomation(ushort lineID, ref TransportLine.Flags __state) => __state = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags;
 
         public static void doAutomation(ushort lineID, TransportLine.Flags __state)
         {
@@ -126,7 +120,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 bool activeDayNightManagedByTLM = TLMLineUtils.isPerHourBudget(lineID);
                 if (t.m_lineNumber != 0 && t.m_stops != 0)
                 {
-                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort)(TLMLineUtils.getBudgetMultiplierLine(lineID) * 100);
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort) (TLMLineUtils.getBudgetMultiplierLine(lineID) * 100);
                 }
 
                 unchecked
@@ -136,12 +130,12 @@ namespace Klyte.TransportLinesManager.Overrides
                     bool zeroed = false;
                     if ((activeDayNightManagedByTLM || (isNight && night) || (!isNight && day)) && Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget == 0)
                     {
-                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags |= (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
+                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags |= (TransportLine.Flags) TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
                         zeroed = true;
                     }
                     else
                     {
-                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~(TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
+                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~(TransportLine.Flags) TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
                     }
                     TLMUtils.doLog("activeDayNightManagedByTLM = {0}; zeroed = {1}", activeDayNightManagedByTLM, zeroed);
                     if (activeDayNightManagedByTLM)
@@ -169,10 +163,7 @@ namespace Klyte.TransportLinesManager.Overrides
         #endregion
 
         #region Ticket Override
-        public static bool GetTicketPricePre(ushort vehicleID, ref Vehicle vehicleData, ref int __result)
-        {
-            return ticketPriceForPrefix(vehicleID, ref vehicleData, ref __result);
-        }
+        public static bool GetTicketPricePre(ushort vehicleID, ref Vehicle vehicleData, ref int __result) => ticketPriceForPrefix(vehicleID, ref vehicleData, ref __result);
 
         private static bool ticketPriceForPrefix(ushort vehicleID, ref Vehicle vehicleData, ref int __result)
         {
@@ -218,7 +209,7 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             if (vehicleData.m_transportLine == 0)
             {
-                __result = (int)(def.GetTransportExtension().GetDefaultTicketPrice(0) * multiplier);
+                __result = (int) (def.GetTransportExtension().GetDefaultTicketPrice(0) * multiplier);
                 return false;
             }
             else
@@ -233,7 +224,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     prefixValue = def.GetTransportExtension().GetTicketPrice(TLMLineUtils.getPrefix(vehicleData.m_transportLine));
                 }
 
-                __result = (int)(multiplier * prefixValue);
+                __result = (int) (multiplier * prefixValue);
                 return false;
             }
         }
@@ -275,8 +266,8 @@ namespace Klyte.TransportLinesManager.Overrides
                             return;
                         }
 
-                        var ext = tsd.GetTransportExtension();
-                        var prefix = TLMLineUtils.getPrefix(transportLine);
+                        ITLMTransportTypeExtension ext = tsd.GetTransportExtension();
+                        uint prefix = TLMLineUtils.getPrefix(transportLine);
 
                         if (ext.IsUsingColorForModel(prefix))
                         {
@@ -310,15 +301,14 @@ namespace Klyte.TransportLinesManager.Overrides
             if (findTargetStop && (data.Info.GetAI() is BusAI || data.Info.GetAI() is TramAI) && data.m_transportLine > 0)
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[data.m_transportLine];
-                data.m_targetBuilding = t.GetStop(SimulationManager.instance.m_randomizer.Int32((uint)t.CountStops(data.m_transportLine)));
+                data.m_targetBuilding = t.GetStop(SimulationManager.instance.m_randomizer.Int32((uint) t.CountStops(data.m_transportLine)));
             }
         }
         #endregion
 
-        public override void doLog(string text, params object[] param)
-        {
-            TLMUtils.doLog(text, param);
-        }
+
+
+        public override void doLog(string text, params object[] param) => TLMUtils.doLog(text, param);
 
     }
 }

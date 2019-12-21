@@ -4,6 +4,6 @@ namespace Klyte.TransportLinesManager.Utils
 {
     public sealed class TLMResourceLoader : KlyteResourceLoader<TLMResourceLoader>
     {
-        protected override string prefix => "Klyte.TransportLinesManager.";
+        protected override string prefix => "Klyte.";
     }
 }

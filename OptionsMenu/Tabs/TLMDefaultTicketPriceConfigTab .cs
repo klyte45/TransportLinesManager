@@ -18,7 +18,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             ((UIPanel)group72.self).wrapLayout = true;
             ((UIPanel)group72.self).width = 730;
 
-            group72.AddLabel(Locale.Get("TLM_DEFAULT_PRICE"));
+            group72.AddLabel(Locale.Get("K45_TLM_DEFAULT_PRICE"));
             group72.AddSpace(15);
 
             foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableTicketTransportCategories)

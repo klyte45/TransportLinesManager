@@ -1,7 +1,5 @@
 using ColossalFramework;
 using ColossalFramework.UI;
-using Klyte.Commons;
-using Klyte.Commons.UI;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.LineDetailWindow;
@@ -73,19 +71,9 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public bool ForceShowStopsDistances
-        {
-            get {
-                return true;
-            }
-        }
+        public bool ForceShowStopsDistances => true;
 
-        public TransportInfo CurrentTransportInfo
-        {
-            get {
-                return Singleton<TransportTool>.instance.m_prefab;
-            }
-        }
+        public TransportInfo CurrentTransportInfo => Singleton<TransportTool>.instance.m_prefab;
         public void Update()
         {
             if (!GameObject.FindGameObjectWithTag("GameController") || ((GameObject.FindGameObjectWithTag("GameController")?.GetComponent<ToolController>())?.m_mode & ItemClass.Availability.Game) == ItemClass.Availability.None)
@@ -134,10 +122,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public void AutoName(ushort m_LineID)
-        {
-            TLMLineUtils.setLineName(m_LineID, TLMLineUtils.calculateAutoName(m_LineID));
-        }
+        public void AutoName(ushort m_LineID) => TLMLineUtils.setLineName(m_LineID, TLMLineUtils.calculateAutoName(m_LineID));
 
 
         private void initNearLinesOnWorldInfoPanel()
@@ -153,7 +138,9 @@ namespace Klyte.TransportLinesManager
                     UIComponent parent2 = wip.GetComponent<UIComponent>();
 
                     if (parent2 == null)
+                    {
                         continue;
+                    }
 
                     parent2.eventVisibilityChanged += EventWIPChanged;
                     parent2.eventPositionChanged += EventWIPChanged;
@@ -162,7 +149,9 @@ namespace Klyte.TransportLinesManager
                     UIPanel parent3 = GameObject.Find("UIView").transform.GetComponentInChildren<PublicTransportWorldInfoPanel>().gameObject.GetComponent<UIPanel>();
 
                     if (parent3 == null)
+                    {
                         return;
+                    }
 
                     parent3.eventVisibilityChanged += (component, value) =>
                     {
@@ -192,7 +181,7 @@ namespace Klyte.TransportLinesManager
             ushort lineId = 0;
             while (lineId == 0)
             {
-                lineId = (ushort)(typeof(PublicTransportWorldInfoPanel).GetMethod("GetLineID", System.Reflection.BindingFlags.NonPublic
+                lineId = (ushort) (typeof(PublicTransportWorldInfoPanel).GetMethod("GetLineID", System.Reflection.BindingFlags.NonPublic
                     | System.Reflection.BindingFlags.Instance).Invoke(ptwip, new object[0]));
             }
             TLMController.instance.lineInfoPanel.openLineInfo(lineId);
@@ -210,10 +199,10 @@ namespace Klyte.TransportLinesManager
                 {
                     linesPanelObj = initPanelNearLinesOnWorldInfoPanel(parent);
                 }
-                var prop = typeof(global::WorldInfoPanel).GetField("m_InstanceID", System.Reflection.BindingFlags.NonPublic
+                System.Reflection.FieldInfo prop = typeof(global::WorldInfoPanel).GetField("m_InstanceID", System.Reflection.BindingFlags.NonPublic
                     | System.Reflection.BindingFlags.Instance);
-                var wip = parent.gameObject.GetComponent<global::WorldInfoPanel>();
-                ushort buildingId = ((InstanceID)(prop.GetValue(wip))).Building;
+                WorldInfoPanel wip = parent.gameObject.GetComponent<global::WorldInfoPanel>();
+                ushort buildingId = ((InstanceID) (prop.GetValue(wip))).Building;
                 if (lastBuildingSelected == buildingId && !force)
                 {
                     return;
@@ -224,7 +213,7 @@ namespace Klyte.TransportLinesManager
                 }
                 Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId];
 
-                List<ushort> nearLines = new List<ushort>();
+                var nearLines = new List<ushort>();
 
                 TLMLineUtils.GetNearLines(b.CalculateSidewalkPosition(), 120f, ref nearLines);
                 bool showPanel = nearLines.Count > 0;
@@ -279,7 +268,7 @@ namespace Klyte.TransportLinesManager
             title.autoSize = false;
             title.width = saida.width;
             title.textAlignment = UIHorizontalAlignment.Left;
-            title.localeID = "TLM_NEAR_LINES";
+            title.localeID = "K45_TLM_NEAR_LINES";
             title.useOutline = true;
             title.height = 18;
             return saida.transform;
@@ -302,14 +291,8 @@ namespace Klyte.TransportLinesManager
             initNearLinesOnWorldInfoPanel();
         }
 
-        public void OpenTLMPanel()
-        {
-            KlyteModsPanel.instance.OpenAt(ModTab.TransportLinesManager);
-        }
-        public void CloseTLMPanel()
-        {
-            KlyteCommonsMod.CloseKCPanel();
-        }
+        public void OpenTLMPanel() => TransportLinesManagerMod.instance.OpenPanelAtModTab();
+        public void CloseTLMPanel() => TransportLinesManagerMod.instance.ClosePanel();
 
         private TLMDepotWorldInfoPanelPrefixListsParent initDepotAIPrefixListContainer(UIComponent parent)
         {
@@ -319,17 +302,25 @@ namespace Klyte.TransportLinesManager
             return saida;
         }
 
-        private InstanceID m_lastWipId;
+        private ushort m_lastWipId;
 
         private void updateDepotPrefixLists(UIComponent parent)
         {
             if (parent != null)
             {
-                TLMDepotWorldInfoPanelPrefixListsParent depotLists = parent.GetComponentInChildren<TLMDepotWorldInfoPanelPrefixListsParent>();
-                var buildingId = WorldInfoPanel.GetCurrentInstanceID();
-                if (m_lastWipId != buildingId)
+
+                InstanceID buildingId = WorldInfoPanel.GetCurrentInstanceID();
+                if (buildingId.Building > 0 && m_lastWipId != buildingId.Building)
                 {
-                    if (Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId.Building].Info.GetAI() is DepotAI ai)
+
+
+                    TLMDepotWorldInfoPanelPrefixListsParent depotLists = parent.GetComponentInChildren<TLMDepotWorldInfoPanelPrefixListsParent>();
+                    if (depotLists == null)
+                    {
+                        depotLists = initDepotAIPrefixListContainer(parent);
+                    }
+
+                    if (Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId.Building].Info?.GetAI() is DepotAI)
                     {
                         depotLists.isVisible = true;
                         depotLists.WipOpen(ref buildingId);
@@ -338,7 +329,7 @@ namespace Klyte.TransportLinesManager
                     {
                         depotLists.isVisible = false;
                     }
-                    m_lastWipId = buildingId;
+                    m_lastWipId = buildingId.Building;
                 }
 
             }

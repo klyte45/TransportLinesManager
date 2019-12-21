@@ -86,7 +86,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             var result = Enum.GetValues(typeof(TLMLineIcon)).OfType<TLMLineIcon>().Select(x =>
             {
-                return Locale.Get("TLM_LINE_ICON_ENUM", x.ToString());
+                return Locale.Get("K45_TLM_LINE_ICON_ENUM", x.ToString());
             }).ToArray();
 
             if (option0 != null)

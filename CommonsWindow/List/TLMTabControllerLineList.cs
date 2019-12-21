@@ -105,7 +105,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_autoNameAll.textScale = 0.6f;
             m_autoNameAll.width = 40;
             m_autoNameAll.height = 40;
-            m_autoNameAll.tooltip = Locale.Get("TLM_AUTO_NAME_ALL_TOOLTIP");
+            m_autoNameAll.tooltip = Locale.Get("K45_TLM_AUTO_NAME_ALL_TOOLTIP");
             TLMUtils.initButton(m_autoNameAll, true, "ButtonMenu");
             m_autoNameAll.name = "AutoNameAll";
             m_autoNameAll.isVisible = true;
@@ -130,7 +130,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_autoColorAll.textScale = 0.6f;
             m_autoColorAll.width = 40;
             m_autoColorAll.height = 40;
-            m_autoColorAll.tooltip = Locale.Get("TLM_AUTO_COLOR_ALL_TOOLTIP");
+            m_autoColorAll.tooltip = Locale.Get("K45_TLM_AUTO_COLOR_ALL_TOOLTIP");
             TLMUtils.initButton(m_autoColorAll, true, "ButtonMenu");
             m_autoColorAll.name = "AutoColorAll";
             m_autoColorAll.isVisible = true;
@@ -166,7 +166,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             codColor.textAlignment = UIHorizontalAlignment.Center;
             codColor.prefix = Locale.Get("PUBLICTRANSPORT_LINECOLOR");
             codColor.text = "/";
-            codColor.suffix = Locale.Get("TLM_CODE_SHORT");
+            codColor.suffix = Locale.Get("K45_TLM_CODE_SHORT");
             codColor.eventClicked += CodColor_eventClicked;
 
             TLMUtils.createUIElement(out UILabel lineName, titleLine.transform, "lineName");

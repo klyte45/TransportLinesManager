@@ -191,7 +191,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
                 if (!TLMTransportLineExtension.instance.IsUsingCustomConfig(lineID) || !TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(lineID))
                 {
                     m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.getEffectiveBugdet(lineID));//585+1/7 = frames/week  
-                    m_lineBudgetLabel.tooltip = string.Format(Locale.Get("TLM_LINE_BUDGET_EXPLAIN_2"),
+                    m_lineBudgetLabel.tooltip = string.Format(Locale.Get("K45_TLM_LINE_BUDGET_EXPLAIN_2"),
                         TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()),
                         overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f, TLMLineUtils.getEffectiveBugdet(lineID));
                     m_lineBudgetLabel.isVisible = true;
@@ -317,7 +317,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
                 m_perHourBudgetInfo.verticalAlignment = UIVerticalAlignment.Middle;
                 m_perHourBudgetInfo.textAlignment = UIHorizontalAlignment.Center;
                 m_perHourBudgetInfo.textScale = 1f;
-                m_perHourBudgetInfo.localeID = "TLM_PER_HOUR_BUDGET_ACTIVE_LABEL";
+                m_perHourBudgetInfo.localeID = "K45_TLM_PER_HOUR_BUDGET_ACTIVE_LABEL";
                 m_perHourBudgetInfo.wordWrap = true;
                 m_perHourBudgetInfo.eventTextChanged += constraintedScale;
                 constraintedScale(m_perHourBudgetInfo, "");
@@ -334,7 +334,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             buttonAutoName.textScale = 0.6f;
             buttonAutoName.width = 15;
             buttonAutoName.height = 15;
-            buttonAutoName.tooltip = Locale.Get("TLM_AUTO_NAME_SIMPLE_BUTTON_TOOLTIP");
+            buttonAutoName.tooltip = Locale.Get("K45_TLM_AUTO_NAME_SIMPLE_BUTTON_TOOLTIP");
             TLMUtils.initButton(buttonAutoName, true, "ButtonMenu");
             buttonAutoName.name = "AutoName";
             buttonAutoName.isVisible = true;
@@ -350,7 +350,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             buttonAutoColor.textScale = 0.6f;
             buttonAutoColor.width = 15;
             buttonAutoColor.height = 15;
-            buttonAutoColor.tooltip = Locale.Get("TLM_AUTO_COLOR_SIMPLE_BUTTON_TOOLTIP");
+            buttonAutoColor.tooltip = Locale.Get("K45_TLM_AUTO_COLOR_SIMPLE_BUTTON_TOOLTIP");
             TLMUtils.initButton(buttonAutoColor, true, "ButtonMenu");
             buttonAutoColor.name = "AutoColor";
             buttonAutoColor.isVisible = true;

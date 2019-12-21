@@ -104,7 +104,7 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (!noneOption)
             {
-                string unprefixedName = Locale.Get("TLM_UNPREFIXED");
+                string unprefixedName = Locale.Get("K45_TLM_UNPREFIXED");
                 if (nameReferenceSystem != TLMCW.ConfigIndex.NIL)
                 {
                     string prefixName = TLMLineUtils.getTransportSystemPrefixName(nameReferenceSystem, 0);
@@ -205,7 +205,7 @@ namespace Klyte.TransportLinesManager.Utils
             List<string> saida = new List<string>();
             if (addDefaults)
             {
-                saida.AddRange(new string[] { Locale.Get("TLM_ALL"), Locale.Get("TLM_UNPREFIXED") });
+                saida.AddRange(new string[] { Locale.Get("K45_TLM_ALL"), Locale.Get("K45_TLM_UNPREFIXED") });
             }
             else
             {

@@ -37,7 +37,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             controlContainer.isVisible = false;
             controlContainer.name = "TLMPanel";
 
-            TLMUtils.createUIElement(out UIPanel _mainPanel, GetComponent<UIPanel>().transform, "TLMListPanel", new Vector4(0, 0, controlContainer.parent.width, controlContainer.parent.height));
+            TLMUtils.createUIElement(out UIPanel _mainPanel, GetComponent<UIPanel>().transform, "TLMListPanel", new Vector4(0, 0, 885, controlContainer.parent.height));
             mainPanel = _mainPanel;
             mainPanel.backgroundSprite = "MenuPanel2";
 
@@ -88,23 +88,23 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void SetViewMode(UIComponent component, int value)
         {
-            if (!GetComponent<UIComponent>().isVisible)
-            {
+            //if (!GetComponent<UIComponent>().isVisible)
+            //{
                 return;
-            }
-            switch ((UiCategoryTab)value)
-            {
-                case UiCategoryTab.LineListing:
-                case UiCategoryTab.DepotListing:
-                    InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.Transport, InfoManager.SubInfoMode.Default);
-                    return;
-                case UiCategoryTab.TourListing:
-                    InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.Tours, InfoManager.SubInfoMode.Default);
-                    return;
-                default:
-                    InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.None, InfoManager.SubInfoMode.Default);
-                    return;
-            }
+            //}
+            //switch ((UiCategoryTab)value)
+            //{
+            //    case UiCategoryTab.LineListing:
+            //    case UiCategoryTab.DepotListing:
+            //        InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.Transport, InfoManager.SubInfoMode.Default);
+            //        return;
+            //    case UiCategoryTab.TourListing:
+            //        InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.Tours, InfoManager.SubInfoMode.Default);
+            //        return;
+            //    default:
+            //        InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.None, InfoManager.SubInfoMode.Default);
+            //        return;
+            //}
         }
 
         internal void OpenAt(UiCategoryTab cat, TransportSystemDefinition tsd)
@@ -216,19 +216,19 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             buildingNameLabel.autoSize = false;
             buildingNameLabel.area = new Vector4(200, 10, 198, 18);
             buildingNameLabel.textAlignment = UIHorizontalAlignment.Center;
-            buildingNameLabel.text = Locale.Get("TLM_BUILDING_NAME_LABEL");
+            buildingNameLabel.text = Locale.Get("K45_TLM_BUILDING_NAME_LABEL");
 
             TLMUtils.createUIElement(out UILabel vehicleCapacityLabel, titleLine.transform, "vehicleCapacityLabel");
             vehicleCapacityLabel.autoSize = false;
             vehicleCapacityLabel.area = new Vector4(400, 10, 200, 18);
             vehicleCapacityLabel.textAlignment = UIHorizontalAlignment.Center;
-            vehicleCapacityLabel.text = Locale.Get("TLM_VEHICLE_CAPACITY_LABEL");
+            vehicleCapacityLabel.text = Locale.Get("K45_TLM_VEHICLE_CAPACITY_LABEL");
 
             TLMUtils.createUIElement(out m_directionLabel, titleLine.transform, "directionLabel");
             m_directionLabel.autoSize = false;
             m_directionLabel.area = new Vector4(600, 10, 200, 18);
             m_directionLabel.textAlignment = UIHorizontalAlignment.Center;
-            m_directionLabel.text = Locale.Get("TLM_DIRECTION_LABEL");
+            m_directionLabel.text = Locale.Get("K45_TLM_DIRECTION_LABEL");
 
         }
 
@@ -238,7 +238,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             titlebar.autoSize = false;
             titlebar.text = "Transport Lines Manager v" + TransportLinesManagerMod.version;
             titlebar.textAlignment = UIHorizontalAlignment.Center;
-            TLMUtils.createDragHandle(titlebar, KlyteModsPanel.instance.mainPanel);
 
             TLMUtils.createUIElement(out UIButton closeButton, mainPanel.transform, "CloseButton", new Vector4(mainPanel.width - 37, 5, 32, 32));
             TLMUtils.initButton(closeButton, false, "buttonclose", true);
@@ -251,7 +250,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             TLMUtils.createUIElement(out UISprite logo, mainPanel.transform, "TLMLogo", new Vector4(22, 5f, 32, 32));
             logo.atlas = TLMCommonTextureAtlas.instance.atlas;
             logo.spriteName = "TransportLinesManagerIconHovered";
-            TLMUtils.createDragHandle(logo, KlyteModsPanel.instance.mainPanel);
         }
 
         private static UIComponent CreateContentTemplate(float width, float height, bool scrollable)
@@ -339,10 +337,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             switch (tab)
             {
-                case UiCategoryTab.LineListing: return Locale.Get("TLM_LIST_LINES_TOOLTIP");
-                case UiCategoryTab.DepotListing: return Locale.Get("TLM_LIST_DEPOT_TOOLTIP");
-                case UiCategoryTab.TourListing: return Locale.Get("TLM_LIST_TOURS_TOOLTIP");
-                case UiCategoryTab.PrefixEditor: return Locale.Get("TLM_CITY_ASSETS_SELECTION");
+                case UiCategoryTab.LineListing: return Locale.Get("K45_TLM_LIST_LINES_TOOLTIP");
+                case UiCategoryTab.DepotListing: return Locale.Get("K45_TLM_LIST_DEPOT_TOOLTIP");
+                case UiCategoryTab.TourListing: return Locale.Get("K45_TLM_LIST_TOURS_TOOLTIP");
+                case UiCategoryTab.PrefixEditor: return Locale.Get("K45_TLM_CITY_ASSETS_SELECTION");
                 default:
                     throw new Exception($"Not supported: {tab}");
             }

@@ -1,10 +1,10 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.TextureAtlas;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
-using Klyte.Commons.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -19,9 +19,7 @@ namespace Klyte.TransportLinesManager.UI
 
         internal ILinearMapParentInterface parent
         {
-            private get {
-                return m_parent;
-            }
+            private get => m_parent;
             set {
                 if (m_parent == null)
                 {
@@ -51,14 +49,8 @@ namespace Klyte.TransportLinesManager.UI
         private bool showIntersections = true;
         private bool showExtraStopInfo = false;
 
-        public bool getVisible()
-        {
-            return mainContainer.isVisible;
-        }
-        public void setVisible(bool value)
-        {
-            mainContainer.isVisible = value;
-        }
+        public bool getVisible() => mainContainer.isVisible;
+        public void setVisible(bool value) => mainContainer.isVisible = value;
 
 
         public GameObject containerGameObject
@@ -78,12 +70,7 @@ namespace Klyte.TransportLinesManager.UI
         }
 
 
-        public string autoName
-        {
-            get {
-                return m_autoName;
-            }
-        }
+        public string autoName => m_autoName;
 
         public void setLinearMapColor(Color c)
         {
@@ -201,12 +188,12 @@ namespace Klyte.TransportLinesManager.UI
 
         public TransportLine updateSubIconLayer()
         {
-            var t = TransportManager.instance.m_lines.m_buffer[parent.CurrentSelectedId];
+            TransportLine t = TransportManager.instance.m_lines.m_buffer[parent.CurrentSelectedId];
             TLMLineUtils.getLineActive(ref t, out bool day, out bool night);
             bool zeroed;
             unchecked
             {
-                zeroed = (t.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
+                zeroed = (t.m_flags & (TransportLine.Flags) TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
             }
             if (!day || !night || zeroed)
             {
@@ -303,16 +290,13 @@ namespace Klyte.TransportLinesManager.UI
                 else
                 {
                     TLMUtils.doLog("Drag Funcionou! {0}/{1} ({2}-{3})", eventParam.source.name, dsi.gameObject.name, res.gameObject.name, idxRes);
-                    VehicleAI ai = (VehicleAI)Singleton<VehicleManager>.instance.m_vehicles.m_buffer[dvi.vehicleId].Info.GetAI();
+                    var ai = (VehicleAI) Singleton<VehicleManager>.instance.m_vehicles.m_buffer[dvi.vehicleId].Info.GetAI();
                     ai.SetTarget(dvi.vehicleId, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[dvi.vehicleId], dsi.nodeId);
                 }
             }
         }
 
-        private void draggingVehicle(UIComponent component, UIDragEventParameter eventParam)
-        {
-            component.GetComponentInChildren<DraggableVehicleInfo>().isDragging = true;
-        }
+        private void draggingVehicle(UIComponent component, UIDragEventParameter eventParam) => component.GetComponentInChildren<DraggableVehicleInfo>().isDragging = true;
 
 
         private void updateVehiclePosition(UILabel vehicleLabel)
@@ -326,7 +310,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 ushort vehicleId = dvi.vehicleId;
                 ushort stopId = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding;
-                var labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
+                UILabel labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
                 float destX = stationOffsetX[stopId] - labelStation.width;
                 if (Singleton<TransportManager>.instance.m_lines.m_buffer[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_transportLine].GetStop(0) == stopId && (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & Vehicle.Flags.Stopped) != 0)
                 {
@@ -481,7 +465,7 @@ namespace Klyte.TransportLinesManager.UI
                 infoToggle.width = 50;
                 infoToggle.height = 70;
                 infoToggle.wordWrap = true;
-                infoToggle.localeID = "TLM_SHOW_EXTRA_INFO";
+                infoToggle.localeID = "K45_TLM_SHOW_EXTRA_INFO";
                 infoToggle.isLocalized = true;
                 infoToggle.textScale = 0.8f;
                 infoToggle.eventClick += (x, y) =>
@@ -490,12 +474,12 @@ namespace Klyte.TransportLinesManager.UI
                     showExtraStopInfo = !showIntersections;
                     if (showIntersections)
                     {
-                        infoToggle.localeID = "TLM_SHOW_EXTRA_INFO";
+                        infoToggle.localeID = "K45_TLM_SHOW_EXTRA_INFO";
                         distanceToggle.isVisible = true;
                     }
                     else
                     {
-                        infoToggle.localeID = "TLM_SHOW_LINE_INTEGRATION_SHORT";
+                        infoToggle.localeID = "K45_TLM_SHOW_LINE_INTEGRATION_SHORT";
                         distanceToggle.isVisible = false;
                     }
                     redrawLine();
@@ -508,7 +492,7 @@ namespace Klyte.TransportLinesManager.UI
                 distanceToggle.width = 50;
                 distanceToggle.height = 20;
                 distanceToggle.wordWrap = true;
-                distanceToggle.tooltipLocaleID = "TLM_TOGGLE_DISTANCE_LINEAR_MAP";
+                distanceToggle.tooltipLocaleID = "K45_TLM_TOGGLE_DISTANCE_LINEAR_MAP";
                 distanceToggle.isTooltipLocalized = true;
                 distanceToggle.textScale = 0.8f;
                 distanceToggle.text = "Δd";
@@ -526,7 +510,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (showExtraStopInfo)
             {
-                foreach (var resLabel in residentCounters)
+                foreach (KeyValuePair<ushort, UILabel> resLabel in residentCounters)
                 {
                     TLMLineUtils.GetQuantityPassengerWaiting(resLabel.Key, out int residents, out int tourists, out int ttb);
                     resLabel.Value.text = residents.ToString();
@@ -538,7 +522,7 @@ namespace Klyte.TransportLinesManager.UI
                 TransportLine t = TransportManager.instance.m_lines.m_buffer[lineID];
                 Color lineColor = TransportManager.instance.GetLineColor(lineID);
                 int vehicleCount = t.CountVehicles(lineID);
-                List<ushort> oldItems = lineVehicles.Keys.ToList();
+                var oldItems = lineVehicles.Keys.ToList();
                 vehiclesOnStation.Clear();
                 for (int v = 0; v < vehicleCount; v++)
                 {
@@ -550,7 +534,7 @@ namespace Klyte.TransportLinesManager.UI
                         vehicleLabel = lineVehicles[vehicleId];
                         TLMLineUtils.GetVehicleCapacityAndFill(vehicleId, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId], out int fill, out int cap);
                         vehicleLabel.text = string.Format("{0}/{1}", fill, cap);
-                        var labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
+                        UILabel labelStation = residentCounters[Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding];
                         updateVehiclePosition(vehicleLabel);
                         oldItems.Remove(vehicleId);
                     }
@@ -614,7 +598,10 @@ namespace Klyte.TransportLinesManager.UI
             TransportLine t = TransportManager.instance.m_lines.m_buffer[lineID];
             TransportManager tm = Singleton<TransportManager>.instance;
 
-            if (stationName == null) stationName = "???";
+            if (stationName == null)
+            {
+                stationName = "???";
+            }
 
             TLMUtils.createUIElement(out UIButton stationButton, lineStationsPanel.transform);
             stationButton.relativePosition = new Vector3(offsetX - 13, 15f);
@@ -666,10 +653,10 @@ namespace Klyte.TransportLinesManager.UI
             stationButton.gameObject.transform.localEulerAngles = new Vector3(0, 0, 45);
             stationButton.eventClick += (component, eventParam) =>
             {
-                GameObject gameObject = GameObject.FindGameObjectWithTag("MainCamera");
+                var gameObject = GameObject.FindGameObjectWithTag("MainCamera");
                 if (gameObject != null)
                 {
-                    var cameraController = gameObject.GetComponent<CameraController>();
+                    CameraController cameraController = gameObject.GetComponent<CameraController>();
                     InstanceID x = default;
                     x.TransportLine = parent.CurrentSelectedId;
                     cameraController.SetTarget(x, location, false);
@@ -685,7 +672,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 if (showIntersections)
                 {
-                    var otherLinesIntersections = TLMLineUtils.SortLines(intersections, t);
+                    Dictionary<string, ushort> otherLinesIntersections = TLMLineUtils.SortLines(intersections, t);
                     UILabel distance = null;
                     int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0) + (cableCarStation != string.Empty ? 1 : 0);
 
@@ -737,7 +724,7 @@ namespace Klyte.TransportLinesManager.UI
                         }
                         else
                         {
-                            distance.text = (int)seg.m_averageLength + "m";
+                            distance.text = (int) seg.m_averageLength + "m";
                         }
                         distance.textScale = 0.7f;
                         distance.textAlignment = UIHorizontalAlignment.Center;
@@ -811,7 +798,7 @@ namespace Klyte.TransportLinesManager.UI
                     residentsWaiting.autoSize = false;
                     residentsWaiting.useOutline = true;
                     residentsWaiting.text = residents.ToString();
-                    residentsWaiting.tooltipLocaleID = "TLM_RESIDENTS_WAITING";
+                    residentsWaiting.tooltipLocaleID = "K45_TLM_RESIDENTS_WAITING";
                     residentsWaiting.backgroundSprite = "EmptySprite";
                     residentsWaiting.color = new Color32(0x12, 0x68, 0x34, 255);
                     residentsWaiting.width = normalWidth;
@@ -824,7 +811,7 @@ namespace Klyte.TransportLinesManager.UI
                     TLMUtils.createUIElement(out UILabel touristsWaiting, stationInfoStatsPanel.transform);
                     touristsWaiting.autoSize = false;
                     touristsWaiting.text = tourists.ToString();
-                    touristsWaiting.tooltipLocaleID = "TLM_TOURISTS_WAITING";
+                    touristsWaiting.tooltipLocaleID = "K45_TLM_TOURISTS_WAITING";
                     touristsWaiting.useOutline = true;
                     touristsWaiting.width = normalWidth;
                     touristsWaiting.height = 20;
@@ -838,7 +825,7 @@ namespace Klyte.TransportLinesManager.UI
                     TLMUtils.createUIElement(out UILabel timeTilBored, stationInfoStatsPanel.transform);
                     timeTilBored.autoSize = false;
                     timeTilBored.text = tourists.ToString();
-                    timeTilBored.tooltipLocaleID = "TLM_TIME_TIL_BORED";
+                    timeTilBored.tooltipLocaleID = "K45_TLM_TIME_TIL_BORED";
                     timeTilBored.useOutline = true;
                     timeTilBored.width = normalWidth;
                     timeTilBored.height = 20;
@@ -863,7 +850,7 @@ namespace Klyte.TransportLinesManager.UI
 
         }
 
-        Vector3 getStation(ushort lineId, ushort stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string harbor, out string taxiStand, out string regionalTrainStation, out string cableCarStation, out string prefix)
+        private Vector3 getStation(ushort lineId, ushort stopId, ItemClass.SubService ss, out string stationName, out List<ushort> linhas, out string airport, out string harbor, out string taxiStand, out string regionalTrainStation, out string cableCarStation, out string prefix)
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
@@ -882,10 +869,10 @@ namespace Klyte.TransportLinesManager.UI
             }
             TLMLineUtils.GetNearLines(location, 120f, ref linhas);
 
-            airport = String.Empty;
-            taxiStand = String.Empty;
-            harbor = String.Empty;
-            regionalTrainStation = String.Empty;
+            airport = string.Empty;
+            taxiStand = string.Empty;
+            harbor = string.Empty;
+            regionalTrainStation = string.Empty;
             cableCarStation = string.Empty;
 
             if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP))
