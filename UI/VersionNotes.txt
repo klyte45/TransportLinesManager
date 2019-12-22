@@ -6,3 +6,7 @@
 r1 
 	-Fixed: Configurations are not saved when using the mod by first time
 	-Fixed: Locale isn't properly loaded on first time
+r2
+	-Fixed: Old config files aren't being read, new config files aren't being saved in right folder
+r3
+	-Fixed: "K" button generated is always yellow

@@ -9,6 +9,7 @@ using Klyte.TransportLinesManager.WorldInfoPanelExt;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
@@ -29,7 +30,14 @@ namespace Klyte.TransportLinesManager
 
         //private UIPanel _cachedDefaultListingLinesPanel;
 
+        public static readonly string FOLDER_NAME = "TransportLinesManager";
+        public static readonly string FOLDER_PATH = TLMUtils.BASE_FOLDER_PATH + FOLDER_NAME;
+        public const string PALETTE_SUBFOLDER_NAME = "ColorPalettes";
+        public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
 
+        public static string palettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
+        public static string configsFolder { get; } = TLMConfigWarehouse.CONFIG_PATH;
+        public static string exportedMapsFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;
 
         internal TLMLineDetailWindow lineInfoPanel => m_lineInfoPanel;
         public Transform TransformLinearMap => FindObjectOfType<UIView>()?.transform;

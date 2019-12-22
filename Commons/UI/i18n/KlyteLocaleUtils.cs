@@ -69,7 +69,7 @@ namespace Klyte.Commons.i18n
         public static void ReloadLanguage()
         {
             m_localeStringsDictionary(m_localeManagerLocale(LocaleManager.instance))[new Locale.Key() { m_Identifier = m_defaultTestKey }] = "OK";
-            m_localeStringsDictionary(m_localeManagerLocale(LocaleManager.instance))[new Locale.Key() { m_Identifier = "K45_MOD_CONTROLLING_LOCALE" }] = "TLM";
+            m_localeStringsDictionary(m_localeManagerLocale(LocaleManager.instance))[new Locale.Key() { m_Identifier = "K45_MOD_CONTROLLING_LOCALE" }] = "Transport Lines Manager";
             if (m_alreadyLoading)
             {
                 return;

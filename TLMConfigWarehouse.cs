@@ -14,7 +14,7 @@ namespace Klyte.TransportLinesManager
     internal class TLMConfigWarehouse : ConfigWarehouseBase<TLMConfigWarehouse.ConfigIndex, TLMConfigWarehouse>
     {
         public const string CONFIG_FILENAME = "CityConfigV10";
-        public static readonly string CONFIG_PATH = TLMUtils.BASE_FOLDER_PATH + TransportLinesManagerMod.FOLDER_NAME + Path.DirectorySeparatorChar + "CityConfigs" + Path.DirectorySeparatorChar;
+        public static readonly string CONFIG_PATH = TLMUtils.BASE_FOLDER_PATH + TLMController.FOLDER_NAME + Path.DirectorySeparatorChar + "CityConfigs" + Path.DirectorySeparatorChar;
         public override string ConfigFilename => CONFIG_FILENAME;
         public override string ConfigPath => CONFIG_PATH;
         public const string TRUE_VALUE = "1";

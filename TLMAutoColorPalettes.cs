@@ -268,11 +268,11 @@ namespace Klyte.TransportLinesManager
 
         public static void SaveAll()
         {
-            TLMUtils.EnsureFolderCreation(TransportLinesManagerMod.palettesFolder);
+            TLMUtils.EnsureFolderCreation(TLMController.palettesFolder);
             var filesToSave = GetPalettesAsDictionary();
             foreach (var file in filesToSave)
             {
-                File.WriteAllText(TransportLinesManagerMod.palettesFolder + Path.DirectorySeparatorChar + file.Key + EXT_PALETTE, file.Value);
+                File.WriteAllText(TLMController.palettesFolder + Path.DirectorySeparatorChar + file.Key + EXT_PALETTE, file.Value);
             }
         }
 
@@ -281,16 +281,16 @@ namespace Klyte.TransportLinesManager
             var filesToSave = GetPalettesAsDictionary();
             if (m_palettes.ContainsKey(palette))
             {
-                File.WriteAllText(TransportLinesManagerMod.palettesFolder + Path.DirectorySeparatorChar + palette + EXT_PALETTE, m_palettes[palette].ToFileContent());
+                File.WriteAllText(TLMController.palettesFolder + Path.DirectorySeparatorChar + palette + EXT_PALETTE, m_palettes[palette].ToFileContent());
             }
         }
 
         private static void Load()
         {
             m_palettes = new Dictionary<string, AutoColorPalette>();
-            foreach (var filename in Directory.GetFiles(TransportLinesManagerMod.palettesFolder, "*" + EXT_PALETTE).Select(x => x.Split(Path.DirectorySeparatorChar).Last()))
+            foreach (var filename in Directory.GetFiles(TLMController.palettesFolder, "*" + EXT_PALETTE).Select(x => x.Split(Path.DirectorySeparatorChar).Last()))
             {
-                string fileContents = File.ReadAllText(TransportLinesManagerMod.palettesFolder + Path.DirectorySeparatorChar + filename, Encoding.UTF8);
+                string fileContents = File.ReadAllText(TLMController.palettesFolder + Path.DirectorySeparatorChar + filename, Encoding.UTF8);
                 var name = filename.Substring(0, filename.Length - 4);
                 m_palettes[name] = AutoColorPalette.FromFileContent(name, fileContents.Split(AutoColorPalette.ENTRY_SEPARATOR).Select(x => x?.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray());
                 TLMUtils.doLog("LOADED PALETTE ({0}) QTT: {1}", filename, m_palettes[name].Count);

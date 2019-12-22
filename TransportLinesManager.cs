@@ -13,7 +13,7 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 
-[assembly: AssemblyVersion("12.25.0.1")]
+[assembly: AssemblyVersion("12.25.0.3")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMResourceLoader, TLMController, TLMCommonTextureAtlas, TLMPublicTransportManagementPanel>
@@ -41,7 +41,7 @@ namespace Klyte.TransportLinesManager
         public override void Group9SettingsUI(UIHelperExtension group9)
         {
             group9.AddButton(Locale.Get("K45_TLM_DRAW_CITY_MAP"), TLMMapDrawer.drawCityMap);
-            group9.AddButton("Open generated map folder", () => ColossalFramework.Utils.OpenInFileBrowser(exportedMapsFolder));
+            group9.AddButton("Open generated map folder", () => ColossalFramework.Utils.OpenInFileBrowser(TLMController.exportedMapsFolder));
         }
 
         private readonly SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
@@ -70,14 +70,7 @@ namespace Klyte.TransportLinesManager
             set => instance.m_showDistanceInLinearMap.value = value;
         }
 
-        public static readonly string FOLDER_NAME = "TransportLinesManager";
-        public static readonly string FOLDER_PATH = TLMUtils.BASE_FOLDER_PATH + FOLDER_NAME;
-        public const string PALETTE_SUBFOLDER_NAME = "ColorPalettes";
-        public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
 
-        public static string palettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
-        public static string configsFolder { get; } = TLMConfigWarehouse.CONFIG_PATH;
-        public static string exportedMapsFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;
 
         public static SavedFloat ButtonPosX { get; } = new SavedFloat("K45_ButtonPosX", Settings.gameSettingsFile, 300, true);
         public static SavedFloat ButtonPosY { get; } = new SavedFloat("K45_ButtonPosY", Settings.gameSettingsFile, 20, true);
@@ -134,7 +127,7 @@ namespace Klyte.TransportLinesManager
                 bg.color = new Color32(96, 96, 96, byte.MaxValue);
                 m_modPanelButton = bg.AddUIComponent<UIButton>();
                 m_modPanelButton.disabledTextColor = new Color32(128, 128, 128, byte.MaxValue);
-                TLMUtils.initButton(m_modPanelButton, false, CommonTextureAtlas.instance.SpriteNames[1], false);
+                TLMUtils.initButton(m_modPanelButton, false, CommonTextureAtlas.instance.SpriteNames[0], false);
                 m_modPanelButton.atlas = CommonTextureAtlas.instance.atlas;
                 m_modPanelButton.relativePosition = new Vector3(5f, 0f);
                 m_modPanelButton.size = new Vector2(64, 64);

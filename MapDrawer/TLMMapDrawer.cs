@@ -220,7 +220,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 svg.addStation(station, transportLines);
             }
-            string cityMapsFolder = TransportLinesManagerMod.exportedMapsFolder + Path.DirectorySeparatorChar + $"{cityName} ({cityId})";
+            string cityMapsFolder = TLMController.exportedMapsFolder + Path.DirectorySeparatorChar + $"{cityName} ({cityId})";
             FileInfo fipalette = TLMUtils.EnsureFolderCreation(cityMapsFolder);
             string filename = cityMapsFolder + Path.DirectorySeparatorChar + currentTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".html";
             if (File.Exists(filename))
