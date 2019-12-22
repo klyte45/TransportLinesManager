@@ -78,11 +78,7 @@ namespace Klyte.Commons.i18n
             m_alreadyLoading = true;
             m_language = CurrentLanguageId.value;
             m_localeStringsDictionary(m_localeManagerLocale(LocaleManager.instance))[new Locale.Key() { m_Identifier = m_defaultTestKey }] = "OK";
-            ReadLanguage("en");
-            if (m_language != "en")
-            {
-                ReadLanguage(m_language == "" ? LocaleManager.instance.language.Substring(0, 2) : m_language);
-            }
+            ReadLanguage(m_language == "" ? LocaleManager.instance.language.Substring(0, 2) : m_language);
 
             RedrawUIComponents();
             m_alreadyLoading = false;
@@ -105,8 +101,13 @@ namespace Klyte.Commons.i18n
             }
         }
 
-        private static void ReadLanguage(string languageCode)
+        internal static void ReadLanguage(string languageCode)
         {
+
+            if (languageCode != "en")
+            {
+                ReadLanguage("en");
+            }
             string folderPath = $"{m_translateFilesPath}{languageCode}{Path.DirectorySeparatorChar}";
             var files = Directory.GetFiles(folderPath, "*.txt").ToList();
             files.Sort();

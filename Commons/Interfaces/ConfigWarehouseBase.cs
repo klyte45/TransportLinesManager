@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -72,12 +73,13 @@ namespace Klyte.Commons.Interfaces
             {
                 throw new Exception("CITY ID NÃO PODE SER NULO!!!!!");
             }
-            I result = new I
+            var result = new I
             {
                 cityId = cityId,
                 cityName = cityName
             };
-            SettingsFile settingFile = new SettingsFile
+            TLMUtils.EnsureFolderCreation(result.ConfigPath);
+            var settingFile = new SettingsFile
             {
                 pathName = result.thisPathName
             };
@@ -92,7 +94,7 @@ namespace Klyte.Commons.Interfaces
                     {
                         try
                         {
-                            T ci = (T)Enum.Parse(typeof(T), key);
+                            var ci = (T) Enum.Parse(typeof(T), key);
                             switch (ci.ToInt32(CultureInfo.CurrentCulture.NumberFormat) & TYPE_PART)
                             {
                                 case TYPE_BOOL:
@@ -132,7 +134,7 @@ namespace Klyte.Commons.Interfaces
         public List<int> getListInt(T i)
         {
             string listString = getFromFileString(i);
-            List<int> result = new List<int>();
+            var result = new List<int>();
             foreach (string s in listString.Split(LIST_SEPARATOR.ToCharArray()))
             {
                 result.Add(Int32Extensions.ParseOrDefault(s, 0));
@@ -195,25 +197,45 @@ namespace Klyte.Commons.Interfaces
 
         protected void setToFile(T i, string value)
         {
-            var data = GetSavedString(i);
-            if (value == null) data.Delete();
-            else data.value = value;
+            SavedString data = GetSavedString(i);
+            if (value == null)
+            {
+                data.Delete();
+            }
+            else
+            {
+                data.value = value;
+            }
 
             eventOnPropertyChanged?.Invoke(i, null, null, value);
         }
         protected void setToFile(T i, bool? value)
         {
-            var data = GetSavedBool(i);
-            if (value == null) data.Delete();
-            else data.value = value.Value;
+            SavedBool data = GetSavedBool(i);
+            if (value == null)
+            {
+                data.Delete();
+            }
+            else
+            {
+                data.value = value.Value;
+            }
+
             eventOnPropertyChanged?.Invoke(i, value, null, null);
         }
 
         protected void setToFile(T i, int? value)
         {
-            var data = GetSavedInt(i);
-            if (value == null) data.Delete();
-            else data.value = value.Value;
+            SavedInt data = GetSavedInt(i);
+            if (value == null)
+            {
+                data.Delete();
+            }
+            else
+            {
+                data.value = value.Value;
+            }
+
             eventOnPropertyChanged?.Invoke(i, null, value, null);
         }
 

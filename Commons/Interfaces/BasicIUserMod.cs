@@ -5,7 +5,6 @@ using ColossalFramework.UI;
 using ICities;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.i18n;
-using Klyte.Commons.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -171,8 +170,8 @@ namespace Klyte.Commons.Interfaces
                 {
                     File.WriteAllText($"{m_translateFilesPath}{lang}{Path.DirectorySeparatorChar}0_common.txt", content);
                 }
-
             }
+            KlyteLocaleManager.ReadLanguage(KlyteLocaleManager.CurrentLanguageId.value == "" ? LocaleManager.instance.language.Substring(0, 2) : KlyteLocaleManager.CurrentLanguageId.value);
             DoWithSettingsUI(new UIHelperExtension(m_onSettingsUiComponent));
 
         }
