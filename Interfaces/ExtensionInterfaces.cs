@@ -1,4 +1,5 @@
-﻿using Klyte.TransportLinesManager.UI;
+﻿using Klyte.Commons.UI.Sprites;
+using Klyte.TransportLinesManager.UI;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -58,7 +59,7 @@ namespace Klyte.TransportLinesManager.Interfaces
     }
     internal interface ICustomGeometricFormatExtension
     {
-        TLMLineIcon GetCustomFormat(uint prefix);
-        void SetCustomFormat(uint prefix, TLMLineIcon icon);
+        LineIconSpriteNames GetCustomFormat(uint prefix);
+        void SetCustomFormat(uint prefix, LineIconSpriteNames icon);
     }
 }

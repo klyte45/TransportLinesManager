@@ -1,31 +1,27 @@
 ﻿using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
+using static Klyte.Commons.Extensors.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
-    class TransportManagerOverrides : Redirector<TransportManagerOverrides>
+    internal class TransportManagerOverrides : IRedirectable
     {
+        public Redirector RedirectorInstance => new Redirector();
 
 
         #region Events
         public delegate void OnLineReleased();
         public static event OnLineReleased OnLineRelease;
 
-        private static void OnLineReleaseExec()
-        {
-            OnLineRelease();
-        }
+        private static void OnLineReleaseExec() => OnLineRelease();
         #endregion
 
         #region Hooking
 
-        private static bool PreventDefault()
-        {
-            return false;
-        }
+        private static bool PreventDefault() => false;
 
-        public override void AwakeBody()
+        public void Awake()
         {
             MethodInfo preventDefault = typeof(TransportLineOverrides).GetMethod("PreventDefault", allFlags);
 
@@ -33,17 +29,13 @@ namespace Klyte.TransportLinesManager.Overrides
             MethodInfo postRelease = typeof(TransportLineOverrides).GetMethod("OnLineReleaseExec", allFlags);
 
             TLMUtils.doLog("Loading Release Line Hook");
-            AddRedirect(typeof(TransportManager).GetMethod("ReleaseLine", allFlags), null, postRelease);
+            RedirectorInstance.AddRedirect(typeof(TransportManager).GetMethod("ReleaseLine", allFlags), null, postRelease);
             #endregion
 
 
         }
         #endregion
 
-        public override void doLog(string text, params object[] param)
-        {
-            TLMUtils.doLog(text, param);
-        }
 
 
     }

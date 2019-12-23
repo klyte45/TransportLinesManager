@@ -1,19 +1,20 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Klyte.Commons.Utils.NumberArrays;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
 {
-    internal class TLMUtils : KlyteUtils
+    internal class TLMUtils
     {
         public static readonly TransferManager.TransferReason[] defaultAllowedVehicleTypes = {
             TransferManager.TransferReason.Blimp ,
@@ -36,16 +37,16 @@ namespace Klyte.TransportLinesManager.Utils
                 return TLMCW.getColorForTransportType(transportType);
             }
 
-            bool prefixBased = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_PREFIX_BASED);
+            bool prefixBased = TLMCW.GetCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_PREFIX_BASED);
 
-            bool randomOnOverflow = TLMCW.getCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
+            bool randomOnOverflow = TLMCW.GetCurrentConfigBool(transportType | TLMCW.ConfigIndex.PALETTE_RANDOM_ON_OVERFLOW);
 
-            List<string> pal = new List<string>();
+            var pal = new List<string>();
 
-            if (num >= 0 && TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+            if (num >= 0 && TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int) ModoNomenclatura.Nenhum)
             {
                 uint prefix = num / 1000u;
-                var ext = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
+                ITLMTransportTypeExtension ext = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
                 string tempPal = ext.GetCustomPalette(prefix) ?? string.Empty;
                 if (tempPal != string.Empty)
                 {
@@ -63,11 +64,11 @@ namespace Klyte.TransportLinesManager.Utils
                         num %= 1000;
                     }
                 }
-                pal.Add(TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_MAIN));
+                pal.Add(TLMCW.GetCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_MAIN));
             }
             else
             {
-                pal.Add(TLMCW.getCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_MAIN));
+                pal.Add(TLMCW.GetCurrentConfigString(transportType | TLMCW.ConfigIndex.PALETTE_MAIN));
             }
             Color c;
             c = TLMAutoColorPalettes.getColor(num, pal.ToArray(), randomOnOverflow, avoidRandom);
@@ -77,15 +78,15 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return c;
         }
-        internal static TLMLineIcon GetLineIcon(ushort num, TLMCW.ConfigIndex transportType, ref TransportSystemDefinition tsdRef)
+        internal static LineIconSpriteNames GetLineIcon(ushort num, TLMCW.ConfigIndex transportType, ref TransportSystemDefinition tsdRef)
         {
 
-            if (num > 0 && TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+            if (num > 0 && TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int) ModoNomenclatura.Nenhum)
             {
                 uint prefix = num / 1000u;
-                var ext = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
-                var format = ext.GetCustomFormat(prefix);
-                if (format != TLMLineIcon.NULL)
+                ITLMTransportTypeExtension ext = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
+                LineIconSpriteNames format = ext.GetCustomFormat(prefix);
+                if (format != default)
                 {
                     return format;
                 }
@@ -93,14 +94,11 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return TLMCW.getBgIconForIndex(transportType);
         }
-        internal static string[] getStringOptionsForPrefix(TLMCW.ConfigIndex transportSystem, bool showUnprefixed = false, bool useNameRefSystem = false, bool noneOption = true)
-        {
-            return getStringOptionsForPrefix(GetPrefixModoNomenclatura(transportSystem), showUnprefixed, useNameRefSystem ? transportSystem : TLMCW.ConfigIndex.NIL, noneOption);
-        }
+        internal static string[] getStringOptionsForPrefix(TLMCW.ConfigIndex transportSystem, bool showUnprefixed = false, bool useNameRefSystem = false, bool noneOption = true) => getStringOptionsForPrefix(GetPrefixModoNomenclatura(transportSystem), showUnprefixed, useNameRefSystem ? transportSystem : TLMCW.ConfigIndex.NIL, noneOption);
         private static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false, TLMCW.ConfigIndex nameReferenceSystem = TLMCW.ConfigIndex.NIL, bool noneOption = true)
         {
 
-            List<string> saida = new List<string>(new string[noneOption ? 1 : 0]);
+            var saida = new List<string>(new string[noneOption ? 1 : 0]);
 
             if (!noneOption)
             {
@@ -157,7 +155,7 @@ namespace Klyte.TransportLinesManager.Utils
                     string[] tempR = new string[64];
                     for (ushort i = 1; i <= 64; i++)
                     {
-                        tempR[i - 1] = ToRomanNumeral(i);
+                        tempR[i - 1] = NumberingUtils.ToRomanNumeral(i);
                     }
                     addToArrayWithName(tempR, saida, nameReferenceSystem);
                     break;
@@ -174,7 +172,7 @@ namespace Klyte.TransportLinesManager.Utils
         }
         private static void addToArrayWithName(string[] input, List<string> saida, TLMCW.ConfigIndex nameReferenceSystem)
         {
-            ushort offset = (ushort)saida.Count;
+            ushort offset = (ushort) saida.Count;
             if (nameReferenceSystem == TLMCW.ConfigIndex.NIL)
             {
                 saida.AddRange(input);
@@ -197,12 +195,12 @@ namespace Klyte.TransportLinesManager.Utils
                 }
             }
         }
-        internal static List<string> getPrefixesOptions(TLMCW.ConfigIndex transportType, Boolean addDefaults = true)
+        internal static List<string> getPrefixesOptions(TLMCW.ConfigIndex transportType, bool addDefaults = true)
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
             ModoNomenclatura m = GetPrefixModoNomenclatura(transportType);
             doLog("getPrefixesOptions: MODO NOMENCLATURA = " + m);
-            List<string> saida = new List<string>();
+            var saida = new List<string>();
             if (addDefaults)
             {
                 saida.AddRange(new string[] { Locale.Get("K45_TLM_ALL"), Locale.Get("K45_TLM_UNPREFIXED") });
@@ -246,7 +244,7 @@ namespace Klyte.TransportLinesManager.Utils
                 case ModoNomenclatura.Romano:
                     for (ushort i = 1; i <= 64; i++)
                     {
-                        saida.Add(ToRomanNumeral(i));
+                        saida.Add(NumberingUtils.ToRomanNumeral(i));
                     }
                     break;
             }
@@ -257,10 +255,7 @@ namespace Klyte.TransportLinesManager.Utils
             return saida;
         }
 
-        internal static ModoNomenclatura GetPrefixModoNomenclatura(TLMCW.ConfigIndex transportType)
-        {
-            return (ModoNomenclatura)TLMCW.getCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
-        }
+        internal static ModoNomenclatura GetPrefixModoNomenclatura(TLMCW.ConfigIndex transportType) => (ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
 
         #endregion
 
@@ -276,11 +271,11 @@ namespace Klyte.TransportLinesManager.Utils
                 prefixNum = numero / 1000;
                 if (prefixo == ModoNomenclatura.Romano)
                 {
-                    prefixoSaida = ToRomanNumeral((ushort)prefixNum);
+                    prefixoSaida = NumberingUtils.ToRomanNumeral((ushort) prefixNum);
                 }
                 else
                 {
-                    prefixoSaida = getStringFromNumber(getStringOptionsForPrefix(prefixo), prefixNum + 1);
+                    prefixoSaida = NumberingUtils.GetStringFromNumber(getStringOptionsForPrefix(prefixo), prefixNum + 1);
                 }
                 numero = numero % 1000;
             }
@@ -317,25 +312,25 @@ namespace Klyte.TransportLinesManager.Utils
                 switch (prefixo != ModoNomenclatura.Nenhum && prefixNum > 0 ? sufixo : naoPrefixado)
                 {
                     case ModoNomenclatura.GregoMaiusculo:
-                        sufixoSaida = getStringFromNumber(gregoMaiusculo, numero);
+                        sufixoSaida = NumberingUtils.GetStringFromNumber(gregoMaiusculo, numero);
                         break;
                     case ModoNomenclatura.GregoMinusculo:
-                        sufixoSaida = getStringFromNumber(gregoMinusculo, numero);
+                        sufixoSaida = NumberingUtils.GetStringFromNumber(gregoMinusculo, numero);
                         break;
                     case ModoNomenclatura.CirilicoMaiusculo:
-                        sufixoSaida = getStringFromNumber(cirilicoMaiusculo, numero);
+                        sufixoSaida = NumberingUtils.GetStringFromNumber(cirilicoMaiusculo, numero);
                         break;
                     case ModoNomenclatura.CirilicoMinusculo:
-                        sufixoSaida = getStringFromNumber(cirilicoMinusculo, numero);
+                        sufixoSaida = NumberingUtils.GetStringFromNumber(cirilicoMinusculo, numero);
                         break;
                     case ModoNomenclatura.LatinoMaiusculo:
-                        sufixoSaida = getStringFromNumber(latinoMaiusculo, numero);
+                        sufixoSaida = NumberingUtils.GetStringFromNumber(latinoMaiusculo, numero);
                         break;
                     case ModoNomenclatura.LatinoMinusculo:
-                        sufixoSaida = getStringFromNumber(latinoMinusculo, numero);
+                        sufixoSaida = NumberingUtils.GetStringFromNumber(latinoMinusculo, numero);
                         break;
                     case ModoNomenclatura.Romano:
-                        sufixoSaida = ToRomanNumeral((ushort)numero);
+                        sufixoSaida = NumberingUtils.ToRomanNumeral((ushort) numero);
                         break;
                     default:
                         if (leadingZeros && prefixoSaida != "")
@@ -363,25 +358,27 @@ namespace Klyte.TransportLinesManager.Utils
                 return prefixoSaida;
             }
         }
+
+
         private static string getString(ModoNomenclatura m, int numero)
         {
 
             switch (m)
             {
                 case ModoNomenclatura.GregoMaiusculo:
-                    return getStringFromNumber(gregoMaiusculo, numero);
+                    return NumberingUtils.GetStringFromNumber(gregoMaiusculo, numero);
                 case ModoNomenclatura.GregoMinusculo:
-                    return getStringFromNumber(gregoMinusculo, numero);
+                    return NumberingUtils.GetStringFromNumber(gregoMinusculo, numero);
                 case ModoNomenclatura.CirilicoMaiusculo:
-                    return getStringFromNumber(cirilicoMaiusculo, numero);
+                    return NumberingUtils.GetStringFromNumber(cirilicoMaiusculo, numero);
                 case ModoNomenclatura.CirilicoMinusculo:
-                    return getStringFromNumber(cirilicoMinusculo, numero);
+                    return NumberingUtils.GetStringFromNumber(cirilicoMinusculo, numero);
                 case ModoNomenclatura.LatinoMaiusculo:
-                    return getStringFromNumber(latinoMaiusculo, numero);
+                    return NumberingUtils.GetStringFromNumber(latinoMaiusculo, numero);
                 case ModoNomenclatura.LatinoMinusculo:
-                    return getStringFromNumber(latinoMinusculo, numero);
+                    return NumberingUtils.GetStringFromNumber(latinoMinusculo, numero);
                 case ModoNomenclatura.Romano:
-                    return ToRomanNumeral((ushort)numero);
+                    return NumberingUtils.ToRomanNumeral((ushort) numero);
                 default:
                     return "" + numero;
             }
@@ -420,58 +417,19 @@ namespace Klyte.TransportLinesManager.Utils
         }
         #endregion
         #region Logging
-        public static void doLog(string format, params object[] args)
-        {
-            try
-            {
-                if (TransportLinesManagerMod.debugMode)
-                {
-                    if (TransportLinesManagerMod.instance != null)
-                    {
-                        Debug.LogWarningFormat("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
-
-                    }
-                    else
-                    {
-                        Console.WriteLine("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
-                    }
-                }
-            }
-            catch
-            {
-                Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.version + " Erro ao fazer log: {0} (args = {1})", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
-            }
-        }
-        public static void doErrorLog(string format, params object[] args)
-        {
-            try
-            {
-                if (TransportLinesManagerMod.instance != null)
-                {
-                    Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
-                }
-                else
-                {
-                    Console.WriteLine("TLMRv" + TransportLinesManagerMod.version + " " + format, args);
-                }
-            }
-            catch
-            {
-                Debug.LogErrorFormat("TLMRv" + TransportLinesManagerMod.version + " Erro ao logar ERRO!!!: {0} (args = [{1}])", format, args == null ? "" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray()));
-            }
-
-        }
+        public static void doLog(string format, params object[] args) => LogUtils.DoLog(format, args);
+        public static void doErrorLog(string format, params object[] args) => LogUtils.DoErrorLog(format, args);
         #endregion
 
         internal static List<string> LoadBasicAssets(ref TransportSystemDefinition definition)
         {
-            List<string> basicAssetsList = new List<string>();
+            var basicAssetsList = new List<string>();
 
             TLMUtils.doLog("LoadBasicAssets: pre prefab read");
-            for (uint num = 0u; num < (ulong)PrefabCollection<VehicleInfo>.PrefabCount(); num += 1u)
+            for (uint num = 0u; num < (ulong) PrefabCollection<VehicleInfo>.PrefabCount(); num += 1u)
             {
                 VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
-                if (!(prefab == null) && definition.isFromSystem(prefab) && !IsTrailer(prefab))
+                if (!(prefab == null) && definition.isFromSystem(prefab) && !VehicleUtils.IsTrailer(prefab))
                 {
                     basicAssetsList.Add(prefab.name);
                 }

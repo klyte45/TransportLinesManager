@@ -6,6 +6,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
     using ColossalFramework.Globalization;
     using ColossalFramework.UI;
     using Extensors.BuildingAIExt;
+    using Klyte.Commons.Utils;
     using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
     using UnityEngine;
     using Utils;
@@ -36,48 +37,22 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
 
         public ushort buildingId
         {
-            get {
-                return m_buildingID;
-            }
-            set {
-                SetBuildingID(value);
-            }
+            get => m_buildingID;
+            set => SetBuildingID(value);
         }
 
         public bool secondary
         {
-            get {
-                return m_secondary;
-            }
-            set {
-                m_secondary = value;
-            }
+            get => m_secondary;
+            set => m_secondary = value;
         }
-        public string districtName
-        {
-            get {
-                return m_districtName.text;
-            }
-        }
+        public string districtName => m_districtName.text;
 
-        public string buidingName
-        {
-            get {
-                return m_depotName.text;
-            }
-        }
+        public string buidingName => m_depotName.text;
 
-        public string prefixesServed
-        {
-            get {
-                return m_prefixesServed.text;
-            }
-        }
+        public string prefixesServed => m_prefixesServed.text;
 
-        private void SetBuildingID(ushort id)
-        {
-            m_buildingID = id;
-        }
+        private void SetBuildingID(ushort id) => m_buildingID = id;
 
 
 
@@ -101,12 +76,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
         public void SetBackgroundColor()
         {
             Color32 backgroundColor = BackgroundColor;
-            backgroundColor.a = (byte)((base.component.zOrder % 2 != 0) ? 127 : 255);
+            backgroundColor.a = (byte) ((base.component.zOrder % 2 != 0) ? 127 : 255);
             if (m_mouseIsOver)
             {
-                backgroundColor.r = (byte)Mathf.Min(255, backgroundColor.r * 3 >> 1);
-                backgroundColor.g = (byte)Mathf.Min(255, backgroundColor.g * 3 >> 1);
-                backgroundColor.b = (byte)Mathf.Min(255, backgroundColor.b * 3 >> 1);
+                backgroundColor.r = (byte) Mathf.Min(255, backgroundColor.r * 3 >> 1);
+                backgroundColor.g = (byte) Mathf.Min(255, backgroundColor.g * 3 >> 1);
+                backgroundColor.b = (byte) Mathf.Min(255, backgroundColor.b * 3 >> 1);
             }
             m_Background.color = backgroundColor;
         }
@@ -119,10 +94,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             }
         }
 
-        public void Invalidate()
-        {
-            m_isDirty = true;
-        }
+        public void Invalidate() => m_isDirty = true;
 
         private void Awake()
         {
@@ -142,13 +114,13 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             };
 
 
-            TLMUtils.createUIElement(out m_depotName, transform, "LineName", new Vector4(146, 2, 198, 35));
+            KlyteMonoUtils.CreateUIElement(out m_depotName, transform, "LineName", new Vector4(146, 2, 198, 35));
             m_depotName.textColor = ForegroundColor;
             m_depotName.textAlignment = UIHorizontalAlignment.Center;
             m_depotName.verticalAlignment = UIVerticalAlignment.Middle;
 
 
-            TLMUtils.createUIElement(out m_districtName, transform, "LineStops");
+            KlyteMonoUtils.CreateUIElement(out m_districtName, transform, "LineStops");
             m_districtName.textAlignment = UIHorizontalAlignment.Center;
             m_districtName.textColor = ForegroundColor;
             m_districtName.minimumSize = new Vector2(140, 18);
@@ -156,12 +128,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             m_districtName.pivot = UIPivotPoint.TopLeft;
             m_districtName.wordWrap = false;
             m_districtName.autoSize = true;
-            TLMUtils.LimitWidth(m_districtName, (uint)m_districtName.minimumSize.x);
+            KlyteMonoUtils.LimitWidth(m_districtName, (uint) m_districtName.minimumSize.x);
 
 
 
-            TLMUtils.createUIElement(out UIButton view, transform, "ViewLine", new Vector4(784, 5, 28, 28));
-            TLMUtils.initButton(view, true, "LineDetailButton");
+            KlyteMonoUtils.CreateUIElement(out UIButton view, transform, "ViewLine", new Vector4(784, 5, 28, 28));
+            KlyteMonoUtils.InitButton(view, true, "LineDetailButton");
             view.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
                 if (m_buildingID != 0)
@@ -182,7 +154,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             };
 
 
-            TLMUtils.createUIElement(out m_prefixesServed, transform, "LineVehicles");
+            KlyteMonoUtils.CreateUIElement(out m_prefixesServed, transform, "LineVehicles");
             m_prefixesServed.autoSize = true;
             m_prefixesServed.textScale = 0.6f;
             m_prefixesServed.pivot = UIPivotPoint.TopLeft;
@@ -191,7 +163,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             m_prefixesServed.relativePosition = new Vector2(340, 0);
             m_prefixesServed.textAlignment = UIHorizontalAlignment.Center;
             m_prefixesServed.textColor = ForegroundColor;
-            TLMUtils.LimitWidth(m_prefixesServed);
+            KlyteMonoUtils.LimitWidth(m_prefixesServed);
 
         }
 

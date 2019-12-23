@@ -2,10 +2,11 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.UI.SpriteNames;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Linq;
@@ -54,7 +55,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 TLMUtils.doErrorLog(string.Join(",", transform.parent.GetComponents<MonoBehaviour>().Select(x => x.GetType().ToString() + $" ({x.GetType().IsSubclassOf(typeof(IBudgetControlParentInterface)).ToString()})").ToArray()));
                 throw new Exception("TLMBudgetControlSliders: PARENT PANEL ISN'T A BUDGET CONTROL PARENT!");
             }
-            TLMUtils.createUIElement(out m_budgetPanel, transform.parent, "BudgetPanel", new Vector4(0, 0, 600, 180));
+            KlyteMonoUtils.CreateUIElement(out m_budgetPanel, transform.parent, "BudgetPanel", new Vector4(0, 0, 600, 180));
             m_budgetPanel.isInteractive = false;
             m_budgetPanel.eventVisibilityChanged += OnShowPanel;
             m_uiHelper = new UIHelperExtension(m_budgetPanel);
@@ -77,13 +78,13 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
         private void CreateActionButtons()
         {
-            TLMUtils.createUIElement(out m_enableBudgetPerHour, m_uiHelper.self.transform);
-            m_enableBudgetPerHour.relativePosition = new Vector3(m_uiHelper.self.width - 150f, m_uiHelper.self.height - 130f);
+            KlyteMonoUtils.CreateUIElement(out m_enableBudgetPerHour, m_uiHelper.Self.transform);
+            m_enableBudgetPerHour.relativePosition = new Vector3(m_uiHelper.Self.width - 150f, m_uiHelper.Self.height - 130f);
             m_enableBudgetPerHour.textScale = 0.6f;
             m_enableBudgetPerHour.width = 40;
             m_enableBudgetPerHour.height = 40;
             m_enableBudgetPerHour.tooltip = Locale.Get("K45_TLM_USE_PER_PERIOD_BUDGET");
-            TLMUtils.initButton(m_enableBudgetPerHour, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(m_enableBudgetPerHour, true, "ButtonMenu");
             m_enableBudgetPerHour.name = "EnableBudgetPerHour";
             m_enableBudgetPerHour.isVisible = true;
             m_enableBudgetPerHour.eventClick += (component, eventParam) =>
@@ -101,21 +102,21 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 updateSliders();
             };
 
-            var icon = m_enableBudgetPerHour.AddUIComponent<UISprite>();
+            UISprite icon = m_enableBudgetPerHour.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
-            icon.spriteName = "PerHourIcon";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_PerHourIcon);
+            ;
 
 
-            TLMUtils.createUIElement(out m_disableBudgetPerHour, m_uiHelper.self.transform);
-            m_disableBudgetPerHour.relativePosition = new Vector3(m_uiHelper.self.width - 150f, m_uiHelper.self.height - 130f);
+            KlyteMonoUtils.CreateUIElement(out m_disableBudgetPerHour, m_uiHelper.Self.transform);
+            m_disableBudgetPerHour.relativePosition = new Vector3(m_uiHelper.Self.width - 150f, m_uiHelper.Self.height - 130f);
             m_disableBudgetPerHour.textScale = 0.6f;
             m_disableBudgetPerHour.width = 40;
             m_disableBudgetPerHour.height = 40;
             m_disableBudgetPerHour.tooltip = Locale.Get("K45_TLM_USE_SINGLE_BUDGET");
-            TLMUtils.initButton(m_disableBudgetPerHour, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(m_disableBudgetPerHour, true, "ButtonMenu");
             m_disableBudgetPerHour.name = "DisableBudgetPerHour";
             m_disableBudgetPerHour.isVisible = true;
             m_disableBudgetPerHour.eventClick += (component, eventParam) =>
@@ -130,19 +131,18 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             icon = m_disableBudgetPerHour.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
-            icon.spriteName = "24hLineIcon";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_24hLineIcon);
 
             //copy
-            TLMUtils.createUIElement(out m_copyButton, m_uiHelper.self.transform);
-            m_copyButton.relativePosition = new Vector3(m_uiHelper.self.width - 200f, m_uiHelper.self.height - 130f);
+            KlyteMonoUtils.CreateUIElement(out m_copyButton, m_uiHelper.Self.transform);
+            m_copyButton.relativePosition = new Vector3(m_uiHelper.Self.width - 200f, m_uiHelper.Self.height - 130f);
             m_copyButton.textScale = 0.6f;
             m_copyButton.width = 40;
             m_copyButton.height = 40;
             m_copyButton.tooltip = Locale.Get("K45_TLM_COPY_BUDGET");
-            TLMUtils.initButton(m_copyButton, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(m_copyButton, true, "ButtonMenu");
             m_copyButton.name = "Copy";
             m_copyButton.isVisible = true;
             m_copyButton.eventClick += (component, eventParam) =>
@@ -154,19 +154,18 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             icon = m_copyButton.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
-            icon.spriteName = "Copy";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_Copy);
 
             //paste
-            TLMUtils.createUIElement(out m_pasteButton, m_uiHelper.self.transform);
-            m_pasteButton.relativePosition = new Vector3(m_uiHelper.self.width - 200f, m_uiHelper.self.height - 80f);
+            KlyteMonoUtils.CreateUIElement(out m_pasteButton, m_uiHelper.Self.transform);
+            m_pasteButton.relativePosition = new Vector3(m_uiHelper.Self.width - 200f, m_uiHelper.Self.height - 80f);
             m_pasteButton.textScale = 0.6f;
             m_pasteButton.width = 40;
             m_pasteButton.height = 40;
             m_pasteButton.tooltip = Locale.Get("K45_TLM_PASTE_BUDGET");
-            TLMUtils.initButton(m_pasteButton, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(m_pasteButton, true, "ButtonMenu");
             m_pasteButton.name = "Copy";
             m_pasteButton.isVisible = clipboard != null;
             m_pasteButton.eventClick += (component, eventParam) =>
@@ -176,20 +175,19 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             icon = m_pasteButton.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
-            icon.spriteName = "Paste";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_Paste);
 
 
             //Absolute toggle
-            TLMUtils.createUIElement(out m_absoluteCountMode, m_uiHelper.self.transform);
-            m_absoluteCountMode.relativePosition = new Vector3(m_uiHelper.self.width - 200f, m_uiHelper.self.height - 180f);
+            KlyteMonoUtils.CreateUIElement(out m_absoluteCountMode, m_uiHelper.Self.transform);
+            m_absoluteCountMode.relativePosition = new Vector3(m_uiHelper.Self.width - 200f, m_uiHelper.Self.height - 180f);
             m_absoluteCountMode.textScale = 0.6f;
             m_absoluteCountMode.width = 40;
             m_absoluteCountMode.height = 40;
             m_absoluteCountMode.tooltip = Locale.Get("K45_TLM_USE_ABSOLUTE_BUDGET");
-            TLMUtils.initButton(m_absoluteCountMode, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(m_absoluteCountMode, true, "ButtonMenu");
             m_absoluteCountMode.name = "AbsoluteBudget";
             m_absoluteCountMode.isVisible = true;
             m_absoluteCountMode.eventClick += (component, eventParam) =>
@@ -215,18 +213,18 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             icon = m_absoluteCountMode.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
-            icon.spriteName = "AbsoluteMode";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AbsoluteMode);
 
-            TLMUtils.createUIElement(out m_multiplierMode, m_uiHelper.self.transform);
-            m_multiplierMode.relativePosition = new Vector3(m_uiHelper.self.width - 200f, m_uiHelper.self.height - 180f);
+
+            KlyteMonoUtils.CreateUIElement(out m_multiplierMode, m_uiHelper.Self.transform);
+            m_multiplierMode.relativePosition = new Vector3(m_uiHelper.Self.width - 200f, m_uiHelper.Self.height - 180f);
             m_multiplierMode.textScale = 0.6f;
             m_multiplierMode.width = 40;
             m_multiplierMode.height = 40;
             m_multiplierMode.tooltip = Locale.Get("K45_TLM_USE_RELATIVE_BUDGET");
-            TLMUtils.initButton(m_multiplierMode, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(m_multiplierMode, true, "ButtonMenu");
             m_multiplierMode.name = "RelativeBudget";
             m_multiplierMode.isVisible = true;
             m_multiplierMode.eventClick += (component, eventParam) =>
@@ -252,17 +250,16 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             icon = m_multiplierMode.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
-            icon.spriteName = "RelativeMode";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_RelativeMode);
         }
 
         private void GetBteIdx(out IBudgetableExtension bte, out uint idx)
         {
             if (parent.PrefixSelectionMode)
             {
-                var tsd = parent.TransportSystem;
+                TransportSystemDefinition tsd = parent.TransportSystem;
                 bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsd);
                 idx = parent.CurrentSelectedId;
             }
@@ -301,7 +298,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
         }
         private void CreateBudgetSliders()
         {
-            TLMUtils.createUIElement(out m_lineBudgetSlidersTitle, m_uiHelper.self.transform);
+            KlyteMonoUtils.CreateUIElement(out m_lineBudgetSlidersTitle, m_uiHelper.Self.transform);
             m_lineBudgetSlidersTitle.autoSize = false;
             m_lineBudgetSlidersTitle.relativePosition = new Vector3(15f, 0f);
             m_lineBudgetSlidersTitle.width = 400f;
@@ -322,7 +319,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
         private void setBudgetHour(float x, int selectedHourIndex)
         {
             GetStoredData(out IBudgetableExtension bte, out uint[] saveData, out uint idx);
-            ushort val = (ushort)(x * 100 + 0.5f);
+            ushort val = (ushort) (x * 100 + 0.5f);
             if (selectedHourIndex >= saveData.Length || saveData[selectedHourIndex] == val)
             {
                 return;
@@ -337,10 +334,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             saveData = bte.GetBudgetsMultiplier(idx);
         }
 
-        private void Copy()
-        {
-            GetStoredData(out IBudgetableExtension bte, out clipboard, out uint idx);
-        }
+        private void Copy() => GetStoredData(out IBudgetableExtension bte, out clipboard, out uint idx);
 
         private void Paste()
         {
@@ -354,7 +348,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
         private UISlider GenerateVerticalBudgetMultiplierField(UIHelperExtension uiHelper, int idx)
         {
-            UISlider bugdetSlider = (UISlider)uiHelper.AddSlider(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_LABEL"), 0f, 5, 0.05f, -1,
+            var bugdetSlider = (UISlider) uiHelper.AddSlider(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_LABEL"), 0f, 5, 0.05f, -1,
                 (x) =>
                 {
 
@@ -377,8 +371,8 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             bugdetSlider.thumbObject.width = 40;
             bugdetSlider.thumbObject.height = 200;
-            ((UISprite)bugdetSlider.thumbObject).spriteName = "ScrollbarThumb";
-            ((UISprite)bugdetSlider.thumbObject).color = new Color32(1, 140, 46, 255);
+            ((UISprite) bugdetSlider.thumbObject).spriteName = "ScrollbarThumb";
+            ((UISprite) bugdetSlider.thumbObject).color = new Color32(1, 140, 46, 255);
 
             budgetSliderLabel.textScale = 0.5f;
             budgetSliderLabel.autoSize = false;
@@ -392,10 +386,10 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             budgetSliderLabel.eventMouseWheel += OnMouseWheelBudget;
 
-            var idx_loc = idx;
+            int idx_loc = idx;
             bugdetSlider.eventValueChanged += delegate (UIComponent c, float val)
             {
-                var lineid = parent.CurrentSelectedId;
+                ushort lineid = parent.CurrentSelectedId;
                 if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineid) && TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(lineid))
                 {
                     budgetSliderLabel.text = string.Format(" {0:0}", val * 20);
@@ -550,7 +544,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             if (!isFromLine || TLMUtils.GetPrefixModoNomenclatura(transportType) != ModoNomenclatura.Nenhum)
             {
-                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int)idx + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int) idx + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
             }
             else
             {

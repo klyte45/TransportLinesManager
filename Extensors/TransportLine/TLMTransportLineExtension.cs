@@ -1,4 +1,5 @@
 ﻿using ColossalFramework.Globalization;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
@@ -57,13 +58,13 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         {
             TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);
             if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
-            return GetAssetList(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", TLMUtils.getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
+            return GetAssetList(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
         public Dictionary<string, string> GetAllBasicAssets(uint lineId)
         {
             TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);
             if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
-            return basicAssetsList[tsd].ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", TLMUtils.getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
+            return basicAssetsList[tsd].ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
         public void AddAsset(uint lineId, string assetId)
         {
@@ -89,7 +90,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
             List<string> assetList = GetAssetList(lineId);
             while (info == null && assetList.Count > 0)
             {
-                info = TLMUtils.GetRandomModel(assetList, out string modelName);
+                info = VehicleUtils.GetRandomModel(assetList, out string modelName);
                 if (info == null)
                 {
                     RemoveAsset(lineId, modelName);

@@ -104,7 +104,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             {
                 addSegmentToIndex(saida[i - 1], saida[i]);
             }
-            if (TransportLinesManagerMod.debugMode)
+            if (TransportLinesManagerMod.DebugMode)
             {
                 string points = string.Join(",", saida.Select(x => "(" + x.x + "," + x.y + ")").ToArray());
                 TLMUtils.doLog("Points: [{0}]", points);
@@ -131,8 +131,8 @@ namespace Klyte.TransportLinesManager.MapDrawer
             //int iterationCount = 0;
             //DiagCheck:
             //iterationCount++;
-            var dirS1 = c1.getCardinalOffset2D();
-            var dirS2 = c2.getCardinalOffset2D();
+            var dirS1 = c1.GetCardinalOffset2D();
+            var dirS2 = c2.GetCardinalOffset2D();
 
             TLMUtils.doLog("c1 = {0};dirS1 = {1}", c1, dirS1);
             TLMUtils.doLog("c2 = {0};dirS2 = {1}", c2, dirS2);

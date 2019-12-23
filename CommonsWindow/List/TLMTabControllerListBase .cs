@@ -2,6 +2,7 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -14,26 +15,21 @@ namespace Klyte.TransportLinesManager.CommonsWindow
     internal abstract class TLMTabControllerListBase<T> : UICustomControl where T : TLMSysDef<T>
     {
         public static TLMTabControllerListBase<T> instance { get; protected set; }
-        public static bool exists
-        {
-            get { return instance != null; }
-        }
+        public static bool exists => instance != null;
 
         protected UIScrollablePanel mainPanel;
         protected UIPanel titleLine;
         private bool m_isUpdated;
         public bool isUpdated
         {
-            get {
-                return m_isUpdated;
-            }
+            get => m_isUpdated;
             set {
                 OnUpdateStateChange(value);
                 m_isUpdated = value;
             }
         }
         protected UIDropDown m_prefixFilter;
-        private ModoNomenclatura m_modoNomenclaturaCache = (ModoNomenclatura)(-1);
+        private ModoNomenclatura m_modoNomenclaturaCache = (ModoNomenclatura) (-1);
 
         protected abstract void OnUpdateStateChange(bool state);
         protected abstract bool HasRegionalPrefixFilter { get; }
@@ -44,7 +40,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             UIComponent parent = GetComponent<UIComponent>();
             CreateTitleRow(out titleLine, parent);
 
-            TLMUtils.CreateScrollPanel(parent, out mainPanel, out UIScrollbar scrollbar, parent.width - 30, parent.height - 50, new Vector3(5, 40));
+            KlyteMonoUtils.CreateScrollPanel(parent, out mainPanel, out UIScrollbar scrollbar, parent.width - 30, parent.height - 50, new Vector3(5, 40));
             mainPanel.autoLayout = true;
             mainPanel.autoLayoutDirection = LayoutDirection.Vertical;
             mainPanel.eventVisibilityChanged += OnToggleVisible;
@@ -70,7 +66,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 }, titleLine);
 
 
-            var prefixFilterLabel = m_prefixFilter.AddUIComponent<UILabel>();
+            UILabel prefixFilterLabel = m_prefixFilter.AddUIComponent<UILabel>();
             prefixFilterLabel.text = Locale.Get("K45_TLM_PREFIX_FILTER");
             prefixFilterLabel.relativePosition = new Vector3(0, -35);
             prefixFilterLabel.textAlignment = UIHorizontalAlignment.Center;
@@ -105,7 +101,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         protected void Update()
         {
-            if (!mainPanel.isVisible) return;
+            if (!mainPanel.isVisible)
+            {
+                return;
+            }
+
             if (!isUpdated)
             {
                 ReloadPrefixFilter();
@@ -130,17 +130,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         #region Sorting
 
-        protected static int NaturalCompare(string left, string right)
-        {
-            return TLMUtils.NaturalCompare(left, right);
-        }
+        protected static int NaturalCompare(string left, string right) => SortingUtils.NaturalCompare(left, right);
 
 
 
-        protected static void Quicksort(IList<UIComponent> elements, Comparison<UIComponent> comp, bool invert)
-        {
-            TLMUtils.Quicksort(elements, comp, invert);
-        }
+        protected static void Quicksort(IList<UIComponent> elements, Comparison<UIComponent> comp, bool invert) => SortingUtils.Quicksort(elements, comp, invert);
 
         #endregion
 

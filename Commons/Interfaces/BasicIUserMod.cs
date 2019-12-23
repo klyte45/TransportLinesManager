@@ -1,289 +1,192 @@
 ﻿using ColossalFramework;
-using ColossalFramework.DataBinding;
-using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using ICities;
-using Klyte.Commons.Extensors;
-using Klyte.Commons.i18n;
+using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Utils;
-using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 namespace Klyte.Commons.Interfaces
 {
-    public abstract class BasicIUserMod<U, R, C, A, T> : IUserMod, ILoadingExtension
-        where U : BasicIUserMod<U, R, C, A, T>, new()
-        where R : KlyteResourceLoader<R>
+    public abstract class BasicIUserMod<U, C, T> : BasicIUserModSimplified<U, C>
+        where U : BasicIUserMod<U, C, T>, new()
         where C : MonoBehaviour
-        where A : TextureAtlasDescriptor<A, R>
         where T : UICustomControl
     {
-
-        public abstract string SimpleName { get; }
-        public virtual bool UseGroup9 => true;
-        public abstract void LoadSettings();
-        public abstract void doLog(string fmt, params object[] args);
-        public abstract void doErrorLog(string fmt, params object[] args);
-        public abstract void TopSettingsUI(UIHelperExtension ext);
-
-        private GameObject topObj;
-        public Transform refTransform => topObj?.transform;
-
         protected virtual float? TabWidth => null;
 
+        private UIButton m_modPanelButton;
+        private UITabstrip m_modsTabstrip;
+        private UIPanel m_modsPanel;
 
-        public string Name => $"{SimpleName} {version}";
-        public abstract string Description { get; }
-
-        private C m_controller;
-        public C controller => m_controller;
-
-        public void OnCreated(ILoading loading)
+        protected sealed override void OnLevelLoadedInherit(LoadMode mode)
         {
-
-        }
-        public virtual void OnLevelLoaded(LoadMode mode)
-        {
-            topObj = new GameObject(typeof(U).Name);
-            Type typeTarg = typeof(Redirector<>);
-            System.Collections.Generic.List<Type> instances = KlyteUtils.GetSubtypesRecursive(typeTarg, typeof(U));
-            doLog($"{SimpleName} Redirectors: {instances.Count()}");
-            foreach (Type t in instances)
+            base.OnLevelLoadedInherit(mode);
+            m_modsPanel = UIView.Find<UIPanel>("K45_ModsPanel");
+            if (m_modsPanel == null)
             {
-                topObj.AddComponent(t);
-            }
-            if (typeof(C) != typeof(MonoBehaviour))
-            {
-                m_controller = topObj.AddComponent<C>();
-            }
+                UIComponent uicomponent = UIView.Find("TSBar");
+                UIPanel bg = uicomponent.AddUIComponent<UIPanel>();
+                bg.name = "K45_MB";
+                bg.absolutePosition = new Vector2(ButtonPosX.value, ButtonPosY.value);
+                bg.width = 60f;
+                bg.height = 60f;
+                bg.zOrder = 1;
+                UIButton doneButton = bg.AddUIComponent<UIButton>();
+                doneButton.normalBgSprite = "GenericPanel";
+                doneButton.width = 100f;
+                doneButton.height = 50f;
+                doneButton.relativePosition = new Vector2(-40f, 70f);
+                doneButton.text = "Done";
+                doneButton.hoveredTextColor = new Color32(0, byte.MaxValue, byte.MaxValue, 1);
+                doneButton.Hide();
+                doneButton.zOrder = 99;
+                UIDragHandle handle = bg.AddUIComponent<UIDragHandle>();
+                handle.name = "K45_DragHandle";
+                handle.relativePosition = Vector2.zero;
+                handle.width = bg.width - 5f;
+                handle.height = bg.height - 5f;
+                handle.zOrder = 0;
+                handle.target = bg;
+                handle.Start();
+                handle.enabled = false;
+                bg.zOrder = 9;
 
-        }
-
-        public string GeneralName => $"{SimpleName} (v{version})";
-
-        public void OnLevelUnloading()
-        {
-            if (typeof(U).Assembly.GetName().Version.Revision != 9999)
-            {
-                Application.Quit();
-            }
-            Type typeTarg = typeof(Redirector<>);
-            System.Collections.Generic.List<Type> instances = KlyteUtils.GetSubtypesRecursive(typeTarg, typeof(U));
-            doLog($"{SimpleName} Redirectors: {instances.Count()}");
-            foreach (Type t in instances)
-            {
-                GameObject.Destroy((Redirector) KlyteUtils.GetPrivateStaticField("instance", t));
-            }
-            GameObject.Destroy(topObj);
-            typeTarg = typeof(Singleton<>);
-            instances = KlyteUtils.GetSubtypesRecursive(typeTarg, typeof(U));
-
-            foreach (Type t in instances)
-            {
-                GameObject.Destroy(((MonoBehaviour) KlyteUtils.GetPrivateStaticProperty("instance", t)));
-            }
-        }
-        public virtual void OnReleased() => OnLevelUnloading();
-
-        public static string minorVersion => majorVersion + "." + typeof(U).Assembly.GetName().Version.Build;
-        public static string majorVersion => typeof(U).Assembly.GetName().Version.Major + "." + typeof(U).Assembly.GetName().Version.Minor;
-        public static string fullVersion => minorVersion + " r" + typeof(U).Assembly.GetName().Version.Revision;
-        public static string version
-        {
-            get {
-                if (typeof(U).Assembly.GetName().Version.Minor == 0 && typeof(U).Assembly.GetName().Version.Build == 0)
+                bg.isInteractive = false;
+                handle.zOrder = 10;
+                doneButton.eventClick += (component, ms) =>
                 {
-                    return typeof(U).Assembly.GetName().Version.Major.ToString();
-                }
-                if (typeof(U).Assembly.GetName().Version.Build > 0)
+                    doneButton.Hide();
+                    handle.zOrder = 10;
+                    handle.enabled = false;
+                    ButtonPosX.value = (int) bg.absolutePosition.x;
+                    ButtonPosY.value = (int) bg.absolutePosition.y;
+                };
+                bg.color = new Color32(96, 96, 96, byte.MaxValue);
+                m_modPanelButton = bg.AddUIComponent<UIButton>();
+                m_modPanelButton.disabledTextColor = new Color32(128, 128, 128, byte.MaxValue);
+                KlyteMonoUtils.InitButton(m_modPanelButton, false, KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_K45Button), false);
+                m_modPanelButton.relativePosition = new Vector3(5f, 0f);
+                m_modPanelButton.size = new Vector2(64, 64);
+                m_modPanelButton.name = "K45_ModsButton";
+                m_modPanelButton.zOrder = 11;
+                m_modPanelButton.textScale = 1.3f;
+                m_modPanelButton.textVerticalAlignment = UIVerticalAlignment.Middle;
+                m_modPanelButton.textHorizontalAlignment = UIHorizontalAlignment.Center;
+                m_modPanelButton.eventDoubleClick += (component, ms) =>
                 {
-                    return minorVersion;
-                }
-                else
-                {
-                    return majorVersion;
-                }
-            }
-        }
+                    handle.zOrder = 13;
+                    doneButton.Show();
+                    handle.enabled = true;
+                };
 
-        public static U instance { get; private set; }
+                m_modsPanel = bg.AddUIComponent<UIPanel>();
+                m_modsPanel.name = "K45_ModsPanel";
+                m_modsPanel.size = new Vector2(875, 550);
+                m_modsPanel.relativePosition = new Vector3(0f, 7f);
+                m_modsPanel.isInteractive = false;
+                m_modsPanel.Hide();
 
-        public bool needShowPopup;
+                m_modPanelButton.eventClicked += TogglePanel;
 
-        public static bool LocaleLoaded { get; private set; } = false;
-
-
-        public static SavedBool debugMode { get; } = new SavedBool("TLMDebugMode", Settings.gameSettingsFile, false, true);
-        private SavedString currentSaveVersion => new SavedString("TLMSaveVersion", Settings.gameSettingsFile, "null", true);
-        public static bool isCityLoaded => Singleton<SimulationManager>.instance.m_metaData != null;
-
-
-
-
-        protected void Construct()
-        {
-            instance = this as U;
-            Debug.LogWarningFormat("TLMv" + majorVersion + " LOADING ");
-            LoadSettings();
-            Debug.LogWarningFormat("TLMv" + majorVersion + " SETTING FILES");
-            if (debugMode.value)
-            {
-                Debug.LogWarningFormat("currentSaveVersion.value = {0}, fullVersion = {1}", currentSaveVersion.value, fullVersion);
-            }
-
-            if (currentSaveVersion.value != fullVersion)
-            {
-                needShowPopup = true;
-            }
-        }
-
-        private UIComponent m_onSettingsUiComponent;
-        internal static readonly string m_translateFilesPath = $"{TLMUtils.BASE_FOLDER_PATH}__translations{Path.DirectorySeparatorChar}";
-        private bool m_showLangDropDown = false;
-        public void OnSettingsUI(UIHelperBase helperDefault)
-        {
-            m_onSettingsUiComponent = new UIHelperExtension((UIHelper) helperDefault).self ?? m_onSettingsUiComponent;
-
-            if (Locale.Get("K45_TEST_UP") != "OK")
-            {
-                TLMUtils.createElement<KlyteLocaleManager>(new GameObject(typeof(U).Name).transform);
-                if (Locale.Get("K45_TEST_UP") != "OK")
-                {
-                    TLMUtils.doErrorLog("CAN'T LOAD LOCALE!!!!!");
-                }
-                LocaleManager.eventLocaleChanged += KlyteLocaleManager.ReloadLanguage;
-                m_showLangDropDown = true;
-            }
-            foreach (string lang in KlyteLocaleManager.locales)
-            {
-                string content = Singleton<R>.instance.loadResourceString($"UI.i18n.{lang}.properties");
-                if (content != null)
-                {
-                    File.WriteAllText($"{m_translateFilesPath}{lang}{Path.DirectorySeparatorChar}1_{Assembly.GetExecutingAssembly().GetName().Name}.txt", content);
-                }
-                content = Singleton<R>.instance.loadResourceString($"commons.UI.i18n.{lang}.properties");
-                if (content != null)
-                {
-                    File.WriteAllText($"{m_translateFilesPath}{lang}{Path.DirectorySeparatorChar}0_common.txt", content);
-                }
-            }
-            KlyteLocaleManager.ReadLanguage(KlyteLocaleManager.CurrentLanguageId.value == "" ? LocaleManager.instance.language.Substring(0, 2) : KlyteLocaleManager.CurrentLanguageId.value);
-            DoWithSettingsUI(new UIHelperExtension(m_onSettingsUiComponent));
-
-        }
-
-        private void DoWithSettingsUI(UIHelperExtension helper)
-        {
-            foreach (Transform child in helper.self?.transform)
-            {
-                GameObject.Destroy(child?.gameObject);
-            }
-
-            helper.self.eventVisibilityChanged += delegate (UIComponent component, bool b)
-            {
-                if (b)
-                {
-                    showVersionInfoPopup();
-                }
-            };
-
-            TopSettingsUI(helper);
-
-            if (UseGroup9)
-            {
-                CreateGroup9(helper);
-            }
-
-            doLog("End Loading Options");
-        }
-
-        protected void CreateGroup9(UIHelperExtension helper)
-        {
-            UIHelperExtension group9 = helper.AddGroupExtended(Locale.Get("K45_BETAS_EXTRA_INFO"));
-            Group9SettingsUI(group9);
-
-            group9.AddCheckbox(Locale.Get("K45_DEBUG_MODE"), debugMode.value, delegate (bool val)
-            { debugMode.value = val; });
-            group9.AddLabel(string.Format(Locale.Get("K45_VERSION_SHOW"), fullVersion));
-
-            group9.AddButton(Locale.Get("K45_RELEASE_NOTES"), delegate ()
-            {
-                showVersionInfoPopup(true);
-            });
-
-            if (m_showLangDropDown)
-            {
-                UIDropDown dd = null;
-                dd = group9.AddDropdownLocalized("K45_MOD_LANG", (new string[] { "K45_GAME_DEFAULT_LANGUAGE" }.Concat(KlyteLocaleManager.locales.Select(x => $"K45_LANG_{x}")).Select(x => Locale.Get(x))).ToArray(), KlyteLocaleManager.GetLoadedLanguage(), delegate (int idx)
-                {
-                    KlyteLocaleManager.SaveLoadedLanguage(idx);
-                    KlyteLocaleManager.ReloadLanguage();
-                    KlyteLocaleManager.RedrawUIComponents();
-                });
+                KlyteMonoUtils.CreateTabsComponent(out m_modsTabstrip, out _, m_modsPanel.transform, "K45", new Vector4(74, 0, m_modsPanel.width - 84, 40), new Vector4(64, 40, m_modsPanel.width - 64, m_modsPanel.height));
             }
             else
             {
-                group9.AddLabel(string.Format(Locale.Get("K45_LANG_CTRL_MOD_INFO"), Locale.Get("K45_MOD_CONTROLLING_LOCALE")));
+                m_modPanelButton = UIView.Find<UIButton>("K45_ModsButton");
+                m_modsTabstrip = UIView.Find<UITabstrip>("K45_Tabstrip");
             }
+
+            AddTab();
         }
 
-        public virtual void Group9SettingsUI(UIHelperExtension group9) { }
 
-        public bool showVersionInfoPopup(bool force = false)
+
+        internal void AddTab()
         {
-            if (needShowPopup || force)
+            if (m_modsTabstrip.Find<UIComponent>(CommonProperties.Acronym) != null)
             {
-                try
-                {
-                    UIComponent uIComponent = UIView.library.ShowModal("ExceptionPanel");
-                    if (uIComponent != null)
-                    {
-                        Cursor.lockState = CursorLockMode.None;
-                        Cursor.visible = true;
-                        BindPropertyByKey component = uIComponent.GetComponent<BindPropertyByKey>();
-                        if (component != null)
-                        {
-                            string title = $"{SimpleName.Replace("&", "and")} v{version}";
-                            string notes = Singleton<R>.instance.loadResourceString("UI.VersionNotes.txt");
-                            string text = $"{SimpleName.Replace("&", "and")} was updated! Release notes:\r\n\r\n" + notes;
-                            string img = "IconMessage";
-                            component.SetProperties(TooltipHelper.Format(new string[]
-                            {
-                            "title",
-                            title,
-                            "message",
-                            text,
-                            "img",
-                            img
-                            }));
-                            needShowPopup = false;
-                            currentSaveVersion.value = fullVersion;
-                            return true;
-                        }
-                        return false;
-                    }
-                    else
-                    {
-                        doLog("PANEL NOT FOUND!!!!");
-                        return false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    doErrorLog("showVersionInfoPopup ERROR {0} {1}", e.GetType(), e.Message);
-                }
+                return;
             }
-            return false;
+
+            UIButton superTab = CreateTabTemplate();
+            superTab.normalFgSprite = IconName;
+            superTab.color = Color.gray;
+            superTab.focusedColor = Color.white;
+            superTab.hoveredColor = Color.white;
+            superTab.disabledColor = Color.black;
+            superTab.playAudioEvents = true;
+            superTab.tooltip = GeneralName;
+            superTab.foregroundSpriteMode = UIForegroundSpriteMode.Stretch;
+
+            KlyteMonoUtils.CreateUIElement(out UIPanel content, null);
+            content.name = "Container";
+            content.area = new Vector4(0, 0, TabWidth ?? m_modsPanel.width, m_modsPanel.height);
+
+            m_modsTabstrip.AddTab(CommonProperties.Acronym, superTab.gameObject, content.gameObject, typeof(T));
+
+            content.eventVisibilityChanged += (x, y) => { if (y) { ShowVersionInfoPopup(); } };
         }
 
-        private delegate void OnLocaleLoadedFirstTime();
-        private event OnLocaleLoadedFirstTime eventOnLoadLocaleEnd;
+        private static UIButton CreateTabTemplate()
+        {
+            KlyteMonoUtils.CreateUIElement(out UIButton tabTemplate, null, "KCTabTemplate");
+            KlyteMonoUtils.InitButton(tabTemplate, false, "GenericTab");
+            tabTemplate.autoSize = false;
+            tabTemplate.width = 40;
+            tabTemplate.height = 40;
+            tabTemplate.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
+            return tabTemplate;
+        }
 
+        private void TogglePanel(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            if (m_modsPanel == null)
+            {
+                return;
+            }
 
+            m_modsPanel.isVisible = !m_modsPanel.isVisible;
+            if (m_modsPanel.isVisible)
+            {
+                m_modPanelButton?.Focus();
+            }
+            else
+            {
+                m_modPanelButton?.Unfocus();
+            }
+        }
+
+        public void ClosePanel()
+        {
+            if (m_modsPanel == null)
+            {
+                return;
+            }
+
+            m_modsPanel.isVisible = false;
+            m_modPanelButton?.Unfocus();
+
+        }
+
+        public void OpenPanel()
+        {
+            if (m_modsPanel == null)
+            {
+                return;
+            }
+
+            m_modsPanel.isVisible = true;
+            m_modPanelButton?.Focus();
+        }
+
+        public void OpenPanelAtModTab()
+        {
+            OpenPanel();
+            m_modsTabstrip.ShowTab(CommonProperties.Acronym);
+        }
+
+        public static SavedFloat ButtonPosX { get; } = new SavedFloat("K45_ButtonPosX", Settings.gameSettingsFile, 300, true);
+        public static SavedFloat ButtonPosY { get; } = new SavedFloat("K45_ButtonPosY", Settings.gameSettingsFile, 20, true);
 
     }
 

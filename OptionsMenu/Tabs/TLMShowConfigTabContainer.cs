@@ -1,8 +1,6 @@
 ﻿using ColossalFramework.UI;
-using Klyte.Commons.TextureAtlas;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
@@ -11,19 +9,18 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {
     internal class TLMShowConfigTabContainer : UICustomControl
     {
-
-        UIComponent parent;
+        private UIComponent parent;
 
         private void Awake()
         {
             parent = GetComponentInParent<UIComponent>();
 
-            var parentWidth = 730;
+            int parentWidth = 730;
 
-            TLMUtils.createUIElement(out UITabstrip strip, parent.transform, "TLMTabstrip", new Vector4(5, 0, parentWidth - 10, 40));
-            var effectiveOffsetY = strip.height;
+            KlyteMonoUtils.CreateUIElement(out UITabstrip strip, parent.transform, "TLMTabstrip", new Vector4(5, 0, parentWidth - 10, 40));
+            float effectiveOffsetY = strip.height;
 
-            TLMUtils.createUIElement(out UITabContainer tabContainer, parent.transform, "TLMTabContainer", new Vector4(0, 40, parentWidth - 10, 320));
+            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, parent.transform, "TLMTabContainer", new Vector4(0, 40, parentWidth - 10, 320));
             tabContainer.autoSize = true;
             strip.tabPages = tabContainer;
 
@@ -31,13 +28,13 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
             UIComponent bodyContent = CreateContentTemplate(parentWidth, 320, false);
 
-            foreach (var kv in TransportSystemDefinition.sysDefinitions)
+            foreach (System.Collections.Generic.KeyValuePair<TransportSystemDefinition, Type> kv in TransportSystemDefinition.sysDefinitions)
             {
                 Type[] components;
                 Type targetType;
                 try
                 {
-                    targetType = KlyteUtils.GetImplementationForGenericType(typeof(TLMShowConfigTab<>), kv.Value);
+                    targetType = ReflectionUtils.GetImplementationForGenericType(typeof(TLMShowConfigTab<>), kv.Value);
                     components = new Type[] { targetType };
                 }
                 catch
@@ -47,12 +44,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
                 GameObject tab = Instantiate(tabTemplate.gameObject);
                 GameObject body = Instantiate(bodyContent.gameObject);
-                var configIdx = kv.Key.toConfigIndex();
-                var tsd = kv.Key;
-                String name = kv.Value.Name;
+                TLMConfigWarehouse.ConfigIndex configIdx = kv.Key.toConfigIndex();
+                TransportSystemDefinition tsd = kv.Key;
+                string name = kv.Value.Name;
                 TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
-                String bgIcon = TLMUtils.GetLineIcon(0, configIdx, ref tsd).getImageName();
-                String fgIcon = kv.Key.getTransportTypeIcon();
+                string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd));
+                string fgIcon = kv.Key.getTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();
                 tabButton.tooltip = TLMConfigWarehouse.getNameForTransportType(configIdx);
                 tabButton.hoveredBgSprite = bgIcon;
@@ -65,7 +62,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                 tabButton.disabledColor = Color.gray;
                 if (!string.IsNullOrEmpty(fgIcon))
                 {
-                    TLMUtils.createUIElement(out UIButton secSprite, tabButton.transform, "OverSprite", new Vector4(5, 5, 30, 30));
+                    KlyteMonoUtils.CreateUIElement(out UIButton secSprite, tabButton.transform, "OverSprite", new Vector4(5, 5, 30, 30));
                     secSprite.normalFgSprite = fgIcon;
                     secSprite.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
                     secSprite.isInteractive = false;
@@ -79,25 +76,24 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
         private static UIButton CreateTabSubStripTemplate()
         {
-            TLMUtils.createUIElement(out UIButton tabTemplate, null, "TLMTabTemplate");
-            TLMUtils.initButton(tabTemplate, false, "GenericTab");
+            KlyteMonoUtils.CreateUIElement(out UIButton tabTemplate, null, "TLMTabTemplate");
+            KlyteMonoUtils.InitButton(tabTemplate, false, "GenericTab");
             tabTemplate.autoSize = false;
             tabTemplate.width = 40;
             tabTemplate.height = 40;
             tabTemplate.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
-            tabTemplate.atlas = LineUtilsTextureAtlas.instance.atlas;
             return tabTemplate;
         }
 
 
         private static UIComponent CreateContentTemplate(float width, float height, bool scrollable)
         {
-            TLMUtils.createUIElement(out UIPanel contentContainer, null);
+            KlyteMonoUtils.CreateUIElement(out UIPanel contentContainer, null);
             contentContainer.name = "Container";
             contentContainer.area = new Vector4(0, 0, width, height);
             if (scrollable)
             {
-                TLMUtils.createUIElement(out UIScrollablePanel scrollPanel, contentContainer.transform, "ScrollPanel");
+                KlyteMonoUtils.CreateUIElement(out UIScrollablePanel scrollPanel, contentContainer.transform, "ScrollPanel");
                 scrollPanel.width = contentContainer.width - 20f;
                 scrollPanel.height = contentContainer.height;
                 scrollPanel.autoLayoutDirection = LayoutDirection.Vertical;
@@ -107,7 +103,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                 scrollPanel.clipChildren = true;
                 scrollPanel.relativePosition = new Vector3(5, 0);
 
-                TLMUtils.createUIElement(out UIPanel trackballPanel, contentContainer.transform, "Trackball");
+                KlyteMonoUtils.CreateUIElement(out UIPanel trackballPanel, contentContainer.transform, "Trackball");
                 trackballPanel.width = 10f;
                 trackballPanel.height = scrollPanel.height;
                 trackballPanel.autoLayoutDirection = LayoutDirection.Horizontal;
@@ -116,7 +112,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                 trackballPanel.autoLayout = true;
                 trackballPanel.relativePosition = new Vector3(contentContainer.width - 15, 0);
 
-                TLMUtils.createUIElement(out UIScrollbar scrollBar, trackballPanel.transform, "Scrollbar");
+                KlyteMonoUtils.CreateUIElement(out UIScrollbar scrollBar, trackballPanel.transform, "Scrollbar");
                 scrollBar.width = 10f;
                 scrollBar.height = scrollBar.parent.height;
                 scrollBar.orientation = UIOrientation.Vertical;
@@ -126,7 +122,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                 scrollBar.value = 0f;
                 scrollBar.incrementAmount = 25f;
 
-                TLMUtils.createUIElement(out UISlicedSprite scrollBg, scrollBar.transform, "ScrollbarBg");
+                KlyteMonoUtils.CreateUIElement(out UISlicedSprite scrollBg, scrollBar.transform, "ScrollbarBg");
                 scrollBg.relativePosition = Vector2.zero;
                 scrollBg.autoSize = true;
                 scrollBg.size = scrollBg.parent.size;
@@ -134,7 +130,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                 scrollBg.spriteName = "ScrollbarTrack";
                 scrollBar.trackObject = scrollBg;
 
-                TLMUtils.createUIElement(out UISlicedSprite scrollFg, scrollBg.transform, "ScrollbarFg");
+                KlyteMonoUtils.CreateUIElement(out UISlicedSprite scrollFg, scrollBg.transform, "ScrollbarFg");
                 scrollFg.relativePosition = Vector2.zero;
                 scrollFg.fillDirection = UIFillDirection.Vertical;
                 scrollFg.autoSize = true;

@@ -2,6 +2,7 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow.Components;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
@@ -46,9 +47,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private static ITLMTransportTypeExtension extension => Singleton<T>.instance.GetTSD().GetTransportExtension();
 
-        private static Type ImplClassChildren => TLMUtils.GetImplementationForGenericType(typeof(TLMAssetSelectorWindowPrefixTab<>), typeof(T));
+        private static Type ImplClassChildren => ReflectionUtils.GetImplementationForGenericType(typeof(TLMAssetSelectorWindowPrefixTab<>), typeof(T));
 
-        public ushort CurrentSelectedId => (ushort)SelectedPrefix;
+        public ushort CurrentSelectedId => (ushort) SelectedPrefix;
 
         public bool PrefixSelectionMode => true;
 
@@ -59,7 +60,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         #region Awake
         private void Awake()
         {
-            if (m_instance != null) throw new Exception("MULTIPLE INSTANTIATION!!!!!!!!");
+            if (m_instance != null)
+            {
+                throw new Exception("MULTIPLE INSTANTIATION!!!!!!!!");
+            }
+
             m_instance = this;
             mainPanel = GetComponentInChildren<UIScrollablePanel>();
             mainPanel.autoLayout = true;
@@ -72,12 +77,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             ReloadPrefixOptions();
             TLMUtils.doLog("PrefixDD Panel");
-            var ddPanel = m_prefixSelector.GetComponentInParent<UIPanel>();
+            UIPanel ddPanel = m_prefixSelector.GetComponentInParent<UIPanel>();
             ConfigComponentPanel(m_prefixSelector);
 
 
             TLMUtils.doLog("SubPanel");
-            TLMUtils.createUIElement(out UIPanel subpanel, mainPanel.transform, "Subpanel", new Vector4(0, 0, 500, 180));
+            KlyteMonoUtils.CreateUIElement(out UIPanel subpanel, mainPanel.transform, "Subpanel", new Vector4(0, 0, 500, 180));
             subpanel.autoLayout = true;
             subpanel.autoLayoutDirection = LayoutDirection.Vertical;
             subpanel.autoSize = true;
@@ -85,10 +90,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_subpanel = new UIHelperExtension(subpanel);
 
             TLMUtils.doLog("AssetSelector");
-            TLMUtils.createUIElement(out m_panelAssetSelector, mainPanel.transform, "AssetSelector", new Vector4(0, 0, 0, 0.0001f));
-            m_assetSelectorWindow = TLMUtils.createElement(ImplClassChildren, m_panelAssetSelector.transform).GetComponent<TLMAssetSelectorWindowPrefixTab<T>>();
+            KlyteMonoUtils.CreateUIElement(out m_panelAssetSelector, mainPanel.transform, "AssetSelector", new Vector4(0, 0, 0, 0.0001f));
+            m_assetSelectorWindow = KlyteMonoUtils.CreateElement(ImplClassChildren, m_panelAssetSelector.transform).GetComponent<TLMAssetSelectorWindowPrefixTab<T>>();
 
-            m_subpanel.self.isVisible = false;
+            m_subpanel.Self.isVisible = false;
             m_assetSelectorWindow.mainPanel.isVisible = false;
 
             TLMUtils.doLog("Name");
@@ -101,13 +106,13 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             TLMUtils.doLog("ColorForModel");
             m_useColorForModel = m_subpanel.AddCheckboxLocale("K45_TLM_USE_PREFIX_COLOR_FOR_VEHICLE", false, onUseColorVehicleChange);
-            TLMUtils.LimitWidth(m_useColorForModel.label, 420, true);
+            KlyteMonoUtils.LimitWidth(m_useColorForModel.label, 420, true);
 
             TLMUtils.doLog("ColorSel");
             CreateColorSelector();
 
             TLMUtils.doLog("Budget");
-            TLMUtils.createUIElement(out UIPanel m_budgetPanel, subpanel.transform, "BudgetPanel", new Vector4(0, 0, 460, 180));
+            KlyteMonoUtils.CreateUIElement(out UIPanel m_budgetPanel, subpanel.transform, "BudgetPanel", new Vector4(0, 0, 460, 180));
             CreateBudgetSliders(m_budgetPanel);
             m_budgetPanel.relativePosition = new Vector3(550, 0);
 
@@ -115,7 +120,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_paletteDD = m_subpanel.AddDropdownLocalized("K45_TLM_PALETTE", new string[0], -1, SetPalettePrefix);
 
             TLMUtils.doLog("PaletteDD Panel");
-            var palettePanel = m_paletteDD.GetComponentInParent<UIPanel>();
+            UIPanel palettePanel = m_paletteDD.GetComponentInParent<UIPanel>();
             ConfigComponentPanel(m_paletteDD);
             reloadPalettes();
             TLMPaletteOptionsTab.onPaletteReloaded += reloadPalettes;
@@ -126,19 +131,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
 
             GetComponent<UIComponent>().eventVisibilityChanged += (x, y) => forceRefresh();
-            TLMConfigWarehouse.eventOnPropertyChanged += OnWarehouseChange;
+            TLMConfigWarehouse.EventOnPropertyChanged += OnWarehouseChange;
         }
 
-        private void SetPalettePrefix(int value)
-        {
-            extension.SetCustomPalette((uint)SelectedPrefix, value == 0 ? null : m_paletteDD.selectedValue);
-
-        }
-        private void SetFormatPrefix(int value)
-        {
-            extension.SetCustomFormat((uint)SelectedPrefix, (TLMLineIcon)Enum.Parse(typeof(TLMLineIcon), value.ToString()));
-
-        }
+        private void SetPalettePrefix(int value) => extension.SetCustomPalette((uint) SelectedPrefix, value == 0 ? null : m_paletteDD.selectedValue);
+        private void SetFormatPrefix(int value) => extension.SetCustomFormat((uint) SelectedPrefix, (LineIconSpriteNames) Enum.Parse(typeof(LineIconSpriteNames), value.ToString()));
 
         private void OnWarehouseChange(TLMConfigWarehouse.ConfigIndex idx, bool? newValueBool, int? newValueInt, string newValueString)
         {
@@ -163,7 +160,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void CreateBudgetSliders(UIPanel reference)
         {
             TLMUtils.doLog("SLIDERS");
-            TLMUtils.createElement(out m_budgetSliders, reference.transform, "Budget Sliders");
+            KlyteMonoUtils.CreateElement(out m_budgetSliders, reference.transform, "Budget Sliders");
         }
 
         private void ConfigComponentPanel(UIComponent reference)
@@ -172,13 +169,13 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             reference.GetComponentInParent<UIPanel>().wrapLayout = false;
             reference.GetComponentInParent<UIPanel>().autoLayout = false;
             reference.GetComponentInParent<UIPanel>().height = 40;
-            TLMUtils.createUIElement(out UIPanel labelContainer, reference.parent.transform, "lblContainer", new Vector4(0, 0, 240, reference.height));
+            KlyteMonoUtils.CreateUIElement(out UIPanel labelContainer, reference.parent.transform, "lblContainer", new Vector4(0, 0, 240, reference.height));
             labelContainer.zOrder = 0;
             UILabel lbl = reference.parent.GetComponentInChildren<UILabel>();
             lbl.transform.SetParent(labelContainer.transform);
             lbl.textAlignment = UIHorizontalAlignment.Center;
             lbl.minimumSize = new Vector2(240, reference.height);
-            TLMUtils.LimitWidth(lbl, 240);
+            KlyteMonoUtils.LimitWidth(lbl, 240);
             lbl.verticalAlignment = UIVerticalAlignment.Middle;
             lbl.pivot = UIPivotPoint.TopCenter;
             lbl.relativePosition = new Vector3(0, lbl.relativePosition.y);
@@ -194,25 +191,25 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void CreateColorSelector()
         {
-            TLMUtils.createUIElement(out UIPanel panelColorSelector, m_subpanel.self.transform, "ColorSelector", new Vector4(500, 60, 0, 0));
+            KlyteMonoUtils.CreateUIElement(out UIPanel panelColorSelector, m_subpanel.Self.transform, "ColorSelector", new Vector4(500, 60, 0, 0));
             panelColorSelector.autoLayout = true;
             panelColorSelector.autoLayoutDirection = LayoutDirection.Horizontal;
             panelColorSelector.autoLayoutPadding = new RectOffset(3, 3, 0, 0);
             panelColorSelector.autoFitChildrenHorizontally = true;
             panelColorSelector.autoFitChildrenVertically = true;
 
-            TLMUtils.createUIElement(out UILabel lbl, panelColorSelector.transform, "PrefixColorLabel", new Vector4(5, 12, 250, 40));
-            TLMUtils.LimitWidth(lbl, 250, true);
+            KlyteMonoUtils.CreateUIElement(out UILabel lbl, panelColorSelector.transform, "PrefixColorLabel", new Vector4(5, 12, 250, 40));
+            KlyteMonoUtils.LimitWidth(lbl, 250, true);
             lbl.localeID = "K45_TLM_PREFIX_COLOR_LABEL";
             lbl.verticalAlignment = UIVerticalAlignment.Middle;
             lbl.font = UIHelperExtension.defaultFontCheckbox;
 
-            m_prefixColor = KlyteUtils.CreateColorField(panelColorSelector);
+            m_prefixColor = KlyteMonoUtils.CreateColorField(panelColorSelector);
             m_prefixColor.eventSelectedColorChanged += onChangePrefixColor;
 
-            TLMUtils.createUIElement(out UIButton resetColor, panelColorSelector.transform, "PrefixColorReset", new Vector4(290, 0, 0, 0));
-            TLMUtils.initButton(resetColor, false, "ButtonMenu");
-            TLMUtils.LimitWidth(resetColor, 200);
+            KlyteMonoUtils.CreateUIElement(out UIButton resetColor, panelColorSelector.transform, "PrefixColorReset", new Vector4(290, 0, 0, 0));
+            KlyteMonoUtils.InitButton(resetColor, false, "ButtonMenu");
+            KlyteMonoUtils.LimitWidth(resetColor, 200);
             resetColor.textPadding = new RectOffset(5, 5, 5, 2);
             resetColor.autoSize = true;
             resetColor.localeID = "K45_TLM_RESET_COLOR";
@@ -220,15 +217,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         }
         #endregion
         #region Actions
-        private void onResetColor(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            m_prefixColor.selectedColor = Color.clear;
-        }
+        private void onResetColor(UIComponent component, UIMouseEventParameter eventParam) => m_prefixColor.selectedColor = Color.clear;
         private void onChangePrefixColor(UIComponent component, Color selectedColor)
         {
             if (!isChanging && m_prefixSelector.selectedIndex >= 0)
             {
-                extension.SetColor((uint)m_prefixSelector.selectedIndex, selectedColor);
+                extension.SetColor((uint) m_prefixSelector.selectedIndex, selectedColor);
             }
             eventOnColorChange?.Invoke(selectedColor);
         }
@@ -236,14 +230,14 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             if (!isChanging && m_prefixSelector.selectedIndex >= 0)
             {
-                extension.SetUsingColorForModel((uint)m_prefixSelector.selectedIndex, val);
+                extension.SetUsingColorForModel((uint) m_prefixSelector.selectedIndex, val);
             }
         }
         private void onPrefixNameChange(string val)
         {
             if (!isChanging && m_prefixSelector.selectedIndex >= 0)
             {
-                extension.SetName((uint)m_prefixSelector.selectedIndex, val);
+                extension.SetName((uint) m_prefixSelector.selectedIndex, val);
                 ReloadPrefixOptions();
             }
         }
@@ -251,19 +245,19 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             if (!isChanging && m_prefixSelector.selectedIndex >= 0 && uint.TryParse(val, out uint intVal))
             {
-                extension.SetTicketPrice((uint)m_prefixSelector.selectedIndex, intVal);
+                extension.SetTicketPrice((uint) m_prefixSelector.selectedIndex, intVal);
             }
         }
         private void setBudgetHour(float x, int selectedHourIndex)
         {
             if (!isChanging && m_prefixSelector.selectedIndex >= 0)
             {
-                uint idx = (uint)SelectedPrefix;
-                ushort val = (ushort)(x * 100 + 0.5f);
+                uint idx = (uint) SelectedPrefix;
+                ushort val = (ushort) (x * 100 + 0.5f);
                 IBudgetableExtension bte;
                 uint[] saveData;
 
-                var tsdRef = TransportSystem;
+                TransportSystemDefinition tsdRef = TransportSystem;
                 bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
                 saveData = bte.GetBudgetsMultiplier(idx);
                 if (selectedHourIndex >= saveData.Length || saveData[selectedHourIndex] == val)
@@ -284,16 +278,16 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void onChangePrefix(int sel)
         {
             isChanging = true;
-            m_subpanel.self.isVisible = sel >= 0;
+            m_subpanel.Self.isVisible = sel >= 0;
             m_assetSelectorWindow.mainPanel.isVisible = sel >= 0;
             if (sel >= 0)
             {
-                m_prefixColor.selectedColor = extension.GetColor((uint)sel);
-                m_useColorForModel.isChecked = extension.IsUsingColorForModel((uint)sel);
-                m_prefixTicketPrice.text = extension.GetTicketPrice((uint)sel).ToString();
-                m_prefixName.text = extension.GetName((uint)sel) ?? "";
-                m_paletteDD.selectedIndex = Math.Max(0, m_paletteDD.items.ToList().IndexOf(extension.GetCustomPalette((uint)sel)));
-                m_formatDD.selectedIndex = Math.Max(0, (int)extension.GetCustomFormat((uint)sel));
+                m_prefixColor.selectedColor = extension.GetColor((uint) sel);
+                m_useColorForModel.isChecked = extension.IsUsingColorForModel((uint) sel);
+                m_prefixTicketPrice.text = extension.GetTicketPrice((uint) sel).ToString();
+                m_prefixName.text = extension.GetName((uint) sel) ?? "";
+                m_paletteDD.selectedIndex = Math.Max(0, m_paletteDD.items.ToList().IndexOf(extension.GetCustomPalette((uint) sel)));
+                m_formatDD.selectedIndex = Math.Max(0, (int) extension.GetCustomFormat((uint) sel));
 
                 eventOnPrefixChange?.Invoke(sel);
                 onSelectionChanged?.Invoke();
@@ -301,10 +295,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             isChanging = false;
         }
 
-        public void forceRefresh()
-        {
-            onChangePrefix(SelectedPrefix);
-        }
+        public void forceRefresh() => onChangePrefix(SelectedPrefix);
         #endregion
 
         private void Start()

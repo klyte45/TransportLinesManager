@@ -1,8 +1,8 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
+using Klyte.Commons.UI.Sprites;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -19,32 +19,30 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         protected override TLMConfigWarehouse.ConfigIndex ConfigIndexKey
         {
             get {
-                var tsd = definition;
+                TransportSystemDefinition tsd = definition;
                 return TLMConfigWarehouse.getConfigAssetsForAI(ref tsd);
             }
         }
-        protected override bool AllowGlobal { get { return false; } }
+        protected override bool AllowGlobal => false;
 
         private List<string> basicAssetsList;
 
         private TransportSystemDefinition definition => Singleton<TSD>.instance.GetTSD();
 
         #region Prefix Name
-        public string GetName(uint prefix)
-        {
-            return SafeGet(prefix, PrefixConfigIndex.PREFIX_NAME);
-        }
-        public void SetName(uint prefix, string name)
-        {
-            SafeSet(prefix, PrefixConfigIndex.PREFIX_NAME, name);
-        }
+        public string GetName(uint prefix) => SafeGet(prefix, PrefixConfigIndex.PREFIX_NAME);
+        public void SetName(uint prefix, string name) => SafeSet(prefix, PrefixConfigIndex.PREFIX_NAME, name);
         #endregion
 
         #region Budget Multiplier
         public uint[] GetBudgetsMultiplier(uint prefix)
         {
             string value = SafeGet(prefix, PrefixConfigIndex.BUDGET_MULTIPLIER);
-            if (value == null) return new uint[] { 100 };
+            if (value == null)
+            {
+                return new uint[] { 100 };
+            }
+
             string[] savedMultipliers = value.Split(ItSepLvl3.ToCharArray());
 
             uint[] result = new uint[savedMultipliers.Length];
@@ -70,15 +68,15 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
             else if (savedMultipliers.Length == 8)
             {
-                int refMultiplierIdx = (((int)hour + 23) / 3) % 8;
-                var phasePercentage = (hour + 23) % 3;
+                int refMultiplierIdx = (((int) hour + 23) / 3) % 8;
+                float phasePercentage = (hour + 23) % 3;
                 if (phasePercentage < .5f)
                 {
-                    return (uint)Mathf.Lerp(savedMultipliers[(refMultiplierIdx + 7) % 8], savedMultipliers[refMultiplierIdx], 0.5f + phasePercentage);
+                    return (uint) Mathf.Lerp(savedMultipliers[(refMultiplierIdx + 7) % 8], savedMultipliers[refMultiplierIdx], 0.5f + phasePercentage);
                 }
                 else if (phasePercentage > 2.5f)
                 {
-                    return (uint)Mathf.Lerp(savedMultipliers[refMultiplierIdx], savedMultipliers[(refMultiplierIdx + 1) % 8], (phasePercentage) - 2.5f);
+                    return (uint) Mathf.Lerp(savedMultipliers[refMultiplierIdx], savedMultipliers[(refMultiplierIdx + 1) % 8], (phasePercentage) - 2.5f);
                 }
                 else
                 {
@@ -87,10 +85,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
             return 100;
         }
-        public void SetBudgetMultiplier(uint prefix, uint[] multipliers)
-        {
-            SafeSet(prefix, PrefixConfigIndex.BUDGET_MULTIPLIER, string.Join(ItSepLvl3, multipliers.Select(x => x.ToString()).ToArray()));
-        }
+        public void SetBudgetMultiplier(uint prefix, uint[] multipliers) => SafeSet(prefix, PrefixConfigIndex.BUDGET_MULTIPLIER, string.Join(ItSepLvl3, multipliers.Select(x => x.ToString()).ToArray()));
         #endregion
 
         #region Ticket Price
@@ -104,17 +99,14 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         }
         public uint GetDefaultTicketPrice(uint x = 0)
         {
-            var savedVal = TLMConfigWarehouse.instance.getInt(TLMConfigWarehouse.ConfigIndex.DEFAULT_TICKET_PRICE | Singleton<TSD>.instance.GetTSD().toConfigIndex());
+            int savedVal = TLMConfigWarehouse.instance.GetInt(TLMConfigWarehouse.ConfigIndex.DEFAULT_TICKET_PRICE | Singleton<TSD>.instance.GetTSD().toConfigIndex());
             if (savedVal > 0)
             {
-                return (uint)savedVal;
+                return (uint) savedVal;
             }
-            return (uint)TransportManager.instance.GetTransportInfo(Singleton<TSD>.instance.GetTSD().transportType).m_ticketPrice;
+            return (uint) TransportManager.instance.GetTransportInfo(Singleton<TSD>.instance.GetTSD().transportType).m_ticketPrice;
         }
-        public void SetTicketPrice(uint prefix, uint price)
-        {
-            SafeSet(prefix, PrefixConfigIndex.TICKET_PRICE, price.ToString());
-        }
+        public void SetTicketPrice(uint prefix, uint price) => SafeSet(prefix, PrefixConfigIndex.TICKET_PRICE, price.ToString());
         #endregion
 
         #region Asset List
@@ -132,40 +124,53 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         }
         public Dictionary<string, string> GetSelectedBasicAssets(uint prefix)
         {
-            if (basicAssetsList == null) LoadBasicAssets();
-            return GetAssetList(prefix).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", TLMUtils.getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
+            if (basicAssetsList == null)
+            {
+                LoadBasicAssets();
+            }
+
+            return GetAssetList(prefix).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
         public Dictionary<string, string> GetAllBasicAssets(uint nil = 0)
         {
-            if (basicAssetsList == null) LoadBasicAssets();
-            return basicAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", TLMUtils.getCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
+            if (basicAssetsList == null)
+            {
+                LoadBasicAssets();
+            }
+
+            return basicAssetsList.ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
         public void AddAsset(uint prefix, string assetId)
         {
-            var temp = GetAssetList(prefix);
-            if (temp.Contains(assetId)) return;
+            List<string> temp = GetAssetList(prefix);
+            if (temp.Contains(assetId))
+            {
+                return;
+            }
+
             temp.Add(assetId);
             SafeSet(prefix, PrefixConfigIndex.MODELS, string.Join(ItSepLvl3, temp.ToArray()));
         }
         public void RemoveAsset(uint prefix, string assetId)
         {
-            var temp = GetAssetList(prefix);
-            if (!temp.Contains(assetId)) return;
+            List<string> temp = GetAssetList(prefix);
+            if (!temp.Contains(assetId))
+            {
+                return;
+            }
+
             temp.RemoveAll(x => x == assetId);
             SafeSet(prefix, PrefixConfigIndex.MODELS, string.Join(ItSepLvl3, temp.ToArray()));
         }
-        public void UseDefaultAssets(uint prefix)
-        {
-            SafeCleanProperty(prefix, PrefixConfigIndex.MODELS);
-        }
+        public void UseDefaultAssets(uint prefix) => SafeCleanProperty(prefix, PrefixConfigIndex.MODELS);
         public VehicleInfo GetAModel(ushort lineID)
         {
-            var prefix = TLMLineUtils.getPrefix(lineID);
+            uint prefix = TLMLineUtils.getPrefix(lineID);
             VehicleInfo info = null;
             List<string> assetList = GetAssetList(prefix);
             while (info == null && assetList.Count > 0)
             {
-                info = TLMUtils.GetRandomModel(assetList, out string modelName);
+                info = VehicleUtils.GetRandomModel(assetList, out string modelName);
                 if (info == null)
                 {
                     RemoveAsset(prefix, modelName);
@@ -176,17 +181,14 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         }
         public void LoadBasicAssets()
         {
-            var tsd = definition;
+            TransportSystemDefinition tsd = definition;
             basicAssetsList = TLMUtils.LoadBasicAssets(ref tsd);
         }
 
         #endregion
 
         #region Color
-        public Color GetColor(uint prefix)
-        {
-            return TLMUtils.DeserializeColor(SafeGet(prefix, PrefixConfigIndex.COLOR), ItSepLvl3);
-        }
+        public Color GetColor(uint prefix) => SerializationUtils.DeserializeColor(SafeGet(prefix, PrefixConfigIndex.COLOR), ItSepLvl3);
 
         public void SetColor(uint prefix, Color value)
         {
@@ -196,59 +198,41 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
             else
             {
-                SafeSet(prefix, PrefixConfigIndex.COLOR, TLMUtils.SerializeColor(value, ItSepLvl3));
+                SafeSet(prefix, PrefixConfigIndex.COLOR, SerializationUtils.SerializeColor(value, ItSepLvl3));
             }
         }
 
-        public void CleanColor(uint prefix)
-        {
-            SafeCleanProperty(prefix, PrefixConfigIndex.COLOR);
-        }
+        public void CleanColor(uint prefix) => SafeCleanProperty(prefix, PrefixConfigIndex.COLOR);
         #endregion
 
         #region Use Color For Model
-        public bool IsUsingColorForModel(uint prefix)
-        {
-            return Boolean.TryParse(SafeGet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL), out bool result) && result;
-        }
+        public bool IsUsingColorForModel(uint prefix) => bool.TryParse(SafeGet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL), out bool result) && result;
 
-        public void SetUsingColorForModel(uint prefix, bool value)
-        {
-            SafeSet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL, value.ToString());
-        }
+        public void SetUsingColorForModel(uint prefix, bool value) => SafeSet(prefix, PrefixConfigIndex.USE_COLOR_FOR_MODEL, value.ToString());
         #endregion
 
         #region Custom Palette
-        public string GetCustomPalette(uint prefix)
-        {
-            return SafeGet(prefix, PrefixConfigIndex.CUSTOM_PALETTE) ?? string.Empty;
-        }
+        public string GetCustomPalette(uint prefix) => SafeGet(prefix, PrefixConfigIndex.CUSTOM_PALETTE) ?? string.Empty;
 
-        public void SetCustomPalette(uint prefix, string paletteName)
-        {
-            SafeSet(prefix, PrefixConfigIndex.CUSTOM_PALETTE, paletteName);
-        }
+        public void SetCustomPalette(uint prefix, string paletteName) => SafeSet(prefix, PrefixConfigIndex.CUSTOM_PALETTE, paletteName);
 
         #endregion
 
         #region Custom Format
-        public TLMLineIcon GetCustomFormat(uint prefix)
+        public LineIconSpriteNames GetCustomFormat(uint prefix)
         {
-            var valueSet = SafeGet(prefix, PrefixConfigIndex.CUSTOM_FORMAT);
-            if (valueSet == null || !Enum.IsDefined(typeof(TLMLineIcon), valueSet))
+            string valueSet = SafeGet(prefix, PrefixConfigIndex.CUSTOM_FORMAT);
+            if (valueSet == null || !Enum.IsDefined(typeof(LineIconSpriteNames), valueSet))
             {
-                return TLMLineIcon.NULL;
+                return LineIconSpriteNames.NULL;
             }
             else
             {
-                return (TLMLineIcon)Enum.Parse(typeof(TLMLineIcon), valueSet);
+                return (LineIconSpriteNames) Enum.Parse(typeof(LineIconSpriteNames), valueSet);
             }
         }
 
-        public void SetCustomFormat(uint prefix, TLMLineIcon icon)
-        {
-            SafeSet(prefix, PrefixConfigIndex.CUSTOM_FORMAT, icon.ToString());
-        }
+        public void SetCustomFormat(uint prefix, LineIconSpriteNames icon) => SafeSet(prefix, PrefixConfigIndex.CUSTOM_FORMAT, icon.ToString());
 
         #endregion
 
@@ -269,61 +253,6 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
     internal sealed class TLMTransportTypeExtensionTouBal : TLMTransportTypeExtension<TLMSysDefTouBal, TLMTransportTypeExtensionTouBal> { }
     internal sealed class TLMTransportTypeExtensionNorCcr : TLMTransportTypeExtension<TLMSysDefNorCcr, TLMTransportTypeExtensionNorCcr> { }
     internal sealed class TLMTransportTypeExtensionNorTax : TLMTransportTypeExtension<TLMSysDefNorTax, TLMTransportTypeExtensionNorTax> { }
-
-    internal sealed class TLMTransportExtensionUtils
-    {
-
-        public static void RemoveAllUnwantedVehicles()
-        {
-            for (ushort lineId = 1; lineId < Singleton<TransportManager>.instance.m_lines.m_size; lineId++)
-            {
-                if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
-                {
-                    uint idx;
-                    IAssetSelectorExtension extension;
-                    if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineId))
-                    {
-                        idx = lineId;
-                        extension = TLMTransportLineExtension.instance;
-                    }
-                    else
-                    {
-                        idx = TLMLineUtils.getPrefix(lineId);
-                        var def = TransportSystemDefinition.from(lineId);
-                        extension = def.GetTransportExtension();
-                    }
-
-                    TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
-                    var modelList = extension.GetAssetList(idx);
-                    VehicleManager vm = Singleton<VehicleManager>.instance;
-                    VehicleInfo info = vm.m_vehicles.m_buffer[Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].GetVehicle(0)].Info;
-
-                    if (TransportLinesManagerMod.debugMode) TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
-
-                    if (modelList.Count > 0)
-                    {
-                        Dictionary<ushort, VehicleInfo> vehiclesToRemove = new Dictionary<ushort, VehicleInfo>();
-                        for (int i = 0; i < tl.CountVehicles(lineId); i++)
-                        {
-                            var vehicle = tl.GetVehicle(i);
-                            if (vehicle != 0)
-                            {
-                                VehicleInfo info2 = vm.m_vehicles.m_buffer[vehicle].Info;
-                                if (!modelList.Contains(info2.name))
-                                {
-                                    vehiclesToRemove[vehicle] = info2;
-                                }
-                            }
-                        }
-                        foreach (var item in vehiclesToRemove)
-                        {
-                            item.Value.m_vehicleAI.SetTransportLine(item.Key, ref vm.m_vehicles.m_buffer[item.Key], 0);
-                        }
-                    }
-                }
-            }
-        }
-    }
 
 
 

@@ -136,7 +136,7 @@ namespace Klyte.TransportLinesManager.Interfaces
             if (global && !AllowGlobal) { throw new Exception("CONFIGURAÇÂO NÃO GLOBAL TENTOU SER SALVA COMO GLOBAL: " + typeof(U)); }
             if (global)
             {
-                loadedConfig = TLMConfigWarehouse.getConfig(TLMConfigWarehouse.GLOBAL_CONFIG_INDEX, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX);
+                loadedConfig = TLMConfigWarehouse.GetConfig(TLMConfigWarehouse.GLOBAL_CONFIG_INDEX, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX);
             }
             else
             {
@@ -144,7 +144,7 @@ namespace Klyte.TransportLinesManager.Interfaces
             }
             var value = RecursiveEncode(target);
             TLMUtils.doLog("saveConfig ({0}) NEW VALUE: {1}", idx, value);
-            loadedConfig.setString(idx, value);
+            loadedConfig.SetString(idx, value);
         }
         public Dictionary<uint, Dictionary<T, string>> LoadConfig(TLMConfigWarehouse.ConfigIndex idx, bool global = false)
         {
@@ -154,11 +154,11 @@ namespace Klyte.TransportLinesManager.Interfaces
             if (global && !AllowGlobal) { throw new Exception("CONFIGURAÇÂO NÃO GLOBAL TENTOU SER CARREGADA COMO GLOBAL: " + typeof(U)); }
             if (global)
             {
-                itemListLvl1 = TLMConfigWarehouse.getConfig().getString(idx).Split(ItSepLvl1.ToCharArray());
+                itemListLvl1 = TLMConfigWarehouse.GetConfig().GetString(idx).Split(ItSepLvl1.ToCharArray());
             }
             else
             {
-                itemListLvl1 = TLMConfigWarehouse.getCurrentConfigString(idx).Split(ItSepLvl1.ToCharArray());
+                itemListLvl1 = TLMConfigWarehouse.GetCurrentConfigString(idx).Split(ItSepLvl1.ToCharArray());
             }
 
             if (itemListLvl1.Length > 0)

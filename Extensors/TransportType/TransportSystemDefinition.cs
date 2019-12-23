@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -174,18 +175,9 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             availableDefinitions.TryGetValue(this, out ITLMTransportTypeExtension result);
             return result;
         }
-        public bool isTour()
-        {
-            return subService == ItemClass.SubService.PublicTransportTours;
-        }
-        public bool isShelterAiDepot()
-        {
-            return this == EVAC_BUS;
-        }
-        public bool hasVehicles()
-        {
-            return vehicleType != VehicleInfo.VehicleType.None;
-        }
+        public bool isTour() => subService == ItemClass.SubService.PublicTransportTours;
+        public bool isShelterAiDepot() => this == EVAC_BUS;
+        public bool hasVehicles() => vehicleType != VehicleInfo.VehicleType.None;
         public bool isPrefixable()
         {
             switch (transportType)
@@ -196,39 +188,25 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                 case TransportInfo.TransportType.Pedestrian:
                 case TransportInfo.TransportType.EvacuationBus:
                     return false;
-                default: return true;
+                default:
+                    return true;
             }
         }
 
-        internal Type GetDefType()
-        {
-            return sysDefinitions[this];
-        }
+        internal Type GetDefType() => sysDefinitions[this];
 
-        public String getTransportTypeIcon()
-        {
-            return PublicTransportWorldInfoPanel.GetVehicleTypeIcon(transportType);
-        }
+        public string getTransportTypeIcon() => PublicTransportWorldInfoPanel.GetVehicleTypeIcon(transportType);
 
-        public bool isFromSystem(VehicleInfo info)
-        {
-            return info.m_class.m_subService == subService && info.m_vehicleType == vehicleType && TLMUtils.HasField(info.GetAI(), "m_transportInfo") && TLMUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo").m_transportType == transportType && TLMUtils.HasField(info.GetAI(), "m_passengerCapacity");
-        }
+        public bool isFromSystem(VehicleInfo info) => info.m_class.m_subService == subService && info.m_vehicleType == vehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && (info.GetAI().GetType().GetField("m_transportInfo").GetValue(info.GetAI()) as TransportInfo).m_transportType == transportType && ReflectionUtils.HasField(info.GetAI(), "m_passengerCapacity");
 
-        public bool isFromSystem(TransportInfo info)
-        {
-            return info != null && info.m_class.m_subService == subService && info.m_vehicleType == vehicleType && info.m_transportType == transportType;
-        }
+        public bool isFromSystem(TransportInfo info) => info != null && info.m_class.m_subService == subService && info.m_vehicleType == vehicleType && info.m_transportType == transportType;
 
         public bool isFromSystem(DepotAI p)
         {
             return p != null && ((p.m_info.m_class.m_subService == subService && p.m_transportInfo.m_vehicleType == vehicleType && p.m_maxVehicleCount > 0 && p.m_transportInfo.m_transportType == transportType)
                 || (p.m_secondaryTransportInfo != null && p.m_secondaryTransportInfo.m_vehicleType == vehicleType && p.m_maxVehicleCount2 > 0 && p.m_secondaryTransportInfo.m_transportType == transportType));
         }
-        public bool isFromSystem(TransportLine tl)
-        {
-            return (tl.Info.m_class.m_subService == subService && tl.Info.m_vehicleType == vehicleType && tl.Info.m_transportType == transportType);
-        }
+        public bool isFromSystem(TransportLine tl) => (tl.Info.m_class.m_subService == subService && tl.Info.m_vehicleType == vehicleType && tl.Info.m_transportType == transportType);
 
         public override bool Equals(object obj)
         {
@@ -240,7 +218,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             {
                 return false;
             }
-            TransportSystemDefinition other = (TransportSystemDefinition)obj;
+            var other = (TransportSystemDefinition) obj;
 
             return subService == other.subService && vehicleType == other.vehicleType && transportType == other.transportType;
         }
@@ -253,14 +231,11 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
             return a.Equals(b);
         }
-        public static bool operator !=(TransportSystemDefinition a, TransportSystemDefinition b)
-        {
-            return !(a == b);
-        }
+        public static bool operator !=(TransportSystemDefinition a, TransportSystemDefinition b) => !(a == b);
 
         public static TransportSystemDefinition from(PrefabAI buildingAI)
         {
-            DepotAI depotAI = buildingAI as DepotAI;
+            var depotAI = buildingAI as DepotAI;
             if (depotAI == null)
             {
                 return default;
@@ -274,7 +249,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             {
                 return default;
             }
-            var result = availableDefinitions.Keys.FirstOrDefault(x => x.subService == info.m_class.m_subService && x.vehicleType == info.m_vehicleType && x.transportType == info.m_transportType);
+            TransportSystemDefinition result = availableDefinitions.Keys.FirstOrDefault(x => x.subService == info.m_class.m_subService && x.vehicleType == info.m_vehicleType && x.transportType == info.m_transportType);
             if (result == default)
             {
                 TLMUtils.doErrorLog($"TSD NOT FOUND FOR TRANSPORT INFO: info.m_class.m_subService={info.m_class.m_subService}, info.m_vehicleType={info.m_vehicleType}, info.m_transportType={info.m_transportType}");
@@ -287,7 +262,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             {
                 return default;
             }
-            var result = availableDefinitions.Keys.FirstOrDefault(x => x.subService == info.m_class.m_subService && x.vehicleType == info.m_vehicleType && TLMUtils.HasField(info.GetAI(), "m_transportInfo") && TLMUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo").m_transportType == x.transportType);
+            var result = availableDefinitions.Keys.FirstOrDefault(x => x.subService == info.m_class.m_subService && x.vehicleType == info.m_vehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && ReflectionUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo").m_transportType == x.transportType);
             return result;
         }
         public static TransportSystemDefinition from(uint lineId)
@@ -299,19 +274,13 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         public static TransportSystemDefinition getDefinitionForLine(ushort i) => getDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[i]);
         public static TransportSystemDefinition getDefinitionForLine(ref TransportLine t) => from(t.Info);
 
-        public TLMConfigWarehouse.ConfigIndex toConfigIndex()
-        {
-            return TLMConfigWarehouse.getConfigTransportSystemForDefinition(ref this);
-        }
+        public TLMConfigWarehouse.ConfigIndex toConfigIndex() => TLMConfigWarehouse.getConfigTransportSystemForDefinition(ref this);
 
-        public override string ToString()
-        {
-            return subService.ToString() + "|" + vehicleType.ToString();
-        }
+        public override string ToString() => subService.ToString() + "|" + vehicleType.ToString();
 
         public override int GetHashCode()
         {
-            var hashCode = 286451371;
+            int hashCode = 286451371;
             hashCode = hashCode * -1521134295 + subService.GetHashCode();
             hashCode = hashCode * -1521134295 + vehicleType.GetHashCode();
             return hashCode;

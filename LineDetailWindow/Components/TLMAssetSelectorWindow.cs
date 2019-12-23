@@ -2,9 +2,10 @@
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.UI;
+using Klyte.Commons.UI.SpriteNames;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -22,9 +23,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
         private TLMLineDetailWindow m_lineInfo;
         public TLMLineDetailWindow lineInfo
         {
-            get {
-                return m_lineInfo;
-            }
+            get => m_lineInfo;
             set {
                 if (m_lineInfo == null)
                 {
@@ -60,13 +59,13 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
         private void CreateRemoveUndesiredModelsButton()
         {
-            TLMUtils.createUIElement<UIButton>(out UIButton removeUndesired, m_mainPanel.transform);
+            KlyteMonoUtils.CreateUIElement<UIButton>(out UIButton removeUndesired, m_mainPanel.transform);
             removeUndesired.relativePosition = new Vector3(m_mainPanel.width - 25f, 10f);
             removeUndesired.textScale = 0.6f;
             removeUndesired.width = 20;
             removeUndesired.height = 20;
             removeUndesired.tooltip = Locale.Get("K45_TLM_REMOVE_UNWANTED_TOOLTIP");
-            TLMUtils.initButton(removeUndesired, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(removeUndesired, true, "ButtonMenu");
             removeUndesired.name = "DeleteLineButton";
             removeUndesired.isVisible = true;
             removeUndesired.eventClick += (component, eventParam) =>
@@ -74,17 +73,16 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 TLMTransportExtensionUtils.RemoveAllUnwantedVehicles();
             };
 
-            var icon = removeUndesired.AddUIComponent<UISprite>();
+            UISprite icon = removeUndesired.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 18;
             icon.height = 18;
-            icon.spriteName = "RemoveUnwantedIcon";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_RemoveUnwantedIcon);
         }
 
         private void CreateMainPanel()
         {
-            TLMUtils.createUIElement(out m_mainPanel, m_parent.transform);
+            KlyteMonoUtils.CreateUIElement(out m_mainPanel, m_parent.transform);
             m_mainPanel.Hide();
             m_mainPanel.relativePosition = new Vector3(m_parent.width, 0.0f);
             m_mainPanel.width = 250;
@@ -98,13 +96,13 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_mainPanel.useCenter = true;
             m_mainPanel.wrapLayout = false;
             m_mainPanel.canFocus = true;
-            TLMUtils.createDragHandle(m_mainPanel, m_mainPanel, 35f);
+            KlyteMonoUtils.CreateDragHandle(m_mainPanel, m_mainPanel, 35f);
             m_parent.eventVisibilityChanged += (component, value) =>
             {
                 m_mainPanel.isVisible = value;
             };
 
-            TLMUtils.createUIElement(out m_title, m_mainPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out m_title, m_mainPanel.transform);
             m_title.textAlignment = UIHorizontalAlignment.Center;
             m_title.autoSize = false;
             m_title.autoHeight = true;
@@ -115,7 +113,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
         private void CreateScrollPanel()
         {
-            TLMUtils.createUIElement(out m_scrollablePanel, m_mainPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out m_scrollablePanel, m_mainPanel.transform);
             m_scrollablePanel.width = m_mainPanel.width - 20f;
             m_scrollablePanel.height = m_mainPanel.height - 50f;
             m_scrollablePanel.autoLayoutDirection = LayoutDirection.Vertical;
@@ -125,7 +123,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_scrollablePanel.clipChildren = true;
             m_scrollablePanel.relativePosition = new Vector3(5, 45);
 
-            TLMUtils.createUIElement(out UIPanel trackballPanel, m_mainPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out UIPanel trackballPanel, m_mainPanel.transform);
             trackballPanel.width = 10f;
             trackballPanel.height = m_scrollablePanel.height;
             trackballPanel.autoLayoutDirection = LayoutDirection.Horizontal;
@@ -135,7 +133,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             trackballPanel.relativePosition = new Vector3(m_mainPanel.width - 15, 45);
 
 
-            TLMUtils.createUIElement(out m_scrollbar, trackballPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out m_scrollbar, trackballPanel.transform);
             m_scrollbar.width = 10f;
             m_scrollbar.height = m_scrollbar.parent.height;
             m_scrollbar.orientation = UIOrientation.Vertical;
@@ -145,7 +143,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_scrollbar.value = 0f;
             m_scrollbar.incrementAmount = 25f;
 
-            TLMUtils.createUIElement(out UISlicedSprite scrollBg, m_scrollbar.transform);
+            KlyteMonoUtils.CreateUIElement(out UISlicedSprite scrollBg, m_scrollbar.transform);
             scrollBg.relativePosition = Vector2.zero;
             scrollBg.autoSize = true;
             scrollBg.size = scrollBg.parent.size;
@@ -153,7 +151,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             scrollBg.spriteName = "ScrollbarTrack";
             m_scrollbar.trackObject = scrollBg;
 
-            TLMUtils.createUIElement(out UISlicedSprite scrollFg, scrollBg.transform);
+            KlyteMonoUtils.CreateUIElement(out UISlicedSprite scrollFg, scrollBg.transform);
             scrollFg.relativePosition = Vector2.zero;
             scrollFg.fillDirection = UIFillDirection.Vertical;
             scrollFg.autoSize = true;
@@ -178,7 +176,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_lineInfo.onLineChanged += (lineId) =>
             {
                 TLMUtils.doLog("EventOnLineChanged");
-                TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);
+                var tsd = TransportSystemDefinition.from(lineId);
                 if (!tsd.hasVehicles())
                 {
                     m_mainPanel.isVisible = false;
@@ -189,7 +187,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 TLMUtils.doLog("tsd = {0}", tsd);
                 if (m_lastDef != tsd)
                 {
-                    foreach (var i in m_checkboxes.Keys)
+                    foreach (string i in m_checkboxes.Keys)
                     {
                         UnityEngine.Object.Destroy(m_checkboxes[i].gameObject);
                     }
@@ -197,35 +195,39 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                     m_checkboxes = new Dictionary<string, UICheckBox>();
 
                     TLMUtils.doLog("m_defaultAssets Size = {0} ({1})", m_defaultAssets?.Count, string.Join(",", m_defaultAssets.Keys?.ToArray() ?? new string[0]));
-                    foreach (var i in m_defaultAssets.Keys)
+                    foreach (string i in m_defaultAssets.Keys)
                     {
-                        var checkbox = (UICheckBox)m_uiHelper.AddCheckbox(m_defaultAssets[i], false, (x) =>
-                        {
-                            ushort lineIdx = m_lineInfo.CurrentSelectedId;
-                            if (m_isLoading) return;
-                            if (x)
-                            {
-                                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineIdx))
-                                {
-                                    TLMTransportLineExtension.instance.AddAsset(lineIdx, i);
-                                }
-                                else
-                                {
-                                    tsd.GetTransportExtension().AddAsset(TLMLineUtils.getPrefix(lineIdx), i);
-                                }
-                            }
-                            else
-                            {
-                                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineIdx))
-                                {
-                                    TLMTransportLineExtension.instance.RemoveAsset(lineIdx, i);
-                                }
-                                else
-                                {
-                                    tsd.GetTransportExtension().RemoveAsset(TLMLineUtils.getPrefix(lineIdx), i);
-                                }
-                            }
-                        });
+                        var checkbox = (UICheckBox) m_uiHelper.AddCheckbox(m_defaultAssets[i], false, (x) =>
+                         {
+                             ushort lineIdx = m_lineInfo.CurrentSelectedId;
+                             if (m_isLoading)
+                             {
+                                 return;
+                             }
+
+                             if (x)
+                             {
+                                 if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineIdx))
+                                 {
+                                     TLMTransportLineExtension.instance.AddAsset(lineIdx, i);
+                                 }
+                                 else
+                                 {
+                                     tsd.GetTransportExtension().AddAsset(TLMLineUtils.getPrefix(lineIdx), i);
+                                 }
+                             }
+                             else
+                             {
+                                 if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineIdx))
+                                 {
+                                     TLMTransportLineExtension.instance.RemoveAsset(lineIdx, i);
+                                 }
+                                 else
+                                 {
+                                     tsd.GetTransportExtension().RemoveAsset(TLMLineUtils.getPrefix(lineIdx), i);
+                                 }
+                             }
+                         });
                         CreateModelCheckBox(i, checkbox);
                         checkbox.label.tooltip = checkbox.label.text;
                         checkbox.label.textScale = 0.9f;
@@ -244,7 +246,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                     selectedAssets = tsd.GetTransportExtension().GetAssetList(TLMLineUtils.getPrefix(lineId));
                 }
                 TLMUtils.doLog("selectedAssets Size = {0} ({1})", selectedAssets?.Count, string.Join(",", selectedAssets?.ToArray() ?? new string[0]));
-                foreach (var i in m_checkboxes.Keys)
+                foreach (string i in m_checkboxes.Keys)
                 {
                     m_checkboxes[i].isChecked = selectedAssets.Contains(i);
                 }
@@ -256,8 +258,8 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 else
                 {
                     TLMConfigWarehouse.ConfigIndex transportType = tsd.toConfigIndex();
-                    var prefix = TLMLineUtils.getPrefix(lineId);
-                    m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? TLMUtils.getStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int)prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
+                    uint prefix = TLMLineUtils.getPrefix(lineId);
+                    m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int) prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
                 }
 
                 m_isLoading = false;
@@ -278,19 +280,19 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
         private void SetPreviewWindow()
         {
-            TLMUtils.createUIElement(out m_previewPanel, m_mainPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out m_previewPanel, m_mainPanel.transform);
             m_previewPanel.backgroundSprite = "GenericPanel";
             m_previewPanel.width = m_mainPanel.width + 100f;
             m_previewPanel.height = m_mainPanel.width;
             m_previewPanel.relativePosition = new Vector3(-50f, m_mainPanel.height);
-            TLMUtils.createUIElement(out m_preview, m_previewPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out m_preview, m_previewPanel.transform);
             m_preview.size = m_previewPanel.size;
             m_preview.relativePosition = Vector3.zero;
-            TLMUtils.createElement(out m_previewRenderer, m_mainPanel.transform);
-            m_previewRenderer.size = m_preview.size * 2f;
-            m_preview.texture = m_previewRenderer.texture;
-            m_previewRenderer.zoom = 3;
-            m_previewRenderer.cameraRotation = 40;
+            KlyteMonoUtils.CreateElement(out m_previewRenderer, m_mainPanel.transform);
+            m_previewRenderer.Size = m_preview.size * 2f;
+            m_preview.texture = m_previewRenderer.Texture;
+            m_previewRenderer.Zoom = 3;
+            m_previewRenderer.CameraRotation = 40;
             m_previewPanel.isVisible = false;
         }
 
@@ -298,7 +300,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
         {
             if (m_lastInfo != default(VehicleInfo) && m_previewPanel.isVisible)
             {
-                m_previewRenderer.cameraRotation -= 2;
+                m_previewRenderer.CameraRotation -= 2;
                 redrawModel();
             }
         }
@@ -311,7 +313,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 return;
             }
             m_previewPanel.isVisible = true;
-            m_previewRenderer.RenderVehicle(m_lastInfo, Color.HSVToRGB(Math.Abs(m_previewRenderer.cameraRotation) / 360f, .5f, .5f), true);
+            m_previewRenderer.RenderVehicle(m_lastInfo, Color.HSVToRGB(Math.Abs(m_previewRenderer.CameraRotation) / 360f, .5f, .5f), true);
         }
     }
 }

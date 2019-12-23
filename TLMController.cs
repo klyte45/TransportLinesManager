@@ -1,5 +1,6 @@
 using ColossalFramework;
 using ColossalFramework.UI;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.LineDetailWindow;
@@ -19,7 +20,7 @@ namespace Klyte.TransportLinesManager
     public class TLMController : MonoBehaviour, ILinearMapParentInterface
     {
 
-        internal static TLMController instance => TransportLinesManagerMod.instance.controller;
+        internal static TLMController instance => TransportLinesManagerMod.Instance.Controller;
 
         public bool initialized = false;
         public bool initializedWIP = false;
@@ -31,12 +32,11 @@ namespace Klyte.TransportLinesManager
         //private UIPanel _cachedDefaultListingLinesPanel;
 
         public static readonly string FOLDER_NAME = "TransportLinesManager";
-        public static readonly string FOLDER_PATH = TLMUtils.BASE_FOLDER_PATH + FOLDER_NAME;
+        public static readonly string FOLDER_PATH = FileUtils.BASE_FOLDER_PATH + FOLDER_NAME;
         public const string PALETTE_SUBFOLDER_NAME = "ColorPalettes";
         public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
 
         public static string palettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
-        public static string configsFolder { get; } = TLMConfigWarehouse.CONFIG_PATH;
         public static string exportedMapsFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;
 
         internal TLMLineDetailWindow lineInfoPanel => m_lineInfoPanel;
@@ -125,7 +125,7 @@ namespace Klyte.TransportLinesManager
             catch (Exception e)
             {
                 TLMUtils.doErrorLog("ERRO!!!!! " + e.Message);
-                TLMCW.setCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
+                TLMCW.SetCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
                 return Color.clear;
             }
         }
@@ -291,16 +291,16 @@ namespace Klyte.TransportLinesManager
 
         public void Start()
         {
-            TLMUtils.createElement(out m_lineInfoPanel, FindObjectOfType<UIView>().transform);
-            TLMUtils.createElement(out m_linearMapCreatingLine, transform);
-            TLMUtils.createElement(out m_lineCreationToolbox, transform);
+            KlyteMonoUtils.CreateElement(out m_lineInfoPanel, FindObjectOfType<UIView>().transform);
+            KlyteMonoUtils.CreateElement(out m_linearMapCreatingLine, transform);
+            KlyteMonoUtils.CreateElement(out m_lineCreationToolbox, transform);
             m_linearMapCreatingLine.parent = this;
             m_linearMapCreatingLine.setVisible(false);
             initNearLinesOnWorldInfoPanel();
         }
 
-        public void OpenTLMPanel() => TransportLinesManagerMod.instance.OpenPanelAtModTab();
-        public void CloseTLMPanel() => TransportLinesManagerMod.instance.ClosePanel();
+        public void OpenTLMPanel() => TransportLinesManagerMod.Instance.OpenPanelAtModTab();
+        public void CloseTLMPanel() => TransportLinesManagerMod.Instance.ClosePanel();
 
         private TLMDepotWorldInfoPanelPrefixListsParent initDepotAIPrefixListContainer(UIComponent parent)
         {

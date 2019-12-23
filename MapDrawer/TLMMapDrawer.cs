@@ -45,7 +45,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
             }
 
-            CalculateCoords calc = TLMUtils.gridPosition81Tiles;
+            CalculateCoords calc = MapUtils.GridPosition81Tiles;
             NetManager nm = NetManager.instance;
             float invPrecision = 32;
             //Restart:
@@ -221,7 +221,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 svg.addStation(station, transportLines);
             }
             string cityMapsFolder = TLMController.exportedMapsFolder + Path.DirectorySeparatorChar + $"{cityName} ({cityId})";
-            FileInfo fipalette = TLMUtils.EnsureFolderCreation(cityMapsFolder);
+            FileInfo fipalette = FileUtils.EnsureFolderCreation(cityMapsFolder);
             string filename = cityMapsFolder + Path.DirectorySeparatorChar + currentTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".html";
             if (File.Exists(filename))
             {
@@ -275,7 +275,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         break;
                     }
                 }
-                return direction.getCardinalAngle() - 90;
+                return direction.GetCardinalAngle() - 90;
             }
         }
 
@@ -340,13 +340,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 return s.Key;
             }
 
-            var direction = CardinalPoint.getCardinal2D(centralPos, s2.centralPos);
+            var direction = CardinalPoint.GetCardinal2D(centralPos, s2.centralPos);
             CardinalPoint directionOr = direction;
             if (stationConnections.Count >= 8)
             {
                 return direction;
             }
-            var directionAlt = CardinalPoint.getCardinal2D4(centralPos, s2.centralPos);
+            var directionAlt = CardinalPoint.GetCardinal2D4(centralPos, s2.centralPos);
 
             bool isForward = direction > directionAlt;
 
@@ -396,10 +396,10 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
             return $@"
              <!DOCTYPE html><html><head> <meta charset='UTF-8'> 
-             <style>{TLMResourceLoader.instance.loadResourceString("MapDrawer.lineDrawBasicCss.css") }</style>
+             <style>{KlyteResourceLoader.LoadResourceString("MapDrawer.lineDrawBasicCss.css") }</style>
              <script src=""https://code.jquery.com/jquery-3.3.1.min.js"" integrity=""sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="" crossorigin=""anonymous""></script>
              <script>var _infoLines = {cto.toJson()};</script>
-             <script>{TLMResourceLoader.instance.loadResourceString("MapDrawer.app.js") }</script>
+             <script>{KlyteResourceLoader.LoadResourceString("MapDrawer.app.js") }</script>
              </head><body>
              <style id=""styleSelectionLineMap""></style>
              <svg id=""map"" height='{height}' width='{width}'>
@@ -563,7 +563,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             bool vertical = false;
             string name = s.name;
             float angle = s.writeAngle;
-            switch (CardinalPoint.getCardinalPoint(angle).Value)
+            switch (CardinalPoint.GetCardinalPoint(angle).Value)
             {
                 case CardinalPoint.CardinalInternal.SW:
                 case CardinalPoint.CardinalInternal.S:
@@ -615,10 +615,10 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
                 float offsetNeg = 0;
                 float offsetPos = 0;
-                var dir = CardinalPoint.getCardinal2D(segment.s1.centralPos, segment.s2.centralPos);
+                var dir = CardinalPoint.GetCardinal2D(segment.s1.centralPos, segment.s2.centralPos);
                 dir++;
                 dir++;
-                Vector2 offsetDir = dir.getCardinalOffset2D();
+                Vector2 offsetDir = dir.GetCardinalOffset2D();
                 foreach (KeyValuePair<MapTransportLine, LineSegmentStationsManager.Direction> line in segment.lines)
                 {
                     float width = 0;
@@ -668,14 +668,14 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             CardinalPoint cp = segment.s1.getDirectionForStation(segment.s2);
                             cp++;
                             cp++;
-                            points[i] = basePoints[i] + cp.getCardinalOffset2D() * coordMultiplier * 2;
+                            points[i] = basePoints[i] + cp.GetCardinalOffset2D() * coordMultiplier * 2;
                         }
                         else if (i == basePoints.Count - 1)
                         {
                             CardinalPoint cp = segment.s2.getDirectionForStation(segment.s1);
                             cp++;
                             cp++;
-                            points[i] = basePoints[i] + cp.getCardinalOffset2D() * coordMultiplier * 2;
+                            points[i] = basePoints[i] + cp.GetCardinalOffset2D() * coordMultiplier * 2;
                         }
                         else
                         {

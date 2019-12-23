@@ -1,11 +1,7 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.TextureAtlas;
-using Klyte.Commons.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.TextureAtlas;
-using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -37,15 +33,15 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             controlContainer.isVisible = false;
             controlContainer.name = "TLMPanel";
 
-            TLMUtils.createUIElement(out UIPanel _mainPanel, GetComponent<UIPanel>().transform, "TLMListPanel", new Vector4(0, 0, 885, controlContainer.parent.height));
+            KlyteMonoUtils.CreateUIElement(out UIPanel _mainPanel, GetComponent<UIPanel>().transform, "TLMListPanel", new Vector4(0, 0, 885, controlContainer.parent.height));
             mainPanel = _mainPanel;
             mainPanel.backgroundSprite = "MenuPanel2";
 
             CreateTitleBar();
 
-            TLMUtils.createUIElement(out m_StripMain, mainPanel.transform, "TLMTabstrip", new Vector4(5, 40, mainPanel.width - 10, 40));
+            KlyteMonoUtils.CreateUIElement(out m_StripMain, mainPanel.transform, "TLMTabstrip", new Vector4(5, 40, mainPanel.width - 10, 40));
 
-            TLMUtils.createUIElement(out UITabContainer tabContainer, mainPanel.transform, "TLMTabContainer", new Vector4(0, 80, mainPanel.width, mainPanel.height - 80));
+            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, mainPanel.transform, "TLMTabContainer", new Vector4(0, 80, mainPanel.width, mainPanel.height - 80));
             m_StripMain.tabPages = tabContainer;
 
             foreach (UiCategoryTab tab in Enum.GetValues(typeof(UiCategoryTab)))
@@ -54,7 +50,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 superTab.normalFgSprite = tab.getTabFgSprite();
                 superTab.tooltip = tab.getTabName();
 
-                TLMUtils.createUIElement(out UIPanel content, null);
+                KlyteMonoUtils.CreateUIElement(out UIPanel content, null);
                 content.name = "Container";
                 content.area = new Vector4(0, 40, mainPanel.width, mainPanel.height - 80);
 
@@ -81,7 +77,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             if (value)
             {
-                TransportLinesManagerMod.instance.showVersionInfoPopup();
+                TransportLinesManagerMod.Instance.ShowVersionInfoPopup();
                 SetViewMode(null, m_StripMain.selectedIndex);
             }
         }
@@ -90,7 +86,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             //if (!GetComponent<UIComponent>().isVisible)
             //{
-                return;
+            return;
             //}
             //switch ((UiCategoryTab)value)
             //{
@@ -117,44 +113,44 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 m_StripsSubcategories[cat].selectedIndex = m_StripsSubcategories[cat].Find<UIComponent>(tsd.GetDefType().Name)?.zOrder ?? -1;
             }
-            TLMUtils.doLog($"OpenAt: {cat} ({(int)cat})=>{tsd.GetDefType()}");
-            m_StripMain.selectedIndex = (int)cat;
+            TLMUtils.doLog($"OpenAt: {cat} ({(int) cat})=>{tsd.GetDefType()}");
+            m_StripMain.selectedIndex = (int) cat;
             TLMController.instance.OpenTLMPanel();
         }
 
         private void CreateTsdTabstrip(out UITabstrip strip, UIComponent parent, UiCategoryTab category)
         {
-            TLMUtils.createUIElement(out strip, parent.transform, "TLMTabstrip", new Vector4(5, 0, parent.width - 10, 40));
-            var effectiveOffsetY = strip.height;
+            KlyteMonoUtils.CreateUIElement(out strip, parent.transform, "TLMTabstrip", new Vector4(5, 0, parent.width - 10, 40));
+            float effectiveOffsetY = strip.height;
 
-            TLMUtils.createUIElement(out UITabContainer tabContainer, parent.transform, "TLMTabContainer", new Vector4(0, 40, parent.width, parent.height - 40));
+            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, parent.transform, "TLMTabContainer", new Vector4(0, 40, parent.width, parent.height - 40));
             strip.tabPages = tabContainer;
 
             UIButton tabTemplate = CreateTabSubStripTemplate();
 
             UIComponent bodyContent = CreateContentTemplate(parent.width, parent.height - effectiveOffsetY - 10, category.isScrollable());
 
-            foreach (var kv in TransportSystemDefinition.sysDefinitions)
+            foreach (KeyValuePair<TransportSystemDefinition, Type> kv in TransportSystemDefinition.sysDefinitions)
             {
                 Type[] components;
                 Type targetType;
                 try
                 {
-                    targetType = KlyteUtils.GetImplementationForGenericType(category.getTabGenericContentImpl(), kv.Value);
+                    targetType = ReflectionUtils.GetImplementationForGenericType(category.getTabGenericContentImpl(), kv.Value);
                     components = new Type[] { targetType };
                 }
                 catch
                 {
                     continue;
                 }
-                var tsd = kv.Key;
+                TransportSystemDefinition tsd = kv.Key;
                 GameObject tab = Instantiate(tabTemplate.gameObject);
                 GameObject body = Instantiate(bodyContent.gameObject);
-                var configIdx = kv.Key.toConfigIndex();
-                String name = kv.Value.Name;
+                TLMConfigWarehouse.ConfigIndex configIdx = kv.Key.toConfigIndex();
+                string name = kv.Value.Name;
                 TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
-                String bgIcon = TLMUtils.GetLineIcon(0, configIdx, ref tsd).getImageName();
-                String fgIcon = kv.Key.getTransportTypeIcon();
+                string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd));
+                string fgIcon = kv.Key.getTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();
                 tabButton.tooltip = TLMConfigWarehouse.getNameForTransportType(configIdx);
                 tabButton.hoveredBgSprite = bgIcon;
@@ -167,7 +163,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 tabButton.disabledColor = Color.gray;
                 if (!string.IsNullOrEmpty(fgIcon))
                 {
-                    TLMUtils.createUIElement(out UIButton secSprite, tabButton.transform, "OverSprite", new Vector4(5, 5, 30, 30));
+                    KlyteMonoUtils.CreateUIElement(out UIButton secSprite, tabButton.transform, "OverSprite", new Vector4(5, 5, 30, 30));
                     secSprite.normalFgSprite = fgIcon;
                     secSprite.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
                     secSprite.isInteractive = false;
@@ -181,8 +177,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private static UIButton CreateTabTemplate()
         {
-            TLMUtils.createUIElement(out UIButton tabTemplate, null, "TLMTabTemplate");
-            TLMUtils.initButton(tabTemplate, false, "GenericTab");
+            KlyteMonoUtils.CreateUIElement(out UIButton tabTemplate, null, "TLMTabTemplate");
+            KlyteMonoUtils.InitButton(tabTemplate, false, "GenericTab");
             tabTemplate.autoSize = false;
             tabTemplate.width = 40;
             tabTemplate.height = 40;
@@ -192,39 +188,38 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private static UIButton CreateTabSubStripTemplate()
         {
-            TLMUtils.createUIElement(out UIButton tabTemplate, null, "TLMTabTemplate");
-            TLMUtils.initButton(tabTemplate, false, "GenericTab");
+            KlyteMonoUtils.CreateUIElement(out UIButton tabTemplate, null, "TLMTabTemplate");
+            KlyteMonoUtils.InitButton(tabTemplate, false, "GenericTab");
             tabTemplate.autoSize = false;
             tabTemplate.width = 40;
             tabTemplate.height = 40;
             tabTemplate.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
-            tabTemplate.atlas = LineUtilsTextureAtlas.instance.atlas;
             return tabTemplate;
         }
 
         private void CreateTitleRowBuilding(ref UIPanel titleLine, UIComponent parent)
         {
-            TLMUtils.createUIElement(out titleLine, parent.transform, "TLMtitleline", new Vector4(5, 80, parent.width - 10, 40));
+            KlyteMonoUtils.CreateUIElement(out titleLine, parent.transform, "TLMtitleline", new Vector4(5, 80, parent.width - 10, 40));
 
-            TLMUtils.createUIElement(out UILabel districtNameLabel, titleLine.transform, "districtNameLabel");
+            KlyteMonoUtils.CreateUIElement(out UILabel districtNameLabel, titleLine.transform, "districtNameLabel");
             districtNameLabel.autoSize = false;
             districtNameLabel.area = new Vector4(0, 10, 175, 18);
             districtNameLabel.textAlignment = UIHorizontalAlignment.Center;
             districtNameLabel.text = Locale.Get("TUTORIAL_ADVISER_TITLE", "District");
 
-            TLMUtils.createUIElement(out UILabel buildingNameLabel, titleLine.transform, "buildingNameLabel");
+            KlyteMonoUtils.CreateUIElement(out UILabel buildingNameLabel, titleLine.transform, "buildingNameLabel");
             buildingNameLabel.autoSize = false;
             buildingNameLabel.area = new Vector4(200, 10, 198, 18);
             buildingNameLabel.textAlignment = UIHorizontalAlignment.Center;
             buildingNameLabel.text = Locale.Get("K45_TLM_BUILDING_NAME_LABEL");
 
-            TLMUtils.createUIElement(out UILabel vehicleCapacityLabel, titleLine.transform, "vehicleCapacityLabel");
+            KlyteMonoUtils.CreateUIElement(out UILabel vehicleCapacityLabel, titleLine.transform, "vehicleCapacityLabel");
             vehicleCapacityLabel.autoSize = false;
             vehicleCapacityLabel.area = new Vector4(400, 10, 200, 18);
             vehicleCapacityLabel.textAlignment = UIHorizontalAlignment.Center;
             vehicleCapacityLabel.text = Locale.Get("K45_TLM_VEHICLE_CAPACITY_LABEL");
 
-            TLMUtils.createUIElement(out m_directionLabel, titleLine.transform, "directionLabel");
+            KlyteMonoUtils.CreateUIElement(out m_directionLabel, titleLine.transform, "directionLabel");
             m_directionLabel.autoSize = false;
             m_directionLabel.area = new Vector4(600, 10, 200, 18);
             m_directionLabel.textAlignment = UIHorizontalAlignment.Center;
@@ -234,32 +229,31 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void CreateTitleBar()
         {
-            TLMUtils.createUIElement(out UILabel titlebar, mainPanel.transform, "TLMListPanel", new Vector4(75, 10, mainPanel.width - 150, 20));
+            KlyteMonoUtils.CreateUIElement(out UILabel titlebar, mainPanel.transform, "TLMListPanel", new Vector4(75, 10, mainPanel.width - 150, 20));
             titlebar.autoSize = false;
-            titlebar.text = "Transport Lines Manager v" + TransportLinesManagerMod.version;
+            titlebar.text = "Transport Lines Manager v" + TransportLinesManagerMod.Version;
             titlebar.textAlignment = UIHorizontalAlignment.Center;
 
-            TLMUtils.createUIElement(out UIButton closeButton, mainPanel.transform, "CloseButton", new Vector4(mainPanel.width - 37, 5, 32, 32));
-            TLMUtils.initButton(closeButton, false, "buttonclose", true);
+            KlyteMonoUtils.CreateUIElement(out UIButton closeButton, mainPanel.transform, "CloseButton", new Vector4(mainPanel.width - 37, 5, 32, 32));
+            KlyteMonoUtils.InitButton(closeButton, false, "buttonclose", true);
             closeButton.hoveredBgSprite = "buttonclosehover";
             closeButton.eventClick += (x, y) =>
             {
                 TLMController.instance.CloseTLMPanel();
             };
 
-            TLMUtils.createUIElement(out UISprite logo, mainPanel.transform, "TLMLogo", new Vector4(22, 5f, 32, 32));
-            logo.atlas = TLMCommonTextureAtlas.instance.atlas;
-            logo.spriteName = "TransportLinesManagerIconHovered";
+            KlyteMonoUtils.CreateUIElement(out UISprite logo, mainPanel.transform, "TLMLogo", new Vector4(22, 5f, 32, 32));
+            logo.spriteName = TransportLinesManagerMod.Instance.IconName;
         }
 
         private static UIComponent CreateContentTemplate(float width, float height, bool scrollable)
         {
-            TLMUtils.createUIElement(out UIPanel contentContainer, null);
+            KlyteMonoUtils.CreateUIElement(out UIPanel contentContainer, null);
             contentContainer.name = "Container";
             contentContainer.area = new Vector4(0, 0, width, height);
             if (scrollable)
             {
-                TLMUtils.createUIElement(out UIScrollablePanel scrollPanel, contentContainer.transform, "ScrollPanel");
+                KlyteMonoUtils.CreateUIElement(out UIScrollablePanel scrollPanel, contentContainer.transform, "ScrollPanel");
                 scrollPanel.width = contentContainer.width - 20f;
                 scrollPanel.height = contentContainer.height;
                 scrollPanel.autoLayoutDirection = LayoutDirection.Vertical;
@@ -269,7 +263,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 scrollPanel.clipChildren = true;
                 scrollPanel.relativePosition = new Vector3(5, 0);
 
-                TLMUtils.createUIElement(out UIPanel trackballPanel, contentContainer.transform, "Trackball");
+                KlyteMonoUtils.CreateUIElement(out UIPanel trackballPanel, contentContainer.transform, "Trackball");
                 trackballPanel.width = 10f;
                 trackballPanel.height = scrollPanel.height;
                 trackballPanel.autoLayoutDirection = LayoutDirection.Horizontal;
@@ -278,7 +272,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 trackballPanel.autoLayout = true;
                 trackballPanel.relativePosition = new Vector3(contentContainer.width - 15, 0);
 
-                TLMUtils.createUIElement(out UIScrollbar scrollBar, trackballPanel.transform, "Scrollbar");
+                KlyteMonoUtils.CreateUIElement(out UIScrollbar scrollBar, trackballPanel.transform, "Scrollbar");
                 scrollBar.width = 10f;
                 scrollBar.height = scrollBar.parent.height;
                 scrollBar.orientation = UIOrientation.Vertical;
@@ -288,7 +282,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 scrollBar.value = 0f;
                 scrollBar.incrementAmount = 25f;
 
-                TLMUtils.createUIElement(out UISlicedSprite scrollBg, scrollBar.transform, "ScrollbarBg");
+                KlyteMonoUtils.CreateUIElement(out UISlicedSprite scrollBg, scrollBar.transform, "ScrollbarBg");
                 scrollBg.relativePosition = Vector2.zero;
                 scrollBg.autoSize = true;
                 scrollBg.size = scrollBg.parent.size;
@@ -296,7 +290,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 scrollBg.spriteName = "ScrollbarTrack";
                 scrollBar.trackObject = scrollBg;
 
-                TLMUtils.createUIElement(out UISlicedSprite scrollFg, scrollBg.transform, "ScrollbarFg");
+                KlyteMonoUtils.CreateUIElement(out UISlicedSprite scrollFg, scrollBg.transform, "ScrollbarFg");
                 scrollFg.relativePosition = Vector2.zero;
                 scrollFg.fillDirection = UIFillDirection.Vertical;
                 scrollFg.autoSize = true;
@@ -315,10 +309,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         #endregion
 
 
-        private void SetActiveTab(int idx)
-        {
-            m_StripMain.selectedIndex = idx;
-        }
+        private void SetActiveTab(int idx) => m_StripMain.selectedIndex = idx;
 
         private void Update()
         {
@@ -337,10 +328,14 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             switch (tab)
             {
-                case UiCategoryTab.LineListing: return Locale.Get("K45_TLM_LIST_LINES_TOOLTIP");
-                case UiCategoryTab.DepotListing: return Locale.Get("K45_TLM_LIST_DEPOT_TOOLTIP");
-                case UiCategoryTab.TourListing: return Locale.Get("K45_TLM_LIST_TOURS_TOOLTIP");
-                case UiCategoryTab.PrefixEditor: return Locale.Get("K45_TLM_CITY_ASSETS_SELECTION");
+                case UiCategoryTab.LineListing:
+                    return Locale.Get("K45_TLM_LIST_LINES_TOOLTIP");
+                case UiCategoryTab.DepotListing:
+                    return Locale.Get("K45_TLM_LIST_DEPOT_TOOLTIP");
+                case UiCategoryTab.TourListing:
+                    return Locale.Get("K45_TLM_LIST_TOURS_TOOLTIP");
+                case UiCategoryTab.PrefixEditor:
+                    return Locale.Get("K45_TLM_CITY_ASSETS_SELECTION");
                 default:
                     throw new Exception($"Not supported: {tab}");
             }
@@ -350,10 +345,14 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             switch (tab)
             {
-                case UiCategoryTab.LineListing: return "ToolbarIconPublicTransport";
-                case UiCategoryTab.DepotListing: return "UIFilterBigBuildings";
-                case UiCategoryTab.TourListing: return "InfoIconTours";
-                case UiCategoryTab.PrefixEditor: return "InfoIconLevel";
+                case UiCategoryTab.LineListing:
+                    return "ToolbarIconPublicTransport";
+                case UiCategoryTab.DepotListing:
+                    return "UIFilterBigBuildings";
+                case UiCategoryTab.TourListing:
+                    return "InfoIconTours";
+                case UiCategoryTab.PrefixEditor:
+                    return "InfoIconLevel";
                 default:
                     throw new Exception($"Not supported: {tab}");
             }
@@ -362,9 +361,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             switch (tab)
             {
-                case UiCategoryTab.LineListing: return false;
-                case UiCategoryTab.DepotListing: return false;
-                case UiCategoryTab.TourListing: return false;
+                case UiCategoryTab.LineListing:
+                    return false;
+                case UiCategoryTab.DepotListing:
+                    return false;
+                case UiCategoryTab.TourListing:
+                    return false;
                 case UiCategoryTab.PrefixEditor:
                 default:
                     return true;
@@ -374,10 +376,14 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             switch (tab)
             {
-                case UiCategoryTab.LineListing: return typeof(TLMTabControllerLineListTransport<>);
-                case UiCategoryTab.TourListing: return typeof(TLMTabControllerLineListTourism<>);
-                case UiCategoryTab.DepotListing: return typeof(TLMTabControllerDepotList<>);
-                case UiCategoryTab.PrefixEditor: return typeof(TLMTabControllerPrefixList<>);
+                case UiCategoryTab.LineListing:
+                    return typeof(TLMTabControllerLineListTransport<>);
+                case UiCategoryTab.TourListing:
+                    return typeof(TLMTabControllerLineListTourism<>);
+                case UiCategoryTab.DepotListing:
+                    return typeof(TLMTabControllerDepotList<>);
+                case UiCategoryTab.PrefixEditor:
+                    return typeof(TLMTabControllerPrefixList<>);
                 default:
                     throw new Exception($"Not supported: {tab}");
             }

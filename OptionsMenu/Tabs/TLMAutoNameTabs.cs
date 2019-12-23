@@ -13,9 +13,9 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         {
             parent = GetComponentInParent<UIComponent>();
             UIHelperExtension group13 = new UIHelperExtension(parent);
-            ((UIPanel)group13.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group13.self).wrapLayout = true;
-            ((UIPanel)group13.self).width = 730;
+            ((UIPanel)group13.Self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group13.Self).wrapLayout = true;
+            ((UIPanel)group13.Self).width = 730;
 
             group13.AddLabel(Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT"));
             group13.AddSpace(1);
@@ -43,9 +43,9 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         {
             parent = GetComponentInParent<UIComponent>();
             UIHelperExtension group14 = new UIHelperExtension(parent);
-            ((UIPanel)group14.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group14.self).wrapLayout = true;
-            ((UIPanel)group14.self).width = 730;
+            ((UIPanel)group14.Self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group14.Self).wrapLayout = true;
+            ((UIPanel)group14.Self).width = 730;
 
             group14.AddLabel(Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_OTHER"));
             group14.AddSpace(1);
@@ -73,9 +73,9 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         {
             parent = GetComponentInParent<UIComponent>();
             UIHelperExtension group15 = new UIHelperExtension(parent);
-            ((UIPanel)group15.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group15.self).wrapLayout = true;
-            ((UIPanel)group15.self).width = 730;
+            ((UIPanel)group15.Self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group15.Self).wrapLayout = true;
+            ((UIPanel)group15.Self).width = 730;
 
             group15.AddLabel(Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_AREAS"));
             group15.AddSpace(1);

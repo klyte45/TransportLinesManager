@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -43,19 +44,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
             s.addLine(lineId);
         }
 
-        public Station this[int i]
-        {
-            get { return stations[i]; }
-        }
+        public Station this[int i] => stations[i];
 
-        public int stationsCount()
-        {
-            return stations.Count;
-        }
+        public int stationsCount() => stations.Count;
 
-        public String toJson()
+        public string toJson()
         {
-            var simmetry = TLMUtils.findSimetry(stations.Select(x => (int)x.stopId).ToArray(), out int middle);
+            bool simmetry = GeneralUtils.FindSimetry(stations.Select(x => (int) x.stopId).ToArray(), out int middle);
             return $"{{\"lineId\": {lineId},\"stations\": [{string.Join(",", stations.Select(x => x.toJson()).ToArray())}],\"transportType\": \"{transportType}\"," +
                 $"\"subservice\": \"{subservice}\",\"vehicleType\": \"{vehicleType}\",\"lineName\": \"{lineName}\",\"lineStringIdentifier\": \"{lineStringIdentifier}\"," +
                 $"\"lineColor\": \"#{(lineColor.r.ToString("X2") + lineColor.g.ToString("X2") + lineColor.b.ToString("X2"))}\",\"activeDay\": {activeDay.ToString().ToLower()}," +
@@ -63,8 +58,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
         }
     }
 
-
-    class MapTests
+    internal class MapTests
     {
         public static void Main(string[] args)
         {
@@ -72,14 +66,8 @@ namespace Klyte.TransportLinesManager.MapDrawer
             Console.Read();
         }
 
-        private static int getLineUID(ushort lineId)
-        {
-            return lineId;
-        }
-        private static void doLog(string s, params object[] param)
-        {
-            Console.WriteLine(s, param);
-        }
+        private static int getLineUID(ushort lineId) => lineId;
+        private static void doLog(string s, params object[] param) => Console.WriteLine(s, param);
 
 
     }

@@ -101,11 +101,11 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
-                    saida = TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | idx) ? (uint)Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
+                    saida = TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | idx) ? (uint)Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
                     break;
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
-                    saida = TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx) ? (uint)Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
+                    saida = TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx) ? (uint)Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
                     break;
                 case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
@@ -119,7 +119,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.BALLOON_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
-                    saida = TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx) ? 3 : uint.MaxValue;
+                    saida = TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx) ? 3 : uint.MaxValue;
                     break;
                 default:
                     saida = uint.MaxValue;
@@ -155,7 +155,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.DISTRICT_NAME_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.ADDRESS_NAME_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PARKAREA_NAME_CONFIG:
-                    return TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | idx);
+                    return TLMConfigWarehouse.GetCurrentConfigString(TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | idx);
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
@@ -170,7 +170,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.BALLOON_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
-                    return TLMConfigWarehouse.getCurrentConfigString(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | idx);
+                    return TLMConfigWarehouse.GetCurrentConfigString(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | idx);
                 default:
                     return "";
             }
@@ -201,7 +201,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
-                    return TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | idx);
+                    return TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | idx);
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
@@ -216,7 +216,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.BALLOON_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
-                    return TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx);
+                    return TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | idx);
                 default:
                     return false;
             }

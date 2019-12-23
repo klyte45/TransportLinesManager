@@ -3,12 +3,13 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.UI;
+using Klyte.Commons.UI.SpriteNames;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.LineDetailWindow.Components;
-using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -79,7 +80,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
         public override void Awake()
         {
             base.Awake();
-            GameObject gameObject = GameObject.FindGameObjectWithTag("MainCamera");
+            var gameObject = GameObject.FindGameObjectWithTag("MainCamera");
             if (gameObject != null)
             {
                 m_CameraController = gameObject.GetComponent<CameraController>();
@@ -106,22 +107,22 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             CreateBudgetSliders();
 
             TLMUtils.doLog("AGES");
-            TLMUtils.createElement(out m_agesPanel, transform);
+            KlyteMonoUtils.CreateElement(out m_agesPanel, transform);
 
             TLMUtils.doLog("LINEAR MAP");
-            TLMUtils.createElement(out m_linearMap, transform);
+            KlyteMonoUtils.CreateElement(out m_linearMap, transform);
             m_linearMap.parent = this;
 
 
             TLMUtils.doLog("ASSET SEL");
-            TLMUtils.createElement(out m_assetSelectorWindow, transform);
+            KlyteMonoUtils.CreateElement(out m_assetSelectorWindow, transform);
             m_assetSelectorWindow.lineInfo = this;
         }
 
         private void CreateBudgetSliders()
         {
             TLMUtils.doLog("SLIDERS");
-            TLMUtils.createElement(out m_budgetSliders, transform, "Budget Sliders");
+            KlyteMonoUtils.CreateElement(out m_budgetSliders, transform, "Budget Sliders");
             m_budgetSliders.mainPanel.relativePosition = new Vector2(0, 100);
         }
 
@@ -143,7 +144,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
         private void CreateFirstStopSelector()
         {
-            m_firstStopSelect = m_uiHelper.AddDropdownLocalized("K45_TLM_FIRST_STOP_DD_LABEL", new String[1], 0, ChangeFirstStop);
+            m_firstStopSelect = m_uiHelper.AddDropdownLocalized("K45_TLM_FIRST_STOP_DD_LABEL", new string[1], 0, ChangeFirstStop);
             m_firstStopSelect.eventMouseWheel -= null;
 
             UIPanel parent = m_firstStopSelect.GetComponentInParent<UIPanel>();
@@ -195,7 +196,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
         private void createRightLineActionButtons()
         {
-            TLMUtils.createUIElement(out m_autoNameLabel, transform);
+            KlyteMonoUtils.CreateUIElement(out m_autoNameLabel, transform);
             m_autoNameLabel.autoSize = false;
             m_autoNameLabel.relativePosition = new Vector3(400f, 120f);
             m_autoNameLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -209,13 +210,13 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_autoNameLabel.textAlignment = UIHorizontalAlignment.Right;
             m_autoNameLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement(out UIButton deleteLine, transform);
+            KlyteMonoUtils.CreateUIElement(out UIButton deleteLine, transform);
             deleteLine.relativePosition = new Vector3(width - 150f, height - 230f);
             deleteLine.textScale = 0.6f;
             deleteLine.width = 40;
             deleteLine.height = 40;
             deleteLine.tooltip = Locale.Get("LINE_DELETE");
-            TLMUtils.initButton(deleteLine, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(deleteLine, true, "ButtonMenu");
             deleteLine.name = "DeleteLineButton";
             deleteLine.isVisible = true;
             deleteLine.eventClick += (component, eventParam) =>
@@ -236,22 +237,21 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
                 }
             };
 
-            var icon = deleteLine.AddUIComponent<UISprite>();
+            UISprite icon = deleteLine.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
-            icon.spriteName = "RemoveUnwantedIcon";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_RemoveUnwantedIcon);
             icon.color = Color.red;
 
             //Auto color & Auto Name
-            TLMUtils.createUIElement(out UIButton buttonAutoName, transform);
+            KlyteMonoUtils.CreateUIElement(out UIButton buttonAutoName, transform);
             buttonAutoName.textScale = 0.6f;
             buttonAutoName.relativePosition = new Vector3(width - 50f, height - 230f);
             buttonAutoName.width = 40;
             buttonAutoName.height = 40;
             buttonAutoName.tooltip = Locale.Get("K45_TLM_USE_AUTO_NAME");
-            TLMUtils.initButton(buttonAutoName, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(buttonAutoName, true, "ButtonMenu");
             buttonAutoName.name = "AutoName";
             buttonAutoName.isVisible = true;
             buttonAutoName.eventClick += (component, eventParam) =>
@@ -262,18 +262,17 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
             icon = buttonAutoName.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
-            icon.spriteName = "AutoNameIcon";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoNameIcon);
             icon.width = 36;
             icon.height = 36;
 
-            TLMUtils.createUIElement(out UIButton buttonAutoColor, transform);
+            KlyteMonoUtils.CreateUIElement(out UIButton buttonAutoColor, transform);
             buttonAutoColor.relativePosition = new Vector3(width - 100f, height - 230f);
             buttonAutoColor.textScale = 0.6f;
             buttonAutoColor.width = 40;
             buttonAutoColor.height = 40;
             buttonAutoColor.tooltip = Locale.Get("K45_TLM_PICK_COLOR_FROM_PALETTE_TOOLTIP");
-            TLMUtils.initButton(buttonAutoColor, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(buttonAutoColor, true, "ButtonMenu");
             buttonAutoColor.name = "AutoColor";
             buttonAutoColor.isVisible = true;
             buttonAutoColor.eventClick += (component, eventParam) =>
@@ -284,17 +283,16 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
             icon = buttonAutoColor.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
-            icon.spriteName = "AutoColorIcon";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoColorIcon);
 
 
         }
 
         private void createLineInfoLabels()
         {
-            TLMUtils.createUIElement(out m_lineLenghtLabel, transform);
+            KlyteMonoUtils.CreateUIElement(out m_lineLenghtLabel, transform);
             m_lineLenghtLabel.autoSize = false;
             m_lineLenghtLabel.relativePosition = new Vector3(10f, 45f);
             m_lineLenghtLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -307,7 +305,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_lineLenghtLabel.textScale = 0.6f;
             m_lineLenghtLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement(out m_veiculosLinhaLabel, transform);
+            KlyteMonoUtils.CreateUIElement(out m_veiculosLinhaLabel, transform);
             m_veiculosLinhaLabel.autoSize = false;
             m_veiculosLinhaLabel.relativePosition = new Vector3(10f, 55);
             m_veiculosLinhaLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -318,7 +316,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_veiculosLinhaLabel.textScale = 0.6f;
             m_veiculosLinhaLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement(out m_viagensEvitadasLabel, transform);
+            KlyteMonoUtils.CreateUIElement(out m_viagensEvitadasLabel, transform);
             m_viagensEvitadasLabel.autoSize = false;
             m_viagensEvitadasLabel.relativePosition = new Vector3(10f, 65);
             m_viagensEvitadasLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -329,7 +327,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_viagensEvitadasLabel.textScale = 0.6f;
             m_viagensEvitadasLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement(out m_passageirosEturistasLabel, transform);
+            KlyteMonoUtils.CreateUIElement(out m_passageirosEturistasLabel, transform);
             m_passageirosEturistasLabel.autoSize = false;
             m_passageirosEturistasLabel.relativePosition = new Vector3(10f, 75f);
             m_passageirosEturistasLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -340,7 +338,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_passageirosEturistasLabel.textScale = 0.6f;
             m_passageirosEturistasLabel.font = UIHelperExtension.defaultFontCheckbox;
 
-            TLMUtils.createUIElement(out m_budgetLabel, transform);
+            KlyteMonoUtils.CreateUIElement(out m_budgetLabel, transform);
             m_budgetLabel.autoSize = false;
             m_budgetLabel.relativePosition = new Vector3(10f, 85f);
             m_budgetLabel.textAlignment = UIHorizontalAlignment.Left;
@@ -356,16 +354,16 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
         {
 
 
-            TLMUtils.createUIElement(out m_lineTransportIconTypeLabel, transform);
+            KlyteMonoUtils.CreateUIElement(out m_lineTransportIconTypeLabel, transform);
             m_lineTransportIconTypeLabel.autoSize = false;
             m_lineTransportIconTypeLabel.relativePosition = new Vector3(10f, 12f);
             m_lineTransportIconTypeLabel.width = 30;
             m_lineTransportIconTypeLabel.height = 20;
             m_lineTransportIconTypeLabel.name = "LineTransportIcon";
             m_lineTransportIconTypeLabel.clipChildren = true;
-            TLMUtils.createDragHandle(m_lineTransportIconTypeLabel, this);
+            KlyteMonoUtils.CreateDragHandle(m_lineTransportIconTypeLabel, this);
 
-            GameObject lpddgo = GameObject.Instantiate(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate).GetComponent<UIPanel>().Find<UIDropDown>("Dropdown").gameObject, transform);
+            var lpddgo = GameObject.Instantiate(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate).GetComponent<UIPanel>().Find<UIDropDown>("Dropdown").gameObject, transform);
             m_linePrefixDropDown = lpddgo.GetComponent<UIDropDown>();
             m_linePrefixDropDown.isLocalized = false;
             m_linePrefixDropDown.autoSize = false;
@@ -384,7 +382,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
 
 
-            TLMUtils.createUIElement(out m_lineNumberLabel, transform);
+            KlyteMonoUtils.CreateUIElement(out m_lineNumberLabel, transform);
             m_lineNumberLabel.autoSize = false;
             m_lineNumberLabel.relativePosition = new Vector3(80f, 5f);
             m_lineNumberLabel.horizontalAlignment = UIHorizontalAlignment.Center;
@@ -396,14 +394,14 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_lineNumberLabel.textScale = 1.6f;
             m_lineNumberLabel.padding = new RectOffset(0, 0, 0, 0);
             m_lineNumberLabel.color = new Color(0, 0, 0, 1);
-            TLMUtils.uiTextFieldDefaults(m_lineNumberLabel);
+            KlyteMonoUtils.UiTextFieldDefaults(m_lineNumberLabel);
             m_lineNumberLabel.numericalOnly = true;
             m_lineNumberLabel.maxLength = 4;
             m_lineNumberLabel.eventLostFocus += saveLineNumber;
             m_lineNumberLabel.zOrder = 10;
 
 
-            TLMUtils.createUIElement(out m_lineNameField, transform);
+            KlyteMonoUtils.CreateUIElement(out m_lineNameField, transform);
             m_lineNameField.autoSize = false;
             m_lineNameField.relativePosition = new Vector3(190f, 11f);
             m_lineNameField.horizontalAlignment = UIHorizontalAlignment.Center;
@@ -413,7 +411,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_lineNameField.name = "LineNameLabel";
             m_lineNameField.maxLength = 256;
             m_lineNameField.textScale = 1f;
-            TLMUtils.uiTextFieldDefaults(m_lineNameField);
+            KlyteMonoUtils.UiTextFieldDefaults(m_lineNameField);
             m_lineNameField.eventGotFocus += (component, eventParam) =>
             {
                 m_lastLineName = m_lineNameField.text;
@@ -428,7 +426,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             };
 
 
-            m_lineColorPicker = TLMUtils.CreateColorField(this);
+            m_lineColorPicker = KlyteMonoUtils.CreateColorField(this);
             m_lineColorPicker.name = "LineColorPicker";
             m_lineColorPicker.anchor = UIAnchorStyle.Top & UIAnchorStyle.Left;
             m_lineColorPicker.relativePosition = new Vector3(42f, 10f);
@@ -442,11 +440,11 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             };
 
 
-            TLMUtils.createUIElement(out UIButton voltarButton2, transform);
+            KlyteMonoUtils.CreateUIElement(out UIButton voltarButton2, transform);
             voltarButton2.relativePosition = new Vector3(width - 40f, 5f);
             voltarButton2.width = 30;
             voltarButton2.height = 30;
-            TLMUtils.initButton(voltarButton2, true, "buttonclose", true);
+            KlyteMonoUtils.InitButton(voltarButton2, true, "buttonclose", true);
             voltarButton2.name = "LineInfoCloseButton";
             voltarButton2.eventClick += closeLineInfo;
         }
@@ -466,7 +464,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             useCenter = true;
             wrapLayout = false;
             canFocus = true;
-            TLMUtils.createDragHandle(this, this, 35f);
+            KlyteMonoUtils.CreateDragHandle(this, this, 35f);
             eventVisibilityChanged += (component, value) =>
             {
                 m_linearMap?.setVisible(value);
@@ -479,7 +477,11 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
         #region Actions
         private void ChangeFirstStop(int idxSel)
         {
-            if (idxSel <= 0 || idxSel >= m_firstStopSelect.items.Length) return;
+            if (idxSel <= 0 || idxSel >= m_firstStopSelect.items.Length)
+            {
+                return;
+            }
+
             TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
             if ((t.m_flags & TransportLine.Flags.Invalid) != TransportLine.Flags.None)
             {
@@ -487,7 +489,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             }
             Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].m_stops = t.GetStop(idxSel);
             openLineInfo(m_lineIdSelecionado.TransportLine);
-            if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
+            if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
             {
                 TLMController.instance.AutoName(m_lineIdSelecionado.TransportLine);
             }
@@ -509,25 +511,19 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             });
         }
 
-        private void saveLineNumber(UIComponent c, object v)
-        {
-            saveLineNumber();
-        }
+        private void saveLineNumber(UIComponent c, object v) => saveLineNumber();
 
-        private void saveLineNumber(UIComponent c, int v)
-        {
-            saveLineNumber();
-        }
+        private void saveLineNumber(UIComponent c, int v) => saveLineNumber();
 
         private void saveLineNumber()
         {
-            String value = "0" + m_lineNumberLabel.text;
+            string value = "0" + m_lineNumberLabel.text;
             int valPrefixo = m_linePrefixDropDown.selectedIndex;
             TLMLineUtils.getLineNamingParameters(m_lineIdSelecionado.TransportLine, out ModoNomenclatura prefixo, out Separador sep, out ModoNomenclatura sufixo, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
             ushort num = ushort.Parse(value);
             if (prefixo != ModoNomenclatura.Nenhum)
             {
-                num = (ushort)(valPrefixo * 1000 + (num % 1000));
+                num = (ushort) (valPrefixo * 1000 + (num % 1000));
             }
             if (num < 1)
             {
@@ -561,8 +557,12 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
         private void SetTicketPrice(string value)
         {
-            bool res = UInt32.TryParse(value, out uint valInt);
-            if (!res) return;
+            bool res = uint.TryParse(value, out uint valInt);
+            if (!res)
+            {
+                return;
+            }
+
             ITicketPriceExtension tpe;
             uint idx;
             if (TLMTransportLineExtension.instance.IsUsingCustomConfig(m_lineIdSelecionado.TransportLine))
@@ -583,10 +583,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
         #region Checking Methods
 
-        private float getEffectiveBudget()
-        {
-            return TLMLineUtils.getEffectiveBugdet(m_lineIdSelecionado.TransportLine);
-        }
+        private float getEffectiveBudget() => TLMLineUtils.getEffectiveBugdet(m_lineIdSelecionado.TransportLine);
 
         private bool isNumeroUsado(int numLinha, ushort lineIdx)
         {
@@ -613,18 +610,21 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             ushort lineID = m_lineIdSelecionado.TransportLine;
             TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
             TransportInfo info = tl.Info;
-            TransportSystemDefinition tsd = TransportSystemDefinition.from(info);
-            int turistas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_touristPassengers.m_averageCount;
-            int residentes = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_residentPassengers.m_averageCount;
+            var tsd = TransportSystemDefinition.from(info);
+            int turistas = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_touristPassengers.m_averageCount;
+            int residentes = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_residentPassengers.m_averageCount;
             int residentesPorc = residentes;
             if (residentesPorc == 0)
+            {
                 residentesPorc = 1;
-            int criancas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_childPassengers.m_averageCount;
-            int adolescentes = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_teenPassengers.m_averageCount;
-            int jovens = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_youngPassengers.m_averageCount;
-            int adultos = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_adultPassengers.m_averageCount;
-            int idosos = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_seniorPassengers.m_averageCount;
-            int motoristas = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_carOwningPassengers.m_averageCount;
+            }
+
+            int criancas = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_childPassengers.m_averageCount;
+            int adolescentes = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_teenPassengers.m_averageCount;
+            int jovens = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_youngPassengers.m_averageCount;
+            int adultos = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_adultPassengers.m_averageCount;
+            int idosos = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_seniorPassengers.m_averageCount;
+            int motoristas = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_carOwningPassengers.m_averageCount;
             int veiculosLinha = TLMLineUtils.GetVehiclesCount(lineID);
             int porcCriancas = (criancas * 100 / residentesPorc);
             int porcAdolescentes = (adolescentes * 100 / residentesPorc);
@@ -662,7 +662,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             }
             if (coeficienteViagens != 0)
             {
-                viagensSalvas = (int)((motoristas * 10000L + (coeficienteViagens >> 1)) / coeficienteViagens);
+                viagensSalvas = (int) ((motoristas * 10000L + (coeficienteViagens >> 1)) / coeficienteViagens);
                 viagensSalvas = Mathf.Clamp(viagensSalvas, 0, 100);
             }
             m_viagensEvitadasLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_TRIPSAVED", new object[]{
@@ -684,7 +684,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_veiculosLinhaLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha }) + "/" + tl.CalculateTargetVehicleCount();
 
             uint prefix = 0;
-            if (TLMConfigWarehouse.getCurrentConfigInt(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
+            if (TLMConfigWarehouse.GetCurrentConfigInt(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int) ModoNomenclatura.Nenhum)
             {
                 prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
             }
@@ -748,7 +748,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             ushort lineNumber = t.m_lineNumber;
 
             TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
-            ModoNomenclatura mnPrefixo = (ModoNomenclatura)TLMCW.getCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
+            var mnPrefixo = (ModoNomenclatura) TLMCW.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
             if (TLMLineUtils.hasPrefix(lineID))
             {
@@ -757,7 +757,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
                 m_lineNumberLabel.width = 55;
                 m_linePrefixDropDown.enabled = false;
 
-                var temp = TLMUtils.getStringOptionsForPrefix(transportType, true, true, false);
+                string[] temp = TLMUtils.getStringOptionsForPrefix(transportType, true, true, false);
                 m_linePrefixDropDown.items = temp;
                 m_linePrefixDropDown.selectedIndex = lineNumber / 1000;
                 m_linePrefixDropDown.enabled = true;
@@ -833,10 +833,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
         #endregion
 
         #region Events
-        public void OnRenameStationAction(string autoName)
-        {
-            autoNameLabel.text = autoName;
-        }
+        public void OnRenameStationAction(string autoName) => autoNameLabel.text = autoName;
         public event OnLineLoad onLineChanged;
         public event OnItemSelectedChanged onSelectionChanged;
         #endregion
@@ -844,7 +841,11 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
         private void SetViewMode()
         {
             var tsd = TransportSystemDefinition.from(lineIdSelecionado.TransportLine);
-            if (tsd == default) return;
+            if (tsd == default)
+            {
+                return;
+            }
+
             if (tsd.isTour())
             {
                 InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.Tours, InfoManager.SubInfoMode.Default);

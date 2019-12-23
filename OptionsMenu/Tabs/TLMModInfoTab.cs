@@ -12,9 +12,9 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         {
             parent = GetComponentInParent<UIComponent>();
             UIHelperExtension group9 = new UIHelperExtension(parent);
-            ((UIPanel)group9.self).wrapLayout = true;
-            ((UIPanel)group9.self).width = 730;
-            TransportLinesManagerMod.instance.PopulateGroup9(group9);
+            ((UIPanel)group9.Self).wrapLayout = true;
+            ((UIPanel)group9.Self).width = 730;
+            TransportLinesManagerMod.Instance.PopulateGroup9(group9);
         }
         
     }

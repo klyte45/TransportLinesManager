@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
-using Klyte.Commons.TextureAtlas;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
@@ -111,7 +111,7 @@ namespace Klyte.TransportLinesManager.UI
                 if (tsd != default)
                 {
 
-                    linearMapLineNumberFormat.backgroundSprite = TLMUtils.GetLineIcon(0, tsd.toConfigIndex(), ref tsd).getImageName();
+                    linearMapLineNumberFormat.backgroundSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, tsd.toConfigIndex(), ref tsd));
                 }
                 lineStationsPanel.width = 0;
                 return;
@@ -212,7 +212,7 @@ namespace Klyte.TransportLinesManager.UI
 
             TLMLineUtils.GetVehicleCapacityAndFill(vehicleId, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId], out int fill, out int cap);
 
-            TLMUtils.createUIElement(out UILabel vehicleLabel, lineStationsPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out UILabel vehicleLabel, lineStationsPanel.transform);
             vehicleLabel.autoSize = false;
             vehicleLabel.text = string.Format("{0}/{1}", fill, cap);
             vehicleLabel.useOutline = true;
@@ -220,7 +220,6 @@ namespace Klyte.TransportLinesManager.UI
             vehicleLabel.height = 33;
             vehicleLabel.pivot = UIPivotPoint.TopCenter;
             vehicleLabel.verticalAlignment = UIVerticalAlignment.Middle;
-            vehicleLabel.atlas = LineUtilsTextureAtlas.instance.atlas;
 
             vehicleLabel.padding = new RectOffset(0, 0, 2, 0);
             vehicleLabel.textScale = 0.6f;
@@ -235,8 +234,8 @@ namespace Klyte.TransportLinesManager.UI
                 id.Vehicle = vehicleId;
                 Camera.main.GetComponent<CameraController>().SetTarget(id, Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].GetLastFramePosition(), true);
             };
-            UIDragHandle dh = TLMUtils.createDragHandle(vehicleLabel, vehicleLabel);
-            TLMUtils.createUIElement(out DraggableVehicleInfo dvi, vehicleLabel.transform);
+            UIDragHandle dh = KlyteMonoUtils.CreateDragHandle(vehicleLabel, vehicleLabel);
+            KlyteMonoUtils.CreateUIElement(out DraggableVehicleInfo dvi, vehicleLabel.transform);
             dvi.vehicleId = vehicleId;
             dvi.name = "Vehicle" + vehicleId;
 
@@ -368,13 +367,13 @@ namespace Klyte.TransportLinesManager.UI
 
         private void createLineStationsLinearView()
         {
-            TLMUtils.createUIElement(out mainContainer, parent.TransformLinearMap);
+            KlyteMonoUtils.CreateUIElement(out mainContainer, parent.TransformLinearMap);
             mainContainer.absolutePosition = new Vector3(2f, FindObjectOfType<UIView>().fixedHeight - 300f);
             mainContainer.name = "LineStationsLinearView";
             mainContainer.height = 50;
             mainContainer.autoSize = true;
 
-            TLMUtils.createUIElement(out linearMapLineNumberFormat, mainContainer.transform);
+            KlyteMonoUtils.CreateUIElement(out linearMapLineNumberFormat, mainContainer.transform);
             linearMapLineNumberFormat.autoSize = false;
             linearMapLineNumberFormat.width = 50;
             linearMapLineNumberFormat.height = 50;
@@ -384,13 +383,12 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineNumberFormat.verticalAlignment = UIVerticalAlignment.Middle;
             linearMapLineNumberFormat.name = "LineFormat";
             linearMapLineNumberFormat.relativePosition = new Vector3(0f, 0f);
-            linearMapLineNumberFormat.atlas = LineUtilsTextureAtlas.instance.atlas;
-            TLMUtils.createDragHandle(linearMapLineNumberFormat, mainContainer);
+            KlyteMonoUtils.CreateDragHandle(linearMapLineNumberFormat, mainContainer);
 
 
 
 
-            TLMUtils.createUIElement(out linearMapLineNumber, linearMapLineNumberFormat.transform);
+            KlyteMonoUtils.CreateUIElement(out linearMapLineNumber, linearMapLineNumberFormat.transform);
 
             linearMapLineNumber.autoSize = false;
             linearMapLineNumber.width = linearMapLineNumberFormat.width;
@@ -404,7 +402,7 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineNumber.verticalAlignment = UIVerticalAlignment.Middle;
 
 
-            TLMUtils.createUIElement(out linearMapLineTime, linearMapLineNumberFormat.transform);
+            KlyteMonoUtils.CreateUIElement(out linearMapLineTime, linearMapLineNumberFormat.transform);
             linearMapLineTime.autoSize = false;
             linearMapLineTime.width = 50;
             linearMapLineTime.height = 50;
@@ -414,7 +412,6 @@ namespace Klyte.TransportLinesManager.UI
             linearMapLineTime.verticalAlignment = UIVerticalAlignment.Middle;
             linearMapLineTime.name = "LineTime";
             linearMapLineTime.relativePosition = new Vector3(0f, 0f);
-            linearMapLineTime.atlas = LineUtilsTextureAtlas.instance.atlas;
 
             //if (parent.PrefixSelector)
             //{
@@ -439,7 +436,7 @@ namespace Klyte.TransportLinesManager.UI
             //    prefixSelector.hoveredBgSprite = null;
             //    prefixSelector.focusedBgSprite = null;
             //    prefixSelector.zOrder = 999;
-            //    var dragH = TLMUtils.createDragHandle(prefixSelector, mainContainer);
+            //    var dragH = KlyteMonoUtils.CreateDragHandle(prefixSelector, mainContainer);
 
             //    dragH.eventClicked += (x, y) =>
             //    {
@@ -459,8 +456,8 @@ namespace Klyte.TransportLinesManager.UI
 
             if (parent.CanSwitchView)
             {
-                TLMUtils.createUIElement(out infoToggle, mainContainer.transform);
-                TLMUtils.initButton(infoToggle, true, "ButtonMenu");
+                KlyteMonoUtils.CreateUIElement(out infoToggle, mainContainer.transform);
+                KlyteMonoUtils.InitButton(infoToggle, true, "ButtonMenu");
                 infoToggle.relativePosition = new Vector3(0f, 60f);
                 infoToggle.width = 50;
                 infoToggle.height = 70;
@@ -486,8 +483,8 @@ namespace Klyte.TransportLinesManager.UI
                 };
 
 
-                TLMUtils.createUIElement(out distanceToggle, mainContainer.transform);
-                TLMUtils.initButton(distanceToggle, true, "ButtonMenu");
+                KlyteMonoUtils.CreateUIElement(out distanceToggle, mainContainer.transform);
+                KlyteMonoUtils.InitButton(distanceToggle, true, "ButtonMenu");
                 distanceToggle.relativePosition = new Vector3(0f, 135f);
                 distanceToggle.width = 50;
                 distanceToggle.height = 20;
@@ -576,14 +573,13 @@ namespace Klyte.TransportLinesManager.UI
         private void createLineStationsPanel()
         {
 
-            TLMUtils.createUIElement(out lineStationsPanel, mainContainer.transform);
+            KlyteMonoUtils.CreateUIElement(out lineStationsPanel, mainContainer.transform);
             lineStationsPanel.width = 140;
             lineStationsPanel.height = 30;
             lineStationsPanel.name = "LineStationsPanel";
             lineStationsPanel.autoLayout = false;
             lineStationsPanel.useCenter = true;
             lineStationsPanel.wrapLayout = false;
-            lineStationsPanel.atlas = LineUtilsTextureAtlas.instance.atlas;
             lineStationsPanel.backgroundSprite = "LinearBg";
             lineStationsPanel.pivot = UIPivotPoint.MiddleLeft;
             lineStationsPanel.relativePosition = new Vector3(75f, 10f);
@@ -603,21 +599,20 @@ namespace Klyte.TransportLinesManager.UI
                 stationName = "???";
             }
 
-            TLMUtils.createUIElement(out UIButton stationButton, lineStationsPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out UIButton stationButton, lineStationsPanel.transform);
             stationButton.relativePosition = new Vector3(offsetX - 13, 15f);
             stationButton.width = 20;
             stationButton.height = 20;
             stationButton.color = lineColor;
             stationButton.name = "Station [" + stationName + "]";
-            stationButton.atlas = LineUtilsTextureAtlas.instance.atlas;
             stationButton.tooltip = stationName + "(id:" + stationNodeId + ")";
-            TLMUtils.initButton(stationButton, true, "LinearStation");
+            KlyteMonoUtils.InitButton(stationButton, true, "LinearStation");
 
-            TLMUtils.createUIElement(out DroppableStationInfo dsi, stationButton.transform);
+            KlyteMonoUtils.CreateUIElement(out DroppableStationInfo dsi, stationButton.transform);
             dsi.nodeId = stationNodeId;
             dsi.name = "DSI Station [" + stationName + "] - " + stationNodeId;
 
-            TLMUtils.createUIElement(out UITextField stationLabel, stationButton.transform);
+            KlyteMonoUtils.CreateUIElement(out UITextField stationLabel, stationButton.transform);
             stationLabel.autoSize = true;
             stationLabel.width = 220;
             stationLabel.height = 20;
@@ -630,7 +625,7 @@ namespace Klyte.TransportLinesManager.UI
             stationLabel.text = (!string.IsNullOrEmpty(stationPrefix) ? stationPrefix.Trim() + " " : "") + stationName.Trim();
             stationLabel.textScale = Math.Max(0.5f, Math.Min(1, 24f / stationLabel.text.Length));
 
-            TLMUtils.uiTextFieldDefaults(stationLabel);
+            KlyteMonoUtils.UiTextFieldDefaults(stationLabel);
             stationLabel.color = new Color(0.3f, 0.3f, 0.3f, 1);
             stationLabel.textColor = Color.white;
             stationLabel.cursorWidth = 2;
@@ -711,10 +706,10 @@ namespace Klyte.TransportLinesManager.UI
                         {
                             seg = default;
                         }
-                        TLMUtils.createUIElement(out UIPanel distContainer, stationButton.transform);
+                        KlyteMonoUtils.CreateUIElement(out UIPanel distContainer, stationButton.transform);
                         distContainer.size = new Vector2(0, 0);
                         distContainer.relativePosition = new Vector3(0, 0, 0);
-                        TLMUtils.createUIElement(out distance, distContainer.transform);
+                        KlyteMonoUtils.CreateUIElement(out distance, distContainer.transform);
                         distance.autoSize = false;
                         distance.useOutline = true;
                         if (seg.Equals(default(NetSegment)))
@@ -740,7 +735,7 @@ namespace Klyte.TransportLinesManager.UI
 
                     if (intersectionCount > 0)
                     {
-                        TLMUtils.createUIElement(out UIPanel intersectionsPanel, stationButton.transform);
+                        KlyteMonoUtils.CreateUIElement(out UIPanel intersectionsPanel, stationButton.transform);
                         intersectionsPanel.autoSize = false;
                         intersectionsPanel.autoLayout = false;
                         intersectionsPanel.autoLayoutStart = LayoutStart.TopLeft;
@@ -758,7 +753,7 @@ namespace Klyte.TransportLinesManager.UI
                     }
                     else
                     {
-                        TLMUtils.initButton(stationButton, true, "LinearHalfStation");
+                        KlyteMonoUtils.InitButton(stationButton, true, "LinearHalfStation");
                         if (offsetX == 0)
                         {
                             stationButton.relativePosition = new Vector3(offsetX - 13, 15f);
@@ -783,7 +778,7 @@ namespace Klyte.TransportLinesManager.UI
 
                     TLMLineUtils.GetQuantityPassengerWaiting(stationNodeId, out int residents, out int tourists, out int ttb);
 
-                    TLMUtils.createUIElement(out UIPanel stationInfoStatsPanel, stationButton.transform);
+                    KlyteMonoUtils.CreateUIElement(out UIPanel stationInfoStatsPanel, stationButton.transform);
                     stationInfoStatsPanel.autoSize = false;
                     stationInfoStatsPanel.autoLayout = false;
                     stationInfoStatsPanel.autoFitChildrenVertically = true;
@@ -794,7 +789,7 @@ namespace Klyte.TransportLinesManager.UI
                     stationInfoStatsPanel.wrapLayout = true;
                     stationInfoStatsPanel.width = normalWidth;
 
-                    TLMUtils.createUIElement(out UILabel residentsWaiting, stationInfoStatsPanel.transform);
+                    KlyteMonoUtils.CreateUIElement(out UILabel residentsWaiting, stationInfoStatsPanel.transform);
                     residentsWaiting.autoSize = false;
                     residentsWaiting.useOutline = true;
                     residentsWaiting.text = residents.ToString();
@@ -808,7 +803,7 @@ namespace Klyte.TransportLinesManager.UI
                     residentsWaiting.textAlignment = UIHorizontalAlignment.Center;
                     residentCounters[stationNodeId] = residentsWaiting;
 
-                    TLMUtils.createUIElement(out UILabel touristsWaiting, stationInfoStatsPanel.transform);
+                    KlyteMonoUtils.CreateUIElement(out UILabel touristsWaiting, stationInfoStatsPanel.transform);
                     touristsWaiting.autoSize = false;
                     touristsWaiting.text = tourists.ToString();
                     touristsWaiting.tooltipLocaleID = "K45_TLM_TOURISTS_WAITING";
@@ -822,7 +817,7 @@ namespace Klyte.TransportLinesManager.UI
                     touristsWaiting.textAlignment = UIHorizontalAlignment.Center;
                     touristCounters[stationNodeId] = touristsWaiting;
 
-                    TLMUtils.createUIElement(out UILabel timeTilBored, stationInfoStatsPanel.transform);
+                    KlyteMonoUtils.CreateUIElement(out UILabel timeTilBored, stationInfoStatsPanel.transform);
                     timeTilBored.autoSize = false;
                     timeTilBored.text = tourists.ToString();
                     timeTilBored.tooltipLocaleID = "K45_TLM_TIME_TIL_BORED";
@@ -875,9 +870,9 @@ namespace Klyte.TransportLinesManager.UI
             regionalTrainStation = string.Empty;
             cableCarStation = string.Empty;
 
-            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP))
+            if (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.TRAIN_SHOW_IN_LINEAR_MAP))
             {
-                ushort trainStation = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain, null, Building.Flags.None, Building.Flags.Untouchable | Building.Flags.Downgrading);
+                ushort trainStation = BuildingUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain, null, Building.Flags.None, Building.Flags.Untouchable | Building.Flags.Downgrading);
 
                 if (trainStation > 0)
                 {
@@ -887,9 +882,9 @@ namespace Klyte.TransportLinesManager.UI
                 }
             }
 
-            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP))
+            if (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP))
             {
-                ushort airportId = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane, new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerPlane }, Building.Flags.None, Building.Flags.Untouchable);
+                ushort airportId = BuildingUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane, new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerPlane }, Building.Flags.None, Building.Flags.Untouchable);
 
                 if (airportId > 0)
                 {
@@ -899,9 +894,9 @@ namespace Klyte.TransportLinesManager.UI
                 }
             }
 
-            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP))
+            if (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP))
             {
-                ushort harborId = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip, new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerShip }, Building.Flags.None, Building.Flags.Untouchable);
+                ushort harborId = BuildingUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip, new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerShip }, Building.Flags.None, Building.Flags.Untouchable);
 
                 if (harborId > 0)
                 {
@@ -910,9 +905,9 @@ namespace Klyte.TransportLinesManager.UI
                     harbor = bm.GetBuildingName(harborId, iid);
                 }
             }
-            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP))
+            if (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.TAXI_SHOW_IN_LINEAR_MAP))
             {
-                ushort taxiId = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 50f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTaxi, null, Building.Flags.None, Building.Flags.Untouchable);
+                ushort taxiId = BuildingUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 50f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTaxi, null, Building.Flags.None, Building.Flags.Untouchable);
 
                 if (taxiId > 0)
                 {
@@ -921,9 +916,9 @@ namespace Klyte.TransportLinesManager.UI
                     taxiStand = bm.GetBuildingName(taxiId, iid);
                 }
             }
-            if (TLMCW.getCurrentConfigBool(TLMCW.ConfigIndex.CABLE_CAR_SHOW_IN_LINEAR_MAP))
+            if (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.CABLE_CAR_SHOW_IN_LINEAR_MAP))
             {
-                ushort cableCarId = TLMUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportCableCar, null, Building.Flags.None, Building.Flags.Untouchable);
+                ushort cableCarId = BuildingUtils.FindBuilding(location != Vector3.zero ? location : nn.m_position, 120f, ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportCableCar, null, Building.Flags.None, Building.Flags.Untouchable);
 
                 if (cableCarId > 0)
                 {

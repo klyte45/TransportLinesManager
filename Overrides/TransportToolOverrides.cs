@@ -4,20 +4,18 @@ using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Reflection;
 using UnityEngine;
+using static Klyte.Commons.Extensors.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
-    class TransportToolOverrides : Redirector<TransportToolOverrides>
+    internal class TransportToolOverrides : IRedirectable
     {
 
         #region Hooking
 
-        private static bool preventDefault()
-        {
-            return false;
-        }
+        private static bool preventDefault() => false;
 
-        public override void AwakeBody()
+        public void Awake()
         {
             MethodInfo preventDefault = typeof(TransportToolOverrides).GetMethod("preventDefault", allFlags);
 
@@ -30,10 +28,10 @@ namespace Klyte.TransportLinesManager.Overrides
             TLMUtils.doLog("Loading TransportToolOverrides Hook");
             try
             {
-                AddRedirect(typeof(TransportTool).GetMethod("OnEnable", allFlags), onEnable);
-                AddRedirect(typeof(TransportTool).GetMethod("OnDisable", allFlags), onDisable);
-                AddRedirect(typeof(TransportTool).GetMethod("OnToolGUI", allFlags), null, OnToolGUIPos);
-                AddRedirect(typeof(TransportTool).GetMethod("SimulationStep", allFlags), null, SimulationStepPos);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("OnEnable", allFlags), onEnable);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("OnDisable", allFlags), onDisable);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("OnToolGUI", allFlags), null, OnToolGUIPos);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("SimulationStep", allFlags), null, SimulationStepPos);
             }
             catch (Exception e)
             {
@@ -44,15 +42,15 @@ namespace Klyte.TransportLinesManager.Overrides
 
         }
         #endregion
-        static FieldInfo tt_lineCurrent = typeof(TransportTool).GetField("m_line", allFlags);
-        static FieldInfo tt_lineTemp = typeof(TransportTool).GetField("m_tempLine", allFlags);
-        static FieldInfo tt_mode = typeof(TransportTool).GetField("m_mode", allFlags);
+        private static FieldInfo tt_lineCurrent = typeof(TransportTool).GetField("m_line", allFlags);
+        private static FieldInfo tt_lineTemp = typeof(TransportTool).GetField("m_tempLine", allFlags);
+        private static FieldInfo tt_mode = typeof(TransportTool).GetField("m_mode", allFlags);
 
 
         private static void OnEnable()
         {
             TLMUtils.doLog("OnEnableTransportTool");
-            TransportLinesManagerMod.instance.showVersionInfoPopup();
+            TransportLinesManagerMod.Instance.ShowVersionInfoPopup();
             TLMController.instance.LinearMapCreatingLine?.setVisible(true);
             TLMController.instance.LineCreationToolbox?.setVisible(true);
             TLMController.instance.setCurrentSelectedId(0);
@@ -73,19 +71,11 @@ namespace Klyte.TransportLinesManager.Overrides
         private static TransportTool ttInstance;
 
 
-        private static bool isInsideUI
-        {
-            get {
-                return Singleton<ToolController>.instance.IsInsideUI;
-            }
-        }
+        private static bool isInsideUI => Singleton<ToolController>.instance.IsInsideUI;
 
-        private static bool HasInputFocus
-        {
-            get {
-                return Singleton<ToolController>.instance.HasInputFocus;
-            }
-        }
+        private static bool HasInputFocus => Singleton<ToolController>.instance.HasInputFocus;
+
+        public Redirector RedirectorInstance => new Redirector();
 
         private static void OnToolGUIPos(ref TransportTool __instance, ref Event e)
         {
@@ -113,7 +103,7 @@ namespace Klyte.TransportLinesManager.Overrides
             if (__state.m_lineCurrent > 0 || (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None)
             {
                 TLMController.instance.setCurrentSelectedId(__state.m_lineCurrent);
-                if (__state.m_lineCurrent > 0 && TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
+                if (__state.m_lineCurrent > 0 && TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
                 {
                     TLMController.instance.AutoColor(__state.m_lineCurrent, true, true);
                 }
@@ -128,10 +118,7 @@ namespace Klyte.TransportLinesManager.Overrides
             public ushort m_lineTemp;
             public ushort m_lineCurrent;
 
-            public override string ToString()
-            {
-                return $"mode={m_mode};lineTemp={m_lineTemp};lineCurrent={m_lineCurrent}";
-            }
+            public override string ToString() => $"mode={m_mode};lineTemp={m_lineTemp};lineCurrent={m_lineCurrent}";
 
         }
         private enum Mode
@@ -140,21 +127,17 @@ namespace Klyte.TransportLinesManager.Overrides
             AddStops,
             MoveStops
         }
-        public override void doLog(string text, params object[] param)
-        {
-            TLMUtils.doLog(text, param);
-        }
 
         private void Update()
         {
             if (needsUpdate && ttInstance != null)
             {
                 TLMUtils.doLog("OnToolGUIPostTransportTool");
-                ToolStatus currentState = new ToolStatus();
+                var currentState = new ToolStatus();
                 TLMUtils.doLog("__state => {0} | tt_mode=> {1} | tt_lineCurrent => {2}", currentState, tt_mode, tt_lineCurrent);
-                currentState.m_mode = (Mode)tt_mode.GetValue(ttInstance);
-                currentState.m_lineCurrent = (ushort)tt_lineCurrent.GetValue(ttInstance);
-                currentState.m_lineTemp = (ushort)tt_lineTemp.GetValue(ttInstance);
+                currentState.m_mode = (Mode) tt_mode.GetValue(ttInstance);
+                currentState.m_lineCurrent = (ushort) tt_lineCurrent.GetValue(ttInstance);
+                currentState.m_lineTemp = (ushort) tt_lineTemp.GetValue(ttInstance);
                 TLMUtils.doLog("__state = {0} => {1}, newMode = {2}", lastState, currentState, currentState.m_mode);
                 lastState = currentState;
                 redrawMap(currentState);

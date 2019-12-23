@@ -1,0 +1,95 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29230.47
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceVehiclesManager", "..\ServiceVehiclesManager\ServiceVehiclesManager.csproj", "{87730B2B-F7D2-474D-BDA9-F0FC3067C249}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FBC8EC78-6489-4B4C-8D94-F455D37D3274} = {FBC8EC78-6489-4B4C-8D94-F455D37D3274}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KlyteCommons", "..\KlyteCommons\KlyteCommons.csproj", "{FBC8EC78-6489-4B4C-8D94-F455D37D3274}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransportLinesManager", "TransportLinesManager.csproj", "{3F345C94-6B63-4D8F-8A12-E1EBDAE831F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VehicleWealthizer", "..\VehicleWealthizer\VehicleWealthizer.csproj", "{01F8B98D-0F1E-42FB-9517-77A637608D01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EletricRoads", "..\EletricRoads\EletricRoads.csproj", "{934B0333-D368-4E50-A2B9-694DBB81D26A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnxietyReducer", "..\AnxietyReducer\AnxietyReducer.csproj", "{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Debug|x64.ActiveCfg = Debug|x64
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Debug|x64.Build.0 = Debug|x64
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Debug|x86.ActiveCfg = Debug|x86
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Debug|x86.Build.0 = Debug|x86
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Release|x64.ActiveCfg = Release|x64
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Release|x64.Build.0 = Release|x64
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Release|x86.ActiveCfg = Release|x86
+		{87730B2B-F7D2-474D-BDA9-F0FC3067C249}.Release|x86.Build.0 = Release|x86
+		{FBC8EC78-6489-4B4C-8D94-F455D37D3274}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{FBC8EC78-6489-4B4C-8D94-F455D37D3274}.Debug|x64.ActiveCfg = Debug|x64
+		{FBC8EC78-6489-4B4C-8D94-F455D37D3274}.Debug|x86.ActiveCfg = Debug|x86
+		{FBC8EC78-6489-4B4C-8D94-F455D37D3274}.Debug|x86.Build.0 = Debug|x86
+		{FBC8EC78-6489-4B4C-8D94-F455D37D3274}.Release|Any CPU.ActiveCfg = Release|x86
+		{FBC8EC78-6489-4B4C-8D94-F455D37D3274}.Release|x64.ActiveCfg = Release|x64
+		{FBC8EC78-6489-4B4C-8D94-F455D37D3274}.Release|x86.ActiveCfg = Release|x86
+		{FBC8EC78-6489-4B4C-8D94-F455D37D3274}.Release|x86.Build.0 = Release|x86
+		{3F345C94-6B63-4D8F-8A12-E1EBDAE831F3}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{3F345C94-6B63-4D8F-8A12-E1EBDAE831F3}.Debug|x64.ActiveCfg = Debug|x64
+		{3F345C94-6B63-4D8F-8A12-E1EBDAE831F3}.Debug|x86.ActiveCfg = Debug|x86
+		{3F345C94-6B63-4D8F-8A12-E1EBDAE831F3}.Debug|x86.Build.0 = Debug|x86
+		{3F345C94-6B63-4D8F-8A12-E1EBDAE831F3}.Release|Any CPU.ActiveCfg = Release|x86
+		{3F345C94-6B63-4D8F-8A12-E1EBDAE831F3}.Release|x64.ActiveCfg = Release|x64
+		{3F345C94-6B63-4D8F-8A12-E1EBDAE831F3}.Release|x86.ActiveCfg = Release|x86
+		{3F345C94-6B63-4D8F-8A12-E1EBDAE831F3}.Release|x86.Build.0 = Release|x86
+		{01F8B98D-0F1E-42FB-9517-77A637608D01}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{01F8B98D-0F1E-42FB-9517-77A637608D01}.Debug|x64.ActiveCfg = Debug|x64
+		{01F8B98D-0F1E-42FB-9517-77A637608D01}.Debug|x86.ActiveCfg = Debug|x86
+		{01F8B98D-0F1E-42FB-9517-77A637608D01}.Debug|x86.Build.0 = Debug|x86
+		{01F8B98D-0F1E-42FB-9517-77A637608D01}.Release|Any CPU.ActiveCfg = Release|x86
+		{01F8B98D-0F1E-42FB-9517-77A637608D01}.Release|x64.ActiveCfg = Release|x64
+		{01F8B98D-0F1E-42FB-9517-77A637608D01}.Release|x86.ActiveCfg = Release|x86
+		{01F8B98D-0F1E-42FB-9517-77A637608D01}.Release|x86.Build.0 = Release|x86
+		{934B0333-D368-4E50-A2B9-694DBB81D26A}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{934B0333-D368-4E50-A2B9-694DBB81D26A}.Debug|x64.ActiveCfg = Debug|x64
+		{934B0333-D368-4E50-A2B9-694DBB81D26A}.Debug|x86.ActiveCfg = Debug|x86
+		{934B0333-D368-4E50-A2B9-694DBB81D26A}.Debug|x86.Build.0 = Debug|x86
+		{934B0333-D368-4E50-A2B9-694DBB81D26A}.Release|Any CPU.ActiveCfg = Release|x86
+		{934B0333-D368-4E50-A2B9-694DBB81D26A}.Release|x64.ActiveCfg = Release|x64
+		{934B0333-D368-4E50-A2B9-694DBB81D26A}.Release|x86.ActiveCfg = Release|x86
+		{934B0333-D368-4E50-A2B9-694DBB81D26A}.Release|x86.Build.0 = Release|x86
+		{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}.Debug|x64.ActiveCfg = Debug|x64
+		{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}.Debug|x64.Build.0 = Debug|x64
+		{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}.Debug|x86.ActiveCfg = Debug|x86
+		{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}.Debug|x86.Build.0 = Debug|x86
+		{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}.Release|Any CPU.ActiveCfg = Release|x86
+		{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}.Release|x64.ActiveCfg = Release|x64
+		{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}.Release|x64.Build.0 = Release|x64
+		{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}.Release|x86.ActiveCfg = Release|x86
+		{1B45CF0D-19B2-4D6B-9431-8DB6619B8154}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A304D90F-7FD2-4954-9138-4279E8F8F26B}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = TransportLinesManager.csproj
+	EndGlobalSection
+EndGlobal

@@ -6,19 +6,19 @@ namespace Klyte.Commons.UI
 {
     public class AVOPreviewRenderer : MonoBehaviour
     {
-        private Camera m_camera;
+        private readonly Camera m_camera;
 
         private float m_rotation = 120f;
 
         private float m_zoom = 3f;
 
-        public Vector2 size
+        public Vector2 Size
         {
             get {
                 return new Vector2((float)this.m_camera.targetTexture.width, (float)this.m_camera.targetTexture.height);
             }
             set {
-                if (this.size != value)
+                if (this.Size != value)
                 {
                     this.m_camera.targetTexture = new RenderTexture((int)value.x, (int)value.y, 24, RenderTextureFormat.ARGB32);
                     this.m_camera.pixelRect = new Rect(0f, 0f, value.x, value.y);
@@ -26,14 +26,14 @@ namespace Klyte.Commons.UI
             }
         }
 
-        public RenderTexture texture
+        public RenderTexture Texture
         {
             get {
                 return this.m_camera.targetTexture;
             }
         }
 
-        public float cameraRotation
+        public float CameraRotation
         {
             get {
                 return this.m_rotation;
@@ -43,7 +43,7 @@ namespace Klyte.Commons.UI
             }
         }
 
-        public float zoom
+        public float Zoom
         {
             get {
                 return this.m_zoom;
@@ -61,6 +61,7 @@ namespace Klyte.Commons.UI
             m_camera.fieldOfView = 30f;
             m_camera.nearClipPlane = 1f;
             m_camera.farClipPlane = 1000f;
+            m_camera.allowHDR = true;
             m_camera.enabled = false;
             m_camera.targetTexture = new RenderTexture(512, 512, 24, RenderTextureFormat.ARGB32);
             m_camera.pixelRect = new Rect(0f, 0f, 512f, 512f);
@@ -104,7 +105,6 @@ namespace Klyte.Commons.UI
             this.m_camera.farClipPlane = num2 + num * 1.5f;
             Quaternion quaternion = Quaternion.Euler(20f, 0f, 0f) * Quaternion.Euler(0f, this.m_rotation, 0f);
             Vector3 pos = quaternion * -info.m_mesh.bounds.center;
-            Vector3 arg_1CC_0 = Vector3.zero;
             VehicleManager instance2 = Singleton<VehicleManager>.instance;
             Matrix4x4 matrix = Matrix4x4.TRS(pos, quaternion, Vector3.one);
             Matrix4x4 value = info.m_vehicleAI.CalculateTyreMatrix(Vehicle.Flags.Created, ref pos, ref quaternion, ref one, ref matrix);
@@ -117,7 +117,7 @@ namespace Klyte.Commons.UI
             {
                 materialBlock.SetColor(instance2.ID_Color, color);
             }
-            instance2.m_drawCallData.m_defaultCalls = instance2.m_drawCallData.m_defaultCalls + 1;
+            instance2.m_drawCallData.m_defaultCalls += 1;
             info.m_material.SetVectorArray(instance2.ID_TyreLocation, info.m_generatedInfo.m_tyres);
             Graphics.DrawMesh(info.m_mesh, matrix, info.m_material, 0, this.m_camera, 0, materialBlock, true, true);
             this.m_camera.RenderWithShader(info.m_material.shader, "");

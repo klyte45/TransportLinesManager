@@ -8,16 +8,16 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-
+using static Klyte.Commons.Extensors.RedirectorUtils;
 namespace Klyte.TransportLinesManager.Overrides
 {
-    internal class TransportLineOverrides : Redirector<TransportLineOverrides>
+    internal class TransportLineOverrides : IRedirectable
     {
         #region Hooking
 
         private static bool preventDefault() => false;
 
-        public override void AwakeBody()
+        public void Awake()
         {
             MethodInfo preventDefault = typeof(TransportLineOverrides).GetMethod("preventDefault", allFlags);
 
@@ -26,7 +26,7 @@ namespace Klyte.TransportLinesManager.Overrides
             MethodInfo preDoAutomation = typeof(TransportLineOverrides).GetMethod("preDoAutomation", allFlags);
 
             TLMUtils.doLog("Loading AutoColor & AutoName Hook");
-            AddRedirect(typeof(TransportLine).GetMethod("AddStop", allFlags), preDoAutomation, doAutomation);
+            RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("AddStop", allFlags), preDoAutomation, doAutomation);
             #endregion
 
 
@@ -34,19 +34,19 @@ namespace Klyte.TransportLinesManager.Overrides
             MethodInfo GetTicketPricePre = typeof(TransportLineOverrides).GetMethod("GetTicketPricePre", allFlags);
 
             TLMUtils.doLog("Loading Ticket Override Hooks");
-            AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            AddRedirect(typeof(PassengerShipAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            AddRedirect(typeof(TramAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            AddRedirect(typeof(PassengerTrainAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            AddRedirect(typeof(PassengerFerryAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            RedirectorInstance.AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            RedirectorInstance.AddRedirect(typeof(PassengerShipAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            RedirectorInstance.AddRedirect(typeof(TramAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            RedirectorInstance.AddRedirect(typeof(PassengerTrainAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            RedirectorInstance.AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            RedirectorInstance.AddRedirect(typeof(PassengerFerryAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            RedirectorInstance.AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
+            RedirectorInstance.AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
             //AddRedirect(typeof(TaxiAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre); // Waiting fix
             #endregion
             #region Bus Spawn Unbunching
             MethodInfo BusUnbuncher = typeof(TransportLineOverrides).GetMethod("BusUnbuncher", allFlags);
-            AddRedirect(typeof(TransportLine).GetMethod("AddVehicle", allFlags), null, BusUnbuncher);
+            RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("AddVehicle", allFlags), null, BusUnbuncher);
             #endregion
 
 
@@ -55,26 +55,28 @@ namespace Klyte.TransportLinesManager.Overrides
             MethodInfo GetColorFor = typeof(TransportLineOverrides).GetMethod("GetColorFor", allFlags);
 
             TLMUtils.doLog("Loading Color Override Hooks");
-            AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            AddRedirect(typeof(PassengerShipAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            AddRedirect(typeof(TramAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            AddRedirect(typeof(PassengerTrainAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            AddRedirect(typeof(PassengerFerryAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            AddRedirect(typeof(BusAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            RedirectorInstance.AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            RedirectorInstance.AddRedirect(typeof(PassengerShipAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            RedirectorInstance.AddRedirect(typeof(TramAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            RedirectorInstance.AddRedirect(typeof(PassengerTrainAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            RedirectorInstance.AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            RedirectorInstance.AddRedirect(typeof(PassengerFerryAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            RedirectorInstance.AddRedirect(typeof(BusAI).GetMethod("GetColor", allFlags), null, GetColorFor);
             #endregion
 
             #region Budget Override Hooks
 
             MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("SimulationStepPre", allFlags);
             TLMUtils.doLog("Loading SimulationStepPre Hook");
-            AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), SimulationStepPre);
+            RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), SimulationStepPre);
             #endregion
 
         }
         #endregion
 
         private static Dictionary<uint, Tuple<ushort, ushort>> m_counterIdx = new Dictionary<uint, Tuple<ushort, ushort>>();
+
+        public Redirector RedirectorInstance => new Redirector();
 
 
         #region On Line Create
@@ -89,11 +91,11 @@ namespace Klyte.TransportLinesManager.Overrides
                 if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None
                     && (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags.Temporary)) == TransportLine.Flags.None)
                 {
-                    if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
+                    if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
                     {
                         TLMController.instance.AutoColor(lineID);
                     }
-                    if (TLMConfigWarehouse.getCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
+                    if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
                     {
                         TLMController.instance.AutoName(lineID);
                     }
@@ -308,7 +310,6 @@ namespace Klyte.TransportLinesManager.Overrides
 
 
 
-        public override void doLog(string text, params object[] param) => TLMUtils.doLog(text, param);
 
     }
 }

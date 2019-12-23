@@ -1,0 +1,1 @@
+del "C:\Users\Leandro\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\TransportLinesManager\TransportLinesManager.dll"

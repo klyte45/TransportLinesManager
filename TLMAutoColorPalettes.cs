@@ -268,7 +268,7 @@ namespace Klyte.TransportLinesManager
 
         public static void SaveAll()
         {
-            TLMUtils.EnsureFolderCreation(TLMController.palettesFolder);
+            FileUtils.EnsureFolderCreation(TLMController.palettesFolder);
             var filesToSave = GetPalettesAsDictionary();
             foreach (var file in filesToSave)
             {

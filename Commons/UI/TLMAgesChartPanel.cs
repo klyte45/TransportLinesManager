@@ -6,32 +6,32 @@ namespace Klyte.Commons.UI
 {
     public class TLMAgesChartPanel : MonoBehaviour
     {
-        private UIPanel agesChartPanel;
-        private UIRadialChartExtended agesChart;
-        private Transform parent => transform.parent;
+        private UIPanel m_agesChartPanel;
+        private UIRadialChartExtended m_agesChart;
+        private Transform Parent => transform.parent;
 
         public void Awake()
         {
-            createLineCharts();
+            CreateLineCharts();
         }
 
         public void SetValues(int[] values)
         {
-            agesChart.SetValues(values);
+            m_agesChart.SetValues(values);
         }
 
-        private void createLineCharts()
+        private void CreateLineCharts()
         {
-            KlyteUtils.createUIElement(out agesChartPanel, parent);
-            agesChartPanel.relativePosition = new Vector3(450f, 45f);
-            agesChartPanel.width = 140;
-            agesChartPanel.height = 70;
-            agesChartPanel.name = "AgesChartPanel";
-            agesChartPanel.autoLayout = false;
-            agesChartPanel.useCenter = true;
-            agesChartPanel.wrapLayout = false;
+            KlyteMonoUtils.CreateUIElement(out m_agesChartPanel, Parent);
+            m_agesChartPanel.relativePosition = new Vector3(450f, 45f);
+            m_agesChartPanel.width = 140;
+            m_agesChartPanel.height = 70;
+            m_agesChartPanel.name = "AgesChartPanel";
+            m_agesChartPanel.autoLayout = false;
+            m_agesChartPanel.useCenter = true;
+            m_agesChartPanel.wrapLayout = false;
 
-            KlyteUtils.createUIElement(out UIPanel pieLegendPanel, agesChartPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out UIPanel pieLegendPanel, m_agesChartPanel.transform);
             pieLegendPanel.relativePosition = new Vector3(70f, 0f);
             pieLegendPanel.width = 70;
             pieLegendPanel.height = 70;
@@ -40,29 +40,29 @@ namespace Klyte.Commons.UI
             pieLegendPanel.autoLayout = false;
             pieLegendPanel.useCenter = true;
 
-            KlyteUtils.createUIElement(out agesChart, agesChartPanel.transform);
-            agesChart.spriteName = "PieChartWhiteBg";
-            agesChart.tooltipLocaleID = "ZONEDBUILDING_AGECHART";
-            agesChart.relativePosition = new Vector3(0, 0);
-            agesChart.width = 70;
-            agesChart.height = 70;
-            agesChart.name = "AgesChart";
+            KlyteMonoUtils.CreateUIElement(out m_agesChart, m_agesChartPanel.transform);
+            m_agesChart.spriteName = "PieChartWhiteBg";
+            m_agesChart.tooltipLocaleID = "ZONEDBUILDING_AGECHART";
+            m_agesChart.relativePosition = new Vector3(0, 0);
+            m_agesChart.width = 70;
+            m_agesChart.height = 70;
+            m_agesChart.name = "AgesChart";
             Color32 criancaColor = new Color32(254, 218, 155, 255);
             Color32 adolescenteColor = new Color32(205, 239, 145, 255);
             Color32 jovemColor = new Color32(189, 206, 235, 255);
             Color32 adultoColor = new Color32(255, 162, 162, 255);
             Color32 idosoColor = new Color32(100, 224, 206, 255);
             int y = 0;
-            criaFatiaELegenda(criancaColor, agesChart, pieLegendPanel, "ZONEDBUILDING_CHILDREN", 14 * y++);
-            criaFatiaELegenda(adolescenteColor, agesChart, pieLegendPanel, "ZONEDBUILDING_TEENS", 14 * y++);
-            criaFatiaELegenda(jovemColor, agesChart, pieLegendPanel, "ZONEDBUILDING_YOUNGS", 14 * y++);
-            criaFatiaELegenda(adultoColor, agesChart, pieLegendPanel, "ZONEDBUILDING_ADULTS", 14 * y++);
-            criaFatiaELegenda(idosoColor, agesChart, pieLegendPanel, "ZONEDBUILDING_SENIORS", 14 * y++);
+            CriaFatiaELegenda(criancaColor, m_agesChart, pieLegendPanel, "ZONEDBUILDING_CHILDREN", 14 * y++);
+            CriaFatiaELegenda(adolescenteColor, m_agesChart, pieLegendPanel, "ZONEDBUILDING_TEENS", 14 * y++);
+            CriaFatiaELegenda(jovemColor, m_agesChart, pieLegendPanel, "ZONEDBUILDING_YOUNGS", 14 * y++);
+            CriaFatiaELegenda(adultoColor, m_agesChart, pieLegendPanel, "ZONEDBUILDING_ADULTS", 14 * y++);
+            CriaFatiaELegenda(idosoColor, m_agesChart, pieLegendPanel, "ZONEDBUILDING_SENIORS", 14 * y++);
         }
-        private void criaFatiaELegenda(Color c, UIRadialChartExtended chart, UIPanel legendPanel, string localeID, float offsetY)
+        private void CriaFatiaELegenda(Color c, UIRadialChartExtended chart, UIPanel legendPanel, string localeID, float offsetY)
         {
             chart.AddSlice(c, c);
-            KlyteUtils.createUIElement(out UIPanel legendItemContainer, legendPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out UIPanel legendItemContainer, legendPanel.transform);
             legendItemContainer.width = legendPanel.width;
             legendItemContainer.relativePosition = new Vector3(0f, offsetY);
             legendItemContainer.name = "LegendItem";
@@ -70,13 +70,13 @@ namespace Klyte.Commons.UI
             legendItemContainer.useCenter = true;
             legendItemContainer.wrapLayout = false;
             legendItemContainer.height = 20;
-            KlyteUtils.createUIElement(out UILabel legendColor, legendItemContainer.transform);
+            KlyteMonoUtils.CreateUIElement(out UILabel legendColor, legendItemContainer.transform);
             legendColor.backgroundSprite = "EmptySprite";
             legendColor.width = 10;
             legendColor.height = 10;
             legendColor.relativePosition = new Vector3(0, 0);
             legendColor.color = c;
-            KlyteUtils.createUIElement(out UILabel legendName, legendItemContainer.transform);
+            KlyteMonoUtils.CreateUIElement(out UILabel legendName, legendItemContainer.transform);
             legendName.textAlignment = UIHorizontalAlignment.Right;
             legendName.width = legendItemContainer.width - 10;
             legendName.localeID = localeID;

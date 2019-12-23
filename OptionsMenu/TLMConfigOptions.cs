@@ -2,6 +2,7 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.OptionsMenu.Tabs;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -12,14 +13,14 @@ using static Klyte.TransportLinesManager.OptionsMenu.TLMConfigOptions;
 
 namespace Klyte.TransportLinesManager.OptionsMenu
 {
-    class TLMConfigOptions : Singleton<TLMConfigOptions>
+    internal class TLMConfigOptions : Singleton<TLMConfigOptions>
     {
 
         private UIDropDown configSelector;
 
         private string currentSelectedConfigEditor => TLMConfigOptions.instance.configSelector.selectedIndex == 0 ? currentCityId : TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
 
-        private TLMConfigWarehouse currentConfigWarehouseEditor => TLMConfigWarehouse.getConfig(currentSelectedConfigEditor, currentCityName);
+        private TLMConfigWarehouse currentConfigWarehouseEditor => TLMConfigWarehouse.GetConfig(currentSelectedConfigEditor, currentCityName);
 
         private string[] optionsForLoadConfig => currentCityId == TLMConfigWarehouse.GLOBAL_CONFIG_INDEX ? new string[] { TLMConfigWarehouse.GLOBAL_CONFIG_INDEX } : new string[] { currentCityName, TLMConfigWarehouse.GLOBAL_CONFIG_INDEX };
 
@@ -27,7 +28,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         private string currentCityId => isCityLoaded ? Singleton<SimulationManager>.instance.m_metaData.m_gameInstanceIdentifier : TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
         private string currentCityName => isCityLoaded ? Singleton<SimulationManager>.instance.m_metaData.m_CityName : TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
-        internal TLMConfigWarehouse currentLoadedCityConfig => TLMConfigWarehouse.getConfig(currentCityId, currentCityName);
+        internal TLMConfigWarehouse currentLoadedCityConfig => TLMConfigWarehouse.GetConfig(currentCityId, currentCityName);
 
 
         private Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown> dropDowns = new Dictionary<TLMConfigWarehouse.ConfigIndex, UIDropDown>();
@@ -77,24 +78,24 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
             TLMUtils.doLog("Loading Options");
 
-            var overrideWorldInfoPanelLineOption = helper.AddCheckboxLocale("K45_TLM_OVERRIDE_DEFAULT_LINE_INFO", TransportLinesManagerMod.overrideWorldInfoPanelLine, toggleOverrideDefaultLineInfoPanel);
+            UICheckBox overrideWorldInfoPanelLineOption = helper.AddCheckboxLocale("K45_TLM_OVERRIDE_DEFAULT_LINE_INFO", TransportLinesManagerMod.overrideWorldInfoPanelLine, toggleOverrideDefaultLineInfoPanel);
 
             helper.AddSpace(10);
 
             configSelector = helper.AddDropdownLocalized("K45_TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, reloadData);
 
-            TLMUtils.createUIElement(out UITabstrip strip, helper.self.transform, "TabListTLMopt", new Vector4(5, 0, 730, 40));
-            var effectiveOffsetY = strip.height;
+            KlyteMonoUtils.CreateUIElement(out UITabstrip strip, helper.Self.transform, "TabListTLMopt", new Vector4(5, 0, 730, 40));
+            float effectiveOffsetY = strip.height;
 
-            TLMUtils.createUIElement(out UITabContainer tabContainer, helper.self.transform, "TabContainerTLMopt", new Vector4(0, 40, 730, 500));
+            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, helper.Self.transform, "TabContainerTLMopt", new Vector4(0, 40, 730, 500));
             tabContainer.autoSize = true;
             strip.tabPages = tabContainer;
 
-            helper.self.eventVisibilityChanged += delegate (UIComponent component, bool b)
+            helper.Self.eventVisibilityChanged += delegate (UIComponent component, bool b)
             {
                 if (b)
                 {
-                    TransportLinesManagerMod.instance.showVersionInfoPopup();
+                    TransportLinesManagerMod.Instance.ShowVersionInfoPopup();
                 }
                 try
                 {
@@ -109,7 +110,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 superTab.normalFgSprite = tab.getTabFgSprite();
                 superTab.tooltip = tab.getTabName();
 
-                TLMUtils.createUIElement(out UIPanel content, null);
+                KlyteMonoUtils.CreateUIElement(out UIPanel content, null);
                 content.name = "Container";
                 content.area = new Vector4(0, 0, tabContainer.width, tabContainer.height);
                 content.autoLayout = true;
@@ -127,8 +128,8 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         private static UIButton CreateTabTemplate()
         {
-            TLMUtils.createUIElement(out UIButton tabTemplate, null, "TLMTabTemplate");
-            TLMUtils.initButton(tabTemplate, false, "GenericTab");
+            KlyteMonoUtils.CreateUIElement(out UIButton tabTemplate, null, "TLMTabTemplate");
+            KlyteMonoUtils.InitButton(tabTemplate, false, "GenericTab");
             tabTemplate.autoSize = false;
             tabTemplate.width = 40;
             tabTemplate.height = 40;
@@ -138,20 +139,23 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         internal UICheckBox generateCheckboxConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            checkBoxes[configIndex] = (UICheckBox)group.AddCheckbox(title, currentConfigWarehouseEditor.getBool(configIndex), delegate (bool b) { currentConfigWarehouseEditor.setBool(configIndex, b); });
+            checkBoxes[configIndex] = (UICheckBox) group.AddCheckbox(title, currentConfigWarehouseEditor.GetBool(configIndex), delegate (bool b)
+            { currentConfigWarehouseEditor.SetBool(configIndex, b); });
 
             return checkBoxes[configIndex];
         }
 
         internal UIDropDown generateDropdownConfig(UIHelperExtension group, string title, string[] options, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.getInt(configIndex), delegate (int i) { currentConfigWarehouseEditor.setInt(configIndex, i); }, true);
+            dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.GetInt(configIndex), delegate (int i)
+            { currentConfigWarehouseEditor.SetInt(configIndex, i); }, true);
             return dropDowns[configIndex];
         }
 
         internal UIDropDown generateDropdownStringValueConfig(UIHelperExtension group, string title, string[] options, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.getString(configIndex), delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, options[i]); }, true);
+            dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.GetString(configIndex), delegate (int i)
+            { currentConfigWarehouseEditor.SetString(configIndex, options[i]); }, true);
             return dropDowns[configIndex];
         }
 
@@ -161,26 +165,34 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             int currentValue;
             try
             {
-                currentValue = (int)Enum.Parse(typeof(T), currentConfigWarehouseEditor.getString(configIndex));
+                currentValue = (int) Enum.Parse(typeof(T), currentConfigWarehouseEditor.GetString(configIndex));
             }
             catch
             {
                 currentValue = 0;
             }
-            dropDowns[configIndex] = group.AddDropdown(title, options, currentValue, delegate (int i) { currentConfigWarehouseEditor.setString(configIndex, Enum.GetNames(typeof(T))[i]); }, true);
+            dropDowns[configIndex] = group.AddDropdown(title, options, currentValue, delegate (int i)
+            { currentConfigWarehouseEditor.SetString(configIndex, Enum.GetNames(typeof(T))[i]); }, true);
             return dropDowns[configIndex];
         }
 
 
         internal UITextField generateTextFieldConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            textFields[configIndex] = group.AddTextField(title, delegate (string s) { currentConfigWarehouseEditor.setString(configIndex, s); }, currentConfigWarehouseEditor.getString(configIndex));
+            textFields[configIndex] = group.AddTextField(title, delegate (string s)
+            { currentConfigWarehouseEditor.SetString(configIndex, s); }, currentConfigWarehouseEditor.GetString(configIndex));
             return textFields[configIndex];
         }
 
         internal UITextField generateNumberFieldConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            textFields[configIndex] = group.AddTextField(title, delegate (string s) { if (int.TryParse(s, out int val)) currentConfigWarehouseEditor.setInt(configIndex, val); }, currentConfigWarehouseEditor.getInt(configIndex).ToString());
+            textFields[configIndex] = group.AddTextField(title, delegate (string s)
+            {
+                if (int.TryParse(s, out int val))
+                {
+                    currentConfigWarehouseEditor.SetInt(configIndex, val);
+                }
+            }, currentConfigWarehouseEditor.GetInt(configIndex).ToString());
             textFields[configIndex].numericalOnly = true;
             return textFields[configIndex];
         }
@@ -192,7 +204,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         private void reloadData(int selection)
         {
             TLMUtils.doLog("OPÇÔES RECARREGANDO ARQUIVO", currentSelectedConfigEditor);
-            foreach (var i in dropDowns)
+            foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UIDropDown> i in dropDowns)
             {
                 TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
                 try
@@ -200,10 +212,10 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                     switch (i.Key & TLMConfigWarehouse.ConfigIndex.TYPE_PART)
                     {
                         case TLMConfigWarehouse.ConfigIndex.TYPE_INT:
-                            i.Value.selectedIndex = currentConfigWarehouseEditor.getInt(i.Key);
+                            i.Value.selectedIndex = currentConfigWarehouseEditor.GetInt(i.Key);
                             break;
                         case TLMConfigWarehouse.ConfigIndex.TYPE_STRING:
-                            int selectedIndex = i.Value.items.ToList().IndexOf(currentConfigWarehouseEditor.getString(i.Key));
+                            int selectedIndex = i.Value.items.ToList().IndexOf(currentConfigWarehouseEditor.GetString(i.Key));
                             i.Value.selectedIndex = Math.Max(selectedIndex, 0);
                             break;
                         default:
@@ -213,30 +225,33 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 }
                 catch
                 {
-                    TLMUtils.doLog("EXCEPTION! {0} | {1} | [{2}]", i.Key, currentConfigWarehouseEditor.getString(i.Key), string.Join(",", i.Value.items));
+                    TLMUtils.doLog("EXCEPTION! {0} | {1} | [{2}]", i.Key, currentConfigWarehouseEditor.GetString(i.Key), string.Join(",", i.Value.items));
                 }
 
             }
-            foreach (var i in checkBoxes)
+            foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UICheckBox> i in checkBoxes)
             {
                 TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
-                i.Value.isChecked = currentConfigWarehouseEditor.getBool(i.Key);
+                i.Value.isChecked = currentConfigWarehouseEditor.GetBool(i.Key);
             }
-            foreach (var i in textFields)
+            foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UITextField> i in textFields)
             {
                 TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
-                i.Value.text = currentConfigWarehouseEditor.getString(i.Key);
+                i.Value.text = currentConfigWarehouseEditor.GetString(i.Key);
             }
         }
 
 
         internal void updateDropDowns()
         {
-            foreach (var ci in TLMConfigWarehouse.PALETTES_INDEXES)
+            foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.PALETTES_INDEXES)
             {
                 UIDropDown paletteDD = dropDowns[ci];
                 if (!paletteDD)
+                {
                     continue;
+                }
+
                 string idxSel = (paletteDD.selectedValue);
                 paletteDD.items = TLMAutoColorPalettes.paletteList;
                 if (!paletteDD.items.Contains(idxSel))
@@ -249,10 +264,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
 
 
-        private void toggleOverrideDefaultLineInfoPanel(bool b)
-        {
-            TransportLinesManagerMod.overrideWorldInfoPanelLine = b;
-        }
+        private void toggleOverrideDefaultLineInfoPanel(bool b) => TransportLinesManagerMod.overrideWorldInfoPanelLine = b;
 
 
         internal enum ConfigTabs
@@ -268,21 +280,31 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             About = 8
         }
     }
-    static class TabsExtension
+
+    internal static class TabsExtension
     {
         public static string getTabName(this ConfigTabs tab)
         {
             switch (tab)
             {
-                case ConfigTabs.TransportSystem: return Locale.Get("K45_TLM_TRANSPORT_SYSTEM");
-                case ConfigTabs.TicketPrices: return Locale.Get("K45_TLM_DEFAULT_PRICE");
-                case ConfigTabs.NearLines: return Locale.Get("K45_TLM_NEAR_LINES_CONFIG");
-                case ConfigTabs.Automation: return Locale.Get("K45_TLM_AUTOMATION_CONFIG");
-                case ConfigTabs.AutoName_PT: return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT");
-                case ConfigTabs.AutoName_BD: return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_OTHER");
-                case ConfigTabs.AutoName_PA: return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_AREAS");
-                case ConfigTabs.Palettes: return Locale.Get("K45_TLM_CUSTOM_PALETTE_CONFIG");
-                case ConfigTabs.About: return Locale.Get("K45_TLM_BETAS_EXTRA_INFO");
+                case ConfigTabs.TransportSystem:
+                    return Locale.Get("K45_TLM_TRANSPORT_SYSTEM");
+                case ConfigTabs.TicketPrices:
+                    return Locale.Get("K45_TLM_DEFAULT_PRICE");
+                case ConfigTabs.NearLines:
+                    return Locale.Get("K45_TLM_NEAR_LINES_CONFIG");
+                case ConfigTabs.Automation:
+                    return Locale.Get("K45_TLM_AUTOMATION_CONFIG");
+                case ConfigTabs.AutoName_PT:
+                    return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT");
+                case ConfigTabs.AutoName_BD:
+                    return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_OTHER");
+                case ConfigTabs.AutoName_PA:
+                    return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_AREAS");
+                case ConfigTabs.Palettes:
+                    return Locale.Get("K45_TLM_CUSTOM_PALETTE_CONFIG");
+                case ConfigTabs.About:
+                    return Locale.Get("K45_TLM_BETAS_EXTRA_INFO");
                 default:
                     throw new Exception($"Not supported: {tab}");
             }
@@ -292,15 +314,24 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         {
             switch (tab)
             {
-                case ConfigTabs.TransportSystem: return "ParkLevelStar";
-                case ConfigTabs.TicketPrices: return "FootballTicketIcon";
-                case ConfigTabs.NearLines: return "RelocateIcon";
-                case ConfigTabs.Automation: return "Options";
-                case ConfigTabs.AutoName_PT: return "ToolbarIconPublicTransport";
-                case ConfigTabs.AutoName_BD: return "ToolbarIconMonuments";
-                case ConfigTabs.AutoName_PA: return "ToolbarIconDistrict";
-                case ConfigTabs.Palettes: return "ZoningOptionFill";
-                case ConfigTabs.About: return "CityInfo";
+                case ConfigTabs.TransportSystem:
+                    return "ParkLevelStar";
+                case ConfigTabs.TicketPrices:
+                    return "FootballTicketIcon";
+                case ConfigTabs.NearLines:
+                    return "RelocateIcon";
+                case ConfigTabs.Automation:
+                    return "Options";
+                case ConfigTabs.AutoName_PT:
+                    return "ToolbarIconPublicTransport";
+                case ConfigTabs.AutoName_BD:
+                    return "ToolbarIconMonuments";
+                case ConfigTabs.AutoName_PA:
+                    return "ToolbarIconDistrict";
+                case ConfigTabs.Palettes:
+                    return "ZoningOptionFill";
+                case ConfigTabs.About:
+                    return "CityInfo";
                 default:
                     throw new Exception($"Not supported: {tab}");
             }
@@ -310,15 +341,24 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         {
             switch (tab)
             {
-                case ConfigTabs.TransportSystem: return typeof(TLMShowConfigTabContainer);
-                case ConfigTabs.TicketPrices: return typeof(TLMDefaultTicketPriceConfigTab);
-                case ConfigTabs.NearLines: return typeof(TLMNearLinesConfigTab);
-                case ConfigTabs.Automation: return typeof(TLMAutomationOptionsTab);
-                case ConfigTabs.AutoName_PT: return typeof(TLMAutoNamePublicTransportTab);
-                case ConfigTabs.AutoName_BD: return typeof(TLMAutoNameBuildingsTab);
-                case ConfigTabs.AutoName_PA: return typeof(TLMAutoNamePublicAreasTab);
-                case ConfigTabs.Palettes: return typeof(TLMPaletteOptionsTab);
-                case ConfigTabs.About: return typeof(TLMModInfoTab);
+                case ConfigTabs.TransportSystem:
+                    return typeof(TLMShowConfigTabContainer);
+                case ConfigTabs.TicketPrices:
+                    return typeof(TLMDefaultTicketPriceConfigTab);
+                case ConfigTabs.NearLines:
+                    return typeof(TLMNearLinesConfigTab);
+                case ConfigTabs.Automation:
+                    return typeof(TLMAutomationOptionsTab);
+                case ConfigTabs.AutoName_PT:
+                    return typeof(TLMAutoNamePublicTransportTab);
+                case ConfigTabs.AutoName_BD:
+                    return typeof(TLMAutoNameBuildingsTab);
+                case ConfigTabs.AutoName_PA:
+                    return typeof(TLMAutoNamePublicAreasTab);
+                case ConfigTabs.Palettes:
+                    return typeof(TLMPaletteOptionsTab);
+                case ConfigTabs.About:
+                    return typeof(TLMModInfoTab);
                 default:
                     return null;
             }

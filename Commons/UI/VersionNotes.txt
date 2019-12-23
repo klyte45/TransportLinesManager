@@ -1,3 +1,0 @@
-﻿KCv1.1.7
-    - Now Klyte Commons has its own configuration files.
-	- Campus DLC update.

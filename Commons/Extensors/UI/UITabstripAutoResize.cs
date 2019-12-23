@@ -14,8 +14,8 @@ namespace Klyte.Commons.Extensors
 {
     public class UITabstripAutoResize : UITabstrip
     {
-        private readonly Action<UIComponent> SuspendLayout = (Action<UIComponent>)ReflectionUtils.GetMethodDelegate("SuspendLayout", typeof(UIComponent), typeof(Action<UIComponent>));
-        private readonly Action<UIComponent> ResumeLayout = (Action<UIComponent>)ReflectionUtils.GetMethodDelegate("ResumeLayout", typeof(UIComponent), typeof(Action<UIComponent>));
+        private readonly Action<UIComponent> m_suspendLayout = (Action<UIComponent>)ReflectionUtils.GetMethodDelegate("SuspendLayout", typeof(UIComponent), typeof(Action<UIComponent>));
+        private readonly Action<UIComponent> m_resumeLayout = (Action<UIComponent>)ReflectionUtils.GetMethodDelegate("ResumeLayout", typeof(UIComponent), typeof(Action<UIComponent>));
 
 
         [SerializeField]
@@ -25,7 +25,7 @@ namespace Klyte.Commons.Extensors
         [SerializeField]
         protected bool m_AutoFitChildrenVertically;
 
-        public bool autoFitChildrenHorizontally
+        public bool AutoFitChildrenHorizontally
         {
             get {
                 return this.m_AutoFitChildrenHorizontally;
@@ -38,7 +38,7 @@ namespace Klyte.Commons.Extensors
                 }
             }
         }
-        public bool autoFitChildrenVertically
+        public bool AutoFitChildrenVertically
         {
             get {
                 return this.m_AutoFitChildrenVertically;
@@ -56,28 +56,28 @@ namespace Klyte.Commons.Extensors
         {
             try
             {
-                SuspendLayout(this);
+                m_suspendLayout(this);
                 this.Invalidate();
             }
             finally
             {
-                ResumeLayout(this);
+                m_resumeLayout(this);
             }
         }
 
         public override void Update()
         {
-            if (m_IsComponentInvalidated && (autoFitChildrenHorizontally || autoFitChildrenVertically) && isVisible)
+            if (m_IsComponentInvalidated && (AutoFitChildrenHorizontally || AutoFitChildrenVertically) && isVisible)
             {
                 try
                 {
-                    SuspendLayout(this);
-                    if (autoFitChildrenHorizontally) FitChildrenHorizontally();
-                    if (autoFitChildrenVertically) FitChildrenVertically();
+                    m_suspendLayout(this);
+                    if (AutoFitChildrenHorizontally) FitChildrenHorizontally();
+                    if (AutoFitChildrenVertically) FitChildrenVertically();
                 }
                 finally
                 {
-                    ResumeLayout(this);
+                    m_resumeLayout(this);
                 }
             }
             base.Update();

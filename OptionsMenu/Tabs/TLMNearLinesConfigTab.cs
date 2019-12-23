@@ -14,9 +14,9 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         {
             parent = GetComponentInParent<UIComponent>();
             UIHelperExtension group7 = new UIHelperExtension(parent);
-            ((UIPanel)group7.self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group7.self).wrapLayout = true;
-            ((UIPanel)group7.self).width = 730;
+            ((UIPanel)group7.Self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)group7.Self).wrapLayout = true;
+            ((UIPanel)group7.Self).width = 730;
 
             group7.AddLabel(Locale.Get("K45_TLM_NEAR_LINES_CONFIG"));
             group7.AddSpace(15);

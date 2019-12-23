@@ -1,8 +1,11 @@
-﻿using System;
-using System.Reflection;
-using UnityEngine;
+﻿using Harmony;
+using Klyte.Commons.Utils;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using Harmony;
+using System.Reflection;
+using System.Reflection.Emit;
+using UnityEngine;
 
 namespace Klyte.Commons.Extensors
 {
@@ -11,29 +14,27 @@ namespace Klyte.Commons.Extensors
         public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.GetField | BindingFlags.GetProperty;
     }
 
-    public abstract class Redirector : MonoBehaviour
+    public interface IRedirectable
     {
-        public static readonly BindingFlags allFlags = RedirectorUtils.allFlags;
+        Redirector RedirectorInstance { get; }
     }
 
-    public abstract class Redirector<T> : Redirector where T : Redirector<T>
+    public class Redirector : MonoBehaviour
     {
         #region Class Base
-        private readonly HarmonyInstance harmony = HarmonyInstance.Create("com.klyte.commons." + typeof(T).Name);
-        private static T m_instance;
-        public static T instance => m_instance;
+        private static readonly HarmonyInstance m_harmony = HarmonyInstance.Create($"com.klyte.redirectors.{CommonProperties.Acronym}");
 
-        public HarmonyInstance GetHarmonyInstance()
-        {
-            return harmony;
-        }
+        private readonly List<DynamicMethod> m_detourList = new List<DynamicMethod>();
+
+
+        public HarmonyInstance GetHarmonyInstance() => m_harmony;
         #endregion
 
-        protected static bool semiPreventDefault()
+        public static readonly MethodInfo semiPreventDefaultMI = new Func<bool>(() =>
         {
             StackTrace stackTrace = new StackTrace();
             StackFrame[] stackFrames = stackTrace.GetFrames();
-            m_instance?.doLog($"SemiPreventDefault fullStackTrace: \r\n {Environment.StackTrace}");
+            LogUtils.DoLog($"SemiPreventDefault fullStackTrace: \r\n {Environment.StackTrace}");
             for (int i = 2; i < stackFrames.Length; i++)
             {
                 if (stackFrames[i].GetMethod().DeclaringType.ToString().StartsWith("Klyte."))
@@ -42,38 +43,25 @@ namespace Klyte.Commons.Extensors
                 }
             }
             return true;
-        }
-        protected MethodInfo semiPreventDefaultMI = typeof(T).GetMethod("semiPreventDefault", allFlags);
+        }).Method;
 
-        public void Awake()
-        {
-            m_instance = (T)this;
-            AwakeBody();
-        }
-
-        public abstract void AwakeBody();
-        public abstract void doLog(string text, params object[] param);
-
-
-        public void AddRedirect(MethodInfo oldMethod, MethodInfo newMethodPre, MethodInfo newMethodPost = null, MethodInfo transpiler = null)
-        {
-            GetHarmonyInstance().Patch(oldMethod, newMethodPre != null ? new HarmonyMethod(newMethodPre) : null, newMethodPost != null ? new HarmonyMethod(newMethodPost) : null, transpiler != null ? new HarmonyMethod(transpiler) : null);
-        }
+        public void AddRedirect(MethodInfo oldMethod, MethodInfo newMethodPre, MethodInfo newMethodPost = null, MethodInfo transpiler = null) => m_detourList.Add(GetHarmonyInstance().Patch(oldMethod, newMethodPre != null ? new HarmonyMethod(newMethodPre) : null, newMethodPost != null ? new HarmonyMethod(newMethodPost) : null, transpiler != null ? new HarmonyMethod(transpiler) : null));
 
         public void OnDestroy()
         {
-            doLog($"Destroying {typeof(T)}");
-            GetHarmonyInstance().UnpatchAll();
+            foreach (DynamicMethod patch in m_detourList)
+            {
+                foreach (HarmonyMethod method in patch.GetHarmonyMethods())
+                {
+                    GetHarmonyInstance().Unpatch(patch.GetBaseDefinition(), method.method);
+
+                }
+
+            }
         }
 
-        public void EnableDebug()
-        {
-            HarmonyInstance.DEBUG = true;
-        }
-        public void DisableDebug()
-        {
-            HarmonyInstance.DEBUG = false;
-        }
+        public void EnableDebug() => HarmonyInstance.DEBUG = true;
+        public void DisableDebug() => HarmonyInstance.DEBUG = false;
     }
 }
 

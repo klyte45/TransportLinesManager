@@ -13,37 +13,37 @@ namespace Klyte.Commons.Extensors
 {
     public class NumberedColorList
     {
-        private UIPanel linesListPanel;
-        private UIComponent m_parent;
+        private readonly UIPanel m_linesListPanel;
+        private readonly UIComponent m_parent;
         private List<Color32> m_colorList;
-        private UIButton m_add;
+        private readonly UIButton m_add;
 
         public string m_spriteName = "EmptySprite";
         public UITextureAtlas m_atlasToUse = null;
 
-        public List<Color32> colorList
+        public List<Color32> ColorList
         {
             get {
                 return m_colorList;
             }
             set {
                 m_colorList = value;
-                redrawButtons();
+                RedrawButtons();
             }
         }
 
         public void Enable()
         {
-            linesListPanel.enabled = true;
+            m_linesListPanel.enabled = true;
             if (m_add)
             {
                 m_add.enabled = true;
             }
-            redrawButtons();
+            RedrawButtons();
         }
         public void Disable()
         {
-            foreach (Transform t in linesListPanel.transform)
+            foreach (Transform t in m_linesListPanel.transform)
             {
                 GameObject.Destroy(t.gameObject);
             }
@@ -51,7 +51,7 @@ namespace Klyte.Commons.Extensors
             {
                 m_add.enabled = false;
             }
-            linesListPanel.enabled = false;
+            m_linesListPanel.enabled = false;
         }
 
         public NumberedColorList(UIComponent parent, List<Color32> initialColorList, UIComponent addButtonContainer)
@@ -59,17 +59,17 @@ namespace Klyte.Commons.Extensors
             m_parent = parent;
             parent.width = 500;
             ((UIPanel)parent).autoFitChildrenVertically = true;
-            linesListPanel = m_parent.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate)) as UIPanel;
-            linesListPanel.name = "NumberedColorList";
-            linesListPanel.height = 40;
-            linesListPanel.width = 500;
-            linesListPanel.autoLayoutDirection = LayoutDirection.Horizontal;
-            linesListPanel.autoLayoutStart = LayoutStart.TopLeft;
-            linesListPanel.autoFitChildrenVertically = true;
-            linesListPanel.wrapLayout = true;
-            linesListPanel.autoLayoutPadding = new RectOffset(5, 5, 5, 5);
+            m_linesListPanel = m_parent.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate)) as UIPanel;
+            m_linesListPanel.name = "NumberedColorList";
+            m_linesListPanel.height = 40;
+            m_linesListPanel.width = 500;
+            m_linesListPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+            m_linesListPanel.autoLayoutStart = LayoutStart.TopLeft;
+            m_linesListPanel.autoFitChildrenVertically = true;
+            m_linesListPanel.wrapLayout = true;
+            m_linesListPanel.autoLayoutPadding = new RectOffset(5, 5, 5, 5);
 
-            foreach (Transform t in linesListPanel.transform)
+            foreach (Transform t in m_linesListPanel.transform)
             {
                 GameObject.Destroy(t.gameObject);
             }
@@ -87,14 +87,14 @@ namespace Klyte.Commons.Extensors
                 m_add.eventClick += delegate (UIComponent c, UIMouseEventParameter sel)
                 {
                     m_colorList.Add(Color.white);
-                    redrawButtons();
-                    eventOnAdd?.Invoke();
+                    RedrawButtons();
+                    EventOnAdd?.Invoke();
                 };
             }
-            colorList = initialColorList;
+            ColorList = initialColorList;
         }
 
-        private static void initButton(UIButton button, string baseSprite, UITextureAtlas atlasToUse = null)
+        private static void InitButton(UIButton button, string baseSprite, UITextureAtlas atlasToUse = null)
         {
             string sprite = baseSprite;
             string spriteHov = baseSprite;
@@ -114,28 +114,28 @@ namespace Klyte.Commons.Extensors
 
         public void Redraw()
         {
-            redrawButtons();
+            RedrawButtons();
         }
 
-        private void redrawButtons()
+        private void RedrawButtons()
         {
-            foreach (Transform t in linesListPanel.transform)
+            foreach (Transform t in m_linesListPanel.transform)
             {
                 GameObject.Destroy(t.gameObject);
             }
-            for (int j = 0; j < colorList.Count; j++)
+            for (int j = 0; j < ColorList.Count; j++)
             {
 
                 GameObject itemContainer = new GameObject();
 
-                itemContainer.transform.parent = linesListPanel.transform;
+                itemContainer.transform.parent = m_linesListPanel.transform;
                 UIButtonWithId itemButton = itemContainer.AddComponent<UIButtonWithId>();
 
                 itemButton.width = 35;
                 itemButton.height = 35;
 
-                initButton(itemButton, m_spriteName, m_atlasToUse);
-                itemButton.color = colorList[j];
+                InitButton(itemButton, m_spriteName, m_atlasToUse);
+                itemButton.color = ColorList[j];
                 itemButton.hoveredColor = itemButton.color;
                 itemButton.pressedColor = itemButton.color;
                 itemButton.focusedColor = itemButton.color;
@@ -144,15 +144,15 @@ namespace Klyte.Commons.Extensors
                 itemButton.id = j + 1;
                 itemButton.eventClick += (component, eventParam) =>
                 {
-                    eventOnClick?.Invoke(itemButton.id);
+                    EventOnClick?.Invoke(itemButton.id);
                 };
-                setLineNumberMainListing(j + 1, itemButton);
+                SetLineNumberMainListing(j + 1, itemButton);
                 itemButton.name = "Color #" + (j + 1);
             }
 
         }
 
-        private void setLineNumberMainListing(int num, UIButton button)
+        private void SetLineNumberMainListing(int num, UIButton button)
         {
             UILabel l = button.AddUIComponent<UILabel>();
             l.autoSize = false;
@@ -192,8 +192,8 @@ namespace Klyte.Commons.Extensors
             public int id;
         }
 
-        public event OnButtonSelect<int> eventOnClick;
-        public event OnButtonClicked eventOnAdd;
+        public event OnButtonSelect<int> EventOnClick;
+        public event OnButtonClicked EventOnAdd;
     }
     public delegate void OnButtonSelect<T>(T idx);
 }

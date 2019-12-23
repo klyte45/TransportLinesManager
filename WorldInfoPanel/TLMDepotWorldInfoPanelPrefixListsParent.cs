@@ -1,4 +1,5 @@
 ﻿using ColossalFramework.UI;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
@@ -33,14 +34,14 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt
                 Type targetType;
                 try
                 {
-                    targetType = TLMUtils.GetImplementationForGenericType(typeof(TLMDepotPrefixSelection<>), kv.Value);
+                    targetType = ReflectionUtils.GetImplementationForGenericType(typeof(TLMDepotPrefixSelection<>), kv.Value);
                     components = new Type[] { targetType };
                 }
                 catch
                 {
                     continue;
                 }
-                TLMUtils.createElement(targetType, transform);
+                KlyteMonoUtils.CreateElement(targetType, transform);
             }
         }
 

@@ -2,21 +2,28 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.UI.SpriteNames;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow.Components;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
+using static Klyte.Commons.Extensors.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.CommonsWindow
 {
-    internal abstract class TLMTabControllerLineHooks<T, V> : Redirector<T> where T : TLMTabControllerLineHooks<T, V> where V : TLMSysDef<V>
+    internal abstract class TLMTabControllerLineHooks<T, V> : IRedirectable where T : TLMTabControllerLineHooks<T, V> where V : TLMSysDef<V>
     {
+        public Redirector RedirectorInstance => new Redirector();
 
         public static void AfterCreateLine(bool __result, ref ushort lineID, BuildingInfo info)
         {
-            if (lineID == 0) return;
+            if (lineID == 0)
+            {
+                return;
+            }
+
             TransportLine tl = TransportManager.instance.m_lines.m_buffer[lineID];
             if (__result && TLMBasicTabControllerLineList<V>.exists && (Singleton<V>.instance?.GetTSD().isFromSystem(tl) ?? false))
             {
@@ -36,24 +43,18 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             }
         }
 
-        public override void AwakeBody()
+        public void Awake()
         {
-            TransportSystemDefinition def = Singleton<V>.instance.GetTSD();
 
-            var from = typeof(TransportManager).GetMethod("CreateLine", allFlags);
-            var to = typeof(TLMTabControllerLineHooks<T, V>).GetMethod("AfterCreateLine", allFlags);
-            var from2 = typeof(TransportManager).GetMethod("ReleaseLine", allFlags);
-            var to2b = typeof(TLMTabControllerLineHooks<T, V>).GetMethod("BeforeReleaseLine", allFlags);
-            var to2a = typeof(TLMTabControllerLineHooks<T, V>).GetMethod("AfterReleaseLine", allFlags);
+            System.Reflection.MethodInfo from = typeof(TransportManager).GetMethod("CreateLine", allFlags);
+            System.Reflection.MethodInfo to = typeof(TLMTabControllerLineHooks<T, V>).GetMethod("AfterCreateLine", allFlags);
+            System.Reflection.MethodInfo from2 = typeof(TransportManager).GetMethod("ReleaseLine", allFlags);
+            System.Reflection.MethodInfo to2b = typeof(TLMTabControllerLineHooks<T, V>).GetMethod("BeforeReleaseLine", allFlags);
+            System.Reflection.MethodInfo to2a = typeof(TLMTabControllerLineHooks<T, V>).GetMethod("AfterReleaseLine", allFlags);
             TLMUtils.doLog("Loading After Hooks: {0} ({1}=>{2})", typeof(TransportManager), from, to);
-            AddRedirect(from, null, to);
+            RedirectorInstance.AddRedirect(from, null, to);
             TLMUtils.doLog("Loading After & Before Hooks: {0} ({1}=>{2}+{3})", typeof(TransportManager), from2, to2a, to2b);
-            AddRedirect(from2, to2a, to2b);
-        }
-
-        public override void doLog(string text, params object[] param)
-        {
-            TLMUtils.doLog(text, param);
+            RedirectorInstance.AddRedirect(from2, to2a, to2b);
         }
 
     }
@@ -99,14 +100,14 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             m_LastSortCriterionLines = LineSortCriterion.DEFAULT;
 
-            var parent = GetComponent<UIComponent>();
-            TLMUtils.createUIElement(out m_autoNameAll, parent.transform);
+            UIComponent parent = GetComponent<UIComponent>();
+            KlyteMonoUtils.CreateUIElement(out m_autoNameAll, parent.transform);
             m_autoNameAll.relativePosition = new Vector3(parent.width - 60f, -80);
             m_autoNameAll.textScale = 0.6f;
             m_autoNameAll.width = 40;
             m_autoNameAll.height = 40;
             m_autoNameAll.tooltip = Locale.Get("K45_TLM_AUTO_NAME_ALL_TOOLTIP");
-            TLMUtils.initButton(m_autoNameAll, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(m_autoNameAll, true, "ButtonMenu");
             m_autoNameAll.name = "AutoNameAll";
             m_autoNameAll.isVisible = true;
             m_autoNameAll.eventClick += (component, eventParam) =>
@@ -117,21 +118,20 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 }
             };
 
-            var icon = m_autoNameAll.AddUIComponent<UISprite>();
+            UISprite icon = m_autoNameAll.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
-            icon.spriteName = "AutoNameIcon";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoNameIcon);
 
 
-            TLMUtils.createUIElement(out m_autoColorAll, parent.transform);
+            KlyteMonoUtils.CreateUIElement(out m_autoColorAll, parent.transform);
             m_autoColorAll.relativePosition = new Vector3(parent.width - 120f, -80);
             m_autoColorAll.textScale = 0.6f;
             m_autoColorAll.width = 40;
             m_autoColorAll.height = 40;
             m_autoColorAll.tooltip = Locale.Get("K45_TLM_AUTO_COLOR_ALL_TOOLTIP");
-            TLMUtils.initButton(m_autoColorAll, true, "ButtonMenu");
+            KlyteMonoUtils.InitButton(m_autoColorAll, true, "ButtonMenu");
             m_autoColorAll.name = "AutoColorAll";
             m_autoColorAll.isVisible = true;
             m_autoColorAll.eventClick += (component, eventParam) =>
@@ -144,10 +144,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             icon = m_autoColorAll.AddUIComponent<UISprite>();
             icon.relativePosition = new Vector3(2, 2);
-            icon.atlas = TLMCommonTextureAtlas.instance.atlas;
             icon.width = 36;
             icon.height = 36;
-            icon.spriteName = "AutoColorIcon";
+            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoColorIcon);
         }
         #endregion
 
@@ -155,51 +154,54 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         protected override void CreateTitleRow(out UIPanel titleLine, UIComponent parent)
         {
             TLMUtils.doLog("Creating Title Row " + typeof(T));
-            TLMUtils.createUIElement(out titleLine, parent.transform, "TLMtitleline", new Vector4(5, 0, parent.width - 10, 40));
+            KlyteMonoUtils.CreateUIElement(out titleLine, parent.transform, "TLMtitleline", new Vector4(5, 0, parent.width - 10, 40));
             createdTitleLine = titleLine;
             TryCreateVisibilityToggleButton();
 
-            TLMUtils.createUIElement(out UILabel codColor, titleLine.transform, "codColor");
+            KlyteMonoUtils.CreateUIElement(out UILabel codColor, titleLine.transform, "codColor");
             codColor.minimumSize = new Vector2(60, 0);
             codColor.area = new Vector4(80, 10, codColor.minimumSize.x, 18);
-            TLMUtils.LimitWidth(codColor, (uint)codColor.width);
+            KlyteMonoUtils.LimitWidth(codColor, (uint) codColor.width);
             codColor.textAlignment = UIHorizontalAlignment.Center;
             codColor.prefix = Locale.Get("PUBLICTRANSPORT_LINECOLOR");
             codColor.text = "/";
             codColor.suffix = Locale.Get("K45_TLM_CODE_SHORT");
             codColor.eventClicked += CodColor_eventClicked;
 
-            TLMUtils.createUIElement(out UILabel lineName, titleLine.transform, "lineName");
+            KlyteMonoUtils.CreateUIElement(out UILabel lineName, titleLine.transform, "lineName");
             lineName.minimumSize = new Vector2(200, 0);
             lineName.area = new Vector4(140, 10, lineName.minimumSize.x, 18);
-            TLMUtils.LimitWidth(lineName, (uint)lineName.width);
+            KlyteMonoUtils.LimitWidth(lineName, (uint) lineName.width);
             lineName.textAlignment = UIHorizontalAlignment.Center;
             lineName.text = Locale.Get("PUBLICTRANSPORT_LINENAME");
-            lineName.eventClicked += LineName_eventClicked; ;
+            lineName.eventClicked += LineName_eventClicked;
+            ;
 
-            TLMUtils.createUIElement(out UILabel stops, titleLine.transform, "stops");
+            KlyteMonoUtils.CreateUIElement(out UILabel stops, titleLine.transform, "stops");
             stops.minimumSize = new Vector2(80, 0);
             stops.area = new Vector4(340, 10, stops.minimumSize.x, 18);
-            TLMUtils.LimitWidth(stops, (uint)stops.width);
+            KlyteMonoUtils.LimitWidth(stops, (uint) stops.width);
             stops.textAlignment = UIHorizontalAlignment.Center;
             stops.text = Locale.Get("PUBLICTRANSPORT_LINESTOPS");
-            stops.eventClicked += Stops_eventClicked; ;
+            stops.eventClicked += Stops_eventClicked;
+            ;
 
             if (Singleton<T>.instance.GetTSD().hasVehicles())
             {
-                TLMUtils.createUIElement(out UILabel vehicles, titleLine.transform, "vehicles");
+                KlyteMonoUtils.CreateUIElement(out UILabel vehicles, titleLine.transform, "vehicles");
                 vehicles.minimumSize = new Vector2(110, 0);
                 vehicles.area = new Vector4(430, 10, vehicles.minimumSize.x, 18);
-                TLMUtils.LimitWidth(vehicles, (uint)vehicles.width);
+                KlyteMonoUtils.LimitWidth(vehicles, (uint) vehicles.width);
                 vehicles.textAlignment = UIHorizontalAlignment.Center;
                 vehicles.text = Locale.Get("PUBLICTRANSPORT_VEHICLES");
-                vehicles.eventClicked += Vehicles_eventClicked; ;
+                vehicles.eventClicked += Vehicles_eventClicked;
+                ;
             }
 
-            TLMUtils.createUIElement(out UILabel passengers, titleLine.transform, "passengers");
+            KlyteMonoUtils.CreateUIElement(out UILabel passengers, titleLine.transform, "passengers");
             passengers.minimumSize = new Vector2(80, 0);
             passengers.area = new Vector4(540, 10, passengers.minimumSize.x, 18);
-            TLMUtils.LimitWidth(passengers, (uint)passengers.width);
+            KlyteMonoUtils.LimitWidth(passengers, (uint) passengers.width);
             passengers.textAlignment = UIHorizontalAlignment.Center;
             passengers.text = Locale.Get("PUBLICTRANSPORT_PASSENGERS");
             passengers.eventClicked += Passengers_eventClicked;
@@ -227,10 +229,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             }
         }
 
-        protected override void DoOnUpdate()
-        {
-            TryCreateVisibilityToggleButton();
-        }
+        protected override void DoOnUpdate() => TryCreateVisibilityToggleButton();
 
         private void LineName_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
@@ -269,7 +268,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void AwakeDayNightOptions()
         {
-            var temp = GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("LineTitle");
+            UIPanel temp = GameObject.FindObjectOfType<UIView>().FindUIComponent<UIPanel>("LineTitle");
             TLMUtils.doLog("Find Original buttons");
             m_DayIcon = GameObject.Instantiate(temp.Find<UIButton>("DayButton"));
             m_NightIcon = GameObject.Instantiate(temp.Find<UIButton>("NightButton"));
@@ -293,9 +292,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             Singleton<SimulationManager>.instance.AddAction(() =>
             {
-                foreach (var item in mainPanel.components)
+                foreach (UIComponent item in mainPanel.components)
                 {
-                    TLMLineListItem<T> comp = (TLMLineListItem<T>)item.GetComponent(ImplClassChildren);
+                    var comp = (TLMLineListItem<T>) item.GetComponent(ImplClassChildren);
                     comp.ChangeLineVisibility(value);
                 }
                 isUpdated = false;
@@ -311,19 +310,19 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 var temp = new GameObject();
                 temp.AddComponent<UIPanel>();
-                lineInfoItem = (TLMLineListItem<T>)temp.AddComponent(implClassBuildingLine);
+                lineInfoItem = (TLMLineListItem<T>) temp.AddComponent(implClassBuildingLine);
                 mainPanel.AttachUIComponent(lineInfoItem.gameObject);
             }
             else
             {
-                lineInfoItem = (TLMLineListItem<T>)mainPanel.components[count].GetComponent(implClassBuildingLine);
+                lineInfoItem = (TLMLineListItem<T>) mainPanel.components[count].GetComponent(implClassBuildingLine);
             }
             lineInfoItem.lineID = lineID;
             lineInfoItem.RefreshData(true, true);
             count++;
         }
 
-        private static Type ImplClassChildren => TLMUtils.GetImplementationForGenericType(typeof(TLMLineListItem<>), typeof(T));
+        private static Type ImplClassChildren => ReflectionUtils.GetImplementationForGenericType(typeof(TLMLineListItem<>), typeof(T));
 
         public override void RefreshLines()
         {
@@ -335,7 +334,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 m_DayNightIcon.relativePosition = new Vector3(701, 14);
                 m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
 
-                var tsd = Singleton<T>.instance.GetTSD();
+                TransportSystemDefinition tsd = Singleton<T>.instance.GetTSD();
                 bool hasPrefix = TLMLineUtils.hasPrefix(ref tsd);
                 int count = 0;
                 for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
@@ -351,11 +350,22 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
                 switch (m_LastSortCriterionLines)
                 {
-                    case LineSortCriterion.NAME: OnNameSort(); break;
-                    case LineSortCriterion.PASSENGER: OnPassengerSort(); break;
-                    case LineSortCriterion.STOP: OnStopSort(); break;
-                    case LineSortCriterion.VEHICLE: OnVehicleSort(); break;
-                    case LineSortCriterion.LINE_NUMBER: default: OnLineNumberSort(); break;
+                    case LineSortCriterion.NAME:
+                        OnNameSort();
+                        break;
+                    case LineSortCriterion.PASSENGER:
+                        OnPassengerSort();
+                        break;
+                    case LineSortCriterion.STOP:
+                        OnStopSort();
+                        break;
+                    case LineSortCriterion.VEHICLE:
+                        OnVehicleSort();
+                        break;
+                    case LineSortCriterion.LINE_NUMBER:
+                    default:
+                        OnLineNumberSort();
+                        break;
                 }
             }
             catch { }
@@ -384,11 +394,17 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private static int CompareLineNumbers(UIComponent left, UIComponent right)
         {
             if (left == null || right == null)
+            {
                 return 0;
+            }
+
             TLMLineListItem<T> component = left.GetComponent<TLMLineListItem<T>>();
             TLMLineListItem<T> component2 = right.GetComponent<TLMLineListItem<T>>();
             if (component == null || component2 == null)
+            {
                 return 0;
+            }
+
             return component.lineNumber.CompareTo(component2.lineNumber);
         }
 
@@ -416,7 +432,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void OnNameSort()
         {
             if (mainPanel.components.Count == 0)
+            {
                 return;
+            }
+
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareNames), reverseOrder);
             m_LastSortCriterionLines = LineSortCriterion.NAME;
             mainPanel.Invalidate();
@@ -425,7 +444,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void OnStopSort()
         {
             if (mainPanel.components.Count == 0)
+            {
                 return;
+            }
+
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareStops), reverseOrder);
             m_LastSortCriterionLines = LineSortCriterion.STOP;
             mainPanel.Invalidate();
@@ -434,7 +456,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void OnVehicleSort()
         {
             if (mainPanel.components.Count == 0)
+            {
                 return;
+            }
+
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareVehicles), reverseOrder);
             m_LastSortCriterionLines = LineSortCriterion.VEHICLE;
             mainPanel.Invalidate();
@@ -443,7 +468,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void OnPassengerSort()
         {
             if (mainPanel.components.Count == 0)
+            {
                 return;
+            }
+
             Quicksort(mainPanel.components, new Comparison<UIComponent>(ComparePassengers), reverseOrder);
             m_LastSortCriterionLines = LineSortCriterion.PASSENGER;
             mainPanel.Invalidate();
@@ -452,7 +480,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void OnLineNumberSort()
         {
             if (mainPanel.components.Count == 0)
+            {
                 return;
+            }
+
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareLineNumbers), reverseOrder);
             m_LastSortCriterionLines = LineSortCriterion.LINE_NUMBER;
             mainPanel.Invalidate();
