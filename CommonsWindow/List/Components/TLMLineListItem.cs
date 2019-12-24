@@ -4,8 +4,10 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
@@ -156,12 +158,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
 
                 string vehTooltip = string.Format("{0} {1}", m_LineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
                 m_LineVehicles.tooltip = vehTooltip;
-                if (!TLMTransportLineExtension.instance.IsUsingCustomConfig(lineID) || !TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(lineID))
+                if (!TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID) || !TLMTransportLineExtension.Instance.IsUsingAbsoluteVehicleCount(lineID))
                 {
-                    m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.getEffectiveBugdet(lineID));//585+1/7 = frames/week  
+                    m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.GetEffectiveBugdet(lineID));//585+1/7 = frames/week  
                     m_lineBudgetLabel.tooltip = string.Format(Locale.Get("K45_TLM_LINE_BUDGET_EXPLAIN_2"),
                         TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()),
-                        overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f, TLMLineUtils.getEffectiveBugdet(lineID));
+                        overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f, TLMLineUtils.GetEffectiveBugdet(lineID));
                     m_lineBudgetLabel.isVisible = true;
                 }
                 else
@@ -170,7 +172,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
                 }
 
 
-                bool tlmPerHour = TLMLineUtils.isPerHourBudget(m_LineID);
+                bool tlmPerHour = true;
                 m_DayLine.isVisible = !tlmPerHour;
                 m_DayNightLine.isVisible = !tlmPerHour;
                 m_NightLine.isVisible = !tlmPerHour;

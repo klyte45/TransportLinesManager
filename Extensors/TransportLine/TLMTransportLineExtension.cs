@@ -1,100 +1,79 @@
 ﻿using ColossalFramework.Globalization;
+using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
+using System.Xml.Serialization;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
 {
-
-    enum TLMTransportLineFlags : uint
+    internal enum TLMTransportLineFlags : uint
     {
         ZERO_BUDGET_CURRENT = 0x80000000
     }
 
-    enum TLMTransportLineExtensionsKey
+    public class TLMTransportLineExtension : DataExtensorBase<TLMTransportLineExtension>, ISafeGettable<TransportLineConfiguration>, ISafeGettable<IAssetSelectorStorage>, ISafeGettable<IUseAbsoluteVehicleCountStorage>, IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension, IUseAbsoluteVehicleCountExtension
     {
-        USE_CUSTOM_CONFIG,
-        LOCAL_MODEL_LIST,
-        LOCAL_TICKET_PRICE,
-        LOCAL_BUDGET,
-        USE_ABSOLUTE_BUDGET
-    }
-
-    class TLMTransportLineExtension : ExtensionInterfaceDefaultImpl<TLMTransportLineExtensionsKey, TLMTransportLineExtension>, IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension, IUseAbsoluteVehicleCountExtension
-    {
-        protected override TLMCW.ConfigIndex ConfigIndexKey => TLMCW.ConfigIndex.LINES_CONFIG;
-        private Dictionary<TransportSystemDefinition, List<string>> basicAssetsList = new Dictionary<TransportSystemDefinition, List<string>>();
-
-        public void SetUseCustomConfig(ushort lineId, bool value)
+        [XmlElement("Configurations")]
+        public SimpleNonSequentialList<TransportLineConfiguration> Configurations { get; set; } = new SimpleNonSequentialList<TransportLineConfiguration>();
+        internal void SafeCleanEntry(ushort lineID) => Configurations[lineID] = new TransportLineConfiguration();
+        public TransportLineConfiguration SafeGet(uint lineId)
         {
-            SafeSet(lineId, TLMTransportLineExtensionsKey.USE_CUSTOM_CONFIG, value.ToString());
+            if (!Configurations.ContainsKey(lineId))
+            {
+                Configurations[lineId] = new TransportLineConfiguration();
+            }
+            return Configurations[lineId];
         }
+        IAssetSelectorStorage ISafeGettable<IAssetSelectorStorage>.SafeGet(uint index) => SafeGet(index);
+        IUseAbsoluteVehicleCountStorage ISafeGettable<IUseAbsoluteVehicleCountStorage>.SafeGet(uint index) => SafeGet(index);
+        IBudgetStorage ISafeGettable<IBudgetStorage>.SafeGet(uint index) => SafeGet(index);
+        ITicketPriceStorage ISafeGettable<ITicketPriceStorage>.SafeGet(uint index) => SafeGet(index);
 
-        public bool IsUsingCustomConfig(ushort lineId)
-        {
-            return Boolean.TryParse(SafeGet(lineId, TLMTransportLineExtensionsKey.USE_CUSTOM_CONFIG), out bool result) && result;
-        }
+        public override string SaveId => $"K45_TLM_TLMTransportLineExtension";
+
+        private Dictionary<TransportSystemDefinition, List<string>> m_basicAssetsList = new Dictionary<TransportSystemDefinition, List<string>>();
+
+        public void SetUseCustomConfig(ushort lineId, bool value) => SafeGet(lineId).IsCustom = value;
+
+        public bool IsUsingCustomConfig(ushort lineId) => SafeGet(lineId).IsCustom;
 
         #region Asset List
-        public List<string> GetAssetList(uint lineId)
+        public List<string> GetBasicAssetList(uint rel)
         {
-            string value = SafeGet(lineId, TLMTransportLineExtensionsKey.LOCAL_MODEL_LIST);
-            if (string.IsNullOrEmpty(value))
+
+            var tsd = TransportSystemDefinition.from(rel);
+            if (!m_basicAssetsList.ContainsKey(tsd))
             {
-                return new List<string>();
+                m_basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
             }
-            else
-            {
-                return value.Split(ItSepLvl3.ToCharArray()).ToList();
-            }
+            return m_basicAssetsList[tsd];
         }
-        public Dictionary<string, string> GetSelectedBasicAssets(uint lineId)
-        {
-            TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);
-            if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
-            return GetAssetList(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
-        }
+        public Dictionary<string, string> GetSelectedBasicAssets(uint lineId) => ExtensionStaticExtensionMethods.GetAssetList(this, lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         public Dictionary<string, string> GetAllBasicAssets(uint lineId)
         {
-            TransportSystemDefinition tsd = TransportSystemDefinition.from(lineId);
-            if (!basicAssetsList.ContainsKey(tsd)) basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
-            return basicAssetsList[tsd].ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
-        }
-        public void AddAsset(uint lineId, string assetId)
-        {
-            var temp = GetAssetList(lineId);
-            if (temp.Contains(assetId)) return;
-            temp.Add(assetId);
-            SafeSet(lineId, TLMTransportLineExtensionsKey.LOCAL_MODEL_LIST, string.Join(ItSepLvl3, temp.ToArray()));
-        }
-        public void RemoveAsset(uint lineId, string assetId)
-        {
-            var temp = GetAssetList(lineId);
-            if (!temp.Contains(assetId)) return;
-            temp.RemoveAll(x => x == assetId);
-            SafeSet(lineId, TLMTransportLineExtensionsKey.LOCAL_MODEL_LIST, string.Join(ItSepLvl3, temp.ToArray()));
-        }
-        public void UseDefaultAssets(uint lineId)
-        {
-            SafeCleanProperty(lineId, TLMTransportLineExtensionsKey.LOCAL_MODEL_LIST);
+            var tsd = TransportSystemDefinition.from(lineId);
+            if (!m_basicAssetsList.ContainsKey(tsd))
+            {
+                m_basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
+            }
+
+            return m_basicAssetsList[tsd].ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         }
         public VehicleInfo GetAModel(ushort lineId)
         {
             VehicleInfo info = null;
-            List<string> assetList = GetAssetList(lineId);
+            List<string> assetList = ExtensionStaticExtensionMethods.GetAssetList(this, lineId);
             while (info == null && assetList.Count > 0)
             {
                 info = VehicleUtils.GetRandomModel(assetList, out string modelName);
                 if (info == null)
                 {
-                    RemoveAsset(lineId, modelName);
-                    assetList = GetAssetList(lineId);
+                    ExtensionStaticExtensionMethods.RemoveAsset(this, lineId, modelName);
+                    assetList = ExtensionStaticExtensionMethods.GetAssetList(this, lineId);
                 }
             }
             return info;
@@ -102,69 +81,8 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
 
         #endregion
 
-        #region Budget Multiplier
-        public uint[] GetBudgetsMultiplier(uint lineId)
-        {
-            string value = SafeGet(lineId, TLMTransportLineExtensionsKey.LOCAL_BUDGET);
-            if (value == null) return new uint[] { 100 };
-            string[] savedMultipliers = value.Split(ItSepLvl3.ToCharArray());
-
-            uint[] result = new uint[savedMultipliers.Length];
-            for (int i = 0; i < result.Length; i++)
-            {
-                if (uint.TryParse(savedMultipliers[i], out uint parsed))
-                {
-                    result[i] = parsed;
-                }
-                else
-                {
-                    return new uint[] { 100 };
-                }
-            }
-            return result;
-        }
-        public uint GetBudgetMultiplierForHour(uint prefix, float hour)
-        {
-            uint[] savedMultipliers = GetBudgetsMultiplier(prefix);
-            if (savedMultipliers.Length == 1)
-            {
-                return savedMultipliers[0];
-            }
-            else if (savedMultipliers.Length == 8)
-            {
-                int refMultiplierIdx = (((int)hour + 23) / 3) % 8;
-                var phasePercentage = (hour + 23) % 3;
-                if (phasePercentage < .5f)
-                {
-                    return (uint)Mathf.Lerp(savedMultipliers[refMultiplierIdx], savedMultipliers[(refMultiplierIdx + 7) % 8], 0.5f - phasePercentage);
-                }
-                else if (phasePercentage > 2.5f)
-                {
-                    return (uint)Mathf.Lerp(savedMultipliers[refMultiplierIdx], savedMultipliers[(refMultiplierIdx + 1) % 8], (phasePercentage) - 2.5f);
-                }
-                else
-                {
-                    return savedMultipliers[refMultiplierIdx];
-                }
-            }
-            return 100;
-        }
-        public void SetBudgetMultiplier(uint prefix, uint[] multipliers)
-        {
-            SafeSet(prefix, TLMTransportLineExtensionsKey.LOCAL_BUDGET, string.Join(ItSepLvl3, multipliers.Select(x => x.ToString()).ToArray()));
-        }
-        #endregion
-
         #region Ticket Price
-        public uint GetTicketPrice(uint lineId)
-        {
 
-            if (uint.TryParse(SafeGet(lineId, TLMTransportLineExtensionsKey.LOCAL_TICKET_PRICE), out uint result))
-            {
-                return result;
-            }
-            return GetDefaultTicketPrice(lineId);
-        }
         public uint GetDefaultTicketPrice(uint lineId = 0)
         {
             var tsd = TransportSystemDefinition.from(lineId);
@@ -213,22 +131,23 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
             }
 
         }
-        public void SetTicketPrice(uint prefix, uint price)
-        {
-            SafeSet(prefix, TLMTransportLineExtensionsKey.LOCAL_TICKET_PRICE, price.ToString());
-        }
+
         #endregion
 
-        #region Using Absolute Vehicle Count
-        public bool IsUsingAbsoluteVehicleCount(uint lineId)
-        {
-            return Boolean.TryParse(SafeGet(lineId, TLMTransportLineExtensionsKey.USE_ABSOLUTE_BUDGET), out bool result) && result;
-        }
+    }
 
-        public void SetUsingAbsoluteVehicleCount(uint lineId, bool value)
-        {
-            SafeSet(lineId, TLMTransportLineExtensionsKey.USE_ABSOLUTE_BUDGET, value.ToString());
-        }
-        #endregion
+
+    public class TransportLineConfiguration : IAssetSelectorStorage, IBudgetStorage, ITicketPriceStorage, IUseAbsoluteVehicleCountStorage
+    {
+        [XmlAttribute("isCustom")]
+        public bool IsCustom { get; set; } = false;
+        [XmlElement("Budget")]
+        public TimeableList<BudgetEntryXml> BudgetEntries { get; set; } = new TimeableList<BudgetEntryXml>();
+        [XmlElement("AssetsList")]
+        public SimpleXmlList<string> AssetList { get; set; } = new SimpleXmlList<string>();
+        [XmlAttribute("ticketPrice")]
+        public uint TicketPrice { get; set; } = 0;
+        [XmlAttribute("absoluteCount")]
+        public bool IsAbsoluteCountValue { get; set; }
     }
 }

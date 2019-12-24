@@ -1,64 +1,69 @@
-﻿using Klyte.Commons.UI.Sprites;
+﻿using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Interfaces
 {
-    public interface IBudgetableExtension
+    public interface IBudgetableExtension : ISafeGettable<IBudgetStorage>
     {
-        uint[] GetBudgetsMultiplier(uint prefix);
-        uint GetBudgetMultiplierForHour(uint prefix, float hour);
-        void SetBudgetMultiplier(uint prefix, uint[] multipliers);
+    }
+    public interface IBudgetStorage
+    {
+        TimeableList<BudgetEntryXml> BudgetEntries { get; }
     }
 
-    public interface INameableExtension
+    public interface INameableExtension : ISafeGettable<INameableStorage>
     {
-        string GetName(uint prefix);
-        void SetName(uint prefix, string name);
     }
 
-    public interface ITicketPriceExtension
+    public interface INameableStorage
     {
-        uint GetTicketPrice(uint rel);
+        string Name { get; set; }
+    }
+
+    public interface ITicketPriceExtension : ISafeGettable<ITicketPriceStorage>
+    {
         uint GetDefaultTicketPrice(uint rel);
-        void SetTicketPrice(uint rel, uint price);
     }
 
-    public interface IAssetSelectorExtension
+    public interface ITicketPriceStorage
     {
-        List<string> GetAssetList(uint rel);
-        Dictionary<string, string> GetSelectedBasicAssets(uint rel);
+        public uint TicketPrice { get; set; }
+    }
+
+    public interface IAssetSelectorExtension : ISafeGettable<IAssetSelectorStorage>
+    {
         Dictionary<string, string> GetAllBasicAssets(uint rel);
-        void AddAsset(uint rel, string assetId);
-        void RemoveAsset(uint rel, string assetId);
-        void UseDefaultAssets(uint rel);
+        List<string> GetBasicAssetList(uint rel);
         VehicleInfo GetAModel(ushort lineId);
     }
 
-    public interface IColorSelectableExtension
+    public interface IAssetSelectorStorage
     {
-        Color GetColor(uint id);
-        void SetColor(uint id, Color value);
-        void CleanColor(uint id);
+        SimpleXmlList<string> AssetList
+        {
+            get;
+        }
     }
-    public interface IUseColorForModelExtension
+
+    public interface IColorSelectableExtension : ISafeGettable<IColorSelectableStorage>
     {
-        bool IsUsingColorForModel(uint prefix);
-        void SetUsingColorForModel(uint prefix, bool val);
     }
-    public interface IUseAbsoluteVehicleCountExtension
+    public interface IColorSelectableStorage
     {
-        bool IsUsingAbsoluteVehicleCount(uint line);
-        void SetUsingAbsoluteVehicleCount(uint line, bool val);
+        Color Color { get; set; }
     }
-    public interface ICustomPaletteExtension
+    public interface IUseAbsoluteVehicleCountExtension : ISafeGettable<IUseAbsoluteVehicleCountStorage>
     {
-        string GetCustomPalette(uint prefix);
-        void SetCustomPalette(uint prefix, string paletteName);
     }
-    public interface ICustomGeometricFormatExtension
+    public interface IUseAbsoluteVehicleCountStorage
     {
-        LineIconSpriteNames GetCustomFormat(uint prefix);
-        void SetCustomFormat(uint prefix, LineIconSpriteNames icon);
+        bool IsAbsoluteCountValue { get; set; }
     }
+    public interface ISafeGettable<T>
+    {
+        T SafeGet(uint index);
+    }
+
 }

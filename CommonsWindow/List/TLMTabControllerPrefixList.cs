@@ -5,6 +5,7 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow.Components;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.LineDetailWindow.Components;
@@ -133,7 +134,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             GetComponent<UIComponent>().eventVisibilityChanged += (x, y) => forceRefresh();
             TLMConfigWarehouse.EventOnPropertyChanged += OnWarehouseChange;
         }
-
         private void SetPalettePrefix(int value) => extension.SetCustomPalette((uint) SelectedPrefix, value == 0 ? null : m_paletteDD.selectedValue);
         private void SetFormatPrefix(int value) => extension.SetCustomFormat((uint) SelectedPrefix, (LineIconSpriteNames) Enum.Parse(typeof(LineIconSpriteNames), value.ToString()));
 
@@ -248,26 +248,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 extension.SetTicketPrice((uint) m_prefixSelector.selectedIndex, intVal);
             }
         }
-        private void setBudgetHour(float x, int selectedHourIndex)
-        {
-            if (!isChanging && m_prefixSelector.selectedIndex >= 0)
-            {
-                uint idx = (uint) SelectedPrefix;
-                ushort val = (ushort) (x * 100 + 0.5f);
-                IBudgetableExtension bte;
-                uint[] saveData;
 
-                TransportSystemDefinition tsdRef = TransportSystem;
-                bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
-                saveData = bte.GetBudgetsMultiplier(idx);
-                if (selectedHourIndex >= saveData.Length || saveData[selectedHourIndex] == val)
-                {
-                    return;
-                }
-                saveData[selectedHourIndex] = val;
-                bte.SetBudgetMultiplier(idx, saveData);
-            }
-        }
         #endregion
 
         #region On Selection Changed

@@ -17,10 +17,10 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                 {
                     uint idx;
                     IAssetSelectorExtension extension;
-                    if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineId))
+                    if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
                     {
                         idx = lineId;
-                        extension = TLMTransportLineExtension.instance;
+                        extension = TLMTransportLineExtension.Instance;
                     }
                     else
                     {

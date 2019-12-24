@@ -1,21 +1,12 @@
-﻿using Klyte.TransportLinesManager.Interfaces;
+﻿using Klyte.Commons.Interfaces;
 
 namespace Klyte.TransportLinesManager.Extensors.NetNodeExt
 {
-
-    class TLMStopsExtension : ExtensionInterfaceDefaultImpl<TLMStopExtensionProperty, TLMStopsExtension>
+    public class TLMStopsExtension : ExtensionInterfaceDictionaryImpl<TLMStopExtensionProperty, TLMStopsExtension>
     {
-        protected override string KvSepLvl1 { get { return "∂"; } }
-        protected override string ItSepLvl1 { get { return "§"; } }
-        protected override string KvSepLvl2 { get { return "∫"; } }
-        protected override string ItSepLvl2 { get { return "≠"; } }
-        protected override TLMConfigWarehouse.ConfigIndex ConfigIndexKey { get { return TLMConfigWarehouse.ConfigIndex.STOPS_CONFIG; } }
+        public override string SaveId => "K45_TLM_TLMStopsExtension";
 
-
-        public string GetStopName(uint stopId)
-        {
-            return SafeGet(stopId, TLMStopExtensionProperty.STOP_NAME);
-        }
+        public string GetStopName(uint stopId) => SafeGet(stopId, TLMStopExtensionProperty.STOP_NAME);
 
         public void SetStopName(string newName, uint stopId)
         {
@@ -30,7 +21,7 @@ namespace Klyte.TransportLinesManager.Extensors.NetNodeExt
         }
     }
 
-    internal enum TLMStopExtensionProperty
+    public enum TLMStopExtensionProperty
     {
         STOP_NAME
     }

@@ -5,7 +5,9 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -78,6 +80,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
                      }
                      else
                      {
+                         
                          extension.RemoveAsset((uint) m_prefixIdx, i);
                      }
                  });
@@ -88,7 +91,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
                 m_checkboxes[i] = checkbox;
             }
         }
-
         private void CreateRemoveUndesiredModelsButton()
         {
             KlyteMonoUtils.CreateUIElement<UIButton>(out UIButton removeUndesired, m_mainPanel.transform);

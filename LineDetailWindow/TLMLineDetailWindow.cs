@@ -6,6 +6,7 @@ using Klyte.Commons.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
@@ -565,9 +566,9 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
             ITicketPriceExtension tpe;
             uint idx;
-            if (TLMTransportLineExtension.instance.IsUsingCustomConfig(m_lineIdSelecionado.TransportLine))
+            if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(m_lineIdSelecionado.TransportLine))
             {
-                tpe = TLMTransportLineExtension.instance;
+                tpe = TLMTransportLineExtension.Instance;
                 idx = m_lineIdSelecionado.TransportLine;
             }
             else
@@ -583,7 +584,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
         #region Checking Methods
 
-        private float getEffectiveBudget() => TLMLineUtils.getEffectiveBugdet(m_lineIdSelecionado.TransportLine);
+        private float getEffectiveBudget() => TLMLineUtils.GetEffectiveBugdet(m_lineIdSelecionado.TransportLine);
 
         private bool isNumeroUsado(int numLinha, ushort lineIdx)
         {
@@ -816,9 +817,9 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             ushort lineID = m_lineIdSelecionado.TransportLine;
             ITicketPriceExtension tpe;
             uint idx;
-            if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineID))
+            if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID))
             {
-                tpe = TLMTransportLineExtension.instance;
+                tpe = TLMTransportLineExtension.Instance;
                 idx = lineID;
             }
             else

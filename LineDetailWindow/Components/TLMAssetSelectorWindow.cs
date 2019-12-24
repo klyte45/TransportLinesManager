@@ -4,6 +4,7 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
@@ -183,7 +184,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                     return;
                 }
                 m_isLoading = true;
-                bool isCustomLine = TLMTransportLineExtension.instance.IsUsingCustomConfig(lineId);
+                bool isCustomLine = TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId);
                 TLMUtils.doLog("tsd = {0}", tsd);
                 if (m_lastDef != tsd)
                 {
@@ -207,9 +208,9 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
                              if (x)
                              {
-                                 if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineIdx))
+                                 if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineIdx))
                                  {
-                                     TLMTransportLineExtension.instance.AddAsset(lineIdx, i);
+                                     TLMTransportLineExtension.Instance.AddAsset(lineIdx, i);
                                  }
                                  else
                                  {
@@ -218,9 +219,9 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                              }
                              else
                              {
-                                 if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineIdx))
+                                 if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineIdx))
                                  {
-                                     TLMTransportLineExtension.instance.RemoveAsset(lineIdx, i);
+                                     TLMTransportLineExtension.Instance.RemoveAsset(lineIdx, i);
                                  }
                                  else
                                  {
@@ -239,7 +240,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 List<string> selectedAssets;
                 if (isCustomLine)
                 {
-                    selectedAssets = TLMTransportLineExtension.instance.GetAssetList(lineId);
+                       selectedAssets = TLMTransportLineExtension.Instance.GetAssetList(lineId);
                 }
                 else
                 {

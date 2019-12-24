@@ -106,56 +106,58 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
-        public static float getEffectiveBugdet(ushort transportLine)
+
+
+        public static float GetEffectiveBugdet(ushort transportLine)
         {
             TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info;
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            return budgetClass * getBudgetMultiplierLine(transportLine) / 100f;
+            return budgetClass * GetBudgetMultiplierLine(transportLine) / 10000f;
         }
 
-        public static float getBudgetMultiplierLine(ushort lineId)
+        public static float GetBudgetMultiplierLine(ushort lineId)
         {
-            TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
-            TransportInfo info = tl.Info;
-            int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineId))
+            if (GetConfigForLine(lineId, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig))
             {
-                if (TLMTransportLineExtension.instance.IsUsingAbsoluteVehicleCount(lineId))
+                TimeableList<BudgetEntryXml> budgetConfig = lineConfig.IsCustom || prefixConfig == null ? lineConfig.BudgetEntries : prefixConfig.BudgetEntries;
+                if (budgetConfig.Count == 0)
                 {
-                    int targetCount = (int) TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 5;
-                    tl.m_budget = 100;
-                    float unitCount = tl.CalculateTargetVehicleCount();
-                    return targetCount / unitCount + 0.005f;
+                    return Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget;
                 }
-                else
-                {
-                    return TLMTransportLineExtension.instance.GetBudgetMultiplierForHour(lineId, Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
-                }
+                Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
+                return Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third);
             }
             else
             {
-                var tsd = TransportSystemDefinition.getDefinitionForLine(ref tl);
-                uint prefix = TLMLineUtils.getPrefix(lineId);
-                return TLMLineUtils.getExtensionFromConfigIndex(tsd.toConfigIndex()).GetBudgetMultiplierForHour(prefix, Singleton<SimulationManager>.instance.m_currentDayTimeHour) / 100f;
-            }
-        }
-        public static bool isPerHourBudget(ushort lineId)
-        {
-            TransportLine __instance = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
-            TransportInfo info = __instance.Info;
-            int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineId))
-            {
-                return TLMTransportLineExtension.instance.GetBudgetsMultiplier(lineId).Length == 8;
-            }
-            else
-            {
-                var tsd = TransportSystemDefinition.getDefinitionForLine(ref __instance);
-                uint prefix = TLMLineUtils.getPrefix(lineId);
-                return TLMLineUtils.getExtensionFromConfigIndex(tsd.toConfigIndex()).GetBudgetsMultiplier(prefix).Length == 8;
+                return Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget;
             }
         }
 
+        private static bool GetConfigForLine(ushort lineId, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig)
+        {
+            lineConfig = TLMTransportLineExtension.Instance.SafeGet(lineId);
+            var tsd = TransportSystemDefinition.from(lineId);
+            prefixConfig = hasPrefix(ref tsd) ? (tsd.GetTransportExtension() as ISafeGettable<PrefixConfiguration>).SafeGet(getPrefix(lineId)) : null;
+            return lineConfig != null || prefixConfig != null;
+        }
+
+        public static Tuple<float, int, int, float> GetBudgetMultiplierLineWithIndexes(ushort lineId)
+        {
+            if (GetConfigForLine(lineId, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig))
+            {
+                TimeableList<BudgetEntryXml> budgetConfig = lineConfig.IsCustom || prefixConfig == null ? lineConfig.BudgetEntries : prefixConfig.BudgetEntries;
+                if (budgetConfig.Count == 0)
+                {
+                    return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f);
+                }
+                Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
+                return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third), currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third);
+            }
+            else
+            {
+                return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f);
+            }
+        }
         public static string getLineStringId(ushort lineIdx)
         {
             getLineNamingParameters(lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
@@ -686,7 +688,7 @@ namespace Klyte.TransportLinesManager.Utils
                 textScale = 2.3f * ratio;
                 relativePosition = new Vector3(-0.5f, 0f);
             }
-            textColor = TLMTransportLineExtension.instance.IsUsingCustomConfig(lineID) ? Color.yellow : Color.white;
+            textColor = TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID) ? Color.yellow : Color.white;
         }
 
         public static int getVehicleCapacity(ushort vehicleId)
@@ -869,7 +871,7 @@ namespace Klyte.TransportLinesManager.Utils
             if (buildingId == 0)
             {
                 TLMUtils.doLog("b=0");
-                TLMStopsExtension.instance.SetStopName(newName, stopId);
+                TLMStopsExtension.Instance.SetStopName(newName, stopId);
                 callback();
             }
             else
@@ -936,7 +938,7 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static string getStationName(uint stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, out NamingType resultNamingType, bool excludeCargo = false, bool useRestrictionForAreas = false)
         {
-            string savedName = TLMStopsExtension.instance.GetStopName(stopId);
+            string savedName = TLMStopsExtension.Instance.GetStopName(stopId);
             if (savedName != null)
             {
                 serviceFound = ItemClass.Service.PublicTransport;
@@ -957,7 +959,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 if (stop != stopId)
                 {
-                    savedName = TLMStopsExtension.instance.GetStopName(stopId);
+                    savedName = TLMStopsExtension.Instance.GetStopName(stopId);
                     if (savedName != null)
                     {
                         serviceFound = ItemClass.Service.PublicTransport;
@@ -1237,9 +1239,9 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (t.m_lineNumber != 0 && t.m_stops != 0)
             {
-                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(lineID))
+                if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID))
                 {
-                    return TLMTransportLineExtension.instance;
+                    return TLMTransportLineExtension.Instance;
                 }
                 else
                 {

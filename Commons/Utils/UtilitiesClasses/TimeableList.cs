@@ -99,16 +99,26 @@ namespace Klyte.Commons.Utils
 
         internal TValue this[int idx] => m_items[idx];
 
-        internal void Remove(TValue entry)
+        private void Remove(TValue entry)
         {
             m_items.Remove(entry);
             entry.OnEntryChanged -= CleanCache;
         }
-
-        private void CleanCache(TValue dirtyObj)
+        internal void RemoveAtHour(int hour)
         {
-            m_hourTable = null;
+            if (hour < 0 || hour > 23)
+            {
+                return;
+            }
+            TValue entry = m_items.Where(x => x.HourOfDay == hour).FirstOrDefault();
+            if (entry == default)
+            {
+                return;
+            }
+            Remove(entry);
         }
+
+        private void CleanCache(TValue dirtyObj) => m_hourTable = null;
 
         private void RebuildHourTable()
         {

@@ -25,7 +25,7 @@ namespace Klyte.Commons.Utils
                 reader.Read();
                 return;
             }
-            var valueSerializer = new XmlSerializer(typeof(ValueContainer), "");
+            var valueSerializer = new XmlSerializer(typeof(ValueContainer<TValue>), "");
             reader.ReadStartElement();
             while (reader.NodeType != System.Xml.XmlNodeType.EndElement)
             {
@@ -35,7 +35,7 @@ namespace Klyte.Commons.Utils
                     continue;
                 }
 
-                var value = (ValueContainer) valueSerializer.Deserialize(reader);
+                var value = (ValueContainer<TValue>) valueSerializer.Deserialize(reader);
                 if (value.Id == null)
                 {
                     continue;
@@ -55,14 +55,14 @@ namespace Klyte.Commons.Utils
 
         {
 
-            var valueSerializer = new XmlSerializer(typeof(ValueContainer), "");
+            var valueSerializer = new XmlSerializer(typeof(ValueContainer<TValue>), "");
 
             var ns = new XmlSerializerNamespaces();
             ns.Add("", "");
             foreach (long key in Keys)
             {
                 TValue value = this[key];
-                valueSerializer.Serialize(writer, new ValueContainer()
+                valueSerializer.Serialize(writer, new ValueContainer<TValue>()
                 {
                     Id = key,
                     Value = value
@@ -72,17 +72,17 @@ namespace Klyte.Commons.Utils
 
         }
 
-        public class ValueContainer : IIdentifiable
-        {
-            [XmlAttribute("id")]
-            public long? Id { get; set; }
-
-            [XmlElement]
-            public TValue Value { get; set; }
-        }
-
 
         #endregion
 
     }
+    public class ValueContainer<TValue> : IIdentifiable
+    {
+        [XmlAttribute("id")]
+        public long? Id { get; set; }
+
+        [XmlElement]
+        public TValue Value { get; set; }
+    }
+
 }

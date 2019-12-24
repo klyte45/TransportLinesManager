@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
@@ -100,7 +101,7 @@ namespace Klyte.TransportLinesManager.Overrides
                         TLMController.instance.AutoName(lineID);
                     }
                     TLMController.instance.LineCreationToolbox.incrementNumber();
-                    TLMTransportLineExtension.instance.SafeCleanEntry(lineID);
+                    TLMTransportLineExtension.Instance.SafeCleanEntry(lineID);
                 }
             }
             if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None &&
@@ -119,10 +120,10 @@ namespace Klyte.TransportLinesManager.Overrides
             try
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
-                bool activeDayNightManagedByTLM = TLMLineUtils.isPerHourBudget(lineID);
+                bool activeDayNightManagedByTLM = true;
                 if (t.m_lineNumber != 0 && t.m_stops != 0)
                 {
-                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort) (TLMLineUtils.getBudgetMultiplierLine(lineID) * 100);
+                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort) (TLMLineUtils.GetBudgetMultiplierLine(lineID) * 100);
                 }
 
                 unchecked
@@ -217,9 +218,9 @@ namespace Klyte.TransportLinesManager.Overrides
             else
             {
                 uint prefixValue = 0;
-                if (TLMTransportLineExtension.instance.IsUsingCustomConfig(vehicleData.m_transportLine))
+                if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(vehicleData.m_transportLine))
                 {
-                    prefixValue = TLMTransportLineExtension.instance.GetTicketPrice(vehicleData.m_transportLine);
+                    prefixValue = TLMTransportLineExtension.Instance.GetTicketPrice(vehicleData.m_transportLine);
                 }
                 if (prefixValue == 0)
                 {

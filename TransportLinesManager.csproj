@@ -139,12 +139,12 @@
     <Compile Include="commons\Utils\VehicleUtils.cs" />
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="Extensors\GameServiceExtensors.cs" />
+    <Compile Include="Extensors\TransportType\ExtensionStaticExtensionMethods.cs" />
     <Compile Include="Extensors\TransportType\TLMTransportExtensionUtils.cs" />
     <Compile Include="Extensors\TransportType\TLMTransportTypeExtension.cs" />
     <Compile Include="Extensors\BuildingAI\TLMDepotAI.cs" />
     <Compile Include="Extensors\NetNode\TLMStopsExtensions.cs" />
     <Compile Include="Extensors\TransportLine\TLMTransportLineExtension.cs" />
-    <Compile Include="Interfaces\ExtensionInterfaceDefaultImpl .cs" />
     <Compile Include="Interfaces\BasicExtensionInterface.cs" />
     <Compile Include="Interfaces\ExtensionInterfaces.cs" />
     <Compile Include="Interfaces\BudgetControlParentInterface.cs" />

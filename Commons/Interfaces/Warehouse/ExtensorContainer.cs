@@ -61,7 +61,14 @@ namespace Klyte.Commons.Interfaces
                 }
 
                 byte[] data = System.Text.Encoding.UTF8.GetBytes(serialData);
-                SerializableDataManager.SaveData(instance.Instances[type].SaveId, data);
+                try
+                {
+                    SerializableDataManager.SaveData(instance.Instances[type].SaveId, data);
+                }
+                catch (Exception e)
+                {
+                    LogUtils.DoErrorLog($"Exception trying to serialize {type}: {e} -  {e.Message}\n{e.StackTrace} ");
+                }
             }
         }
 

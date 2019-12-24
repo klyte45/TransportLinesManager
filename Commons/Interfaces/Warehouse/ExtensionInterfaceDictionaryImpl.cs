@@ -4,10 +4,8 @@ using System.Xml.Serialization;
 
 namespace Klyte.Commons.Interfaces
 {
-    public abstract class ExtensionInterfaceDictionaryImpl<K, T, U> : DataExtensorBase<U> where K : Enum, IConvertible where T : Enum, IConvertible where U : ExtensionInterfaceDictionaryImpl<K, T, U>, new()
+    public abstract class ExtensionInterfaceDictionaryImpl<T, U> : DataExtensorBase<U> where T : Enum, IConvertible where U : ExtensionInterfaceDictionaryImpl<T, U>, new()
     {
-        public abstract K ConfigIndexKey { get; }
-        public abstract bool AllowGlobal { get; }
 
         [XmlElement("DictStringData")]
         public SimpleNonSequentialList<SimpleEnumerableList<T, string>> m_cachedDictStringSaved = new SimpleNonSequentialList<SimpleEnumerableList<T, string>>();
