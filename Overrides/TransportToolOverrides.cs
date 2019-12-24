@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using Klyte.Commons.Extensors;
+using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Reflection;
@@ -8,11 +9,10 @@ using static Klyte.Commons.Extensors.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
-    internal class TransportToolOverrides : IRedirectable
+    internal class TransportToolOverrides : MonoBehaviour, IRedirectable
     {
-
+        
         #region Hooking
-
         private static bool preventDefault() => false;
 
         public void Awake()
@@ -54,7 +54,6 @@ namespace Klyte.TransportLinesManager.Overrides
             TLMController.instance.LinearMapCreatingLine?.setVisible(true);
             TLMController.instance.LineCreationToolbox?.setVisible(true);
             TLMController.instance.setCurrentSelectedId(0);
-            TLMController.instance.lineInfoPanel?.Hide();
         }
 
         private static void OnDisable()
@@ -70,6 +69,9 @@ namespace Klyte.TransportLinesManager.Overrides
         private static bool needsUpdate = false;
         private static TransportTool ttInstance;
 
+        public TransportToolOverrides()
+        {
+        }
 
         private static bool isInsideUI => Singleton<ToolController>.instance.IsInsideUI;
 

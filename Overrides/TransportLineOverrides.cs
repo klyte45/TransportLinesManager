@@ -12,7 +12,7 @@ using UnityEngine;
 using static Klyte.Commons.Extensors.RedirectorUtils;
 namespace Klyte.TransportLinesManager.Overrides
 {
-    internal class TransportLineOverrides : IRedirectable
+    internal class TransportLineOverrides :MonoBehaviour, IRedirectable
     {
         #region Hooking
 

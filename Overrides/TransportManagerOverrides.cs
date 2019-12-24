@@ -1,11 +1,12 @@
 ﻿using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
+using UnityEngine;
 using static Klyte.Commons.Extensors.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
-    internal class TransportManagerOverrides : IRedirectable
+    internal class TransportManagerOverrides : MonoBehaviour, IRedirectable
     {
         public Redirector RedirectorInstance => new Redirector();
 

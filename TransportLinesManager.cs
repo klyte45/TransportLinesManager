@@ -3,16 +3,18 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Interfaces;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.OptionsMenu;
+using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
 
 [assembly: AssemblyVersion("12.99.99.99")]
 namespace Klyte.TransportLinesManager
 {
-    public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPublicTransportManagementPanel>
+    public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
     {
 
         public TransportLinesManagerMod() => Construct();
@@ -28,6 +30,12 @@ namespace Klyte.TransportLinesManager
 
         public override void LoadSettings()
         {
+
+            if (m_priorityRedirector == null)
+            {
+                m_priorityRedirector = KlyteMonoUtils.CreateElement<Redirector>(null, "UVM_PRIO");
+                m_priorityRedirector.AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("Start", RedirectorUtils.allFlags), null, null, typeof(UVMPublicTransportWorldInfoPanel).GetMethod("TranspileStart", RedirectorUtils.allFlags));
+            }
         }
 
         public override void TopSettingsUI(UIHelperExtension helper) => TLMConfigOptions.instance.GenerateOptionsMenu(helper);
@@ -96,11 +104,7 @@ namespace Klyte.TransportLinesManager
             get => Instance.m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value;
             set => Instance.m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value = value;
         }
-        public static bool overrideWorldInfoPanelLine
-        {
-            get => Instance.m_savedOverrideDefaultLineInfoPanel.value;
-            set => Instance.m_savedOverrideDefaultLineInfoPanel.value = value;
-        }
+
         public static bool showDistanceLinearMap
         {
             get => Instance.m_showDistanceInLinearMap.value;
@@ -108,6 +112,9 @@ namespace Klyte.TransportLinesManager
         }
 
         public override string IconName => "K45_TLM_Icon";
+
+        private static Redirector m_priorityRedirector;
+
     }
 
     public class UIButtonLineInfo : UIButton

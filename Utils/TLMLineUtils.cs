@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Klyte.Commons.Redirectors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
@@ -112,26 +113,10 @@ namespace Klyte.TransportLinesManager.Utils
         {
             TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info;
             int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            return budgetClass * GetBudgetMultiplierLine(transportLine) / 10000f;
+            return budgetClass * GetBudgetMultiplierLine(transportLine) / 100f;
         }
 
-        public static float GetBudgetMultiplierLine(ushort lineId)
-        {
-            if (GetConfigForLine(lineId, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig))
-            {
-                TimeableList<BudgetEntryXml> budgetConfig = lineConfig.IsCustom || prefixConfig == null ? lineConfig.BudgetEntries : prefixConfig.BudgetEntries;
-                if (budgetConfig.Count == 0)
-                {
-                    return Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget;
-                }
-                Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
-                return Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third);
-            }
-            else
-            {
-                return Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget;
-            }
-        }
+        public static float GetBudgetMultiplierLine(ushort lineId) => GetBudgetMultiplierLineWithIndexes(lineId).First;
 
         public static bool GetConfigForLine(ushort lineId, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig)
         {
@@ -151,7 +136,7 @@ namespace Klyte.TransportLinesManager.Utils
                     return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f);
                 }
                 Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
-                return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third), currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third);
+                return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value , currentBudget.Second.First.Value , currentBudget.Third) / 100f, currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third);
             }
             else
             {
@@ -208,7 +193,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
 
             TLMUtils.doLog("tsdOr = " + tsdOr + " | lineNum =" + numLinha + "| cfgIdx = " + tsdOr.ToConfigIndex());
-            TLMCW.ConfigIndex tipo = tsdOr.ToConfigIndex();
+            var tipo = tsdOr.ToConfigIndex();
 
             for (ushort i = 1; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
             {
@@ -229,7 +214,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static void GetNamingRulesFromTSD(out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, TransportSystemDefinition tsd)
         {
-            TLMCW.ConfigIndex transportType = tsd.ToConfigIndex();
+            var transportType = tsd.ToConfigIndex();
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
             {
                 suffix = ModoNomenclatura.Numero;
@@ -255,7 +240,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 return false;
             }
-            TLMCW.ConfigIndex transportType = tsd.ToConfigIndex();
+            var transportType = tsd.ToConfigIndex();
             return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
@@ -266,7 +251,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 return false;
             }
-            TLMCW.ConfigIndex transportType = tsd.ToConfigIndex();
+            var transportType = tsd.ToConfigIndex();
             return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
@@ -277,13 +262,13 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 return false;
             }
-            TLMCW.ConfigIndex transportType = tsd.ToConfigIndex();
+            var transportType = tsd.ToConfigIndex();
             return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
         public static bool hasPrefix(TransportInfo t)
         {
-            TLMCW.ConfigIndex transportType = TransportSystemDefinition.From(t).ToConfigIndex();
+            var transportType = TransportSystemDefinition.From(t).ToConfigIndex();
             return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
@@ -295,7 +280,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 return 0;
             }
-            TLMCW.ConfigIndex transportType = tsd.ToConfigIndex();
+            var transportType = tsd.ToConfigIndex();
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum)
             {
                 return Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u;
@@ -306,7 +291,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
-        public static string getIconForLine(ushort lineIdx)
+        public static string getIconForLine(ushort lineIdx, bool noBorder = true)
         {
             TLMCW.ConfigIndex transportType;
             var tsd = TransportSystemDefinition.GetDefinitionForLine(lineIdx);
@@ -319,7 +304,7 @@ namespace Klyte.TransportLinesManager.Utils
             //{
             //    transportType = TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG;
             //}
-            return KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, transportType, ref tsd), true);
+            return KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, transportType, ref tsd), noBorder);
         }
 
 
@@ -509,7 +494,7 @@ namespace Klyte.TransportLinesManager.Utils
 
 
 
-        public static void PrintIntersections(string airport, string harbor, string taxi, string regionalTrainStation, string cableCarStation, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, float scale = 1.0f, int maxItemsForSizeSwap = 3)
+        public static void PrintIntersections(string airport, string harbor, string taxi, string regionalTrainStation, string cableCarStation, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, Vector3 position, float scale = 1.0f, int maxItemsForSizeSwap = 3)
         {
             TransportManager tm = Singleton<TransportManager>.instance;
 
@@ -554,7 +539,13 @@ namespace Klyte.TransportLinesManager.Utils
                 lineCircleIntersect.hoveredTextColor = Color.red;
                 lineCircleIntersect.lineID = s.Value;
                 lineCircleIntersect.tooltip = tm.GetLineName(s.Value);
-                lineCircleIntersect.eventClick += TLMController.instance.lineInfoPanel.openLineInfo;
+                lineCircleIntersect.eventClick += (x, y) =>
+                {
+                    InstanceID iid = InstanceID.Empty;
+                    iid.TransportLine = s.Value;
+                    WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(position, iid);
+
+                };
                 KlyteMonoUtils.CreateUIElement(out UILabel lineNumberIntersect, lineCircleIntersect.transform);
                 lineNumberIntersect.autoSize = false;
                 lineNumberIntersect.autoHeight = false;
@@ -1148,6 +1139,7 @@ namespace Klyte.TransportLinesManager.Utils
             return 0;
 
         }
+        internal static string GetIconString(ushort lineId) => $"<{UIDynamicFontRendererRedirector.TAG_LINE} {getIconForLine(lineId, false)},{Singleton<TransportManager>.instance.GetLineColor(lineId).ToRGB()},{getLineStringId(lineId)}>";
 
         private static bool IsBuildingValidForStation(bool excludeCargo, BuildingManager bm, ushort tempBuildingId) => tempBuildingId > 0 && (!excludeCargo || !(bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is DepotAI || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is CargoStationAI) || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI);
 

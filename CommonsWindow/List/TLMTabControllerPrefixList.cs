@@ -8,7 +8,6 @@ using Klyte.TransportLinesManager.CommonsWindow.Components;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.LineDetailWindow.Components;
 using Klyte.TransportLinesManager.OptionsMenu.Tabs;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
@@ -37,7 +36,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private UIDropDown m_paletteDD;
         private UIDropDown m_formatDD;
-        private TLMBudgetControlSliders m_budgetSliders;
+        //private TLMBudgetControlSliders m_budgetSliders;
 
         private TLMAssetSelectorWindowPrefixTab<T> m_assetSelectorWindow;
 
@@ -160,7 +159,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void CreateBudgetSliders(UIPanel reference)
         {
             TLMUtils.doLog("SLIDERS");
-            KlyteMonoUtils.CreateElement(out m_budgetSliders, reference.transform, "Budget Sliders");
+            //KlyteMonoUtils.CreateElement(out m_budgetSliders, reference.transform, "Budget Sliders");
         }
 
         private void ConfigComponentPanel(UIComponent reference)

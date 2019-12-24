@@ -20,7 +20,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private bool m_reverseOrder = false;
         private UIButton m_autoNameAll;
         private UIButton m_autoColorAll;
-        private int m_LastLineCount;
+        private int m_lastLineCount;
 
         private bool m_pendentCreateViewToggleButton = true;
         private UIPanel m_createdTitleLine;
@@ -61,10 +61,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 return;
             }
-            if (Singleton<TransportManager>.exists && m_LastLineCount != Singleton<TransportManager>.instance.m_lineCount)
+            if (Singleton<TransportManager>.exists && m_lastLineCount != Singleton<TransportManager>.instance.m_lineCount)
             {
                 RefreshLines();
-                m_LastLineCount = Singleton<TransportManager>.instance.m_lineCount;
+                m_lastLineCount = Singleton<TransportManager>.instance.m_lineCount;
             }
             if (!IsUpdated)
             {

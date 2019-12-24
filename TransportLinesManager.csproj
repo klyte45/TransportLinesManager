@@ -124,6 +124,7 @@
     <Compile Include="commons\Utils\StructExtensions\PathUnitExtensions.cs" />
     <Compile Include="commons\Utils\StructExtensions\Vector2Extensions.cs" />
     <Compile Include="commons\Utils\StructExtensions\Vector3Extensions.cs" />
+    <Compile Include="commons\Utils\TabCommons.cs" />
     <Compile Include="commons\Utils\TextureAtlasUtils.cs" />
     <Compile Include="commons\Utils\TextureRenderUtils.cs" />
     <Compile Include="commons\Utils\TextureScaler.cs" />
@@ -158,14 +159,12 @@
     <Compile Include="UI\TLMLineCreationToolboxHooks.cs" />
     <Compile Include="UI\TLMLineIconExtension.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMDepotPrefixSelection.cs" />
-    <Compile Include="LineDetailWindow\Components\TLMBudgetControlSliders.cs" />
-    <Compile Include="LineDetailWindow\Components\TLMAssetSelectorWindow.cs" />
     <Compile Include="CommonsWindow\List\Components\TLMAssetSelectorWindowPrefixTab.cs" />
     <Compile Include="CommonsWindow\List\Components\TLMDepotListItem.cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerDepotList.cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerListBase .cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerPrefixList.cs" />
-    <Compile Include="CommonsWindow\TLMPublicTransportManagementPanel.cs" />
+    <Compile Include="CommonsWindow\TLMPanel.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMModInfoTab.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMPaletteOptionsTab.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMAutoNameTabs.cs" />
@@ -186,13 +185,20 @@
     <Compile Include="TransportLinesManager.cs" />
     <Compile Include="Extensors\TransportType\TransportSystemDefinition.cs" />
     <Compile Include="TLMController.cs" />
-    <Compile Include="LineDetailWindow\TLMLineDetailWindow.cs" />
     <Compile Include="UI\TLMLinearMap.cs" />
     <Compile Include="TLMAutoColorPalettes.cs" />
     <Compile Include="UI\TLMLineCreationToolbox.cs" />
     <Compile Include="Utils\TLMLineUtils.cs" />
     <Compile Include="Utils\TLMUtils.cs" />
     <Compile Include="WorldInfoPanel\TLMDepotWorldInfoPanelPrefixListsParent.cs" />
+    <Compile Include="WorldInfoPanel\Components\UVMBudgetEditorLine.cs" />
+    <Compile Include="WorldInfoPanel\Components\UVMBudgetTimeChart.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\IUVMPTWIPChild.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\UVMBudgetConfigTab.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\UVMBudgetWIPTab.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\UVMStatisticsWIPTab.cs" />
+    <Compile Include="WorldInfoPanel\UVMTransportLineLinearMap.cs" />
+    <Compile Include="WorldInfoPanel\UVMTransportLineWorldInfoPanel.cs" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
@@ -328,6 +334,8 @@
     <Content Include="commons\UI\Images\lineFormats.psd" />
     <Content Include="commons\UI\Images\sprites.psd" />
     <EmbeddedResource Include="UI\Images\%25K45_TLM_Icon.png" />
+    <EmbeddedResource Include="UI\Images\%25K45_24hClock.png" />
+    <None Include="UI\Images\24hClock.psd" />
     <Content Include="UI\Images\sprites.psd" />
   </ItemGroup>
   <ItemGroup>
@@ -368,9 +376,6 @@
     </Reference>
     <Reference Include="UnityEngine.Networking">
       <HintPath>S:\Steam\SteamApps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PlaymodeTestsRunner">
-      <HintPath>S:\Steam\SteamApps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.PlaymodeTestsRunner.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

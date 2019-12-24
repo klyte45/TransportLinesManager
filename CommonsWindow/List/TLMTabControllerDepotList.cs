@@ -13,7 +13,7 @@ using static Klyte.Commons.Extensors.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.CommonsWindow
 {
-    internal abstract class TLMTabControllerDepotHooks<T, V> : IRedirectable where T : TLMTabControllerDepotHooks<T, V> where V : TLMSysDef<V>
+    internal abstract class TLMTabControllerDepotHooks<T, V> : MonoBehaviour, IRedirectable where T : TLMTabControllerDepotHooks<T, V> where V : TLMSysDef<V>
     {
         public Redirector RedirectorInstance => new Redirector();
 

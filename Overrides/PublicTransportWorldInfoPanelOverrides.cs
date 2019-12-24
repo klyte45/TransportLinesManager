@@ -3,11 +3,12 @@ using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
+using UnityEngine;
 using static Klyte.Commons.Extensors.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
-    internal class PublicTransportWorldInfoPanelOverrides : IRedirectable
+    internal class PublicTransportWorldInfoPanelOverrides : MonoBehaviour,IRedirectable
     {
         public Redirector RedirectorInstance => new Redirector();
 
@@ -49,7 +50,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     break;
             }
 
-            TLMPublicTransportManagementPanel.instance?.OpenAt(cat, def);
+            TLMPanel.Instance?.OpenAt(cat, def);
             return false;
         }
 

@@ -744,7 +744,7 @@ namespace Klyte.TransportLinesManager.UI
                         intersectionsPanel.wrapLayout = false;
                         intersectionsPanel.autoFitChildrenVertically = true;
 
-                        TLMLineUtils.PrintIntersections(airport, harbor, taxi, regionalTrainStation, cableCarStation, intersectionsPanel, otherLinesIntersections);
+                        TLMLineUtils.PrintIntersections(airport, harbor, taxi, regionalTrainStation, cableCarStation, intersectionsPanel, otherLinesIntersections, Vector3.zero);
                         intersectionsPanel.autoLayout = true;
                         intersectionsPanel.wrapLayout = true;
                         intersectionsPanel.width = 55;

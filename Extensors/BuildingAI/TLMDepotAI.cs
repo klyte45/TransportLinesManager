@@ -11,7 +11,7 @@ using static Klyte.Commons.Extensors.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
 {
-    internal class TLMDepotAI : IRedirectable
+    internal class TLMDepotAI :MonoBehaviour, IRedirectable
     {
         #region Save file handle
         private const string SEPARATOR = "∂";

@@ -1,11 +1,12 @@
 ﻿using Klyte.Commons.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
+using UnityEngine;
 using static Klyte.Commons.Extensors.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.UI
 {
-    internal class TLMLineCreationToolboxHooks : IRedirectable
+    internal class TLMLineCreationToolboxHooks : MonoBehaviour, IRedirectable
     {
         public Redirector RedirectorInstance => new Redirector();
 

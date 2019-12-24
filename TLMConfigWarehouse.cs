@@ -228,12 +228,10 @@ namespace Klyte.TransportLinesManager
             string iconName = GetCurrentConfigString((transportType & TLMConfigWarehouse.ConfigIndex.SYSTEM_PART) | ConfigIndex.TRANSPORT_ICON_TLM);
             if (iconName == null || !Enum.IsDefined(typeof(LineIconSpriteNames), iconName) || iconName == LineIconSpriteNames.NULL.ToString())
             {
-                TLMUtils.doLog($"GET DEFAULT FOR {transportType}");
                 return getDefaultBgIconForIndex(transportType);
             }
             else
             {
-                TLMUtils.doLog($"GETTING {iconName} FOR {transportType}");
                 return ((LineIconSpriteNames) Enum.Parse(typeof(LineIconSpriteNames), iconName));
             }
         }

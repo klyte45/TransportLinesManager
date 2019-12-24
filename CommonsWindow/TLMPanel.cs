@@ -10,13 +10,12 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.CommonsWindow
 {
 
-    public class TLMPublicTransportManagementPanel : UICustomControl
+    public class TLMPanel : UICustomControl
     {
         private const int NUM_SERVICES = 0;
-        private static TLMPublicTransportManagementPanel m_instance;
         private UIPanel controlContainer;
 
-        public static TLMPublicTransportManagementPanel instance => m_instance;
+        public static TLMPanel Instance { get; private set; }
         public UIPanel mainPanel { get; private set; }
 
         private UILabel m_directionLabel;
@@ -27,7 +26,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         #region Awake
         private void Awake()
         {
-            m_instance = this;
+            Instance = this;
             controlContainer = GetComponent<UIPanel>();
             controlContainer.area = new Vector4(0, 0, 0, 0);
             controlContainer.isVisible = false;

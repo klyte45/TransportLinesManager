@@ -77,11 +77,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         {
 
             TLMUtils.doLog("Loading Options");
-
-            UICheckBox overrideWorldInfoPanelLineOption = helper.AddCheckboxLocale("K45_TLM_OVERRIDE_DEFAULT_LINE_INFO", TransportLinesManagerMod.overrideWorldInfoPanelLine, toggleOverrideDefaultLineInfoPanel);
-
-            helper.AddSpace(10);
-
             configSelector = helper.AddDropdownLocalized("K45_TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, ReloadData);
 
             KlyteMonoUtils.CreateUIElement(out UITabstrip strip, helper.Self.transform, "TabListTLMopt", new Vector4(5, 0, 730, 40));
@@ -304,9 +299,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         }
 
 
-
-        private void toggleOverrideDefaultLineInfoPanel(bool b) => TransportLinesManagerMod.overrideWorldInfoPanelLine = b;
-
+        
 
         internal enum ConfigTabs
         {
