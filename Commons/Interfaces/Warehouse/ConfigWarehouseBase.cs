@@ -1,5 +1,4 @@
 ﻿using ColossalFramework;
-using ICities;
 using Klyte.Commons.Utils;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ using System.Xml.Serialization;
 namespace Klyte.Commons.Interfaces
 {
     [XmlRoot("ConfigWarehouse")]
-    public abstract class ConfigWarehouseBase<T, I> : Singleton<I> where T : Enum, IConvertible where I : ConfigWarehouseBase<T, I>, new()
+    public abstract class ConfigWarehouseBase<T, I> : SingletonLite<I> where T : Enum, IConvertible where I : ConfigWarehouseBase<T, I>, new()
     {
 
         protected const string LIST_SEPARATOR = "∂";
@@ -34,7 +33,7 @@ namespace Klyte.Commons.Interfaces
 
         protected string ThisFileName => $"{GetType().Name}_{(cityId ?? GLOBAL_CONFIG_INDEX)}.xml";
         protected string DefaultFileName => $"{GetType().Name}_{(GLOBAL_CONFIG_INDEX)}.xml";
-        public string ThisPathName => CommonProperties.ModRootFolder + ThisFileName;
+        public string ThisPathName => $"{ CommonProperties.ModRootFolder }{Path.DirectorySeparatorChar}{ ThisFileName}";
 
 
         public static bool GetCurrentConfigBool(T i) => instance.CurrentLoadedCityConfig.GetBool(i);
@@ -122,11 +121,16 @@ namespace Klyte.Commons.Interfaces
                 {
                     result = Deserialize(File.ReadAllText(result.ThisFileName));
                 }
+                EventOnPropertyChanged += (a, b, c, d) => result.SaveAsDefault();
             }
             return result;
         }
 
-        public void SaveAsDefault() => File.WriteAllText(DefaultFileName, Serialize((I) this));
+        public void SaveAsDefault()
+        {
+            File.WriteAllText(ThisPathName, Serialize((I) this));
+            LogUtils.DoErrorLog($"Saved global at {ThisPathName}");
+        }
 
         public string GetString(T i) => GetFromFileString(i) ?? GetDefaultStringValueForProperty(i);
         public bool GetBool(T i) => GetFromFileBool(i) ?? GetDefaultBoolValueForProperty(i);

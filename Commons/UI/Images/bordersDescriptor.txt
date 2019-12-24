@@ -27,3 +27,4 @@ K45_TrapezeIcon=10,11,8,8=true
 K45_DiamondIcon=12,13,12,12=true
 K45_S08StarIcon=9,11,9,9=true
 K45_CircleIcon=0,2,0,0=true
+K45_MenuPanel_color=8,8,42,8

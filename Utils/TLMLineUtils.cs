@@ -317,7 +317,7 @@ namespace Klyte.TransportLinesManager.Utils
             //{
             //    transportType = TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG;
             //}
-            return KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, transportType, ref tsd));
+            return KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, transportType, ref tsd), true);
         }
 
 

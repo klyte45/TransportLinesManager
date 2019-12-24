@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
-    internal struct TransportSystemDefinition
+    public struct TransportSystemDefinition
     {
         private static Dictionary<TransportSystemDefinition, Type> m_sysDefinitions = new Dictionary<TransportSystemDefinition, Type>();
 
@@ -193,7 +193,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
         }
 
-        internal Type GetDefType() => sysDefinitions[this];
+        public  Type GetDefType() => sysDefinitions[this];
 
         public string getTransportTypeIcon() => PublicTransportWorldInfoPanel.GetVehicleTypeIcon(transportType);
 
@@ -287,21 +287,21 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         }
     }
 
-    internal abstract class TLMSysDef<T> : Singleton<T> where T : TLMSysDef<T> { public abstract TransportSystemDefinition GetTSD(); }
-    internal sealed class TLMSysDefNorBus : TLMSysDef<TLMSysDefNorBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BUS; }
-    internal sealed class TLMSysDefEvcBus : TLMSysDef<TLMSysDefEvcBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.EVAC_BUS; }
-    internal sealed class TLMSysDefNorTrm : TLMSysDef<TLMSysDefNorTrm> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TRAM; }
-    internal sealed class TLMSysDefNorMnr : TLMSysDef<TLMSysDefNorMnr> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.MONORAIL; }
-    internal sealed class TLMSysDefNorMet : TLMSysDef<TLMSysDefNorMet> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.METRO; }
-    internal sealed class TLMSysDefNorTrn : TLMSysDef<TLMSysDefNorTrn> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TRAIN; }
-    internal sealed class TLMSysDefNorFer : TLMSysDef<TLMSysDefNorFer> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.FERRY; }
-    internal sealed class TLMSysDefNorBlp : TLMSysDef<TLMSysDefNorBlp> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BLIMP; }
-    internal sealed class TLMSysDefNorShp : TLMSysDef<TLMSysDefNorShp> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.SHIP; }
-    internal sealed class TLMSysDefNorPln : TLMSysDef<TLMSysDefNorPln> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.PLANE; }
-    internal sealed class TLMSysDefTouBus : TLMSysDef<TLMSysDefTouBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TOUR_BUS; }
-    internal sealed class TLMSysDefTouPed : TLMSysDef<TLMSysDefTouPed> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TOUR_PED; }
-    internal sealed class TLMSysDefTouBal : TLMSysDef<TLMSysDefTouBal> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BALLOON; }
-    internal sealed class TLMSysDefNorCcr : TLMSysDef<TLMSysDefNorCcr> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.CABLE_CAR; }
-    internal sealed class TLMSysDefNorTax : TLMSysDef<TLMSysDefNorTax> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TAXI; }
+    public  abstract class TLMSysDef<T> : Singleton<T> where T : TLMSysDef<T> { public abstract TransportSystemDefinition GetTSD(); }
+    public  sealed class TLMSysDefNorBus : TLMSysDef<TLMSysDefNorBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BUS; }
+    public  sealed class TLMSysDefEvcBus : TLMSysDef<TLMSysDefEvcBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.EVAC_BUS; }
+    public  sealed class TLMSysDefNorTrm : TLMSysDef<TLMSysDefNorTrm> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TRAM; }
+    public  sealed class TLMSysDefNorMnr : TLMSysDef<TLMSysDefNorMnr> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.MONORAIL; }
+    public  sealed class TLMSysDefNorMet : TLMSysDef<TLMSysDefNorMet> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.METRO; }
+    public  sealed class TLMSysDefNorTrn : TLMSysDef<TLMSysDefNorTrn> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TRAIN; }
+    public  sealed class TLMSysDefNorFer : TLMSysDef<TLMSysDefNorFer> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.FERRY; }
+    public  sealed class TLMSysDefNorBlp : TLMSysDef<TLMSysDefNorBlp> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BLIMP; }
+    public  sealed class TLMSysDefNorShp : TLMSysDef<TLMSysDefNorShp> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.SHIP; }
+    public  sealed class TLMSysDefNorPln : TLMSysDef<TLMSysDefNorPln> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.PLANE; }
+    public  sealed class TLMSysDefTouBus : TLMSysDef<TLMSysDefTouBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TOUR_BUS; }
+    public  sealed class TLMSysDefTouPed : TLMSysDef<TLMSysDefTouPed> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TOUR_PED; }
+    public  sealed class TLMSysDefTouBal : TLMSysDef<TLMSysDefTouBal> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BALLOON; }
+    public  sealed class TLMSysDefNorCcr : TLMSysDef<TLMSysDefNorCcr> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.CABLE_CAR; }
+    public  sealed class TLMSysDefNorTax : TLMSysDef<TLMSysDefNorTax> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TAXI; }
 
 }

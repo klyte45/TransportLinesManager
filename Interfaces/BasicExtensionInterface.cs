@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Klyte.TransportLinesManager.Interfaces
 {
-    internal abstract class BasicExtensionInterface<T, U> : Singleton<U> where T : struct, IConvertible where U : BasicExtensionInterface<T, U>
+    public abstract class BasicExtensionInterface<T, U> : Singleton<U> where T : struct, IConvertible where U : BasicExtensionInterface<T, U>
     {
         protected virtual string KvSepLvl1 { get { return "∂"; } }
         protected virtual string ItSepLvl1 { get { return "∞"; } }

@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager
 {
-    internal class TLMConfigWarehouse : ConfigWarehouseBase<TLMConfigWarehouse.ConfigIndex, TLMConfigWarehouse>
+    public class TLMConfigWarehouse : ConfigWarehouseBase<TLMConfigWarehouse.ConfigIndex, TLMConfigWarehouse>
     {
 
         public const string TRUE_VALUE = "1";
@@ -26,7 +26,7 @@ namespace Klyte.TransportLinesManager
            ConfigIndex.TOUR_BUS_CONFIG_PALETTE_MAIN ,
            ConfigIndex.TOUR_PED_CONFIG_PALETTE_MAIN
         };
-        public bool unsafeMode = false;
+        protected bool unsafeMode = false;
         public TLMConfigWarehouse() { }
 
 

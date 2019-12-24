@@ -335,7 +335,7 @@ namespace Klyte.TransportLinesManager.UI
 
             lineNumberTxtBox.color = color;
             lineFormat.color = color;
-            lineFormat.backgroundSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon((ushort) (nextLineNumber + 1), configIdx, ref tsd));
+            lineFormat.backgroundSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon((ushort) (nextLineNumber + 1), configIdx, ref tsd), true);
             lineNumber.text = TLMUtils.getString(prefixo, sep, sufixo, nonPrefix, (nextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix);
             lineNumber.textColor = KlyteMonoUtils.ContrastColor(color);
             int txtLen = lineNumber.text.Length;

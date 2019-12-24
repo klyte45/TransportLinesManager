@@ -149,7 +149,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 TLMConfigWarehouse.ConfigIndex configIdx = kv.Key.toConfigIndex();
                 string name = kv.Value.Name;
                 TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
-                string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd));
+                string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd), true);
                 string fgIcon = kv.Key.getTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();
                 tabButton.tooltip = TLMConfigWarehouse.getNameForTransportType(configIdx);

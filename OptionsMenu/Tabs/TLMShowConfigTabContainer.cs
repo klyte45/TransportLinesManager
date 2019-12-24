@@ -48,7 +48,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                 TransportSystemDefinition tsd = kv.Key;
                 string name = kv.Value.Name;
                 TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
-                string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd));
+                string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd), true);
                 string fgIcon = kv.Key.getTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();
                 tabButton.tooltip = TLMConfigWarehouse.getNameForTransportType(configIdx);
@@ -69,9 +69,9 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                     secSprite.disabledColor = Color.black;
                 }
                 strip.AddTab(name, tab, body, components);
-
-
             }
+            strip.selectedIndex = -1;
+            strip.selectedIndex = 0;
         }
 
         private static UIButton CreateTabSubStripTemplate()

@@ -10,23 +10,23 @@ namespace Klyte.Commons.Utils
     {
         public static string Prefix { get; } = "Klyte";
 
-        public static string GetDefaultSpriteNameFor<E>(E value) where E : Enum => GetDefaultSpriteNameFor(value.ToString());
-        public static string GetDefaultSpriteNameFor(string value)
+        public static string GetDefaultSpriteNameFor<E>(E value, bool noBorder = false) where E : Enum => GetDefaultSpriteNameFor(value.ToString(), noBorder);
+        public static string GetDefaultSpriteNameFor(string value, bool noBorder = false)
         {
             if (value.StartsWith("__"))
             {
-                return value.ToString().Substring(2);
+                return $"{value.ToString().Substring(2)}{(noBorder ? TextureAtlasUtils.NoBorderSuffix : "")}";
             }
             if (value.StartsWith("K45_"))
             {
-                return value;
+                return $"{value}{(noBorder ? TextureAtlasUtils.NoBorderSuffix : "")}";
             }
-            return $"K45_{Prefix}_{value}";
+            return $"K45_{Prefix}_{value}{(noBorder ? TextureAtlasUtils.NoBorderSuffix : "")}";
         }
 
         public static byte[] LoadResourceData(string name)
         {
-            name = $"{Prefix}.{name}"; 
+            name = $"{Prefix}.{name}";
 
             var stream = (UnmanagedMemoryStream) Assembly.GetExecutingAssembly().GetManifestResourceStream(name);
             if (stream == null)

@@ -1,13 +1,7 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using ICities;
 using ColossalFramework.UI;
-using ColossalFramework;
-using ColossalFramework.Plugins;
-using System.Threading;
-using System;
-using System.Linq;
+using ICities;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Klyte.Commons.Extensors
 {
@@ -23,13 +17,17 @@ namespace Klyte.Commons.Extensors
 
         public List<Color32> ColorList
         {
-            get {
-                return m_colorList;
-            }
+            get => m_colorList;
             set {
                 m_colorList = value;
                 RedrawButtons();
             }
+        }
+
+        public Vector2 Size
+        {
+            get => m_linesListPanel.size;
+            set => m_linesListPanel.size = value;
         }
 
         public void Enable()
@@ -58,7 +56,7 @@ namespace Klyte.Commons.Extensors
         {
             m_parent = parent;
             parent.width = 500;
-            ((UIPanel)parent).autoFitChildrenVertically = true;
+            ((UIPanel) parent).autoFitChildrenVertically = true;
             m_linesListPanel = m_parent.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate)) as UIPanel;
             m_linesListPanel.name = "NumberedColorList";
             m_linesListPanel.height = 40;
@@ -98,7 +96,7 @@ namespace Klyte.Commons.Extensors
         {
             string sprite = baseSprite;
             string spriteHov = baseSprite;
-            if(atlasToUse != null)
+            if (atlasToUse != null)
             {
                 button.atlas = atlasToUse;
             }
@@ -112,10 +110,7 @@ namespace Klyte.Commons.Extensors
             button.hoveredTextColor = Color.gray;
         }
 
-        public void Redraw()
-        {
-            RedrawButtons();
-        }
+        public void Redraw() => RedrawButtons();
 
         private void RedrawButtons()
         {
@@ -126,7 +121,7 @@ namespace Klyte.Commons.Extensors
             for (int j = 0; j < ColorList.Count; j++)
             {
 
-                GameObject itemContainer = new GameObject();
+                var itemContainer = new GameObject();
 
                 itemContainer.transform.parent = m_linesListPanel.transform;
                 UIButtonWithId itemButton = itemContainer.AddComponent<UIButtonWithId>();

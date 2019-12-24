@@ -289,6 +289,7 @@
     <Content Include="commons\UI\Images\%25K45_K45ButtonHovered.png" />
     <Content Include="commons\UI\Images\%25K45_Load.png" />
     <Content Include="commons\UI\Images\%25K45_MapIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_MenuPanel_color.png" />
     <Content Include="commons\UI\Images\%25K45_MountainIcon.png" />
     <Content Include="commons\UI\Images\%25K45_OctagonIcon.png" />
     <Content Include="commons\UI\Images\%25K45_OvalIcon.png" />

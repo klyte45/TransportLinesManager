@@ -62,7 +62,8 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             editorSelector.width = 710;
 
             colorList = group6.AddNumberedColorList(null, new List<Color32>(), (c) => { }, null, null);
-            colorList.m_spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_SquareIcon);
+            colorList.m_spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_SquareIcon, true);
+            colorList.Size = new Vector2(750, colorList.Size.y);
         }
 
         public delegate void OnPalettesChanged();

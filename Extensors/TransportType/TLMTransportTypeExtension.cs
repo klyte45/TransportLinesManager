@@ -11,9 +11,9 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
-    internal interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension, IUseColorForModelExtension, IColorSelectableExtension, ICustomPaletteExtension, ICustomGeometricFormatExtension { }
+    public interface ITLMTransportTypeExtension : IAssetSelectorExtension, ITicketPriceExtension, INameableExtension, IBudgetableExtension, IUseColorForModelExtension, IColorSelectableExtension, ICustomPaletteExtension, ICustomGeometricFormatExtension { }
 
-    internal abstract class TLMTransportTypeExtension<TSD, SG> : ExtensionInterfaceDefaultImpl<PrefixConfigIndex, SG>, ITLMTransportTypeExtension where TSD : TLMSysDef<TSD>, new() where SG : TLMTransportTypeExtension<TSD, SG>
+    public abstract class TLMTransportTypeExtension<TSD, SG> : ExtensionInterfaceDefaultImpl<PrefixConfigIndex, SG>, ITLMTransportTypeExtension where TSD : TLMSysDef<TSD>, new() where SG : TLMTransportTypeExtension<TSD, SG>
     {
 
         protected override TLMConfigWarehouse.ConfigIndex ConfigIndexKey

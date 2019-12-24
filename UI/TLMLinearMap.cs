@@ -111,7 +111,7 @@ namespace Klyte.TransportLinesManager.UI
                 if (tsd != default)
                 {
 
-                    linearMapLineNumberFormat.backgroundSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, tsd.toConfigIndex(), ref tsd));
+                    linearMapLineNumberFormat.backgroundSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, tsd.toConfigIndex(), ref tsd), true);
                 }
                 lineStationsPanel.width = 0;
                 return;

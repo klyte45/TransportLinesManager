@@ -53,6 +53,7 @@ namespace Klyte.Commons.Utils
 
         public void WriteXml(System.Xml.XmlWriter writer)
         {
+
             var valueSerializer = new XmlSerializer(typeof(ValueContainer<TKey, TValue>), "");
             var ns = new XmlSerializerNamespaces();
             ns.Add("", "");
@@ -70,10 +71,30 @@ namespace Klyte.Commons.Utils
         #endregion
 
     }
-    public  class ValueContainer<TKey, TValue> : IEnumerableIndex<TKey> where TKey : Enum
+    public class ValueContainer<TKey, TValue> : IEnumerableIndex<TKey> where TKey : Enum
     {
-        [XmlAttribute("Index")]
+        [XmlIgnore]
         public TKey Index { get; set; }
+        [XmlAttribute("Index")]
+        public string EnumValue
+        {
+            get => Index.ToString();
+
+            set {
+                TKey result;
+                try
+                {
+                    result = (TKey) Enum.Parse(typeof(TKey), value);
+                }
+                catch
+                {
+                    result = (TKey) Enum.ToObject(typeof(TKey), (int.TryParse(value, out int val) ? val : 0));
+                }
+
+                Index = result;
+            }
+        }
+
 
         [XmlElement]
         public TValue Value { get; set; }

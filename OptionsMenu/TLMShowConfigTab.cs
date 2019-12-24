@@ -1,7 +1,9 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.UI.Sprites;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
@@ -43,10 +45,10 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             m_uiHelper.AddLabel(string.Format(Locale.Get("K45_TLM_CONFIGS_FOR"), TLMConfigWarehouse.getNameForTransportType(transportType)));
             UIPanel panel = m_uiHelper.Self.GetComponentInParent<UIPanel>();
             ((UIPanel) m_uiHelper.Self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel) m_uiHelper.Self).backgroundSprite = "EmptySprite";
+            ((UIPanel) m_uiHelper.Self).backgroundSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_MenuPanel_color);
             ((UIPanel) m_uiHelper.Self).wrapLayout = true;
-            Color32 systemColor = TLMConfigWarehouse.getColorForTransportType(transportType);
-            ((UIPanel) m_uiHelper.Self).color = new Color32((byte) (systemColor.r * 0.7f), (byte) (systemColor.g * 0.7f), (byte) (systemColor.b * 0.7f), 0xff);
+            ((UIPanel) m_uiHelper.Self).padding = new RectOffset(10, 10, 10, 15);
+            ((UIPanel) m_uiHelper.Self).color = TLMConfigWarehouse.getColorForTransportType(transportType);
             ((UIPanel) m_uiHelper.Self).width = 730;
             m_uiHelper.AddSpace(30);
             prefixDD = m_tlmCo.generateDropdownConfig(m_uiHelper, Locale.Get("K45_TLM_PREFIX"), m_tlmCo.namingOptionsPrefixo, transportType | TLMConfigWarehouse.ConfigIndex.PREFIX);

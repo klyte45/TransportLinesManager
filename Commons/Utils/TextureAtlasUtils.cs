@@ -70,7 +70,7 @@ namespace Klyte.Commons.Utils
                     new SpriteInfo
                         {
                             texture = tex,
-                            name = generatedSpriteName + "_NOBORDER",
+                            name = generatedSpriteName +NoBorderSuffix,
                             border =new RectOffset()
                         }
                     };
@@ -80,6 +80,9 @@ namespace Klyte.Commons.Utils
                 return new List<SpriteInfo>() { res };
             }
         }
+
+        public static readonly string NoBorderSuffix = "_NOBORDER";
+
         public static void LoadIamgesFromResources(string path, ref List<SpriteInfo> newSprites)
         {
             string[] imagesFiles = FileUtils.GetAllFilesEmbeddedAtFolder(path, ".png");
