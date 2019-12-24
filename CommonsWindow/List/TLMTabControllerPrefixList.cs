@@ -139,7 +139,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void OnWarehouseChange(TLMConfigWarehouse.ConfigIndex idx, bool? newValueBool, int? newValueInt, string newValueString)
         {
-            if (idx == (TransportSystem.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX))
+            if (idx == (TransportSystem.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX))
             {
                 ReloadPrefixOptions();
             }
@@ -185,7 +185,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void ReloadPrefixOptions()
         {
             int selIdx = m_prefixSelector.selectedIndex;
-            m_prefixSelector.items = TLMUtils.getStringOptionsForPrefix(Singleton<T>.instance.GetTSD().toConfigIndex(), true, true, false);
+            m_prefixSelector.items = TLMUtils.getStringOptionsForPrefix(Singleton<T>.instance.GetTSD().ToConfigIndex(), true, true, false);
             m_prefixSelector.selectedIndex = selIdx;
         }
 

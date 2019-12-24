@@ -170,7 +170,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
         private static bool ticketPriceForPrefix(ushort vehicleID, ref Vehicle vehicleData, ref int __result)
         {
-            var def = TransportSystemDefinition.from(vehicleData.Info);
+            var def = TransportSystemDefinition.From(vehicleData.Info);
 
             if (def == default)
             {
@@ -263,8 +263,8 @@ namespace Klyte.TransportLinesManager.Overrides
                     ushort transportLine = data.m_transportLine;
                     if (transportLine != 0)
                     {
-                        var tsd = TransportSystemDefinition.getDefinitionForLine(transportLine);
-                        if (tsd.transportType == TransportInfo.TransportType.EvacuationBus)
+                        var tsd = TransportSystemDefinition.GetDefinitionForLine(transportLine);
+                        if (tsd.TransportType == TransportInfo.TransportType.EvacuationBus)
                         {
                             return;
                         }
@@ -284,8 +284,8 @@ namespace Klyte.TransportLinesManager.Overrides
                     return;
                 case InfoManager.InfoMode.Tours:
                     ushort transportLine2 = data.m_transportLine;
-                    var tsd2 = TransportSystemDefinition.getDefinitionForLine(transportLine2);
-                    if (tsd2.transportType != TransportInfo.TransportType.TouristBus)
+                    var tsd2 = TransportSystemDefinition.GetDefinitionForLine(transportLine2);
+                    if (tsd2.TransportType != TransportInfo.TransportType.TouristBus)
                     {
                         return;
                     }

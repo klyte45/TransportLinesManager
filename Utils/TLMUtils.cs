@@ -407,8 +407,8 @@ namespace Klyte.TransportLinesManager.Utils
             TransportSystemDefinition tsd = default;
             if ((index & TLMCW.ConfigIndex.DESC_DATA) == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
             {
-                tsd = TransportSystemDefinition.from(b.Info.GetAI());
-                index = tsd.toConfigIndex();
+                tsd = TransportSystemDefinition.From(b.Info.GetAI());
+                index = tsd.ToConfigIndex();
             }
             prefix = index.getPrefixTextNaming()?.Trim();
             doLog($"getBuildingName(): serviceFound {serviceFound} - subserviceFound = {subserviceFound} - tsd = {tsd} - index = {index} - prefix = {prefix}");
@@ -429,7 +429,7 @@ namespace Klyte.TransportLinesManager.Utils
             for (uint num = 0u; num < (ulong) PrefabCollection<VehicleInfo>.PrefabCount(); num += 1u)
             {
                 VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
-                if (!(prefab == null) && definition.isFromSystem(prefab) && !VehicleUtils.IsTrailer(prefab))
+                if (!(prefab == null) && definition.IsFromSystem(prefab) && !VehicleUtils.IsTrailer(prefab))
                 {
                     basicAssetsList.Add(prefab.name);
                 }

@@ -47,8 +47,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             foreach (UiCategoryTab tab in Enum.GetValues(typeof(UiCategoryTab)))
             {
                 UIButton superTab = CreateTabTemplate();
-                superTab.normalFgSprite = tab.getTabFgSprite();
-                superTab.tooltip = tab.getTabName();
+                superTab.normalFgSprite = tab.GetTabFgSprite();
+                superTab.tooltip = tab.GetTabName();
 
                 KlyteMonoUtils.CreateUIElement(out UIPanel content, null);
                 content.name = "Container";
@@ -105,10 +105,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         internal void OpenAt(UiCategoryTab cat, TransportSystemDefinition tsd)
         {
-            if (cat == UiCategoryTab.LineListing && tsd.isTour())
-            {
-                cat = UiCategoryTab.TourListing;
-            }
             if (tsd != null)
             {
                 m_StripsSubcategories[cat].selectedIndex = m_StripsSubcategories[cat].Find<UIComponent>(tsd.GetDefType().Name)?.zOrder ?? -1;
@@ -128,15 +124,15 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             UIButton tabTemplate = CreateTabSubStripTemplate();
 
-            UIComponent bodyContent = CreateContentTemplate(parent.width, parent.height - effectiveOffsetY - 10, category.isScrollable());
+            UIComponent bodyContent = CreateContentTemplate(parent.width, parent.height - effectiveOffsetY - 10, category.IsScrollable());
 
-            foreach (KeyValuePair<TransportSystemDefinition, Type> kv in TransportSystemDefinition.sysDefinitions)
+            foreach (KeyValuePair<TransportSystemDefinition, Type> kv in TransportSystemDefinition.SysDefinitions)
             {
                 Type[] components;
                 Type targetType;
                 try
                 {
-                    targetType = ReflectionUtils.GetImplementationForGenericType(category.getTabGenericContentImpl(), kv.Value);
+                    targetType = ReflectionUtils.GetImplementationForGenericType(category.GetTabGenericContentImpl(), kv.Value);
                     components = new Type[] { targetType };
                 }
                 catch
@@ -146,11 +142,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 TransportSystemDefinition tsd = kv.Key;
                 GameObject tab = Instantiate(tabTemplate.gameObject);
                 GameObject body = Instantiate(bodyContent.gameObject);
-                TLMConfigWarehouse.ConfigIndex configIdx = kv.Key.toConfigIndex();
+                var configIdx = kv.Key.ToConfigIndex();
                 string name = kv.Value.Name;
                 TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
                 string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd), true);
-                string fgIcon = kv.Key.getTransportTypeIcon();
+                string fgIcon = kv.Key.GetTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();
                 tabButton.tooltip = TLMConfigWarehouse.getNameForTransportType(configIdx);
                 tabButton.hoveredBgSprite = bgIcon;
@@ -318,13 +314,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow
     internal enum UiCategoryTab
     {
         LineListing = 0,
-        TourListing = 1,
-        DepotListing = 2,
-        PrefixEditor = 3
+        DepotListing = 1,
+        PrefixEditor = 2
     }
     internal static class TabsExtension
     {
-        public static string getTabName(this UiCategoryTab tab)
+        public static string GetTabName(this UiCategoryTab tab)
         {
             switch (tab)
             {
@@ -332,8 +327,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     return Locale.Get("K45_TLM_LIST_LINES_TOOLTIP");
                 case UiCategoryTab.DepotListing:
                     return Locale.Get("K45_TLM_LIST_DEPOT_TOOLTIP");
-                case UiCategoryTab.TourListing:
-                    return Locale.Get("K45_TLM_LIST_TOURS_TOOLTIP");
                 case UiCategoryTab.PrefixEditor:
                     return Locale.Get("K45_TLM_CITY_ASSETS_SELECTION");
                 default:
@@ -341,7 +334,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             }
 
         }
-        public static string getTabFgSprite(this UiCategoryTab tab)
+        public static string GetTabFgSprite(this UiCategoryTab tab)
         {
             switch (tab)
             {
@@ -349,15 +342,13 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     return "ToolbarIconPublicTransport";
                 case UiCategoryTab.DepotListing:
                     return "UIFilterBigBuildings";
-                case UiCategoryTab.TourListing:
-                    return "InfoIconTours";
                 case UiCategoryTab.PrefixEditor:
                     return "InfoIconLevel";
                 default:
                     throw new Exception($"Not supported: {tab}");
             }
         }
-        public static bool isScrollable(this UiCategoryTab tab)
+        public static bool IsScrollable(this UiCategoryTab tab)
         {
             switch (tab)
             {
@@ -365,21 +356,17 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     return false;
                 case UiCategoryTab.DepotListing:
                     return false;
-                case UiCategoryTab.TourListing:
-                    return false;
                 case UiCategoryTab.PrefixEditor:
                 default:
                     return true;
             }
         }
-        public static Type getTabGenericContentImpl(this UiCategoryTab tab)
+        public static Type GetTabGenericContentImpl(this UiCategoryTab tab)
         {
             switch (tab)
             {
                 case UiCategoryTab.LineListing:
-                    return typeof(TLMTabControllerLineListTransport<>);
-                case UiCategoryTab.TourListing:
-                    return typeof(TLMTabControllerLineListTourism<>);
+                    return typeof(UVMLinesPanel<>);
                 case UiCategoryTab.DepotListing:
                     return typeof(TLMTabControllerDepotList<>);
                 case UiCategoryTab.PrefixEditor:

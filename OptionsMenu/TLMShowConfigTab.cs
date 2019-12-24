@@ -39,7 +39,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             mainPanel.autoLayoutDirection = LayoutDirection.Vertical;
             m_uiHelper = new UIHelperExtension(mainPanel);
 
-            TLMConfigWarehouse.ConfigIndex transportType = m_tsd.toConfigIndex();
+            TLMConfigWarehouse.ConfigIndex transportType = m_tsd.ToConfigIndex();
 
 
             m_uiHelper.AddLabel(string.Format(Locale.Get("K45_TLM_CONFIGS_FOR"), TLMConfigWarehouse.getNameForTransportType(transportType)));

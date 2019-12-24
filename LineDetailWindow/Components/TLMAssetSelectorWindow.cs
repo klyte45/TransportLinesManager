@@ -177,8 +177,8 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             m_lineInfo.onLineChanged += (lineId) =>
             {
                 TLMUtils.doLog("EventOnLineChanged");
-                var tsd = TransportSystemDefinition.from(lineId);
-                if (!tsd.hasVehicles())
+                var tsd = TransportSystemDefinition.From(lineId);
+                if (!tsd.HasVehicles())
                 {
                     m_mainPanel.isVisible = false;
                     return;
@@ -254,13 +254,13 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
                 if (isCustomLine)
                 {
-                    m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE"), TLMLineUtils.getLineStringId(lineId), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
+                    m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE"), TLMLineUtils.getLineStringId(lineId), TLMConfigWarehouse.getNameForTransportType(tsd.ToConfigIndex()));
                 }
                 else
                 {
-                    TLMConfigWarehouse.ConfigIndex transportType = tsd.toConfigIndex();
+                    TLMConfigWarehouse.ConfigIndex transportType = tsd.ToConfigIndex();
                     uint prefix = TLMLineUtils.getPrefix(lineId);
-                    m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int) prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
+                    m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int) prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.ToConfigIndex()));
                 }
 
                 m_isLoading = false;

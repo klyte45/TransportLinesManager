@@ -273,7 +273,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             else
             {
                 TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[parent.CurrentSelectedId];
-                var tsd = TransportSystemDefinition.from(tl.Info);
+                var tsd = TransportSystemDefinition.From(tl.Info);
                 bte = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsd);
                 idx = TLMLineUtils.getPrefix(parent.CurrentSelectedId);
             }
@@ -431,14 +431,14 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
                 m_IgnorePrefix.isVisible = true;
 
                 TransportLine t = TransportManager.instance.m_lines.m_buffer[parent.CurrentSelectedId];
-                tsd = TransportSystemDefinition.getDefinitionForLine(parent.CurrentSelectedId);
+                tsd = TransportSystemDefinition.GetDefinitionForLine(parent.CurrentSelectedId);
                 if (parent.CurrentSelectedId <= 0 || tsd == default)
                 {
                     return;
                 }
             }
 
-            TLMConfigWarehouse.ConfigIndex transportType = tsd.toConfigIndex();
+            TLMConfigWarehouse.ConfigIndex transportType = tsd.ToConfigIndex();
 
             uint[] multipliers = GetBudgetValues(ref tsd, transportType);
 
@@ -493,7 +493,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
         {
             bool budgetPerHourEnabled = multipliers.Length == 8;
             m_disableBudgetPerHour.isVisible = budgetPerHourEnabled;
-            m_enableBudgetPerHour.isVisible = !budgetPerHourEnabled && tsd.hasVehicles();
+            m_enableBudgetPerHour.isVisible = !budgetPerHourEnabled && tsd.HasVehicles();
             return budgetPerHourEnabled;
         }
 
@@ -545,11 +545,11 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
 
             if (!isFromLine || TLMUtils.GetPrefixModoNomenclatura(transportType) != ModoNomenclatura.Nenhum)
             {
-                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int) idx + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_PREFIX"), idx > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), (int) idx + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMCW.getNameForTransportType(tsd.ToConfigIndex()));
             }
             else
             {
-                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(parent.CurrentSelectedId), TLMCW.getNameForTransportType(tsd.toConfigIndex()));
+                m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(parent.CurrentSelectedId), TLMCW.getNameForTransportType(tsd.ToConfigIndex()));
             }
 
             return tsd;
@@ -560,7 +560,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow.Components
             idx = parent.CurrentSelectedId;
             multipliers = new uint[8];//TLMTransportLineExtension.Instance.GetBudgetsMultiplier(parent.CurrentSelectedId);
             bte = TLMTransportLineExtension.Instance;
-            m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(parent.CurrentSelectedId), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
+            m_lineBudgetSlidersTitle.text = string.Format(Locale.Get("K45_TLM_BUDGET_MULTIPLIER_TITLE_LINE"), TLMLineUtils.getLineStringId(parent.CurrentSelectedId), TLMConfigWarehouse.getNameForTransportType(tsd.ToConfigIndex()));
             m_absoluteCountMode.isVisible = !TLMTransportLineExtension.Instance.IsUsingAbsoluteVehicleCount(idx);
             m_multiplierMode.isVisible = TLMTransportLineExtension.Instance.IsUsingAbsoluteVehicleCount(idx);
             return tsd;

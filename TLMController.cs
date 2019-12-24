@@ -104,12 +104,12 @@ namespace Klyte.TransportLinesManager
             TransportLine t = TransportManager.instance.m_lines.m_buffer[i];
             try
             {
-                var tsd = TransportSystemDefinition.getDefinitionForLine(i);
+                var tsd = TransportSystemDefinition.GetDefinitionForLine(i);
                 if (tsd == default || (((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreAnyIfSet))
                 {
                     return Color.clear;
                 }
-                TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
+                TLMCW.ConfigIndex transportType = tsd.ToConfigIndex();
                 Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType, ref tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
                 if (c.a == 1)
                 {

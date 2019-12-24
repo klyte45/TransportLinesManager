@@ -25,7 +25,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             }
 
             Building bd = BuildingManager.instance.m_buildings.m_buffer[building];
-            if (__result && TLMTabControllerDepotList<V>.exists && Singleton<V>.instance.GetTSD().isFromSystem(bd.Info.GetAI() as DepotAI))
+            if (__result && TLMTabControllerDepotList<V>.exists && Singleton<V>.instance.GetTSD().IsFromSystem(bd.Info.GetAI() as DepotAI))
             {
                 TLMTabControllerDepotList<V>.instance.isUpdated = false;
             }
@@ -33,7 +33,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         public static void BeforeReleaseBuilding(ushort building, ref bool __state)
         {
             Building bd = BuildingManager.instance.m_buildings.m_buffer[building];
-            __state = building != 0 && Singleton<V>.instance.GetTSD().isFromSystem(bd.Info.GetAI() as DepotAI);
+            __state = building != 0 && Singleton<V>.instance.GetTSD().IsFromSystem(bd.Info.GetAI() as DepotAI);
         }
         public static void AfterReleaseBuilding(ref bool __state)
         {
@@ -118,7 +118,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             lineName.area = new Vector4(140, 10, lineName.minimumSize.x, 18);
             KlyteMonoUtils.LimitWidth(lineName, (uint) lineName.width);
             lineName.textAlignment = UIHorizontalAlignment.Center;
-            lineName.text = string.Format(Locale.Get("K45_TLM_DEPOT_NAME_PATTERN"), Locale.Get("K45_TLM_PUBLICTRANSPORT_OF_DEPOT", Singleton<T>.instance.GetTSD().toConfigIndex().ToString()));
+            lineName.text = string.Format(Locale.Get("K45_TLM_DEPOT_NAME_PATTERN"), Locale.Get("K45_TLM_PUBLICTRANSPORT_OF_DEPOT", Singleton<T>.instance.GetTSD().ToConfigIndex().ToString()));
             lineName.eventClicked += Name_eventClicked;
 
             KlyteMonoUtils.CreateUIElement(out UILabel prefixesServed, titleLine.transform, "prefixesServed");
@@ -177,17 +177,17 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             foreach (ushort buildingID in TLMDepotAI.getAllDepotsFromCity())
             {
                 PrefabAI prefabAI = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID].Info.GetAI();
-                if (prefabAI is ShelterAI && tsd.isShelterAiDepot())
+                if (prefabAI is ShelterAI && tsd.IsShelterAiDepot())
                 {
                     AddToList(buildingID, false, ref count);
 
                 }
-                else if (!tsd.isShelterAiDepot() && prefabAI is DepotAI ai)
+                else if (!tsd.IsShelterAiDepot() && prefabAI is DepotAI ai)
                 {
                     var tiArray = new TransportInfo[] { ai.m_transportInfo, ai.m_secondaryTransportInfo };
                     foreach (TransportInfo info in tiArray)
                     {
-                        if (tsd.isFromSystem(info) && (!hasPrefix || m_prefixFilter.selectedIndex == 0 || TLMDepotAI.getPrefixesServedByDepot(buildingID, info == ai.m_secondaryTransportInfo).Contains((uint) (m_prefixFilter.selectedIndex - 1))))
+                        if (tsd.IsFromSystem(info) && (!hasPrefix || m_prefixFilter.selectedIndex == 0 || TLMDepotAI.getPrefixesServedByDepot(buildingID, info == ai.m_secondaryTransportInfo).Contains((uint) (m_prefixFilter.selectedIndex - 1))))
                         {
                             AddToList(buildingID, info == ai.m_secondaryTransportInfo, ref count);
                         }

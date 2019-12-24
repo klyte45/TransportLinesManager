@@ -39,11 +39,9 @@ namespace Klyte.TransportLinesManager.Overrides
                     def = TransportSystemDefinition.MONORAIL;
                     break;
                 case 8:
-                    cat = UiCategoryTab.TourListing;
                     def = TransportSystemDefinition.TOUR_PED;
                     break;
                 case 9:
-                    cat = UiCategoryTab.TourListing;
                     def = TransportSystemDefinition.TOUR_BUS;
                     break;
                 default:

@@ -67,9 +67,9 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components
             {
                 InstanceID buildingId = WorldInfoPanel.GetCurrentInstanceID();
                 var depotAI = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId.Building].Info.GetAI() as DepotAI;
-                if (m_tsd.isFromSystem(depotAI))
+                if (m_tsd.IsFromSystem(depotAI))
                 {
-                    TLMDepotAI.addAllPrefixesToDepot(buildingId.Building, m_tsd.isFromSystem(depotAI.m_secondaryTransportInfo));
+                    TLMDepotAI.addAllPrefixesToDepot(buildingId.Building, m_tsd.IsFromSystem(depotAI.m_secondaryTransportInfo));
                     updateCheckboxes(ref buildingId);
                 }
             };
@@ -89,9 +89,9 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components
             {
                 InstanceID buildingId = WorldInfoPanel.GetCurrentInstanceID();
                 var depotAI = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId.Building].Info.GetAI() as DepotAI;
-                if (m_tsd.isFromSystem(depotAI))
+                if (m_tsd.IsFromSystem(depotAI))
                 {
-                    TLMDepotAI.removeAllPrefixesFromDepot(buildingId.Building, m_tsd.isFromSystem(depotAI.m_secondaryTransportInfo));
+                    TLMDepotAI.removeAllPrefixesFromDepot(buildingId.Building, m_tsd.IsFromSystem(depotAI.m_secondaryTransportInfo));
                     updateCheckboxes(ref buildingId);
                 }
             };
@@ -123,7 +123,7 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components
             m_title.relativePosition = new Vector3(5, 5);
             m_title.textScale = 0.9f;
             m_title.prefix = Locale.Get("K45_TLM_PREFIXES_SERVED") + "\n";
-            m_title.text = TLMConfigWarehouse.getNameForTransportType(m_tsd.toConfigIndex());
+            m_title.text = TLMConfigWarehouse.getNameForTransportType(m_tsd.ToConfigIndex());
         }
 
         private void CreateScrollPanel()
@@ -191,7 +191,7 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components
                      {
                          InstanceID buildingId = WorldInfoPanel.GetCurrentInstanceID();
                          var depotAI = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId.Building].Info.GetAI() as DepotAI;
-                         togglePrefix(j, x, m_tsd.isFromSystem(depotAI.m_transportInfo), ref buildingId);
+                         togglePrefix(j, x, m_tsd.IsFromSystem(depotAI.m_transportInfo), ref buildingId);
                      }
                  });
             }
@@ -224,9 +224,9 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components
         {
             var depotAI = Singleton<BuildingManager>.instance.m_buildings.m_buffer[instanceID.Building].Info.GetAI() as DepotAI;
             bool secondary;
-            if (m_tsd.isFromSystem(depotAI.m_transportInfo) && depotAI.m_maxVehicleCount > 0)
+            if (m_tsd.IsFromSystem(depotAI.m_transportInfo) && depotAI.m_maxVehicleCount > 0)
             { secondary = false; }
-            else if (m_tsd.isFromSystem(depotAI.m_secondaryTransportInfo) && depotAI.m_maxVehicleCount2 > 0)
+            else if (m_tsd.IsFromSystem(depotAI.m_secondaryTransportInfo) && depotAI.m_maxVehicleCount2 > 0)
             { secondary = true; }
             else
             {
@@ -236,7 +236,7 @@ namespace Klyte.TransportLinesManager.WorldInfoPanelExt.Components
             m_mainPanel.isVisible = true;
             bool oldIsLoading = m_isLoading;
             m_isLoading = true;
-            string[] prefixOptions = TLMUtils.getStringOptionsForPrefix(TransportSystemDefinition.from(secondary ? depotAI.m_secondaryTransportInfo : depotAI.m_transportInfo).toConfigIndex(), true, true, false);
+            string[] prefixOptions = TLMUtils.getStringOptionsForPrefix(TransportSystemDefinition.From(secondary ? depotAI.m_secondaryTransportInfo : depotAI.m_transportInfo).ToConfigIndex(), true, true, false);
             System.Collections.Generic.List<uint> prefixesServedList = TLMDepotAI.getPrefixesServedByDepot(instanceID.Building, secondary);
             for (uint i = 0; i <= 64; i++)
             {

@@ -68,12 +68,12 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 
         public uint GetDefaultTicketPrice(uint x = 0)
         {
-            int savedVal = TLMConfigWarehouse.instance.GetInt(TLMConfigWarehouse.ConfigIndex.DEFAULT_TICKET_PRICE | Singleton<TSD>.instance.GetTSD().toConfigIndex());
+            int savedVal = TLMConfigWarehouse.instance.GetInt(TLMConfigWarehouse.ConfigIndex.DEFAULT_TICKET_PRICE | Singleton<TSD>.instance.GetTSD().ToConfigIndex());
             if (savedVal > 0)
             {
                 return (uint) savedVal;
             }
-            return (uint) TransportManager.instance.GetTransportInfo(Singleton<TSD>.instance.GetTSD().transportType).m_ticketPrice;
+            return (uint) TransportManager.instance.GetTransportInfo(Singleton<TSD>.instance.GetTSD().TransportType).m_ticketPrice;
         }
 
         #region Asset List

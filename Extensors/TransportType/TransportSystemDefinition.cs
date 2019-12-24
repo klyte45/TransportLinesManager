@@ -4,6 +4,7 @@ using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Klyte.TransportLinesManager.TextureAtlas.UVMTextureAtlas;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
@@ -30,7 +31,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         public static readonly TransportSystemDefinition BALLOON = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTours, VehicleInfo.VehicleType.Balloon, TransportInfo.TransportType.HotAirBalloon);
 
 
-        public static Dictionary<TransportSystemDefinition, ITLMTransportTypeExtension> availableDefinitions
+        public static Dictionary<TransportSystemDefinition, ITLMTransportTypeExtension> AvailableDefinitions
         {
             get {
                 if (m_availableDefinitions.Count == 0)
@@ -80,7 +81,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
         }
         public static readonly Dictionary<TransportSystemDefinition, ITLMTransportTypeExtension> m_availableDefinitions = new Dictionary<TransportSystemDefinition, ITLMTransportTypeExtension>();
-        public static Dictionary<TransportSystemDefinition, Type> sysDefinitions
+        public static Dictionary<TransportSystemDefinition, Type> SysDefinitions
         {
             get {
                 if (m_sysDefinitions.Count == 0)
@@ -147,40 +148,31 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             //}
         }
 
-        public ItemClass.SubService subService
-        {
-            get;
-        }
-        public VehicleInfo.VehicleType vehicleType
-        {
-            get;
-        }
-        public TransportInfo.TransportType transportType
-        {
-            get;
-        }
+        public ItemClass.SubService SubService { get; }
+        public VehicleInfo.VehicleType VehicleType { get; }
+        public TransportInfo.TransportType TransportType { get; }
 
         private TransportSystemDefinition(
         ItemClass.SubService subService,
         VehicleInfo.VehicleType vehicleType,
         TransportInfo.TransportType transportType)
         {
-            this.vehicleType = vehicleType;
-            this.subService = subService;
-            this.transportType = transportType;
+            VehicleType = vehicleType;
+            SubService = subService;
+            TransportType = transportType;
         }
 
         public ITLMTransportTypeExtension GetTransportExtension()
         {
-            availableDefinitions.TryGetValue(this, out ITLMTransportTypeExtension result);
+            AvailableDefinitions.TryGetValue(this, out ITLMTransportTypeExtension result);
             return result;
         }
-        public bool isTour() => subService == ItemClass.SubService.PublicTransportTours;
-        public bool isShelterAiDepot() => this == EVAC_BUS;
-        public bool hasVehicles() => vehicleType != VehicleInfo.VehicleType.None;
-        public bool isPrefixable()
+        public bool IsTour() => SubService == ItemClass.SubService.PublicTransportTours;
+        public bool IsShelterAiDepot() => this == EVAC_BUS;
+        public bool HasVehicles() => VehicleType != VehicleInfo.VehicleType.None;
+        public bool IsPrefixable()
         {
-            switch (transportType)
+            switch (TransportType)
             {
                 case TransportInfo.TransportType.HotAirBalloon:
                 case TransportInfo.TransportType.Taxi:
@@ -193,20 +185,20 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
         }
 
-        public Type GetDefType() => sysDefinitions[this];
+        public Type GetDefType() => SysDefinitions[this];
 
-        public string getTransportTypeIcon() => PublicTransportWorldInfoPanel.GetVehicleTypeIcon(transportType);
+        public string GetTransportTypeIcon() => PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportType);
 
-        public bool isFromSystem(VehicleInfo info) => info.m_class.m_subService == subService && info.m_vehicleType == vehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && (info.GetAI().GetType().GetField("m_transportInfo").GetValue(info.GetAI()) as TransportInfo).m_transportType == transportType && ReflectionUtils.HasField(info.GetAI(), "m_passengerCapacity");
+        public bool IsFromSystem(VehicleInfo info) => info.m_class.m_subService == SubService && info.m_vehicleType == VehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && (info.GetAI().GetType().GetField("m_transportInfo").GetValue(info.GetAI()) as TransportInfo).m_transportType == TransportType && ReflectionUtils.HasField(info.GetAI(), "m_passengerCapacity");
 
-        public bool isFromSystem(TransportInfo info) => info != null && info.m_class.m_subService == subService && info.m_vehicleType == vehicleType && info.m_transportType == transportType;
+        public bool IsFromSystem(TransportInfo info) => info != null && info.m_class.m_subService == SubService && info.m_vehicleType == VehicleType && info.m_transportType == TransportType;
 
-        public bool isFromSystem(DepotAI p)
+        public bool IsFromSystem(DepotAI p)
         {
-            return p != null && ((p.m_info.m_class.m_subService == subService && p.m_transportInfo.m_vehicleType == vehicleType && p.m_maxVehicleCount > 0 && p.m_transportInfo.m_transportType == transportType)
-                || (p.m_secondaryTransportInfo != null && p.m_secondaryTransportInfo.m_vehicleType == vehicleType && p.m_maxVehicleCount2 > 0 && p.m_secondaryTransportInfo.m_transportType == transportType));
+            return p != null && ((p.m_info.m_class.m_subService == SubService && p.m_transportInfo.m_vehicleType == VehicleType && p.m_maxVehicleCount > 0 && p.m_transportInfo.m_transportType == TransportType)
+                || (p.m_secondaryTransportInfo != null && p.m_secondaryTransportInfo.m_vehicleType == VehicleType && p.m_maxVehicleCount2 > 0 && p.m_secondaryTransportInfo.m_transportType == TransportType));
         }
-        public bool isFromSystem(TransportLine tl) => (tl.Info.m_class.m_subService == subService && tl.Info.m_vehicleType == vehicleType && tl.Info.m_transportType == transportType);
+        public bool IsFromSystem(ref TransportLine tl) => (tl.Info.m_class.m_subService == SubService && tl.Info.m_vehicleType == VehicleType && tl.Info.m_transportType == TransportType);
 
         public override bool Equals(object obj)
         {
@@ -220,7 +212,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             }
             var other = (TransportSystemDefinition) obj;
 
-            return subService == other.subService && vehicleType == other.vehicleType && transportType == other.transportType;
+            return SubService == other.SubService && VehicleType == other.VehicleType && TransportType == other.TransportType;
         }
 
         public static bool operator ==(TransportSystemDefinition a, TransportSystemDefinition b)
@@ -233,60 +225,112 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         }
         public static bool operator !=(TransportSystemDefinition a, TransportSystemDefinition b) => !(a == b);
 
-        public static TransportSystemDefinition from(PrefabAI buildingAI)
+        public static TransportSystemDefinition From(PrefabAI buildingAI)
         {
             var depotAI = buildingAI as DepotAI;
             if (depotAI == null)
             {
                 return default;
             }
-            return from(depotAI.m_transportInfo);
+            return From(depotAI.m_transportInfo);
         }
 
-        public static TransportSystemDefinition from(TransportInfo info)
+        public static TransportSystemDefinition From(TransportInfo info)
         {
             if (info == null)
             {
                 return default;
             }
-            TransportSystemDefinition result = availableDefinitions.Keys.FirstOrDefault(x => x.subService == info.m_class.m_subService && x.vehicleType == info.m_vehicleType && x.transportType == info.m_transportType);
+            TransportSystemDefinition result = AvailableDefinitions.Keys.FirstOrDefault(x => x.SubService == info.m_class.m_subService && x.VehicleType == info.m_vehicleType && x.TransportType == info.m_transportType);
             if (result == default)
             {
                 TLMUtils.doErrorLog($"TSD NOT FOUND FOR TRANSPORT INFO: info.m_class.m_subService={info.m_class.m_subService}, info.m_vehicleType={info.m_vehicleType}, info.m_transportType={info.m_transportType}");
             }
             return result;
         }
-        public static TransportSystemDefinition from(VehicleInfo info)
+        public static TransportSystemDefinition From(VehicleInfo info)
         {
             if (info == null)
             {
                 return default;
             }
-            TransportSystemDefinition result = availableDefinitions.Keys.FirstOrDefault(x => x.subService == info.m_class.m_subService && x.vehicleType == info.m_vehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && ReflectionUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo").m_transportType == x.transportType);
+            TransportSystemDefinition result = AvailableDefinitions.Keys.FirstOrDefault(x => x.SubService == info.m_class.m_subService && x.VehicleType == info.m_vehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && ReflectionUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo").m_transportType == x.TransportType);
             return result;
         }
-        public static TransportSystemDefinition from(uint lineId)
+        public static TransportSystemDefinition From(uint lineId)
         {
             TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
-            return from(t.Info);
+            return From(t.Info);
         }
 
-        public static TransportSystemDefinition getDefinitionForLine(ushort i) => getDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[i]);
-        public static TransportSystemDefinition getDefinitionForLine(ref TransportLine t) => from(t.Info);
+        public static TransportSystemDefinition GetDefinitionForLine(ushort i) => GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[i]);
+        public static TransportSystemDefinition GetDefinitionForLine(ref TransportLine t) => From(t.Info);
 
-        public TLMConfigWarehouse.ConfigIndex toConfigIndex() => TLMConfigWarehouse.getConfigTransportSystemForDefinition(ref this);
+        public TLMConfigWarehouse.ConfigIndex ToConfigIndex() => TLMConfigWarehouse.getConfigTransportSystemForDefinition(ref this);
 
-        public override string ToString() => subService.ToString() + "|" + vehicleType.ToString();
+        public override string ToString() => SubService.ToString() + "|" + VehicleType.ToString();
 
         public override int GetHashCode()
         {
             int hashCode = 286451371;
-            hashCode = hashCode * -1521134295 + subService.GetHashCode();
-            hashCode = hashCode * -1521134295 + vehicleType.GetHashCode();
+            hashCode = (hashCode * -1521134295) + SubService.GetHashCode();
+            hashCode = (hashCode * -1521134295) + VehicleType.GetHashCode();
             return hashCode;
         }
-    }
+        public IconName GetCircleSpriteName()
+        {
+            IconName result = IconName.IconU;
+            switch (TransportType)
+            {
+                case TransportInfo.TransportType.Bus:
+                    result = IconName.IconBus;
+                    break;
+                case TransportInfo.TransportType.Metro:
+                    result = IconName.IconMetro;
+                    break;
+                case TransportInfo.TransportType.Train:
+                    result = IconName.IconPassengerTrain;
+                    break;
+                case TransportInfo.TransportType.Ship:
+                    if (VehicleType == VehicleInfo.VehicleType.Ferry)
+                    {
+                        result = IconName.IconFerry;
+                    }
+                    else
+                    {
+                        result = IconName.IconShip;
+                    }
 
+                    break;
+                case TransportInfo.TransportType.Airplane:
+                    if (VehicleType == VehicleInfo.VehicleType.Blimp)
+                    {
+                        result = IconName.IconBlimp;
+                    }
+                    else
+                    {
+                        result = IconName.IconAirplane;
+                    }
+                    break;
+                case TransportInfo.TransportType.Tram:
+                    result = IconName.IconTram;
+                    break;
+                case TransportInfo.TransportType.EvacuationBus:
+                    result = IconName.IconEvacBus;
+                    break;
+                case TransportInfo.TransportType.Monorail:
+                    result = IconName.IconMonorail;
+                    break;
+                case TransportInfo.TransportType.Pedestrian:
+                    result = IconName.IconPath;
+                    break;
+                case TransportInfo.TransportType.TouristBus:
+                    result = IconName.IconSightseenBus;
+                    break;
+            }
+            return result;
+        }
+    }
     public abstract class TLMSysDef<T> : Singleton<T> where T : TLMSysDef<T> { public abstract TransportSystemDefinition GetTSD(); }
     public sealed class TLMSysDefNorBus : TLMSysDef<TLMSysDefNorBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BUS; }
     public sealed class TLMSysDefEvcBus : TLMSysDef<TLMSysDefEvcBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.EVAC_BUS; }

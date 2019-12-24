@@ -45,7 +45,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         public List<string> GetBasicAssetList(uint rel)
         {
 
-            var tsd = TransportSystemDefinition.from(rel);
+            var tsd = TransportSystemDefinition.From(rel);
             if (!m_basicAssetsList.ContainsKey(tsd))
             {
                 m_basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
@@ -55,7 +55,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         public Dictionary<string, string> GetSelectedBasicAssets(uint lineId) => ExtensionStaticExtensionMethods.GetAssetList(this, lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         public Dictionary<string, string> GetAllBasicAssets(uint lineId)
         {
-            var tsd = TransportSystemDefinition.from(lineId);
+            var tsd = TransportSystemDefinition.From(lineId);
             if (!m_basicAssetsList.ContainsKey(tsd))
             {
                 m_basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
@@ -85,8 +85,8 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
 
         public uint GetDefaultTicketPrice(uint lineId = 0)
         {
-            var tsd = TransportSystemDefinition.from(lineId);
-            switch (tsd.subService)
+            var tsd = TransportSystemDefinition.From(lineId);
+            switch (tsd.SubService)
             {
                 case ItemClass.SubService.PublicTransportCableCar:
                 case ItemClass.SubService.PublicTransportBus:
@@ -98,7 +98,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
                 case ItemClass.SubService.PublicTransportTram:
                     return 200;
                 case ItemClass.SubService.PublicTransportPlane:
-                    if (tsd.vehicleType == VehicleInfo.VehicleType.Blimp)
+                    if (tsd.VehicleType == VehicleInfo.VehicleType.Blimp)
                     {
                         return 100;
                     }
@@ -107,7 +107,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
                         return 1000;
                     }
                 case ItemClass.SubService.PublicTransportShip:
-                    if (tsd.vehicleType == VehicleInfo.VehicleType.Ferry)
+                    if (tsd.VehicleType == VehicleInfo.VehicleType.Ferry)
                     {
                         return 100;
                     }
@@ -116,17 +116,17 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
                         return 500;
                     }
                 case ItemClass.SubService.PublicTransportTours:
-                    if (tsd.vehicleType == VehicleInfo.VehicleType.Car)
+                    if (tsd.VehicleType == VehicleInfo.VehicleType.Car)
                     {
                         return 100;
                     }
-                    else if (tsd.vehicleType == VehicleInfo.VehicleType.None)
+                    else if (tsd.VehicleType == VehicleInfo.VehicleType.None)
                     {
                         return 0;
                     }
                     return 102;
                 default:
-                    TLMUtils.doLog("subservice not found: {0}", tsd.subService);
+                    TLMUtils.doLog("subservice not found: {0}", tsd.SubService);
                     return 103;
             }
 

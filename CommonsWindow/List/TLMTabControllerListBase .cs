@@ -82,7 +82,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         #endregion
         protected void ReloadPrefixFilter()
         {
-            ConfigIndex tsdCi = Singleton<T>.instance.GetTSD().toConfigIndex();
+            ConfigIndex tsdCi = Singleton<T>.instance.GetTSD().ToConfigIndex();
             ModoNomenclatura prefixMn = TLMUtils.GetPrefixModoNomenclatura(tsdCi);
             if (prefixMn != m_modoNomenclaturaCache)
             {

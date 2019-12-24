@@ -192,12 +192,12 @@ namespace Klyte.TransportLinesManager.UI
 
             prefixIncrementChk = uiHelper.AddCheckboxLocale("K45_TLM_AUTOINCREMENT_PREFIX", false, delegate (bool value)
              {
-                 var tsd = TransportSystemDefinition.from(transportTool.m_prefab);
+                 var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
                  if (TransportLinesManagerMod.DebugMode)
                  {
-                     TLMUtils.doLog("Type = " + tsd.toConfigIndex() + "|prop=" + (tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT) + "|valToSet = " + value);
+                     TLMUtils.doLog("Type = " + tsd.ToConfigIndex() + "|prop=" + (tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT) + "|valToSet = " + value);
                  }
-                 TLMConfigWarehouse.SetCurrentConfigBool(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT, value);
+                 TLMConfigWarehouse.SetCurrentConfigBool(tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT, value);
              });
             prefixIncrementChk.relativePosition = new Vector3(5f, 162.5f);
 
@@ -212,7 +212,7 @@ namespace Klyte.TransportLinesManager.UI
             string value = "0" + lineNumberTxtBox.text;
             int valPrefixo = linePrefixDropDown.selectedIndex;
 
-            var tsd = TransportSystemDefinition.from(transportTool.m_prefab);
+            var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
             TLMLineUtils.GetNamingRulesFromTSD(out ModoNomenclatura prefixo, out Separador sep, out ModoNomenclatura sufixo, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, tsd);
             ushort num = ushort.Parse(value);
             if (prefixo != ModoNomenclatura.Nenhum)
@@ -228,9 +228,9 @@ namespace Klyte.TransportLinesManager.UI
         public void incrementNumber()
         {
             //TLMUtils.doLog("Increment Toolbox num");
-            var tsd = TransportSystemDefinition.from(transportTool.m_prefab);
+            var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
             int num = nextLineNumber;
-            bool prefixIncrementVal = TLMConfigWarehouse.GetCurrentConfigBool(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT);
+            bool prefixIncrementVal = TLMConfigWarehouse.GetCurrentConfigBool(tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT);
             //TLMUtils.doLog("prefixIncrement = " + prefixIncrementVal + "| num = " + num);
             while (((num + 1) & 0xFFFF) == 0 || TLMLineUtils.isNumberUsed((num + 1) & 0xFFFF, ref tsd, 0))
             {
@@ -256,8 +256,8 @@ namespace Klyte.TransportLinesManager.UI
         private void syncForm()
         {
 
-            var tsd = TransportSystemDefinition.from(transportTool.m_prefab);
-            TLMConfigWarehouse.ConfigIndex configIdx = tsd.toConfigIndex();
+            var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
+            TLMConfigWarehouse.ConfigIndex configIdx = tsd.ToConfigIndex();
             if (TLMLineUtils.hasPrefix(transportTool.m_prefab))
             {
                 linePrefixDropDown.isVisible = true;
@@ -301,7 +301,7 @@ namespace Klyte.TransportLinesManager.UI
         private void updateUI(bool syncFromInput = false)
         {
 
-            var tsd = TransportSystemDefinition.from(transportTool.m_prefab);
+            var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
             TLMLineUtils.GetNamingRulesFromTSD(out ModoNomenclatura prefixo, out Separador sep, out ModoNomenclatura sufixo, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, tsd);
 
             if (syncFromInput)
@@ -321,7 +321,7 @@ namespace Klyte.TransportLinesManager.UI
             }
 
 
-            TLMConfigWarehouse.ConfigIndex configIdx = tsd.toConfigIndex();
+            TLMConfigWarehouse.ConfigIndex configIdx = tsd.ToConfigIndex();
             Color color;
 
             if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))

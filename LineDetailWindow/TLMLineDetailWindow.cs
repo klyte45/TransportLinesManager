@@ -74,7 +74,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
         public bool PrefixSelectionMode => false;
 
-        public TransportSystemDefinition TransportSystem => TransportSystemDefinition.from(Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].Info);
+        public TransportSystemDefinition TransportSystem => TransportSystemDefinition.From(Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine].Info);
         #endregion
 
         #region Instantiation
@@ -575,7 +575,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             {
                 TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineIdSelecionado.TransportLine];
                 idx = TLMLineUtils.getPrefix(m_lineIdSelecionado.TransportLine);
-                var tsd = TransportSystemDefinition.from(tl.Info);
+                var tsd = TransportSystemDefinition.From(tl.Info);
                 tpe = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsd);
             }
             tpe.SetTicketPrice(idx, valInt);
@@ -588,7 +588,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
         private bool isNumeroUsado(int numLinha, ushort lineIdx)
         {
-            var tsdOr = TransportSystemDefinition.getDefinitionForLine(lineIdx);
+            var tsdOr = TransportSystemDefinition.GetDefinitionForLine(lineIdx);
             if (tsdOr == default)
             {
                 return true;
@@ -611,7 +611,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             ushort lineID = m_lineIdSelecionado.TransportLine;
             TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
             TransportInfo info = tl.Info;
-            var tsd = TransportSystemDefinition.from(info);
+            var tsd = TransportSystemDefinition.From(info);
             int turistas = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_touristPassengers.m_averageCount;
             int residentes = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_residentPassengers.m_averageCount;
             int residentesPorc = residentes;
@@ -685,7 +685,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             m_veiculosLinhaLabel.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[] { veiculosLinha }) + "/" + tl.CalculateTargetVehicleCount();
 
             uint prefix = 0;
-            if (TLMConfigWarehouse.GetCurrentConfigInt(tsd.toConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int) ModoNomenclatura.Nenhum)
+            if (TLMConfigWarehouse.GetCurrentConfigInt(tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX) != (int) ModoNomenclatura.Nenhum)
             {
                 prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_lineNumber / 1000u;
             }
@@ -694,7 +694,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
             m_budgetLabel.text = string.Format("{0:0%} ({1:0%})", getEffectiveBudget(), Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.004f);//585+1/7 = frames/week                ;
             m_budgetLabel.tooltip = string.Format(Locale.Get("K45_TLM_LINE_BUDGET_EXPLAIN_2"),
-                TLMCW.getNameForTransportType(tsd.toConfigIndex()),
+                TLMCW.getNameForTransportType(tsd.ToConfigIndex()),
                 baseBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget / 100f + 0.004f, getEffectiveBudget());
             linearMap.updateBidings();
         }
@@ -718,7 +718,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
         {
             Hide();
             TLMController.instance.OpenTLMPanel();
-            TLMPublicTransportManagementPanel.instance?.OpenAt(UiCategoryTab.LineListing, TransportSystemDefinition.from(m_lineIdSelecionado.TransportLine));
+            TLMPublicTransportManagementPanel.instance?.OpenAt(UiCategoryTab.LineListing, TransportSystemDefinition.From(m_lineIdSelecionado.TransportLine));
         }
 
         public void openLineInfo(UIComponent component, UIMouseEventParameter eventParam)
@@ -733,7 +733,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
         public void openLineInfo(ushort lineID)
         {
-            var tsd = TransportSystemDefinition.getDefinitionForLine(lineID);
+            var tsd = TransportSystemDefinition.GetDefinitionForLine(lineID);
             if (lineID <= 0 || tsd == default)
             {
                 return;
@@ -748,7 +748,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             TransportLine t = TransportManager.instance.m_lines.m_buffer[lineID];
             ushort lineNumber = t.m_lineNumber;
 
-            TLMCW.ConfigIndex transportType = tsd.toConfigIndex();
+            TLMCW.ConfigIndex transportType = tsd.ToConfigIndex();
             var mnPrefixo = (ModoNomenclatura) TLMCW.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
             if (TLMLineUtils.hasPrefix(lineID))
@@ -824,7 +824,7 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
             }
             else
             {
-                var tsd = TransportSystemDefinition.getDefinitionForLine(lineID);
+                var tsd = TransportSystemDefinition.GetDefinitionForLine(lineID);
                 idx = TLMLineUtils.getPrefix(lineID);
                 tpe = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsd);
             }
@@ -841,13 +841,13 @@ namespace Klyte.TransportLinesManager.LineDetailWindow
 
         private void SetViewMode()
         {
-            var tsd = TransportSystemDefinition.from(lineIdSelecionado.TransportLine);
+            var tsd = TransportSystemDefinition.From(lineIdSelecionado.TransportLine);
             if (tsd == default)
             {
                 return;
             }
 
-            if (tsd.isTour())
+            if (tsd.IsTour())
             {
                 InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.Tours, InfoManager.SubInfoMode.Default);
             }

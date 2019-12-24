@@ -107,18 +107,18 @@ namespace Klyte.TransportLinesManager.UI
             TLMUtils.doLog("p2");
             if (lineID == 0)
             {
-                var tsd = TransportSystemDefinition.from(parent.CurrentTransportInfo);
+                var tsd = TransportSystemDefinition.From(parent.CurrentTransportInfo);
                 if (tsd != default)
                 {
 
-                    linearMapLineNumberFormat.backgroundSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, tsd.toConfigIndex(), ref tsd), true);
+                    linearMapLineNumberFormat.backgroundSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, tsd.ToConfigIndex(), ref tsd), true);
                 }
                 lineStationsPanel.width = 0;
                 return;
             }
 
             TLMUtils.doLog("p3");
-            ItemClass.SubService ss = TransportSystemDefinition.getDefinitionForLine(lineID).subService;
+            ItemClass.SubService ss = TransportSystemDefinition.GetDefinitionForLine(lineID).SubService;
             linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.getIconForLine(lineID);
             TLMUtils.doLog("p4");
             m_autoName = TLMLineUtils.calculateAutoName(lineID);

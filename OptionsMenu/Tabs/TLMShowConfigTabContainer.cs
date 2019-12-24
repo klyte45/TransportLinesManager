@@ -28,7 +28,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
             UIComponent bodyContent = CreateContentTemplate(parentWidth, 320, false);
 
-            foreach (System.Collections.Generic.KeyValuePair<TransportSystemDefinition, Type> kv in TransportSystemDefinition.sysDefinitions)
+            foreach (System.Collections.Generic.KeyValuePair<TransportSystemDefinition, Type> kv in TransportSystemDefinition.SysDefinitions)
             {
                 Type[] components;
                 Type targetType;
@@ -44,12 +44,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
                 GameObject tab = Instantiate(tabTemplate.gameObject);
                 GameObject body = Instantiate(bodyContent.gameObject);
-                TLMConfigWarehouse.ConfigIndex configIdx = kv.Key.toConfigIndex();
+                TLMConfigWarehouse.ConfigIndex configIdx = kv.Key.ToConfigIndex();
                 TransportSystemDefinition tsd = kv.Key;
                 string name = kv.Value.Name;
                 TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
                 string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd), true);
-                string fgIcon = kv.Key.getTransportTypeIcon();
+                string fgIcon = kv.Key.GetTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();
                 tabButton.tooltip = TLMConfigWarehouse.getNameForTransportType(configIdx);
                 tabButton.hoveredBgSprite = bgIcon;

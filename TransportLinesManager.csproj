@@ -68,6 +68,8 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Compile Include="CommonProperties.cs" />
+    <Compile Include="CommonsWindow\List\Components\UVMLineListItem.cs" />
+    <Compile Include="CommonsWindow\List\UVMLinesPanel.cs" />
     <Compile Include="commons\Extensors\Redirector.cs" />
     <Compile Include="commons\Extensors\UI\CheckboxOrdernatedList.cs" />
     <Compile Include="commons\Extensors\UI\NumberedColorList.cs" />
@@ -151,17 +153,17 @@
     <Compile Include="Interfaces\LateralListSelectParentInterface.cs" />
     <Compile Include="Interfaces\LinearMapParentInterface.cs" />
     <Compile Include="LegacyWarehouse\ConfigWarehouseBaseLegacy.cs" />
+    <Compile Include="TextureAtlas\TextureAtlasDescriptor.cs" />
+    <Compile Include="TextureAtlas\UVMTextureAtlas.cs" />
     <Compile Include="UI\TLMLineCreationToolboxHooks.cs" />
     <Compile Include="UI\TLMLineIconExtension.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMDepotPrefixSelection.cs" />
     <Compile Include="LineDetailWindow\Components\TLMBudgetControlSliders.cs" />
     <Compile Include="LineDetailWindow\Components\TLMAssetSelectorWindow.cs" />
     <Compile Include="CommonsWindow\List\Components\TLMAssetSelectorWindowPrefixTab.cs" />
-    <Compile Include="CommonsWindow\List\Components\TLMLineListItem.cs" />
     <Compile Include="CommonsWindow\List\Components\TLMDepotListItem.cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerDepotList.cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerListBase .cs" />
-    <Compile Include="CommonsWindow\List\TLMTabControllerLineList.cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerPrefixList.cs" />
     <Compile Include="CommonsWindow\TLMPublicTransportManagementPanel.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMModInfoTab.cs" />
@@ -268,6 +270,10 @@
     <EmbeddedResource Include="UI\VersionNotes.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="UI\TextureAtlas\icon_pt.psd" />
+    <EmbeddedResource Include="UI\TextureAtlas\icon_pt.png" />
+    <None Include="UI\TextureAtlas\icon.psd" />
+    <EmbeddedResource Include="UI\TextureAtlas\icon.png" />
     <EmbeddedResource Include="UI\Images\spritesCommon.png" />
     <EmbeddedResource Include="MapDrawer\app.js" />
     <Content Include="commons\UI\Images\%25K45_24hLineIcon.png" />

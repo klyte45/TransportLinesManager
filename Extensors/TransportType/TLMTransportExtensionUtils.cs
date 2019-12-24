@@ -25,7 +25,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                     else
                     {
                         idx = TLMLineUtils.getPrefix(lineId);
-                        var def = TransportSystemDefinition.from(lineId);
+                        var def = TransportSystemDefinition.From(lineId);
                         extension = def.GetTransportExtension();
                     }
 

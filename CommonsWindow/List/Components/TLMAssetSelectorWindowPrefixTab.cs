@@ -213,7 +213,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
             {
                 TLMUtils.doLog("EventOnLineChanged");
                 TransportSystemDefinition tsd = Singleton<T>.instance.GetTSD();
-                if (!tsd.hasVehicles())
+                if (!tsd.HasVehicles())
                 {
                     m_mainPanel.isVisible = false;
                     return;
@@ -265,8 +265,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow.Components
                     m_checkboxes[i].isChecked = selectedAssets.Contains(i);
                 }
 
-                TLMConfigWarehouse.ConfigIndex transportType = tsd.toConfigIndex();
-                m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.toConfigIndex()));
+                TLMConfigWarehouse.ConfigIndex transportType = tsd.ToConfigIndex();
+                m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.ToConfigIndex()));
 
                 m_isLoading = false;
             };
