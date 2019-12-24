@@ -10,7 +10,7 @@ using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
 
 [assembly: AssemblyVersion("12.99.99.99")]
-namespace Klyte.TransportLinesManager 
+namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPublicTransportManagementPanel>
     {
@@ -38,6 +38,47 @@ namespace Klyte.TransportLinesManager
         {
             group9.AddButton(Locale.Get("K45_TLM_DRAW_CITY_MAP"), TLMMapDrawer.drawCityMap);
             group9.AddButton("Open generated map folder", () => ColossalFramework.Utils.OpenInFileBrowser(TLMController.exportedMapsFolder));
+            group9.AddSpace(2);
+            group9.AddButton(Locale.Get("K45_TLM_RELOAD_DEFAULT_CONFIGURATION"), () =>
+            {
+                TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
+                TLMConfigOptions.instance.ReloadData();
+                ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_EXPORTED_TO_TEMPLATE"), 1), (x, y) => { });
+
+            });
+            if (IsCityLoaded)
+            {
+                group9.AddButton(Locale.Get("K45_TLM_EXPORT_CITY_CONFIG"), () =>
+                {
+                    string path = TLMConfigOptions.instance.currentLoadedCityConfig.Export();
+                    ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_EXPORTED_TO_TEMPLATE"), path), (x, y) => { });
+                });
+                group9.AddButton(Locale.Get("K45_TLM_IMPORT_CITY_CONFIG"), () =>
+                {
+                    string path = TLMConfigOptions.instance.currentLoadedCityConfig.Export();
+                    ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_WILL_BE_IMPORTED_TEMPLATE"), path), (x, y) =>
+                    {
+                        if (y == 1)
+                        {
+                            TLMConfigOptions.instance.currentLoadedCityConfig.ReloadFromDisk();
+                            TLMConfigOptions.instance.ReloadData();
+                        }
+                    });
+                });
+                group9.AddButton(Locale.Get("K45_TLM_SAVE_CURRENT_CITY_CONFIG_AS_DEFAULT"), () =>
+                {
+                    TLMConfigOptions.instance.currentLoadedCityConfig.SaveAsDefault();
+                    TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
+                    TLMConfigOptions.instance.ReloadData();
+                });
+                group9.AddButton(Locale.Get("K45_TLM_LOAD_DEFAULT_AS_CURRENT_CITY_CONFIG"), () =>
+                {
+                    TLMConfigOptions.instance.currentLoadedCityConfig.LoadFromDefault();
+                    TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
+                    TLMConfigOptions.instance.ReloadData();
+                });
+
+            }
         }
 
         private readonly SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);

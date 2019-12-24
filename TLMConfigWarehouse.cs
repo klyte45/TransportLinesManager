@@ -1,8 +1,10 @@
 ﻿using ColossalFramework.Globalization;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.UI.Sprites;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Legacy;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Linq;
@@ -29,7 +31,36 @@ namespace Klyte.TransportLinesManager
         protected bool unsafeMode = false;
         public TLMConfigWarehouse() { }
 
+        protected override void FallBackDefaultFile()
+        {
+            LogUtils.DoErrorLog("FallBackDefaultFile");
+            var legacyConfig = TLMConfigWarehouseLegacy.getConfig(null, null);
+            if (legacyConfig != null)
+            {
+                LogUtils.DoErrorLog("HAS LEGACY");
+                foreach (ConfigIndex ci in Enum.GetValues(typeof(ConfigIndex)))
+                {
+                    try
+                    {
+                        switch (((int) ci) & TYPE_PART)
+                        {
+                            case TYPE_BOOL:
+                                m_cachedBoolSaved[ci] = legacyConfig.getBool(ci);
+                                break;
+                            case TYPE_STRING:
+                                m_cachedStringSaved[ci] = legacyConfig.getString(ci);
+                                break;
+                            case TYPE_INT:
+                                m_cachedIntSaved[ci] = legacyConfig.getInt(ci);
+                                break;
+                        }
+                    }
+                    catch { }
+                }
+                SaveAsDefault();
+            }
 
+        }
 
         public static Color32 getColorForTransportType(ConfigIndex i)
         {
@@ -694,7 +725,6 @@ namespace Klyte.TransportLinesManager
             TYPE_STRING = TLMConfigWarehouse.TYPE_STRING,
             TYPE_INT = TLMConfigWarehouse.TYPE_INT,
             TYPE_BOOL = TLMConfigWarehouse.TYPE_BOOL,
-            TYPE_LIST = TLMConfigWarehouse.TYPE_LIST,
             TYPE_DICTIONARY = TLMConfigWarehouse.TYPE_DICTIONARY,
 
             AUTO_COLOR_ENABLED = GLOBAL_CONFIG | 0x2 | TYPE_BOOL,

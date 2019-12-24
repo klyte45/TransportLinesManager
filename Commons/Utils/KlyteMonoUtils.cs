@@ -181,20 +181,22 @@ namespace Klyte.Commons.Utils
             }
         }
 
-        public static PropertyChangedEventHandler<Vector2> LimitWidthAndBox<T>(T x) where T : UIComponent => LimitWidthAndBox(x, x.minimumSize.x);
-        public static PropertyChangedEventHandler<Vector2> LimitWidthAndBox<T>(T label, float maxWidth, bool alsoMinSize = false) where T : UIComponent
+        public static PropertyChangedEventHandler<Vector2> LimitWidthAndBox<T>(T x) where T : UIComponent => LimitWidthAndBox(x, x.minimumSize.x, out _);
+        public static PropertyChangedEventHandler<Vector2> LimitWidthAndBox<T>(T x, out UIPanel boxContainer) where T : UIComponent => LimitWidthAndBox(x, x.minimumSize.x, out boxContainer);
+        public static PropertyChangedEventHandler<Vector2> LimitWidthAndBox<T>(T label, float maxWidth, bool alsoMinSize = false) where T : UIComponent => LimitWidthAndBox(label, maxWidth, out _, alsoMinSize);
+        public static PropertyChangedEventHandler<Vector2> LimitWidthAndBox<T>(T label, float maxWidth, out UIPanel boxContainer, bool alsoMinSize = false) where T : UIComponent
         {
-            CreateUIElement(out UIPanel boxContainer, label.parent.transform, "CompoentContainer", new Vector4(0, 0, maxWidth, label.height));
+            CreateUIElement(out boxContainer, label.parent.transform, "CompoentContainer", new Vector4(0, 0, maxWidth, label.height));
             boxContainer.autoLayout = true;
             boxContainer.autoSize = true;
-            boxContainer.zOrder = 0;
-            boxContainer.maximumSize = new Vector2(maxWidth, label.height);
+            boxContainer.zOrder = label.zOrder;
+            boxContainer.maximumSize = new Vector2(maxWidth, 0);
             if (alsoMinSize)
             {
-                boxContainer.minimumSize = new Vector2(maxWidth, label.height);
+                boxContainer.minimumSize = new Vector2(maxWidth, 0);
             }
             label.transform.SetParent(boxContainer.transform);
-            return LimitWidthPrivate(label, maxWidth, true);
+            return LimitWidthPrivate(label, maxWidth, alsoMinSize);
         }
 
         [Obsolete("Use box version")]

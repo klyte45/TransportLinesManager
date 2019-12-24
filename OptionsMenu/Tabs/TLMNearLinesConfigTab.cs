@@ -13,10 +13,10 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         private void Awake()
         {
             parent = GetComponentInParent<UIComponent>();
-            UIHelperExtension group7 = new UIHelperExtension(parent);
-            ((UIPanel)group7.Self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel)group7.Self).wrapLayout = true;
-            ((UIPanel)group7.Self).width = 730;
+            UIHelperExtension group7 = new UIHelperExtension(parent.GetComponentInChildren<UIScrollablePanel>());
+            ((UIScrollablePanel) group7.Self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIScrollablePanel) group7.Self).wrapLayout = true;
+            ((UIScrollablePanel) group7.Self).width = 730;
 
             group7.AddLabel(Locale.Get("K45_TLM_NEAR_LINES_CONFIG"));
             group7.AddSpace(15);

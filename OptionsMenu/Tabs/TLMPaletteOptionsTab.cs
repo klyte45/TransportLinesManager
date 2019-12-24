@@ -20,10 +20,10 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         private void Awake()
         {
             parent = GetComponentInParent<UIComponent>();
-            var group6 = new UIHelperExtension(parent);
-            ((UIPanel) group6.Self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel) group6.Self).wrapLayout = true;
-            ((UIPanel) group6.Self).width = 730;
+            var group6 = new UIHelperExtension(parent.GetComponentInChildren<UIScrollablePanel>());
+            ((UIScrollablePanel) group6.Self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIScrollablePanel) group6.Self).wrapLayout = true;
+            ((UIScrollablePanel) group6.Self).width = 730;
 
             group6.AddLabel(Locale.Get("K45_TLM_CUSTOM_PALETTE_CONFIG"));
             group6.AddSpace(15);

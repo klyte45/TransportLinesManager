@@ -150,6 +150,7 @@
     <Compile Include="Interfaces\BudgetControlParentInterface.cs" />
     <Compile Include="Interfaces\LateralListSelectParentInterface.cs" />
     <Compile Include="Interfaces\LinearMapParentInterface.cs" />
+    <Compile Include="LegacyWarehouse\ConfigWarehouseBaseLegacy.cs" />
     <Compile Include="UI\TLMLineCreationToolboxHooks.cs" />
     <Compile Include="UI\TLMLineIconExtension.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMDepotPrefixSelection.cs" />

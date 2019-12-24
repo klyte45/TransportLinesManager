@@ -82,12 +82,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
             helper.AddSpace(10);
 
-            configSelector = helper.AddDropdownLocalized("K45_TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, reloadData);
+            configSelector = helper.AddDropdownLocalized("K45_TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, ReloadData);
 
             KlyteMonoUtils.CreateUIElement(out UITabstrip strip, helper.Self.transform, "TabListTLMopt", new Vector4(5, 0, 730, 40));
             float effectiveOffsetY = strip.height;
 
-            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, helper.Self.transform, "TabContainerTLMopt", new Vector4(0, 40, 730, 500));
+            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, helper.Self.transform, "TabContainerTLMopt", new Vector4(0, 40, 725, 550));
             tabContainer.autoSize = true;
             strip.tabPages = tabContainer;
 
@@ -110,15 +110,15 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 superTab.normalFgSprite = tab.getTabFgSprite();
                 superTab.tooltip = tab.getTabName();
 
-                KlyteMonoUtils.CreateUIElement(out UIPanel content, null);
+                KlyteMonoUtils.CreateUIElement(out UIPanel contentParent, null);
+                KlyteMonoUtils.CreateScrollPanel(contentParent, out UIScrollablePanel content, out _, tabContainer.width, tabContainer.height, Vector3.zero);
                 content.name = "Container";
                 content.area = new Vector4(0, 0, tabContainer.width, tabContainer.height);
                 content.autoLayout = true;
                 content.autoLayoutPadding = new RectOffset(2, 2, 2, 2);
-                content.padding = new RectOffset(5, 5, 5, 5);
                 content.autoLayoutDirection = LayoutDirection.Vertical;
 
-                strip.AddTab(tab.ToString(), superTab.gameObject, content.gameObject, tab.getTabGenericContentImpl());
+                strip.AddTab(tab.ToString(), superTab.gameObject, contentParent.gameObject, tab.getTabGenericContentImpl());
             }
 
             TLMUtils.doLog("End Loading Options");
@@ -137,25 +137,44 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             return tabTemplate;
         }
 
-        internal UICheckBox generateCheckboxConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
+        private bool isLoading = false;
+        internal UICheckBox generateCheckboxConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex, int maxWidth = 650)
         {
             checkBoxes[configIndex] = (UICheckBox) group.AddCheckbox(title, currentConfigWarehouseEditor.GetBool(configIndex), delegate (bool b)
-            { currentConfigWarehouseEditor.SetBool(configIndex, b); });
-
+            {
+                if (!isLoading)
+                {
+                    currentConfigWarehouseEditor.SetBool(configIndex, b);
+                }
+            });
+            Vector3 labelPos = checkBoxes[configIndex].label.relativePosition;
+            KlyteMonoUtils.LimitWidthAndBox(checkBoxes[configIndex].label, maxWidth, out UIPanel box);
+            box.padding = new RectOffset((int) labelPos.x, 0, (int) labelPos.y, 0);
+            checkBoxes[configIndex].width = maxWidth + labelPos.x + 5;
             return checkBoxes[configIndex];
         }
 
         internal UIDropDown generateDropdownConfig(UIHelperExtension group, string title, string[] options, TLMConfigWarehouse.ConfigIndex configIndex)
         {
             dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.GetInt(configIndex), delegate (int i)
-            { currentConfigWarehouseEditor.SetInt(configIndex, i); }, true);
+            {
+                if (!isLoading)
+                {
+                    currentConfigWarehouseEditor.SetInt(configIndex, i);
+                }
+            }, true);
             return dropDowns[configIndex];
         }
 
         internal UIDropDown generateDropdownStringValueConfig(UIHelperExtension group, string title, string[] options, TLMConfigWarehouse.ConfigIndex configIndex)
         {
             dropDowns[configIndex] = group.AddDropdown(title, options, currentConfigWarehouseEditor.GetString(configIndex), delegate (int i)
-            { currentConfigWarehouseEditor.SetString(configIndex, options[i]); }, true);
+            {
+                if (!isLoading)
+                {
+                    currentConfigWarehouseEditor.SetString(configIndex, options[i]);
+                }
+            }, true);
             return dropDowns[configIndex];
         }
 
@@ -172,7 +191,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 currentValue = 0;
             }
             dropDowns[configIndex] = group.AddDropdown(title, options, currentValue, delegate (int i)
-            { currentConfigWarehouseEditor.SetString(configIndex, Enum.GetNames(typeof(T))[i]); }, true);
+            {
+                if (i >= 0)
+                {
+                    currentConfigWarehouseEditor.SetString(configIndex, Enum.GetNames(typeof(T))[i]);
+                }
+            }, true);
             return dropDowns[configIndex];
         }
 
@@ -180,7 +204,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         internal UITextField generateTextFieldConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
         {
             textFields[configIndex] = group.AddTextField(title, delegate (string s)
-            { currentConfigWarehouseEditor.SetString(configIndex, s); }, currentConfigWarehouseEditor.GetString(configIndex));
+            {
+                if (!isLoading)
+                {
+                    currentConfigWarehouseEditor.SetString(configIndex, s);
+                }
+            }, currentConfigWarehouseEditor.GetString(configIndex));
             return textFields[configIndex];
         }
 
@@ -188,9 +217,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         {
             textFields[configIndex] = group.AddTextField(title, delegate (string s)
             {
-                if (int.TryParse(s, out int val))
+                if (!isLoading)
                 {
-                    currentConfigWarehouseEditor.SetInt(configIndex, val);
+                    if (int.TryParse(s, out int val))
+                    {
+                        currentConfigWarehouseEditor.SetInt(configIndex, val);
+                    }
                 }
             }, currentConfigWarehouseEditor.GetInt(configIndex).ToString());
             textFields[configIndex].numericalOnly = true;
@@ -200,44 +232,53 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         #endregion
 
+        public void ReloadData() => ReloadData(configSelector.selectedIndex);
 
-        private void reloadData(int selection)
+        private void ReloadData(int selection)
         {
-            TLMUtils.doLog("OPÇÔES RECARREGANDO ARQUIVO", currentSelectedConfigEditor);
-            foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UIDropDown> i in dropDowns)
+            isLoading = true;
+            try
             {
-                TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
-                try
+                TLMUtils.doLog("OPÇÔES RECARREGANDO ARQUIVO", currentSelectedConfigEditor);
+                foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UIDropDown> i in dropDowns)
                 {
-                    switch (i.Key & TLMConfigWarehouse.ConfigIndex.TYPE_PART)
+                    TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
+                    try
                     {
-                        case TLMConfigWarehouse.ConfigIndex.TYPE_INT:
-                            i.Value.selectedIndex = currentConfigWarehouseEditor.GetInt(i.Key);
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.TYPE_STRING:
-                            int selectedIndex = i.Value.items.ToList().IndexOf(currentConfigWarehouseEditor.GetString(i.Key));
-                            i.Value.selectedIndex = Math.Max(selectedIndex, 0);
-                            break;
-                        default:
-                            TLMUtils.doLog("TIPO INVÁLIDO!", i);
-                            break;
+                        switch (i.Key & TLMConfigWarehouse.ConfigIndex.TYPE_PART)
+                        {
+                            case TLMConfigWarehouse.ConfigIndex.TYPE_INT:
+                                i.Value.selectedIndex = currentConfigWarehouseEditor.GetInt(i.Key);
+                                break;
+                            case TLMConfigWarehouse.ConfigIndex.TYPE_STRING:
+                                int selectedIndex = i.Value.items.ToList().IndexOf(currentConfigWarehouseEditor.GetString(i.Key));
+                                i.Value.selectedIndex = Math.Max(selectedIndex, 0);
+                                break;
+                            default:
+                                TLMUtils.doLog("TIPO INVÁLIDO!", i);
+                                break;
+                        }
                     }
-                }
-                catch
-                {
-                    TLMUtils.doLog("EXCEPTION! {0} | {1} | [{2}]", i.Key, currentConfigWarehouseEditor.GetString(i.Key), string.Join(",", i.Value.items));
-                }
+                    catch
+                    {
+                        TLMUtils.doLog("EXCEPTION! {0} | {1} | [{2}]", i.Key, currentConfigWarehouseEditor.GetString(i.Key), string.Join(",", i.Value.items));
+                    }
 
+                }
+                foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UICheckBox> i in checkBoxes)
+                {
+                    TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
+                    i.Value.isChecked = currentConfigWarehouseEditor.GetBool(i.Key);
+                }
+                foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UITextField> i in textFields)
+                {
+                    TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
+                    i.Value.text = currentConfigWarehouseEditor.GetString(i.Key);
+                }
             }
-            foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UICheckBox> i in checkBoxes)
+            finally
             {
-                TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
-                i.Value.isChecked = currentConfigWarehouseEditor.GetBool(i.Key);
-            }
-            foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UITextField> i in textFields)
-            {
-                TLMUtils.doLog("OPÇÔES RECARREGANDO {0}", i);
-                i.Value.text = currentConfigWarehouseEditor.GetString(i.Key);
+                isLoading = false;
             }
         }
 

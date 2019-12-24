@@ -9,11 +9,11 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {
     internal class TLMShowConfigTabContainer : UICustomControl
     {
-        private UIComponent parent;
+        private UIScrollablePanel parent;
 
         private void Awake()
         {
-            parent = GetComponentInParent<UIComponent>();
+            parent = GetComponentInChildren<UIScrollablePanel>();
 
             int parentWidth = 730;
 

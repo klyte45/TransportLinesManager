@@ -2,7 +2,7 @@
 {
     public enum LineIconSpriteNames
     {
-        NULL = -1,
+        NULL,
         K45_MapIcon,
         K45_OvalIcon,
         K45_RoundedHexagonIcon,
