@@ -257,12 +257,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
             TransportSystemDefinition result = AvailableDefinitions.Keys.FirstOrDefault(x => x.SubService == info.m_class.m_subService && x.VehicleType == info.m_vehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && ReflectionUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo").m_transportType == x.TransportType);
             return result;
         }
-        public static TransportSystemDefinition From(uint lineId)
-        {
-            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
-            return From(t.Info);
-        }
-
+        public static TransportSystemDefinition From(uint lineId) => GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineId]);
         public static TransportSystemDefinition GetDefinitionForLine(ushort i) => GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[i]);
         public static TransportSystemDefinition GetDefinitionForLine(ref TransportLine t) => From(t.Info);
 
@@ -326,6 +321,59 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                     break;
                 case TransportInfo.TransportType.TouristBus:
                     result = IconName.IconSightseenBus;
+                    break;
+            }
+            return result;
+        }
+        public int GetDefaultPassengerCapacity()
+        {
+            int result = 1;
+            switch (TransportType)
+            {
+                case TransportInfo.TransportType.Bus:
+                    result = 30;
+                    break;
+                case TransportInfo.TransportType.Metro:
+                    result = 180;
+                    break;
+                case TransportInfo.TransportType.Train:
+                    result = 240;
+                    break;
+                case TransportInfo.TransportType.Ship:
+                    if (VehicleType == VehicleInfo.VehicleType.Ferry)
+                    {
+                        result = 50;
+                    }
+                    else
+                    {
+                        result = 100;
+                    }
+
+                    break;
+                case TransportInfo.TransportType.Airplane:
+                    if (VehicleType == VehicleInfo.VehicleType.Blimp)
+                    {
+                        result = 35;
+                    }
+                    else
+                    {
+                        result = 200;
+                    }
+                    break;
+                case TransportInfo.TransportType.Tram:
+                    result = 90;
+                    break;
+                case TransportInfo.TransportType.EvacuationBus:
+                    result = 50;
+                    break;
+                case TransportInfo.TransportType.Monorail:
+                    result = 180;
+                    break;
+                case TransportInfo.TransportType.Pedestrian:
+                    result = 1;
+                    break;
+                case TransportInfo.TransportType.TouristBus:
+                    result = 30;
                     break;
             }
             return result;

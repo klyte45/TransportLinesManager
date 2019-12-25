@@ -4,6 +4,7 @@ using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -425,7 +426,24 @@ namespace Klyte.TransportLinesManager.UI
                     }
                 }
                 info.m_vehicleAI.GetBufferStatus(vehicleId, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId], out string text, out int passengerQuantity, out int passengerCapacity);
-                m_vehicleButtons.items[idx].Find<UILabel>("PassengerCount").text = passengerQuantity.ToString() + "/" + passengerCapacity.ToString();
+                UILabel labelVehicle = m_vehicleButtons.items[idx].Find<UILabel>("PassengerCount");
+                labelVehicle.prefix = passengerQuantity.ToString() + "/" + passengerCapacity.ToString();
+                labelVehicle.processMarkup = true;
+                labelVehicle.textAlignment = UIHorizontalAlignment.Right;
+                switch (m_currentMode)
+                {
+                    case MapMode.WAITING:
+                    case MapMode.NONE:
+                    case MapMode.CONNECTIONS:
+                        break;
+                    case MapMode.EARNINGS:
+                        UVMTransportLineEconomyManager.instance.GetIncomeAndExpensesForVehicle(vehicleId, out long income, out long expense);
+                        m_vehicleButtons.items[idx].color = Color.Lerp(Color.white, income > expense ? Color.green : Color.red, Mathf.Max(income, expense) / 100f * Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info.m_ticketPrice);
+                        labelVehicle.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
+                        labelVehicle.suffix = $"\n<color #ff0000>{(expense / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
+                        break;
+                }
+
                 vehicleId = instance.m_vehicles.m_buffer[vehicleId].m_nextLineVehicle;
                 if (++idx >= 16384)
                 {
@@ -523,12 +541,12 @@ namespace Klyte.TransportLinesManager.UI
                             uilabel.text = "";
                             uibutton.tooltip = "";
                             break;
-                        //case MapMode.EARNINGS:
-                        //    UVMTransportLineEconomyManager.instance.GetStopIncome(stop, out long income);
-                        //    uibutton.color = Color.Lerp(Color.white, Color.green, income / 100f * Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info.m_ticketPrice);
-                        //    uilabel.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
-                        //    uibutton.tooltip = "";
-                        //    break;
+                        case MapMode.EARNINGS:
+                            UVMTransportLineEconomyManager.instance.GetStopIncome(stop, out long income);
+                            uibutton.color = Color.Lerp(Color.white, Color.green, income / 100f * Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info.m_ticketPrice);
+                            uilabel.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
+                            uibutton.tooltip = "";
+                            break;
                     }
                     stop = TransportLine.GetNextStop(stop);
                 }
@@ -589,7 +607,7 @@ namespace Klyte.TransportLinesManager.UI
             NONE,
             WAITING,
             CONNECTIONS,
-            //EARNINGS
+            EARNINGS
         }
     }
 }

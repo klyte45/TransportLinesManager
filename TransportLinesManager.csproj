@@ -148,12 +148,15 @@
     <Compile Include="Extensors\BuildingAI\TLMDepotAI.cs" />
     <Compile Include="Extensors\NetNode\TLMStopsExtensions.cs" />
     <Compile Include="Extensors\TransportLine\TLMTransportLineExtension.cs" />
+    <Compile Include="Extensors\UVMTransportLineEconomyManager.cs" />
     <Compile Include="Interfaces\BasicExtensionInterface.cs" />
     <Compile Include="Interfaces\ExtensionInterfaces.cs" />
     <Compile Include="Interfaces\BudgetControlParentInterface.cs" />
     <Compile Include="Interfaces\LateralListSelectParentInterface.cs" />
     <Compile Include="Interfaces\LinearMapParentInterface.cs" />
     <Compile Include="LegacyWarehouse\ConfigWarehouseBaseLegacy.cs" />
+    <Compile Include="Extensors\UVMTransportLineEconomyProperties.cs" />
+    <Compile Include="Overrides\UVMTransportLineEconomyRedirector.cs" />
     <Compile Include="TextureAtlas\TextureAtlasDescriptor.cs" />
     <Compile Include="TextureAtlas\UVMTextureAtlas.cs" />
     <Compile Include="UI\TLMLineCreationToolboxHooks.cs" />
