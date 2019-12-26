@@ -435,12 +435,20 @@ namespace Klyte.TransportLinesManager.UI
                     case MapMode.WAITING:
                     case MapMode.NONE:
                     case MapMode.CONNECTIONS:
+                        labelVehicle.text = "";
+                        labelVehicle.suffix = "";
                         break;
-                    case MapMode.EARNINGS:
+                    case MapMode.EARNINGS_ALL_TIME:
                         UVMTransportLineEconomyManager.instance.GetIncomeAndExpensesForVehicle(vehicleId, out long income, out long expense);
-                        m_vehicleButtons.items[idx].color = Color.Lerp(Color.white, income > expense ? Color.green : Color.red, Mathf.Max(income, expense) / 100f * Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info.m_ticketPrice);
-                        labelVehicle.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
-                        labelVehicle.suffix = $"\n<color #ff0000>{(expense / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
+                        PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income, expense);
+                        break;
+                    case MapMode.EARNINGS_LAST_WEEK:
+                        UVMTransportLineEconomyManager.instance.GetLastWeekIncomeAndExpensesForVehicles(vehicleId, out long income2, out long expense2);
+                        PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income2, expense2);
+                        break;
+                    case MapMode.EARNINGS_CURRENT_WEEK:
+                        UVMTransportLineEconomyManager.instance.GetCurrentIncomeAndExpensesForVehicles(vehicleId, out long income3, out long expense3);
+                        PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income3, expense3);
                         break;
                 }
 
@@ -457,6 +465,12 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
+        private void PrintIncomeExpenseVehicle(ushort lineID, int idx, UILabel labelVehicle, long income, long expense)
+        {
+            m_vehicleButtons.items[idx].color = Color.Lerp(Color.white, income > expense ? Color.green : Color.red, Mathf.Max(income, expense) / 100f * Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info.m_ticketPrice);
+            labelVehicle.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
+            labelVehicle.suffix = $"\n<color #ff0000>{(expense / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
+        }
 
 
 
@@ -541,11 +555,17 @@ namespace Klyte.TransportLinesManager.UI
                             uilabel.text = "";
                             uibutton.tooltip = "";
                             break;
-                        case MapMode.EARNINGS:
+                        case MapMode.EARNINGS_ALL_TIME:
                             UVMTransportLineEconomyManager.instance.GetStopIncome(stop, out long income);
-                            uibutton.color = Color.Lerp(Color.white, Color.green, income / 100f * Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info.m_ticketPrice);
-                            uilabel.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
-                            uibutton.tooltip = "";
+                            PrintIncomeStop(lineID, uibutton, uilabel, income);
+                            break;
+                        case MapMode.EARNINGS_CURRENT_WEEK:
+                            UVMTransportLineEconomyManager.instance.GetCurrentStopIncome(stop, out long income2);
+                            PrintIncomeStop(lineID, uibutton, uilabel, income2);
+                            break;
+                        case MapMode.EARNINGS_LAST_WEEK:
+                            UVMTransportLineEconomyManager.instance.GetLastWeekStopIncome(stop, out long income3);
+                            PrintIncomeStop(lineID, uibutton, uilabel, income3);
                             break;
                     }
                     stop = TransportLine.GetNextStop(stop);
@@ -553,6 +573,12 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
+        private static void PrintIncomeStop(ushort lineID, UIPanel uibutton, UILabel uilabel, long income)
+        {
+            uibutton.color = Color.Lerp(Color.white, Color.green, income / (1000f * Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info.m_ticketPrice));
+            uilabel.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
+            uibutton.tooltip = "";
+        }
 
 
 
@@ -607,7 +633,9 @@ namespace Klyte.TransportLinesManager.UI
             NONE,
             WAITING,
             CONNECTIONS,
-            EARNINGS
+            EARNINGS_CURRENT_WEEK,
+            EARNINGS_LAST_WEEK,
+            EARNINGS_ALL_TIME,
         }
     }
 }

@@ -5,6 +5,7 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.OptionsMenu;
 using Klyte.TransportLinesManager.UI;
@@ -37,6 +38,7 @@ namespace Klyte.TransportLinesManager
                 m_priorityRedirector.AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("Start", RedirectorUtils.allFlags), null, null, typeof(UVMPublicTransportWorldInfoPanel).GetMethod("TranspileStart", RedirectorUtils.allFlags));
             }
         }
+
 
         public override void TopSettingsUI(UIHelperExtension helper) => TLMConfigOptions.instance.GenerateOptionsMenu(helper);
 
@@ -93,7 +95,11 @@ namespace Klyte.TransportLinesManager
         private readonly SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
         private readonly SavedBool m_savedOverrideDefaultLineInfoPanel = new SavedBool("TLMOverrideDefaultLineInfoPanel", Settings.gameSettingsFile, true, true);
         private readonly SavedBool m_showDistanceInLinearMap = new SavedBool("TLMshowDistanceInLinearMap", Settings.gameSettingsFile, true, true);
+        protected override void OnLevelLoadingInternal()
+        {
 
+            SimulationManager.RegisterManager(UVMTransportLineEconomyManager.instance);
+        }
         public static bool showNearLinesPlop
         {
             get => Instance.m_savedShowNearLinesInCityServicesWorldInfoPanel.value;

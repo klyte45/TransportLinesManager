@@ -118,11 +118,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
                 string vehTooltip = string.Format("{0} {1}", m_lineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
                 m_lineVehicles.tooltip = vehTooltip;
-                TLMLineUtils.GetConfigForLine(m_lineID, out TransportLineConfiguration lineConfig, out PrefixConfiguration premadeConfig);
                 m_lineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].CountStops(m_lineID).ToString("N0");
                 m_lineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].CountVehicles(m_lineID).ToString("N0");
 
-                UVMTransportLineEconomyManager.instance.GetIncomeAndExpensesForLine(LineID, out long income, out long expense);
+                UVMTransportLineEconomyManager.instance.GetLastWeekIncomeAndExpensesForLine(LineID, out long income, out long expense);
                 long balance = (income - expense);
                 m_lineBalance.text = (balance / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
                 m_lineBalance.textColor = balance >= 0 ? ColorExtensions.FromRGB("00c000") : ColorExtensions.FromRGB("c00000");

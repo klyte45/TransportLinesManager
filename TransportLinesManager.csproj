@@ -193,6 +193,8 @@
     <Compile Include="UI\TLMLineCreationToolbox.cs" />
     <Compile Include="Utils\TLMLineUtils.cs" />
     <Compile Include="Utils\TLMUtils.cs" />
+    <Compile Include="WorldInfoPanel\Components\TLMFinanceReportLine.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\TLMLineFinanceReportTab.cs" />
     <Compile Include="WorldInfoPanel\TLMDepotWorldInfoPanelPrefixListsParent.cs" />
     <Compile Include="WorldInfoPanel\Components\UVMBudgetEditorLine.cs" />
     <Compile Include="WorldInfoPanel\Components\UVMBudgetTimeChart.cs" />
