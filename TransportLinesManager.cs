@@ -53,7 +53,6 @@ namespace Klyte.TransportLinesManager
             {
                 TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
                 TLMConfigOptions.instance.ReloadData();
-                ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_EXPORTED_TO_TEMPLATE"), 1), (x, y) => { });
 
             });
             if (IsCityLoaded)
@@ -61,12 +60,17 @@ namespace Klyte.TransportLinesManager
                 group9.AddButton(Locale.Get("K45_TLM_EXPORT_CITY_CONFIG"), () =>
                 {
                     string path = TLMConfigOptions.instance.currentLoadedCityConfig.Export();
-                    ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_EXPORTED_TO_TEMPLATE"), path), (x, y) => { });
+                    ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_EXPORTED_TO_TEMPLATE"), path), (x, y) =>
+                    {
+                        if (y == 1)
+                        {
+                            ColossalFramework.Utils.OpenInFileBrowser(path);
+                        }
+                    });
                 });
                 group9.AddButton(Locale.Get("K45_TLM_IMPORT_CITY_CONFIG"), () =>
                 {
-                    string path = TLMConfigOptions.instance.currentLoadedCityConfig.Export();
-                    ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_WILL_BE_IMPORTED_TEMPLATE"), path), (x, y) =>
+                    ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_WILL_BE_IMPORTED_TEMPLATE"), TLMConfigOptions.instance.currentLoadedCityConfig.ThisPath), (x, y) =>
                     {
                         if (y == 1)
                         {

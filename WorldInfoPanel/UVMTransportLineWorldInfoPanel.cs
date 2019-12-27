@@ -78,6 +78,7 @@ namespace Klyte.TransportLinesManager.UI
 
             m_childControls.Add(TabCommons.CreateTab<UVMStatisticsWIPTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_STATS_TAB", "Default", false));
             m_childControls.Add(TabCommons.CreateTab<TLMLineFinanceReportTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency2", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));
+            m_childControls.Add(TabCommons.CreateTab<TLMAssetSelectorTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency", "K45_TLM_WIP_ASSET_SELECTION_TAB", "FinanceReport", false));
             m_childControls.Add(TabCommons.CreateTab<UVMBudgetWIPTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency2", "ECONOMY_BUDGET", "Budget", false));
             m_childControls.Add(TabCommons.CreateTab<UVMBudgetConfigTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency", "K45_TLM_WIP_BUDGET_CONFIGURATION_TAB", "Budget", false));
             m_childControls.Add(__instance.Find<UIPanel>("StopsPanel").parent.gameObject.AddComponent<UVMTransportLineLinearMap>());

@@ -41,10 +41,7 @@ namespace Klyte.TransportLinesManager.Interfaces
 
     public interface IAssetSelectorStorage
     {
-        SimpleXmlList<string> AssetList
-        {
-            get;
-        }
+        SimpleXmlList<string> AssetList { get; }
     }
 
     public interface IColorSelectableExtension : ISafeGettable<IColorSelectableStorage>
