@@ -1,12 +1,14 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
+using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
-    public class UVMTransportLineEconomyManager : SimulationManagerBase<UVMTransportLineEconomyManager, UVMTransportLineEconomyProperties>, ISimulationManager
+    public class TLMTransportLineStatusesManager : SimulationManagerBase<TLMTransportLineStatusesManager, TLMTransportLineStatusesProperties>, IDataExtensor, ISimulationManager
     {
         public const int BYTES_PER_CYCLE = 12;
         public const int FRAMES_PER_CYCLE = 1 << BYTES_PER_CYCLE;
@@ -42,7 +44,7 @@ namespace Klyte.TransportLinesManager.Extensors
             }
         }
 
-        public override void InitializeProperties(UVMTransportLineEconomyProperties properties) => base.InitializeProperties(properties);
+        public override void InitializeProperties(TLMTransportLineStatusesProperties properties) => base.InitializeProperties(properties);
 
         public void AddToLine(ushort lineId, long income, long expense)
         {
@@ -319,66 +321,93 @@ namespace Klyte.TransportLinesManager.Extensors
             return 99999999;
         }
 
+        public string SaveId => "K45_TLM_TLMTransportLineStatusesManager";
+
+        public const long CURRENT_VERSION = 1;
 
         public class Data : IDataContainer
         {
-            public const int CURRENT_VERSION = 1;
             public void Serialize(DataSerializer s)
             {
-                Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.BeginSerialize(s, "UVMTransportLineEconomyManager");
-                UVMTransportLineEconomyManager instance = Singleton<UVMTransportLineEconomyManager>.instance;
-
-                var longArraysSerial = EncodedArray.Long.BeginWrite(s);
-                foreach (Enum e in m_loadOrder)
-                {
-                    instance.DoWithArray(e, (ref long[][] arrayRef) =>
-                     {
-                         int idx = instance.GetIdxFor(e);
-                         for (int i = 0; i < arrayRef.Length; i++)
-                         {
-                             longArraysSerial.Write(arrayRef[i][idx]);
-                         }
-                     });
-
-                }
-                longArraysSerial.EndWrite();
-                s.version = CURRENT_VERSION;
-                Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndSerialize(s, "UVMTransportLineEconomyManager");
             }
-
             public void Deserialize(DataSerializer s)
             {
-                Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.BeginDeserialize(s, "UVMTransportLineEconomyManager");
-                UVMTransportLineEconomyManager instance = Singleton<UVMTransportLineEconomyManager>.instance;
-                var long2 = EncodedArray.Long.BeginRead(s);
-                //LogUtils.DoErrorLog($"Deserialize  long2.Read(): { long2.Read()}");
-                int totalCount = 0;
-                foreach (Enum e in m_loadOrder)
-                {
-                    if (s.version >= GetMinVersion(e))
-                    {
-
-                        instance.DoWithArray(e, (ref long[][] arrayRef) =>
-                        {
-                            int idx = instance.GetIdxFor(e);
-
-                            for (int i = 0; i < arrayRef.Length; i++)
-                            {
-                                arrayRef[i][idx] = long2.Read();
-                                totalCount++;
-                            }
-                        });
-                    }
-                }
-                long2.EndRead();
-
-                Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, "UVMTransportLineEconomyManager");
             }
             public void AfterDeserialize(DataSerializer s)
             {
-                Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.BeginAfterDeserialize(s, "UVMTransportLineEconomyManager");
-                Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndAfterDeserialize(s, "UVMTransportLineEconomyManager");
             }
         }
+
+        public IDataExtensor Deserialize(Type type, byte[] data)
+        {
+            using var s = new MemoryStream(data);
+            long version = ReadLong64(s);
+            foreach (Enum e in m_loadOrder)
+            {
+                if (version >= GetMinVersion(e))
+                {
+
+                    instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                    {
+                        int idx = instance.GetIdxFor(e);
+
+                        for (int i = 0; i < arrayRef.Length; i++)
+                        {
+                            arrayRef[i][idx] = ReadLong64(s);
+                        }
+                    });
+                }
+            }
+            return instance;
+        }
+
+        public byte[] Serialize()
+        {
+            using var s = new MemoryStream();
+
+            WriteLong(s, CURRENT_VERSION);
+
+            TLMTransportLineStatusesManager instance = Singleton<TLMTransportLineStatusesManager>.instance;
+
+            foreach (Enum e in m_loadOrder)
+            {
+                instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                {
+                    int idx = instance.GetIdxFor(e);
+                    for (int i = 0; i < arrayRef.Length; i++)
+                    {
+
+                        WriteLong(s, arrayRef[i][idx]);
+                    }
+                });
+
+            }
+            return s.ToArray();
+        }
+
+        private void WriteLong(Stream s, long value)
+        {
+            s.WriteByte((byte) ((value >> 56) & 255L));
+            s.WriteByte((byte) ((value >> 48) & 255L));
+            s.WriteByte((byte) ((value >> 40) & 255L));
+            s.WriteByte((byte) ((value >> 32) & 255L));
+            s.WriteByte((byte) ((value >> 24) & 255L));
+            s.WriteByte((byte) ((value >> 16) & 255L));
+            s.WriteByte((byte) ((value >> 8) & 255L));
+            s.WriteByte((byte) (value & 255L));
+        }
+
+        private long ReadLong64(Stream s)
+        {
+            long num = (long) (s.ReadByte() & 255) << 56;
+            num |= (long) (s.ReadByte() & 255) << 48;
+            num |= (long) (s.ReadByte() & 255) << 40;
+            num |= (long) (s.ReadByte() & 255) << 32;
+            num |= (long) (s.ReadByte() & 255) << 24;
+            num |= (long) (s.ReadByte() & 255) << 16;
+            num |= (long) (s.ReadByte() & 255) << 8;
+            return num | (s.ReadByte() & 255 & 255L);
+        }
+
     }
 }

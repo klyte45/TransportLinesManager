@@ -13,21 +13,21 @@ using static EconomyManager;
 namespace Klyte.TransportLinesManager.Overrides
 {
 
-    public class UVMTransportLineEconomyRedirector : Redirector, IRedirectable
+    public class TLMTransportLineStatusesRedirector : Redirector, IRedirectable
     {
         public Redirector RedirectorInstance => this;
 
         public void Awake()
         {
-            AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", RedirectorUtils.allFlags), null, null, typeof(UVMTransportLineEconomyRedirector).GetMethod("TranspileSimulationStepLine", RedirectorUtils.allFlags));
-            AddRedirect(typeof(HumanAI).GetMethod("EnterVehicle", RedirectorUtils.allFlags), null, null, typeof(UVMTransportLineEconomyRedirector).GetMethod("TranspileHumanEnterVehicle", RedirectorUtils.allFlags));
+            AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", RedirectorUtils.allFlags), null, null, typeof(TLMTransportLineStatusesRedirector).GetMethod("TranspileSimulationStepLine", RedirectorUtils.allFlags));
+            AddRedirect(typeof(HumanAI).GetMethod("EnterVehicle", RedirectorUtils.allFlags), null, null, typeof(TLMTransportLineStatusesRedirector).GetMethod("TranspileHumanEnterVehicle", RedirectorUtils.allFlags));
         }
 
 
         private static readonly MethodInfo m_economyManagerCallFetch = typeof(EconomyManager).GetMethod("FetchResource", RedirectorUtils.allFlags, null, new Type[] { typeof(Resource), typeof(int), typeof(ItemClass) }, null);
         private static readonly MethodInfo m_economyManagerCallAdd = typeof(EconomyManager).GetMethod("AddResource", RedirectorUtils.allFlags, null, new Type[] { typeof(Resource), typeof(int), typeof(ItemClass) }, null);
-        private static readonly MethodInfo m_doTransportLineEconomyManagement = typeof(UVMTransportLineEconomyRedirector).GetMethod("DoTransportLineEconomyManagement", RedirectorUtils.allFlags);
-        private static readonly MethodInfo m_doHumanAiEconomyManagement = typeof(UVMTransportLineEconomyRedirector).GetMethod("DoHumanAiEconomyManagement", RedirectorUtils.allFlags);
+        private static readonly MethodInfo m_doTransportLineEconomyManagement = typeof(TLMTransportLineStatusesRedirector).GetMethod("DoTransportLineEconomyManagement", RedirectorUtils.allFlags);
+        private static readonly MethodInfo m_doHumanAiEconomyManagement = typeof(TLMTransportLineStatusesRedirector).GetMethod("DoHumanAiEconomyManagement", RedirectorUtils.allFlags);
         public static IEnumerable<CodeInstruction> TranspileSimulationStepLine(IEnumerable<CodeInstruction> instructions)
         {
             var inst = new List<CodeInstruction>(instructions);
@@ -93,13 +93,13 @@ namespace Klyte.TransportLinesManager.Overrides
             foreach (KeyValuePair<ushort, int> entry in capacities)
             {
                 int cost = tl.Info.m_maintenanceCostPerVehicle * entry.Value / tsd.GetDefaultPassengerCapacity();
-                UVMTransportLineEconomyManager.instance.AddToVehicle(entry.Key, 0, cost);
+                TLMTransportLineStatusesManager.instance.AddToVehicle(entry.Key, 0, cost);
                 amount += cost;
             }
 
 
             LogUtils.DoLog($"DoTransportLineEconomyManagement : line {lineId} ({tsd} {tl.m_lineNumber}) ;amount = {amount}");
-            UVMTransportLineEconomyManager.instance.AddToLine(lineId, 0, amount);
+            TLMTransportLineStatusesManager.instance.AddToLine(lineId, 0, amount);
             EconomyManager.instance.FetchResource(Resource.Maintenance, amount, tl.Info.m_class);
         }
 
@@ -111,9 +111,9 @@ namespace Klyte.TransportLinesManager.Overrides
             if (lineId != 0)
             {
                 ushort stopId = TransportLine.GetPrevStop(VehicleManager.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding);
-                UVMTransportLineEconomyManager.instance.AddToLine(lineId, amount, 0);
-                UVMTransportLineEconomyManager.instance.AddToVehicle(vehicleId, amount, 0);
-                UVMTransportLineEconomyManager.instance.AddToStop(stopId, amount);
+                TLMTransportLineStatusesManager.instance.AddToLine(lineId, amount, 0);
+                TLMTransportLineStatusesManager.instance.AddToVehicle(vehicleId, amount, 0);
+                TLMTransportLineStatusesManager.instance.AddToStop(stopId, amount);
                 LogUtils.DoLog($"DoHumanAiEconomyManagement : line {lineId};amount = {amount}");
             }
 

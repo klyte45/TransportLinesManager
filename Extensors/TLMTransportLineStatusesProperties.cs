@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
-    public class UVMTransportLineEconomyProperties : MonoBehaviour
+    public class TLMTransportLineStatusesProperties : MonoBehaviour
     {
         // Token: 0x06002969 RID: 10601 RVA: 0x001B94C6 File Offset: 0x001B78C6
         private void Awake()
@@ -19,7 +19,7 @@ namespace Klyte.TransportLinesManager.Extensors
         private IEnumerator InitializeProperties()
         {
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.BeginLoading("TransportLineEconomyProperties");
-            Singleton<UVMTransportLineEconomyManager>.instance.InitializeProperties(this);
+            Singleton<TLMTransportLineStatusesManager>.instance.InitializeProperties(this);
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.EndLoading();
             yield return 0;
             yield break;
@@ -31,7 +31,7 @@ namespace Klyte.TransportLinesManager.Extensors
             if (Application.isPlaying)
             {
                 Singleton<LoadingManager>.instance.m_loadingProfilerMain.BeginLoading("TransportLineEconomyProperties");
-                Singleton<UVMTransportLineEconomyManager>.instance.DestroyProperties(this);
+                Singleton<TLMTransportLineStatusesManager>.instance.DestroyProperties(this);
                 Singleton<LoadingManager>.instance.m_loadingProfilerMain.EndLoading();
             }
         }

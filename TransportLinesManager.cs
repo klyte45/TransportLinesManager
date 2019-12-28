@@ -102,7 +102,7 @@ namespace Klyte.TransportLinesManager
         protected override void OnLevelLoadingInternal()
         {
 
-            SimulationManager.RegisterManager(UVMTransportLineEconomyManager.instance);
+            SimulationManager.RegisterManager(TLMTransportLineStatusesManager.instance);
         }
         public static bool showNearLinesPlop
         {

@@ -66,7 +66,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (m_bg.isVisible)
             {
-                System.Collections.Generic.List<UVMTransportLineEconomyManager.IncomeExpense> report = UVMTransportLineEconomyManager.instance.GetLineReport(GetLineID());
+                System.Collections.Generic.List<TLMTransportLineStatusesManager.IncomeExpense> report = TLMTransportLineStatusesManager.instance.GetLineReport(GetLineID());
                 for (int i = 0; i < m_reportLines.Length; i++)
                 {
                     m_reportLines[i].SetData(report[16 - i], showDayTime);

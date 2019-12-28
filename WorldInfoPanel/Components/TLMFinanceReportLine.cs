@@ -3,7 +3,7 @@ using ColossalFramework.UI;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using UnityEngine;
-using static Klyte.TransportLinesManager.Extensors.UVMTransportLineEconomyManager;
+using static Klyte.TransportLinesManager.Extensors.TLMTransportLineStatusesManager;
 
 namespace Klyte.TransportLinesManager.UI
 {
