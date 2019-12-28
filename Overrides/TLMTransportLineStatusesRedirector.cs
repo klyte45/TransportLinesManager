@@ -61,7 +61,10 @@ namespace Klyte.TransportLinesManager.Overrides
                 if (inst[i].opcode == OpCodes.Callvirt && inst[i].operand == m_economyManagerCallAdd)
                 {
                     inst[i] = new CodeInstruction(OpCodes.Ldloc_2);
-                    inst.Insert(i + 1, new CodeInstruction(OpCodes.Call, m_doHumanAiEconomyManagement));
+                    inst.InsertRange(i + 1, new List<CodeInstruction>(){
+                        new CodeInstruction(OpCodes.Ldarg_1),
+                        new CodeInstruction(OpCodes.Call, m_doHumanAiEconomyManagement)
+                    });
                     break;
                 }
             }
@@ -90,31 +93,33 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             int amount = 0;
             var tsd = TransportSystemDefinition.GetDefinitionForLine(ref tl);
+            Citizen refNull = default;
             foreach (KeyValuePair<ushort, int> entry in capacities)
             {
                 int cost = tl.Info.m_maintenanceCostPerVehicle * entry.Value / tsd.GetDefaultPassengerCapacity();
-                TLMTransportLineStatusesManager.instance.AddToVehicle(entry.Key, 0, cost);
+                TLMTransportLineStatusesManager.instance.AddToVehicle(entry.Key, 0, cost, ref refNull);
                 amount += cost;
             }
 
 
             LogUtils.DoLog($"DoTransportLineEconomyManagement : line {lineId} ({tsd} {tl.m_lineNumber}) ;amount = {amount}");
-            TLMTransportLineStatusesManager.instance.AddToLine(lineId, 0, amount);
+            TLMTransportLineStatusesManager.instance.AddToLine(lineId, 0, amount, ref refNull);
             EconomyManager.instance.FetchResource(Resource.Maintenance, amount, tl.Info.m_class);
         }
 
-        public static int DoHumanAiEconomyManagement(EconomyManager instance, Resource resource, int amount, ItemClass itemClass, ushort vehicleId)
+        public static int DoHumanAiEconomyManagement(EconomyManager instance, Resource resource, int amount, ItemClass itemClass, ushort vehicleId, ushort citizenId)
         {
             LogUtils.DoLog($"DoHumanAiEconomyManagement : vehicleId {vehicleId}");
             ushort lineId = VehicleManager.instance.m_vehicles.m_buffer[vehicleId].m_transportLine;
+            ref Citizen citizen = ref CitizenManager.instance.m_citizens.m_buffer[citizenId];
             instance.AddResource(resource, amount, itemClass);
             if (lineId != 0)
             {
                 ushort stopId = TransportLine.GetPrevStop(VehicleManager.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding);
-                TLMTransportLineStatusesManager.instance.AddToLine(lineId, amount, 0);
-                TLMTransportLineStatusesManager.instance.AddToVehicle(vehicleId, amount, 0);
-                TLMTransportLineStatusesManager.instance.AddToStop(stopId, amount);
-                LogUtils.DoLog($"DoHumanAiEconomyManagement : line {lineId};amount = {amount}");
+                TLMTransportLineStatusesManager.instance.AddToLine(lineId, amount, 0, ref citizen);
+                TLMTransportLineStatusesManager.instance.AddToVehicle(vehicleId, amount, 0,ref citizen);
+                TLMTransportLineStatusesManager.instance.AddToStop(stopId, amount,ref citizen);
+                LogUtils.DoLog($"DoHumanAiEconomyManagement : line {lineId};amount = {amount}; citizen = {citizenId}");
             }
 
             return 0;

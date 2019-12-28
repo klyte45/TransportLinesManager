@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
-    public class TLMTransportLineStatusesManager : SimulationManagerBase<TLMTransportLineStatusesManager, TLMTransportLineStatusesProperties>, IDataExtensor, ISimulationManager
+    public class TLMTransportLineStatusesManager : SimulationManagerBase<TLMTransportLineStatusesManager, TLMTransportLineStatusesProperties>, ISimulationManager
     {
         public const int BYTES_PER_CYCLE = 12;
         public const int FRAMES_PER_CYCLE = 1 << BYTES_PER_CYCLE;
@@ -46,19 +46,33 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public override void InitializeProperties(TLMTransportLineStatusesProperties properties) => base.InitializeProperties(properties);
 
-        public void AddToLine(ushort lineId, long income, long expense)
-        {
-            m_linesData[(lineId * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][(int) LineData.INCOME] += income;
-            m_linesData[(lineId * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][(int) LineData.EXPENSE] += expense;
-        }
+        public void AddToLine(ushort lineId, long income, long expense, ref Citizen citizenData) => IncrementInArray(lineId, ref m_linesData, (int) LineData.INCOME, (int) LineData.EXPENSE, (int) LineData.TOTAL_PASSENGERS, (int) LineData.TOURIST_PASSENGERS, (int) LineData.STUDENT_PASSENGERS, income, expense, ref citizenData);
 
-        public void AddToVehicle(ushort vehicleId, long income, long expense)
-        {
-            m_vehiclesData[(vehicleId * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][(int) VehicleData.INCOME] += income;
-            m_vehiclesData[(vehicleId * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][(int) VehicleData.EXPENSE] += expense;
-        }
-        public void AddToStop(ushort stopId, long income) => m_stopData[(stopId * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][(int) StopData.INCOME] += income;
+        public void AddToVehicle(ushort vehicleId, long income, long expense, ref Citizen citizenData) => IncrementInArray(vehicleId, ref m_vehiclesData, (int) VehicleData.INCOME, (int) VehicleData.EXPENSE, (int) VehicleData.TOTAL_PASSENGERS, (int) VehicleData.TOURIST_PASSENGERS, (int) VehicleData.STUDENT_PASSENGERS, income, expense, ref citizenData);
+        public void AddToStop(ushort stopId, long income, ref Citizen citizenData) => IncrementInArray(stopId, ref m_stopData, (int) StopData.INCOME, null, (int) StopData.TOTAL_PASSENGERS, (int) StopData.TOURIST_PASSENGERS, (int) StopData.STUDENT_PASSENGERS, income, 0, ref citizenData);
 
+
+        private void IncrementInArray(ushort id, ref long[][] arrayRef, int incomeIdx, int? expenseIdx, int totalPassIdx, int tourPassIdx, int studPassIdx, long income, long expense, ref Citizen citizenData)
+        {
+            arrayRef[(id * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][incomeIdx] += income;
+            if (expenseIdx is int idx)
+            {
+                arrayRef[(id * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][idx] += expense;
+            }
+            if (!citizenData.Equals(default))
+            {
+                arrayRef[(id * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][totalPassIdx]++;
+                if ((citizenData.m_flags & Citizen.Flags.Tourist) != 0)
+                {
+                    arrayRef[(id * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][tourPassIdx]++;
+                }
+
+                if ((citizenData.m_flags & Citizen.Flags.Student) != 0)
+                {
+                    arrayRef[(id * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][studPassIdx]++;
+                }
+            }
+        }
 
         public void GetIncomeAndExpensesForLine(ushort lineId, out long income, out long expenses) => GetGenericIncomeExpense(lineId, out income, out expenses, ref m_linesData, (int) LineData.INCOME, (int) LineData.EXPENSE);
 
@@ -232,27 +246,29 @@ namespace Klyte.TransportLinesManager.Extensors
 
         private enum LineData
         {
-            EXPENSE = 0,
-            INCOME = 1
+            EXPENSE,
+            INCOME,
+            TOTAL_PASSENGERS,
+            TOURIST_PASSENGERS,
+            STUDENT_PASSENGERS
         }
         private enum VehicleData
         {
-            EXPENSE = 0,
-            INCOME = 1
+            EXPENSE,
+            INCOME,
+            TOTAL_PASSENGERS,
+            TOURIST_PASSENGERS,
+            STUDENT_PASSENGERS
         }
         private enum StopData
         {
-            INCOME = 0
+            INCOME,
+            TOTAL_PASSENGERS,
+            TOURIST_PASSENGERS,
+            STUDENT_PASSENGERS
         }
 
-        private static readonly Enum[] m_loadOrder = new Enum[]
-        {
-            LineData.EXPENSE,
-            LineData.INCOME,
-            StopData.INCOME,
-            VehicleData.EXPENSE,
-            VehicleData.INCOME,
-        };
+
 
         private void DoWithArray(Enum e, DoWithArrayRef action)
         {
@@ -296,18 +312,24 @@ namespace Klyte.TransportLinesManager.Extensors
                     switch (l)
                     {
                         case LineData.EXPENSE:
-                            return 0;
                         case LineData.INCOME:
                             return 0;
+                        case LineData.TOTAL_PASSENGERS:
+                        case LineData.TOURIST_PASSENGERS:
+                        case LineData.STUDENT_PASSENGERS:
+                            return 1;
                     }
                     break;
                 case VehicleData v:
                     switch (v)
                     {
                         case VehicleData.EXPENSE:
-                            return 0;
                         case VehicleData.INCOME:
                             return 0;
+                        case VehicleData.TOTAL_PASSENGERS:
+                        case VehicleData.TOURIST_PASSENGERS:
+                        case VehicleData.STUDENT_PASSENGERS:
+                            return 1;
                     }
                     break;
                 case StopData s:
@@ -315,13 +337,16 @@ namespace Klyte.TransportLinesManager.Extensors
                     {
                         case StopData.INCOME:
                             return 0;
+                        case StopData.TOTAL_PASSENGERS:
+                        case StopData.TOURIST_PASSENGERS:
+                        case StopData.STUDENT_PASSENGERS:
+                            return 1;
                     }
                     break;
             }
             return 99999999;
         }
 
-        public string SaveId => "K45_TLM_TLMTransportLineStatusesManager";
 
         public const long CURRENT_VERSION = 1;
 
@@ -338,76 +363,145 @@ namespace Klyte.TransportLinesManager.Extensors
             }
         }
 
-        public IDataExtensor Deserialize(Type type, byte[] data)
+        public abstract class TransportLineStorageBasicData : IDataExtensor
         {
-            using var s = new MemoryStream(data);
-            long version = ReadLong64(s);
-            foreach (Enum e in m_loadOrder)
-            {
-                if (version >= GetMinVersion(e))
-                {
+            public abstract string SaveId { get; }
 
+            protected abstract Enum[] LoadOrder { get; }
+
+            public IDataExtensor Deserialize(Type type, byte[] data)
+            {
+                using var s = new MemoryStream(data);
+                long version = ReadLong(s);
+                foreach (Enum e in LoadOrder)
+                {
+                    if (version >= GetMinVersion(e))
+                    {
+
+                        instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                        {
+                            int idx = instance.GetIdxFor(e);
+
+                            for (int i = 0; i < arrayRef.Length; i++)
+                            {
+                                arrayRef[i][idx] = DeserializeFunction(s);
+                            }
+                        });
+                    }
+                }
+                return this;
+            }
+
+            public byte[] Serialize()
+            {
+                using var s = new MemoryStream();
+
+                WriteLong(s, CURRENT_VERSION);
+
+                TLMTransportLineStatusesManager instance = Singleton<TLMTransportLineStatusesManager>.instance;
+
+                foreach (Enum e in LoadOrder)
+                {
                     instance.DoWithArray(e, (ref long[][] arrayRef) =>
                     {
                         int idx = instance.GetIdxFor(e);
-
                         for (int i = 0; i < arrayRef.Length; i++)
                         {
-                            arrayRef[i][idx] = ReadLong64(s);
+                            SerializeFunction(s, arrayRef[i][idx]);
                         }
+                        LogUtils.DoErrorLog($"size: {s.Length} ({e.GetType()} {e})");
                     });
+
                 }
+                return s.ToArray();
             }
-            return instance;
-        }
-
-        public byte[] Serialize()
-        {
-            using var s = new MemoryStream();
-
-            WriteLong(s, CURRENT_VERSION);
-
-            TLMTransportLineStatusesManager instance = Singleton<TLMTransportLineStatusesManager>.instance;
-
-            foreach (Enum e in m_loadOrder)
+            protected static void WriteLong(Stream s, long value)
             {
-                instance.DoWithArray(e, (ref long[][] arrayRef) =>
-                {
-                    int idx = instance.GetIdxFor(e);
-                    for (int i = 0; i < arrayRef.Length; i++)
-                    {
-
-                        WriteLong(s, arrayRef[i][idx]);
-                    }
-                });
-
+                s.WriteByte((byte) ((value >> 56) & 255L));
+                s.WriteByte((byte) ((value >> 48) & 255L));
+                s.WriteByte((byte) ((value >> 40) & 255L));
+                s.WriteByte((byte) ((value >> 32) & 255L));
+                s.WriteByte((byte) ((value >> 24) & 255L));
+                s.WriteByte((byte) ((value >> 16) & 255L));
+                s.WriteByte((byte) ((value >> 8) & 255L));
+                s.WriteByte((byte) (value & 255L));
             }
-            return s.ToArray();
-        }
 
-        private void WriteLong(Stream s, long value)
+            protected static long ReadLong(Stream s)
+            {
+                long num = (long) (s.ReadByte() & 255) << 56;
+                num |= (long) (s.ReadByte() & 255) << 48;
+                num |= (long) (s.ReadByte() & 255) << 40;
+                num |= (long) (s.ReadByte() & 255) << 32;
+                num |= (long) (s.ReadByte() & 255) << 24;
+                num |= (long) (s.ReadByte() & 255) << 16;
+                num |= (long) (s.ReadByte() & 255) << 8;
+                return num | (s.ReadByte() & 255 & 255L);
+            }
+            protected static void WriteInt32(Stream s, long value)
+            {
+                s.WriteByte((byte) ((value >> 24) & 255L));
+                s.WriteByte((byte) ((value >> 16) & 255L));
+                s.WriteByte((byte) ((value >> 8) & 255L));
+                s.WriteByte((byte) (value & 255L));
+            }
+
+            protected static long ReadInt32(Stream s)
+            {
+                long num = (long) (s.ReadByte() & 255) << 24;
+                num |= (long) (s.ReadByte() & 255) << 16;
+                num |= (long) (s.ReadByte() & 255) << 8;
+                return num | (s.ReadByte() & 255 & 255L);
+            }
+            protected static void WriteInt24(Stream s, long value)
+            {
+                s.WriteByte((byte) ((value >> 16) & 255L));
+                s.WriteByte((byte) ((value >> 8) & 255L));
+                s.WriteByte((byte) (value & 255L));
+            }
+
+            protected static long ReadInt24(Stream s)
+            {
+                long num = (long) (s.ReadByte() & 255) << 16;
+                num |= (long) (s.ReadByte() & 255) << 8;
+                return num | (s.ReadByte() & 255 & 255L);
+            }
+
+            protected virtual Action<Stream, long> SerializeFunction { get; } = WriteLong;
+            protected virtual Func<Stream, long> DeserializeFunction { get; } = ReadLong;
+
+        }
+        public class TLMTransportLineStorageEconomyData : TransportLineStorageBasicData
         {
-            s.WriteByte((byte) ((value >> 56) & 255L));
-            s.WriteByte((byte) ((value >> 48) & 255L));
-            s.WriteByte((byte) ((value >> 40) & 255L));
-            s.WriteByte((byte) ((value >> 32) & 255L));
-            s.WriteByte((byte) ((value >> 24) & 255L));
-            s.WriteByte((byte) ((value >> 16) & 255L));
-            s.WriteByte((byte) ((value >> 8) & 255L));
-            s.WriteByte((byte) (value & 255L));
-        }
+            public override string SaveId => "K45_TLM_TLMTransportLineStorageEconomyData";
 
-        private long ReadLong64(Stream s)
+            protected override Enum[] LoadOrder { get; } = new Enum[]
+                                                            {
+                                                                LineData.EXPENSE,
+                                                                LineData.INCOME,
+                                                                StopData.INCOME,
+                                                                VehicleData.EXPENSE,
+                                                                VehicleData.INCOME,
+                                                            };
+        }
+        public class TLMTransportLineStoragePassengerData : TransportLineStorageBasicData
         {
-            long num = (long) (s.ReadByte() & 255) << 56;
-            num |= (long) (s.ReadByte() & 255) << 48;
-            num |= (long) (s.ReadByte() & 255) << 40;
-            num |= (long) (s.ReadByte() & 255) << 32;
-            num |= (long) (s.ReadByte() & 255) << 24;
-            num |= (long) (s.ReadByte() & 255) << 16;
-            num |= (long) (s.ReadByte() & 255) << 8;
-            return num | (s.ReadByte() & 255 & 255L);
-        }
+            public override string SaveId => "K45_TLM_TLMTransportLineStoragePassengerData";
 
+            protected override Enum[] LoadOrder { get; } = new Enum[]
+                                                            {
+                                                                 VehicleData.TOTAL_PASSENGERS,
+                                                                 VehicleData.TOURIST_PASSENGERS,
+                                                                 VehicleData.STUDENT_PASSENGERS,
+                                                                 StopData.TOTAL_PASSENGERS,
+                                                                 StopData.TOURIST_PASSENGERS,
+                                                                 StopData.STUDENT_PASSENGERS,
+                                                                 LineData.TOTAL_PASSENGERS,
+                                                                 LineData.TOURIST_PASSENGERS,
+                                                                 LineData.STUDENT_PASSENGERS
+                                                            };
+            protected override Action<Stream, long> SerializeFunction { get; } = WriteInt24;
+            protected override Func<Stream, long> DeserializeFunction { get; } = ReadInt24;
+        }
     }
 }
