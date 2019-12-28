@@ -75,7 +75,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         public void GenerateOptionsMenu(UIHelperExtension helper)
         {
-
+            isLoading = true;
             TLMUtils.doLog("Loading Options");
             configSelector = helper.AddDropdownLocalized("K45_TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, ReloadData);
 
@@ -117,6 +117,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             }
 
             TLMUtils.doLog("End Loading Options");
+            isLoading = false;
         }
 
         #region UI generation utils
@@ -133,6 +134,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         }
 
         private bool isLoading = false;
+
         internal UICheckBox generateCheckboxConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex, int maxWidth = 650)
         {
             checkBoxes[configIndex] = (UICheckBox) group.AddCheckbox(title, currentConfigWarehouseEditor.GetBool(configIndex), delegate (bool b)
@@ -187,7 +189,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             }
             dropDowns[configIndex] = group.AddDropdown(title, options, currentValue, delegate (int i)
             {
-                if (i >= 0)
+                if (!isLoading && i >= 0)
                 {
                     currentConfigWarehouseEditor.SetString(configIndex, Enum.GetNames(typeof(T))[i]);
                 }
@@ -299,7 +301,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         }
 
 
-        
+
 
         internal enum ConfigTabs
         {

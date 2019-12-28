@@ -131,7 +131,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
 
             GetComponent<UIComponent>().eventVisibilityChanged += (x, y) => forceRefresh();
-            TLMConfigWarehouse.EventOnPropertyChanged += OnWarehouseChange;
+            TLMConfigWarehouse.instance.EventOnPropertyChanged += OnWarehouseChange;
         }
         private void SetPalettePrefix(int value) => extension.SetCustomPalette((uint) SelectedPrefix, value == 0 ? null : m_paletteDD.selectedValue);
         private void SetFormatPrefix(int value) => extension.SetCustomFormat((uint) SelectedPrefix, (LineIconSpriteNames) Enum.Parse(typeof(LineIconSpriteNames), value.ToString()));
