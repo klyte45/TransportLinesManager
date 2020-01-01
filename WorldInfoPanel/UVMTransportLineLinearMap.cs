@@ -22,6 +22,7 @@ namespace Klyte.TransportLinesManager.UI
         private MapMode m_currentMode = MapMode.NONE;
         private bool m_unscaledMode = false;
         private bool m_cachedUnscaledMode = false;
+        private static bool m_dirty;
 
         #region Overridable
 
@@ -141,15 +142,18 @@ namespace Klyte.TransportLinesManager.UI
             ushort lineID = GetLineID();
             if (lineID != 0)
             {
-                if (m_cachedUnscaledMode != m_unscaledMode)
+                if (m_cachedUnscaledMode != m_unscaledMode || m_dirty)
                 {
-                    OnSetTarget();
+                    OnSetTarget(null);
                     m_cachedUnscaledMode = m_unscaledMode;
+                    m_dirty = false;
                 }
                 UpdateVehicleButtons(lineID);
                 UpdateStopButtons(lineID);
             }
         }
+
+        public static void MarkDirty() => m_dirty = true;
 
         public static bool OnLinesOverviewClicked()
         {
@@ -165,8 +169,13 @@ namespace Klyte.TransportLinesManager.UI
         }
 
 
-        public void OnSetTarget()
+        public void OnSetTarget(Type source)
         {
+            if (source == GetType())
+            {
+                return;
+            }
+
             ushort lineID = GetLineID();
             if (lineID != 0)
             {

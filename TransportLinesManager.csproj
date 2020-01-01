@@ -202,7 +202,7 @@
     <Compile Include="WorldInfoPanel\Tabs\IUVMPTWIPChild.cs" />
     <Compile Include="WorldInfoPanel\Tabs\UVMBudgetConfigTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\UVMBudgetWIPTab.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\UVMStatisticsWIPTab.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\UVMMainWIPTab.cs" />
     <Compile Include="WorldInfoPanel\UVMTransportLineLinearMap.cs" />
     <Compile Include="WorldInfoPanel\UVMTransportLineWorldInfoPanel.cs" />
   </ItemGroup>

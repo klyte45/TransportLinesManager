@@ -76,7 +76,7 @@ namespace Klyte.TransportLinesManager.UI
 
             KlyteMonoUtils.CreateTabsComponent(out m_obj.m_lineConfigTabs, out _, __instance.transform, "LineConfig", new Vector4(15, 45, 365, 30), new Vector4(15, 80, 380, 440));
 
-            m_childControls.Add(TabCommons.CreateTab<UVMStatisticsWIPTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_STATS_TAB", "Default", false));
+            m_childControls.Add(TabCommons.CreateTab<UVMMainWIPTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_STATS_TAB", "Default", false));
             m_childControls.Add(TabCommons.CreateTab<TLMLineFinanceReportTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency2", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));
             m_childControls.Add(TabCommons.CreateTab<TLMAssetSelectorTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency", "K45_TLM_WIP_ASSET_SELECTION_TAB", "FinanceReport", false));
             m_childControls.Add(TabCommons.CreateTab<UVMBudgetWIPTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency2", "ECONOMY_BUDGET", "Budget", false));
@@ -143,7 +143,7 @@ namespace Klyte.TransportLinesManager.UI
             ushort lineID = GetLineID();
             if (lineID != 0)
             {
-                if (m_obj.m_cachedLength != Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_totalLength)
+                if (m_obj.m_cachedLength != Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_totalLength || m_dirty)
                 {
                     OnSetTarget();
                 }
@@ -175,12 +175,28 @@ namespace Klyte.TransportLinesManager.UI
 
             foreach (IUVMPTWIPChild tab in m_childControls)
             {
-                tab.OnSetTarget();
+                tab.OnSetTarget(m_dirtySource);
             }
 
             m_obj.m_cachedLength = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_totalLength;
-            ReflectionUtils.RunPrivateMethod<object>(m_obj.origInstance, "UpdateBindings");
+            if (!m_dirty)
+            {
+                ReflectionUtils.RunPrivateMethod<object>(m_obj.origInstance, "UpdateBindings");
+            }
+
+            m_dirty = false;
+            m_dirtySource = null;
             return false;
+        }
+
+        public static void MarkDirty(Type source) => Instance.StartCoroutine(MarkDirtyAsync(source));
+
+        private static IEnumerator MarkDirtyAsync(Type source)
+        {
+            yield return 0;
+            m_dirty = true;
+            m_dirtySource = source;
+            yield break;
         }
 
         #endregion
@@ -276,6 +292,8 @@ namespace Klyte.TransportLinesManager.UI
 
 
         internal static UVMPublicTransportWorldInfoPanelObject m_obj = new UVMPublicTransportWorldInfoPanelObject();
+        private static bool m_dirty;
+        private static Type m_dirtySource;
 
         public Redirector RedirectorInstance => Instance;
 

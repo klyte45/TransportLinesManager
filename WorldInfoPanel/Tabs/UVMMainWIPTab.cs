@@ -1,6 +1,11 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Klyte.Commons.Extensors;
+using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Utils;
+using System;
 using System.Collections;
 using UnityEngine;
 using static Klyte.TransportLinesManager.UI.UVMPublicTransportWorldInfoPanel.UVMPublicTransportWorldInfoPanelObject;
@@ -8,7 +13,7 @@ using static Klyte.TransportLinesManager.UI.UVMPublicTransportWorldInfoPanel.UVM
 namespace Klyte.TransportLinesManager.UI
 {
 
-    public class UVMStatisticsWIPTab : UICustomControl, IUVMPTWIPChild
+    public class UVMMainWIPTab : UICustomControl, IUVMPTWIPChild
     {
 
         private UIPanel m_bg;
@@ -35,6 +40,9 @@ namespace Klyte.TransportLinesManager.UI
             SetColorButtonEvents();
             SetLegendColors(ptwip);
             SetDemographicGraphicColors(ptwip);
+
+            CreatePrefixAndLineNumberEditor();
+            CreateFirstStopSelector();
         }
 
         private void BindFields(PublicTransportWorldInfoPanel ptwip)
@@ -145,10 +153,16 @@ namespace Klyte.TransportLinesManager.UI
             }
             yield break;
         }
-
-        public void OnSetTarget()
+        public void OnSetTarget(Type source)
         {
             ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
+            m_firstStopSelect.items = TLMLineUtils.getAllStopsFromLine(lineID);
+            m_firstStopSelect.selectedIndex = 0;
+            if (source == GetType())
+            {
+                return;
+            }
+
             if (lineID != 0)
             {
                 m_colorField.selectedColor = Singleton<TransportManager>.instance.GetLineColor(lineID);
@@ -158,6 +172,56 @@ namespace Klyte.TransportLinesManager.UI
                 m_tripSaved.isVisible = (lineType == LineType.Default);
                 m_pullValuePanel.isVisible = (lineType == LineType.WalkingTour);
                 m_lineLengthLabel.text = StringUtils.SafeFormat(Locale.Get("LINEINFOPANEL_LINELENGTH"), (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_totalLength / 1000f).ToString("F2", LocaleManager.cultureInfo));
+
+                m_linePrefixDropDown.eventSelectedIndexChanged -= SaveLineNumber;
+                m_lineNumberLabel.eventLostFocus -= SaveLineNumber;
+
+                ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineID];
+                ushort lineNumber = t.m_lineNumber;
+
+                var tsd = TransportSystemDefinition.GetDefinitionForLine(lineID);
+                var transportType = tsd.ToConfigIndex();
+                var mnPrefixo = (ModoNomenclatura) TLMConfigWarehouse.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
+
+                if (TLMLineUtils.hasPrefix(lineID))
+                {
+                    m_lineNumberLabel.maxLength = 3;
+                    m_lineNumberLabel.width = 40;
+                    m_lineNumberLabel.text = (lineNumber % 1000).ToString();
+                    m_linePrefixDropDown.enabled = false;
+
+                    string[] temp = TLMUtils.getStringOptionsForPrefix(transportType, true, true, false);
+                    m_linePrefixDropDown.items = temp;
+                    m_linePrefixDropDown.selectedIndex = lineNumber / 1000;
+                    m_linePrefixDropDown.enabled = true;
+                    bool invertPrefixSuffix = TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.INVERT_PREFIX_SUFFIX | transportType);
+                    if (invertPrefixSuffix)
+                    {
+                        m_linePrefixDropDown.zOrder = 9999;
+                    }
+                    else
+                    {
+                        m_lineNumberLabel.zOrder = 9999;
+                    }
+
+                }
+                else
+                {
+                    m_lineNumberLabel.maxLength = 4;
+                    m_lineNumberLabel.width = 180;
+                    m_lineNumberLabel.text = (lineNumber).ToString();
+                    m_linePrefixDropDown.enabled = false;
+                }
+
+
+
+                m_lineNumberLabel.color = TransportManager.instance.GetLineColor(lineID);
+
+
+
+                m_linePrefixDropDown.eventSelectedIndexChanged += SaveLineNumber;
+                m_lineNumberLabel.eventLostFocus += SaveLineNumber;
+
             }
         }
 
@@ -246,8 +310,6 @@ namespace Klyte.TransportLinesManager.UI
                 }
             }
         }
-
-
         #endregion
 
         private void OnLineColorChanged(ushort id)
@@ -265,6 +327,149 @@ namespace Klyte.TransportLinesManager.UI
         }
 
         public void OnGotFocus() { }
+
+        #region Number & Prefix edit
+
+        private void CreatePrefixAndLineNumberEditor()
+        {
+            m_linePrefixDropDown = UIHelperExtension.CloneBasicDropDownLocalized("K45_TLM_PREFIX_LINE_DETAILS_DD_LABEL", new string[1], (x) => StartCoroutine(SaveLineNumber()), 0, m_bg, out UILabel label, out UIPanel container);
+            container.autoFitChildrenHorizontally = false;
+            container.autoLayoutDirection = LayoutDirection.Horizontal;
+            container.autoLayout = false;
+            ReflectionUtils.GetEventField(typeof(UIDropDown), "eventMouseWheel")?.SetValue(m_linePrefixDropDown, null);
+            m_linePrefixDropDown.isLocalized = false;
+            m_linePrefixDropDown.autoSize = false;
+            m_linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
+            m_linePrefixDropDown.itemPadding = new RectOffset(2, 2, 2, 2);
+            m_linePrefixDropDown.textFieldPadding = new RectOffset(4, 4, 4, 4);
+            m_linePrefixDropDown.name = "LinePrefixDropDown";
+            m_linePrefixDropDown.size = new Vector3(140, 22);
+            m_linePrefixDropDown.textScale = 1;
+            m_linePrefixDropDown.listPosition = UIDropDown.PopupListPosition.Automatic;
+            KlyteMonoUtils.InitButtonFull(m_linePrefixDropDown, false, "OptionsDropboxListbox");
+            m_linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
+
+            KlyteMonoUtils.LimitWidthAndBox(label, 200);
+            label.textScale = 1;
+            label.padding.top = 4;
+            label.position = Vector3.zero;
+            label.verticalAlignment = UIVerticalAlignment.Middle;
+            label.textAlignment = UIHorizontalAlignment.Left;
+
+            KlyteMonoUtils.CreateUIElement(out m_lineNumberLabel, container.transform);
+            m_lineNumberLabel.autoSize = false;
+            m_lineNumberLabel.horizontalAlignment = UIHorizontalAlignment.Right;
+            m_lineNumberLabel.text = "";
+            m_lineNumberLabel.name = "LineNumberLabel";
+            m_lineNumberLabel.normalBgSprite = "EmptySprite";
+            m_lineNumberLabel.textScale = 1f;
+            m_lineNumberLabel.padding = new RectOffset(4, 4, 4, 4);
+            m_lineNumberLabel.color = new Color(0, 0, 0, 1);
+            KlyteMonoUtils.UiTextFieldDefaults(m_lineNumberLabel);
+            m_lineNumberLabel.numericalOnly = true;
+            m_lineNumberLabel.maxLength = 4;
+            m_lineNumberLabel.eventLostFocus += SaveLineNumber;
+            m_lineNumberLabel.size = new Vector4(40, 22);
+            container.autoLayout = true;
+            container.relativePosition = new Vector3(0, 375);
+        }
+        private void SaveLineNumber<T>(UIComponent c, T v) => StartCoroutine(SaveLineNumber());
+
+        private IEnumerator SaveLineNumber()
+        {
+            yield return 0;
+            ushort lineId = UVMPublicTransportWorldInfoPanel.GetLineID();
+            string value = "0" + m_lineNumberLabel.text;
+            int valPrefixo = m_linePrefixDropDown.selectedIndex;
+            TLMLineUtils.getLineNamingParameters(lineId, out ModoNomenclatura prefixo, out Separador sep, out ModoNomenclatura sufixo, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
+            ushort num = ushort.Parse(value);
+            if (prefixo != ModoNomenclatura.Nenhum)
+            {
+                num = (ushort) (valPrefixo * 1000 + (num % 1000));
+            }
+            if (num < 1)
+            {
+                m_lineNumberLabel.textColor = new Color(1, 0, 0, 1);
+                yield break;
+            }
+            bool numeroUsado = IsLineNumberAlredyInUse(num, lineId);
+
+            if (numeroUsado)
+            {
+                m_lineNumberLabel.textColor = new Color(1, 0, 0, 1);
+            }
+            else
+            {
+                m_lineNumberLabel.textColor = new Color(1, 1, 1, 1);
+                Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_lineNumber = num;
+                if (prefixo != ModoNomenclatura.Nenhum)
+                {
+                    m_lineNumberLabel.text = (num % 1000).ToString();
+                    m_linePrefixDropDown.selectedIndex = (num / 1000);
+                }
+                else
+                {
+                    m_lineNumberLabel.text = (num % 10000).ToString();
+                }
+                UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
+            }
+            yield break;
+        }
+
+        private bool IsLineNumberAlredyInUse(int numLinha, ushort lineIdx)
+        {
+            var tsdOr = TransportSystemDefinition.GetDefinitionForLine(lineIdx);
+            if (tsdOr == default)
+            {
+                return true;
+            }
+
+            return TLMLineUtils.IsLineNumberAlredyInUse(numLinha, ref tsdOr, lineIdx);
+        }
+        #endregion
+
+        #region First stop
+        private void CreateFirstStopSelector()
+        {
+            m_firstStopSelect = UIHelperExtension.CloneBasicDropDownLocalized("K45_TLM_FIRST_STOP_DD_LABEL", new string[1], ChangeFirstStop, 0, m_bg, out UILabel label, out UIPanel container);
+            ReflectionUtils.GetEventField(typeof(UIDropDown), "eventMouseWheel")?.SetValue(m_firstStopSelect, null);
+
+            container.autoFitChildrenHorizontally = false;
+            container.relativePosition = new Vector3(0, 410);
+            m_firstStopSelect.width = 340;
+            m_firstStopSelect.transform.localScale = Vector3.one * 0.75f;
+            m_firstStopSelect.listPosition = UIDropDown.PopupListPosition.Automatic;
+
+            KlyteMonoUtils.LimitWidthAndBox(label, 120);
+            label.textScale = 1;
+            label.padding.top = 7;
+            label.verticalAlignment = UIVerticalAlignment.Middle;
+            label.textAlignment = UIHorizontalAlignment.Left;
+            container.autoLayoutDirection = LayoutDirection.Horizontal;
+            container.autoLayout = true;
+            container.ResetLayout(false, true);
+        }
+        private void ChangeFirstStop(int idxSel)
+        {
+            if (idxSel <= 0 || idxSel >= m_firstStopSelect.items.Length)
+            {
+                return;
+            }
+            ushort lineId = UVMPublicTransportWorldInfoPanel.GetLineID();
+
+            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
+            if ((t.m_flags & TransportLine.Flags.Invalid) != TransportLine.Flags.None)
+            {
+                return;
+            }
+            Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_stops = t.GetStop(idxSel);
+            UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
+            if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
+            {
+                TLMController.instance.AutoName(lineId);
+            }
+        }
+        #endregion
 
         internal UIRadialChart m_ageChart;
 
@@ -300,6 +505,8 @@ namespace Klyte.TransportLinesManager.UI
 
         internal string m_weeklyPassengersString;
 
-
+        private UIDropDown m_linePrefixDropDown;
+        private UITextField m_lineNumberLabel;
+        private UIDropDown m_firstStopSelect;
     }
 }

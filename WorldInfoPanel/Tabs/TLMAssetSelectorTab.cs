@@ -165,8 +165,13 @@ namespace Klyte.TransportLinesManager.UI
             };
 
         }
-        public void OnSetTarget()
+        public void OnSetTarget(Type source)
         {
+            if (source == GetType())
+            {
+                return;
+            }
+
             m_lastInfo = default;
             TransportSystemDefinition tsd = TransportSystem;
             if (!tsd.HasVehicles())
@@ -227,6 +232,7 @@ namespace Klyte.TransportLinesManager.UI
                 m_lastSystem = TransportSystem;
             }
             TLMLineUtils.GetConfigForLine(GetLineID(), out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig);
+            TLMUtils.doLog("configs:  {0} {1}", lineConfig, prefixConfig);
             IAssetSelectorStorage extension;
             if (lineConfig.IsCustom)
             {
@@ -239,7 +245,7 @@ namespace Klyte.TransportLinesManager.UI
 
             if (TransportLinesManagerMod.DebugMode)
             {
-                TLMUtils.doLog($"selectedAssets Size = {extension.AssetList?.Count} ({ string.Join(",", extension.AssetList?.ToArray() ?? new string[0])}) {extension.GetType()}");
+                TLMUtils.doLog($"selectedAssets Size = {extension?.AssetList?.Count} ({ string.Join(",", extension?.AssetList?.ToArray() ?? new string[0])}) {extension?.GetType()}");
             }
 
             foreach (string i in m_checkboxes.Keys)

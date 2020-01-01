@@ -1,11 +1,13 @@
-﻿namespace Klyte.TransportLinesManager.UI
+﻿using System;
+
+namespace Klyte.TransportLinesManager.UI
 {
     public interface IUVMPTWIPChild
     {
         void UpdateBindings();
         void OnEnable();
         void OnDisable();
-        void OnSetTarget();
+        void OnSetTarget(Type source);
         void OnGotFocus();
     }
 }

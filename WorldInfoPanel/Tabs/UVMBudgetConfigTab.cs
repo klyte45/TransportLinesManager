@@ -5,6 +5,7 @@ using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -259,8 +260,13 @@ namespace Klyte.TransportLinesManager.UI
 
         public void OnEnable() { }
         public void OnDisable() { }
-        public void OnSetTarget()
+        public void OnSetTarget(Type source)
         {
+            if (source == GetType())
+            {
+                return;
+            }
+
             ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
             if (lineID > 0)
             {

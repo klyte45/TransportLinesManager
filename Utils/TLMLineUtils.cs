@@ -122,7 +122,7 @@ namespace Klyte.TransportLinesManager.Utils
         {
             lineConfig = TLMTransportLineExtension.Instance.SafeGet(lineId);
             var tsd = TransportSystemDefinition.From(lineId);
-            prefixConfig = hasPrefix(ref tsd) ? (tsd.GetTransportExtension() as ISafeGettable<PrefixConfiguration>).SafeGet(getPrefix(lineId)) : null;
+            prefixConfig = (tsd.GetTransportExtension() as ISafeGettable<PrefixConfiguration>).SafeGet(hasPrefix(ref tsd) ? getPrefix(lineId) : 0);
             return lineConfig != null || prefixConfig != null;
         }
 
@@ -136,7 +136,7 @@ namespace Klyte.TransportLinesManager.Utils
                     return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f);
                 }
                 Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
-                return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value , currentBudget.Second.First.Value , currentBudget.Third) / 100f, currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third);
+                return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third) / 100f, currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third);
             }
             else
             {
@@ -184,7 +184,7 @@ namespace Klyte.TransportLinesManager.Utils
             return tsd;
         }
 
-        public static bool isNumberUsed(int numLinha, ref TransportSystemDefinition tsdOr, int exclude)
+        public static bool IsLineNumberAlredyInUse(int numLinha, ref TransportSystemDefinition tsdOr, int exclude)
         {
             numLinha = numLinha & 0xFFFF;
             if (numLinha == 0)

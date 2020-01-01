@@ -232,7 +232,7 @@ namespace Klyte.TransportLinesManager.UI
             int num = nextLineNumber;
             bool prefixIncrementVal = TLMConfigWarehouse.GetCurrentConfigBool(tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT);
             //TLMUtils.doLog("prefixIncrement = " + prefixIncrementVal + "| num = " + num);
-            while (((num + 1) & 0xFFFF) == 0 || TLMLineUtils.isNumberUsed((num + 1) & 0xFFFF, ref tsd, 0))
+            while (((num + 1) & 0xFFFF) == 0 || TLMLineUtils.IsLineNumberAlredyInUse((num + 1) & 0xFFFF, ref tsd, 0))
             {
                 if (!TLMLineUtils.hasPrefix(transportTool.m_prefab) || !prefixIncrementVal)
                 {

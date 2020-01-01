@@ -3,6 +3,7 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using System;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
@@ -73,9 +74,13 @@ namespace Klyte.TransportLinesManager.UI
                 }
             }
         }
-
-        public void OnSetTarget()
+        public void OnSetTarget(Type source)
         {
+            if (source == GetType())
+            {
+                return;
+            }
+
             ushort lineID = GetLineID();
             if (lineID != 0)
             {
