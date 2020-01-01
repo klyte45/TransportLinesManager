@@ -16,6 +16,7 @@ namespace Klyte.TransportLinesManager.UI
     internal class UVMBudgetConfigTab : UICustomControl, IUVMPTWIPChild
     {
         public UIComponent MainContainer { get; private set; }
+        internal static UVMBudgetConfigTab Instance { get; private set; }
 
         private UIHelperExtension m_uiHelperNeighbors;
 
@@ -25,9 +26,13 @@ namespace Klyte.TransportLinesManager.UI
 
         private UIScrollablePanel m_entryListContainer;
 
+        private UICheckBox m_showAbsoluteCheckbox;
+        private bool m_showAbsoluteValues;
+
         #region Awake
         public void Awake()
         {
+            Instance = this;
             MainContainer = GetComponent<UIComponent>();
             m_uiHelperNeighbors = new UIHelperExtension(MainContainer);
 
@@ -44,7 +49,8 @@ namespace Klyte.TransportLinesManager.UI
 
             m_uiHelperNeighbors.AddSpace(5);
             KlyteMonoUtils.CreateElement(out m_clockChart, m_uiHelperNeighbors.Self.transform, "DailyClock");
-            m_uiHelperNeighbors.AddSpace(30);
+            m_showAbsoluteCheckbox = m_uiHelperNeighbors.AddCheckboxLocale("K45_TLM_SHOW_ABSOLUTE_VALUE", false, (x) => m_showAbsoluteValues = x);
+            KlyteMonoUtils.LimitWidthAndBox(m_showAbsoluteCheckbox, m_uiHelperNeighbors.Self.width - 40f);
             KlyteMonoUtils.CreateElement(out m_titleContainer, m_uiHelperNeighbors.Self.transform, "Title");
             PopulateTitlePanel(m_titleContainer);
             KlyteMonoUtils.CreateScrollPanel(m_uiHelperNeighbors.Self, out m_entryListContainer, out _, m_uiHelperNeighbors.Self.width - 20f, m_uiHelperNeighbors.Self.height - 150, Vector3.zero);
@@ -129,7 +135,7 @@ namespace Klyte.TransportLinesManager.UI
             {
                 if (i < currentLines.Length)
                 {
-                    currentLines[i].SetLegendInfo(GetColorForNumber(i), i + 1);
+                    currentLines[i].SetLegendInfo(GetColorForNumber(i));
                     m_timeRows.Add(currentLines[i]);
                     currentLines[i].Entry = config[i];
                 }
@@ -137,7 +143,7 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     UVMBudgetEditorLine line = KlyteMonoUtils.CreateElement<UVMBudgetEditorLine>(m_entryListContainer.transform);
                     line.Entry = config[i];
-                    line.SetLegendInfo(GetColorForNumber(i), i + 1);
+                    line.SetLegendInfo(GetColorForNumber(i));
                     line.OnTimeChanged += ValidateTime;
                     line.OnDie += RemoveTime;
                     line.OnBudgetChanged += SetBudget;
@@ -223,7 +229,7 @@ namespace Klyte.TransportLinesManager.UI
                     }
 
                     float angle = (start + end) / 2f;
-                    updateInfo[i].Fourth.zOrder = updateInfo[i].First;
+                    updateInfo[i].Fourth.ZOrder = updateInfo[i].First;
                 }
                 m_clockChart.SetValues(updateInfo.Select(x => Tuple.New(x.Second, x.Third, x.Fourth.Entry.Value)).ToList());
             }
@@ -258,6 +264,8 @@ namespace Klyte.TransportLinesManager.UI
             Color.Lerp(Color.red,Color.magenta,0.5f),
         };
 
+        public static bool IsAbsoluteValue() => Instance.m_showAbsoluteValues;
+
         public void OnEnable() { }
         public void OnDisable() { }
         public void OnSetTarget(Type source)
@@ -267,6 +275,9 @@ namespace Klyte.TransportLinesManager.UI
                 return;
             }
 
+            TLMLineUtils.GetConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), out TransportLineConfiguration lineConfig, out _);
+            m_showAbsoluteCheckbox.isVisible = lineConfig.IsCustom;
+            m_showAbsoluteValues = lineConfig.IsCustom ? m_showAbsoluteValues : false;
             ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
             if (lineID > 0)
             {

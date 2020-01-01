@@ -2,6 +2,7 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
@@ -468,6 +469,39 @@ namespace Klyte.TransportLinesManager.UI
             {
                 TLMController.instance.AutoName(lineId);
             }
+        }
+        #endregion
+
+        #region Action buttons row
+        private void CreateActionButtonsRow()
+        {
+            KlyteMonoUtils.CreateUIElement(out UIButton buttonAutoName, transform);
+            buttonAutoName.textScale = 0.6f;
+            buttonAutoName.relativePosition = new Vector3(0, 325);
+            buttonAutoName.width = 40;
+            buttonAutoName.height = 40;
+            buttonAutoName.tooltip = Locale.Get("K45_TLM_USE_AUTO_NAME");
+            KlyteMonoUtils.InitButton(buttonAutoName, true, "ButtonMenu");
+            buttonAutoName.name = "AutoName";
+            buttonAutoName.isVisible = true;
+            buttonAutoName.eventClick += (component, eventParam) =>
+            {
+                TLMLineUtils.setLineName(UVMPublicTransportWorldInfoPanel.GetLineID(), TLMLineUtils.calculateAutoName(UVMPublicTransportWorldInfoPanel.GetLineID()));
+                UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
+            };
+            buttonAutoName.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoNameIcon);
+
+            KlyteMonoUtils.CreateUIElement(out UIButton buttonAutoColor, transform);
+            buttonAutoColor.relativePosition = new Vector3(50f, 325f);
+            buttonAutoColor.textScale = 0.6f;
+            buttonAutoColor.width = 40;
+            buttonAutoColor.height = 40;
+            buttonAutoColor.tooltip = Locale.Get("K45_TLM_PICK_COLOR_FROM_PALETTE_TOOLTIP");
+            KlyteMonoUtils.InitButton(buttonAutoColor, true, "ButtonMenu");
+            buttonAutoColor.name = "AutoColor";
+            buttonAutoColor.isVisible = true;
+            buttonAutoColor.eventClick += (component, eventParam) => m_colorField.selectedColor = TLMController.instance.AutoColor(UVMPublicTransportWorldInfoPanel.GetLineID());
+            buttonAutoColor.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoColorIcon);
         }
         #endregion
 

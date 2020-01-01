@@ -109,11 +109,12 @@ namespace Klyte.TransportLinesManager.Utils
 
 
 
-        public static float GetEffectiveBugdet(ushort transportLine)
+        public static float GetEffectiveBudget(ushort transportLine)
         {
             TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info;
-            int budgetClass = Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            return budgetClass * GetBudgetMultiplierLine(transportLine) / 100f;
+            Tuple<float, int, int, float, bool> lineBudget = GetBudgetMultiplierLineWithIndexes(transportLine);
+            int budgetClass = lineBudget.Fifth ? 100 : Singleton<EconomyManager>.instance.GetBudget(info.m_class);
+            return budgetClass * lineBudget.First / 100f;
         }
 
         public static float GetBudgetMultiplierLine(ushort lineId) => GetBudgetMultiplierLineWithIndexes(lineId).First;
@@ -126,21 +127,21 @@ namespace Klyte.TransportLinesManager.Utils
             return lineConfig != null || prefixConfig != null;
         }
 
-        public static Tuple<float, int, int, float> GetBudgetMultiplierLineWithIndexes(ushort lineId)
+        public static Tuple<float, int, int, float, bool> GetBudgetMultiplierLineWithIndexes(ushort lineId)
         {
             if (GetConfigForLine(lineId, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig))
             {
                 TimeableList<BudgetEntryXml> budgetConfig = lineConfig.IsCustom || prefixConfig == null ? lineConfig.BudgetEntries : prefixConfig.BudgetEntries;
                 if (budgetConfig.Count == 0)
                 {
-                    return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f);
+                    return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f, lineConfig.IsCustom);
                 }
                 Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
-                return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third) / 100f, currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third);
+                return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third) / 100f, currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third, lineConfig.IsCustom);
             }
             else
             {
-                return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f);
+                return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f, lineConfig.IsCustom);
             }
         }
         public static string getLineStringId(ushort lineIdx)
@@ -1142,7 +1143,8 @@ namespace Klyte.TransportLinesManager.Utils
         internal static string GetIconString(ushort lineId) => $"<{UIDynamicFontRendererRedirector.TAG_LINE} {getIconForLine(lineId, false)},{Singleton<TransportManager>.instance.GetLineColor(lineId).ToRGB()},{getLineStringId(lineId)}>";
 
         private static bool IsBuildingValidForStation(bool excludeCargo, BuildingManager bm, ushort tempBuildingId) => tempBuildingId > 0 && (!excludeCargo || !(bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is DepotAI || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is CargoStationAI) || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI);
-
+        public static int CalculateTargetVehicleCount(ref TransportLine t, ushort lineId, float lineLength) => CalculateTargetVehicleCount(t.Info, lineLength, GetEffectiveBudget(lineId));
+        public static int CalculateTargetVehicleCount(TransportInfo info, float lineLength, float budget) => Mathf.CeilToInt(budget * lineLength / (info.m_defaultVehicleDistance * 100f));
         public static string getPrefixesServedString(ushort m_buildingID, bool secondary)
         {
             Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];

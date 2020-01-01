@@ -1,5 +1,7 @@
+using ColossalFramework;
 using ColossalFramework.UI;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,23 +97,23 @@ namespace Klyte.TransportLinesManager.UI
             titleEffective.width = 70;
             titleEffective.height = 30;
             KlyteMonoUtils.LimitWidth(titleEffective, 70, true);
-            titleEffective.relativePosition = new Vector3(70, 8);
+            titleEffective.relativePosition = new Vector3(70, 0);
             titleEffective.textScale = 0.8f;
             titleEffective.color = Color.white;
             titleEffective.isLocalized = true;
             titleEffective.localeID = "K45_TLM_EFFECTIVE_BUDGET_NOW";
             titleEffective.textAlignment = UIHorizontalAlignment.Center;
 
-            KlyteMonoUtils.CreateUIElement(out UIPanel effectiveContainer, m_container.transform, "TitleEffective");
+            KlyteMonoUtils.CreateUIElement(out UIPanel effectiveContainer, m_container.transform, "ValueEffectiveContainer");
             effectiveContainer.width = 70;
-            effectiveContainer.height = 20;
-            effectiveContainer.relativePosition = new Vector3(70, 38);
+            effectiveContainer.height = 40;
+            effectiveContainer.relativePosition = new Vector3(70, 30);
             effectiveContainer.color = Color.white;
             effectiveContainer.autoLayout = false;
 
-            KlyteMonoUtils.CreateUIElement(out m_effectiveSprite, effectiveContainer.transform, "TitleEffective");
+            KlyteMonoUtils.CreateUIElement(out m_effectiveSprite, effectiveContainer.transform, "BarBg");
             m_effectiveSprite.width = 70;
-            m_effectiveSprite.height = 20;
+            m_effectiveSprite.height = 40;
             m_effectiveSprite.relativePosition = new Vector3(0, 0);
             m_effectiveSprite.backgroundSprite = "PlainWhite";
             m_effectiveSprite.progressSprite = "PlainWhite";
@@ -119,16 +121,17 @@ namespace Klyte.TransportLinesManager.UI
             m_effectiveSprite.progressColor = Color.red;
             m_effectiveSprite.value = 0.5f;
 
-            KlyteMonoUtils.CreateUIElement(out m_effectiveLabel, effectiveContainer.transform, "TitleEffective");
+            KlyteMonoUtils.CreateUIElement(out m_effectiveLabel, effectiveContainer.transform, "BarLabel");
             m_effectiveLabel.width = 70;
-            m_effectiveLabel.height = 20;
+            m_effectiveLabel.height = 40;
             m_effectiveLabel.relativePosition = new Vector3(0, 0);
             m_effectiveLabel.color = Color.white;
             m_effectiveLabel.isLocalized = false;
-            m_effectiveLabel.suffix = "%";
+            m_effectiveLabel.text = "%\n";
             m_effectiveLabel.textAlignment = UIHorizontalAlignment.Center;
             m_effectiveLabel.verticalAlignment = UIVerticalAlignment.Middle;
             m_effectiveLabel.useOutline = true;
+            m_effectiveLabel.padding.top = 3;
             KlyteMonoUtils.LimitWidth(m_effectiveLabel, 70, true);
 
         }
@@ -137,13 +140,17 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (m_container.isVisible)
             {
+                ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
                 m_minutePointer.transform.localEulerAngles = new Vector3(0, 0, (SimulationManager.instance.m_currentDayTimeHour % 1 * -360) + 180);
                 m_hourPointer.transform.localEulerAngles = new Vector3(0, 0, (SimulationManager.instance.m_currentDayTimeHour / 24 * -360) + 180);
-                Tuple<float, int, int, float> value = TLMLineUtils.GetBudgetMultiplierLineWithIndexes(UVMPublicTransportWorldInfoPanel.GetLineID());
+                Tuple<float, int, int, float> value = TLMLineUtils.GetBudgetMultiplierLineWithIndexes(lineID);
                 m_effectiveSprite.color = UVMBudgetConfigTab.m_colorOrder[value.Second % UVMBudgetConfigTab.m_colorOrder.Count];
                 m_effectiveSprite.progressColor = UVMBudgetConfigTab.m_colorOrder[value.Third % UVMBudgetConfigTab.m_colorOrder.Count];
                 m_effectiveSprite.value = value.Fourth;
-                m_effectiveLabel.text = (value.First * 100).ToString("0");
+                int currentVehicleCount = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CountVehicles(lineID);
+                int targetVehicleCount = TransportLineOverrides.NewCalculateTargetVehicleCount(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], lineID);
+                m_effectiveLabel.prefix = (value.First * 100).ToString("0");
+                m_effectiveLabel.suffix = $"{currentVehicleCount.ToString("0")}/{targetVehicleCount.ToString("0")}";
             }
         }
     }

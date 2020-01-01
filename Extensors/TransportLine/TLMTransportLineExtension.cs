@@ -15,7 +15,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         ZERO_BUDGET_CURRENT = 0x80000000
     }
 
-    public class TLMTransportLineExtension : DataExtensorBase<TLMTransportLineExtension>, ISafeGettable<TransportLineConfiguration>, ISafeGettable<IAssetSelectorStorage>, ISafeGettable<IUseAbsoluteVehicleCountStorage>, IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension, IUseAbsoluteVehicleCountExtension
+    public class TLMTransportLineExtension : DataExtensorBase<TLMTransportLineExtension>, ISafeGettable<TransportLineConfiguration>, ISafeGettable<IAssetSelectorStorage>, IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension
     {
         [XmlElement("Configurations")]
         public SimpleNonSequentialList<TransportLineConfiguration> Configurations { get; set; } = new SimpleNonSequentialList<TransportLineConfiguration>();
@@ -29,7 +29,6 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
             return Configurations[lineId];
         }
         IAssetSelectorStorage ISafeGettable<IAssetSelectorStorage>.SafeGet(uint index) => SafeGet(index);
-        IUseAbsoluteVehicleCountStorage ISafeGettable<IUseAbsoluteVehicleCountStorage>.SafeGet(uint index) => SafeGet(index);
         IBudgetStorage ISafeGettable<IBudgetStorage>.SafeGet(uint index) => SafeGet(index);
         ITicketPriceStorage ISafeGettable<ITicketPriceStorage>.SafeGet(uint index) => SafeGet(index);
 
@@ -137,7 +136,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
     }
 
 
-    public class TransportLineConfiguration : IAssetSelectorStorage, IBudgetStorage, ITicketPriceStorage, IUseAbsoluteVehicleCountStorage
+    public class TransportLineConfiguration : IAssetSelectorStorage, IBudgetStorage, ITicketPriceStorage
     {
         [XmlAttribute("isCustom")]
         public bool IsCustom { get; set; } = false;
@@ -147,7 +146,5 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         public SimpleXmlList<string> AssetList { get; set; } = new SimpleXmlList<string>();
         [XmlAttribute("ticketPrice")]
         public uint TicketPrice { get; set; } = 0;
-        [XmlAttribute("absoluteCount")]
-        public bool IsAbsoluteCountValue { get; set; }
     }
 }

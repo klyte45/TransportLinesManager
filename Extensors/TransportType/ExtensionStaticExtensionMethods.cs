@@ -80,9 +80,5 @@ namespace Klyte.TransportLinesManager.Extensors
         public static void CleanColor<T>(this T it, uint prefix) where T : IColorSelectableExtension, ISafeGettable<IColorSelectableStorage> => it.SafeGet(prefix).Color = default;
         #endregion
 
-        #region Use Absolute
-        public static bool IsUsingAbsoluteVehicleCount<T>(this T it, uint prefix) where T : IUseAbsoluteVehicleCountExtension, ISafeGettable<IUseAbsoluteVehicleCountStorage> => it.SafeGet(prefix).IsAbsoluteCountValue;
-        public static void SetUsingAbsoluteVehicleCount<T>(this T it, uint prefix, bool val) where T : IUseAbsoluteVehicleCountExtension, ISafeGettable<IUseAbsoluteVehicleCountStorage> => it.SafeGet(prefix).IsAbsoluteCountValue = val;
-        #endregion
     }
 }

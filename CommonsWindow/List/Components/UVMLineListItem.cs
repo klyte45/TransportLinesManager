@@ -127,10 +127,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 m_lineBalance.textColor = balance >= 0 ? ColorExtensions.FromRGB("00c000") : ColorExtensions.FromRGB("c00000");
                 m_lineBalance.isVisible = true;
 
-                m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.GetEffectiveBugdet(LineID));
+                m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.GetEffectiveBudget(LineID));
                 m_lineBudgetLabel.tooltip = string.Format(Locale.Get("K45_TLM_LINE_BUDGET_EXPLAIN_2"),
                     Locale.Get("TRANSPORT_LINE", Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].Info.m_transportType.ToString()),
-                    overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[LineID].m_budget / 100f, TLMLineUtils.GetEffectiveBugdet(LineID));
+                    overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[LineID].m_budget / 100f, TLMLineUtils.GetEffectiveBudget(LineID));
                 m_lineBudgetLabel.isVisible = true;
 
             }

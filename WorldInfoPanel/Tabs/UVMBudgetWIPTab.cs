@@ -21,15 +21,10 @@ namespace Klyte.TransportLinesManager.UI
             PublicTransportWorldInfoPanel ptwip = UVMPublicTransportWorldInfoPanel.m_obj.origInstance;
 
             BindComponents(ptwip);
-            SetVehicleCounterEvents();
         }
 
         private void BindComponents(PublicTransportWorldInfoPanel __instance)
         {
-            m_vehicleCountModifier = __instance.Find<UISlider>("SliderModifyVehicleCount");
-            m_vehicleCountModifierLabel = __instance.Find<UILabel>("VehicleCountPercent");
-            m_vehicleAmount = __instance.Find<UILabel>("VehicleAmount");
-            m_vehicleCountPanel = RebindUI(__instance.Find<UIPanel>("PanelVehicleCount"));
 
 
             //TAB3
@@ -53,7 +48,6 @@ namespace Klyte.TransportLinesManager.UI
             m_ticketPriceLabel.text = num.ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
         }
 
-        private void SetVehicleCounterEvents() => m_vehicleCountModifier.eventValueChanged += OnVehicleCountModifierChanged;
 
         public void OnEnable()
         {
@@ -68,20 +62,8 @@ namespace Klyte.TransportLinesManager.UI
             {
                 if (!m_alreadyShown)
                 {
-                    m_vehicleCountPanel.relativePosition = new Vector3(0, 10);
                     m_ticketPriceSection.relativePosition = new Vector3(0, 90);
                     m_alreadyShown = true;
-                }
-                ushort lineID = GetLineID();
-                if (lineID != 0)
-                {
-                    int num = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CountVehicles(lineID);
-                    int num2 = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CalculateTargetVehicleCount();
-                    string text = (num2 <= 0) ? num.ToString() : (num.ToString() + " / " + num2.ToString());
-                    m_vehicleAmount.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_VEHICLECOUNT", new object[]
-                        {
-                text
-                        });
                 }
             }
         }
@@ -96,7 +78,6 @@ namespace Klyte.TransportLinesManager.UI
             ushort lineID = GetLineID();
             if (lineID != 0)
             {
-                m_vehicleCountModifier.value = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget;
                 m_ticketPriceSlider.value = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_ticketPrice;
             }
 
@@ -114,7 +95,6 @@ namespace Klyte.TransportLinesManager.UI
         {
             ushort lineID = GetLineID();
             Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort) value;
-            m_vehicleCountModifierLabel.text = LocaleFormatter.FormatPercentage(Mathf.RoundToInt(value));
         }
 
         internal static ushort GetLineID() => UVMPublicTransportWorldInfoPanel.GetLineID();
@@ -124,10 +104,6 @@ namespace Klyte.TransportLinesManager.UI
 
         private static UIPanel m_bg;
 
-        private UISlider m_vehicleCountModifier;
-        private UILabel m_vehicleCountModifierLabel;
-        private UILabel m_vehicleAmount;
-        private UIPanel m_vehicleCountPanel;
 
         private UIPanel m_ticketPriceSection;
         private UISlider m_ticketPriceSlider;

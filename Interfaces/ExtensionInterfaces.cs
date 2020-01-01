@@ -51,13 +51,6 @@ namespace Klyte.TransportLinesManager.Interfaces
     {
         Color Color { get; set; }
     }
-    public interface IUseAbsoluteVehicleCountExtension : ISafeGettable<IUseAbsoluteVehicleCountStorage>
-    {
-    }
-    public interface IUseAbsoluteVehicleCountStorage
-    {
-        bool IsAbsoluteCountValue { get; set; }
-    }
     public interface ISafeGettable<T>
     {
         T SafeGet(uint index);

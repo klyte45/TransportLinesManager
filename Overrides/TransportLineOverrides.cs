@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using Harmony;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
@@ -7,12 +8,14 @@ using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 using static Klyte.Commons.Extensors.RedirectorUtils;
 namespace Klyte.TransportLinesManager.Overrides
 {
-    internal class TransportLineOverrides :MonoBehaviour, IRedirectable
+    internal class TransportLineOverrides : MonoBehaviour, IRedirectable
     {
         #region Hooking
 
@@ -67,9 +70,10 @@ namespace Klyte.TransportLinesManager.Overrides
 
             #region Budget Override Hooks
 
-            MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("SimulationStepPre", allFlags);
+            MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("TranspileSimulationStepLine", allFlags);
             TLMUtils.doLog("Loading SimulationStepPre Hook");
-            RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), SimulationStepPre);
+            RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), null, null, SimulationStepPre);
+            RedirectorInstance.AddRedirect(m_targetVehicles, typeof(TransportLineOverrides).GetMethod("WarnCountVehicles", allFlags));
             #endregion
 
         }
@@ -115,53 +119,60 @@ namespace Klyte.TransportLinesManager.Overrides
         #endregion
 
         #region Budget Override
-        public static bool SimulationStepPre(ushort lineID)
+        private static readonly MethodInfo m_targetVehicles = typeof(TransportLine).GetMethod("CalculateTargetVehicleCount", RedirectorUtils.allFlags);
+        private static readonly MethodInfo m_newTargetVehicles = typeof(TransportLineOverrides).GetMethod("NewCalculateTargetVehicleCount", RedirectorUtils.allFlags);
+        public static IEnumerable<CodeInstruction> TranspileSimulationStepLine(IEnumerable<CodeInstruction> instructions)
         {
-            try
-            {
-                TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
-                bool activeDayNightManagedByTLM = true;
-                if (t.m_lineNumber != 0 && t.m_stops != 0)
-                {
-                    Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget = (ushort) (TLMLineUtils.GetBudgetMultiplierLine(lineID) * 100);
-                }
+            var inst = new List<CodeInstruction>(instructions);
 
-                unchecked
-                {
-                    TLMLineUtils.getLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], out bool day, out bool night);
-                    bool isNight = Singleton<SimulationManager>.instance.m_isNightTime;
-                    bool zeroed = false;
-                    if ((activeDayNightManagedByTLM || (isNight && night) || (!isNight && day)) && Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_budget == 0)
-                    {
-                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags |= (TransportLine.Flags) TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
-                        zeroed = true;
-                    }
-                    else
-                    {
-                        Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~(TransportLine.Flags) TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
-                    }
-                    TLMUtils.doLog("activeDayNightManagedByTLM = {0}; zeroed = {1}", activeDayNightManagedByTLM, zeroed);
-                    if (activeDayNightManagedByTLM)
-                    {
-                        if (zeroed)
-                        {
-                            TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], false, false);
-                        }
-                        else
-                        {
-                            TLMLineUtils.setLineActive(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], true, true);
-                        }
-                    }
-                }
-
-            }
-            catch (Exception e)
+            for (int i = 0; i < inst.Count; i++)
             {
-                TLMUtils.doErrorLog("Error processing budget for line: {0}\n{1}", lineID, e);
+                if (inst[i].opcode == OpCodes.Callvirt && inst[i].operand == m_targetVehicles)
+                {
+                    inst[i] = new CodeInstruction(OpCodes.Ldarg_0);
+                    inst.Insert(i + 1, new CodeInstruction(OpCodes.Call, m_newTargetVehicles));
+                }
             }
-            return true;
+            LogUtils.PrintMethodIL(inst);
+            return inst;
         }
 
+        public static int NewCalculateTargetVehicleCount(ref TransportLine t, ushort lineId)
+        {
+            float lineLength = t.m_totalLength;
+            if (lineLength == 0f && t.m_stops != 0)
+            {
+                NetManager instance = Singleton<NetManager>.instance;
+                ushort stops = t.m_stops;
+                ushort num2 = stops;
+                int num3 = 0;
+                while (num2 != 0)
+                {
+                    ushort num4 = 0;
+                    for (int i = 0; i < 8; i++)
+                    {
+                        ushort segment = instance.m_nodes.m_buffer[num2].GetSegment(i);
+                        if (segment != 0 && instance.m_segments.m_buffer[segment].m_startNode == num2)
+                        {
+                            lineLength += instance.m_segments.m_buffer[segment].m_averageLength;
+                            num4 = instance.m_segments.m_buffer[segment].m_endNode;
+                            break;
+                        }
+                    }
+                    num2 = num4;
+                    if (num2 == stops)
+                    {
+                        break;
+                    }
+                    if (++num3 >= 32768)
+                    {
+                        CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                        break;
+                    }
+                }
+            }
+            return TLMLineUtils.CalculateTargetVehicleCount(ref t, lineId, lineLength);
+        }
 
         #endregion
 

@@ -3,6 +3,7 @@ using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
 
@@ -11,7 +12,6 @@ namespace Klyte.TransportLinesManager.UI
     internal class UVMBudgetEditorLine : MonoBehaviour
     {
         private UIPanel m_container;
-        //private UILabel m_identifier;
         private UITextField m_timeInput;
         private UILabel m_value;
         private UISlider m_slider;
@@ -19,7 +19,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private bool m_loading = false;
 
-        public int zOrder
+        public int ZOrder
         {
             get => m_container.zOrder;
             set => m_container.zOrder = value;
@@ -35,15 +35,11 @@ namespace Klyte.TransportLinesManager.UI
         public event Action<BudgetEntryXml> OnDie;
         public event Action<BudgetEntryXml, int> OnTimeChanged;
         public event Action<BudgetEntryXml, float> OnBudgetChanged;
-        private int m_id;
         private BudgetEntryXml m_entry;
 
-        public void SetLegendInfo(Color c, int id)
+        public void SetLegendInfo(Color c)
         {
             m_timeInput.eventTextChanged -= SendText;
-            m_id = id - 1;
-            //m_identifier.text = "";
-            //m_identifier.color = c;
             ((UISprite) m_slider.thumbObject).color = c;
             m_timeInput.eventTextChanged += SendText;
         }
@@ -53,9 +49,10 @@ namespace Klyte.TransportLinesManager.UI
             m_loading = true;
             try
             {
+                ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[UVMPublicTransportWorldInfoPanel.GetLineID()];
                 m_timeInput.text = Entry.HourOfDay.ToString();
                 m_slider.value = Entry.Value;
-                m_value.text = $"{Entry.Value}%";
+                m_value.text = $"{(UVMBudgetConfigTab.IsAbsoluteValue() ? TLMLineUtils.CalculateTargetVehicleCount(t.Info, t.m_totalLength, Entry.Value / 100f) : (int) Entry.Value)}%";
             }
             finally
             {
@@ -76,20 +73,9 @@ namespace Klyte.TransportLinesManager.UI
             m_container.autoLayoutDirection = LayoutDirection.Horizontal;
             m_container.autoLayoutPadding = new RectOffset(2, 2, 2, 2);
             m_container.wrapLayout = false;
-            m_container.name = "AzimuthInputLine";
+            m_container.name = "BudgetEntryLine";
 
-            //KlyteMonoUtils.CreateUIElement(out m_identifier, m_container.transform, "CityId");
-            //m_identifier.autoSize = false;
-            //m_identifier.relativePosition = new Vector3(0, 0);
-            //m_identifier.backgroundSprite = "EmptySprite";
-            //m_identifier.width = 30;
-            //m_identifier.height = 30;
-            //m_identifier.textScale = 1.3f;
-            //m_identifier.padding = new RectOffset(3, 3, 4, 3);
-            //m_identifier.useOutline = true;
-            //m_identifier.textAlignment = UIHorizontalAlignment.Center;
-
-            KlyteMonoUtils.CreateUIElement(out m_timeInput, m_container.transform, "StartAzimuth");
+            KlyteMonoUtils.CreateUIElement(out m_timeInput, m_container.transform, "HourInput");
             KlyteMonoUtils.UiTextFieldDefaults(m_timeInput);
             m_timeInput.normalBgSprite = "OptionsDropboxListbox";
             m_timeInput.width = 50;
@@ -100,7 +86,7 @@ namespace Klyte.TransportLinesManager.UI
             m_timeInput.text = "0";
             m_timeInput.eventTextChanged += SendText;
 
-            KlyteMonoUtils.CreateUIElement(out m_value, m_container.transform, "Direction");
+            KlyteMonoUtils.CreateUIElement(out m_value, m_container.transform, "BudgetLabel");
             m_value.autoSize = false;
             m_value.width = 60;
             m_value.height = 30;
@@ -114,7 +100,7 @@ namespace Klyte.TransportLinesManager.UI
             m_die.textScale = 1f;
             m_die.width = 30;
             m_die.height = 30;
-            m_die.tooltip = Locale.Get("K45_ADR_DELETE_STOP_NEIGHBOR");
+            m_die.tooltip = Locale.Get("K45_TLM_DELETE_STOP_BUDGET_LIST");
             KlyteMonoUtils.InitButton(m_die, true, "ButtonMenu");
             m_die.isVisible = true;
             m_die.text = "X";

@@ -98,6 +98,11 @@ namespace Klyte.TransportLinesManager.UI
             Destroy(__instance.Find<UIPanel>("LineModelSelectorContainer"));
             Destroy(__instance.Find<UILabel>("ModelLabel"));
             Destroy(__instance.Find<UILabel>("LabelPassengers"));
+
+            Destroy(__instance.Find<UISlider>("SliderModifyVehicleCount"));
+            Destroy(__instance.Find<UILabel>("VehicleCountPercent"));
+            Destroy(__instance.Find<UILabel>("VehicleAmount"));
+            Destroy(__instance.Find<UIPanel>("PanelVehicleCount"));
         }
 
         private static void OverrideVehicleTypeIcon()
