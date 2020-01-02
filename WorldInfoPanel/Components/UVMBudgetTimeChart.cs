@@ -148,7 +148,7 @@ namespace Klyte.TransportLinesManager.UI
                 m_effectiveSprite.progressColor = UVMBudgetConfigTab.m_colorOrder[value.Third % UVMBudgetConfigTab.m_colorOrder.Count];
                 m_effectiveSprite.value = value.Fourth;
                 int currentVehicleCount = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CountVehicles(lineID);
-                int targetVehicleCount = TransportLineOverrides.NewCalculateTargetVehicleCount(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID], lineID);
+                int targetVehicleCount = TransportLineOverrides.NewCalculateTargetVehicleCount(lineID);
                 m_effectiveLabel.prefix = (value.First * 100).ToString("0");
                 m_effectiveLabel.suffix = $"{currentVehicleCount.ToString("0")}/{targetVehicleCount.ToString("0")}";
             }

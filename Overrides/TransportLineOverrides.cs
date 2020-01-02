@@ -8,14 +8,13 @@ using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using static Klyte.Commons.Extensors.RedirectorUtils;
 namespace Klyte.TransportLinesManager.Overrides
 {
-    internal class TransportLineOverrides : MonoBehaviour, IRedirectable
+    public class TransportLineOverrides : MonoBehaviour, IRedirectable
     {
         #region Hooking
 
@@ -35,18 +34,10 @@ namespace Klyte.TransportLinesManager.Overrides
 
 
             #region Ticket Override Hooks
-            MethodInfo GetTicketPricePre = typeof(TransportLineOverrides).GetMethod("GetTicketPricePre", allFlags);
+            MethodInfo GetTicketPriceTranspile = typeof(TransportLineOverrides).GetMethod("TicketPriceTranspiler", allFlags);
 
             TLMUtils.doLog("Loading Ticket Override Hooks");
-            RedirectorInstance.AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            RedirectorInstance.AddRedirect(typeof(PassengerShipAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            RedirectorInstance.AddRedirect(typeof(TramAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            RedirectorInstance.AddRedirect(typeof(PassengerTrainAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            RedirectorInstance.AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            RedirectorInstance.AddRedirect(typeof(PassengerFerryAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            RedirectorInstance.AddRedirect(typeof(BusAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            RedirectorInstance.AddRedirect(typeof(CableCarAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre);
-            //AddRedirect(typeof(TaxiAI).GetMethod("GetTicketPrice", allFlags), GetTicketPricePre); // Waiting fix
+            RedirectorInstance.AddRedirect(typeof(HumanAI).GetMethod("EnterVehicle", allFlags), null, null, GetTicketPriceTranspile);
             #endregion
             #region Bus Spawn Unbunching
             MethodInfo BusUnbuncher = typeof(TransportLineOverrides).GetMethod("BusUnbuncher", allFlags);
@@ -70,10 +61,11 @@ namespace Klyte.TransportLinesManager.Overrides
 
             #region Budget Override Hooks
 
-            MethodInfo SimulationStepPre = typeof(TransportLineOverrides).GetMethod("TranspileSimulationStepLine", allFlags);
+            MethodInfo TranspileSimulationStepLine = typeof(TransportLineOverrides).GetMethod("TranspileSimulationStepLine", allFlags);
+            MethodInfo TranspileSimulationStepAI = typeof(TransportLineOverrides).GetMethod("TranspileSimulationStepAI", allFlags);
             TLMUtils.doLog("Loading SimulationStepPre Hook");
-            RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), null, null, SimulationStepPre);
-            RedirectorInstance.AddRedirect(m_targetVehicles, typeof(TransportLineOverrides).GetMethod("WarnCountVehicles", allFlags));
+            RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), null, null, TranspileSimulationStepLine);
+            RedirectorInstance.AddRedirect(typeof(TransportLineAI).GetMethod("SimulationStep", allFlags, null, new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }, null), null, null, TranspileSimulationStepAI);
             #endregion
 
         }
@@ -121,24 +113,55 @@ namespace Klyte.TransportLinesManager.Overrides
         #region Budget Override
         private static readonly MethodInfo m_targetVehicles = typeof(TransportLine).GetMethod("CalculateTargetVehicleCount", RedirectorUtils.allFlags);
         private static readonly MethodInfo m_newTargetVehicles = typeof(TransportLineOverrides).GetMethod("NewCalculateTargetVehicleCount", RedirectorUtils.allFlags);
+        private static readonly FieldInfo m_budgetField = typeof(TransportLine).GetField("m_budget", RedirectorUtils.allFlags);
+        private static readonly MethodInfo m_getBudgetInt = typeof(TLMLineUtils).GetMethod("GetEffectiveBudgetInt", RedirectorUtils.allFlags);
         public static IEnumerable<CodeInstruction> TranspileSimulationStepLine(IEnumerable<CodeInstruction> instructions)
         {
             var inst = new List<CodeInstruction>(instructions);
 
             for (int i = 0; i < inst.Count; i++)
             {
-                if (inst[i].opcode == OpCodes.Callvirt && inst[i].operand == m_targetVehicles)
+                if (inst[i].opcode == OpCodes.Call && inst[i].operand == m_targetVehicles)
                 {
-                    inst[i] = new CodeInstruction(OpCodes.Ldarg_0);
-                    inst.Insert(i + 1, new CodeInstruction(OpCodes.Call, m_newTargetVehicles));
+                    inst[i - 1].opcode = OpCodes.Ldarg_1;
+                    inst[i] = new CodeInstruction(OpCodes.Call, m_newTargetVehicles);
+                }
+            }
+            LogUtils.PrintMethodIL(inst);
+            return inst;
+        }
+        public static IEnumerable<CodeInstruction> TranspileSimulationStepAI(IEnumerable<CodeInstruction> instructions)
+        {
+            var inst = new List<CodeInstruction>(instructions);
+
+            for (int i = 0; i < inst.Count; i++)
+            {
+                if (inst[i].opcode == OpCodes.Ldfld && inst[i].operand == m_budgetField)
+                {
+                    inst[i] = new CodeInstruction(OpCodes.Call, m_getBudgetInt);
+                    inst[i + 1] = new CodeInstruction(OpCodes.Stloc_S, 4);
+                    inst.RemoveAt(i + 9);
+                    inst.RemoveAt(i + 8);
+                    inst.RemoveAt(i + 7);
+                    inst.RemoveAt(i + 6);
+                    inst.RemoveAt(i + 5);
+                    inst.RemoveAt(i + 4);
+                    inst.RemoveAt(i + 3);
+                    inst.RemoveAt(i + 2);
+                    inst.RemoveAt(i - 1);
+                    inst.RemoveAt(i - 4);
+                    inst.RemoveAt(i - 5);
+                    inst.RemoveAt(i - 6);
+                    break;
                 }
             }
             LogUtils.PrintMethodIL(inst);
             return inst;
         }
 
-        public static int NewCalculateTargetVehicleCount(ref TransportLine t, ushort lineId)
+        public static int NewCalculateTargetVehicleCount(ushort lineId)
         {
+            ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineId];
             float lineLength = t.m_totalLength;
             if (lineLength == 0f && t.m_stops != 0)
             {
@@ -177,71 +200,25 @@ namespace Klyte.TransportLinesManager.Overrides
         #endregion
 
         #region Ticket Override
-        public static bool GetTicketPricePre(ushort vehicleID, ref Vehicle vehicleData, ref int __result) => ticketPriceForPrefix(vehicleID, ref vehicleData, ref __result);
+        private static readonly MethodInfo m_getTicketPriceForPrefix = typeof(TLMLineUtils).GetMethod("GetTicketPriceForPrefix", RedirectorUtils.allFlags);
+        private static readonly MethodInfo m_getTicketPriceDefault = typeof(VehicleAI).GetMethod("GetTicketPrice", RedirectorUtils.allFlags);
 
-        private static bool ticketPriceForPrefix(ushort vehicleID, ref Vehicle vehicleData, ref int __result)
+        public static IEnumerable<CodeInstruction> TicketPriceTranspiller(IEnumerable<CodeInstruction> instructions)
         {
-            var def = TransportSystemDefinition.From(vehicleData.Info);
+            var inst = new List<CodeInstruction>(instructions);
 
-            if (def == default)
+            for (int i = 0; i < inst.Count; i++)
             {
-                return true;
-            }
-
-            DistrictManager instance = Singleton<DistrictManager>.instance;
-            byte district = instance.GetDistrict(vehicleData.m_targetPos3);
-            DistrictPolicies.Services servicePolicies = instance.m_districts.m_buffer[district].m_servicePolicies;
-            DistrictPolicies.Event @event = instance.m_districts.m_buffer[district].m_eventPolicies & Singleton<EventManager>.instance.GetEventPolicyMask();
-            float multiplier;
-            if (vehicleData.Info.m_class.m_subService == ItemClass.SubService.PublicTransportTours)
-            {
-                multiplier = 1;
-            }
-            else
-            {
-                if ((servicePolicies & DistrictPolicies.Services.FreeTransport) != DistrictPolicies.Services.None)
+                if (inst[i].opcode == OpCodes.Callvirt && inst[i].operand == m_getTicketPriceDefault)
                 {
-                    __result = 0;
-                    return false;
-                }
-                if ((@event & DistrictPolicies.Event.ComeOneComeAll) != DistrictPolicies.Event.None)
-                {
-                    __result = 0;
-                    return false;
-                }
-                if ((servicePolicies & DistrictPolicies.Services.HighTicketPrices) != DistrictPolicies.Services.None)
-                {
-                    District[] expr_114_cp_0 = instance.m_districts.m_buffer;
-                    byte expr_114_cp_1 = district;
-                    expr_114_cp_0[expr_114_cp_1].m_servicePoliciesEffect = (expr_114_cp_0[expr_114_cp_1].m_servicePoliciesEffect | DistrictPolicies.Services.HighTicketPrices);
-                    multiplier = 5f / 4f;
-                }
-                else
-                {
-                    multiplier = 1;
+                    inst[i] = new CodeInstruction(OpCodes.Call, m_getTicketPriceForPrefix);
                 }
             }
-            if (vehicleData.m_transportLine == 0)
-            {
-                __result = (int) (def.GetTransportExtension().GetDefaultTicketPrice(0) * multiplier);
-                return false;
-            }
-            else
-            {
-                uint prefixValue = 0;
-                if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(vehicleData.m_transportLine))
-                {
-                    prefixValue = TLMTransportLineExtension.Instance.GetTicketPrice(vehicleData.m_transportLine);
-                }
-                if (prefixValue == 0)
-                {
-                    prefixValue = def.GetTransportExtension().GetTicketPrice(TLMLineUtils.getPrefix(vehicleData.m_transportLine));
-                }
-
-                __result = (int) (multiplier * prefixValue);
-                return false;
-            }
+            LogUtils.PrintMethodIL(inst);
+            return inst;
         }
+
+
         #endregion
 
         #region Color Override

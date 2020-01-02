@@ -109,12 +109,13 @@ namespace Klyte.TransportLinesManager.Utils
 
 
 
-        public static float GetEffectiveBudget(ushort transportLine)
+        public static float GetEffectiveBudget(ushort transportLine) => GetEffectiveBudgetInt(transportLine) / 100f;
+        public static int GetEffectiveBudgetInt(ushort transportLine)
         {
             TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info;
             Tuple<float, int, int, float, bool> lineBudget = GetBudgetMultiplierLineWithIndexes(transportLine);
             int budgetClass = lineBudget.Fifth ? 100 : Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            return budgetClass * lineBudget.First / 100f;
+            return (int) (budgetClass * lineBudget.First);
         }
 
         public static float GetBudgetMultiplierLine(ushort lineId) => GetBudgetMultiplierLineWithIndexes(lineId).First;
@@ -1144,7 +1145,65 @@ namespace Klyte.TransportLinesManager.Utils
 
         private static bool IsBuildingValidForStation(bool excludeCargo, BuildingManager bm, ushort tempBuildingId) => tempBuildingId > 0 && (!excludeCargo || !(bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is DepotAI || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is CargoStationAI) || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI);
         public static int CalculateTargetVehicleCount(ref TransportLine t, ushort lineId, float lineLength) => CalculateTargetVehicleCount(t.Info, lineLength, GetEffectiveBudget(lineId));
-        public static int CalculateTargetVehicleCount(TransportInfo info, float lineLength, float budget) => Mathf.CeilToInt(budget * lineLength / (info.m_defaultVehicleDistance * 100f));
+        public static int CalculateTargetVehicleCount(TransportInfo info, float lineLength, float budget) => Mathf.CeilToInt(budget * lineLength / info.m_defaultVehicleDistance);
+
+        public static int GetTicketPriceForVehicle(VehicleAI ai, ushort vehicleID, ref Vehicle vehicleData)
+        {
+            var def = TransportSystemDefinition.From(vehicleData.Info);
+
+            if (def == default)
+            {
+                return ai.GetTicketPrice(vehicleID, ref vehicleData);
+            }
+
+            DistrictManager instance = Singleton<DistrictManager>.instance;
+            byte district = instance.GetDistrict(vehicleData.m_targetPos3);
+            DistrictPolicies.Services servicePolicies = instance.m_districts.m_buffer[district].m_servicePolicies;
+            DistrictPolicies.Event @event = instance.m_districts.m_buffer[district].m_eventPolicies & Singleton<EventManager>.instance.GetEventPolicyMask();
+            float multiplier;
+            if (vehicleData.Info.m_class.m_subService == ItemClass.SubService.PublicTransportTours)
+            {
+                multiplier = 1;
+            }
+            else
+            {
+                if ((servicePolicies & DistrictPolicies.Services.FreeTransport) != DistrictPolicies.Services.None)
+                {
+                    return 0;
+                }
+                if ((@event & DistrictPolicies.Event.ComeOneComeAll) != DistrictPolicies.Event.None)
+                {
+                    return 0;
+                }
+                if ((servicePolicies & DistrictPolicies.Services.HighTicketPrices) != DistrictPolicies.Services.None)
+                {
+                    instance.m_districts.m_buffer[district].m_servicePoliciesEffect = (instance.m_districts.m_buffer[district].m_servicePoliciesEffect | DistrictPolicies.Services.HighTicketPrices);
+                    multiplier = 5f / 4f;
+                }
+                else
+                {
+                    multiplier = 1;
+                }
+            }
+            if (vehicleData.m_transportLine == 0)
+            {
+                return (int) (def.GetTransportExtension().GetDefaultTicketPrice(0) * multiplier);
+            }
+            else
+            {
+                uint prefixValue = 0;
+                if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(vehicleData.m_transportLine))
+                {
+                    prefixValue = TLMTransportLineExtension.Instance.GetTicketPrice(vehicleData.m_transportLine);
+                }
+                if (prefixValue == 0)
+                {
+                    prefixValue = def.GetTransportExtension().GetTicketPrice(TLMLineUtils.getPrefix(vehicleData.m_transportLine));
+                }
+
+                return (int) (multiplier * prefixValue);
+            }
+        }
         public static string getPrefixesServedString(ushort m_buildingID, bool secondary)
         {
             Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];
