@@ -29,7 +29,7 @@ namespace Klyte.TransportLinesManager.Interfaces
 
     public interface ITicketPriceStorage
     {
-        public uint TicketPrice { get; set; }
+        public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; }
     }
 
     public interface IAssetSelectorExtension : ISafeGettable<IAssetSelectorStorage>

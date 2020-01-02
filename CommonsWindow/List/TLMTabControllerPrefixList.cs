@@ -32,7 +32,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private UIColorField m_prefixColor;
         private UITextField m_prefixName;
         private UICheckBox m_useColorForModel;
-        private UITextField m_prefixTicketPrice;
 
         private UIDropDown m_paletteDD;
         private UIDropDown m_formatDD;
@@ -101,8 +100,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             ConfigComponentPanel(m_prefixName);
 
             TLMUtils.doLog("Price");
-            m_prefixTicketPrice = m_subpanel.AddTextField(Locale.Get("K45_TLM_TICKET_PRICE_LABEL"), null, "", onTicketChange);
-            ConfigComponentPanel(m_prefixTicketPrice);
+
 
             TLMUtils.doLog("ColorForModel");
             m_useColorForModel = m_subpanel.AddCheckboxLocale("K45_TLM_USE_PREFIX_COLOR_FOR_VEHICLE", false, onUseColorVehicleChange);
@@ -244,7 +242,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             if (!isChanging && m_prefixSelector.selectedIndex >= 0 && uint.TryParse(val, out uint intVal))
             {
-                extension.SetTicketPrice((uint) m_prefixSelector.selectedIndex, intVal);
+
             }
         }
 
@@ -264,7 +262,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 m_prefixColor.selectedColor = extension.GetColor((uint) sel);
                 m_useColorForModel.isChecked = extension.IsUsingColorForModel((uint) sel);
-                m_prefixTicketPrice.text = extension.GetTicketPrice((uint) sel).ToString();
                 m_prefixName.text = extension.GetName((uint) sel) ?? "";
                 m_paletteDD.selectedIndex = Math.Max(0, m_paletteDD.items.ToList().IndexOf(extension.GetCustomPalette((uint) sel)));
                 m_formatDD.selectedIndex = Math.Max(0, (int) extension.GetCustomFormat((uint) sel));

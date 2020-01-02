@@ -194,14 +194,16 @@
     <Compile Include="Utils\TLMLineUtils.cs" />
     <Compile Include="Utils\TLMUtils.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMFinanceReportLine.cs" />
+    <Compile Include="WorldInfoPanel\Components\TLMTicketPriceEditorLine.cs" />
+    <Compile Include="WorldInfoPanel\Components\TLMTicketPriceTimeChart.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMAssetSelectorTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMLineFinanceReportTab.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\TLMTicketConfigTab.cs" />
     <Compile Include="WorldInfoPanel\TLMDepotWorldInfoPanelPrefixListsParent.cs" />
     <Compile Include="WorldInfoPanel\Components\UVMBudgetEditorLine.cs" />
     <Compile Include="WorldInfoPanel\Components\UVMBudgetTimeChart.cs" />
     <Compile Include="WorldInfoPanel\Tabs\IUVMPTWIPChild.cs" />
     <Compile Include="WorldInfoPanel\Tabs\UVMBudgetConfigTab.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\UVMBudgetWIPTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\UVMMainWIPTab.cs" />
     <Compile Include="WorldInfoPanel\UVMTransportLineLinearMap.cs" />
     <Compile Include="WorldInfoPanel\UVMTransportLineWorldInfoPanel.cs" />

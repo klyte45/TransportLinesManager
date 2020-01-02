@@ -77,10 +77,10 @@ namespace Klyte.TransportLinesManager.UI
             KlyteMonoUtils.CreateTabsComponent(out m_obj.m_lineConfigTabs, out _, __instance.transform, "LineConfig", new Vector4(15, 45, 365, 30), new Vector4(15, 80, 380, 440));
 
             m_childControls.Add(TabCommons.CreateTab<UVMMainWIPTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_STATS_TAB", "Default", false));
-            m_childControls.Add(TabCommons.CreateTab<TLMLineFinanceReportTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency2", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));
-            m_childControls.Add(TabCommons.CreateTab<TLMAssetSelectorTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency", "K45_TLM_WIP_ASSET_SELECTION_TAB", "FinanceReport", false));
-            m_childControls.Add(TabCommons.CreateTab<UVMBudgetWIPTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency2", "ECONOMY_BUDGET", "Budget", false));
+            m_childControls.Add(TabCommons.CreateTab<TLMLineFinanceReportTab>(m_obj.m_lineConfigTabs, "IconMessage", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));
+            m_childControls.Add(TabCommons.CreateTab<TLMAssetSelectorTab>(m_obj.m_lineConfigTabs, "IconPolicyFreePublicTransport", "K45_TLM_WIP_ASSET_SELECTION_TAB", "AssetSelection", false));
             m_childControls.Add(TabCommons.CreateTab<UVMBudgetConfigTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency", "K45_TLM_WIP_BUDGET_CONFIGURATION_TAB", "Budget", false));
+            m_childControls.Add(TabCommons.CreateTab<TLMTicketConfigTab>(m_obj.m_lineConfigTabs, "FootballTicketIcon", "K45_TLM_WIP_TICKET_CONFIGURATION_TAB", "Ticket", false));
             m_childControls.Add(__instance.Find<UIPanel>("StopsPanel").parent.gameObject.AddComponent<UVMTransportLineLinearMap>());
             DestroyNotUsed(__instance);
         }
@@ -103,6 +103,10 @@ namespace Klyte.TransportLinesManager.UI
             Destroy(__instance.Find<UILabel>("VehicleCountPercent"));
             Destroy(__instance.Find<UILabel>("VehicleAmount"));
             Destroy(__instance.Find<UIPanel>("PanelVehicleCount"));
+
+            Destroy(__instance.Find<UISlider>("SliderTicketPrice"));
+            Destroy(__instance.Find<UILabel>("LabelTicketPrice"));
+            Destroy(__instance.Find<UIPanel>("TicketPriceSection"));
         }
 
         private static void OverrideVehicleTypeIcon()

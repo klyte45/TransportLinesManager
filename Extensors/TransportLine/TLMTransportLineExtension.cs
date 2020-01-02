@@ -144,7 +144,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         public TimeableList<BudgetEntryXml> BudgetEntries { get; set; } = new TimeableList<BudgetEntryXml>();
         [XmlElement("AssetsList")]
         public SimpleXmlList<string> AssetList { get; set; } = new SimpleXmlList<string>();
-        [XmlAttribute("ticketPrice")]
-        public uint TicketPrice { get; set; } = 0;
+        [XmlElement("TicketPrices")]
+        public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; }
     }
 }

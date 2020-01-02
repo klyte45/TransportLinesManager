@@ -58,8 +58,22 @@ namespace Klyte.TransportLinesManager.Extensors
         public static void RemoveBudgetMultiplier<T>(this T it, uint prefix, int hour) where T : IBudgetableExtension, ISafeGettable<IBudgetStorage> => it.SafeGet(prefix).BudgetEntries.RemoveAtHour(hour);
         #endregion
         #region Ticket Price
-        public static uint GetTicketPrice<T>(this T it, uint prefix) where T : ITicketPriceExtension, ISafeGettable<ITicketPriceStorage> => it.SafeGet(prefix).TicketPrice == 0 ? it.GetDefaultTicketPrice(prefix) : it.SafeGet(prefix).TicketPrice;
-        public static void SetTicketPrice<T>(this T it, uint prefix, uint price) where T : ITicketPriceExtension, ISafeGettable<ITicketPriceStorage> => it.SafeGet(prefix).TicketPrice = price;
+        public static TimeableList<TicketPriceEntryXml> GetTicketPrices<T>(this T it, uint prefix) where T : ITicketPriceExtension, ISafeGettable<ITicketPriceStorage> => it.SafeGet(prefix).TicketPriceEntries;
+        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForHour<T>(this T it, uint prefix, float hour) where T : ITicketPriceExtension, ISafeGettable<ITicketPriceStorage>
+        {
+            TimeableList<TicketPriceEntryXml> ticketPrices = it.GetTicketPrices(prefix);
+            return ticketPrices.GetAtHourExact(hour);
+        }
+        public static void SetTicketPrice<T>(this T it, uint prefix, uint multiplier, int hour) where T : ITicketPriceExtension, ISafeGettable<ITicketPriceStorage>
+        {
+            it.SafeGet(prefix).TicketPriceEntries.Add(new TicketPriceEntryXml()
+            {
+                Value = multiplier,
+                HourOfDay = hour
+            });
+        }
+        public static void RemoveTicketPriceEntry<T>(this T it, uint prefix, int hour) where T : ITicketPriceExtension, ISafeGettable<ITicketPriceStorage> => it.SafeGet(prefix).TicketPriceEntries.RemoveAtHour(hour);
+
         #endregion
 
         #region Color

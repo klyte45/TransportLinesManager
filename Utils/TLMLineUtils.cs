@@ -1191,19 +1191,32 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else
             {
-                uint prefixValue = 0;
-                if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(vehicleData.m_transportLine))
-                {
-                    prefixValue = TLMTransportLineExtension.Instance.GetTicketPrice(vehicleData.m_transportLine);
-                }
-                if (prefixValue == 0)
-                {
-                    prefixValue = def.GetTransportExtension().GetTicketPrice(TLMLineUtils.getPrefix(vehicleData.m_transportLine));
-                }
+                var ticketPriceDefault = GetTicketPriceForLine(vehicleData.m_transportLine).First.Value;
 
-                return (int) (multiplier * prefixValue);
+                return (int) (multiplier * ticketPriceDefault);
             }
         }
+
+        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(ushort lineId) => GetTicketPriceForLine(lineId, SimulationManager.instance.m_currentDayTimeHour);
+        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(ushort lineId, float hour)
+        {
+            Tuple<TicketPriceEntryXml, int> ticketPriceDefault = null;
+            if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
+            {
+                ticketPriceDefault = TLMTransportLineExtension.Instance.GetTicketPriceForHour(lineId, hour);
+            }
+            if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
+            {
+                ticketPriceDefault = TransportSystemDefinition.From(lineId).GetTransportExtension().GetTicketPriceForHour(TLMLineUtils.getPrefix(lineId), hour);
+            }
+            if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
+            {
+                ticketPriceDefault = Tuple.New(new TicketPriceEntryXml() { Value = (uint) TransportManager.instance.m_lines.m_buffer[lineId].Info.m_ticketPrice }, -1);
+            }
+
+            return ticketPriceDefault;
+        }
+
         public static string getPrefixesServedString(ushort m_buildingID, bool secondary)
         {
             Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];

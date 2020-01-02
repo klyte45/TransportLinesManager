@@ -200,10 +200,10 @@ namespace Klyte.TransportLinesManager.Overrides
         #endregion
 
         #region Ticket Override
-        private static readonly MethodInfo m_getTicketPriceForPrefix = typeof(TLMLineUtils).GetMethod("GetTicketPriceForPrefix", RedirectorUtils.allFlags);
+        private static readonly MethodInfo m_getTicketPriceForPrefix = typeof(TLMLineUtils).GetMethod("GetTicketPriceForVehicle", RedirectorUtils.allFlags);
         private static readonly MethodInfo m_getTicketPriceDefault = typeof(VehicleAI).GetMethod("GetTicketPrice", RedirectorUtils.allFlags);
 
-        public static IEnumerable<CodeInstruction> TicketPriceTranspiller(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> TicketPriceTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             var inst = new List<CodeInstruction>(instructions);
 

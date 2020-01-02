@@ -170,12 +170,12 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
     {
         [XmlElement("Budget")]
         public TimeableList<BudgetEntryXml> BudgetEntries { get; set; } = new TimeableList<BudgetEntryXml>();
+        [XmlElement("TicketPrices")]
+        public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; } = new TimeableList<TicketPriceEntryXml>();
         [XmlElement("AssetsList")]
         public SimpleXmlList<string> AssetList { get; set; } = new SimpleXmlList<string>();
         [XmlAttribute("name")]
         public string Name { get; set; }
-        [XmlAttribute("ticketPrice")]
-        public uint TicketPrice { get; set; } = 0;
         [XmlAttribute("useColorForModel")]
         public bool UseColorForModel { get; set; }
 
@@ -240,5 +240,33 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         }
 
         public event Action<BudgetEntryXml> OnEntryChanged;
+    }
+
+    public class TicketPriceEntryXml : ITimeable<TicketPriceEntryXml>
+    {
+        private int m_hourOfDay;
+        private uint m_value;
+
+        [XmlAttribute("startTime")]
+        public int? HourOfDay
+        {
+            get => m_hourOfDay;
+            set {
+                m_hourOfDay = (value ?? -1) % 24;
+                OnEntryChanged?.Invoke(this);
+            }
+        }
+
+        [XmlAttribute("value")]
+        public uint Value
+        {
+            get => m_value;
+            set {
+                m_value = value;
+                OnEntryChanged?.Invoke(this);
+            }
+        }
+
+        public event Action<TicketPriceEntryXml> OnEntryChanged;
     }
 }
