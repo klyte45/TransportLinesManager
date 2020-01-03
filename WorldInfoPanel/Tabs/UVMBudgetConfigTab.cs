@@ -27,7 +27,6 @@ namespace Klyte.TransportLinesManager.UI
         private UIScrollablePanel m_entryListContainer;
 
         private UICheckBox m_showAbsoluteCheckbox;
-        private bool m_showAbsoluteValues;
 
         #region Awake
         public void Awake()
@@ -49,8 +48,11 @@ namespace Klyte.TransportLinesManager.UI
 
             m_uiHelperNeighbors.AddSpace(5);
             KlyteMonoUtils.CreateElement(out m_clockChart, m_uiHelperNeighbors.Self.transform, "DailyClock");
-            m_showAbsoluteCheckbox = m_uiHelperNeighbors.AddCheckboxLocale("K45_TLM_SHOW_ABSOLUTE_VALUE", false, (x) => m_showAbsoluteValues = x);
-            KlyteMonoUtils.LimitWidthAndBox(m_showAbsoluteCheckbox, m_uiHelperNeighbors.Self.width - 40f);
+            m_showAbsoluteCheckbox = m_uiHelperNeighbors.AddCheckboxLocale("K45_TLM_SHOW_ABSOLUTE_VALUE", false, (x) =>
+            {
+                RebuildList(UVMPublicTransportWorldInfoPanel.GetLineID());
+            });
+            KlyteMonoUtils.LimitWidthAndBox(m_showAbsoluteCheckbox.label, m_uiHelperNeighbors.Self.width - 40f);
             KlyteMonoUtils.CreateElement(out m_titleContainer, m_uiHelperNeighbors.Self.transform, "Title");
             PopulateTitlePanel(m_titleContainer);
             KlyteMonoUtils.CreateScrollPanel(m_uiHelperNeighbors.Self, out m_entryListContainer, out _, m_uiHelperNeighbors.Self.width - 20f, m_uiHelperNeighbors.Self.height - 150, Vector3.zero);
@@ -118,7 +120,7 @@ namespace Klyte.TransportLinesManager.UI
                 config.Add(new BudgetEntryXml()
                 {
                     HourOfDay = 0,
-                    Value = TransportManager.instance.m_lines.m_buffer[lineID].m_budget
+                    Value = lineConfig.IsCustom ? 100u : TransportManager.instance.m_lines.m_buffer[lineID].m_budget
                 });
             }
 
@@ -264,7 +266,7 @@ namespace Klyte.TransportLinesManager.UI
             Color.Lerp(Color.red,Color.magenta,0.5f),
         };
 
-        public static bool IsAbsoluteValue() => Instance.m_showAbsoluteValues;
+        public static bool IsAbsoluteValue() => Instance.m_showAbsoluteCheckbox.isVisible && Instance.m_showAbsoluteCheckbox.isChecked;
 
         public void OnEnable() { }
         public void OnDisable() { }
@@ -275,12 +277,11 @@ namespace Klyte.TransportLinesManager.UI
                 return;
             }
 
-            TLMLineUtils.GetConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), out TransportLineConfiguration lineConfig, out _);
-            m_showAbsoluteCheckbox.isVisible = lineConfig.IsCustom;
-            m_showAbsoluteValues = lineConfig.IsCustom ? m_showAbsoluteValues : false;
             ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
             if (lineID > 0)
             {
+                m_showAbsoluteCheckbox.isVisible = TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID);
+                m_showAbsoluteCheckbox.isChecked = TLMTransportLineExtension.Instance.IsDisplayAbsoluteValues(lineID);
                 RebuildList(lineID);
             }
         }

@@ -131,7 +131,7 @@ namespace Klyte.TransportLinesManager.UI
             bool isComplete = (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None;
             bool simmetric = TLMLineUtils.CalculateSimmetry(ss, stopsCount, t, out int middle);
             float addedWidth = 0;
-            lineStationsPanel.width = 0;
+            lineStationsPanel.width = 20;
             if (t.Info.m_transportType != TransportInfo.TransportType.Bus && t.Info.m_transportType != TransportInfo.TransportType.Tram && simmetric && !showExtraStopInfo)
             {
                 int maxIt = middle + stopsCount / 2;
@@ -171,6 +171,7 @@ namespace Klyte.TransportLinesManager.UI
                     lineStationsPanel.width += addedWidth;
                 }
             }
+            lineStationsPanel.width += 20;
             TLMUtils.doLog("p6");
             lineStationsPanel.width -= addedWidth;
             if (showExtraStopInfo)
@@ -575,12 +576,12 @@ namespace Klyte.TransportLinesManager.UI
 
             KlyteMonoUtils.CreateUIElement(out lineStationsPanel, mainContainer.transform);
             lineStationsPanel.width = 140;
-            lineStationsPanel.height = 30;
+            lineStationsPanel.height = 25;
             lineStationsPanel.name = "LineStationsPanel";
             lineStationsPanel.autoLayout = false;
             lineStationsPanel.useCenter = true;
             lineStationsPanel.wrapLayout = false;
-            lineStationsPanel.backgroundSprite = "LinearBg";
+            lineStationsPanel.backgroundSprite = "PlainWhite";
             lineStationsPanel.pivot = UIPivotPoint.MiddleLeft;
             lineStationsPanel.relativePosition = new Vector3(75f, 10f);
             lineStationsPanel.color = TransportManager.instance.GetLineColor(parent.CurrentSelectedId);
@@ -600,13 +601,13 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             KlyteMonoUtils.CreateUIElement(out UIButton stationButton, lineStationsPanel.transform);
-            stationButton.relativePosition = new Vector3(offsetX - 13, 15f);
-            stationButton.width = 20;
-            stationButton.height = 20;
-            stationButton.color = lineColor;
+            stationButton.relativePosition = new Vector3(offsetX - 10, 13f);
+            stationButton.width = 25;
+            stationButton.height = 25;
+            stationButton.color = Color.white;
             stationButton.name = "Station [" + stationName + "]";
-            stationButton.tooltip = stationName + "(id:" + stationNodeId + ")";
-            KlyteMonoUtils.InitButton(stationButton, true, "LinearStation");
+            stationButton.tooltip = stationName + (TransportLinesManagerMod.DebugMode ? "(id:" + stationNodeId + ")" : "");
+            KlyteMonoUtils.InitButton(stationButton, true, "DistrictOptionBrushMedium");
 
             KlyteMonoUtils.CreateUIElement(out DroppableStationInfo dsi, stationButton.transform);
             dsi.nodeId = stationNodeId;
@@ -621,7 +622,7 @@ namespace Klyte.TransportLinesManager.UI
             stationLabel.horizontalAlignment = UIHorizontalAlignment.Left;
             stationLabel.verticalAlignment = UIVerticalAlignment.Middle;
             stationLabel.name = "Station [" + stationName + "] Name";
-            stationLabel.relativePosition = new Vector3(23f, -13f);
+            stationLabel.relativePosition = new Vector3(28f, -13f);
             stationLabel.text = (!string.IsNullOrEmpty(stationPrefix) ? stationPrefix.Trim() + " " : "") + stationName.Trim();
             stationLabel.textScale = Math.Max(0.5f, Math.Min(1, 24f / stationLabel.text.Length));
 
@@ -728,7 +729,7 @@ namespace Klyte.TransportLinesManager.UI
                         distance.font = UIHelperExtension.defaultFontCheckbox;
                         distance.width = 50f;
                         distance.height = 50;
-                        distance.relativePosition = new Vector3(-42, 0);
+                        distance.relativePosition = new Vector3(-37, 0);
                         distance.transform.localEulerAngles = new Vector3(0, 0, 45);
                         distance.isInteractive = false;
                     }
@@ -740,7 +741,7 @@ namespace Klyte.TransportLinesManager.UI
                         intersectionsPanel.autoLayout = false;
                         intersectionsPanel.autoLayoutStart = LayoutStart.TopLeft;
                         intersectionsPanel.autoLayoutDirection = LayoutDirection.Horizontal;
-                        intersectionsPanel.relativePosition = new Vector3(-20, 10);
+                        intersectionsPanel.relativePosition = new Vector3(-22.5f, 10);
                         intersectionsPanel.wrapLayout = false;
                         intersectionsPanel.autoFitChildrenVertically = true;
 
@@ -753,20 +754,19 @@ namespace Klyte.TransportLinesManager.UI
                     }
                     else
                     {
-                        KlyteMonoUtils.InitButton(stationButton, true, "LinearHalfStation");
                         if (offsetX == 0)
                         {
-                            stationButton.relativePosition = new Vector3(offsetX - 13, 15f);
-                            return 31f;
+                            stationButton.relativePosition = new Vector3(offsetX - 18, 15f);
+                            return 36f;
                         }
                         else if (distance == null)
                         {
-                            stationButton.relativePosition = new Vector3(offsetX - 23, 15f);
-                            return 21f;
+                            stationButton.relativePosition = new Vector3(offsetX - 28, 15f);
+                            return 26f;
                         }
                         else
                         {
-                            return 42f;
+                            return 47f;
                         }
                     }
                 }

@@ -184,7 +184,7 @@ namespace Klyte.TransportLinesManager.UI
             config.Add(new TicketPriceEntryXml()
             {
                 HourOfDay = 0,
-                Value = 100
+                Value = 0
             });
             RebuildList(UVMPublicTransportWorldInfoPanel.GetLineID());
         }

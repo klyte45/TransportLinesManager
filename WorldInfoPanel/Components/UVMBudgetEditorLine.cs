@@ -52,7 +52,9 @@ namespace Klyte.TransportLinesManager.UI
                 ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[UVMPublicTransportWorldInfoPanel.GetLineID()];
                 m_timeInput.text = Entry.HourOfDay.ToString();
                 m_slider.value = Entry.Value;
-                m_value.text = $"{(UVMBudgetConfigTab.IsAbsoluteValue() ? TLMLineUtils.CalculateTargetVehicleCount(t.Info, t.m_totalLength, Entry.Value / 100f) : (int) Entry.Value)}%";
+                string text = $"{(UVMBudgetConfigTab.IsAbsoluteValue() ? TLMLineUtils.CalculateTargetVehicleCount(t.Info, t.m_totalLength, Entry.Value / 100f) : (int) Entry.Value)}";
+                m_value.text = UVMBudgetConfigTab.IsAbsoluteValue() ? "<sprite IconPolicyFreePublicTransport>x" : text;
+                m_value.suffix = UVMBudgetConfigTab.IsAbsoluteValue() ? text : "%";
             }
             finally
             {
@@ -93,6 +95,8 @@ namespace Klyte.TransportLinesManager.UI
             m_value.textScale = 1.125f;
             m_value.textAlignment = UIHorizontalAlignment.Center;
             m_value.padding = new RectOffset(3, 3, 5, 3);
+            m_value.processMarkup = true;
+            KlyteMonoUtils.LimitWidthAndBox(m_value, 60, true);
 
             m_slider = GenerateBudgetMultiplierField(m_container);
 

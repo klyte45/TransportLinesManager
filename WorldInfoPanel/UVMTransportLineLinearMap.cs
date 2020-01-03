@@ -9,6 +9,7 @@ using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static Klyte.TransportLinesManager.UI.UVMPublicTransportWorldInfoPanel.UVMPublicTransportWorldInfoPanelObject;
 
@@ -47,17 +48,17 @@ namespace Klyte.TransportLinesManager.UI
             m_panelModeSelector.autoFitChildrenVertically = true;
             m_panelModeSelector.autoLayout = true;
             m_panelModeSelector.autoLayoutDirection = LayoutDirection.Horizontal;
-            m_mapModeDropDown = UIHelperExtension.CloneBasicDropDownNoLabel(Enum.GetNames(typeof(MapMode)), (int idx) =>
-            {
-                m_currentMode = (MapMode) idx;
-                RefreshVehicleButtons(GetLineID());
-            }, m_panelModeSelector);
+            m_mapModeDropDown = UIHelperExtension.CloneBasicDropDownNoLabel(Enum.GetNames(typeof(MapMode)).Select(x => Locale.Get("K45_TLM_LINEAR_MAP_VIEW_MODE", x)).ToArray(), (int idx) =>
+               {
+                   m_currentMode = (MapMode) idx;
+                   RefreshVehicleButtons(GetLineID());
+               }, m_panelModeSelector);
             m_mapModeDropDown.textScale = 0.75f;
             m_mapModeDropDown.size = new Vector2(200, 25);
             m_mapModeDropDown.itemHeight = 16;
-            var uICheckBox = m_panelModeSelector.AttachUIComponent(UITemplateManager.GetAsGameObject(UIHelperExtension.kCheckBoxTemplate)) as UICheckBox;
-            uICheckBox.text = "Unscaled";
-            uICheckBox.eventCheckChanged += (x, val) => m_unscaledMode = val;
+
+            UICheckBox unscaledCheck = UIHelperExtension.AddCheckboxLocale(m_panelModeSelector, "K45_TLM_LINEAR_MAP_SHOW_UNSCALED", false, (val) => m_unscaledMode = val);
+            KlyteMonoUtils.LimitWidthAndBox(unscaledCheck.label, 165);
         }
 
         private static void AddNewStopTemplate()

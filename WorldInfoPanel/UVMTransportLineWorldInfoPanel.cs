@@ -4,8 +4,10 @@ using Harmony;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
+using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.TextureAtlas;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -74,6 +76,7 @@ namespace Klyte.TransportLinesManager.UI
 
             OverrideVehicleTypeIcon();
 
+
             KlyteMonoUtils.CreateTabsComponent(out m_obj.m_lineConfigTabs, out _, __instance.transform, "LineConfig", new Vector4(15, 45, 365, 30), new Vector4(15, 80, 380, 440));
 
             m_childControls.Add(TabCommons.CreateTab<UVMMainWIPTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_STATS_TAB", "Default", false));
@@ -83,6 +86,14 @@ namespace Klyte.TransportLinesManager.UI
             m_childControls.Add(TabCommons.CreateTab<TLMTicketConfigTab>(m_obj.m_lineConfigTabs, "FootballTicketIcon", "K45_TLM_WIP_TICKET_CONFIGURATION_TAB", "Ticket", false));
             m_childControls.Add(__instance.Find<UIPanel>("StopsPanel").parent.gameObject.AddComponent<UVMTransportLineLinearMap>());
             DestroyNotUsed(__instance);
+
+            m_obj.m_specificConfig = UIHelperExtension.AddCheckboxLocale(__instance.component, "K45_TLM_USE_SPECIFIC_CONFIG", false, (x) =>
+            {
+                TLMTransportLineExtension.Instance.SetUseCustomConfig(GetLineID(), x);
+                MarkDirty(typeof(UVMPublicTransportWorldInfoPanel));
+            });
+            m_obj.m_specificConfig.relativePosition = new Vector3(10, 530);
+            KlyteMonoUtils.LimitWidthAndBox(m_obj.m_specificConfig.label, 500);
         }
 
         private static void BindComponents(PublicTransportWorldInfoPanel __instance)
@@ -180,6 +191,8 @@ namespace Klyte.TransportLinesManager.UI
             if (lineID != 0)
             {
                 m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(lineID);
+                TLMLineUtils.GetConfigForLine(lineID, out TransportLineConfiguration lineConfig, out _);
+                m_obj.m_specificConfig.isChecked = lineConfig.IsCustom;
             }
 
             foreach (IUVMPTWIPChild tab in m_childControls)
@@ -240,7 +253,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (Singleton<SimulationManager>.exists)
             {
-                AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction<bool>(Singleton<TransportManager>.instance.SetLineName(id, newName));
+                AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineName(id, newName));
                 yield return task.WaitTaskCompleted(this);
                 if (GetLineID() == id)
                 {
@@ -326,6 +339,8 @@ namespace Klyte.TransportLinesManager.UI
             internal UITextField m_nameField;
 
             internal UISprite m_vehicleType;
+
+            internal UICheckBox m_specificConfig;
 
             internal float m_cachedLength;
 

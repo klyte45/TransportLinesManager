@@ -34,12 +34,24 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
 
         public override string SaveId => $"K45_TLM_TLMTransportLineExtension";
 
-        private Dictionary<TransportSystemDefinition, List<string>> m_basicAssetsList = new Dictionary<TransportSystemDefinition, List<string>>();
+        private readonly Dictionary<TransportSystemDefinition, List<string>> m_basicAssetsList = new Dictionary<TransportSystemDefinition, List<string>>();
 
-        public void SetUseCustomConfig(ushort lineId, bool value) => SafeGet(lineId).IsCustom = value;
+        public void SetUseCustomConfig(ushort lineId, bool value)
+        {
+            if (value)
+            {
+                SafeGet(lineId).IsCustom = value;
+            }
+            else
+            {
+                Configurations.Remove(lineId);
+            }
+        }
 
         public bool IsUsingCustomConfig(ushort lineId) => SafeGet(lineId).IsCustom;
 
+        public void SetDisplayAbsoluteValues(ushort lineId, bool value) => SafeGet(lineId).DisplayAbsoluteValues = value;
+        public bool IsDisplayAbsoluteValues(ushort lineId) => SafeGet(lineId).DisplayAbsoluteValues;
         #region Asset List
         public List<string> GetBasicAssetList(uint rel)
         {
@@ -140,11 +152,13 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
     {
         [XmlAttribute("isCustom")]
         public bool IsCustom { get; set; } = false;
+        [XmlAttribute("displayAbsoluteValues")]
+        public bool DisplayAbsoluteValues { get; set; } = false;
         [XmlElement("Budget")]
         public TimeableList<BudgetEntryXml> BudgetEntries { get; set; } = new TimeableList<BudgetEntryXml>();
         [XmlElement("AssetsList")]
         public SimpleXmlList<string> AssetList { get; set; } = new SimpleXmlList<string>();
         [XmlElement("TicketPrices")]
-        public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; }
+        public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; } = new TimeableList<TicketPriceEntryXml>();
     }
 }
