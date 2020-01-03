@@ -21,8 +21,8 @@ namespace Klyte.TransportLinesManager.UI
         private UIScrollablePanel m_bg;
 
         private MapMode m_currentMode = MapMode.NONE;
-        private bool m_unscaledMode = false;
-        private bool m_cachedUnscaledMode = false;
+        private bool m_unscaledMode = true;
+        private bool m_cachedUnscaledMode = true;
         private static bool m_dirty;
 
         #region Overridable
@@ -57,7 +57,7 @@ namespace Klyte.TransportLinesManager.UI
             m_mapModeDropDown.size = new Vector2(200, 25);
             m_mapModeDropDown.itemHeight = 16;
 
-            UICheckBox unscaledCheck = UIHelperExtension.AddCheckboxLocale(m_panelModeSelector, "K45_TLM_LINEAR_MAP_SHOW_UNSCALED", false, (val) => m_unscaledMode = val);
+            UICheckBox unscaledCheck = UIHelperExtension.AddCheckboxLocale(m_panelModeSelector, "K45_TLM_LINEAR_MAP_SHOW_UNSCALED", m_unscaledMode, (val) => m_unscaledMode = val);
             KlyteMonoUtils.LimitWidthAndBox(unscaledCheck.label, 165);
         }
 
@@ -70,6 +70,12 @@ namespace Klyte.TransportLinesManager.UI
             panel.AttachUIComponent(t.gameObject);
             t.relativePosition = Vector2.zero;
 
+            UILabel uilabel = t.Find<UILabel>("PassengerCount");
+            panel.AttachUIComponent(uilabel.gameObject);
+            uilabel.relativePosition = new Vector3(32, 12);
+            uilabel.processMarkup = true;
+            uilabel.isVisible = true;
+
 
             UIPanel connectionPanel = panel.AddUIComponent<UIPanel>();
             connectionPanel.name = "ConnectionPanel";
@@ -79,6 +85,18 @@ namespace Klyte.TransportLinesManager.UI
             connectionPanel.wrapLayout = true;
             connectionPanel.autoLayoutDirection = LayoutDirection.Vertical;
             connectionPanel.autoLayoutStart = LayoutStart.TopRight;
+
+
+            UILabel distLabel = panel.AddUIComponent<UILabel>();
+
+            distLabel.name = "Distance";
+            distLabel.relativePosition = new Vector3(-12, 33);
+            distLabel.textAlignment = UIHorizontalAlignment.Center;
+            distLabel.textScale = 0.65f;
+            distLabel.suffix = "m";
+            distLabel.useOutline = true;
+            distLabel.minimumSize = new Vector2(60, 0);
+            distLabel.outlineColor = Color.black;
 
             GetTemplateDict()["StopButtonPanel"] = panel;
         }
@@ -219,16 +237,17 @@ namespace Klyte.TransportLinesManager.UI
 
                     m_cachedStopOrder[idx] = currentStop;
                     UILabel uilabel = stopsButtons[idx].Find<UILabel>("PassengerCount");
-                    if (uilabel != null)
-                    {
-                        uilabel.processMarkup = true;
-                        uilabel.prefix = $"<color white>{TLMLineUtils.getFullStationName(currentStop, lineID, ItemClass.SubService.None)}</color>";
-                        uilabel.isVisible = true;
-                        uilabel.text = "";
 
-                        KlyteMonoUtils.LimitWidth(uilabel, 180, true);
-                    }
-                    CreateConnectionPanel(instance, stopsButtons, currentStop, idx);
+                    uilabel.prefix = $"<color white>{TLMLineUtils.getFullStationName(currentStop, lineID, ItemClass.SubService.None)}</color>";
+                    uilabel.text = "";
+
+                    UILabel dist = stopsButtons[idx].Find<UILabel>("Distance");
+                    dist.text = "(???)";
+
+                    KlyteMonoUtils.LimitWidth(uilabel, 180, true);
+
+
+                    CreateConnectionPanel(instance, stopsButtons[idx], currentStop);
 
                     for (int i = 0; i < 8; i++)
                     {
@@ -236,6 +255,7 @@ namespace Klyte.TransportLinesManager.UI
                         if (segmentId != 0 && instance.m_segments.m_buffer[segmentId].m_startNode == currentStop)
                         {
                             currentStop = instance.m_segments.m_buffer[segmentId].m_endNode;
+                            dist.text = (instance.m_segments.m_buffer[segmentId].m_averageLength).ToString("0");
                             float segmentSize = m_unscaledMode ? m_kminStopDistance : instance.m_segments.m_buffer[segmentId].m_averageLength;
                             if (segmentSize == 0f)
                             {
@@ -289,6 +309,7 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     m_uILineOffset = stopDistanceFactor * stopPositions[stopPositions.Length - 1] / 2f;
                 }
+                m_uILineLength += 20;
                 m_stopsLineSprite.height = m_uILineLength;
                 m_stopsContainer.height = m_uILineLength + m_kvehicleButtonHeight;
                 Vector3 relativePosition = m_lineEnd.relativePosition;
@@ -318,13 +339,13 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        private void CreateConnectionPanel(NetManager instance, UIPanel[] stopsButtons, ushort currentStop, int idx)
+        private void CreateConnectionPanel(NetManager instance, UIPanel basePanel, ushort currentStop)
         {
             ushort lineID = GetLineID();
             var linesFound = new List<ushort>();
             TLMLineUtils.GetNearLines(instance.m_nodes.m_buffer[currentStop].m_position, 150f, ref linesFound);
             linesFound.Remove(lineID);
-            UIPanel connectionPanel = stopsButtons[idx].Find<UIPanel>("ConnectionPanel");
+            UIPanel connectionPanel = basePanel.Find<UIPanel>("ConnectionPanel");
 
             while (connectionPanel.childCount < linesFound.Count)
             {

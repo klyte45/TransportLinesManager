@@ -672,7 +672,7 @@ namespace Klyte.TransportLinesManager.UI
                     UILabel distance = null;
                     int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0) + (cableCarStation != string.Empty ? 1 : 0);
 
-                    if ((TransportLinesManagerMod.showDistanceLinearMap || parent.ForceShowStopsDistances) && offsetX > 0)
+                    if ((TransportLinesManagerMod.showDistanceLinearMap || parent.ForceShowStopsDistances) && offsetX > 20)
                     {
                         NetSegment seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment0];
                         if (seg.m_endNode != stationNodeId)
@@ -722,15 +722,15 @@ namespace Klyte.TransportLinesManager.UI
                         {
                             distance.text = (int) seg.m_averageLength + "m";
                         }
-                        distance.textScale = 0.7f;
+                        distance.textScale = 0.75f;
                         distance.textAlignment = UIHorizontalAlignment.Center;
                         distance.verticalAlignment = UIVerticalAlignment.Middle;
                         distance.name = "dist.";
                         distance.font = UIHelperExtension.defaultFontCheckbox;
                         distance.width = 50f;
                         distance.height = 50;
-                        distance.relativePosition = new Vector3(-37, 0);
-                        distance.transform.localEulerAngles = new Vector3(0, 0, 45);
+                        distance.relativePosition = new Vector3(-25, 25);
+                        distance.transform.localEulerAngles = new Vector3(0, 0, 90);
                         distance.isInteractive = false;
                     }
 
@@ -741,7 +741,7 @@ namespace Klyte.TransportLinesManager.UI
                         intersectionsPanel.autoLayout = false;
                         intersectionsPanel.autoLayoutStart = LayoutStart.TopLeft;
                         intersectionsPanel.autoLayoutDirection = LayoutDirection.Horizontal;
-                        intersectionsPanel.relativePosition = new Vector3(-22.5f, 10);
+                        intersectionsPanel.relativePosition = new Vector3(-15f, 10);
                         intersectionsPanel.wrapLayout = false;
                         intersectionsPanel.autoFitChildrenVertically = true;
 
