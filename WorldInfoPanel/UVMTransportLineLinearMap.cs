@@ -66,16 +66,17 @@ namespace Klyte.TransportLinesManager.UI
             var go = new GameObject();
             UIPanel panel = go.AddComponent<UIPanel>();
             panel.size = new Vector2(36, 36);
-            UIButton t = UITemplateManager.Get<UIButton>("StopButton");
-            panel.AttachUIComponent(t.gameObject);
-            t.relativePosition = Vector2.zero;
+            UIButton button = UITemplateManager.Get<UIButton>("StopButton");
+            panel.AttachUIComponent(button.gameObject);
+            button.relativePosition = Vector2.zero;
 
-            UILabel uilabel = t.Find<UILabel>("PassengerCount");
+            UILabel uilabel = button.Find<UILabel>("PassengerCount");
             panel.AttachUIComponent(uilabel.gameObject);
             uilabel.relativePosition = new Vector3(32, 12);
             uilabel.processMarkup = true;
             uilabel.isVisible = true;
-
+            uilabel.minimumSize = new Vector2(180, 50);
+            uilabel.verticalAlignment = UIVerticalAlignment.Middle;
 
             UIPanel connectionPanel = panel.AddUIComponent<UIPanel>();
             connectionPanel.name = "ConnectionPanel";
@@ -97,6 +98,19 @@ namespace Klyte.TransportLinesManager.UI
             distLabel.useOutline = true;
             distLabel.minimumSize = new Vector2(60, 0);
             distLabel.outlineColor = Color.black;
+
+            KlyteMonoUtils.CreateUIElement(out UITextField m_lineNameField, panel.transform, "StopNameField", new Vector4(uilabel.relativePosition.x, uilabel.relativePosition.y, 180, 50));
+            m_lineNameField.maxLength = 256;
+            m_lineNameField.isVisible = false;
+            m_lineNameField.verticalAlignment = UIVerticalAlignment.Middle;
+            m_lineNameField.horizontalAlignment = UIHorizontalAlignment.Left;
+            m_lineNameField.selectionSprite = "EmptySprite";
+            m_lineNameField.builtinKeyNavigation = true;
+            m_lineNameField.textScale = uilabel.textScale;
+            m_lineNameField.padding.top = 14;
+            m_lineNameField.padding.bottom = 24;
+            KlyteMonoUtils.InitButtonFull(m_lineNameField, false, "TextFieldPanel");
+
 
             GetTemplateDict()["StopButtonPanel"] = panel;
         }
@@ -238,7 +252,7 @@ namespace Klyte.TransportLinesManager.UI
                     m_cachedStopOrder[idx] = currentStop;
                     UILabel uilabel = stopsButtons[idx].Find<UILabel>("PassengerCount");
 
-                    uilabel.prefix = $"<color white>{TLMLineUtils.getFullStationName(currentStop, lineID, ItemClass.SubService.None)}</color>";
+                    uilabel.prefix = $"<color white>{TLMLineUtils.getFullStationName(currentStop, lineID, TransportSystemDefinition.GetDefinitionForLine(lineID).SubService)}</color>";
                     uilabel.text = "";
 
                     UILabel dist = stopsButtons[idx].Find<UILabel>("Distance");
@@ -248,7 +262,28 @@ namespace Klyte.TransportLinesManager.UI
 
 
                     CreateConnectionPanel(instance, stopsButtons[idx], currentStop);
+                    UIButton button = stopsButtons[idx].GetComponentInChildren<UIButton>();
 
+                    if (uilabel.objectUserData == null)
+                    {
+                        UITextField stopNameField = stopsButtons[idx].Find<UITextField>("StopNameField");
+                        uilabel.eventMouseEnter += (c, r) => uilabel.backgroundSprite = "TextFieldPanelHovered";
+                        uilabel.eventMouseLeave += (c, r) => uilabel.backgroundSprite = string.Empty;
+                        uilabel.eventClick += (c, r) =>
+                       {
+                           uilabel.Hide();
+                           stopNameField.Show();
+                           stopNameField.text = TLMLineUtils.getStationName((ushort) button.objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService);
+                           stopNameField.Focus();
+                       };
+                        stopNameField.eventLeaveFocus += delegate (UIComponent c, UIFocusEventParameter r)
+                        {
+                            stopNameField.Hide();
+                            uilabel.Show();
+                        };
+                        stopNameField.eventTextSubmitted += (x, y) => TLMLineUtils.setStopName(y.Trim(), (ushort) button.objectUserData, GetLineID(), () => uilabel.prefix = $"<color white>{TLMLineUtils.getFullStationName((ushort) button.GetComponentInChildren<UIButton>().objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService)}</color>");
+                        uilabel.objectUserData = true;
+                    }
                     for (int i = 0; i < 8; i++)
                     {
                         ushort segmentId = instance.m_nodes.m_buffer[currentStop].GetSegment(i);
@@ -271,6 +306,7 @@ namespace Klyte.TransportLinesManager.UI
                             break;
                         }
                     }
+
                     if (stopsCount > 2 && currentStop == firstStop)
                     {
                         break;
@@ -336,6 +372,8 @@ namespace Klyte.TransportLinesManager.UI
                     m_labelLineIncomplete.isVisible = true;
                     m_stopsContainer.isVisible = false;
                 }
+
+
             }
         }
 

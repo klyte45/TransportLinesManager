@@ -794,7 +794,7 @@ namespace Klyte.TransportLinesManager.UI
                     residentsWaiting.useOutline = true;
                     residentsWaiting.text = residents.ToString();
                     residentsWaiting.tooltipLocaleID = "K45_TLM_RESIDENTS_WAITING";
-                    residentsWaiting.backgroundSprite = "EmptySprite";
+                    residentsWaiting.backgroundSprite = "PlainWhite";
                     residentsWaiting.color = new Color32(0x12, 0x68, 0x34, 255);
                     residentsWaiting.width = normalWidth;
                     residentsWaiting.padding = new RectOffset(0, 0, 4, 2);
@@ -812,7 +812,7 @@ namespace Klyte.TransportLinesManager.UI
                     touristsWaiting.height = 20;
                     touristsWaiting.padding = new RectOffset(0, 0, 4, 2);
                     touristsWaiting.textScale = 0.7f;
-                    touristsWaiting.backgroundSprite = "EmptySprite";
+                    touristsWaiting.backgroundSprite = "PlainWhite";
                     touristsWaiting.color = new Color32(0x1f, 0x25, 0x68, 255);
                     touristsWaiting.textAlignment = UIHorizontalAlignment.Center;
                     touristCounters[stationNodeId] = touristsWaiting;

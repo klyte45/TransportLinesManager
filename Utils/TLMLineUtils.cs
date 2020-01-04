@@ -932,35 +932,42 @@ namespace Klyte.TransportLinesManager.Utils
         public static string getStationName(uint stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, out NamingType resultNamingType, bool excludeCargo = false, bool useRestrictionForAreas = false)
         {
             string savedName = TLMStopsExtension.Instance.GetStopName(stopId);
+            var tsd = TransportSystemDefinition.From(lineId);
             if (savedName != null)
             {
                 serviceFound = ItemClass.Service.PublicTransport;
                 subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService;
-                prefix = "";
+                prefix = tsd.ToConfigIndex().getPrefixTextNaming(lineId)?.TrimStart();
                 buildingID = 0;
                 resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
                 return savedName;
             }
 
-
             NetManager nm = Singleton<NetManager>.instance;
-            BuildingManager bm = Singleton<BuildingManager>.instance;
-            NetNode nn = nm.m_nodes.m_buffer[(int) stopId];
-
-            List<ushort> nearStops = StopSearchUtils.FindNearStops(nn.m_position);
-            foreach (ushort stop in nearStops)
+            NetNode nn = nm.m_nodes.m_buffer[stopId];
+            Vector3 location = nn.m_position;
+            if (tsd.VehicleType == VehicleInfo.VehicleType.Car || tsd.VehicleType == VehicleInfo.VehicleType.Tram)
             {
-                if (stop != stopId)
+                List<ushort> nearStops = StopSearchUtils.FindNearStops(location, nn.Info.GetService(), true, 50f, out _, out _);
+
+                foreach (ushort otherStop in nearStops)
                 {
-                    savedName = TLMStopsExtension.Instance.GetStopName(stopId);
-                    if (savedName != null)
+                    if (otherStop != stopId)
                     {
-                        serviceFound = ItemClass.Service.PublicTransport;
-                        subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService;
-                        prefix = "";
-                        buildingID = 0;
-                        resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
-                        return savedName;
+                        savedName = TLMStopsExtension.Instance.GetStopName(otherStop);
+                        ;
+                        if (savedName != null)
+                        {
+                            ushort targetLineId = NetManager.instance.m_nodes.m_buffer[otherStop].m_transportLine;
+                            var tsd2 = TransportSystemDefinition.From(targetLineId);
+
+                            serviceFound = ItemClass.Service.PublicTransport;
+                            subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[targetLineId].Info.m_class.m_subService;
+                            prefix = tsd2.ToConfigIndex().getPrefixTextNaming(targetLineId)?.TrimStart();
+                            buildingID = 0;
+                            resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
+                            return savedName;
+                        }
                     }
                 }
             }
@@ -969,15 +976,16 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (buildingID > 0)
             {
-                string name = TLMUtils.getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix);
+                string name = TLMUtils.getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix, lineId);
                 resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
                 return name;
             }
-            Vector3 location = nn.m_position;
+
+
             prefix = "";
             if (BuildingUtils.GetPark(location) > 0 && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)))
             {
-                prefix = TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG.getPrefixTextNaming();
+                prefix = TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG.getPrefixTextNaming(lineId)?.TrimStart();
                 serviceFound = ItemClass.Service.Natural;
                 subserviceFound = ItemClass.SubService.BeautificationParks;
                 resultNamingType = NamingType.PARKAREA;
@@ -985,7 +993,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else if (SegmentUtils.GetAddressStreetAndNumber(location, location, out int number, out string streetName) && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)) && !string.IsNullOrEmpty(streetName))
             {
-                prefix = TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG.getPrefixTextNaming();
+                prefix = TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG.getPrefixTextNaming(lineId)?.TrimStart();
                 serviceFound = ItemClass.Service.Road;
                 subserviceFound = ItemClass.SubService.PublicTransportBus;
                 resultNamingType = NamingType.ADDRESS;
@@ -994,7 +1002,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else if (DistrictManager.instance.GetDistrict(location) > 0 && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)))
             {
-                prefix = TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG.getPrefixTextNaming();
+                prefix = TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG.getPrefixTextNaming(lineId)?.TrimStart();
                 serviceFound = ItemClass.Service.Natural;
                 subserviceFound = ItemClass.SubService.None;
                 resultNamingType = NamingType.DISTRICT;
@@ -1191,7 +1199,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else
             {
-                var ticketPriceDefault = GetTicketPriceForLine(vehicleData.m_transportLine).First.Value;
+                uint ticketPriceDefault = GetTicketPriceForLine(vehicleData.m_transportLine).First.Value;
 
                 return (int) (multiplier * ticketPriceDefault);
             }

@@ -386,7 +386,7 @@ namespace Klyte.TransportLinesManager.Utils
         #endregion
 
         #region Building Utils
-        public static string getBuildingName(ushort buildingId, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix)
+        public static string getBuildingName(ushort buildingId, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, ushort lineId = 0)
         {
 
             NetManager nm = Singleton<NetManager>.instance;
@@ -410,7 +410,7 @@ namespace Klyte.TransportLinesManager.Utils
                 tsd = TransportSystemDefinition.From(b.Info.GetAI());
                 index = tsd.ToConfigIndex();
             }
-            prefix = index.getPrefixTextNaming()?.Trim();
+            prefix = index.getPrefixTextNaming(lineId)?.TrimStart();
             doLog($"getBuildingName(): serviceFound {serviceFound} - subserviceFound = {subserviceFound} - tsd = {tsd} - index = {index} - prefix = {prefix}");
 
             return bm.GetBuildingName(buildingId, iid);
