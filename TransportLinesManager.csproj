@@ -156,6 +156,7 @@
     <Compile Include="Interfaces\LinearMapParentInterface.cs" />
     <Compile Include="LegacyWarehouse\ConfigWarehouseBaseLegacy.cs" />
     <Compile Include="Extensors\TLMTransportLineStatusesProperties.cs" />
+    <Compile Include="Overrides\InstanceManagerOverrides.cs" />
     <Compile Include="Overrides\TLMTransportLineStatusesRedirector.cs" />
     <Compile Include="TextureAtlas\TextureAtlasDescriptor.cs" />
     <Compile Include="TextureAtlas\UVMTextureAtlas.cs" />

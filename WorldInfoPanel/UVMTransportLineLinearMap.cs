@@ -6,6 +6,7 @@ using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace Klyte.TransportLinesManager.UI
         private bool m_unscaledMode = true;
         private bool m_cachedUnscaledMode = true;
         private static bool m_dirty;
+        private static bool m_dirtyNames;
 
         #region Overridable
 
@@ -59,6 +61,8 @@ namespace Klyte.TransportLinesManager.UI
 
             UICheckBox unscaledCheck = UIHelperExtension.AddCheckboxLocale(m_panelModeSelector, "K45_TLM_LINEAR_MAP_SHOW_UNSCALED", m_unscaledMode, (val) => m_unscaledMode = val);
             KlyteMonoUtils.LimitWidthAndBox(unscaledCheck.label, 165);
+
+            InstanceManagerOverrides.EventOnBuildingRenamed += (x) => m_dirtyNames = true;
         }
 
         private static void AddNewStopTemplate()
@@ -69,6 +73,7 @@ namespace Klyte.TransportLinesManager.UI
             UIButton button = UITemplateManager.Get<UIButton>("StopButton");
             panel.AttachUIComponent(button.gameObject);
             button.relativePosition = Vector2.zero;
+            button.name = "StopButton";
 
             UILabel uilabel = button.Find<UILabel>("PassengerCount");
             panel.AttachUIComponent(uilabel.gameObject);
@@ -91,7 +96,7 @@ namespace Klyte.TransportLinesManager.UI
             UILabel distLabel = panel.AddUIComponent<UILabel>();
 
             distLabel.name = "Distance";
-            distLabel.relativePosition = new Vector3(-12, 33);
+            distLabel.relativePosition = new Vector3(-12, 37);
             distLabel.textAlignment = UIHorizontalAlignment.Center;
             distLabel.textScale = 0.65f;
             distLabel.suffix = "m";
@@ -99,17 +104,17 @@ namespace Klyte.TransportLinesManager.UI
             distLabel.minimumSize = new Vector2(60, 0);
             distLabel.outlineColor = Color.black;
 
-            KlyteMonoUtils.CreateUIElement(out UITextField m_lineNameField, panel.transform, "StopNameField", new Vector4(uilabel.relativePosition.x, uilabel.relativePosition.y, 180, 50));
-            m_lineNameField.maxLength = 256;
-            m_lineNameField.isVisible = false;
-            m_lineNameField.verticalAlignment = UIVerticalAlignment.Middle;
-            m_lineNameField.horizontalAlignment = UIHorizontalAlignment.Left;
-            m_lineNameField.selectionSprite = "EmptySprite";
-            m_lineNameField.builtinKeyNavigation = true;
-            m_lineNameField.textScale = uilabel.textScale;
-            m_lineNameField.padding.top = 14;
-            m_lineNameField.padding.bottom = 24;
-            KlyteMonoUtils.InitButtonFull(m_lineNameField, false, "TextFieldPanel");
+            KlyteMonoUtils.CreateUIElement(out UITextField lineNameField, panel.transform, "StopNameField", new Vector4(uilabel.relativePosition.x, uilabel.relativePosition.y, 180, 50));
+            lineNameField.maxLength = 256;
+            lineNameField.isVisible = false;
+            lineNameField.verticalAlignment = UIVerticalAlignment.Middle;
+            lineNameField.horizontalAlignment = UIHorizontalAlignment.Left;
+            lineNameField.selectionSprite = "EmptySprite";
+            lineNameField.builtinKeyNavigation = true;
+            lineNameField.textScale = uilabel.textScale;
+            lineNameField.padding.top = 14;
+            lineNameField.padding.bottom = 24;
+            KlyteMonoUtils.InitButtonFull(lineNameField, false, "TextFieldPanel");
 
 
             GetTemplateDict()["StopButtonPanel"] = panel;
@@ -252,7 +257,7 @@ namespace Klyte.TransportLinesManager.UI
                     m_cachedStopOrder[idx] = currentStop;
                     UILabel uilabel = stopsButtons[idx].Find<UILabel>("PassengerCount");
 
-                    uilabel.prefix = $"<color white>{TLMLineUtils.getFullStationName(currentStop, lineID, TransportSystemDefinition.GetDefinitionForLine(lineID).SubService)}</color>";
+                    uilabel.prefix = TLMLineUtils.getFullStationName(currentStop, lineID, TransportSystemDefinition.GetDefinitionForLine(lineID).SubService);
                     uilabel.text = "";
 
                     UILabel dist = stopsButtons[idx].Find<UILabel>("Distance");
@@ -509,15 +514,15 @@ namespace Klyte.TransportLinesManager.UI
                         break;
                     case MapMode.EARNINGS_ALL_TIME:
                         TLMTransportLineStatusesManager.instance.GetIncomeAndExpensesForVehicle(vehicleId, out long income, out long expense);
-                        PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income, expense);
+                        PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income, expense, 100);
                         break;
                     case MapMode.EARNINGS_LAST_WEEK:
                         TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForVehicles(vehicleId, out long income2, out long expense2);
-                        PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income2, expense2);
+                        PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income2, expense2, 8);
                         break;
                     case MapMode.EARNINGS_CURRENT_WEEK:
                         TLMTransportLineStatusesManager.instance.GetCurrentIncomeAndExpensesForVehicles(vehicleId, out long income3, out long expense3);
-                        PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income3, expense3);
+                        PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income3, expense3, 8);
                         break;
                 }
 
@@ -534,9 +539,9 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        private void PrintIncomeExpenseVehicle(ushort lineID, int idx, UILabel labelVehicle, long income, long expense)
+        private void PrintIncomeExpenseVehicle(ushort lineID, int idx, UILabel labelVehicle, long income, long expense, float scale)
         {
-            m_vehicleButtons.items[idx].color = Color.Lerp(Color.white, income > expense ? Color.green : Color.red, Mathf.Max(income, expense) / 100f * Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info.m_ticketPrice);
+            m_vehicleButtons.items[idx].color = Color.Lerp(Color.white, income > expense ? Color.green : Color.red, Mathf.Max(income, expense) / scale * TLMLineUtils.GetTicketPriceForLine(lineID).First.Value);
             labelVehicle.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
             labelVehicle.suffix = $"\n<color #ff0000>{(expense / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
         }
@@ -594,34 +599,47 @@ namespace Klyte.TransportLinesManager.UI
 
         private void UpdateStopButtons(ushort lineID)
         {
-            if (GetLineType(lineID) != LineType.WalkingTour)
+            if (GetLineType(lineID) != LineType.WalkingTour || m_dirtyNames)
             {
                 ushort stop = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_stops;
-                foreach (UIPanel uibutton in m_stopButtons.items)
+                foreach (UIPanel uiPanel in m_stopButtons.items)
                 {
-                    UIPanel connectionPanel = uibutton.Find<UIPanel>("ConnectionPanel");
+                    UILabel uilabel = uiPanel.Find<UILabel>("PassengerCount");
+                    UIButton uibutton = uiPanel.Find<UIButton>("StopButton");
+                    if (m_dirtyNames)
+                    {
+                        uilabel.prefix = TLMLineUtils.getFullStationName((ushort) uibutton.objectUserData, lineID, TransportSystemDefinition.GetDefinitionForLine(lineID).SubService);
+                    }
+                    if (GetLineType(lineID) == LineType.WalkingTour)
+                    {
+                        continue;
+                    }
+
+                    UIPanel connectionPanel = uiPanel.Find<UIPanel>("ConnectionPanel");
                     if (connectionPanel != null)
                     {
                         connectionPanel.isVisible = m_currentMode == MapMode.CONNECTIONS;
                     }
 
-                    UILabel uilabel = uibutton.Find<UILabel>("PassengerCount");
+
                     switch (m_currentMode)
                     {
                         case MapMode.WAITING:
                             TLMLineUtils.GetQuantityPassengerWaiting(stop, out int residents, out int tourists, out int timeTillBored);
-                            uilabel.text = $"\n{residents + tourists} (<color #00aa00>{residents}</color> + <color #aa88ff>{tourists}</color>)";
+                            uilabel.text = $"\n{residents + tourists} (<color #00aa00>{residents}</color> + <color #aa88ff>{tourists}</color>)\n";
                             uibutton.color = Color.Lerp(Color.red, Color.white, timeTillBored / 255f);
-                            uibutton.tooltip = $"Time Until Bored: {timeTillBored}";
+                            uilabel.suffix = string.Format(Locale.Get("K45_TLM_TIME_TILL_BORED_TEMPLATE_STATION_MAP"), uibutton.color.ToRGB(), timeTillBored);
                             break;
                         case MapMode.NONE:
                             uibutton.color = Color.white;
                             uilabel.text = "";
+                            uilabel.suffix = "";
                             uibutton.tooltip = "";
                             break;
                         case MapMode.CONNECTIONS:
                             uibutton.color = Color.white;
                             uilabel.text = "";
+                            uilabel.suffix = "";
                             uibutton.tooltip = "";
                             break;
                         case MapMode.EARNINGS_ALL_TIME:
@@ -639,14 +657,16 @@ namespace Klyte.TransportLinesManager.UI
                     }
                     stop = TransportLine.GetNextStop(stop);
                 }
+                m_dirtyNames = false;
             }
         }
 
-        private static void PrintIncomeStop(ushort lineID, UIPanel uibutton, UILabel uilabel, long income)
+        private static void PrintIncomeStop(ushort lineID, UIButton uibutton, UILabel uilabel, long income)
         {
             uibutton.color = Color.Lerp(Color.white, Color.green, income / (1000f * Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info.m_ticketPrice));
             uilabel.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
             uibutton.tooltip = "";
+            uilabel.suffix = "";
         }
 
 
@@ -671,7 +691,7 @@ namespace Klyte.TransportLinesManager.UI
         internal float m_kstopsX = 170;
         internal float m_kstopsXForWalkingTours = 170;
         internal float m_kvehiclesX = 130;
-        internal float m_kminStopDistance = 40f;
+        internal float m_kminStopDistance = 50f;
         internal float m_kvehicleButtonHeight = 36f;
         internal float m_kminUILineLength = 370f;
         internal float m_kmaxUILineLength = 10000f;

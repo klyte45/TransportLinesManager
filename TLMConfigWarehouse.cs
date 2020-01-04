@@ -235,7 +235,7 @@ namespace Klyte.TransportLinesManager
                 return ((LineIconSpriteNames) Enum.Parse(typeof(LineIconSpriteNames), iconName));
             }
         }
-
+        public static int GetSettedTicketPrice(TLMConfigWarehouse.ConfigIndex transportType) => GetCurrentConfigInt((transportType & TLMConfigWarehouse.ConfigIndex.SYSTEM_PART) | ConfigIndex.DEFAULT_TICKET_PRICE);
         private static LineIconSpriteNames getDefaultBgIconForIndex(TLMConfigWarehouse.ConfigIndex transportType)
         {
             switch (transportType & TLMConfigWarehouse.ConfigIndex.SYSTEM_PART)

@@ -5,7 +5,6 @@ using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
@@ -191,17 +190,26 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     RefreshData(true, true);
                 }
             };
+
+            TransportManager.instance.eventLineColorChanged += (x) =>
+            {
+                if (x == LineID && m_lineColor != null)
+                {
+                    m_lineColor.selectedColor = TransportManager.instance.m_lines.m_buffer[x].GetColor();
+                }
+            };
         }
 
         private void AwakeLineFormat()
         {
-            m_lineColor = m_uIHelper.AddColorPickerNoLabel("LineColor", Color.clear, new Commons.Extensors.OnColorChanged(OnColorChanged));
+            m_lineColor = m_uIHelper.AddColorPickerNoLabel("LineColor", Color.clear);
             m_lineColor.normalBgSprite = "";
             m_lineColor.focusedBgSprite = "";
             m_lineColor.hoveredBgSprite = "";
             m_lineColor.width = 40;
             m_lineColor.height = 40;
             m_lineColor.atlas = UIView.GetAView().defaultAtlas;
+            m_lineColor.eventSelectedColorReleased += OnColorChanged;
             m_lineNumberFormatted = m_lineColor.GetComponentInChildren<UIButton>();
             m_lineNumberFormatted.textScale = 1.5f;
             m_lineNumberFormatted.useOutline = true;
@@ -445,14 +453,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             component.transform.localScale = new Vector3(ratio, ratio);
         }
 
-        public void DoAutoColor()
-        {
-            Color autoColor = TLMController.instance.AutoColor(m_lineID);
-            if (autoColor != default)
-            {
-                m_lineColor.selectedColor = autoColor;
-            }
-        }
+        public void DoAutoColor() => TLMController.instance.AutoColor(m_lineID);
 
         public void DoAutoName() => TLMLineUtils.setLineName(m_lineID, TLMLineUtils.calculateAutoName(m_lineID));
 
@@ -518,12 +519,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             }
         }
 
-        private void OnColorChanged(Color color)
-        {
-            LogUtils.DoLog($"COLOR CHANGED!! {color}\n{Environment.StackTrace}");
-
-            TLMLineUtils.setLineColor(m_lineID, color);
-        }
+        private void OnColorChanged(UIComponent x, Color color) => TLMLineUtils.setLineColor(m_lineID, color);
 
     }
 }

@@ -141,7 +141,6 @@ namespace Klyte.TransportLinesManager.Extensors
         }
         public static string getPrefixTextNaming(this TLMConfigWarehouse.ConfigIndex idx, ushort lineId = 0)
         {
-            string result = "";
             switch (idx)
             {
                 case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
@@ -167,8 +166,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.DISTRICT_NAME_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.ADDRESS_NAME_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PARKAREA_NAME_CONFIG:
-                    result = TLMConfigWarehouse.GetCurrentConfigString(TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | idx);
-                    break;
+                    return TLMConfigWarehouse.GetCurrentConfigString(TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | idx);
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
@@ -183,19 +181,11 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.BALLOON_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
-                    result = TLMConfigWarehouse.GetCurrentConfigString(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | idx);
-                    break;
+                    return TLMConfigWarehouse.GetCurrentConfigString(TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | idx);
                 default:
                     return "";
             }
-            if (lineId > 0 && result.Contains("<lineStr>"))
-            {
-                return result.Replace("<lineStr>", TLMLineUtils.GetIconString(lineId));
-            }
-            else
-            {
-                return result;
-            }
+
         }
         public static bool isLineNamingEnabled(this TLMConfigWarehouse.ConfigIndex idx)
         {

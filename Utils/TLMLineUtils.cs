@@ -746,26 +746,8 @@ namespace Klyte.TransportLinesManager.Utils
 
 
         #region Line Utils
-        public static void setLineColor(ushort lineIdx, Color color)
-        {
-
-            Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_color = color;
-            Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_flags |= TransportLine.Flags.CustomColor;
-        }
-        public static void setLineName(ushort lineIdx, string name)
-        {
-            InstanceID lineIdSelecionado = default;
-            lineIdSelecionado.TransportLine = lineIdx;
-            if (name.Length > 0)
-            {
-                Singleton<InstanceManager>.instance.SetName(lineIdSelecionado, name);
-                Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_flags |= TransportLine.Flags.CustomName;
-            }
-            else
-            {
-                Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_flags &= ~TransportLine.Flags.CustomName;
-            }
-        }
+        public static void setLineColor(ushort lineIdx, Color color) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineColor(lineIdx, color));
+        public static void setLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineName(lineIdx, name));
 
         private static TransportInfo.TransportType[] roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram };
 
@@ -1107,7 +1089,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static ushort getStationBuilding(uint stopId, ItemClass.SubService ss, bool excludeCargo = false, bool restrictToTransportType = false)
         {
-            NetManager nm = Singleton<NetManager>.instance;
+               NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int) stopId];
             ushort tempBuildingId;
@@ -1208,6 +1190,7 @@ namespace Klyte.TransportLinesManager.Utils
         public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(ushort lineId) => GetTicketPriceForLine(lineId, SimulationManager.instance.m_currentDayTimeHour);
         public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(ushort lineId, float hour)
         {
+            var tsd = TransportSystemDefinition.From(lineId);
             Tuple<TicketPriceEntryXml, int> ticketPriceDefault = null;
             if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
             {
@@ -1215,7 +1198,11 @@ namespace Klyte.TransportLinesManager.Utils
             }
             if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
             {
-                ticketPriceDefault = TransportSystemDefinition.From(lineId).GetTransportExtension().GetTicketPriceForHour(TLMLineUtils.getPrefix(lineId), hour);
+                ticketPriceDefault = tsd.GetTransportExtension().GetTicketPriceForHour(TLMLineUtils.getPrefix(lineId), hour);
+            }
+            if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
+            {
+                ticketPriceDefault = Tuple.New(new TicketPriceEntryXml() { Value = (uint) TLMCW.GetSettedTicketPrice(tsd.ToConfigIndex()) }, -1);
             }
             if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
             {

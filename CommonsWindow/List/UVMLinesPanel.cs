@@ -3,6 +3,7 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using System;
 using System.Collections.Generic;
@@ -101,7 +102,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             UIComponent parent = GetComponent<UIComponent>();
             KlyteMonoUtils.CreateUIElement(out m_autoNameAll, parent.transform);
-            m_autoNameAll.relativePosition = new Vector3(parent.width - 60f, 0);
+            m_autoNameAll.relativePosition = new Vector3(parent.width - 40f, 0);
             m_autoNameAll.textScale = 0.6f;
             m_autoNameAll.width = 40;
             m_autoNameAll.height = 40;
@@ -109,6 +110,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.InitButton(m_autoNameAll, true, "ButtonMenu");
             m_autoNameAll.name = "AutoNameAll";
             m_autoNameAll.isVisible = true;
+            m_autoNameAll.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoNameIcon);
             m_autoNameAll.eventClick += (component, eventParam) =>
             {
                 foreach (UVMLineListItem item in mainPanel.GetComponentsInChildren<UVMLineListItem>())
@@ -117,15 +119,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 }
             };
 
-            UISprite icon = m_autoNameAll.AddUIComponent<UISprite>();
-            icon.relativePosition = new Vector3(2, 2);
-            icon.width = 36;
-            icon.height = 36;
-            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoNameIcon);
-
-
             KlyteMonoUtils.CreateUIElement(out m_autoColorAll, parent.transform);
-            m_autoColorAll.relativePosition = new Vector3(parent.width - 120f, 0);
+            m_autoColorAll.relativePosition = new Vector3(parent.width - 80f, 0);
             m_autoColorAll.textScale = 0.6f;
             m_autoColorAll.width = 40;
             m_autoColorAll.height = 40;
@@ -133,6 +128,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.InitButton(m_autoColorAll, true, "ButtonMenu");
             m_autoColorAll.name = "AutoColorAll";
             m_autoColorAll.isVisible = true;
+            m_autoColorAll.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoColorIcon);
             m_autoColorAll.eventClick += (component, eventParam) =>
             {
                 foreach (UVMLineListItem item in mainPanel.GetComponentsInChildren<UVMLineListItem>())
@@ -140,13 +136,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     item.DoAutoColor();
                 }
             };
-
-            icon = m_autoColorAll.AddUIComponent<UISprite>();
-            icon.relativePosition = new Vector3(2, 2);
-            icon.width = 36;
-            icon.height = 36;
-            icon.spriteName = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoColorIcon);
-
 
         }
         #endregion
@@ -163,7 +152,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.CreateUIElement(out UILabel codColor, titleLine.transform, "codColor");
             codColor.minimumSize = new Vector2(60, 0);
             codColor.area = new Vector4(80, 10, codColor.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidth(codColor, (uint) codColor.width);
+            KlyteMonoUtils.LimitWidthAndBox(codColor, (uint) codColor.width);
             codColor.textAlignment = UIHorizontalAlignment.Center;
             codColor.prefix = Locale.Get("PUBLICTRANSPORT_LINECOLOR");
             codColor.text = "/";
@@ -173,25 +162,23 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.CreateUIElement(out UILabel lineName, titleLine.transform, "lineName");
             lineName.minimumSize = new Vector2(200, 0);
             lineName.area = new Vector4(140, 10, lineName.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidth(lineName, (uint) lineName.width);
+            KlyteMonoUtils.LimitWidthAndBox(lineName, (uint) lineName.width);
             lineName.textAlignment = UIHorizontalAlignment.Center;
             lineName.text = Locale.Get("PUBLICTRANSPORT_LINENAME");
             lineName.eventClicked += LineName_eventClicked;
-            ;
 
             KlyteMonoUtils.CreateUIElement(out UILabel stops, titleLine.transform, "stops");
             stops.minimumSize = new Vector2(80, 0);
             stops.area = new Vector4(340, 10, stops.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidth(stops, (uint) stops.width);
+            KlyteMonoUtils.LimitWidthAndBox(stops, (uint) stops.width);
             stops.textAlignment = UIHorizontalAlignment.Center;
             stops.text = Locale.Get("PUBLICTRANSPORT_LINESTOPS");
             stops.eventClicked += Stops_eventClicked;
-            ;
 
             KlyteMonoUtils.CreateUIElement(out UILabel vehicles, titleLine.transform, "vehicles");
             vehicles.minimumSize = new Vector2(110, 0);
             vehicles.area = new Vector4(430, 10, vehicles.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidth(vehicles, (uint) vehicles.width);
+            KlyteMonoUtils.LimitWidthAndBox(vehicles, (uint) vehicles.width);
             vehicles.textAlignment = UIHorizontalAlignment.Center;
             vehicles.text = Locale.Get("PUBLICTRANSPORT_VEHICLES");
             vehicles.eventClicked += Vehicles_eventClicked;
@@ -199,10 +186,18 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.CreateUIElement(out UILabel passengers, titleLine.transform, "passengers");
             passengers.minimumSize = new Vector2(80, 0);
             passengers.area = new Vector4(540, 10, passengers.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidth(passengers, (uint) passengers.width);
+            KlyteMonoUtils.LimitWidthAndBox(passengers, (uint) passengers.width);
             passengers.textAlignment = UIHorizontalAlignment.Center;
             passengers.text = Locale.Get("PUBLICTRANSPORT_PASSENGERS");
             passengers.eventClicked += Passengers_eventClicked;
+
+            KlyteMonoUtils.CreateUIElement(out UILabel profitLW, titleLine.transform, "profit");
+            profitLW.minimumSize = new Vector2(80, 0);
+            profitLW.area = new Vector4(625, 10, profitLW.minimumSize.x, 18);
+            KlyteMonoUtils.LimitWidthAndBox(profitLW, (uint) profitLW.width);
+            profitLW.textAlignment = UIHorizontalAlignment.Center;
+            profitLW.text = Locale.Get("K45_TLM_BALANCE_LAST_WEEK");
+            profitLW.eventClicked += Profit_eventClicked;
 
             LogUtils.DoLog("End creating Title Row ");
 
@@ -238,6 +233,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             m_reverseOrder = m_lastSortCriterionLines == LineSortCriterion.PASSENGER ? !m_reverseOrder : false;
             m_lastSortCriterionLines = LineSortCriterion.PASSENGER;
+            RefreshLines();
+        }
+        private void Profit_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            m_reverseOrder = m_lastSortCriterionLines == LineSortCriterion.PROFIT ? !m_reverseOrder : true;
+            m_lastSortCriterionLines = LineSortCriterion.PROFIT;
             RefreshLines();
         }
 
@@ -330,6 +331,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     case LineSortCriterion.VEHICLE:
                         OnVehicleSort();
                         break;
+                    case LineSortCriterion.PROFIT:
+                        OnProfitSort();
+                        break;
                     case LineSortCriterion.LINE_NUMBER:
                     default:
                         OnLineNumberSort();
@@ -349,6 +353,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             STOP,
             VEHICLE,
             PASSENGER,
+            PROFIT,
             LINE_NUMBER
         }
 
@@ -357,6 +362,27 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             UVMLineListItem component = left.GetComponent<UVMLineListItem>();
             UVMLineListItem component2 = right.GetComponent<UVMLineListItem>();
             return string.Compare(component.LineName, component2.LineName, StringComparison.InvariantCulture);
+        }
+
+        private static int  CompareProfit(UIComponent left, UIComponent right)
+        {
+            if (left == null || right == null)
+            {
+                return 0;
+            }
+
+            UVMLineListItem component = left.GetComponent<UVMLineListItem>();
+            UVMLineListItem component2 = right.GetComponent<UVMLineListItem>();
+            if (component == null || component2 == null)
+            {
+                return 0;
+            }
+            TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(component.LineID, out long income, out long expense);
+            long profit1 = income - expense;
+            TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(component2.LineID, out income, out expense);
+            long profit2 = income - expense;
+            return profit1.CompareTo(profit2);
+
         }
 
         private static int CompareLineNumbers(UIComponent left, UIComponent right)
@@ -462,6 +488,17 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareLineNumbers), m_reverseOrder);
             m_lastSortCriterionLines = LineSortCriterion.LINE_NUMBER;
+            mainPanel.Invalidate();
+        }
+        private void OnProfitSort()
+        {
+            if (mainPanel.components.Count == 0)
+            {
+                return;
+            }
+
+            Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareProfit), m_reverseOrder);
+            m_lastSortCriterionLines = LineSortCriterion.PROFIT;
             mainPanel.Invalidate();
         }
         #endregion

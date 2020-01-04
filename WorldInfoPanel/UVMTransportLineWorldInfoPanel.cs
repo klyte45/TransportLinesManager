@@ -35,6 +35,22 @@ namespace Klyte.TransportLinesManager.UI
             AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("ResetScrollPosition", RedirectorUtils.allFlags), typeof(UVMPublicTransportWorldInfoPanel).GetMethod("ResetScrollPosition", RedirectorUtils.allFlags));
             AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("OnSetTarget", RedirectorUtils.allFlags), typeof(UVMPublicTransportWorldInfoPanel).GetMethod("OnSetTarget", RedirectorUtils.allFlags));
             AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("OnGotFocus", RedirectorUtils.allFlags), typeof(UVMPublicTransportWorldInfoPanel).GetMethod("OnGotFocus", RedirectorUtils.allFlags));
+            AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("OnLineColorChanged", RedirectorUtils.allFlags), typeof(Redirector).GetMethod("PreventDefault", RedirectorUtils.allFlags));
+            AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("OnLineNameChanged", RedirectorUtils.allFlags), typeof(Redirector).GetMethod("PreventDefault", RedirectorUtils.allFlags));
+            TransportManager.instance.eventLineColorChanged += (x) =>
+            {
+                if (x == GetLineID())
+                {
+                    MarkDirty(null);
+                }
+            };
+            TransportManager.instance.eventLineNameChanged += (x) =>
+            {
+                if (x == GetLineID())
+                {
+                    m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(x);
+                }
+            };
         }
 
         public static IEnumerable<CodeInstruction> TranspileStart(IEnumerable<CodeInstruction> instructions)
