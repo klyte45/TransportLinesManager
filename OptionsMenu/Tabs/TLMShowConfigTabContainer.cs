@@ -1,6 +1,6 @@
 ﻿using ColossalFramework.UI;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
@@ -44,7 +44,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
                 GameObject tab = Instantiate(tabTemplate.gameObject);
                 GameObject body = Instantiate(bodyContent.gameObject);
-                TLMConfigWarehouse.ConfigIndex configIdx = kv.Key.ToConfigIndex();
+                var configIdx = kv.Key.ToConfigIndex();
                 TransportSystemDefinition tsd = kv.Key;
                 string name = kv.Value.Name;
                 TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");

@@ -20,8 +20,12 @@ namespace Klyte.TransportLinesManager.UI
 
         public void SetValues(List<Tuple<int, Color, uint>> steps)
         {
+            if (steps.Count == 0)
+            {
+                return;
+            }
+
             steps.Sort((x, y) => x.First - y.First);
-            float dividerMultiplier = steps.Max(x => x.Third);
             if (steps[0].First != 0)
             {
                 steps.Insert(0, Tuple.New(0, steps.Last().Second, steps.Last().Third));

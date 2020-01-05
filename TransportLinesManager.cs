@@ -5,7 +5,6 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
-using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.OptionsMenu;
 using Klyte.TransportLinesManager.UI;
@@ -99,7 +98,7 @@ namespace Klyte.TransportLinesManager
         private readonly SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
         private readonly SavedBool m_savedOverrideDefaultLineInfoPanel = new SavedBool("TLMOverrideDefaultLineInfoPanel", Settings.gameSettingsFile, true, true);
         private readonly SavedBool m_showDistanceInLinearMap = new SavedBool("TLMshowDistanceInLinearMap", Settings.gameSettingsFile, true, true);
-        protected override void OnLevelLoadingInternal() => SimulationManager.RegisterManager(TLMTransportLineStatusesManager.instance);
+
         public static bool showNearLinesPlop
         {
             get => Instance.m_savedShowNearLinesInCityServicesWorldInfoPanel.value;

@@ -3,12 +3,11 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.CommonsWindow
 {
@@ -82,7 +81,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         #endregion
         protected void ReloadPrefixFilter()
         {
-            ConfigIndex tsdCi = Singleton<T>.instance.GetTSD().ToConfigIndex();
+            var tsdCi = Singleton<T>.instance.GetTSD().ToConfigIndex();
             ModoNomenclatura prefixMn = TLMUtils.GetPrefixModoNomenclatura(tsdCi);
             if (prefixMn != m_modoNomenclaturaCache)
             {

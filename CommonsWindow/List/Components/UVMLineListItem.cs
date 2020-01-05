@@ -5,7 +5,7 @@ using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -120,7 +120,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 m_lineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].CountStops(m_lineID).ToString("N0");
                 m_lineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].CountVehicles(m_lineID).ToString("N0");
 
-                TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(LineID, out long income, out long expense);
+                TLMTransportLineStatusesManager.Instance.GetLastWeekIncomeAndExpensesForLine(LineID, out long income, out long expense);
                 long balance = (income - expense);
                 m_lineBalance.text = (balance / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
                 m_lineBalance.textColor = balance >= 0 ? ColorExtensions.FromRGB("00c000") : ColorExtensions.FromRGB("c00000");

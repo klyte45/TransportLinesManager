@@ -3,6 +3,7 @@ using Harmony;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -48,7 +49,7 @@ namespace Klyte.TransportLinesManager.Overrides
             TLMUtils.doLog($"allVehicleAI size = {allVehicleAI.Count}");
             foreach (Type ai in allVehicleAI)
             {
-                MethodInfo colorMethod = ai.GetMethod("GetColor", allFlags);
+                MethodInfo colorMethod = ai.GetMethod("GetColor", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InfoManager.InfoMode) }, null);
                 if (colorMethod == null)
                 {
                     continue;

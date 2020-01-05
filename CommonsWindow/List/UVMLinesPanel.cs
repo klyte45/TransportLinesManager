@@ -4,6 +4,7 @@ using ColossalFramework.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Overrides;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -376,9 +377,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 return 0;
             }
-            TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(component.LineID, out long income, out long expense);
+            TLMTransportLineStatusesManager.Instance.GetLastWeekIncomeAndExpensesForLine(component.LineID, out long income, out long expense);
             long profit1 = income - expense;
-            TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(component2.LineID, out income, out expense);
+            TLMTransportLineStatusesManager.Instance.GetLastWeekIncomeAndExpensesForLine(component2.LineID, out income, out expense);
             long profit2 = income - expense;
             return profit1.CompareTo(profit2);
 

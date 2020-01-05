@@ -4,7 +4,7 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using UnityEngine;
@@ -39,7 +39,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             mainPanel.autoLayoutDirection = LayoutDirection.Vertical;
             m_uiHelper = new UIHelperExtension(mainPanel);
 
-            TLMConfigWarehouse.ConfigIndex transportType = m_tsd.ToConfigIndex();
+            var transportType = m_tsd.ToConfigIndex();
 
 
             m_uiHelper.AddLabel(string.Format(Locale.Get("K45_TLM_CONFIGS_FOR"), TLMConfigWarehouse.getNameForTransportType(transportType)));

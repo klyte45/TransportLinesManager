@@ -512,15 +512,15 @@ namespace Klyte.TransportLinesManager.UI
                         labelVehicle.suffix = "";
                         break;
                     case MapMode.EARNINGS_ALL_TIME:
-                        TLMTransportLineStatusesManager.instance.GetIncomeAndExpensesForVehicle(vehicleId, out long income, out long expense);
+                        TLMTransportLineStatusesManager.Instance.GetIncomeAndExpensesForVehicle(vehicleId, out long income, out long expense);
                         PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income, expense, 100);
                         break;
                     case MapMode.EARNINGS_LAST_WEEK:
-                        TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForVehicles(vehicleId, out long income2, out long expense2);
+                        TLMTransportLineStatusesManager.Instance.GetLastWeekIncomeAndExpensesForVehicles(vehicleId, out long income2, out long expense2);
                         PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income2, expense2, 8);
                         break;
                     case MapMode.EARNINGS_CURRENT_WEEK:
-                        TLMTransportLineStatusesManager.instance.GetCurrentIncomeAndExpensesForVehicles(vehicleId, out long income3, out long expense3);
+                        TLMTransportLineStatusesManager.Instance.GetCurrentIncomeAndExpensesForVehicles(vehicleId, out long income3, out long expense3);
                         PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income3, expense3, 8);
                         break;
                 }
@@ -540,7 +540,8 @@ namespace Klyte.TransportLinesManager.UI
 
         private void PrintIncomeExpenseVehicle(ushort lineID, int idx, UILabel labelVehicle, long income, long expense, float scale)
         {
-            m_vehicleButtons.items[idx].color = Color.Lerp(Color.white, income > expense ? Color.green : Color.red, Mathf.Max(income, expense) / scale * TLMLineUtils.GetTicketPriceForLine(lineID).First.Value);
+            var tsd = TransportSystemDefinition.From(lineID);
+            m_vehicleButtons.items[idx].color = Color.Lerp(Color.white, income > expense ? Color.green : Color.red, Mathf.Max(income, expense) / scale * TLMLineUtils.GetTicketPriceForLine(ref tsd, lineID).First.Value);
             labelVehicle.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
             labelVehicle.suffix = $"\n<color #ff0000>{(expense / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
         }
@@ -642,15 +643,15 @@ namespace Klyte.TransportLinesManager.UI
                             uibutton.tooltip = "";
                             break;
                         case MapMode.EARNINGS_ALL_TIME:
-                            TLMTransportLineStatusesManager.instance.GetStopIncome(stop, out long income);
+                            TLMTransportLineStatusesManager.Instance.GetStopIncome(stop, out long income);
                             PrintIncomeStop(lineID, uibutton, uilabel, income);
                             break;
                         case MapMode.EARNINGS_CURRENT_WEEK:
-                            TLMTransportLineStatusesManager.instance.GetCurrentStopIncome(stop, out long income2);
+                            TLMTransportLineStatusesManager.Instance.GetCurrentStopIncome(stop, out long income2);
                             PrintIncomeStop(lineID, uibutton, uilabel, income2);
                             break;
                         case MapMode.EARNINGS_LAST_WEEK:
-                            TLMTransportLineStatusesManager.instance.GetLastWeekStopIncome(stop, out long income3);
+                            TLMTransportLineStatusesManager.Instance.GetLastWeekStopIncome(stop, out long income3);
                             PrintIncomeStop(lineID, uibutton, uilabel, income3);
                             break;
                     }

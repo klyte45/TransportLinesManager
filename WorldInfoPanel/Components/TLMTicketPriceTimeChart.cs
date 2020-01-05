@@ -1,7 +1,9 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,8 +20,13 @@ namespace Klyte.TransportLinesManager.UI
 
         public void SetValues(List<Tuple<int, Color, uint>> steps)
         {
+            if (steps.Count == 0)
+            {
+                return;
+            }
+
             steps.Sort((x, y) => x.First - y.First);
-            float dividerMultiplier = steps.Max(x => x.Third);
+            //float dividerMultiplier = steps.Max(x => x.Third);
             if (steps[0].First != 0)
             {
                 steps.Insert(0, Tuple.New(0, steps.Last().Second, steps.Last().Third));
@@ -131,7 +138,8 @@ namespace Klyte.TransportLinesManager.UI
                 ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
                 m_minutePointer.transform.localEulerAngles = new Vector3(0, 0, (SimulationManager.instance.m_currentDayTimeHour % 1 * -360) + 180);
                 m_hourPointer.transform.localEulerAngles = new Vector3(0, 0, (SimulationManager.instance.m_currentDayTimeHour / 24 * -360) + 180);
-                Tuple<Extensors.TransportTypeExt.TicketPriceEntryXml, int> value = TLMLineUtils.GetTicketPriceForLine(lineID);
+                var tsd = TransportSystemDefinition.From(lineID);
+                Tuple<TicketPriceEntryXml, int> value = TLMLineUtils.GetTicketPriceForLine(ref tsd, lineID);
                 m_effectiveLabel.color = value.Second < 0 ? Color.gray : TLMTicketConfigTab.m_colorOrder[value.Second % TLMTicketConfigTab.m_colorOrder.Count];
                 m_effectiveLabel.text = (value.First.Value / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
             }

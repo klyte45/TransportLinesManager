@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
+using Klyte.Commons.Extensors;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using System;
@@ -7,9 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Klyte.TransportLinesManager.Extensors
+namespace Klyte.TransportLinesManager.Overrides
 {
-    public class TLMTransportLineStatusesManager : SimulationManagerBase<TLMTransportLineStatusesManager, TLMTransportLineStatusesProperties>, ISimulationManager
+    public class TLMTransportLineStatusesManager : Redirector, IRedirectable
     {
         public const int BYTES_PER_CYCLE = 12;
         public const int FRAMES_PER_CYCLE = 1 << BYTES_PER_CYCLE;
@@ -21,10 +22,15 @@ namespace Klyte.TransportLinesManager.Extensors
         public const int CYCLES_HISTORY_ARRAY_SIZE = CYCLES_HISTORY_SIZE + 1;
         public const int CYCLES_CURRENT_DATA_IDX = CYCLES_HISTORY_SIZE;
 
+        public static TLMTransportLineStatusesManager Instance { get; private set; }
+        public Redirector RedirectorInstance => this;
 
-        protected override void Awake()
+        public void Awake()
         {
-            base.Awake();
+            AddRedirect(typeof(StatisticsManager).GetMethod("SimulationStepImpl", RedirectorUtils.allFlags), null, GetType().GetMethod("SimulationStepImpl", RedirectorUtils.allFlags));
+            AddRedirect(typeof(StatisticsManager).GetMethod("UpdateData", RedirectorUtils.allFlags), null, GetType().GetMethod("UpdateData", RedirectorUtils.allFlags));
+
+            Instance = this;
             m_linesData = new long[CYCLES_HISTORY_ARRAY_SIZE * TransportManager.MAX_LINE_COUNT][];
             for (int k = 0; k < m_linesData.Length; k++)
             {
@@ -44,8 +50,6 @@ namespace Klyte.TransportLinesManager.Extensors
                 m_stopData[k] = new long[Enum.GetValues(typeof(StopData)).Length];
             }
         }
-
-        public override void InitializeProperties(TLMTransportLineStatusesProperties properties) => base.InitializeProperties(properties);
 
         public void AddToLine(ushort lineId, long income, long expense, ref Citizen citizenData) => IncrementInArray(lineId, ref m_linesData, (int) LineData.INCOME, (int) LineData.EXPENSE, (int) LineData.TOTAL_PASSENGERS, (int) LineData.TOURIST_PASSENGERS, (int) LineData.STUDENT_PASSENGERS, income, expense, ref citizenData);
 
@@ -178,9 +182,10 @@ namespace Klyte.TransportLinesManager.Extensors
         }
 
         private uint CurrentArrayEntryIdx => (Singleton<SimulationManager>.instance.m_currentFrameIndex >> BYTES_PER_CYCLE) & CYCLES_HISTORY_MASK;
+
         private long GetStartFrameForArrayIdx(int idx) => (Singleton<SimulationManager>.instance.m_currentFrameIndex & ~INDEX_AND_FRAMES_MASK) + (idx << BYTES_PER_CYCLE) - (idx >= CurrentArrayEntryIdx ? TOTAL_STORAGE_CAPACITY : 0);
 
-        protected override void SimulationStepImpl(int subStep)
+        public static void SimulationStepImpl(int subStep)
         {
             if (subStep != 0 && subStep != 1000)
             {
@@ -191,9 +196,9 @@ namespace Klyte.TransportLinesManager.Extensors
                     uint idxEnum = (currentFrameIndex >> BYTES_PER_CYCLE) & 15u;
                     LogUtils.DoLog($"Stroring data for frame {(currentFrameIndex & ~FRAMES_PER_CYCLE_MASK).ToString("X8")} into idx {idxEnum.ToString("X1")}");
 
-                    FinishCycle(idxEnum, ref m_linesData, TransportManager.MAX_LINE_COUNT);
-                    FinishCycle(idxEnum, ref m_vehiclesData, VehicleManager.MAX_VEHICLE_COUNT);
-                    FinishCycle(idxEnum, ref m_stopData, NetManager.MAX_NODE_COUNT);
+                    FinishCycle(idxEnum, ref Instance.m_linesData, TransportManager.MAX_LINE_COUNT);
+                    FinishCycle(idxEnum, ref Instance.m_vehiclesData, VehicleManager.MAX_VEHICLE_COUNT);
+                    FinishCycle(idxEnum, ref Instance.m_stopData, NetManager.MAX_NODE_COUNT);
                 }
             }
         }
@@ -222,21 +227,15 @@ namespace Klyte.TransportLinesManager.Extensors
             }
         }
 
-        public override void GetData(FastList<IDataContainer> data)
-        {
-            base.GetData(data);
-            data.Add(new Data());
-        }
 
-        public override void UpdateData(SimulationManager.UpdateMode mode)
+        public static void UpdateData(SimulationManager.UpdateMode mode)
         {
             Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.BeginLoading("UVMTransportLineEconomyManager.UpdateData");
-            base.UpdateData(mode);
             if (mode == SimulationManager.UpdateMode.NewMap || mode == SimulationManager.UpdateMode.NewGameFromMap || mode == SimulationManager.UpdateMode.NewScenarioFromMap || mode == SimulationManager.UpdateMode.UpdateScenarioFromMap || mode == SimulationManager.UpdateMode.NewAsset)
             {
-                ClearArray(ref m_linesData);
-                ClearArray(ref m_vehiclesData);
-                ClearArray(ref m_stopData);
+                ClearArray(ref Instance.m_linesData);
+                ClearArray(ref Instance.m_vehiclesData);
+                ClearArray(ref Instance.m_stopData);
             }
             Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndLoading();
         }
@@ -379,9 +378,9 @@ namespace Klyte.TransportLinesManager.Extensors
                     if (version >= GetMinVersion(e))
                     {
 
-                        instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                        Instance.DoWithArray(e, (ref long[][] arrayRef) =>
                         {
-                            int idx = instance.GetIdxFor(e);
+                            int idx = Instance.GetIdxFor(e);
 
                             for (int i = 0; i < arrayRef.Length; i++)
                             {
@@ -477,7 +476,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 long count = 0;
                 foreach (Enum e in LoadOrder)
                 {
-                    instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                    Instance.DoWithArray(e, (ref long[][] arrayRef) =>
                     {
                         count += arrayRef.Select(x => x.Length).Sum();
                     });

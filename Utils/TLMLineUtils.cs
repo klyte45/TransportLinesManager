@@ -156,7 +156,9 @@ namespace Klyte.TransportLinesManager.Utils
             TimeableList<BudgetEntryXml> budgetConfig = currentConfig.BudgetEntries;
             if (budgetConfig.Count == 0)
             {
-                return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f, currentConfig is TLMTransportLineConfiguration);
+                GetEffectiveExtensionForLine(lineId).SetBudgetMultiplierForLine(lineId, Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0);
+                currentConfig = GetEffectiveConfigForLine(lineId);
+                budgetConfig = currentConfig.BudgetEntries;
             }
             Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
             return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third) / 100f, currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third, currentConfig is TLMTransportLineConfiguration);
@@ -1220,30 +1222,34 @@ namespace Klyte.TransportLinesManager.Utils
                     multiplier = 1;
                 }
             }
-            if (vehicleData.m_transportLine == 0)
-            {
-                return (int) (def.GetTransportExtension().GetDefaultTicketPrice(0) * multiplier);
-            }
-            else
-            {
-                uint ticketPriceDefault = GetTicketPriceForLine(vehicleData.m_transportLine).First.Value;
+            uint ticketPriceDefault = GetTicketPriceForLine(ref def, vehicleData.m_transportLine).First.Value;
 
-                return (int) (multiplier * ticketPriceDefault);
-            }
+            return (int) (multiplier * ticketPriceDefault);
+
         }
 
-        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(ushort lineId) => GetTicketPriceForLine(lineId, SimulationManager.instance.m_currentDayTimeHour);
-        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(ushort lineId, float hour)
+        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(ref TransportSystemDefinition tsd, ushort lineId) => GetTicketPriceForLine(ref tsd, lineId, SimulationManager.instance.m_currentDayTimeHour);
+        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(ref TransportSystemDefinition tsd, ushort lineId, float hour)
         {
-            var tsd = TransportSystemDefinition.From(lineId);
             Tuple<TicketPriceEntryXml, int> ticketPriceDefault = null;
-            if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
+            if (lineId > 0)
             {
-                ticketPriceDefault = TLMTransportLineExtension.Instance.GetTicketPriceForHour(lineId, hour);
-            }
-            if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
-            {
-                ticketPriceDefault = tsd.GetTransportExtension().GetTicketPriceForHour(TLMLineUtils.getPrefix(lineId), hour);
+                if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
+                {
+                    ticketPriceDefault = TLMTransportLineExtension.Instance.GetTicketPriceForHour(lineId, hour);
+                    if (ticketPriceDefault == null)
+                    {
+                        TLMTransportLineExtension.Instance.SetTicketPrice(lineId, 0, 0);
+                    }
+                }
+                if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
+                {
+                    ticketPriceDefault = tsd.GetTransportExtension().GetTicketPriceForHour(TLMLineUtils.getPrefix(lineId), hour);
+                    if (ticketPriceDefault == null)
+                    {
+                        tsd.GetTransportExtension().SetTicketPrice(lineId, 0, 0);
+                    }
+                }
             }
             if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
             {

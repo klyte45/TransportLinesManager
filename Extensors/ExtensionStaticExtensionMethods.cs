@@ -1,8 +1,8 @@
 ﻿using ColossalFramework.Globalization;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -41,22 +41,22 @@ namespace Klyte.TransportLinesManager.Extensors
         #endregion
 
         #region Budget Multiplier
-        public static TimeableList<BudgetEntryXml> GetBudgetsMultiplier<T>(this T it, uint prefix) where T : IBudgetableExtension => it.SafeGet(prefix).BudgetEntries;
-        public static uint GetBudgetMultiplierForHour<T>(this T it, uint prefix, float hour) where T : IBudgetableExtension
+        public static TimeableList<BudgetEntryXml> GetBudgetsMultiplierForLine<T>(this T it, ushort lineId) where T : IBudgetableExtension => it.SafeGet(it.LineToIndex(lineId)).BudgetEntries;
+        public static uint GetBudgetMultiplierForHourForLine<T>(this T it, ushort lineId, float hour) where T : IBudgetableExtension
         {
-            TimeableList<BudgetEntryXml> budget = it.GetBudgetsMultiplier(prefix);
+            TimeableList<BudgetEntryXml> budget = it.GetBudgetsMultiplierForLine(lineId);
             Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budget.GetAtHour(hour);
             return (uint) Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third);
         }
-        public static void SetBudgetMultiplier<T>(this T it, uint prefix, uint multiplier, int hour) where T : IBudgetableExtension
+        public static void SetBudgetMultiplierForLine<T>(this T it, ushort lineId, uint multiplier, int hour) where T : IBudgetableExtension
         {
-            it.SafeGet(prefix).BudgetEntries.Add(new BudgetEntryXml()
+            it.SafeGet(it.LineToIndex(lineId)).BudgetEntries.Add(new BudgetEntryXml()
             {
                 Value = multiplier,
                 HourOfDay = hour
             });
         }
-        public static void RemoveBudgetMultiplier<T>(this T it, uint prefix, int hour) where T : IBudgetableExtension => it.SafeGet(prefix).BudgetEntries.RemoveAtHour(hour);
+        public static void RemoveBudgetMultiplierForLine<T>(this T it, ushort lineId, int hour) where T : IBudgetableExtension => it.SafeGet(it.LineToIndex(lineId)).BudgetEntries.RemoveAtHour(hour);
         #endregion
         #region Ticket Price
         public static TimeableList<TicketPriceEntryXml> GetTicketPrices<T>(this T it, uint prefix) where T : ITicketPriceExtension => it.SafeGet(prefix).TicketPriceEntries;

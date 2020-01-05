@@ -2,7 +2,7 @@
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
 using UnityEngine;
@@ -257,7 +257,7 @@ namespace Klyte.TransportLinesManager.UI
         {
 
             var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
-            TLMConfigWarehouse.ConfigIndex configIdx = tsd.ToConfigIndex();
+            var configIdx = tsd.ToConfigIndex();
             if (TLMLineUtils.hasPrefix(transportTool.m_prefab))
             {
                 linePrefixDropDown.isVisible = true;
@@ -321,7 +321,7 @@ namespace Klyte.TransportLinesManager.UI
             }
 
 
-            TLMConfigWarehouse.ConfigIndex configIdx = tsd.ToConfigIndex();
+            var configIdx = tsd.ToConfigIndex();
             Color color;
 
             if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))

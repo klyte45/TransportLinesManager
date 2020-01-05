@@ -1,7 +1,7 @@
 using ColossalFramework;
 using ColossalFramework.UI;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
