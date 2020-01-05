@@ -42,7 +42,8 @@ namespace Klyte.TransportLinesManager.UI
             UILabel titleLabel = m_uiHelperNeighbors.AddLabel("");
             titleLabel.autoSize = true;
             titleLabel.textAlignment = UIHorizontalAlignment.Center;
-            titleLabel.minimumSize = new Vector2(MainContainer.width, 0);
+            titleLabel.wordWrap = false;
+            titleLabel.minimumSize = new Vector2(MainContainer.width - 10, 0);
             KlyteMonoUtils.LimitWidth(titleLabel, MainContainer.width);
             titleLabel.localeID = "K45_TLM_PER_HOUR_BUDGET_TITLE";
 

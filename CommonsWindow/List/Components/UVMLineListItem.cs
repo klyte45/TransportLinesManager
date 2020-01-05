@@ -6,7 +6,6 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Overrides;
-using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
 using UnityEngine;
 
@@ -24,8 +23,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private UICheckBox m_lineIsVisible;
 
         private UIColorField m_lineColor;
-
-        private UISprite m_lineType;
 
         private UILabel m_lineName;
 
@@ -95,8 +92,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             if (updateColors)
             {
                 m_lineColor.selectedColor = Singleton<TransportManager>.instance.GetLineColor(m_lineID);
-                m_lineType.spriteName = tsd.GetCircleSpriteName().ToString();
-                m_lineType.tooltip = Locale.Get("TRANSPORT_LINE", Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].Info.name);
             }
             if (updateVisibility)
             {
@@ -180,8 +175,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             AwakeAutoButtons();
 
-            AwakeLineTypeCircle();
-
             base.component.eventVisibilityChanged += delegate (UIComponent c, bool v)
             {
                 if (v)
@@ -213,14 +206,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_lineNumberFormatted.textScale = 1.5f;
             m_lineNumberFormatted.useOutline = true;
         }
-        private void AwakeLineTypeCircle()
-        {
-            m_lineType = m_uIHelper.AddUiSprite("??", UVMTextureAtlas.instance.Atlas);
-            m_lineType.width = 36;
-            m_lineType.height = 36;
-            m_lineType.relativePosition = new Vector3(740, 2);
-        }
-
         private void AwakeShowLineButton()
         {
             m_lineIsVisible = m_uIHelper.AddCheckboxNoLabel("LineVisibility");

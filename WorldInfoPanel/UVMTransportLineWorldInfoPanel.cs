@@ -5,7 +5,6 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.TextureAtlas;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -88,7 +87,6 @@ namespace Klyte.TransportLinesManager.UI
 
             SetNameFieldProperties();
 
-            OverrideVehicleTypeIcon();
 
 
             KlyteMonoUtils.CreateTabsComponent(out m_obj.m_lineConfigTabs, out _, __instance.transform, "LineConfig", new Vector4(15, 45, 365, 30), new Vector4(15, 80, 380, 440));
@@ -117,6 +115,7 @@ namespace Klyte.TransportLinesManager.UI
             //PARENT
             m_obj.m_nameField = __instance.Find<UITextField>("LineName");
             m_obj.m_vehicleType = __instance.Find<UISprite>("VehicleType");
+            m_obj.m_vehicleType.size = new Vector2(32, 22);
         }
 
         private static void DestroyNotUsed(PublicTransportWorldInfoPanel __instance)
@@ -134,12 +133,6 @@ namespace Klyte.TransportLinesManager.UI
             Destroy(__instance.Find<UISlider>("SliderTicketPrice"));
             Destroy(__instance.Find<UILabel>("LabelTicketPrice"));
             Destroy(__instance.Find<UIPanel>("TicketPriceSection"));
-        }
-
-        private static void OverrideVehicleTypeIcon()
-        {
-            m_obj.m_vehicleType.atlas = UVMTextureAtlas.instance.Atlas;
-            m_obj.m_vehicleType.size = new Vector2(32, 32);
         }
 
 
@@ -337,7 +330,7 @@ namespace Klyte.TransportLinesManager.UI
             return 0;
         }
 
-        public static string GetVehicleTypeIcon(ushort lineId) => TransportSystemDefinition.From(lineId).GetCircleSpriteName().ToString();
+        public static string GetVehicleTypeIcon(ushort lineId) => TransportSystemDefinition.From(lineId).GetTransportTypeIcon();
 
 
 

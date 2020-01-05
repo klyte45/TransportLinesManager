@@ -18,7 +18,7 @@ namespace Klyte.TransportLinesManager.UI
         public UIComponent MainContainer { get; private set; }
         internal static TLMTicketConfigTab Instance { get; private set; }
 
-        private UIHelperExtension m_uiHelperNeighbors;
+        private UIHelperExtension m_uiHelper;
 
         private TLMTicketPriceTimeChart m_clockChart;
         private UIPanel m_titleContainer;
@@ -32,25 +32,26 @@ namespace Klyte.TransportLinesManager.UI
         {
             Instance = this;
             MainContainer = GetComponent<UIComponent>();
-            m_uiHelperNeighbors = new UIHelperExtension(MainContainer);
+            m_uiHelper = new UIHelperExtension(MainContainer);
 
-            ((UIPanel) m_uiHelperNeighbors.Self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel) m_uiHelperNeighbors.Self).wrapLayout = true;
-            ((UIPanel) m_uiHelperNeighbors.Self).autoLayout = true;
+            ((UIPanel) m_uiHelper.Self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel) m_uiHelper.Self).wrapLayout = true;
+            ((UIPanel) m_uiHelper.Self).autoLayout = true;
 
-            UILabel titleLabel = m_uiHelperNeighbors.AddLabel("");
+            UILabel titleLabel = m_uiHelper.AddLabel("");
             titleLabel.autoSize = true;
             titleLabel.textAlignment = UIHorizontalAlignment.Center;
-            titleLabel.minimumSize = new Vector2(MainContainer.width, 0);
+            titleLabel.wordWrap = false;
+            titleLabel.minimumSize = new Vector2(MainContainer.width - 10, 0);
             KlyteMonoUtils.LimitWidth(titleLabel, MainContainer.width);
             titleLabel.localeID = "K45_TLM_PER_HOUR_TICKET_PRICE_TITLE";
 
-            m_uiHelperNeighbors.AddSpace(5);
-            KlyteMonoUtils.CreateElement(out m_clockChart, m_uiHelperNeighbors.Self.transform, "DailyClock");
-            m_uiHelperNeighbors.AddSpace(20);
-            KlyteMonoUtils.CreateElement(out m_titleContainer, m_uiHelperNeighbors.Self.transform, "Title");
+            m_uiHelper.AddSpace(5);
+            KlyteMonoUtils.CreateElement(out m_clockChart, m_uiHelper.Self.transform, "DailyClock");
+            m_uiHelper.AddSpace(20);
+            KlyteMonoUtils.CreateElement(out m_titleContainer, m_uiHelper.Self.transform, "Title");
             PopulateTitlePanel(m_titleContainer);
-            KlyteMonoUtils.CreateScrollPanel(m_uiHelperNeighbors.Self, out m_entryListContainer, out _, m_uiHelperNeighbors.Self.width - 20f, m_uiHelperNeighbors.Self.height - 150, Vector3.zero);
+            KlyteMonoUtils.CreateScrollPanel(m_uiHelper.Self, out m_entryListContainer, out _, m_uiHelper.Self.width - 20f, m_uiHelper.Self.height - 150, Vector3.zero);
         }
         #endregion
 

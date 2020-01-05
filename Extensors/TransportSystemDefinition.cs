@@ -5,7 +5,6 @@ using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static Klyte.TransportLinesManager.TextureAtlas.UVMTextureAtlas;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
@@ -293,59 +292,7 @@ namespace Klyte.TransportLinesManager.Extensors
             hashCode = (hashCode * -1521134295) + VehicleType.GetHashCode();
             return hashCode;
         }
-        public IconName GetCircleSpriteName()
-        {
-            IconName result = IconName.IconU;
-            switch (TransportType)
-            {
-                case TransportInfo.TransportType.Bus:
-                    result = IconName.IconBus;
-                    break;
-                case TransportInfo.TransportType.Metro:
-                    result = IconName.IconMetro;
-                    break;
-                case TransportInfo.TransportType.Train:
-                    result = IconName.IconPassengerTrain;
-                    break;
-                case TransportInfo.TransportType.Ship:
-                    if (VehicleType == VehicleInfo.VehicleType.Ferry)
-                    {
-                        result = IconName.IconFerry;
-                    }
-                    else
-                    {
-                        result = IconName.IconShip;
-                    }
 
-                    break;
-                case TransportInfo.TransportType.Airplane:
-                    if (VehicleType == VehicleInfo.VehicleType.Blimp)
-                    {
-                        result = IconName.IconBlimp;
-                    }
-                    else
-                    {
-                        result = IconName.IconAirplane;
-                    }
-                    break;
-                case TransportInfo.TransportType.Tram:
-                    result = IconName.IconTram;
-                    break;
-                case TransportInfo.TransportType.EvacuationBus:
-                    result = IconName.IconEvacBus;
-                    break;
-                case TransportInfo.TransportType.Monorail:
-                    result = IconName.IconMonorail;
-                    break;
-                case TransportInfo.TransportType.Pedestrian:
-                    result = IconName.IconPath;
-                    break;
-                case TransportInfo.TransportType.TouristBus:
-                    result = IconName.IconSightseenBus;
-                    break;
-            }
-            return result;
-        }
         public int GetDefaultPassengerCapacity()
         {
             int result = 1;

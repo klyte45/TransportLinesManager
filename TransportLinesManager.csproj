@@ -160,8 +160,6 @@
     <Compile Include="LegacyWarehouse\ConfigWarehouseBaseLegacy.cs" />
     <Compile Include="Overrides\InstanceManagerOverrides.cs" />
     <Compile Include="Overrides\TLMTransportLineStatusesRedirector.cs" />
-    <Compile Include="TextureAtlas\TextureAtlasDescriptor.cs" />
-    <Compile Include="TextureAtlas\UVMTextureAtlas.cs" />
     <Compile Include="UI\TLMLineCreationToolboxHooks.cs" />
     <Compile Include="UI\TLMLineIconExtension.cs" />
     <Compile Include="CommonsWindow\TLMPanel.cs" />
@@ -283,10 +281,6 @@
     <EmbeddedResource Include="UI\VersionNotes.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="UI\TextureAtlas\icon_pt.psd" />
-    <EmbeddedResource Include="UI\TextureAtlas\icon_pt.png" />
-    <None Include="UI\TextureAtlas\icon.psd" />
-    <EmbeddedResource Include="UI\TextureAtlas\icon.png" />
     <EmbeddedResource Include="UI\Images\spritesCommon.png" />
     <EmbeddedResource Include="MapDrawer\app.js" />
     <Content Include="commons\UI\Images\%25K45_24hLineIcon.png" />
