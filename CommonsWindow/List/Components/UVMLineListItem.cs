@@ -8,7 +8,6 @@ using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.TextureAtlas;
 using Klyte.TransportLinesManager.Utils;
-using System;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.CommonsWindow
@@ -342,17 +341,21 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void AwakeLabels()
         {
             CreateLabel(out m_lineStops);
+            KlyteMonoUtils.LimitWidth(m_lineStops);
 
             CreateLabel(out m_linePassengers);
             m_linePassengers.transform.SetParent(m_lineStops.transform.parent);
             m_linePassengers.name = "LinePassengers";
+            KlyteMonoUtils.LimitWidth(m_linePassengers);
 
 
             CreateLabel(out m_lineBalance);
             m_lineBalance.transform.SetParent(m_lineStops.transform.parent);
             m_lineBalance.name = "LineExpenses";
+            m_lineBalance.minimumSize = new Vector2(105, 18);
+            KlyteMonoUtils.LimitWidth(m_lineBalance);
 
-            m_lineBalance.relativePosition = new Vector3(620, 10);
+            m_lineBalance.relativePosition = new Vector3(625, 10);
             m_linePassengers.relativePosition = new Vector3(540, 10);
             m_lineStops.relativePosition = new Vector3(340, 10);
         }
@@ -366,7 +369,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             label.pivot = UIPivotPoint.TopLeft;
             label.wordWrap = false;
             label.autoSize = true;
-            KlyteMonoUtils.LimitWidth(label);
         }
 
         private void AwakeLineName()
@@ -444,13 +446,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     }
                 });
             }
-        }
-
-        private void ConstraintedScale(UIComponent component, string value)
-        {
-            component.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
-            float ratio = Math.Min(1, component.height / component.parent.height);
-            component.transform.localScale = new Vector3(ratio, ratio);
         }
 
         public void DoAutoColor() => TLMController.instance.AutoColor(m_lineID);

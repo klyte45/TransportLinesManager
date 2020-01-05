@@ -102,7 +102,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             UIComponent parent = GetComponent<UIComponent>();
             KlyteMonoUtils.CreateUIElement(out m_autoNameAll, parent.transform);
-            m_autoNameAll.relativePosition = new Vector3(parent.width - 40f, 0);
+            m_autoNameAll.relativePosition = new Vector3(parent.width - 50f, -5);
             m_autoNameAll.textScale = 0.6f;
             m_autoNameAll.width = 40;
             m_autoNameAll.height = 40;
@@ -120,7 +120,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             };
 
             KlyteMonoUtils.CreateUIElement(out m_autoColorAll, parent.transform);
-            m_autoColorAll.relativePosition = new Vector3(parent.width - 80f, 0);
+            m_autoColorAll.relativePosition = new Vector3(parent.width - 90f, -5);
             m_autoColorAll.textScale = 0.6f;
             m_autoColorAll.width = 40;
             m_autoColorAll.height = 40;
@@ -192,7 +192,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             passengers.eventClicked += Passengers_eventClicked;
 
             KlyteMonoUtils.CreateUIElement(out UILabel profitLW, titleLine.transform, "profit");
-            profitLW.minimumSize = new Vector2(80, 0);
+            profitLW.minimumSize = new Vector2(110, 0);
             profitLW.area = new Vector4(625, 10, profitLW.minimumSize.x, 18);
             KlyteMonoUtils.LimitWidthAndBox(profitLW, (uint) profitLW.width);
             profitLW.textAlignment = UIHorizontalAlignment.Center;

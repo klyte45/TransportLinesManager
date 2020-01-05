@@ -188,7 +188,27 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public Type GetDefType() => SysDefinitions[this];
 
-        public string GetTransportTypeIcon() => PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportType);
+        public string GetTransportTypeIcon()
+        {
+            return TransportType switch
+            {
+                TransportInfo.TransportType.EvacuationBus => "SubBarFireDepartmentDisaster",
+                TransportInfo.TransportType.Pedestrian => "SubBarPublicTransportWalkingTours",
+                TransportInfo.TransportType.TouristBus => "SubBarPublicTransportTours",
+                TransportInfo.TransportType.HotAirBalloon => "IconBalloonTours",
+                TransportInfo.TransportType.Post => "SubBarPublicTransportPost",
+                TransportInfo.TransportType.CableCar => PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.EvacuationBus),
+                //case TransportInfo.TransportType.Ship:
+                //case TransportInfo.TransportType.Airplane:
+                //case TransportInfo.TransportType.Bus:
+                //case TransportInfo.TransportType.Metro:
+                //case TransportInfo.TransportType.Train:
+                //case TransportInfo.TransportType.Taxi:
+                //case TransportInfo.TransportType.Tram:
+                //case TransportInfo.TransportType.Monorail:
+                _ => PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportType),
+            };
+        }
 
         public bool IsFromSystem(VehicleInfo info) => info.m_class.m_subService == SubService && info.m_vehicleType == VehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && (info.GetAI().GetType().GetField("m_transportInfo").GetValue(info.GetAI()) as TransportInfo).m_transportType == TransportType && ReflectionUtils.HasField(info.GetAI(), "m_passengerCapacity");
 

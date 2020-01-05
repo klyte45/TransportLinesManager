@@ -195,7 +195,7 @@ namespace Klyte.TransportLinesManager.UI
         public static bool OnLinesOverviewClicked()
         {
             TransportLinesManagerMod.Instance.OpenPanelAtModTab();
-            TLMPanel.Instance.OpenAt(UiCategoryTab.LineListing, TransportSystemDefinition.From(UVMPublicTransportWorldInfoPanel.GetLineID()));
+            TLMPanel.Instance.OpenAt(TransportSystemDefinition.From(UVMPublicTransportWorldInfoPanel.GetLineID()));
             return false;
         }
 

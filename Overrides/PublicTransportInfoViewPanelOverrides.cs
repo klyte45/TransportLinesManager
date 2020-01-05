@@ -15,7 +15,6 @@ namespace Klyte.TransportLinesManager.Overrides
         private static bool OpenDetailPanel(int idx)
         {
             TransportSystemDefinition def;
-            UiCategoryTab cat = UiCategoryTab.LineListing;
             switch (idx)
             {
                 case 0:
@@ -50,7 +49,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     break;
             }
 
-            TLMPanel.Instance?.OpenAt(cat, def);
+            TLMPanel.Instance?.OpenAt(def);
             return false;
         }
 
