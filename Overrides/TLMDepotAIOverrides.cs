@@ -1,18 +1,18 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Math;
 using Klyte.Commons.Extensors;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static Klyte.Commons.Extensors.RedirectorUtils;
 
-namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
+namespace Klyte.TransportLinesManager.Overrides
 {
-    public class TLMDepotAI : MonoBehaviour, IRedirectable
+    public class TLMDepotAIOverrides : MonoBehaviour, IRedirectable
     {
-        private static TLMDepotAI Instance { get; set; }
+        private static TLMDepotAIOverrides Instance { get; set; }
 
 
         #region Generation methods
@@ -126,7 +126,7 @@ namespace Klyte.TransportLinesManager.Extensors.BuildingAIExt
         {
             Instance = this;
             TLMUtils.doLog("Loading Depot Hooks!");
-            RedirectorInstance.AddRedirect(typeof(DepotAI).GetMethod("StartTransfer", allFlags), typeof(TLMDepotAI).GetMethod("StartTransfer", allFlags));
+            RedirectorInstance.AddRedirect(typeof(DepotAI).GetMethod("StartTransfer", allFlags), typeof(TLMDepotAIOverrides).GetMethod("StartTransfer", allFlags));
         }
 
         #endregion

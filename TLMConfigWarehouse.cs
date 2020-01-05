@@ -405,8 +405,8 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static bool isServiceLineNameable(ItemClass.Service s) => GetCurrentConfigBool(ConfigIndex.USE_FOR_AUTO_NAMING_REF | GameServiceExtensions.toConfigIndex(s, ItemClass.SubService.None));
-        public static string getPrefixForServiceLineNameable(ItemClass.Service s) => GetCurrentConfigString(ConfigIndex.AUTO_NAMING_REF_TEXT | GameServiceExtensions.toConfigIndex(s, ItemClass.SubService.None));
+        public static bool isServiceLineNameable(ItemClass.Service s) => GetCurrentConfigBool(ConfigIndex.USE_FOR_AUTO_NAMING_REF | GameServiceExtensions.ToConfigIndex(s, ItemClass.SubService.None));
+        public static string getPrefixForServiceLineNameable(ItemClass.Service s) => GetCurrentConfigString(ConfigIndex.AUTO_NAMING_REF_TEXT | GameServiceExtensions.ToConfigIndex(s, ItemClass.SubService.None));
         public static bool isPublicTransportLineNameable(ref TransportSystemDefinition tsd) => GetCurrentConfigBool(ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | getConfigTransportSystemForDefinition(ref tsd));
         public static string getPrefixForPublicTransportLineNameable(ref TransportSystemDefinition tsd) => GetCurrentConfigString(ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | getConfigTransportSystemForDefinition(ref tsd));
 

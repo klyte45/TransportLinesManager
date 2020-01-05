@@ -5,10 +5,9 @@ using Klyte.Commons.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,7 +62,7 @@ namespace Klyte.TransportLinesManager.UI
             removeUndesired.isVisible = true;
             removeUndesired.eventClick += (component, eventParam) =>
             {
-                TLMTransportExtensionUtils.RemoveAllUnwantedVehicles();
+                TLMLineUtils.RemoveAllUnwantedVehicles();
             };
 
             UISprite icon = removeUndesired.AddUIComponent<UISprite>();

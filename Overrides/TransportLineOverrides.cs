@@ -3,8 +3,6 @@ using Harmony;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
@@ -18,15 +16,12 @@ namespace Klyte.TransportLinesManager.Overrides
     {
         #region Hooking
 
-        private static bool preventDefault() => false;
-
         public void Awake()
         {
-            MethodInfo preventDefault = typeof(TransportLineOverrides).GetMethod("preventDefault", allFlags);
 
             #region Automation Hooks
-            MethodInfo doAutomation = typeof(TransportLineOverrides).GetMethod("doAutomation", allFlags);
-            MethodInfo preDoAutomation = typeof(TransportLineOverrides).GetMethod("preDoAutomation", allFlags);
+            MethodInfo doAutomation = typeof(TransportLineOverrides).GetMethod("DoAutomation", allFlags);
+            MethodInfo preDoAutomation = typeof(TransportLineOverrides).GetMethod("PreDoAutomation", allFlags);
 
             TLMUtils.doLog("Loading AutoColor & AutoName Hook");
             RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("AddStop", allFlags), preDoAutomation, doAutomation);
@@ -83,9 +78,9 @@ namespace Klyte.TransportLinesManager.Overrides
 
         #region On Line Create
 
-        public static void preDoAutomation(ushort lineID, ref TransportLine.Flags __state) => __state = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags;
+        public static void PreDoAutomation(ushort lineID, ref TransportLine.Flags __state) => __state = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags;
 
-        public static void doAutomation(ushort lineID, TransportLine.Flags __state)
+        public static void DoAutomation(ushort lineID, TransportLine.Flags __state)
         {
             TLMUtils.doLog("OLD: " + __state + " ||| NEW: " + Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags);
             if (lineID > 0 && (__state & TransportLine.Flags.Complete) == TransportLine.Flags.None && (__state & TransportLine.Flags.Temporary) == TransportLine.Flags.None)

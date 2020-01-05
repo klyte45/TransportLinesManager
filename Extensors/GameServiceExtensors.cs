@@ -5,7 +5,7 @@ namespace Klyte.TransportLinesManager.Extensors
 {
     internal static class GameServiceExtensions
     {
-        public static TLMConfigWarehouse.ConfigIndex toConfigIndex(ItemClass.Service s, ItemClass.SubService ss)
+        public static TLMConfigWarehouse.ConfigIndex ToConfigIndex(ItemClass.Service s, ItemClass.SubService ss)
         {
             switch (s)
             {

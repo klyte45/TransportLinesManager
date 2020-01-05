@@ -5,13 +5,12 @@ using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
-using System;
+using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
-using UnityEngine;
 
-namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
+namespace Klyte.TransportLinesManager.Extensors
 {
     public abstract class TLMTransportTypeExtension<TSD, SG> : DataExtensorBase<SG>, ITLMTransportTypeExtension
         where TSD : TLMSysDef<TSD>, new() where SG : TLMTransportTypeExtension<TSD, SG>, new()
@@ -22,13 +21,13 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         private TransportSystemDefinition Definition => Singleton<TSD>.instance.GetTSD();
 
         [XmlElement("Configurations")]
-        public SimpleNonSequentialList<PrefixConfiguration> Configurations { get; set; } = new SimpleNonSequentialList<PrefixConfiguration>();
+        public SimpleNonSequentialList<TLMPrefixConfiguration> Configurations { get; set; } = new SimpleNonSequentialList<TLMPrefixConfiguration>();
 
-        public PrefixConfiguration SafeGet(uint prefix)
+        public TLMPrefixConfiguration SafeGet(uint prefix)
         {
             if (!Configurations.ContainsKey(prefix))
             {
-                Configurations[prefix] = new PrefixConfiguration();
+                Configurations[prefix] = new TLMPrefixConfiguration();
             }
             return Configurations[prefix];
         }
@@ -140,111 +139,4 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
     public sealed class TLMTransportTypeExtensionTouBal : TLMTransportTypeExtension<TLMSysDefTouBal, TLMTransportTypeExtensionTouBal> { }
     public sealed class TLMTransportTypeExtensionNorCcr : TLMTransportTypeExtension<TLMSysDefNorCcr, TLMTransportTypeExtensionNorCcr> { }
     public sealed class TLMTransportTypeExtensionNorTax : TLMTransportTypeExtension<TLMSysDefNorTax, TLMTransportTypeExtensionNorTax> { }
-
-    public class PrefixConfiguration : IAssetSelectorStorage, INameableStorage, IColorSelectableStorage, IBasicExtensionStorage
-    {
-        [XmlElement("Budget")]
-        public TimeableList<BudgetEntryXml> BudgetEntries { get; set; } = new TimeableList<BudgetEntryXml>();
-        [XmlElement("TicketPrices")]
-        public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; } = new TimeableList<TicketPriceEntryXml>();
-        [XmlElement("AssetsList")]
-        public SimpleXmlList<string> AssetList { get; set; } = new SimpleXmlList<string>();
-        [XmlAttribute("name")]
-        public string Name { get; set; }
-        [XmlAttribute("useColorForModel")]
-        public bool UseColorForModel { get; set; }
-
-        [XmlIgnore]
-        public Color Color { get => m_cachedColor; set => m_cachedColor = value; }
-        [XmlIgnore]
-        private Color m_cachedColor;
-        [XmlAttribute("color")]
-        public string PropColorStr { get => m_cachedColor == default ? null : ColorExtensions.ToRGB(Color); set => m_cachedColor = value.IsNullOrWhiteSpace() ? default : (Color) ColorExtensions.FromRGB(value); }
-
-
-        [XmlAttribute("customPalette")]
-        public string CustomPalette { get; set; }
-
-
-        [XmlIgnore]
-        public LineIconSpriteNames CustomIcon { get; set; } = LineIconSpriteNames.NULL;
-        [XmlAttribute("customFormat")]
-        public string CustomFormatStr
-        {
-            get => CustomIcon.ToString();
-
-            set {
-                LineIconSpriteNames result;
-                try
-                {
-                    result = (LineIconSpriteNames) Enum.Parse(typeof(LineIconSpriteNames), value);
-                }
-                catch
-                {
-                    result = (LineIconSpriteNames) Enum.ToObject(typeof(LineIconSpriteNames), (int.TryParse(value, out int val) ? val : 0));
-                }
-                CustomIcon = result;
-            }
-        }
-
-        [XmlElement("DepotsAllowed")]
-        public SimpleXmlHashSet<ushort> DepotsAllowed { get; set; } = new SimpleXmlHashSet<ushort>();
-
-    }
-
-    public class BudgetEntryXml : ITimeable<BudgetEntryXml>
-    {
-        private int m_hourOfDay;
-        private uint m_value;
-
-        [XmlAttribute("startTime")]
-        public int? HourOfDay
-        {
-            get => m_hourOfDay;
-            set {
-                m_hourOfDay = (value ?? -1) % 24;
-                OnEntryChanged?.Invoke(this);
-            }
-        }
-
-        [XmlAttribute("value")]
-        public uint Value
-        {
-            get => m_value;
-            set {
-                m_value = value;
-                OnEntryChanged?.Invoke(this);
-            }
-        }
-
-        public event Action<BudgetEntryXml> OnEntryChanged;
-    }
-
-    public class TicketPriceEntryXml : ITimeable<TicketPriceEntryXml>
-    {
-        private int m_hourOfDay;
-        private uint m_value;
-
-        [XmlAttribute("startTime")]
-        public int? HourOfDay
-        {
-            get => m_hourOfDay;
-            set {
-                m_hourOfDay = (value ?? -1) % 24;
-                OnEntryChanged?.Invoke(this);
-            }
-        }
-
-        [XmlAttribute("value")]
-        public uint Value
-        {
-            get => m_value;
-            set {
-                m_value = value;
-                OnEntryChanged?.Invoke(this);
-            }
-        }
-
-        public event Action<TicketPriceEntryXml> OnEntryChanged;
-    }
 }

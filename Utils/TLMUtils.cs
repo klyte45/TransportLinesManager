@@ -4,7 +4,7 @@ using ColossalFramework.UI;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -402,7 +402,7 @@ namespace Klyte.TransportLinesManager.Utils
             iid.Building = buildingId;
             serviceFound = b.Info?.GetService() ?? default;
             subserviceFound = b.Info?.GetSubService() ?? default;
-            TLMCW.ConfigIndex index = GameServiceExtensions.toConfigIndex(serviceFound, subserviceFound);
+            var index = GameServiceExtensions.ToConfigIndex(serviceFound, subserviceFound);
             TransportSystemDefinition tsd = default;
             if ((index & TLMCW.ConfigIndex.DESC_DATA) == TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG)
             {

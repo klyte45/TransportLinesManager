@@ -4,7 +4,6 @@ using ColossalFramework.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -364,7 +363,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             return string.Compare(component.LineName, component2.LineName, StringComparison.InvariantCulture);
         }
 
-        private static int  CompareProfit(UIComponent left, UIComponent right)
+        private static int CompareProfit(UIComponent left, UIComponent right)
         {
             if (left == null || right == null)
             {

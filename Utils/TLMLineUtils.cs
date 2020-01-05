@@ -1,12 +1,11 @@
 ﻿using ColossalFramework;
+using ColossalFramework.Math;
 using ColossalFramework.UI;
 using Klyte.Commons.Redirectors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.NetNodeExt;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,7 +134,7 @@ namespace Klyte.TransportLinesManager.Utils
             else
             {
                 var tsd = TransportSystemDefinition.From(lineId);
-                return (tsd.GetTransportExtension() as ISafeGettable<PrefixConfiguration>).SafeGet(hasPrefix(ref tsd) ? getPrefix(lineId) : 0);
+                return (tsd.GetTransportExtension() as ISafeGettable<TLMPrefixConfiguration>).SafeGet(hasPrefix(ref tsd) ? getPrefix(lineId) : 0);
             }
         }
         public static IBasicExtension GetEffectiveExtensionForLine(ushort lineId)
@@ -857,21 +856,49 @@ namespace Klyte.TransportLinesManager.Utils
 
         private static string GetStationNameWithPrefix(TLMCW.ConfigIndex transportType, string name) => transportType.GetSystemStationNamePrefix().Trim() + (transportType.GetSystemStationNamePrefix().Trim() != string.Empty ? " " : "") + name;
 
-        public static void setStopName(string newName, uint stopId, ushort lineId, Action callback)
+        public static void setStopName(string newName, ushort stopId, ushort lineId, Action callback)
         {
             TLMUtils.doLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
             ushort buildingId = getStationBuilding(stopId, Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService, true, true);
             if (buildingId == 0)
             {
                 TLMUtils.doLog("b=0");
-                TLMStopsExtension.Instance.SetStopName(newName, stopId);
-                callback();
+                Singleton<BuildingManager>.instance.StartCoroutine(SetNodeName(stopId, newName, callback));
             }
             else
             {
                 TLMUtils.doLog("b≠0 ({0})", buildingId);
                 Singleton<BuildingManager>.instance.StartCoroutine(BuildingUtils.SetBuildingName(buildingId, newName, callback));
             }
+        }
+
+        public static IEnumerator<object> SetNodeName(ushort nodeId, string name, Action function)
+        {
+            yield return Singleton<SimulationManager>.instance.AddAction<bool>(SetNodeName(nodeId, name));
+            function();
+        }
+        public static string GetStopName(ushort stopId)
+        {
+            InstanceID id = default;
+            id.NetNode = stopId;
+            return InstanceManager.instance.GetName(id);
+        }
+
+        private static IEnumerator<bool> SetNodeName(ushort nodeId, string name)
+        {
+            bool result = false;
+            NetNode.Flags flags = NetManager.instance.m_nodes.m_buffer[nodeId].m_flags;
+            TLMUtils.doLog($"SetNodeName({nodeId},{name}) {flags}");
+            if (nodeId != 0 && flags != NetNode.Flags.None)
+            {
+                var id = default(InstanceID);
+                id.NetNode = nodeId;
+                Singleton<InstanceManager>.instance.SetName(id, name.IsNullOrWhiteSpace() ? null : name);
+                result = true;
+            }
+            yield return result;
+            yield break;
+
         }
         public static bool CalculateSimmetry(ItemClass.SubService ss, int stopsCount, TransportLine t, out int middle)
         {
@@ -929,9 +956,9 @@ namespace Klyte.TransportLinesManager.Utils
             }
 
         }
-        public static string getStationName(uint stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, out NamingType resultNamingType, bool excludeCargo = false, bool useRestrictionForAreas = false)
+        public static string getStationName(ushort stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, out NamingType resultNamingType, bool excludeCargo = false, bool useRestrictionForAreas = false)
         {
-            string savedName = TLMStopsExtension.Instance.GetStopName(stopId);
+            string savedName = GetStopName(stopId);
             var tsd = TransportSystemDefinition.From(lineId);
             if (savedName != null)
             {
@@ -954,7 +981,7 @@ namespace Klyte.TransportLinesManager.Utils
                 {
                     if (otherStop != stopId)
                     {
-                        savedName = TLMStopsExtension.Instance.GetStopName(otherStop);
+                        savedName = GetStopName(otherStop);
                         ;
                         if (savedName != null)
                         {
@@ -1230,6 +1257,59 @@ namespace Klyte.TransportLinesManager.Utils
             return ticketPriceDefault;
         }
 
+        public static void RemoveAllUnwantedVehicles()
+        {
+            var randomizer = new Randomizer(SimulationManager.instance.m_timeOffsetTicks);
+            for (ushort lineId = 1; lineId < Singleton<TransportManager>.instance.m_lines.m_size; lineId++)
+            {
+                if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
+                {
+                    uint idx;
+                    IAssetSelectorExtension extension;
+                    if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
+                    {
+                        idx = lineId;
+                        extension = TLMTransportLineExtension.Instance;
+                    }
+                    else
+                    {
+                        idx = TLMLineUtils.getPrefix(lineId);
+                        var def = TransportSystemDefinition.From(lineId);
+                        extension = def.GetTransportExtension();
+                    }
+
+                    TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
+                    List<string> modelList = extension.GetAssetList(idx);
+                    VehicleManager vm = Singleton<VehicleManager>.instance;
+
+                    if (TransportLinesManagerMod.DebugMode)
+                    {
+                        TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
+                    }
+
+                    if (modelList.Count > 0)
+                    {
+                        var vehiclesToRemove = new Dictionary<ushort, VehicleInfo>();
+                        for (int i = 0; i < tl.CountVehicles(lineId); i++)
+                        {
+                            ushort vehicle = tl.GetVehicle(i);
+                            if (vehicle != 0)
+                            {
+                                VehicleInfo info2 = vm.m_vehicles.m_buffer[vehicle].Info;
+                                if (!modelList.Contains(info2.name))
+                                {
+                                    vehiclesToRemove[vehicle] = info2;
+                                }
+                            }
+                        }
+                        foreach (KeyValuePair<ushort, VehicleInfo> item in vehiclesToRemove)
+                        {
+                            VehicleUtils.ReplaceVehicleModel(item.Key, extension.GetAModel(lineId));
+                        }
+                    }
+                }
+            }
+        }
 
 
         internal static readonly ModoNomenclatura[] nomenclaturasComNumeros = new ModoNomenclatura[]
@@ -1332,7 +1412,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
-        public static NamingType from(ItemClass.Service service, ItemClass.SubService subService) => from(GameServiceExtensions.toConfigIndex(service, subService));
+        public static NamingType from(ItemClass.Service service, ItemClass.SubService subService) => from(GameServiceExtensions.ToConfigIndex(service, subService));
         public static NamingType from(TLMCW.ConfigIndex ci)
         {
             switch (ci & (TLMCW.ConfigIndex.SYSTEM_PART | TLMCW.ConfigIndex.DESC_DATA))

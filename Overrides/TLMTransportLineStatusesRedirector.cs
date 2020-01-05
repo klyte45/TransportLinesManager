@@ -3,7 +3,6 @@ using Harmony;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -117,8 +116,8 @@ namespace Klyte.TransportLinesManager.Overrides
             {
                 ushort stopId = TransportLine.GetPrevStop(VehicleManager.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding);
                 TLMTransportLineStatusesManager.instance.AddToLine(lineId, amount, 0, ref citizen);
-                TLMTransportLineStatusesManager.instance.AddToVehicle(vehicleId, amount, 0,ref citizen);
-                TLMTransportLineStatusesManager.instance.AddToStop(stopId, amount,ref citizen);
+                TLMTransportLineStatusesManager.instance.AddToVehicle(vehicleId, amount, 0, ref citizen);
+                TLMTransportLineStatusesManager.instance.AddToStop(stopId, amount, ref citizen);
                 LogUtils.DoLog($"DoHumanAiEconomyManagement : line {lineId};amount = {amount}; citizen = {citizenId}");
             }
 

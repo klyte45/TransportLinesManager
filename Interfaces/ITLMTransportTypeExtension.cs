@@ -1,13 +1,13 @@
 ﻿using Klyte.Commons.UI.Sprites;
-using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.Xml;
 
-namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
+namespace Klyte.TransportLinesManager.Interfaces
 {
     public interface ITLMTransportTypeExtension :
         IBasicExtension,
         INameableExtension,
         IColorSelectableExtension,
-        ISafeGettable<PrefixConfiguration>
+        ISafeGettable<TLMPrefixConfiguration>
     {
         #region Use Color For Model
         public bool IsUsingColorForModel(uint prefix);

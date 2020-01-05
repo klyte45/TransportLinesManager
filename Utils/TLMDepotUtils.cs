@@ -1,4 +1,4 @@
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Extensors;
 using System.Collections.Generic;
 
 namespace Klyte.TransportLinesManager.Utils

@@ -1,14 +1,14 @@
 ﻿using ColossalFramework.Globalization;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 
-namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
+namespace Klyte.TransportLinesManager.Extensors
 {
     internal enum TLMTransportLineFlags : uint
     {
@@ -151,22 +151,5 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
 
         #endregion
 
-    }
-
-
-    public class TLMTransportLineConfiguration : IBasicExtensionStorage
-    {
-        [XmlAttribute("isCustom")]
-        public bool IsCustom { get; set; } = false;
-        [XmlAttribute("displayAbsoluteValues")]
-        public bool DisplayAbsoluteValues { get; set; } = false;
-        [XmlElement("Budget")]
-        public TimeableList<BudgetEntryXml> BudgetEntries { get; set; } = new TimeableList<BudgetEntryXml>();
-        [XmlElement("AssetsList")]
-        public SimpleXmlList<string> AssetList { get; set; } = new SimpleXmlList<string>();
-        [XmlElement("TicketPrices")]
-        public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; } = new TimeableList<TicketPriceEntryXml>();
-        [XmlElement("DepotsAllowed")]
-        public SimpleXmlHashSet<ushort> DepotsAllowed { get; set; } = new SimpleXmlHashSet<ushort>();
     }
 }

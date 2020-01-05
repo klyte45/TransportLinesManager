@@ -2,9 +2,9 @@
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors.TransportLineExt;
-using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -112,7 +112,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void RebuildList(ushort lineID)
         {
-            var effectiveConfig = TLMLineUtils.GetEffectiveConfigForLine(lineID);
+            Interfaces.IBasicExtensionStorage effectiveConfig = TLMLineUtils.GetEffectiveConfigForLine(lineID);
             TimeableList<BudgetEntryXml> budgetEntries = effectiveConfig.BudgetEntries;
             int stopsCount = budgetEntries.Count;
             if (stopsCount == 0)

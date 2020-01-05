@@ -1,12 +1,13 @@
 ﻿using ColossalFramework;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Klyte.TransportLinesManager.TextureAtlas.UVMTextureAtlas;
 
-namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
+namespace Klyte.TransportLinesManager.Extensors
 {
     public struct TransportSystemDefinition
     {
