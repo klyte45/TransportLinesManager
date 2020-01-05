@@ -47,16 +47,21 @@ namespace Klyte.TransportLinesManager.Overrides
 
 
             #region Color Override Hooks
-            MethodInfo GetColorFor = typeof(TransportLineOverrides).GetMethod("GetColorFor", allFlags);
+            MethodInfo TranspileGetColor = typeof(TransportLineOverrides).GetMethod("TranspileGetColor", allFlags);
 
-            TLMUtils.doLog("Loading Color Override Hooks");
-            RedirectorInstance.AddRedirect(typeof(PassengerPlaneAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            RedirectorInstance.AddRedirect(typeof(PassengerShipAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            RedirectorInstance.AddRedirect(typeof(TramAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            RedirectorInstance.AddRedirect(typeof(PassengerTrainAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            RedirectorInstance.AddRedirect(typeof(PassengerBlimpAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            RedirectorInstance.AddRedirect(typeof(PassengerFerryAI).GetMethod("GetColor", allFlags), null, GetColorFor);
-            RedirectorInstance.AddRedirect(typeof(BusAI).GetMethod("GetColor", allFlags), null, GetColorFor);
+            List<Type> allVehicleAI = ReflectionUtils.GetSubtypesRecursive(typeof(VehicleAI), typeof(VehicleAI));
+            TLMUtils.doLog($"allVehicleAI size = {allVehicleAI.Count}");
+            foreach (Type ai in allVehicleAI)
+            {
+                MethodInfo colorMethod = ai.GetMethod("GetColor", allFlags);
+                if (colorMethod == null)
+                {
+                    continue;
+                }
+
+                TLMUtils.doLog($"Loading Color Override Hooks for {ai}");
+                RedirectorInstance.AddRedirect(colorMethod, null, null, TranspileGetColor);
+            }
             #endregion
 
             #region Budget Override Hooks
@@ -222,67 +227,49 @@ namespace Klyte.TransportLinesManager.Overrides
         #endregion
 
         #region Color Override
-        private static void GetColorFor(ushort vehicleID, ref Vehicle data, ref Color __result, InfoManager.InfoMode infoMode)
+        private static readonly MethodInfo m_getColorTL = typeof(TransportLine).GetMethod("GetColor", RedirectorUtils.allFlags);
+        private static readonly MethodInfo m_getColorFor = typeof(TransportLineOverrides).GetMethod("GetColorFor", RedirectorUtils.allFlags);
+
+        public static IEnumerable<CodeInstruction> TranspileGetColor(IEnumerable<CodeInstruction> instructions)
         {
-            switch (infoMode)
+            var inst = new List<CodeInstruction>(instructions);
+
+            for (int i = 0; i < inst.Count; i++)
             {
-                case InfoManager.InfoMode.TrafficRoutes:
-                    return;
-                case InfoManager.InfoMode.Underground:
-                case InfoManager.InfoMode.ParkMaintenance:
-                    IL_1D:
-                    if (infoMode != InfoManager.InfoMode.None)
-                    {
-                        if (infoMode != InfoManager.InfoMode.Transport)
-                        {
-                            if (infoMode != InfoManager.InfoMode.EscapeRoutes)
-                            {
-                                return;
-                            }
-                            goto IL_1G;
-                        }
-                        else
-                        {
-                            return;
-                            //goto IL_1G;
-                        }
-                    }
-                    IL_1G:
-                    ushort transportLine = data.m_transportLine;
-                    if (transportLine != 0)
-                    {
-                        var tsd = TransportSystemDefinition.GetDefinitionForLine(transportLine);
-                        if (tsd.TransportType == TransportInfo.TransportType.EvacuationBus)
-                        {
-                            return;
-                        }
-
-                        ITLMTransportTypeExtension ext = tsd.GetTransportExtension();
-                        uint prefix = TLMLineUtils.getPrefix(transportLine);
-
-                        if (ext.IsUsingColorForModel(prefix) && ext.GetColor(prefix) != default)
-                        {
-                            __result = ext.GetColor(prefix);
-                        }
-                        else
-                        {
-                            __result = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].GetColor();
-                        }
-                    }
-                    return;
-                case InfoManager.InfoMode.Tours:
-                    ushort transportLine2 = data.m_transportLine;
-                    var tsd2 = TransportSystemDefinition.GetDefinitionForLine(transportLine2);
-                    if (tsd2.TransportType != TransportInfo.TransportType.TouristBus)
-                    {
-                        return;
-                    }
-                    goto IL_1G;
-                case InfoManager.InfoMode.Tourism:
-                    return;
-                default:
-                    goto IL_1D;
+                if (inst[i].opcode == OpCodes.Call && inst[i].operand == m_getColorTL)
+                {
+                    inst[i] = inst[i - 2];
+                    inst.Insert(i + 1, new CodeInstruction(OpCodes.Call, m_getColorFor));
+                }
             }
+            LogUtils.PrintMethodIL(inst);
+            return inst;
+        }
+
+        private static Color GetColorFor(ref TransportLine line, ushort transportLine)
+        {
+            if (transportLine != 0)
+            {
+                var tsd = TransportSystemDefinition.GetDefinitionForLine(transportLine);
+                if (tsd.TransportType == TransportInfo.TransportType.EvacuationBus)
+                {
+                    return Singleton<TransportManager>.instance.m_properties.m_transportColors[(int) line.Info.m_transportType];
+                }
+
+                ITLMTransportTypeExtension ext = tsd.GetTransportExtension();
+                uint prefix = TLMLineUtils.getPrefix(transportLine);
+
+                if (ext.IsUsingColorForModel(prefix) && ext.GetColor(prefix) != default)
+                {
+                    return ext.GetColor(prefix);
+                }
+                else
+                {
+                    return Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].GetColor();
+                }
+            }
+            return Singleton<TransportManager>.instance.m_properties.m_transportColors[(int) line.Info.m_transportType];
+
         }
         #endregion
 

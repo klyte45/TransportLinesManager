@@ -166,7 +166,6 @@
     <Compile Include="UI\TLMLineCreationToolboxHooks.cs" />
     <Compile Include="UI\TLMLineIconExtension.cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerListBase .cs" />
-    <Compile Include="CommonsWindow\List\TLMTabControllerPrefixList.cs" />
     <Compile Include="CommonsWindow\TLMPanel.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMModInfoTab.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMPaletteOptionsTab.cs" />
