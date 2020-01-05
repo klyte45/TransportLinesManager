@@ -131,55 +131,38 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static string getNameForServiceType(ConfigIndex i) => Locale.Get(getLocaleIdForIndex(i, out string key), key);
+        public static string GetNameForServiceType(ConfigIndex i) => Locale.Get(GetLocaleIdForIndex(i, out string key, out int index), key, index);
 
-        private static string getLocaleIdForIndex(ConfigIndex i, out string key)
+        private static string GetLocaleIdForIndex(ConfigIndex i, out string key, out int index)
         {
-            switch (i & ConfigIndex.DESC_DATA)
+            index = (i & ConfigIndex.DESC_DATA) switch
             {
-                case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG:
-                    key = "Beautification";
-                    break;
-                case ConfigIndex.ELECTRICITY_SERVICE_CONFIG:
-                    key = "Electricity";
-                    break;
-                case ConfigIndex.WATER_SERVICE_CONFIG:
-                    key = "WaterAndSewage";
-                    break;
-                case ConfigIndex.GARBAGE_SERVICE_CONFIG:
-                    key = "Garbage";
-                    break;
-                case ConfigIndex.ROAD_SERVICE_CONFIG:
-                    key = "Roads";
-                    break;
-                case ConfigIndex.HEALTHCARE_SERVICE_CONFIG:
-                    key = "Healthcare";
-                    break;
-                case ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG:
-                    key = "Police";
-                    break;
-                case ConfigIndex.EDUCATION_SERVICE_CONFIG:
-                    key = "Education";
-                    break;
-                case ConfigIndex.MONUMENT_SERVICE_CONFIG:
-                    key = "Monuments";
-                    break;
-                case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
-                    key = "FireDepartment";
-                    break;
-                case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    key = "PublicTransport";
-                    break;
-                case ConfigIndex.DISASTER_SERVICE_CONFIG:
-                    key = "Government";
-                    break;
-                case ConfigIndex.DISTRICT_NAME_CONFIG:
-                    key = "District";
-                    break;
-                default:
-                    key = null;
-                    break;
-            }
+                ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG => 2,
+                _ => 0,
+            };
+            key = (i & ConfigIndex.DESC_DATA) switch
+            {
+                ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG => "Beautification",
+                ConfigIndex.ELECTRICITY_SERVICE_CONFIG => "Electricity",
+                ConfigIndex.WATER_SERVICE_CONFIG => "WaterAndSewage",
+                ConfigIndex.GARBAGE_SERVICE_CONFIG => "Garbage",
+                ConfigIndex.ROAD_SERVICE_CONFIG => "Roads",
+                ConfigIndex.HEALTHCARE_SERVICE_CONFIG => "Healthcare",
+                ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG => "Police",
+                ConfigIndex.EDUCATION_SERVICE_CONFIG => "Education",
+                ConfigIndex.MONUMENT_SERVICE_CONFIG => "Monuments",
+                ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG => "FireDepartment",
+                ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG => "PublicTransport",
+                ConfigIndex.DISASTER_SERVICE_CONFIG => "FireDepartment",
+                ConfigIndex.DISTRICT_NAME_CONFIG => "District",
+                ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG => "VarsitySports",
+                ConfigIndex.MUSEUMS_SERVICE_CONFIG => "CampusAreaMuseums",
+                ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG => "Industry",
+                ConfigIndex.PARKAREA_NAME_CONFIG => "ParkAreas",
+                ConfigIndex.INDUSTRIAL_AREA_NAME_CONFIG => "IndustryAreas",
+                ConfigIndex.CAMPUS_AREA_NAME_CONFIG => "CampusAreas",
+                _ => null,
+            };
             switch (i & ConfigIndex.DESC_DATA)
             {
                 case ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
@@ -201,7 +184,9 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.ADDRESS_NAME_CONFIG:
                     return "K45_TLM_ROAD_NAMING_STOP";
                 case ConfigIndex.PARKAREA_NAME_CONFIG:
-                    return "K45_TLM_PARKAREA_NAMING_STOP";
+                case ConfigIndex.CAMPUS_AREA_NAME_CONFIG:
+                case ConfigIndex.INDUSTRIAL_AREA_NAME_CONFIG:
+                    return "FEATURES";
                 case ConfigIndex.ROAD_SERVICE_CONFIG:
                 case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG:
                 case ConfigIndex.GARBAGE_SERVICE_CONFIG:
@@ -213,9 +198,17 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.MONUMENT_SERVICE_CONFIG:
                 case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                case ConfigIndex.DISASTER_SERVICE_CONFIG:
                 case ConfigIndex.DISTRICT_NAME_CONFIG:
+                case ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG:
                     return "MAIN_TOOL";
+                case ConfigIndex.MUSEUMS_SERVICE_CONFIG:
+                    return "MAIN_CATEGORY";
+                case ConfigIndex.DISASTER_SERVICE_CONFIG:
+                    return "MAIN_TOOL_ND";
+                case ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG:
+                    return "PARKSOVERVIEW_TOOLTIP";
+                case ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG:
+                    return "INFO_EDUCATION_BUILDING";
                 default:
                     return "???";
 
@@ -645,9 +638,15 @@ namespace Klyte.TransportLinesManager
             ConfigIndex.EDUCATION_SERVICE_CONFIG,
             ConfigIndex.DISASTER_SERVICE_CONFIG,
             ConfigIndex.GARBAGE_SERVICE_CONFIG,
+            ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG,
+            ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG,
+            ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG,
+            ConfigIndex.MUSEUMS_SERVICE_CONFIG,
         };
         public static readonly ConfigIndex[] extraAutoNameCategories = {
             ConfigIndex. PARKAREA_NAME_CONFIG       ,
+            ConfigIndex. CAMPUS_AREA_NAME_CONFIG       ,
+            ConfigIndex. INDUSTRIAL_AREA_NAME_CONFIG       ,
             ConfigIndex. DISTRICT_NAME_CONFIG       ,
             ConfigIndex. ADDRESS_NAME_CONFIG
         };
@@ -686,6 +685,10 @@ namespace Klyte.TransportLinesManager
             TLMConfigWarehouse.ConfigIndex.BUS_CONFIG   ,
             TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.MUSEUMS_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG   ,
+            TLMConfigWarehouse.ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG    ,
             TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.HEALTHCARE_SERVICE_CONFIG    ,
@@ -786,6 +789,12 @@ namespace Klyte.TransportLinesManager
             FIREDEPARTMENT_SERVICE_CONFIG = ItemClass.Service.FireDepartment,
             PUBLICTRANSPORT_SERVICE_CONFIG = ItemClass.Service.PublicTransport,
             DISASTER_SERVICE_CONFIG = ItemClass.Service.Disaster,
+            PLAYER_INDUSTRY_SERVICE_CONFIG = ItemClass.Service.PlayerIndustry,
+            PLAYER_EDUCATION_SERVICE_CONFIG = ItemClass.Service.PlayerEducation,
+            MUSEUMS_SERVICE_CONFIG = ItemClass.Service.Museums,
+            VARSITY_SPORTS_SERVICE_CONFIG = ItemClass.Service.VarsitySports,
+            CAMPUS_AREA_NAME_CONFIG = 0xfb,
+            INDUSTRIAL_AREA_NAME_CONFIG = 0xfc,
             PARKAREA_NAME_CONFIG = 0xfd,
             DISTRICT_NAME_CONFIG = 0xfe,
             ADDRESS_NAME_CONFIG = 0xff,
@@ -1014,8 +1023,14 @@ namespace Klyte.TransportLinesManager
             FIREDEPARTMENT_USE_FOR_AUTO_NAMING_REF = FIREDEPARTMENT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF = PUBLICTRANSPORT_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             DISASTER_USE_FOR_AUTO_NAMING_REF = DISASTER_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            PLAYER_INDUSTRY_USE_FOR_AUTO_NAMING_REF = PLAYER_INDUSTRY_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            PLAYER_EDUCATION_USE_FOR_AUTO_NAMING_REF = PLAYER_EDUCATION_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            MUSEUMS_USE_FOR_AUTO_NAMING_REF = MUSEUMS_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            VARSITY_SPORTS_USE_FOR_AUTO_NAMING_REF = VARSITY_SPORTS_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
 
 
+            CAMPUS_AREA_USE_FOR_AUTO_NAMING_REF = CAMPUS_AREA_NAME_CONFIG | USE_FOR_AUTO_NAMING_REF,
+            INDUSTRIAL_AREA_USE_FOR_AUTO_NAMING_REF = INDUSTRIAL_AREA_NAME_CONFIG | USE_FOR_AUTO_NAMING_REF,
             PARKAREA_USE_FOR_AUTO_NAMING_REF = PARKAREA_NAME_CONFIG | USE_FOR_AUTO_NAMING_REF,
             DISTRICT_USE_FOR_AUTO_NAMING_REF = DISTRICT_NAME_CONFIG | USE_FOR_AUTO_NAMING_REF,
             ADDRESS_USE_FOR_AUTO_NAMING_REF = ADDRESS_NAME_CONFIG | USE_FOR_AUTO_NAMING_REF,
@@ -1055,8 +1070,14 @@ namespace Klyte.TransportLinesManager
             MONUMENT_AUTO_NAMING_REF_TEXT = MONUMENT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             FIREDEPARTMENT_AUTO_NAMING_REF_TEXT = FIREDEPARTMENT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT = PUBLICTRANSPORT_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
-            GOVERNMENT_AUTO_NAMING_REF_TEXT = DISASTER_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            DISASTER_AUTO_NAMING_REF_TEXT = DISASTER_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            PLAYER_INDUSTRY_AUTO_NAMING_REF_TEXT = PLAYER_INDUSTRY_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            PLAYER_EDUCATION_AUTO_NAMING_REF_TEXT = PLAYER_EDUCATION_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            MUSEUMS_AUTO_NAMING_REF_TEXT = MUSEUMS_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
+            VARSITY_SPORTS_AUTO_NAMING_REF_TEXT = VARSITY_SPORTS_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
 
+            CAMPUS_AREA_NAMING_REF_TEXT = CAMPUS_AREA_NAME_CONFIG | AUTO_NAMING_REF_TEXT,
+            INDUSTRIAL_AREA_NAMING_REF_TEXT = INDUSTRIAL_AREA_NAME_CONFIG | AUTO_NAMING_REF_TEXT,
             PARKAREA_NAMING_REF_TEXT = PARKAREA_NAME_CONFIG | AUTO_NAMING_REF_TEXT,
             DISTRICT_NAMING_REF_TEXT = DISTRICT_NAME_CONFIG | AUTO_NAMING_REF_TEXT,
             ADDRESS_NAMING_REF_TEXT = ADDRESS_NAME_CONFIG | AUTO_NAMING_REF_TEXT,

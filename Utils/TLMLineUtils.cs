@@ -968,7 +968,7 @@ namespace Klyte.TransportLinesManager.Utils
                 subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService;
                 prefix = tsd.ToConfigIndex().GetSystemStationNamePrefix(lineId)?.TrimStart();
                 buildingID = 0;
-                resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
+                resultNamingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
                 return savedName;
             }
 
@@ -994,7 +994,7 @@ namespace Klyte.TransportLinesManager.Utils
                             subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[targetLineId].Info.m_class.m_subService;
                             prefix = tsd2.ToConfigIndex().GetSystemStationNamePrefix(targetLineId)?.TrimStart();
                             buildingID = 0;
-                            resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
+                            resultNamingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
                             return savedName;
                         }
                     }
@@ -1006,21 +1006,30 @@ namespace Klyte.TransportLinesManager.Utils
             if (buildingID > 0)
             {
                 string name = TLMUtils.getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix, lineId);
-                resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
+                resultNamingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
                 return name;
             }
 
 
             prefix = "";
-            if (BuildingUtils.GetPark(location) > 0 && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)))
+            byte parkId = DistrictManager.instance.GetPark(location);
+            if (parkId > 0)
             {
-                prefix = TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG.GetSystemStationNamePrefix(lineId)?.TrimStart();
-                serviceFound = ItemClass.Service.Natural;
-                subserviceFound = ItemClass.SubService.BeautificationParks;
-                resultNamingType = NamingType.PARKAREA;
-                return DistrictManager.instance.GetParkName(BuildingUtils.GetPark(location));
+                var idx = DistrictManager.instance.m_parks.m_buffer[parkId].ToConfigIndex();
+                if (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(idx | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF))
+                {
+                    prefix = idx.GetSystemStationNamePrefix(lineId)?.TrimStart();
+                    serviceFound = idx.ToServiceSubservice(out subserviceFound);
+                    resultNamingType = idx switch
+                    {
+                        CIdx.CAMPUS_AREA_NAME_CONFIG => NamingType.CAMPUS,
+                        CIdx.INDUSTRIAL_AREA_NAME_CONFIG => NamingType.INDUSTRY_AREA,
+                        _ => NamingType.PARKAREA,
+                    };
+                    return DistrictManager.instance.GetParkName(parkId);
+                }
             }
-            else if (SegmentUtils.GetAddressStreetAndNumber(location, location, out int number, out string streetName) && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)) && !string.IsNullOrEmpty(streetName))
+            if (SegmentUtils.GetAddressStreetAndNumber(location, location, out int number, out string streetName) && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)) && !string.IsNullOrEmpty(streetName))
             {
                 prefix = TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG.GetSystemStationNamePrefix(lineId)?.TrimStart();
                 serviceFound = ItemClass.Service.Road;
@@ -1129,9 +1138,11 @@ namespace Klyte.TransportLinesManager.Utils
         CIdx.RESIDENTIAL_USE_FOR_AUTO_NAMING_REF            ,
 
         //CIdx.UNUSED2_USE_FOR_AUTO_NAMING_REF                ,
-        //CIdx.PARKAREA_USE_FOR_AUTO_NAMING_REF               ,
-        //CIdx.DISTRICT_USE_FOR_AUTO_NAMING_REF               ,
-        //CIdx.ADDRESS_USE_FOR_AUTO_NAMING_REF                ,
+        CIdx.CAMPUS_AREA_USE_FOR_AUTO_NAMING_REF               ,
+        CIdx.PARKAREA_USE_FOR_AUTO_NAMING_REF               ,
+        CIdx.INDUSTRIAL_AREA_USE_FOR_AUTO_NAMING_REF               ,
+        CIdx.DISTRICT_USE_FOR_AUTO_NAMING_REF               ,
+        CIdx.ADDRESS_USE_FOR_AUTO_NAMING_REF                ,
         };
 
         public static ushort getStationBuilding(uint stopId, ItemClass.SubService ss, bool excludeCargo = false, bool restrictToTransportType = false)
@@ -1353,7 +1364,9 @@ namespace Klyte.TransportLinesManager.Utils
         EDUCATION,
         DISASTER,
         GARBAGE,
+        CAMPUS,
         PARKAREA,
+        INDUSTRY_AREA,
         DISTRICT,
         ADDRESS,
         RICO
@@ -1389,6 +1402,8 @@ namespace Klyte.TransportLinesManager.Utils
                     return 0x00000009;
                 case NamingType.MONUMENT:
                     return 0x00000005;
+                case NamingType.CAMPUS:
+                    return 0x00000005;
                 case NamingType.BEAUTIFICATION:
                     return 0x0000000a;
                 case NamingType.HEALTHCARE:
@@ -1407,6 +1422,8 @@ namespace Klyte.TransportLinesManager.Utils
                     return 0x00000005;
                 case NamingType.DISTRICT:
                     return 0x00000010;
+                case NamingType.INDUSTRY_AREA:
+                    return 0x00000010;
                 case NamingType.ADDRESS:
                     return 0x00000011;
                 case NamingType.RICO:
@@ -1418,8 +1435,8 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
-        public static NamingType from(ItemClass.Service service, ItemClass.SubService subService) => from(GameServiceExtensions.ToConfigIndex(service, subService));
-        public static NamingType from(TLMCW.ConfigIndex ci)
+        public static NamingType From(ItemClass.Service service, ItemClass.SubService subService) => From(GameServiceExtensions.ToConfigIndex(service, subService));
+        public static NamingType From(TLMCW.ConfigIndex ci)
         {
             switch (ci & (TLMCW.ConfigIndex.SYSTEM_PART | TLMCW.ConfigIndex.DESC_DATA))
             {
@@ -1467,6 +1484,12 @@ namespace Klyte.TransportLinesManager.Utils
                     return NamingType.DISTRICT;
                 case TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG:
                     return NamingType.ADDRESS;
+                case TLMCW.ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG:
+                case TLMCW.ConfigIndex.MUSEUMS_SERVICE_CONFIG:
+                case TLMCW.ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG:
+                    return NamingType.CAMPUS;
+                case TLMCW.ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG:
+                    return NamingType.INDUSTRY_AREA;
                 case TLMCW.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
                 case TLMCW.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
                 case TLMCW.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:

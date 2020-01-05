@@ -65,7 +65,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
             foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.configurableAutoNameCategories)
             {
-                UICheckBox checkbox = TLMConfigOptions.instance.generateCheckboxConfig(group14, TLMConfigWarehouse.getNameForServiceType(ci), TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci, 200);
+                UICheckBox checkbox = TLMConfigOptions.instance.generateCheckboxConfig(group14, TLMConfigWarehouse.GetNameForServiceType(ci), TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci, 200);
                 UIPanel textFieldPanel = TLMConfigOptions.instance.generateTextFieldConfig(group14, Locale.Get("K45_TLM_PREFIX_OPTIONAL"), TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | ci).GetComponentInParent<UIPanel>();
                 textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
                 textFieldPanel.autoFitChildrenVertically = true;
@@ -105,7 +105,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
             foreach (TLMConfigWarehouse.ConfigIndex ci in TLMConfigWarehouse.extraAutoNameCategories)
             {
-                UICheckBox checkbox = TLMConfigOptions.instance.generateCheckboxConfig(group15, TLMConfigWarehouse.getNameForServiceType(ci), TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci, 200);
+                UICheckBox checkbox = TLMConfigOptions.instance.generateCheckboxConfig(group15, TLMConfigWarehouse.GetNameForServiceType(ci), TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | ci, 200);
                 UIPanel textFieldPanel = TLMConfigOptions.instance.generateTextFieldConfig(group15, Locale.Get("K45_TLM_PREFIX_OPTIONAL"), TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | ci).GetComponentInParent<UIPanel>();
                 textFieldPanel.autoLayoutDirection = LayoutDirection.Horizontal;
                 textFieldPanel.autoFitChildrenVertically = true;

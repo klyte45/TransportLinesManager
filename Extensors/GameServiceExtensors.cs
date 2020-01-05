@@ -5,6 +5,19 @@ namespace Klyte.TransportLinesManager.Extensors
 {
     internal static class GameServiceExtensions
     {
+        public static TLMConfigWarehouse.ConfigIndex ToConfigIndex(this DistrictPark park)
+        {
+            if (park.IsCampus)
+            {
+                return TLMConfigWarehouse.ConfigIndex.CAMPUS_AREA_NAME_CONFIG;
+            }
+            if (park.IsIndustry)
+            {
+                return TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_AREA_NAME_CONFIG;
+            }
+            return TLMConfigWarehouse.ConfigIndex.PARKAREA_NAME_CONFIG;
+        }
+
         public static TLMConfigWarehouse.ConfigIndex ToConfigIndex(ItemClass.Service s, ItemClass.SubService ss)
         {
             switch (s)
@@ -70,6 +83,116 @@ namespace Klyte.TransportLinesManager.Extensors
                     };
                 case ItemClass.Service.Disaster:
                     return TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG;
+                case ItemClass.Service.PlayerIndustry:
+                    return TLMConfigWarehouse.ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG;
+                case ItemClass.Service.PlayerEducation:
+                    return TLMConfigWarehouse.ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG;
+                case ItemClass.Service.Museums:
+                    return TLMConfigWarehouse.ConfigIndex.MUSEUMS_SERVICE_CONFIG;
+                case ItemClass.Service.VarsitySports:
+                    return TLMConfigWarehouse.ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG;
+                default:
+                    return 0;
+            }
+        }
+
+        public static ItemClass.Service ToServiceSubservice(this TLMConfigWarehouse.ConfigIndex cfg, out ItemClass.SubService ss)
+        {
+            ss = ItemClass.SubService.None;
+            switch (cfg)
+            {
+                case TLMConfigWarehouse.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
+                    return ItemClass.Service.Residential;
+
+                case TLMConfigWarehouse.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
+                    return ItemClass.Service.Commercial;
+
+                case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
+                    return ItemClass.Service.Industrial;
+                case TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG:
+                    return ItemClass.Service.Natural;
+                case TLMConfigWarehouse.ConfigIndex.CITIZEN_SERVICE_CONFIG:
+                    return ItemClass.Service.Citizen;
+                case TLMConfigWarehouse.ConfigIndex.TOURISM_SERVICE_CONFIG:
+                    return ItemClass.Service.Tourism;
+                case TLMConfigWarehouse.ConfigIndex.OFFICE_SERVICE_CONFIG:
+                    return ItemClass.Service.Office;
+                case TLMConfigWarehouse.ConfigIndex.ADDRESS_NAME_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportBus;
+                    return ItemClass.Service.Road;
+                case TLMConfigWarehouse.ConfigIndex.ROAD_SERVICE_CONFIG:
+                    return ItemClass.Service.Road;
+
+                case TLMConfigWarehouse.ConfigIndex.ELECTRICITY_SERVICE_CONFIG:
+                    return ItemClass.Service.Electricity;
+                case TLMConfigWarehouse.ConfigIndex.WATER_SERVICE_CONFIG:
+                    return ItemClass.Service.Water;
+                case TLMConfigWarehouse.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG:
+                    return ItemClass.Service.Beautification;
+                case TLMConfigWarehouse.ConfigIndex.GARBAGE_SERVICE_CONFIG:
+                    return ItemClass.Service.Garbage;
+                case TLMConfigWarehouse.ConfigIndex.HEALTHCARE_SERVICE_CONFIG:
+                    return ItemClass.Service.HealthCare;
+                case TLMConfigWarehouse.ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG:
+                    return ItemClass.Service.PoliceDepartment;
+                case TLMConfigWarehouse.ConfigIndex.EDUCATION_SERVICE_CONFIG:
+                    return ItemClass.Service.Education;
+                case TLMConfigWarehouse.ConfigIndex.MONUMENT_SERVICE_CONFIG:
+                    return ItemClass.Service.Monument;
+                case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
+                    return ItemClass.Service.FireDepartment;
+                case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportBus;
+                    return ItemClass.Service.PublicTransport;
+                case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportCableCar;
+                    return ItemClass.Service.PublicTransport;
+                case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportMetro;
+                    return ItemClass.Service.PublicTransport;
+                case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportMonorail;
+                    return ItemClass.Service.PublicTransport;
+                case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportPlane;
+                    return ItemClass.Service.PublicTransport;
+                case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportShip;
+                    return ItemClass.Service.PublicTransport;
+                case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportTaxi;
+                    return ItemClass.Service.PublicTransport;
+                case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportTours;
+                    return ItemClass.Service.PublicTransport;
+                case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportTrain;
+                    return ItemClass.Service.PublicTransport;
+                case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    ss = ItemClass.SubService.PublicTransportTram;
+                    return ItemClass.Service.PublicTransport;
+
+                case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    return ItemClass.Service.PublicTransport;
+                case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
+                    return ItemClass.Service.Disaster;
+
+                case TLMConfigWarehouse.ConfigIndex.CAMPUS_AREA_NAME_CONFIG:
+                    return ItemClass.Service.PlayerEducation;
+                case TLMConfigWarehouse.ConfigIndex.INDUSTRIAL_AREA_NAME_CONFIG:
+                    return ItemClass.Service.PlayerIndustry;
+                case TLMConfigWarehouse.ConfigIndex.PARKAREA_NAME_CONFIG:
+                    ss = ItemClass.SubService.BeautificationParks;
+                    return ItemClass.Service.Beautification;
+
+                case TLMConfigWarehouse.ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG:
+                    return ItemClass.Service.PlayerIndustry;
+                case TLMConfigWarehouse.ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG:
+                    return ItemClass.Service.PlayerEducation;
+                case TLMConfigWarehouse.ConfigIndex.MUSEUMS_SERVICE_CONFIG:
+                    return ItemClass.Service.Museums;
+                case TLMConfigWarehouse.ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG:
+                    return ItemClass.Service.VarsitySports;
                 default:
                     return 0;
             }
@@ -101,6 +224,10 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.MUSEUMS_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG:
                     saida = TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | idx) ? (uint) Array.IndexOf(TLMConfigWarehouse.namingOrder, idx) : uint.MaxValue;
                     break;
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
@@ -155,6 +282,10 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.DISTRICT_NAME_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.ADDRESS_NAME_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PARKAREA_NAME_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.MUSEUMS_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG:
                     return TLMConfigWarehouse.GetCurrentConfigString(TLMConfigWarehouse.ConfigIndex.AUTO_NAMING_REF_TEXT | idx);
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
@@ -202,6 +333,10 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.MUSEUMS_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG:
                     return TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF | idx);
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
@@ -247,6 +382,10 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.MUSEUMS_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG:
                     return false;
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:

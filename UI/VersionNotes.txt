@@ -3,6 +3,7 @@
 	- NEW OPTIONS IN MENU
 	- NEW LINE FINANCES BALANCE OVERVIEW & HISTORY FOR A CYCLE
 	- NEW UI FOR SETTING BUDGET TO LINES/PREFIXES
+	- ADDED INDUSTRIES & CAMPUS BUILDINGS SUPPORT FOR NAMING
 	- New behavior: Vehicles are live switched when allowed models are changed and remove unallowed button is activated
 	- New feature: Depots can be setted by line
 	- Fixed: Custom stop names don't show prefixes setted for buses/trams
