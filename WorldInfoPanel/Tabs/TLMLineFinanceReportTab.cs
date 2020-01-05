@@ -99,6 +99,7 @@ namespace Klyte.TransportLinesManager.UI
 
         public static string GetVehicleTypeIcon(ushort lineId) => TransportSystemDefinition.From(lineId).GetCircleSpriteName().ToString();
 
+        public bool MayBeVisible() => TransportSystemDefinition.From(UVMPublicTransportWorldInfoPanel.GetLineID()).HasVehicles();
 
 
     }

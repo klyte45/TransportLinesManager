@@ -669,8 +669,7 @@ namespace Klyte.TransportLinesManager.UI
             uilabel.suffix = "";
         }
 
-
-
+        public bool MayBeVisible() => true;
 
         private UILabel m_labelLineIncomplete;
         internal UISprite m_stopsLineSprite;

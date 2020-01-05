@@ -20,7 +20,7 @@ namespace Klyte.TransportLinesManager.UI
     {
         public static UVMPublicTransportWorldInfoPanel Instance { get; private set; }
 
-        private static readonly List<IUVMPTWIPChild> m_childControls = new List<IUVMPTWIPChild>();
+        private static readonly Dictionary<string, IUVMPTWIPChild> m_childControls = new Dictionary<string, IUVMPTWIPChild>();
 
         #region Awake 
         public void Awake()
@@ -94,13 +94,13 @@ namespace Klyte.TransportLinesManager.UI
 
             KlyteMonoUtils.CreateTabsComponent(out m_obj.m_lineConfigTabs, out _, __instance.transform, "LineConfig", new Vector4(15, 45, 365, 30), new Vector4(15, 80, 380, 440));
 
-            m_childControls.Add(TabCommons.CreateTab<UVMMainWIPTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_STATS_TAB", "Default", false));
-            m_childControls.Add(TabCommons.CreateTab<TLMLineFinanceReportTab>(m_obj.m_lineConfigTabs, "IconMessage", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));
-            m_childControls.Add(TabCommons.CreateTab<UVMBudgetConfigTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency", "K45_TLM_WIP_BUDGET_CONFIGURATION_TAB", "Budget", false));
-            m_childControls.Add(TabCommons.CreateTab<TLMTicketConfigTab>(m_obj.m_lineConfigTabs, "FootballTicketIcon", "K45_TLM_WIP_TICKET_CONFIGURATION_TAB", "Ticket", false));
-            m_childControls.Add(TabCommons.CreateTab<TLMAssetSelectorTab>(m_obj.m_lineConfigTabs, "IconPolicyFreePublicTransport", "K45_TLM_WIP_ASSET_SELECTION_TAB", "AssetSelection", false));
-            m_childControls.Add(TabCommons.CreateTab<TLMDepotSelectorTab>(m_obj.m_lineConfigTabs, "UIFilterBigBuildings", "K45_TLM_WIP_DEPOT_SELECTION_TAB", "DepotSelection", false));
-            m_childControls.Add(__instance.Find<UIPanel>("StopsPanel").parent.gameObject.AddComponent<UVMTransportLineLinearMap>());
+            m_childControls.Add("Default", TabCommons.CreateTab<UVMMainWIPTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_STATS_TAB", "Default", false));
+            m_childControls.Add("FinanceReport", TabCommons.CreateTab<TLMLineFinanceReportTab>(m_obj.m_lineConfigTabs, "IconMessage", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));
+            m_childControls.Add("Budget", TabCommons.CreateTab<UVMBudgetConfigTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency", "K45_TLM_WIP_BUDGET_CONFIGURATION_TAB", "Budget", false));
+            m_childControls.Add("Ticket", TabCommons.CreateTab<TLMTicketConfigTab>(m_obj.m_lineConfigTabs, "FootballTicketIcon", "K45_TLM_WIP_TICKET_CONFIGURATION_TAB", "Ticket", false));
+            m_childControls.Add("AssetSelection", TabCommons.CreateTab<TLMAssetSelectorTab>(m_obj.m_lineConfigTabs, "IconPolicyFreePublicTransport", "K45_TLM_WIP_ASSET_SELECTION_TAB", "AssetSelection", false));
+            m_childControls.Add("DepotSelection", TabCommons.CreateTab<TLMDepotSelectorTab>(m_obj.m_lineConfigTabs, "UIFilterBigBuildings", "K45_TLM_WIP_DEPOT_SELECTION_TAB", "DepotSelection", false));
+            m_childControls.Add("StopsPanel", __instance.Find<UIPanel>("StopsPanel").parent.gameObject.AddComponent<UVMTransportLineLinearMap>());
             DestroyNotUsed(__instance);
 
             m_obj.m_specificConfig = UIHelperExtension.AddCheckboxLocale(__instance.component, "K45_TLM_USE_SPECIFIC_CONFIG", false, (x) =>
@@ -157,9 +157,9 @@ namespace Klyte.TransportLinesManager.UI
         {
             Singleton<TransportManager>.instance.eventLineNameChanged += OnLineNameChanged;
 
-            foreach (IUVMPTWIPChild tab in m_childControls)
+            foreach (KeyValuePair<string, IUVMPTWIPChild> tab in m_childControls)
             {
-                tab.OnEnable();
+                tab.Value.OnEnable();
             }
             return false;
         }
@@ -167,9 +167,9 @@ namespace Klyte.TransportLinesManager.UI
         public static bool OnDisableOverride()
         {
             Singleton<TransportManager>.instance.eventLineNameChanged -= OnLineNameChanged;
-            foreach (IUVMPTWIPChild tab in m_childControls)
+            foreach (KeyValuePair<string, IUVMPTWIPChild> tab in m_childControls)
             {
-                tab.OnDisable();
+                tab.Value.OnDisable();
             }
             return false;
         }
@@ -185,9 +185,12 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 m_obj.m_vehicleType.spriteName = GetVehicleTypeIcon(lineID);
 
-                foreach (IUVMPTWIPChild tab in m_childControls)
+                foreach (KeyValuePair<string, IUVMPTWIPChild> tab in m_childControls)
                 {
-                    tab.UpdateBindings();
+                    if (tab.Value.MayBeVisible())
+                    {
+                        tab.Value.UpdateBindings();
+                    }
                 }
             }
         }
@@ -207,12 +210,22 @@ namespace Klyte.TransportLinesManager.UI
             if (lineID != 0)
             {
                 m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(lineID);
+                m_obj.m_specificConfig.isVisible = TransportSystemDefinition.From(lineID).HasVehicles();
                 m_obj.m_specificConfig.isChecked = TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID);
             }
 
-            foreach (IUVMPTWIPChild tab in m_childControls)
+            foreach (KeyValuePair<string, IUVMPTWIPChild> tab in m_childControls)
             {
-                tab.OnSetTarget(m_dirtySource);
+                if (tab.Value.MayBeVisible())
+                {
+                    m_obj.m_lineConfigTabs.ShowTab(tab.Key);
+                    tab.Value.OnSetTarget(m_dirtySource);
+                }
+                else
+                {
+                    m_obj.m_lineConfigTabs.HideTab(tab.Key);
+                    m_obj.m_lineConfigTabs.selectedIndex = 0;
+                }
             }
 
             m_obj.m_cachedLength = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_totalLength;
@@ -241,9 +254,9 @@ namespace Klyte.TransportLinesManager.UI
 
         public static bool OnGotFocus()
         {
-            foreach (IUVMPTWIPChild tab in m_childControls)
+            foreach (KeyValuePair<string, IUVMPTWIPChild> tab in m_childControls)
             {
-                tab.OnGotFocus();
+                tab.Value.OnGotFocus();
             }
             return false;
         }

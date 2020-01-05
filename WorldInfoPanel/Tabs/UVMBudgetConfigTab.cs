@@ -292,6 +292,7 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
         public void OnGotFocus() { }
+        public bool MayBeVisible() => TransportSystemDefinition.From(UVMPublicTransportWorldInfoPanel.GetLineID()).HasVehicles();
     }
 
 
