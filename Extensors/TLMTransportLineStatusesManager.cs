@@ -5,6 +5,7 @@ using Klyte.Commons.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
@@ -466,6 +467,24 @@ namespace Klyte.TransportLinesManager.Extensors
                 num |= (long) (s.ReadByte() & 255) << 8;
                 return num | (s.ReadByte() & 255 & 255L);
             }
+
+            public bool CanDeserialize(Type type, byte[] data)
+            {
+                using var s = new MemoryStream();
+                SerializeFunction(s, 0);
+                long bytesPerEntry = s.Length;
+
+                long count = 0;
+                foreach (Enum e in LoadOrder)
+                {
+                    instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                    {
+                        count += arrayRef.Select(x => x.Length).Sum();
+                    });
+                }
+                return count * bytesPerEntry == data.Length;
+            }
+
 
             protected virtual Action<Stream, long> SerializeFunction { get; } = WriteLong;
             protected virtual Func<Stream, long> DeserializeFunction { get; } = ReadLong;

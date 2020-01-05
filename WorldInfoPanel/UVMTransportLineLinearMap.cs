@@ -29,7 +29,7 @@ namespace Klyte.TransportLinesManager.UI
 
         #region Overridable
 
-        private static Dictionary<string, UIComponent> GetTemplateDict() => (Dictionary<string, UIComponent>) typeof(UITemplateManager).GetField("m_Templates", RedirectorUtils.allFlags).GetValue(UITemplateManager.instance);
+
 
         public void Awake()
         {
@@ -117,7 +117,7 @@ namespace Klyte.TransportLinesManager.UI
             KlyteMonoUtils.InitButtonFull(lineNameField, false, "TextFieldPanel");
 
 
-            GetTemplateDict()["StopButtonPanel"] = panel;
+            TLMUiTemplateUtils.GetTemplateDict()["StopButtonPanel"] = panel;
         }
 
         private void BindComponents(PublicTransportWorldInfoPanel __instance)

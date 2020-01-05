@@ -231,37 +231,27 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 m_lastSystem = TransportSystem;
             }
-            TLMLineUtils.GetConfigForLine(GetLineID(), out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig);
-            TLMUtils.doLog("configs:  {0} {1}", lineConfig, prefixConfig);
-            IAssetSelectorStorage extension;
-            if (lineConfig.IsCustom)
-            {
-                extension = lineConfig;
-            }
-            else
-            {
-                extension = prefixConfig;
-            }
+            IBasicExtensionStorage config = TLMLineUtils.GetEffectiveConfigForLine(GetLineID());
 
             if (TransportLinesManagerMod.DebugMode)
             {
-                TLMUtils.doLog($"selectedAssets Size = {extension?.AssetList?.Count} ({ string.Join(",", extension?.AssetList?.ToArray() ?? new string[0])}) {extension?.GetType()}");
+                TLMUtils.doLog($"selectedAssets Size = {config?.AssetList?.Count} ({ string.Join(",", config?.AssetList?.ToArray() ?? new string[0])}) {config?.GetType()}");
             }
 
             foreach (string i in m_checkboxes.Keys)
             {
-                m_checkboxes[i].isChecked = extension.AssetList.Contains(i);
+                m_checkboxes[i].isChecked = config.AssetList.Contains(i);
             }
 
             var transportType = tsd.ToConfigIndex();
-            if (lineConfig.IsCustom)
+            if (config is TLMTransportLineConfiguration)
             {
                 m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE"), TLMLineUtils.getLineStringId(GetLineID()));
             }
             else
             {
                 int prefix = (int) TLMLineUtils.getPrefix(GetLineID());
-                m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.getStringOptionsForPrefix(transportType), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.ToConfigIndex()));
+                m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.GetStringOptionsForPrefix(tsd), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.ToConfigIndex()));
             }
 
             m_isLoading = false;

@@ -107,8 +107,8 @@ namespace Klyte.TransportLinesManager.UI
 
         private void RebuildList(ushort lineID)
         {
-            TLMLineUtils.GetConfigForLine(lineID, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig);
-            TimeableList<TicketPriceEntryXml> config = lineConfig.IsCustom ? lineConfig.TicketPriceEntries : prefixConfig.TicketPriceEntries;
+
+            TimeableList<TicketPriceEntryXml> config = TLMLineUtils.GetEffectiveConfigForLine(lineID).TicketPriceEntries;
             int stopsCount = config.Count;
             var tsd = TransportSystemDefinition.From(lineID);
             if (stopsCount == 0)
@@ -158,8 +158,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void RemoveTime(TicketPriceEntryXml entry)
         {
-            TLMLineUtils.GetConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig);
-            TimeableList<TicketPriceEntryXml> config = lineConfig.IsCustom ? lineConfig.TicketPriceEntries : prefixConfig.TicketPriceEntries;
+            TimeableList<TicketPriceEntryXml> config = TLMLineUtils.GetEffectiveConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).TicketPriceEntries;
             if (config != default)
             {
                 config.RemoveAtHour(entry.HourOfDay ?? -1);
@@ -179,8 +178,7 @@ namespace Klyte.TransportLinesManager.UI
         }
         private void AddEntry()
         {
-            TLMLineUtils.GetConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig);
-            TimeableList<TicketPriceEntryXml> config = lineConfig.IsCustom ? lineConfig.TicketPriceEntries : prefixConfig.TicketPriceEntries;
+            TimeableList<TicketPriceEntryXml> config = TLMLineUtils.GetEffectiveConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).TicketPriceEntries;
             config.Add(new TicketPriceEntryXml()
             {
                 HourOfDay = 0,

@@ -139,7 +139,7 @@ namespace Klyte.TransportLinesManager.Extensors
             TLMUtils.doLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
             return saida;
         }
-        public static string getPrefixTextNaming(this TLMConfigWarehouse.ConfigIndex idx, ushort lineId = 0)
+        public static string GetSystemStationNamePrefix(this TLMConfigWarehouse.ConfigIndex idx, ushort lineId = 0)
         {
             switch (idx)
             {

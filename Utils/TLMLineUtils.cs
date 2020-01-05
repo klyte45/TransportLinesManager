@@ -1,10 +1,8 @@
 ﻿using ColossalFramework;
-using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Redirectors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Extensors.BuildingAIExt;
 using Klyte.TransportLinesManager.Extensors.NetNodeExt;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
@@ -120,30 +118,50 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static float GetBudgetMultiplierLine(ushort lineId) => GetBudgetMultiplierLineWithIndexes(lineId).First;
 
-        public static bool GetConfigForLine(ushort lineId, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig)
+        //public static bool GetConfigForLine(ushort lineId, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig)
+        //{
+        //    lineConfig = TLMTransportLineExtension.Instance.SafeGet(lineId);
+        //    var tsd = TransportSystemDefinition.From(lineId);
+        //    prefixConfig = (tsd.GetTransportExtension() as ISafeGettable<PrefixConfiguration>).SafeGet(hasPrefix(ref tsd) ? getPrefix(lineId) : 0);
+        //    return lineConfig != null || prefixConfig != null;
+        //}
+
+        public static IBasicExtensionStorage GetEffectiveConfigForLine(ushort lineId)
         {
-            lineConfig = TLMTransportLineExtension.Instance.SafeGet(lineId);
-            var tsd = TransportSystemDefinition.From(lineId);
-            prefixConfig = (tsd.GetTransportExtension() as ISafeGettable<PrefixConfiguration>).SafeGet(hasPrefix(ref tsd) ? getPrefix(lineId) : 0);
-            return lineConfig != null || prefixConfig != null;
+            if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
+            {
+                return TLMTransportLineExtension.Instance.SafeGet(lineId);
+            }
+            else
+            {
+                var tsd = TransportSystemDefinition.From(lineId);
+                return (tsd.GetTransportExtension() as ISafeGettable<PrefixConfiguration>).SafeGet(hasPrefix(ref tsd) ? getPrefix(lineId) : 0);
+            }
+        }
+        public static IBasicExtension GetEffectiveExtensionForLine(ushort lineId)
+        {
+            if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
+            {
+                return TLMTransportLineExtension.Instance;
+            }
+            else
+            {
+                var tsd = TransportSystemDefinition.From(lineId);
+                return tsd.GetTransportExtension();
+            }
         }
 
         public static Tuple<float, int, int, float, bool> GetBudgetMultiplierLineWithIndexes(ushort lineId)
         {
-            if (GetConfigForLine(lineId, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig))
+            IBasicExtensionStorage currentConfig = GetEffectiveConfigForLine(lineId);
+            TimeableList<BudgetEntryXml> budgetConfig = currentConfig.BudgetEntries;
+            if (budgetConfig.Count == 0)
             {
-                TimeableList<BudgetEntryXml> budgetConfig = lineConfig.IsCustom || prefixConfig == null ? lineConfig.BudgetEntries : prefixConfig.BudgetEntries;
-                if (budgetConfig.Count == 0)
-                {
-                    return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f, lineConfig.IsCustom);
-                }
-                Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
-                return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third) / 100f, currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third, lineConfig.IsCustom);
+                return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f, currentConfig is TLMTransportLineConfiguration);
             }
-            else
-            {
-                return Tuple.New((float) Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_budget, 0, 1, 1f, lineConfig.IsCustom);
-            }
+            Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
+            return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third) / 100f, currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third, currentConfig is TLMTransportLineConfiguration);
+
         }
         public static string getLineStringId(ushort lineIdx)
         {
@@ -837,7 +855,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         }
 
-        private static string GetStationNameWithPrefix(TLMCW.ConfigIndex transportType, string name) => transportType.getPrefixTextNaming().Trim() + (transportType.getPrefixTextNaming().Trim() != string.Empty ? " " : "") + name;
+        private static string GetStationNameWithPrefix(TLMCW.ConfigIndex transportType, string name) => transportType.GetSystemStationNamePrefix().Trim() + (transportType.GetSystemStationNamePrefix().Trim() != string.Empty ? " " : "") + name;
 
         public static void setStopName(string newName, uint stopId, ushort lineId, Action callback)
         {
@@ -919,7 +937,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 serviceFound = ItemClass.Service.PublicTransport;
                 subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService;
-                prefix = tsd.ToConfigIndex().getPrefixTextNaming(lineId)?.TrimStart();
+                prefix = tsd.ToConfigIndex().GetSystemStationNamePrefix(lineId)?.TrimStart();
                 buildingID = 0;
                 resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
                 return savedName;
@@ -945,7 +963,7 @@ namespace Klyte.TransportLinesManager.Utils
 
                             serviceFound = ItemClass.Service.PublicTransport;
                             subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[targetLineId].Info.m_class.m_subService;
-                            prefix = tsd2.ToConfigIndex().getPrefixTextNaming(targetLineId)?.TrimStart();
+                            prefix = tsd2.ToConfigIndex().GetSystemStationNamePrefix(targetLineId)?.TrimStart();
                             buildingID = 0;
                             resultNamingType = NamingTypeExtensions.from(serviceFound, subserviceFound);
                             return savedName;
@@ -967,7 +985,7 @@ namespace Klyte.TransportLinesManager.Utils
             prefix = "";
             if (BuildingUtils.GetPark(location) > 0 && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)))
             {
-                prefix = TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG.getPrefixTextNaming(lineId)?.TrimStart();
+                prefix = TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG.GetSystemStationNamePrefix(lineId)?.TrimStart();
                 serviceFound = ItemClass.Service.Natural;
                 subserviceFound = ItemClass.SubService.BeautificationParks;
                 resultNamingType = NamingType.PARKAREA;
@@ -975,7 +993,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else if (SegmentUtils.GetAddressStreetAndNumber(location, location, out int number, out string streetName) && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)) && !string.IsNullOrEmpty(streetName))
             {
-                prefix = TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG.getPrefixTextNaming(lineId)?.TrimStart();
+                prefix = TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG.GetSystemStationNamePrefix(lineId)?.TrimStart();
                 serviceFound = ItemClass.Service.Road;
                 subserviceFound = ItemClass.SubService.PublicTransportBus;
                 resultNamingType = NamingType.ADDRESS;
@@ -984,7 +1002,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else if (DistrictManager.instance.GetDistrict(location) > 0 && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)))
             {
-                prefix = TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG.getPrefixTextNaming(lineId)?.TrimStart();
+                prefix = TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG.GetSystemStationNamePrefix(lineId)?.TrimStart();
                 serviceFound = ItemClass.Service.Natural;
                 subserviceFound = ItemClass.SubService.None;
                 resultNamingType = NamingType.DISTRICT;
@@ -1089,7 +1107,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static ushort getStationBuilding(uint stopId, ItemClass.SubService ss, bool excludeCargo = false, bool restrictToTransportType = false)
         {
-               NetManager nm = Singleton<NetManager>.instance;
+            NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int) stopId];
             ushort tempBuildingId;
@@ -1212,105 +1230,8 @@ namespace Klyte.TransportLinesManager.Utils
             return ticketPriceDefault;
         }
 
-        public static string getPrefixesServedString(ushort m_buildingID, bool secondary)
-        {
-            Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[m_buildingID];
-            var ai = b.Info.GetAI() as DepotAI;
-            if (ai == null)
-            {
-                return "";
-            }
 
-            string[] options = TLMUtils.getStringOptionsForPrefix(TransportSystemDefinition.From(secondary ? ai.m_secondaryTransportInfo : ai.m_transportInfo).ToConfigIndex(), true);
-            List<uint> prefixes = TLMDepotAI.getPrefixesServedByDepot(m_buildingID, secondary);
-            if (prefixes == null)
-            {
-                TLMUtils.doErrorLog("DEPOT AI WITH WRONG TYPE!!! id:{0} ({1})", m_buildingID, BuildingManager.instance.GetBuildingName(m_buildingID, default));
-                return null;
-            }
-            var saida = new List<string>();
-            if (prefixes.Contains(0))
-            {
-                saida.Add(Locale.Get("K45_TLM_UNPREFIXED_SHORT"));
-            }
 
-            uint sequenceInit = 0;
-            bool isInSequence = false;
-            for (uint i = 1; i < options.Length; i++)
-            {
-                if (prefixes.Contains(i))
-                {
-                    if (sequenceInit == 0 || !isInSequence)
-                    {
-                        sequenceInit = i;
-                        isInSequence = true;
-                    }
-                }
-                else if (sequenceInit != 0 && isInSequence)
-                {
-                    if (i - 1 == sequenceInit)
-                    {
-                        saida.Add(options[(int) sequenceInit]);
-                    }
-                    else
-                    {
-                        saida.Add(options[(int) sequenceInit] + "-" + options[(int) (i - 1)]);
-                    }
-                    isInSequence = false;
-                }
-            }
-            if (sequenceInit != 0 && isInSequence)
-            {
-                if (sequenceInit == options.Length - 1)
-                {
-                    saida.Add(options[(int) sequenceInit]);
-                }
-                else
-                {
-                    saida.Add(options[(int) sequenceInit] + "-" + options[options.Length - 1]);
-                }
-                isInSequence = false;
-            }
-            if (prefixes.Contains(65))
-            {
-                saida.Add(Locale.Get("K45_TLM_REGIONAL_SHORT"));
-            }
-
-            return string.Join(" ", saida.ToArray());
-        }
-        internal static string getTransportSystemPrefixName(TLMConfigWarehouse.ConfigIndex index, uint prefix)
-        {
-            ITLMTransportTypeExtension extension = getExtensionFromConfigIndex(index);
-            if (extension == null)
-            {
-                return "";
-            }
-            return extension.GetName(prefix);
-        }
-        internal static ITLMTransportTypeExtension getExtensionFromConfigIndex(TLMConfigWarehouse.ConfigIndex index)
-        {
-            TransportSystemDefinition tsd = TLMConfigWarehouse.getTransportSystemDefinitionForConfigTransport(index);
-            //TLMUtils.doLog("getExtensionFromConfigIndex Target TSD: " + tsd + " from idx: " + index);
-            return tsd.GetTransportExtension();
-        }
-        internal static ITLMTransportTypeExtension getExtensionFromTransportSystemDefinition(ref TransportSystemDefinition tsd) => tsd.GetTransportExtension();
-        public static IAssetSelectorExtension getExtensionFromTransportLine(ushort lineID)
-        {
-            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID];
-
-            if (t.m_lineNumber != 0 && t.m_stops != 0)
-            {
-                if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID))
-                {
-                    return TLMTransportLineExtension.Instance;
-                }
-                else
-                {
-                    return TransportSystemDefinition.From(lineID).GetTransportExtension();
-                }
-            }
-            return null;
-        }
         internal static readonly ModoNomenclatura[] nomenclaturasComNumeros = new ModoNomenclatura[]
         {
         ModoNomenclatura. LatinoMinusculoNumero ,

@@ -15,22 +15,24 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         ZERO_BUDGET_CURRENT = 0x80000000
     }
 
-    public class TLMTransportLineExtension : DataExtensorBase<TLMTransportLineExtension>, ISafeGettable<TransportLineConfiguration>, ISafeGettable<IAssetSelectorStorage>, IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension
+    public class TLMTransportLineExtension : DataExtensorBase<TLMTransportLineExtension>, ISafeGettable<TLMTransportLineConfiguration>, IBasicExtension
     {
         [XmlElement("Configurations")]
-        public SimpleNonSequentialList<TransportLineConfiguration> Configurations { get; set; } = new SimpleNonSequentialList<TransportLineConfiguration>();
-        internal void SafeCleanEntry(ushort lineID) => Configurations[lineID] = new TransportLineConfiguration();
-        public TransportLineConfiguration SafeGet(uint lineId)
+        public SimpleNonSequentialList<TLMTransportLineConfiguration> Configurations { get; set; } = new SimpleNonSequentialList<TLMTransportLineConfiguration>();
+        internal void SafeCleanEntry(ushort lineID) => Configurations[lineID] = new TLMTransportLineConfiguration();
+        public TLMTransportLineConfiguration SafeGet(uint lineId)
         {
             if (!Configurations.ContainsKey(lineId))
             {
-                Configurations[lineId] = new TransportLineConfiguration();
+                Configurations[lineId] = new TLMTransportLineConfiguration();
             }
             return Configurations[lineId];
         }
         IAssetSelectorStorage ISafeGettable<IAssetSelectorStorage>.SafeGet(uint index) => SafeGet(index);
         IBudgetStorage ISafeGettable<IBudgetStorage>.SafeGet(uint index) => SafeGet(index);
         ITicketPriceStorage ISafeGettable<ITicketPriceStorage>.SafeGet(uint index) => SafeGet(index);
+        IDepotSelectionStorage ISafeGettable<IDepotSelectionStorage>.SafeGet(uint index) => SafeGet(index);
+        IBasicExtensionStorage ISafeGettable<IBasicExtensionStorage>.SafeGet(uint index) => SafeGet(index);
 
         public override string SaveId => $"K45_TLM_TLMTransportLineExtension";
 
@@ -63,7 +65,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
             }
             return m_basicAssetsList[tsd];
         }
-        public Dictionary<string, string> GetSelectedBasicAssets(uint lineId) => ExtensionStaticExtensionMethods.GetAssetList(this, lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
+        public Dictionary<string, string> GetSelectedBasicAssets(uint lineId) => this.GetAssetList(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         public Dictionary<string, string> GetAllBasicAssets(uint lineId)
         {
             var tsd = TransportSystemDefinition.From(lineId);
@@ -142,13 +144,17 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
             }
 
         }
+        #endregion
+        #region Depot
+        public uint LineToIndex(ushort lineId) => lineId;
+
 
         #endregion
 
     }
 
 
-    public class TransportLineConfiguration : IAssetSelectorStorage, IBudgetStorage, ITicketPriceStorage
+    public class TLMTransportLineConfiguration : IBasicExtensionStorage
     {
         [XmlAttribute("isCustom")]
         public bool IsCustom { get; set; } = false;
@@ -160,5 +166,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportLineExt
         public SimpleXmlList<string> AssetList { get; set; } = new SimpleXmlList<string>();
         [XmlElement("TicketPrices")]
         public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; } = new TimeableList<TicketPriceEntryXml>();
+        [XmlElement("DepotsAllowed")]
+        public SimpleXmlHashSet<ushort> DepotsAllowed { get; set; } = new SimpleXmlHashSet<ushort>();
     }
 }

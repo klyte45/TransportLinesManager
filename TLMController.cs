@@ -5,9 +5,7 @@ using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
-using Klyte.TransportLinesManager.WorldInfoPanelExt;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,7 +23,6 @@ namespace Klyte.TransportLinesManager
         public bool initializedWIP = false;
         private TLMLinearMap m_linearMapCreatingLine;
         private TLMLineCreationToolbox m_lineCreationToolbox;
-        private int lastLineCount = 0;
 
         //private UIPanel _cachedDefaultListingLinesPanel;
 
@@ -39,10 +36,8 @@ namespace Klyte.TransportLinesManager
 
         public Transform TransformLinearMap => FindObjectOfType<UIView>()?.transform;
 
-        private ushort m_currentSelectedId;
-
-        public ushort CurrentSelectedId => m_currentSelectedId;
-        public void setCurrentSelectedId(ushort line) => m_currentSelectedId = line;
+        public ushort CurrentSelectedId { get; private set; }
+        public void SetCurrentSelectedId(ushort line) => CurrentSelectedId = line;
 
         public bool CanSwitchView => false;
 
@@ -98,7 +93,7 @@ namespace Klyte.TransportLinesManager
                 {
                     return Color.clear;
                 }
-                TLMCW.ConfigIndex transportType = tsd.ToConfigIndex();
+                var transportType = tsd.ToConfigIndex();
                 Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType, ref tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
                 if (c.a == 1)
                 {
@@ -140,19 +135,14 @@ namespace Klyte.TransportLinesManager
                     }
 
                     parent2.eventVisibilityChanged += EventWIPChanged;
-                    parent2.eventPositionChanged += EventWIPChanged;                
+                    parent2.eventPositionChanged += EventWIPChanged;
 
                 }
-                initDepotAIPrefixListContainer(GameObject.Find("UIView").GetComponentInChildren<CityServiceWorldInfoPanel>().GetComponent<UIComponent>());
                 initializedWIP = true;
             }
         }
 
-        private void EventWIPChanged<T>(UIComponent component, T value)
-        {
-            updateNearLines(TransportLinesManagerMod.showNearLinesGrow ? component : null, true);
-            updateDepotPrefixLists(component);
-        }
+        private void EventWIPChanged<T>(UIComponent component, T value) => updateNearLines(TransportLinesManagerMod.showNearLinesGrow ? component : null, true);
 
 
         private ushort lastBuildingSelected = 0;
@@ -181,7 +171,7 @@ namespace Klyte.TransportLinesManager
                 Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId];
 
                 var nearLines = new List<ushort>();
-                var sidewalk = b.CalculateSidewalkPosition();
+                Vector3 sidewalk = b.CalculateSidewalkPosition();
                 TLMLineUtils.GetNearLines(sidewalk, 120f, ref nearLines);
                 bool showPanel = nearLines.Count > 0;
                 //				DebugOutputPanel.AddMessage (PluginManager.MessageType.Warning, "nearLines.Count = " + nearLines.Count);
@@ -260,46 +250,6 @@ namespace Klyte.TransportLinesManager
         public void OpenTLMPanel() => TransportLinesManagerMod.Instance.OpenPanelAtModTab();
         public void CloseTLMPanel() => TransportLinesManagerMod.Instance.ClosePanel();
 
-        private TLMDepotWorldInfoPanelPrefixListsParent initDepotAIPrefixListContainer(UIComponent parent)
-        {
-
-            TLMDepotWorldInfoPanelPrefixListsParent saida = parent.AddUIComponent<TLMDepotWorldInfoPanelPrefixListsParent>();
-
-            return saida;
-        }
-
-        private ushort m_lastWipId;
-
-        private void updateDepotPrefixLists(UIComponent parent)
-        {
-            if (parent != null)
-            {
-
-                InstanceID buildingId = WorldInfoPanel.GetCurrentInstanceID();
-                if (buildingId.Building > 0 && m_lastWipId != buildingId.Building)
-                {
-
-
-                    TLMDepotWorldInfoPanelPrefixListsParent depotLists = parent.GetComponentInChildren<TLMDepotWorldInfoPanelPrefixListsParent>();
-                    if (depotLists == null)
-                    {
-                        depotLists = initDepotAIPrefixListContainer(parent);
-                    }
-
-                    if (Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId.Building].Info?.GetAI() is DepotAI)
-                    {
-                        depotLists.isVisible = true;
-                        depotLists.WipOpen(ref buildingId);
-                    }
-                    else
-                    {
-                        depotLists.isVisible = false;
-                    }
-                    m_lastWipId = buildingId.Building;
-                }
-
-            }
-        }
     }
 
 

@@ -5,7 +5,6 @@ using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -46,7 +45,7 @@ namespace Klyte.TransportLinesManager.Utils
             if (num >= 0 && TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int) ModoNomenclatura.Nenhum)
             {
                 uint prefix = num / 1000u;
-                ITLMTransportTypeExtension ext = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
+                ITLMTransportTypeExtension ext = tsdRef.GetTransportExtension();
                 string tempPal = ext.GetCustomPalette(prefix) ?? string.Empty;
                 if (tempPal != string.Empty)
                 {
@@ -84,7 +83,7 @@ namespace Klyte.TransportLinesManager.Utils
             if (num > 0 && TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int) ModoNomenclatura.Nenhum)
             {
                 uint prefix = num / 1000u;
-                ITLMTransportTypeExtension ext = TLMLineUtils.getExtensionFromTransportSystemDefinition(ref tsdRef);
+                ITLMTransportTypeExtension ext = tsdRef.GetTransportExtension();
                 LineIconSpriteNames format = ext.GetCustomFormat(prefix);
                 if (format != default)
                 {
@@ -94,18 +93,17 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return TLMCW.getBgIconForIndex(transportType);
         }
-        internal static string[] getStringOptionsForPrefix(TLMCW.ConfigIndex transportSystem, bool showUnprefixed = false, bool useNameRefSystem = false, bool noneOption = true) => getStringOptionsForPrefix(GetPrefixModoNomenclatura(transportSystem), showUnprefixed, useNameRefSystem ? transportSystem : TLMCW.ConfigIndex.NIL, noneOption);
-        private static string[] getStringOptionsForPrefix(ModoNomenclatura m, bool showUnprefixed = false, TLMCW.ConfigIndex nameReferenceSystem = TLMCW.ConfigIndex.NIL, bool noneOption = true)
+        internal static string[] GetStringOptionsForPrefix(TransportSystemDefinition tsd, bool showUnprefixed = false, bool useNameRefSystem = false, bool noneOption = true) => GetStringOptionsForPrefix(GetPrefixModoNomenclatura(tsd.ToConfigIndex()), ref tsd, showUnprefixed, useNameRefSystem, noneOption);
+
+        private static string[] GetStringOptionsForPrefix(ModoNomenclatura m, ref TransportSystemDefinition tsd, bool useNameRefSystem = false, bool showUnprefixed = false, bool noneOption = true)
         {
-
             var saida = new List<string>(new string[noneOption ? 1 : 0]);
-
             if (!noneOption)
             {
                 string unprefixedName = Locale.Get("K45_TLM_UNPREFIXED");
-                if (nameReferenceSystem != TLMCW.ConfigIndex.NIL)
+                if (useNameRefSystem)
                 {
-                    string prefixName = TLMLineUtils.getTransportSystemPrefixName(nameReferenceSystem, 0);
+                    string prefixName = tsd.GetTransportExtension().GetName(0);
                     if (!string.IsNullOrEmpty(prefixName))
                     {
                         unprefixedName += " - " + prefixName;
@@ -121,27 +119,27 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 case ModoNomenclatura.GregoMaiusculo:
                 case ModoNomenclatura.GregoMaiusculoNumero:
-                    addToArrayWithName(gregoMaiusculo, saida, nameReferenceSystem);
+                    AddToArrayWithName(gregoMaiusculo, saida, ref tsd, useNameRefSystem);
                     break;
                 case ModoNomenclatura.GregoMinusculo:
                 case ModoNomenclatura.GregoMinusculoNumero:
-                    addToArrayWithName(gregoMinusculo, saida, nameReferenceSystem);
+                    AddToArrayWithName(gregoMinusculo, saida, ref tsd, useNameRefSystem);
                     break;
                 case ModoNomenclatura.CirilicoMaiusculo:
                 case ModoNomenclatura.CirilicoMaiusculoNumero:
-                    addToArrayWithName(cirilicoMaiusculo, saida, nameReferenceSystem);
+                    AddToArrayWithName(cirilicoMaiusculo, saida, ref tsd, useNameRefSystem);
                     break;
                 case ModoNomenclatura.CirilicoMinusculo:
                 case ModoNomenclatura.CirilicoMinusculoNumero:
-                    addToArrayWithName(cirilicoMinusculo, saida, nameReferenceSystem);
+                    AddToArrayWithName(cirilicoMinusculo, saida, ref tsd, useNameRefSystem);
                     break;
                 case ModoNomenclatura.LatinoMaiusculo:
                 case ModoNomenclatura.LatinoMaiusculoNumero:
-                    addToArrayWithName(latinoMaiusculo, saida, nameReferenceSystem);
+                    AddToArrayWithName(latinoMaiusculo, saida, ref tsd, useNameRefSystem);
                     break;
                 case ModoNomenclatura.LatinoMinusculo:
                 case ModoNomenclatura.LatinoMinusculoNumero:
-                    addToArrayWithName(latinoMinusculo, saida, nameReferenceSystem);
+                    AddToArrayWithName(latinoMinusculo, saida, ref tsd, useNameRefSystem);
                     break;
                 case ModoNomenclatura.Numero:
                     string[] temp = new string[64];
@@ -149,7 +147,7 @@ namespace Klyte.TransportLinesManager.Utils
                     {
                         temp[i - 1] = i.ToString();
                     }
-                    addToArrayWithName(temp, saida, nameReferenceSystem);
+                    AddToArrayWithName(temp, saida, ref tsd, useNameRefSystem);
                     break;
                 case ModoNomenclatura.Romano:
                     string[] tempR = new string[64];
@@ -157,12 +155,12 @@ namespace Klyte.TransportLinesManager.Utils
                     {
                         tempR[i - 1] = NumberingUtils.ToRomanNumeral(i);
                     }
-                    addToArrayWithName(tempR, saida, nameReferenceSystem);
+                    AddToArrayWithName(tempR, saida, ref tsd, useNameRefSystem);
                     break;
             }
             if (TLMLineUtils.nomenclaturasComNumeros.Contains(m))
             {
-                addToArrayWithName(numeros, saida, nameReferenceSystem);
+                AddToArrayWithName(numeros, saida, ref tsd, useNameRefSystem);
             }
             if (!noneOption && !showUnprefixed)
             {
@@ -170,10 +168,10 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return saida.ToArray();
         }
-        private static void addToArrayWithName(string[] input, List<string> saida, TLMCW.ConfigIndex nameReferenceSystem)
+        private static void AddToArrayWithName(string[] input, List<string> saida, ref TransportSystemDefinition tsd, bool usePrefixName = false)
         {
             ushort offset = (ushort) saida.Count;
-            if (nameReferenceSystem == TLMCW.ConfigIndex.NIL)
+            if (usePrefixName)
             {
                 saida.AddRange(input);
             }
@@ -182,7 +180,7 @@ namespace Klyte.TransportLinesManager.Utils
                 for (uint i = 0; i < input.Length; i++)
                 {
                     string item = input[i];
-                    string prefixName = TLMLineUtils.getTransportSystemPrefixName(nameReferenceSystem, offset + i);
+                    string prefixName = tsd == default ? null : tsd.GetTransportExtension().GetName(offset + i);
                     if (string.IsNullOrEmpty(prefixName))
                     {
                         saida.Add(item);
@@ -275,7 +273,8 @@ namespace Klyte.TransportLinesManager.Utils
                 }
                 else
                 {
-                    prefixoSaida = NumberingUtils.GetStringFromNumber(getStringOptionsForPrefix(prefixo), prefixNum + 1);
+                    TransportSystemDefinition tsd = default;
+                    prefixoSaida = NumberingUtils.GetStringFromNumber(GetStringOptionsForPrefix(prefixo, ref tsd), prefixNum + 1);
                 }
                 numero = numero % 1000;
             }
@@ -410,7 +409,7 @@ namespace Klyte.TransportLinesManager.Utils
                 tsd = TransportSystemDefinition.From(b.Info.GetAI());
                 index = tsd.ToConfigIndex();
             }
-            prefix = index.getPrefixTextNaming(lineId)?.TrimStart();
+            prefix = index.GetSystemStationNamePrefix(lineId)?.TrimStart();
             doLog($"getBuildingName(): serviceFound {serviceFound} - subserviceFound = {subserviceFound} - tsd = {tsd} - index = {index} - prefix = {prefix}");
 
             return bm.GetBuildingName(buildingId, iid);

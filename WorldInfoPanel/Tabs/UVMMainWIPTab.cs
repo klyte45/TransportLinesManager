@@ -192,7 +192,7 @@ namespace Klyte.TransportLinesManager.UI
                     m_lineNumberLabel.text = (lineNumber % 1000).ToString();
                     m_linePrefixDropDown.enabled = false;
 
-                    string[] temp = TLMUtils.getStringOptionsForPrefix(transportType, true, true, false);
+                    string[] temp = TLMUtils.GetStringOptionsForPrefix(tsd, true, true, false);
                     m_linePrefixDropDown.items = temp;
                     m_linePrefixDropDown.selectedIndex = lineNumber / 1000;
                     m_linePrefixDropDown.enabled = true;

@@ -53,13 +53,13 @@ namespace Klyte.TransportLinesManager.Overrides
             TransportLinesManagerMod.Instance.ShowVersionInfoPopup();
             TLMController.instance.LinearMapCreatingLine?.setVisible(true);
             TLMController.instance.LineCreationToolbox?.setVisible(true);
-            TLMController.instance.setCurrentSelectedId(0);
+            TLMController.instance.SetCurrentSelectedId(0);
         }
 
         private static void OnDisable()
         {
             TLMUtils.doLog("OnDisableTransportTool");
-            TLMController.instance.setCurrentSelectedId(0);
+            TLMController.instance.SetCurrentSelectedId(0);
             TLMController.instance.LinearMapCreatingLine?.setVisible(false);
             TLMController.instance.LineCreationToolbox?.setVisible(false);
         }
@@ -104,7 +104,7 @@ namespace Klyte.TransportLinesManager.Overrides
         {
             if (__state.m_lineCurrent > 0 || (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None)
             {
-                TLMController.instance.setCurrentSelectedId(__state.m_lineCurrent);
+                TLMController.instance.SetCurrentSelectedId(__state.m_lineCurrent);
                 if (__state.m_lineCurrent > 0 && TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
                 {
                     TLMController.instance.AutoColor(__state.m_lineCurrent, true, true);

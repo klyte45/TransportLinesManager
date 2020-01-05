@@ -13,34 +13,6 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
 {
-    public interface ITLMTransportTypeExtension :
-        IAssetSelectorExtension,
-        ITicketPriceExtension,
-        INameableExtension,
-        IBudgetableExtension,
-        IColorSelectableExtension,
-        ISafeGettable<PrefixConfiguration>
-    {
-        #region Use Color For Model
-        public bool IsUsingColorForModel(uint prefix);
-
-        public void SetUsingColorForModel(uint prefix, bool value);
-        #endregion
-
-        #region Custom Palette
-        public string GetCustomPalette(uint prefix);
-
-        public void SetCustomPalette(uint prefix, string paletteName);
-
-        #endregion
-
-        #region Custom Format
-        public LineIconSpriteNames GetCustomFormat(uint prefix);
-
-        public void SetCustomFormat(uint prefix, LineIconSpriteNames icon);
-
-        #endregion
-    }
     public abstract class TLMTransportTypeExtension<TSD, SG> : DataExtensorBase<SG>, ITLMTransportTypeExtension
         where TSD : TLMSysDef<TSD>, new() where SG : TLMTransportTypeExtension<TSD, SG>, new()
     {
@@ -65,6 +37,8 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         ITicketPriceStorage ISafeGettable<ITicketPriceStorage>.SafeGet(uint index) => SafeGet(index);
         IBudgetStorage ISafeGettable<IBudgetStorage>.SafeGet(uint index) => SafeGet(index);
         IColorSelectableStorage ISafeGettable<IColorSelectableStorage>.SafeGet(uint index) => SafeGet(index);
+        IDepotSelectionStorage ISafeGettable<IDepotSelectionStorage>.SafeGet(uint index) => SafeGet(index);
+        IBasicExtensionStorage ISafeGettable<IBasicExtensionStorage>.SafeGet(uint index) => SafeGet(index);
 
         public uint GetDefaultTicketPrice(uint x = 0)
         {
@@ -146,6 +120,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         public void SetCustomFormat(uint prefix, LineIconSpriteNames icon) => SafeGet(prefix).CustomIcon = icon;
 
         #endregion
+        public uint LineToIndex(ushort lineId) => TLMLineUtils.getPrefix(lineId);
 
         public override string SaveId => $"K45_TLM_{GetType()}";
     }
@@ -166,7 +141,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
     public sealed class TLMTransportTypeExtensionNorCcr : TLMTransportTypeExtension<TLMSysDefNorCcr, TLMTransportTypeExtensionNorCcr> { }
     public sealed class TLMTransportTypeExtensionNorTax : TLMTransportTypeExtension<TLMSysDefNorTax, TLMTransportTypeExtensionNorTax> { }
 
-    public class PrefixConfiguration : IAssetSelectorStorage, INameableStorage, ITicketPriceStorage, IBudgetStorage, IColorSelectableStorage
+    public class PrefixConfiguration : IAssetSelectorStorage, INameableStorage, IColorSelectableStorage, IBasicExtensionStorage
     {
         [XmlElement("Budget")]
         public TimeableList<BudgetEntryXml> BudgetEntries { get; set; } = new TimeableList<BudgetEntryXml>();
@@ -211,6 +186,9 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
                 CustomIcon = result;
             }
         }
+
+        [XmlElement("DepotsAllowed")]
+        public SimpleXmlHashSet<ushort> DepotsAllowed { get; set; } = new SimpleXmlHashSet<ushort>();
 
     }
 

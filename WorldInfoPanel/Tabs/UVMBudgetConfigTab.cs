@@ -112,19 +112,19 @@ namespace Klyte.TransportLinesManager.UI
 
         private void RebuildList(ushort lineID)
         {
-            TLMLineUtils.GetConfigForLine(lineID, out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig);
-            TimeableList<BudgetEntryXml> config = lineConfig.IsCustom ? lineConfig.BudgetEntries : prefixConfig.BudgetEntries;
-            int stopsCount = config.Count;
+            var effectiveConfig = TLMLineUtils.GetEffectiveConfigForLine(lineID);
+            TimeableList<BudgetEntryXml> budgetEntries = effectiveConfig.BudgetEntries;
+            int stopsCount = budgetEntries.Count;
             if (stopsCount == 0)
             {
-                config.Add(new BudgetEntryXml()
+                budgetEntries.Add(new BudgetEntryXml()
                 {
                     HourOfDay = 0,
-                    Value = lineConfig.IsCustom ? 100u : TransportManager.instance.m_lines.m_buffer[lineID].m_budget
+                    Value = effectiveConfig is TLMTransportLineConfiguration ? 100u : TransportManager.instance.m_lines.m_buffer[lineID].m_budget
                 });
             }
 
-            RecountRows(config, stopsCount);
+            RecountRows(budgetEntries, stopsCount);
             RedrawList();
         }
 
@@ -160,8 +160,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void RemoveTime(BudgetEntryXml entry)
         {
-            TLMLineUtils.GetConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig);
-            TimeableList<BudgetEntryXml> config = lineConfig.IsCustom ? lineConfig.BudgetEntries : prefixConfig.BudgetEntries;
+            TimeableList<BudgetEntryXml> config = TLMLineUtils.GetEffectiveConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).BudgetEntries;
             if (config != default)
             {
                 config.RemoveAtHour(entry.HourOfDay ?? -1);
@@ -181,8 +180,7 @@ namespace Klyte.TransportLinesManager.UI
         }
         private void AddEntry()
         {
-            TLMLineUtils.GetConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), out TransportLineConfiguration lineConfig, out PrefixConfiguration prefixConfig);
-            TimeableList<BudgetEntryXml> config = lineConfig.IsCustom ? lineConfig.BudgetEntries : prefixConfig.BudgetEntries;
+            TimeableList<BudgetEntryXml> config = TLMLineUtils.GetEffectiveConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).BudgetEntries;
             config.Add(new BudgetEntryXml()
             {
                 HourOfDay = 0,

@@ -2,7 +2,7 @@
 
 namespace Klyte.TransportLinesManager.Extensors.NetNodeExt
 {
-    public class TLMStopsExtension : ExtensionInterfaceDictionaryImpl<TLMStopExtensionProperty, TLMStopsExtension>
+    public class TLMStopsExtension : ExtensionInterfaceDictionaryByUintImpl<TLMStopExtensionProperty, TLMStopsExtension, string>
     {
         public override string SaveId => "K45_TLM_TLMStopsExtension";
 

@@ -182,7 +182,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void ReloadPrefixOptions()
         {
             int selIdx = m_prefixSelector.selectedIndex;
-            m_prefixSelector.items = TLMUtils.getStringOptionsForPrefix(Singleton<T>.instance.GetTSD().ToConfigIndex(), true, true, false);
+            m_prefixSelector.items = TLMUtils.GetStringOptionsForPrefix(Singleton<T>.instance.GetTSD(), true, true, false);
             m_prefixSelector.selectedIndex = selIdx;
         }
 

@@ -86,7 +86,9 @@
     <Compile Include="commons\Interfaces\ITimeable.cs" />
     <Compile Include="commons\Interfaces\Warehouse\BasicSingletonSerializableDataExtension.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ConfigWarehouseBase.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryImpl.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterface2LevelIntImpl.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryByEnumImpl.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryByUintImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceListImpl .cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceSingleImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensorContainer.cs" />
@@ -136,6 +138,7 @@
     <Compile Include="commons\Utils\UtilitiesClasses\Range.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\SimpleEnumerableList.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\SimpleNonSequentialList.cs" />
+    <Compile Include="commons\Utils\UtilitiesClasses\SimpleXmlHashSet.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\SimpleXmlList.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\TimeableList.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\Tuple.cs" />
@@ -143,6 +146,7 @@
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="Extensors\GameServiceExtensors.cs" />
     <Compile Include="Extensors\TransportType\ExtensionStaticExtensionMethods.cs" />
+    <Compile Include="Extensors\TransportType\ITLMTransportTypeExtension.cs" />
     <Compile Include="Extensors\TransportType\TLMTransportExtensionUtils.cs" />
     <Compile Include="Extensors\TransportType\TLMTransportTypeExtension.cs" />
     <Compile Include="Extensors\BuildingAI\TLMDepotAI.cs" />
@@ -162,10 +166,7 @@
     <Compile Include="TextureAtlas\UVMTextureAtlas.cs" />
     <Compile Include="UI\TLMLineCreationToolboxHooks.cs" />
     <Compile Include="UI\TLMLineIconExtension.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMDepotPrefixSelection.cs" />
     <Compile Include="CommonsWindow\List\Components\TLMAssetSelectorWindowPrefixTab.cs" />
-    <Compile Include="CommonsWindow\List\Components\TLMDepotListItem.cs" />
-    <Compile Include="CommonsWindow\List\TLMTabControllerDepotList.cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerListBase .cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerPrefixList.cs" />
     <Compile Include="CommonsWindow\TLMPanel.cs" />
@@ -192,15 +193,17 @@
     <Compile Include="UI\TLMLinearMap.cs" />
     <Compile Include="TLMAutoColorPalettes.cs" />
     <Compile Include="UI\TLMLineCreationToolbox.cs" />
+    <Compile Include="Utils\TLMUiTemplateUtils.cs" />
     <Compile Include="Utils\TLMLineUtils.cs" />
+    <Compile Include="Utils\TLMDepotUtils.cs" />
     <Compile Include="Utils\TLMUtils.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMFinanceReportLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMTicketPriceEditorLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMTicketPriceTimeChart.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\TLMDepotSelectorTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMAssetSelectorTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMLineFinanceReportTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMTicketConfigTab.cs" />
-    <Compile Include="WorldInfoPanel\TLMDepotWorldInfoPanelPrefixListsParent.cs" />
     <Compile Include="WorldInfoPanel\Components\UVMBudgetEditorLine.cs" />
     <Compile Include="WorldInfoPanel\Components\UVMBudgetTimeChart.cs" />
     <Compile Include="WorldInfoPanel\Tabs\IUVMPTWIPChild.cs" />

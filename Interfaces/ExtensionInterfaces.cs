@@ -5,7 +5,12 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Interfaces
 {
-    public interface IBudgetableExtension : ISafeGettable<IBudgetStorage>
+    public interface ILineNumberToIndexable
+    {
+        uint LineToIndex(ushort lineId);
+    }
+
+    public interface IBudgetableExtension : ISafeGettable<IBudgetStorage>, ILineNumberToIndexable
     {
     }
     public interface IBudgetStorage
@@ -13,7 +18,7 @@ namespace Klyte.TransportLinesManager.Interfaces
         TimeableList<BudgetEntryXml> BudgetEntries { get; }
     }
 
-    public interface INameableExtension : ISafeGettable<INameableStorage>
+    public interface INameableExtension : ISafeGettable<INameableStorage>, ILineNumberToIndexable
     {
     }
 
@@ -22,7 +27,7 @@ namespace Klyte.TransportLinesManager.Interfaces
         string Name { get; set; }
     }
 
-    public interface ITicketPriceExtension : ISafeGettable<ITicketPriceStorage>
+    public interface ITicketPriceExtension : ISafeGettable<ITicketPriceStorage>, ILineNumberToIndexable
     {
         uint GetDefaultTicketPrice(uint rel);
     }
@@ -32,7 +37,7 @@ namespace Klyte.TransportLinesManager.Interfaces
         public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; }
     }
 
-    public interface IAssetSelectorExtension : ISafeGettable<IAssetSelectorStorage>
+    public interface IAssetSelectorExtension : ISafeGettable<IAssetSelectorStorage>, ILineNumberToIndexable
     {
         Dictionary<string, string> GetAllBasicAssets(uint rel);
         List<string> GetBasicAssetList(uint rel);
@@ -44,7 +49,7 @@ namespace Klyte.TransportLinesManager.Interfaces
         SimpleXmlList<string> AssetList { get; }
     }
 
-    public interface IColorSelectableExtension : ISafeGettable<IColorSelectableStorage>
+    public interface IColorSelectableExtension : ISafeGettable<IColorSelectableStorage>, ILineNumberToIndexable
     {
     }
     public interface IColorSelectableStorage
@@ -55,5 +60,20 @@ namespace Klyte.TransportLinesManager.Interfaces
     {
         T SafeGet(uint index);
     }
+
+    public interface IDepotSelectableExtension : ISafeGettable<IDepotSelectionStorage>, ILineNumberToIndexable
+    {
+    }
+
+    public interface IDepotSelectionStorage
+    {
+        SimpleXmlHashSet<ushort> DepotsAllowed { get; set; }
+    }
+
+    public interface IBasicExtension : IAssetSelectorExtension, IBudgetableExtension, ITicketPriceExtension, IDepotSelectableExtension, ISafeGettable<IBasicExtensionStorage>
+    {
+    }
+    public interface IBasicExtensionStorage : IAssetSelectorStorage, IBudgetStorage, ITicketPriceStorage, IDepotSelectionStorage
+    { }
 
 }

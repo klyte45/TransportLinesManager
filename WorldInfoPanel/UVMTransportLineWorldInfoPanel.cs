@@ -7,7 +7,6 @@ using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensors.TransportLineExt;
 using Klyte.TransportLinesManager.Extensors.TransportTypeExt;
 using Klyte.TransportLinesManager.TextureAtlas;
-using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -97,9 +96,10 @@ namespace Klyte.TransportLinesManager.UI
 
             m_childControls.Add(TabCommons.CreateTab<UVMMainWIPTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_STATS_TAB", "Default", false));
             m_childControls.Add(TabCommons.CreateTab<TLMLineFinanceReportTab>(m_obj.m_lineConfigTabs, "IconMessage", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));
-            m_childControls.Add(TabCommons.CreateTab<TLMAssetSelectorTab>(m_obj.m_lineConfigTabs, "IconPolicyFreePublicTransport", "K45_TLM_WIP_ASSET_SELECTION_TAB", "AssetSelection", false));
             m_childControls.Add(TabCommons.CreateTab<UVMBudgetConfigTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency", "K45_TLM_WIP_BUDGET_CONFIGURATION_TAB", "Budget", false));
             m_childControls.Add(TabCommons.CreateTab<TLMTicketConfigTab>(m_obj.m_lineConfigTabs, "FootballTicketIcon", "K45_TLM_WIP_TICKET_CONFIGURATION_TAB", "Ticket", false));
+            m_childControls.Add(TabCommons.CreateTab<TLMAssetSelectorTab>(m_obj.m_lineConfigTabs, "IconPolicyFreePublicTransport", "K45_TLM_WIP_ASSET_SELECTION_TAB", "AssetSelection", false));
+            m_childControls.Add(TabCommons.CreateTab<TLMDepotSelectorTab>(m_obj.m_lineConfigTabs, "UIFilterBigBuildings", "K45_TLM_WIP_DEPOT_SELECTION_TAB", "DepotSelection", false));
             m_childControls.Add(__instance.Find<UIPanel>("StopsPanel").parent.gameObject.AddComponent<UVMTransportLineLinearMap>());
             DestroyNotUsed(__instance);
 
@@ -207,8 +207,7 @@ namespace Klyte.TransportLinesManager.UI
             if (lineID != 0)
             {
                 m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(lineID);
-                TLMLineUtils.GetConfigForLine(lineID, out TransportLineConfiguration lineConfig, out _);
-                m_obj.m_specificConfig.isChecked = lineConfig.IsCustom;
+                m_obj.m_specificConfig.isChecked = TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID);
             }
 
             foreach (IUVMPTWIPChild tab in m_childControls)
