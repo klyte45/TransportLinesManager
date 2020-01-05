@@ -260,7 +260,7 @@ namespace Klyte.TransportLinesManager.Overrides
                         ITLMTransportTypeExtension ext = tsd.GetTransportExtension();
                         uint prefix = TLMLineUtils.getPrefix(transportLine);
 
-                        if (ext.IsUsingColorForModel(prefix))
+                        if (ext.IsUsingColorForModel(prefix) && ext.GetColor(prefix) != default)
                         {
                             __result = ext.GetColor(prefix);
                         }

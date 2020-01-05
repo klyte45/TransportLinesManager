@@ -313,7 +313,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
     internal enum UiCategoryTab
     {
         LineListing = 0,
-        PrefixEditor = 1
     }
     internal static class TabsExtension
     {
@@ -323,8 +322,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 case UiCategoryTab.LineListing:
                     return Locale.Get("K45_TLM_LIST_LINES_TOOLTIP");
-                case UiCategoryTab.PrefixEditor:
-                    return Locale.Get("K45_TLM_CITY_ASSETS_SELECTION");
                 default:
                     throw new Exception($"Not supported: {tab}");
             }
@@ -336,8 +333,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 case UiCategoryTab.LineListing:
                     return "ToolbarIconPublicTransport";
-                case UiCategoryTab.PrefixEditor:
-                    return "InfoIconLevel";
                 default:
                     throw new Exception($"Not supported: {tab}");
             }
@@ -348,7 +343,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 case UiCategoryTab.LineListing:
                     return false;
-                case UiCategoryTab.PrefixEditor:
                 default:
                     return true;
             }
@@ -359,8 +353,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 case UiCategoryTab.LineListing:
                     return typeof(UVMLinesPanel<>);
-                case UiCategoryTab.PrefixEditor:
-                    return typeof(TLMTabControllerPrefixList<>);
                 default:
                     throw new Exception($"Not supported: {tab}");
             }

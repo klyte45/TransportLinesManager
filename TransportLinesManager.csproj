@@ -153,7 +153,6 @@
     <Compile Include="Extensors\NetNode\TLMStopsExtensions.cs" />
     <Compile Include="Extensors\TransportLine\TLMTransportLineExtension.cs" />
     <Compile Include="Extensors\TLMTransportLineStatusesManager.cs" />
-    <Compile Include="Interfaces\BasicExtensionInterface.cs" />
     <Compile Include="Interfaces\ExtensionInterfaces.cs" />
     <Compile Include="Interfaces\BudgetControlParentInterface.cs" />
     <Compile Include="Interfaces\LateralListSelectParentInterface.cs" />
@@ -166,7 +165,6 @@
     <Compile Include="TextureAtlas\UVMTextureAtlas.cs" />
     <Compile Include="UI\TLMLineCreationToolboxHooks.cs" />
     <Compile Include="UI\TLMLineIconExtension.cs" />
-    <Compile Include="CommonsWindow\List\Components\TLMAssetSelectorWindowPrefixTab.cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerListBase .cs" />
     <Compile Include="CommonsWindow\List\TLMTabControllerPrefixList.cs" />
     <Compile Include="CommonsWindow\TLMPanel.cs" />
@@ -200,6 +198,7 @@
     <Compile Include="WorldInfoPanel\Components\TLMFinanceReportLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMTicketPriceEditorLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMTicketPriceTimeChart.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\TLMPrefixOptionsTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMDepotSelectorTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMAssetSelectorTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMLineFinanceReportTab.cs" />

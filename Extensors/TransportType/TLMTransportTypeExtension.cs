@@ -155,7 +155,7 @@ namespace Klyte.TransportLinesManager.Extensors.TransportTypeExt
         public bool UseColorForModel { get; set; }
 
         [XmlIgnore]
-        public Color Color { get => m_cachedColor == default ? Color.white : m_cachedColor; set => m_cachedColor = value; }
+        public Color Color { get => m_cachedColor; set => m_cachedColor = value; }
         [XmlIgnore]
         private Color m_cachedColor;
         [XmlAttribute("color")]
