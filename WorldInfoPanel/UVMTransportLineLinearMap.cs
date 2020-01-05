@@ -512,15 +512,15 @@ namespace Klyte.TransportLinesManager.UI
                         labelVehicle.suffix = "";
                         break;
                     case MapMode.EARNINGS_ALL_TIME:
-                        TLMTransportLineStatusesManager.Instance.GetIncomeAndExpensesForVehicle(vehicleId, out long income, out long expense);
+                        TLMTransportLineStatusesManager.instance.GetIncomeAndExpensesForVehicle(vehicleId, out long income, out long expense);
                         PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income, expense, 100);
                         break;
                     case MapMode.EARNINGS_LAST_WEEK:
-                        TLMTransportLineStatusesManager.Instance.GetLastWeekIncomeAndExpensesForVehicles(vehicleId, out long income2, out long expense2);
+                        TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForVehicles(vehicleId, out long income2, out long expense2);
                         PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income2, expense2, 8);
                         break;
                     case MapMode.EARNINGS_CURRENT_WEEK:
-                        TLMTransportLineStatusesManager.Instance.GetCurrentIncomeAndExpensesForVehicles(vehicleId, out long income3, out long expense3);
+                        TLMTransportLineStatusesManager.instance.GetCurrentIncomeAndExpensesForVehicles(vehicleId, out long income3, out long expense3);
                         PrintIncomeExpenseVehicle(lineID, idx, labelVehicle, income3, expense3, 8);
                         break;
                 }
@@ -643,15 +643,15 @@ namespace Klyte.TransportLinesManager.UI
                             uibutton.tooltip = "";
                             break;
                         case MapMode.EARNINGS_ALL_TIME:
-                            TLMTransportLineStatusesManager.Instance.GetStopIncome(stop, out long income);
+                            TLMTransportLineStatusesManager.instance.GetStopIncome(stop, out long income);
                             PrintIncomeStop(lineID, uibutton, uilabel, income);
                             break;
                         case MapMode.EARNINGS_CURRENT_WEEK:
-                            TLMTransportLineStatusesManager.Instance.GetCurrentStopIncome(stop, out long income2);
+                            TLMTransportLineStatusesManager.instance.GetCurrentStopIncome(stop, out long income2);
                             PrintIncomeStop(lineID, uibutton, uilabel, income2);
                             break;
                         case MapMode.EARNINGS_LAST_WEEK:
-                            TLMTransportLineStatusesManager.Instance.GetLastWeekStopIncome(stop, out long income3);
+                            TLMTransportLineStatusesManager.instance.GetLastWeekStopIncome(stop, out long income3);
                             PrintIncomeStop(lineID, uibutton, uilabel, income3);
                             break;
                     }

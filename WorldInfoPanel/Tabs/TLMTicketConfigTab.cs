@@ -110,7 +110,6 @@ namespace Klyte.TransportLinesManager.UI
 
             TimeableList<TicketPriceEntryXml> config = TLMLineUtils.GetEffectiveConfigForLine(lineID).TicketPriceEntries;
             int stopsCount = config.Count;
-            var tsd = TransportSystemDefinition.From(lineID);
             if (stopsCount == 0)
             {
                 config.Add(new TicketPriceEntryXml()
@@ -121,7 +120,6 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             RecountRows(config, stopsCount, ref TransportManager.instance.m_lines.m_buffer[lineID]);
-            ;
             RedrawList();
         }
 
@@ -129,7 +127,8 @@ namespace Klyte.TransportLinesManager.UI
         {
             TLMTicketPriceEditorLine[] currentLines = m_entryListContainer.GetComponentsInChildren<TLMTicketPriceEditorLine>();
             m_timeRows = new List<TLMTicketPriceEditorLine>();
-            uint maxTicketPrice = (uint) tl.Info.m_ticketPrice * 5;
+            var tsd = TransportSystemDefinition.GetDefinitionForLine(ref tl);
+            uint maxTicketPrice = TLMLineUtils.GetTicketPriceForLine(ref tsd, 0).First.Value * 5;
             int count = 0;
             for (int i = 0; i < stopsCount; i++, count++)
             {

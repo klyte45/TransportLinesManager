@@ -1,6 +1,5 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
-using Klyte.Commons.Extensors;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using System;
@@ -10,7 +9,7 @@ using System.Linq;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
-    public class TLMTransportLineStatusesManager : Redirector, IRedirectable
+    public class TLMTransportLineStatusesManager : SingletonLite<TLMTransportLineStatusesManager>
     {
         public const int BYTES_PER_CYCLE = 12;
         public const int FRAMES_PER_CYCLE = 1 << BYTES_PER_CYCLE;
@@ -22,15 +21,9 @@ namespace Klyte.TransportLinesManager.Overrides
         public const int CYCLES_HISTORY_ARRAY_SIZE = CYCLES_HISTORY_SIZE + 1;
         public const int CYCLES_CURRENT_DATA_IDX = CYCLES_HISTORY_SIZE;
 
-        public static TLMTransportLineStatusesManager Instance { get; private set; }
-        public Redirector RedirectorInstance => this;
 
-        public void Awake()
+        public TLMTransportLineStatusesManager()
         {
-            AddRedirect(typeof(StatisticsManager).GetMethod("SimulationStepImpl", RedirectorUtils.allFlags), null, GetType().GetMethod("SimulationStepImpl", RedirectorUtils.allFlags));
-            AddRedirect(typeof(StatisticsManager).GetMethod("UpdateData", RedirectorUtils.allFlags), null, GetType().GetMethod("UpdateData", RedirectorUtils.allFlags));
-
-            Instance = this;
             m_linesData = new long[CYCLES_HISTORY_ARRAY_SIZE * TransportManager.MAX_LINE_COUNT][];
             for (int k = 0; k < m_linesData.Length; k++)
             {
@@ -196,9 +189,9 @@ namespace Klyte.TransportLinesManager.Overrides
                     uint idxEnum = (currentFrameIndex >> BYTES_PER_CYCLE) & 15u;
                     LogUtils.DoLog($"Stroring data for frame {(currentFrameIndex & ~FRAMES_PER_CYCLE_MASK).ToString("X8")} into idx {idxEnum.ToString("X1")}");
 
-                    FinishCycle(idxEnum, ref Instance.m_linesData, TransportManager.MAX_LINE_COUNT);
-                    FinishCycle(idxEnum, ref Instance.m_vehiclesData, VehicleManager.MAX_VEHICLE_COUNT);
-                    FinishCycle(idxEnum, ref Instance.m_stopData, NetManager.MAX_NODE_COUNT);
+                    FinishCycle(idxEnum, ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_linesData, TransportManager.MAX_LINE_COUNT);
+                    FinishCycle(idxEnum, ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_vehiclesData, VehicleManager.MAX_VEHICLE_COUNT);
+                    FinishCycle(idxEnum, ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_stopData, NetManager.MAX_NODE_COUNT);
                 }
             }
         }
@@ -233,9 +226,9 @@ namespace Klyte.TransportLinesManager.Overrides
             Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.BeginLoading("UVMTransportLineEconomyManager.UpdateData");
             if (mode == SimulationManager.UpdateMode.NewMap || mode == SimulationManager.UpdateMode.NewGameFromMap || mode == SimulationManager.UpdateMode.NewScenarioFromMap || mode == SimulationManager.UpdateMode.UpdateScenarioFromMap || mode == SimulationManager.UpdateMode.NewAsset)
             {
-                ClearArray(ref Instance.m_linesData);
-                ClearArray(ref Instance.m_vehiclesData);
-                ClearArray(ref Instance.m_stopData);
+                ClearArray(ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_linesData);
+                ClearArray(ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_vehiclesData);
+                ClearArray(ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_stopData);
             }
             Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndLoading();
         }
@@ -378,9 +371,9 @@ namespace Klyte.TransportLinesManager.Overrides
                     if (version >= GetMinVersion(e))
                     {
 
-                        Instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                        TLMTransportLineStatusesManager.instance.DoWithArray(e, (ref long[][] arrayRef) =>
                         {
-                            int idx = Instance.GetIdxFor(e);
+                            int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
 
                             for (int i = 0; i < arrayRef.Length; i++)
                             {
@@ -398,13 +391,12 @@ namespace Klyte.TransportLinesManager.Overrides
 
                 WriteLong(s, CURRENT_VERSION);
 
-                TLMTransportLineStatusesManager instance = Singleton<TLMTransportLineStatusesManager>.instance;
 
                 foreach (Enum e in LoadOrder)
                 {
-                    instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                    TLMTransportLineStatusesManager.instance.DoWithArray(e, (ref long[][] arrayRef) =>
                     {
-                        int idx = instance.GetIdxFor(e);
+                        int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
                         for (int i = 0; i < arrayRef.Length; i++)
                         {
                             SerializeFunction(s, arrayRef[i][idx]);
@@ -476,7 +468,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 long count = 0;
                 foreach (Enum e in LoadOrder)
                 {
-                    Instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                    SingletonLite<TLMTransportLineStatusesManager>.instance.DoWithArray(e, (ref long[][] arrayRef) =>
                     {
                         count += arrayRef.Select(x => x.Length).Sum();
                     });

@@ -377,9 +377,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 return 0;
             }
-            TLMTransportLineStatusesManager.Instance.GetLastWeekIncomeAndExpensesForLine(component.LineID, out long income, out long expense);
+            TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(component.LineID, out long income, out long expense);
             long profit1 = income - expense;
-            TLMTransportLineStatusesManager.Instance.GetLastWeekIncomeAndExpensesForLine(component2.LineID, out income, out expense);
+            TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(component2.LineID, out income, out expense);
             long profit2 = income - expense;
             return profit1.CompareTo(profit2);
 

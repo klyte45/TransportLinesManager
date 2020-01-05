@@ -20,6 +20,10 @@ namespace Klyte.TransportLinesManager.Overrides
         {
             AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", RedirectorUtils.allFlags), null, null, typeof(TLMTransportLineStatusesRedirector).GetMethod("TranspileSimulationStepLine", RedirectorUtils.allFlags));
             AddRedirect(typeof(HumanAI).GetMethod("EnterVehicle", RedirectorUtils.allFlags), null, null, typeof(TLMTransportLineStatusesRedirector).GetMethod("TranspileHumanEnterVehicle", RedirectorUtils.allFlags));
+
+            AddRedirect(typeof(StatisticsManager).GetMethod("SimulationStepImpl", RedirectorUtils.allFlags), null, GetType().GetMethod("SimulationStepImpl", RedirectorUtils.allFlags));
+            AddRedirect(typeof(StatisticsManager).GetMethod("UpdateData", RedirectorUtils.allFlags), null, GetType().GetMethod("UpdateData", RedirectorUtils.allFlags));
+
         }
 
 
@@ -96,13 +100,13 @@ namespace Klyte.TransportLinesManager.Overrides
             foreach (KeyValuePair<ushort, int> entry in capacities)
             {
                 int cost = tl.Info.m_maintenanceCostPerVehicle * entry.Value / tsd.GetDefaultPassengerCapacity();
-                TLMTransportLineStatusesManager.Instance.AddToVehicle(entry.Key, 0, cost, ref refNull);
+                TLMTransportLineStatusesManager.instance.AddToVehicle(entry.Key, 0, cost, ref refNull);
                 amount += cost;
             }
 
 
             LogUtils.DoLog($"DoTransportLineEconomyManagement : line {lineId} ({tsd} {tl.m_lineNumber}) ;amount = {amount}");
-            TLMTransportLineStatusesManager.Instance.AddToLine(lineId, 0, amount, ref refNull);
+            TLMTransportLineStatusesManager.instance.AddToLine(lineId, 0, amount, ref refNull);
             EconomyManager.instance.FetchResource(Resource.Maintenance, amount, tl.Info.m_class);
         }
 
@@ -115,9 +119,9 @@ namespace Klyte.TransportLinesManager.Overrides
             if (lineId != 0)
             {
                 ushort stopId = TransportLine.GetPrevStop(VehicleManager.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding);
-                TLMTransportLineStatusesManager.Instance.AddToLine(lineId, amount, 0, ref citizen);
-                TLMTransportLineStatusesManager.Instance.AddToVehicle(vehicleId, amount, 0, ref citizen);
-                TLMTransportLineStatusesManager.Instance.AddToStop(stopId, amount, ref citizen);
+                TLMTransportLineStatusesManager.instance.AddToLine(lineId, amount, 0, ref citizen);
+                TLMTransportLineStatusesManager.instance.AddToVehicle(vehicleId, amount, 0, ref citizen);
+                TLMTransportLineStatusesManager.instance.AddToStop(stopId, amount, ref citizen);
                 LogUtils.DoLog($"DoHumanAiEconomyManagement : line {lineId};amount = {amount}; citizen = {citizenId}");
             }
 
