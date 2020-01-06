@@ -469,7 +469,7 @@ namespace Klyte.TransportLinesManager.UI
             UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
             if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
             {
-                TLMController.instance.AutoName(lineId);
+                TLMController.AutoName(lineId);
             }
         }
         #endregion
@@ -488,7 +488,7 @@ namespace Klyte.TransportLinesManager.UI
             buttonAutoName.isVisible = true;
             buttonAutoName.eventClicked += (component, eventParam) =>
             {
-                TLMController.instance.AutoName(UVMPublicTransportWorldInfoPanel.GetLineID());
+                TLMController.AutoName(UVMPublicTransportWorldInfoPanel.GetLineID());
                 UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
             };
             buttonAutoName.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoNameIcon);
@@ -502,7 +502,7 @@ namespace Klyte.TransportLinesManager.UI
             KlyteMonoUtils.InitButton(buttonAutoColor, true, "ButtonMenu");
             buttonAutoColor.name = "AutoColor";
             buttonAutoColor.isVisible = true;
-            buttonAutoColor.eventClicked += (component, eventParam) => TLMController.instance.AutoColor(UVMPublicTransportWorldInfoPanel.GetLineID());
+            buttonAutoColor.eventClicked += (component, eventParam) => TLMController.AutoColor(UVMPublicTransportWorldInfoPanel.GetLineID());
             buttonAutoColor.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoColorIcon);
         }
         #endregion

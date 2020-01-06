@@ -149,9 +149,9 @@ namespace Klyte.TransportLinesManager.UI
             m_lineStringLabel.transform.SetParent(m_vehiclesLabel.transform.parent);
             m_lineStringLabel.absolutePosition = m_vehiclesLabel.absolutePosition + new Vector3(63, 0);
             m_lineStringLabel.autoSize = false;
-            m_lineStringLabel.size = new Vector2(32, 32);
+            m_lineStringLabel.size = new Vector2(36, 36);
             m_lineStringLabel.isLocalized = false;
-            m_lineStringLabel.text = "<k45Symbol TriangleIcon,FF8822,36>";
+            m_lineStringLabel.text = "<k45Symbol K45_TriangleIcon,FF8822,36>";
             m_lineStringLabel.textScale = 1;
             m_lineStringLabel.processMarkup = true;
         }
@@ -391,7 +391,7 @@ namespace Klyte.TransportLinesManager.UI
 
             while (connectionPanel.childCount < linesFound.Count)
             {
-                KlyteMonoUtils.CreateUIElement(out UILabel lineLabel, connectionPanel.transform, "", new Vector4(0, 0, 15, 15));
+                KlyteMonoUtils.CreateUIElement(out UILabel lineLabel, connectionPanel.transform, "", new Vector4(0, 0, 17, 17));
                 lineLabel.processMarkup = true;
                 lineLabel.textScale = 0.5f;
                 lineLabel.eventClicked += OpenLineLabel;
@@ -698,9 +698,9 @@ namespace Klyte.TransportLinesManager.UI
         internal float m_actualStopsX;
         internal Vector2 m_kLineSSpritePosition = new Vector2(175f, 20f);
         internal Vector2 m_kLineSSpritePositionForWalkingTours = new Vector2(175f, 20f);
-        internal Vector2 m_kBasicConnectionLogoSize = new Vector2(16, 15);
+        internal Vector2 m_kBasicConnectionLogoSize = new Vector2(18, 18);
         internal float m_kBasicConnectionLogoFontSize = 0.5f;
-        internal int m_kMaxConnectionsLine = 5;
+        internal int m_kMaxConnectionsLine = 4;
 
         internal UILabel m_stopsLabel;
 

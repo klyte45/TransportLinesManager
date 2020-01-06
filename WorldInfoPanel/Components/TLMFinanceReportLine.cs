@@ -2,8 +2,8 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors;
 using UnityEngine;
-using static Klyte.TransportLinesManager.Overrides.TLMTransportLineStatusesManager;
 
 namespace Klyte.TransportLinesManager.UI
 {
@@ -89,7 +89,7 @@ namespace Klyte.TransportLinesManager.UI
         private Color m_profitColor = new Color32(0, 0x88, 0, 0xff);
         private Color m_lossColor = new Color32(0xaa, 0, 0, 0xff);
 
-        public void SetData(IncomeExpense data, bool showDaytime)
+        public void SetData(TLMTransportLineStatusesManager.IncomeExpense data, bool showDaytime)
         {
             if (showDaytime)
             {

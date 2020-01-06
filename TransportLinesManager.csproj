@@ -145,6 +145,7 @@
     <Compile Include="commons\Utils\VehicleUtils.cs" />
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="Extensors\GameServiceExtensors.cs" />
+    <Compile Include="OptionsMenu\Tabs\TLMDefaultCostPerPassengerConfigTab.cs" />
     <Compile Include="Xml\TLMTransportLineConfiguration.cs" />
     <Compile Include="Xml\BudgetEntryXml.cs" />
     <Compile Include="Extensors\ExtensionStaticExtensionMethods.cs" />
@@ -154,7 +155,7 @@
     <Compile Include="Extensors\TLMTransportTypeExtension.cs" />
     <Compile Include="Overrides\TLMDepotAIOverrides.cs" />
     <Compile Include="Extensors\TLMTransportLineExtension.cs" />
-    <Compile Include="Overrides\TLMTransportLineStatusesManager.cs" />
+    <Compile Include="Extensors\TLMTransportLineStatusesManager.cs" />
     <Compile Include="Interfaces\ExtensionInterfaces.cs" />
     <Compile Include="Interfaces\LinearMapParentInterface.cs" />
     <Compile Include="LegacyWarehouse\ConfigWarehouseBaseLegacy.cs" />
@@ -271,10 +272,10 @@
     <EmbeddedResource Include="UI\i18n\nl.properties" />
     <EmbeddedResource Include="UI\i18n\pl.properties" />
     <None Include="commons\README.md" />
-    <None Include="commons\UI\i18n\en.properties" />
-    <None Include="commons\UI\i18n\fr.properties" />
-    <None Include="commons\UI\i18n\pt.properties" />
-    <None Include="commons\UI\i18n\ru.properties" />
+    <EmbeddedResource Include="commons\UI\i18n\en.properties" />
+    <EmbeddedResource Include="commons\UI\i18n\fr.properties" />
+    <EmbeddedResource Include="commons\UI\i18n\pt.properties" />
+    <EmbeddedResource Include="commons\UI\i18n\ru.properties" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -283,54 +284,54 @@
   <ItemGroup>
     <EmbeddedResource Include="UI\Images\spritesCommon.png" />
     <EmbeddedResource Include="MapDrawer\app.js" />
-    <Content Include="commons\UI\Images\%25K45_24hLineIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_24hLineIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_AbsoluteMode.png" />
-    <Content Include="commons\UI\Images\%25K45_AutoColorIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_AutoNameIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_CameraIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_CircleIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_ConeIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_Copy.png" />
-    <Content Include="commons\UI\Images\%25K45_CrossIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_DepotIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_DiamondIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_FontIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_HeptagonIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_HexagonIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_K45Button.png" />
-    <Content Include="commons\UI\Images\%25K45_K45ButtonDisabled.png" />
-    <Content Include="commons\UI\Images\%25K45_K45ButtonFocused.png" />
-    <Content Include="commons\UI\Images\%25K45_K45ButtonHovered.png" />
-    <Content Include="commons\UI\Images\%25K45_Load.png" />
-    <Content Include="commons\UI\Images\%25K45_MapIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_AutoColorIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_AutoNameIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_CameraIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_CircleIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_ConeIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Copy.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_CrossIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_DepotIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_DiamondIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_FontIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_HeptagonIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_HexagonIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_K45Button.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_K45ButtonDisabled.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_K45ButtonFocused.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_K45ButtonHovered.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Load.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_MapIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_MenuPanel_color.png" />
-    <Content Include="commons\UI\Images\%25K45_MountainIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_OctagonIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_OvalIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_ParachuteIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_Paste.png" />
-    <Content Include="commons\UI\Images\%25K45_PentagonIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_PerHourIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_MountainIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_OctagonIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_OvalIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_ParachuteIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Paste.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_PentagonIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_PerHourIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_RelativeMode.png" />
-    <Content Include="commons\UI\Images\%25K45_Reload.png" />
-    <Content Include="commons\UI\Images\%25K45_RemoveIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Reload.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_RemoveIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_RemoveUnwantedIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_RoundedHexagonIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_RoundedPentagonIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_RoundedSquareIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_RoundedTriangleIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_S03StarIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_S04StarIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_S05StarIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_S06StarIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_S07StarIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_S08StarIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_S09StarIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_S10StarIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_Save.png" />
-    <Content Include="commons\UI\Images\%25K45_SquareIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_TrapezeIcon.png" />
-    <Content Include="commons\UI\Images\%25K45_TriangleIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedHexagonIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedPentagonIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedSquareIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedTriangleIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_S03StarIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_S04StarIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_S05StarIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_S06StarIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_S07StarIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_S08StarIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_S09StarIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_S10StarIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Save.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_SquareIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_TrapezeIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_TriangleIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\bordersDescriptor.txt" />
     <Content Include="commons\UI\Images\lineFormats.psd" />
     <Content Include="commons\UI\Images\sprites.psd" />
@@ -395,6 +396,6 @@ xcopy /Y "$(ProjectDir)\_requiredDLLs\*" "C:\Users\Leandro\AppData\Local\Colossa
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>del /Q "S:\Steam\steamapps\workshop\content\255710\1312767991\*"
-del /Q  "C:\Users\Leandro\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\TLM\"</PreBuildEvent>
+del /Q  "C:\Users\Leandro\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\TLM\*"</PreBuildEvent>
   </PropertyGroup>
 </Project>

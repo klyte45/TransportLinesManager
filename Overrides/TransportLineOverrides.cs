@@ -91,11 +91,11 @@ namespace Klyte.TransportLinesManager.Overrides
                 {
                     if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
                     {
-                        TLMController.instance.AutoColor(lineID);
+                        TLMController.AutoColor(lineID);
                     }
                     if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
                     {
-                        TLMController.instance.AutoName(lineID);
+                        TLMController.AutoName(lineID);
                     }
                     TLMController.instance.LineCreationToolbox.incrementNumber();
                     TLMTransportLineExtension.Instance.SafeCleanEntry(lineID);

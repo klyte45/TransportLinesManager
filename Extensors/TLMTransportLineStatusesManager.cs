@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Klyte.TransportLinesManager.Overrides
+namespace Klyte.TransportLinesManager.Extensors
 {
     public class TLMTransportLineStatusesManager : SingletonLite<TLMTransportLineStatusesManager>
     {

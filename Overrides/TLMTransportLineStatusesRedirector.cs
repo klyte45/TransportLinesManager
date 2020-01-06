@@ -21,8 +21,8 @@ namespace Klyte.TransportLinesManager.Overrides
             AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", RedirectorUtils.allFlags), null, null, typeof(TLMTransportLineStatusesRedirector).GetMethod("TranspileSimulationStepLine", RedirectorUtils.allFlags));
             AddRedirect(typeof(HumanAI).GetMethod("EnterVehicle", RedirectorUtils.allFlags), null, null, typeof(TLMTransportLineStatusesRedirector).GetMethod("TranspileHumanEnterVehicle", RedirectorUtils.allFlags));
 
-            AddRedirect(typeof(StatisticsManager).GetMethod("SimulationStepImpl", RedirectorUtils.allFlags), null, GetType().GetMethod("SimulationStepImpl", RedirectorUtils.allFlags));
-            AddRedirect(typeof(StatisticsManager).GetMethod("UpdateData", RedirectorUtils.allFlags), null, GetType().GetMethod("UpdateData", RedirectorUtils.allFlags));
+            AddRedirect(typeof(StatisticsManager).GetMethod("SimulationStepImpl", RedirectorUtils.allFlags), null, typeof(TLMTransportLineStatusesManager).GetMethod("SimulationStepImpl", RedirectorUtils.allFlags));
+            AddRedirect(typeof(StatisticsManager).GetMethod("UpdateData", RedirectorUtils.allFlags), null, typeof(TLMTransportLineStatusesManager).GetMethod("UpdateData", RedirectorUtils.allFlags));
 
         }
 
@@ -99,7 +99,7 @@ namespace Klyte.TransportLinesManager.Overrides
             Citizen refNull = default;
             foreach (KeyValuePair<ushort, int> entry in capacities)
             {
-                int cost = tl.Info.m_maintenanceCostPerVehicle * entry.Value / tsd.GetDefaultPassengerCapacity();
+                int cost = (int) (entry.Value * tsd.GetEffectivePassengerCapacityCost());
                 TLMTransportLineStatusesManager.instance.AddToVehicle(entry.Key, 0, cost, ref refNull);
                 amount += cost;
             }

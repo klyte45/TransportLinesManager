@@ -25,10 +25,10 @@ namespace Klyte.TransportLinesManager.Extensors
         public static readonly TransportSystemDefinition EVAC_BUS = new TransportSystemDefinition(ItemClass.SubService.None, VehicleInfo.VehicleType.Car, TransportInfo.TransportType.EvacuationBus);
         public static readonly TransportSystemDefinition TOUR_PED = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTours, VehicleInfo.VehicleType.None, TransportInfo.TransportType.Pedestrian);
         public static readonly TransportSystemDefinition TOUR_BUS = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTours, VehicleInfo.VehicleType.Car, TransportInfo.TransportType.TouristBus);
-
         public static readonly TransportSystemDefinition CABLE_CAR = new TransportSystemDefinition(ItemClass.SubService.PublicTransportCableCar, VehicleInfo.VehicleType.CableCar, TransportInfo.TransportType.CableCar);
         public static readonly TransportSystemDefinition TAXI = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTaxi, VehicleInfo.VehicleType.Car, TransportInfo.TransportType.Taxi);
-        public static readonly TransportSystemDefinition BALLOON = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTours, VehicleInfo.VehicleType.Balloon, TransportInfo.TransportType.HotAirBalloon);
+        public static readonly TransportSystemDefinition BALLOON = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTours, VehicleInfo.VehicleType.None, TransportInfo.TransportType.HotAirBalloon);
+        public static readonly TransportSystemDefinition POST = new TransportSystemDefinition(ItemClass.SubService.PublicTransportPost, VehicleInfo.VehicleType.None, TransportInfo.TransportType.Post);
 
 
         public static Dictionary<TransportSystemDefinition, ITLMTransportTypeExtension> AvailableDefinitions
@@ -76,8 +76,46 @@ namespace Klyte.TransportLinesManager.Extensors
                     m_availableDefinitions[TOUR_PED] = TLMTransportTypeExtensionTouPed.Instance;
                     m_availableDefinitions[BALLOON] = TLMTransportTypeExtensionTouBal.Instance;
                     //}
+
+                    //if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Industry))
+                    //{
+                    m_availableDefinitions[POST] = TLMTransportTypeExtensionTouBus.Instance;
+                    //}
                 }
                 return m_availableDefinitions;
+            }
+        }
+        private static readonly Dictionary<TransportSystemDefinition, TransportInfo> m_infoList = new Dictionary<TransportSystemDefinition, TransportInfo>();
+        public static Dictionary<TransportSystemDefinition, TransportInfo> TransportInfoDict
+        {
+            get {
+                if (m_infoList.Count == 0)
+                {
+                    TLMUtils.doLog("TSD loading infos");
+                    for (uint i = 0; i < PrefabCollection<TransportInfo>.LoadedCount(); i++)
+                    {
+                        TransportInfo info = PrefabCollection<TransportInfo>.GetLoaded(i);
+                        var tsd = TransportSystemDefinition.From(info);
+                        if (tsd == default)
+                        {
+                            TLMUtils.doErrorLog($"TSD not found for info: {info}");
+                            continue;
+                        }
+                        if (m_infoList.ContainsKey(tsd))
+                        {
+                            TLMUtils.doErrorLog($"More than one info for same TSD \"{tsd}\": {m_infoList[tsd]},{info}");
+                            continue;
+                        }
+                        m_infoList[tsd] = info;
+                    }
+                    IEnumerable<TransportSystemDefinition> missing = AvailableDefinitions.Keys.Where(x => !m_infoList.ContainsKey(x));
+                    if (missing.Count() > 0)
+                    {
+                        TLMUtils.doLog($"Some TSDs can't find their infos: [{string.Join(", ", missing.Select(x => x.ToString()).ToArray())}]\nIgnore if you don't have all DLCs installed");
+                    }
+                    TLMUtils.doLog("TSD end loading infos");
+                }
+                return m_infoList;
             }
         }
         public static readonly Dictionary<TransportSystemDefinition, ITLMTransportTypeExtension> m_availableDefinitions = new Dictionary<TransportSystemDefinition, ITLMTransportTypeExtension>();
@@ -145,6 +183,10 @@ namespace Klyte.TransportLinesManager.Extensors
             tempDef[TOUR_BUS] = typeof(TLMSysDefTouBus);
             tempDef[TOUR_PED] = typeof(TLMSysDefTouPed);
             tempDef[BALLOON] = typeof(TLMSysDefTouBal);
+            //}
+            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Industry))
+            //{
+            tempDef[POST] = typeof(TLMSysDefPstPst);
             //}
         }
 
@@ -293,6 +335,17 @@ namespace Klyte.TransportLinesManager.Extensors
             return hashCode;
         }
 
+        public float GetEffectivePassengerCapacityCost()
+        {
+            int settedCost = TLMConfigWarehouse.GetCurrentConfigInt(ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.DEFAULT_COST_PER_PASSENGER_CAPACITY);
+            if (settedCost == 0)
+            {
+                return GetDefaultPassengerCapacityCost();
+            }
+
+            return settedCost / 100f;
+        }
+        public float GetDefaultPassengerCapacityCost() => TransportInfoDict.TryGetValue(this, out TransportInfo info) ? info.m_maintenanceCostPerVehicle / (float) GetDefaultPassengerCapacity() : -1;
         public int GetDefaultPassengerCapacity()
         {
             int result = 1;
@@ -359,6 +412,7 @@ namespace Klyte.TransportLinesManager.Extensors
     public sealed class TLMSysDefNorShp : TLMSysDef<TLMSysDefNorShp> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.SHIP; }
     public sealed class TLMSysDefNorPln : TLMSysDef<TLMSysDefNorPln> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.PLANE; }
     public sealed class TLMSysDefTouBus : TLMSysDef<TLMSysDefTouBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TOUR_BUS; }
+    public sealed class TLMSysDefPstPst : TLMSysDef<TLMSysDefPstPst> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.POST; }
     public sealed class TLMSysDefTouPed : TLMSysDef<TLMSysDefTouPed> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TOUR_PED; }
     public sealed class TLMSysDefTouBal : TLMSysDef<TLMSysDefTouBal> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BALLOON; }
     public sealed class TLMSysDefNorCcr : TLMSysDef<TLMSysDefNorCcr> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.CABLE_CAR; }

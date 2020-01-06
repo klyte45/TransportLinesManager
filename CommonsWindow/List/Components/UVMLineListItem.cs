@@ -433,7 +433,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             }
         }
 
-        public void DoAutoColor() => TLMController.instance.AutoColor(m_lineID);
+        public void DoAutoColor() => TLMController.AutoColor(m_lineID);
 
         public void DoAutoName() => TLMLineUtils.setLineName(m_lineID, TLMLineUtils.calculateAutoName(m_lineID));
 

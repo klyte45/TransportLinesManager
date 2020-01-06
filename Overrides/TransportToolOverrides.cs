@@ -103,7 +103,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 TLMController.instance.SetCurrentSelectedId(__state.m_lineCurrent);
                 if (__state.m_lineCurrent > 0 && TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
                 {
-                    TLMController.instance.AutoColor(__state.m_lineCurrent, true, true);
+                    TLMController.AutoColor(__state.m_lineCurrent, true, true);
                 }
                 TLMController.instance.LinearMapCreatingLine.redrawLine();
                 m_lastLength = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lastState.m_lineCurrent].m_totalLength;

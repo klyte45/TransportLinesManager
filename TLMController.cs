@@ -19,7 +19,6 @@ namespace Klyte.TransportLinesManager
 
         internal static TLMController instance => TransportLinesManagerMod.Instance.Controller;
 
-        public bool initialized = false;
         public bool initializedWIP = false;
         private TLMLinearMap m_linearMapCreatingLine;
         private TLMLineCreationToolbox m_lineCreationToolbox;
@@ -83,7 +82,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
+        public static Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
             TransportLine t = TransportManager.instance.m_lines.m_buffer[i];
             try
@@ -114,7 +113,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public void AutoName(ushort m_LineID) => TLMLineUtils.setLineName(m_LineID, TLMLineUtils.calculateAutoName(m_LineID));
+        public static void AutoName(ushort m_LineID) => TLMLineUtils.setLineName(m_LineID, TLMLineUtils.calculateAutoName(m_LineID));
 
 
         private void initNearLinesOnWorldInfoPanel()
