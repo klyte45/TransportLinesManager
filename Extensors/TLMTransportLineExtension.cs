@@ -65,7 +65,7 @@ namespace Klyte.TransportLinesManager.Extensors
             }
             return m_basicAssetsList[tsd];
         }
-        public Dictionary<string, string> GetSelectedBasicAssets(uint lineId) => this.GetAssetList(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
+        public Dictionary<string, string> GetSelectedBasicAssets(uint lineId) => this.GetAssetList(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
         public Dictionary<string, string> GetAllBasicAssets(uint lineId)
         {
             var tsd = TransportSystemDefinition.From(lineId);
@@ -74,7 +74,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 m_basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
             }
 
-            return m_basicAssetsList[tsd].ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
+            return m_basicAssetsList[tsd].ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
         }
         public VehicleInfo GetAModel(ushort lineId)
         {

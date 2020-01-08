@@ -59,21 +59,22 @@ namespace Klyte.TransportLinesManager.Extensors
         public static void RemoveBudgetMultiplierForLine<T>(this T it, ushort lineId, int hour) where T : IBudgetableExtension => it.SafeGet(it.LineToIndex(lineId)).BudgetEntries.RemoveAtHour(hour);
         #endregion
         #region Ticket Price
-        public static TimeableList<TicketPriceEntryXml> GetTicketPrices<T>(this T it, uint prefix) where T : ITicketPriceExtension => it.SafeGet(prefix).TicketPriceEntries;
-        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForHour<T>(this T it, uint prefix, float hour) where T : ITicketPriceExtension
+        public static TimeableList<TicketPriceEntryXml> GetTicketPricesForLine<T>(this T it, ushort lineId) where T : ITicketPriceExtension => it.SafeGet(it.LineToIndex(lineId)).TicketPriceEntries;
+        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForHourForLine<T>(this T it, ushort lineId, float hour) where T : ITicketPriceExtension
         {
-            TimeableList<TicketPriceEntryXml> ticketPrices = it.GetTicketPrices(prefix);
+            TimeableList<TicketPriceEntryXml> ticketPrices = it.GetTicketPricesForLine(lineId);
             return ticketPrices.GetAtHourExact(hour);
         }
-        public static void SetTicketPrice<T>(this T it, uint prefix, uint multiplier, int hour) where T : ITicketPriceExtension
+        public static void SetTicketPriceToLine<T>(this T it, ushort lineId, uint multiplier, int hour) where T : ITicketPriceExtension
         {
-            it.SafeGet(prefix).TicketPriceEntries.Add(new TicketPriceEntryXml()
+            it.SafeGet(it.LineToIndex(lineId)).TicketPriceEntries.Add(new TicketPriceEntryXml()
             {
                 Value = multiplier,
                 HourOfDay = hour
             });
+
         }
-        public static void RemoveTicketPriceEntry<T>(this T it, uint prefix, int hour) where T : ITicketPriceExtension => it.SafeGet(prefix).TicketPriceEntries.RemoveAtHour(hour);
+        public static void RemoveTicketPriceEntryToLine<T>(this T it, ushort lineId, int hour) where T : ITicketPriceExtension => it.SafeGet(it.LineToIndex(lineId)).TicketPriceEntries.RemoveAtHour(hour);
 
         #endregion
 

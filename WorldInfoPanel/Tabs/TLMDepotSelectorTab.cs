@@ -201,7 +201,7 @@ namespace Klyte.TransportLinesManager.UI
                             }
                         }
                     };
-                    KlyteMonoUtils.LimitWidth(uiCheck.label, m_scrollablePanel.width - m_scrollablePanel.scrollPadding.left - m_scrollablePanel.scrollPadding.right, true);
+                    KlyteMonoUtils.LimitWidth(uiCheck.label, 280, true);
                     UIButton gotoButton = depotChecks[idx].Find<UIButton>("GoTo");
                     gotoButton.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
                     {

@@ -28,5 +28,9 @@ namespace Klyte.TransportLinesManager.Interfaces
         public void SetCustomFormat(uint prefix, LineIconSpriteNames icon);
 
         #endregion
+
+        void SetVehicleCapacity(string assetName, int newCapacity);
+        bool IsCustomCapacity(string name);
+        int GetCustomCapacity(string name);
     }
 }

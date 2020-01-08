@@ -1,5 +1,6 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
+using ColossalFramework.Threading;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Interfaces;
@@ -9,6 +10,8 @@ using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.OptionsMenu;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
+using System;
+using System.Collections;
 using System.Reflection;
 
 [assembly: AssemblyVersion("12.99.99.99")]
@@ -37,8 +40,6 @@ namespace Klyte.TransportLinesManager
                 m_priorityRedirector.AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("Start", RedirectorUtils.allFlags), null, null, typeof(UVMPublicTransportWorldInfoPanel).GetMethod("TranspileStart", RedirectorUtils.allFlags));
             }
         }
-
-
         public override void TopSettingsUI(UIHelperExtension helper) => TLMConfigOptions.instance.GenerateOptionsMenu(helper);
 
         internal void PopulateGroup9(UIHelperExtension helper) => CreateGroup9(helper);

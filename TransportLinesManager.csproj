@@ -137,14 +137,16 @@
     <Compile Include="commons\Utils\UtilitiesClasses\NumberArrays.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\Range.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\SimpleEnumerableList.cs" />
+    <Compile Include="commons\Utils\UtilitiesClasses\SimpleXmlDictionary.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\SimpleNonSequentialList.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\SimpleXmlHashSet.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\SimpleXmlList.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\TimeableList.cs" />
+    <Compile Include="commons\Utils\UtilitiesClasses\MutableTuple.cs" />
     <Compile Include="commons\Utils\UtilitiesClasses\Tuple.cs" />
     <Compile Include="commons\Utils\VehicleUtils.cs" />
     <Compile Include="commons\Utils\XmlUtils.cs" />
-    <Compile Include="Extensors\GameServiceExtensors.cs" />
+    <Compile Include="Extensors\GameServiceExtensions.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMDefaultCostPerPassengerConfigTab.cs" />
     <Compile Include="Xml\TLMTransportLineConfiguration.cs" />
     <Compile Include="Xml\BudgetEntryXml.cs" />

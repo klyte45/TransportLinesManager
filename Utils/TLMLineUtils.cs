@@ -1,5 +1,5 @@
 ﻿using ColossalFramework;
-using ColossalFramework.Math;
+using ColossalFramework.Threading;
 using ColossalFramework.UI;
 using Klyte.Commons.Redirectors;
 using Klyte.Commons.Utils;
@@ -7,6 +7,7 @@ using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Xml;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -1247,20 +1248,13 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
                 {
-                    ticketPriceDefault = TLMTransportLineExtension.Instance.GetTicketPriceForHour(lineId, hour);
-                    if (ticketPriceDefault == null)
-                    {
-                        TLMTransportLineExtension.Instance.SetTicketPrice(lineId, 0, 0);
-                    }
+                    ticketPriceDefault = TLMTransportLineExtension.Instance.GetTicketPriceForHourForLine(lineId, hour);
                 }
                 if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
                 {
-                    ticketPriceDefault = tsd.GetTransportExtension().GetTicketPriceForHour(TLMLineUtils.getPrefix(lineId), hour);
-                    if (ticketPriceDefault == null)
-                    {
-                        tsd.GetTransportExtension().SetTicketPrice(lineId, 0, 0);
-                    }
+                    ticketPriceDefault = tsd.GetTransportExtension().GetTicketPriceForHourForLine(lineId, hour);
                 }
+
             }
             if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
             {
@@ -1276,7 +1270,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static void RemoveAllUnwantedVehicles()
         {
-            var randomizer = new Randomizer(SimulationManager.instance.m_timeOffsetTicks);
+            VehicleManager vm = Singleton<VehicleManager>.instance;
             for (ushort lineId = 1; lineId < Singleton<TransportManager>.instance.m_lines.m_size; lineId++)
             {
                 if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
@@ -1295,9 +1289,8 @@ namespace Klyte.TransportLinesManager.Utils
                         extension = def.GetTransportExtension();
                     }
 
-                    TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
+                    ref TransportLine tl = ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
                     List<string> modelList = extension.GetAssetList(idx);
-                    VehicleManager vm = Singleton<VehicleManager>.instance;
 
                     if (TransportLinesManagerMod.DebugMode)
                     {
@@ -1321,11 +1314,110 @@ namespace Klyte.TransportLinesManager.Utils
                         }
                         foreach (KeyValuePair<ushort, VehicleInfo> item in vehiclesToRemove)
                         {
-                            VehicleUtils.ReplaceVehicleModel(item.Key, extension.GetAModel(lineId));
+                            if (item.Value.m_vehicleAI is BusAI)
+                            {
+                                VehicleUtils.ReplaceVehicleModel(item.Key, extension.GetAModel(lineId));
+                            }
+                            else
+                            {
+                                item.Value.m_vehicleAI.SetTransportLine(item.Key, ref vm.m_vehicles.m_buffer[item.Key], 0);
+                            }
                         }
                     }
                 }
             }
+        }
+
+        //public static IEnumerator RespawnVehicleInfoInLines(VehicleInfo info)
+        //{
+        //    yield return 0;
+        //    VehicleManager vm = Singleton<VehicleManager>.instance;
+        //    for (ushort lineId = 1; lineId < Singleton<TransportManager>.instance.m_lines.m_size; lineId++)
+        //    {
+        //        if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
+        //        {
+        //            for (int i = 0; i < Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].CountVehicles(lineId); i++)
+        //            {
+        //                ushort vehicle = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].GetVehicle(i);
+        //                if (vehicle != 0)
+        //                {
+        //                    if (vm.m_vehicles.m_buffer[vehicle].Info.name == info.name)
+        //                    {
+        //                        if (info.m_vehicleAI is BusAI)
+        //                        {
+        //                            VehicleUtils.ReplaceVehicleModel(vehicle, info);
+        //                        }
+        //                        else
+        //                        {
+        //                            new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(UpdateCapacityUnits));
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    yield break;
+        //}
+        private static int GetTotalUnitGroups(uint unitID)
+        {
+            int num = 0;
+            while (unitID != 0u)
+            {
+                CitizenUnit citizenUnit = Singleton<CitizenManager>.instance.m_units.m_buffer[(int) ((UIntPtr) unitID)];
+                unitID = citizenUnit.m_nextUnit;
+                num++;
+            }
+            return num;
+        }
+        public static IEnumerator UpdateCapacityUnits(ThreadBase t)
+        {
+            int count = 0;
+            Array16<Vehicle> vehicles = Singleton<VehicleManager>.instance.m_vehicles;
+            int i = 0;
+            TransportSystemDefinition tsd;
+            ITLMTransportTypeExtension ext;
+            while (i < (long) ((ulong) vehicles.m_size))
+            {
+                if ((vehicles.m_buffer[i].m_flags & Vehicle.Flags.Spawned) == Vehicle.Flags.Spawned && (tsd = TransportSystemDefinition.From(vehicles.m_buffer[i].Info)) != default && (ext = tsd.GetTransportExtension()).IsCustomCapacity(vehicles.m_buffer[i].Info.name))
+                {
+                    int capacity = ext.GetCustomCapacity(vehicles.m_buffer[i].Info.name);
+                    if (capacity != -1)
+                    {
+                        CitizenUnit[] units = Singleton<CitizenManager>.instance.m_units.m_buffer;
+                        uint unit = vehicles.m_buffer[i].m_citizenUnits;
+                        int currentUnitCount = GetTotalUnitGroups(unit);
+                        int newUnitCount = Mathf.CeilToInt(capacity / 5f);
+                        if (newUnitCount < currentUnitCount)
+                        {
+                            uint j = unit;
+                            for (int k = 1; k < newUnitCount; k++)
+                            {
+                                j = units[(int) ((UIntPtr) j)].m_nextUnit;
+                            }
+                            Singleton<CitizenManager>.instance.ReleaseUnits(units[(int) ((UIntPtr) j)].m_nextUnit);
+                            units[(int) ((UIntPtr) j)].m_nextUnit = 0u;
+                            count++;
+                        }
+                        else if (newUnitCount > currentUnitCount)
+                        {
+                            uint l = unit;
+                            while (units[(int) ((UIntPtr) l)].m_nextUnit != 0u)
+                            {
+                                l = units[(int) ((UIntPtr) l)].m_nextUnit;
+                            }
+                            int newCapacity = capacity - currentUnitCount * 5;
+                            Singleton<CitizenManager>.instance.CreateUnits(out units[(int) ((UIntPtr) l)].m_nextUnit, ref Singleton<SimulationManager>.instance.m_randomizer, 0, (ushort) i, 0, 0, 0, newCapacity, 0);
+                            count++;
+                        }
+                    }
+                }
+                if (i % 256 == 255)
+                {
+                    yield return null;
+                }
+                i++;
+            }
+            yield break;
         }
 
 

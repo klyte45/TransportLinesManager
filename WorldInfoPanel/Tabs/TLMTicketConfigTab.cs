@@ -184,6 +184,7 @@ namespace Klyte.TransportLinesManager.UI
                 HourOfDay = 0,
                 Value = 0
             });
+            TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).SetTicketPriceToLine(UVMPublicTransportWorldInfoPanel.GetLineID(),0,0);
             RebuildList(UVMPublicTransportWorldInfoPanel.GetLineID());
         }
 
