@@ -6,20 +6,36 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
     public class TLMTransportLineStatusesManager : SingletonLite<TLMTransportLineStatusesManager>
     {
-        public const int BYTES_PER_CYCLE = 12;
-        public const int FRAMES_PER_CYCLE = 1 << BYTES_PER_CYCLE;
-        public const int FRAMES_PER_CYCLE_MASK = FRAMES_PER_CYCLE - 1;
-        public const int TOTAL_STORAGE_CAPACITY = (1 << (BYTES_PER_CYCLE + 4));
-        public const int INDEX_AND_FRAMES_MASK = TOTAL_STORAGE_CAPACITY - 1;
+        public static int BYTES_PER_CYCLE
+        {
+            get {
+                if (m_cachedFrameSize != SimulationManager.DAYTIME_FRAMES)
+                {
+                    m_cachedFrameSize = SimulationManager.DAYTIME_FRAMES;
+                    m_cachedBytesPerCycle = Mathf.RoundToInt(Mathf.Log(SimulationManager.DAYTIME_FRAMES) / Mathf.Log(2)) - 4;
+                }
+                return m_cachedBytesPerCycle;
+            }
+        }
+
+        public static uint FRAMES_PER_CYCLE => 1u << (BYTES_PER_CYCLE);
+        public static uint FRAMES_PER_CYCLE_MASK => FRAMES_PER_CYCLE - 1;
+        public static uint TOTAL_STORAGE_CAPACITY => (1u << (BYTES_PER_CYCLE + 4));
+        public static uint INDEX_AND_FRAMES_MASK => TOTAL_STORAGE_CAPACITY - 1;
         public const int CYCLES_HISTORY_SIZE = 16;
         public const int CYCLES_HISTORY_MASK = CYCLES_HISTORY_SIZE - 1;
         public const int CYCLES_HISTORY_ARRAY_SIZE = CYCLES_HISTORY_SIZE + 1;
         public const int CYCLES_CURRENT_DATA_IDX = CYCLES_HISTORY_SIZE;
+
+        private static uint m_cachedFrameSize = 0;
+        private static int m_cachedBytesPerCycle = 0;
+
 
 
         public TLMTransportLineStatusesManager()
@@ -173,7 +189,7 @@ namespace Klyte.TransportLinesManager.Extensors
             }
         }
 
-        private uint CurrentArrayEntryIdx => (Singleton<SimulationManager>.instance.m_currentFrameIndex >> BYTES_PER_CYCLE) & CYCLES_HISTORY_MASK;
+        private uint CurrentArrayEntryIdx => (uint) ((Singleton<SimulationManager>.instance.m_currentFrameIndex >> BYTES_PER_CYCLE) & CYCLES_HISTORY_MASK);
 
         private long GetStartFrameForArrayIdx(int idx) => (Singleton<SimulationManager>.instance.m_currentFrameIndex & ~INDEX_AND_FRAMES_MASK) + (idx << BYTES_PER_CYCLE) - (idx >= CurrentArrayEntryIdx ? TOTAL_STORAGE_CAPACITY : 0);
 

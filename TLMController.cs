@@ -1,4 +1,5 @@
 using ColossalFramework;
+using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
@@ -31,6 +32,25 @@ namespace Klyte.TransportLinesManager
         public static readonly string FOLDER_PATH = FileUtils.BASE_FOLDER_PATH + FOLDER_NAME;
         public const string PALETTE_SUBFOLDER_NAME = "ColorPalettes";
         public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
+        public const ulong REALTIME_MOD_ID = 1420955187;
+        private static bool? m_isRealTimeEnabled = null;
+
+        public static bool IsRealTimeEnabled
+        {
+            get {
+                if (m_isRealTimeEnabled == null)
+                {
+                    VerifyIfIsRealTimeEnabled();
+                }
+                return m_isRealTimeEnabled ?? false;
+            }
+        }
+        public static void VerifyIfIsRealTimeEnabled()
+        {
+            PluginManager.PluginInfo pluginInfo = Singleton<PluginManager>.instance.GetPluginsInfo().FirstOrDefault((PluginManager.PluginInfo pi) => pi.publishedFileID.AsUInt64 == REALTIME_MOD_ID);
+            m_isRealTimeEnabled = !(pluginInfo == null || !pluginInfo.isEnabled);
+
+        }
 
         public static string palettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
         public static string exportedMapsFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;

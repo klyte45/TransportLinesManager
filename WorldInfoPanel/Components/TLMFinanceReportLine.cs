@@ -89,15 +89,15 @@ namespace Klyte.TransportLinesManager.UI
         private Color m_profitColor = new Color32(0, 0x88, 0, 0xff);
         private Color m_lossColor = new Color32(0xaa, 0, 0, 0xff);
 
-        public void SetData(TLMTransportLineStatusesManager.IncomeExpense data, bool showDaytime)
+        public void SetData(TLMTransportLineStatusesManager.IncomeExpense data, bool showDaytime, bool realtimeEnabled)
         {
-            if (showDaytime)
+            if (showDaytime && !realtimeEnabled)
             {
                 m_dateTime.text = $"{FloatToHour(data.StartDayTime)}\n{(m_container.zOrder == 0 ? Locale.Get("K45_TLM_BUDGET_REPORT_LIST_CURRENT_TIME") : FloatToHour(data.EndDayTime))}";
             }
             else
             {
-                m_dateTime.text = $"{data.StartDate.ToString("d", LocaleManager.cultureInfo)}\n{(m_container.zOrder == 0 ? Locale.Get("K45_TLM_BUDGET_REPORT_LIST_CURRENT_TIME") : data.EndDate.ToString("d", LocaleManager.cultureInfo))}";
+                m_dateTime.text = $"{data.StartDate.ToString(realtimeEnabled? "t" : "d", LocaleManager.cultureInfo)}\n{(m_container.zOrder == 0 ? Locale.Get("K45_TLM_BUDGET_REPORT_LIST_CURRENT_TIME") : data.EndDate.ToString(realtimeEnabled ? "t" : "d", LocaleManager.cultureInfo))}";
             }
             m_income.text = (data.Income / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
             m_expense.text = (data.Expense / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);

@@ -2,7 +2,6 @@
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Overrides;
 using System;
 using UnityEngine;
 
@@ -35,14 +34,19 @@ namespace Klyte.TransportLinesManager.UI
             KlyteMonoUtils.LimitWidth(titleLabel, m_bg.width);
             titleLabel.localeID = "K45_TLM_FINANCIAL_REPORT";
 
-            UICheckBox checkChangeDateLabel = uiHelper.AddCheckboxLocale("K45_TLM_SHOW_DAYTIME_INSTEAD_DATE", false, (x) => showDayTime = x);
-            KlyteMonoUtils.LimitWidth(checkChangeDateLabel.label, m_bg.width - 50);
+            float heightCheck = 0f;
+            if (!TLMController.IsRealTimeEnabled)
+            {
+                UICheckBox m_checkChangeDateLabel = uiHelper.AddCheckboxLocale("K45_TLM_SHOW_DAYTIME_INSTEAD_DATE", false, (x) => showDayTime = x);
+                KlyteMonoUtils.LimitWidth(m_checkChangeDateLabel.label, m_bg.width - 50);
+                heightCheck = m_checkChangeDateLabel.height;
+            }
 
             KlyteMonoUtils.CreateUIElement(out UIPanel listTitle, m_bg.transform, "LT");
             TLMFinanceReportLine titleList = listTitle.gameObject.AddComponent<TLMFinanceReportLine>();
             titleList.AsTitle();
 
-            KlyteMonoUtils.CreateUIElement(out UIPanel reportLinesContainer, m_bg.transform, "listContainer", new Vector4(0, 0, m_bg.width, m_bg.height - titleLabel.height - checkChangeDateLabel.height - listTitle.height - 10));
+            KlyteMonoUtils.CreateUIElement(out UIPanel reportLinesContainer, m_bg.transform, "listContainer", new Vector4(0, 0, m_bg.width, m_bg.height - titleLabel.height - heightCheck - listTitle.height - 10));
             reportLinesContainer.autoLayout = true;
             reportLinesContainer.autoLayoutDirection = LayoutDirection.Horizontal;
             KlyteMonoUtils.CreateScrollPanel(reportLinesContainer, out UIScrollablePanel reportLines, out _, reportLinesContainer.width - 10, reportLinesContainer.height, Vector3.zero);
@@ -52,7 +56,6 @@ namespace Klyte.TransportLinesManager.UI
                 KlyteMonoUtils.CreateUIElement(out UIPanel line, reportLines.transform, $"L{i}");
                 m_reportLines[i] = line.gameObject.AddComponent<TLMFinanceReportLine>();
             }
-
         }
 
 
@@ -70,7 +73,7 @@ namespace Klyte.TransportLinesManager.UI
                 System.Collections.Generic.List<TLMTransportLineStatusesManager.IncomeExpense> report = TLMTransportLineStatusesManager.instance.GetLineReport(GetLineID());
                 for (int i = 0; i < m_reportLines.Length; i++)
                 {
-                    m_reportLines[i].SetData(report[16 - i], showDayTime);
+                    m_reportLines[i].SetData(report[16 - i], showDayTime, TLMController.IsRealTimeEnabled);
                 }
             }
         }
@@ -80,12 +83,6 @@ namespace Klyte.TransportLinesManager.UI
             {
                 return;
             }
-
-            ushort lineID = GetLineID();
-            if (lineID != 0)
-            {
-            }
-
         }
 
         #endregion

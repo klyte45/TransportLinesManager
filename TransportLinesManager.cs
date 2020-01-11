@@ -1,6 +1,5 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
-using ColossalFramework.Threading;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Interfaces;
@@ -10,8 +9,6 @@ using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.OptionsMenu;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
-using System;
-using System.Collections;
 using System.Reflection;
 
 [assembly: AssemblyVersion("13.0.0.0")]
@@ -93,6 +90,12 @@ namespace Klyte.TransportLinesManager
                 });
 
             }
+        }
+
+        protected override void OnLevelLoadingInternal()
+        {
+            base.OnLevelLoadingInternal();
+            TLMController.VerifyIfIsRealTimeEnabled();
         }
 
         private readonly SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
