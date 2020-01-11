@@ -27,6 +27,7 @@ namespace Klyte.TransportLinesManager.Extensors
         public static uint FRAMES_PER_CYCLE => 1u << (BYTES_PER_CYCLE);
         public static uint FRAMES_PER_CYCLE_MASK => FRAMES_PER_CYCLE - 1;
         public static uint TOTAL_STORAGE_CAPACITY => (1u << (BYTES_PER_CYCLE + 4));
+        public static uint OFFSET_FRAMES => SimulationManager.instance.m_dayTimeOffsetFrames & FRAMES_PER_CYCLE_MASK;
         public static uint INDEX_AND_FRAMES_MASK => TOTAL_STORAGE_CAPACITY - 1;
         public const int CYCLES_HISTORY_SIZE = 16;
         public const int CYCLES_HISTORY_MASK = CYCLES_HISTORY_SIZE - 1;
@@ -161,7 +162,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 Income = GetAtArray(lineId, ref m_linesData, (int) LineData.INCOME, CYCLES_CURRENT_DATA_IDX),
                 Expense = GetAtArray(lineId, ref m_linesData, (int) LineData.EXPENSE, CYCLES_CURRENT_DATA_IDX),
-                RefFrame = Singleton<SimulationManager>.instance.m_currentFrameIndex & ~FRAMES_PER_CYCLE_MASK
+                RefFrame = (Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES) & ~FRAMES_PER_CYCLE_MASK
             });
             result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
             return result;
@@ -172,10 +173,10 @@ namespace Klyte.TransportLinesManager.Extensors
             public long Income { get; set; }
             public long Expense { get; set; }
 
-            public DateTime StartDate => SimulationManager.instance.FrameToTime((uint) RefFrame);
-            public DateTime EndDate => SimulationManager.instance.FrameToTime((uint) RefFrame + FRAMES_PER_CYCLE_MASK);
-            public float StartDayTime => FrameToDaytime(RefFrame);
-            public float EndDayTime => FrameToDaytime(RefFrame + FRAMES_PER_CYCLE_MASK);
+            public DateTime StartDate => SimulationManager.instance.FrameToTime((uint) RefFrame - OFFSET_FRAMES);
+            public DateTime EndDate => SimulationManager.instance.FrameToTime((uint) RefFrame + FRAMES_PER_CYCLE_MASK - OFFSET_FRAMES);
+            public float StartDayTime => FrameToDaytime(RefFrame - OFFSET_FRAMES);
+            public float EndDayTime => FrameToDaytime(RefFrame + FRAMES_PER_CYCLE_MASK - OFFSET_FRAMES);
 
             private static float FrameToDaytime(long refFrame)
             {
@@ -189,19 +190,20 @@ namespace Klyte.TransportLinesManager.Extensors
             }
         }
 
-        private uint CurrentArrayEntryIdx => (uint) ((Singleton<SimulationManager>.instance.m_currentFrameIndex >> BYTES_PER_CYCLE) & CYCLES_HISTORY_MASK);
+        private uint CurrentArrayEntryIdx => ((Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES) >> BYTES_PER_CYCLE) & CYCLES_HISTORY_MASK;
 
-        private long GetStartFrameForArrayIdx(int idx) => (Singleton<SimulationManager>.instance.m_currentFrameIndex & ~INDEX_AND_FRAMES_MASK) + (idx << BYTES_PER_CYCLE) - (idx >= CurrentArrayEntryIdx ? TOTAL_STORAGE_CAPACITY : 0);
+        private long GetStartFrameForArrayIdx(int idx) => ((Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES) & ~INDEX_AND_FRAMES_MASK) + (idx << BYTES_PER_CYCLE) - (idx >= CurrentArrayEntryIdx ? TOTAL_STORAGE_CAPACITY : 0);
 
         public static void SimulationStepImpl(int subStep)
         {
             if (subStep != 0 && subStep != 1000)
             {
-                uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
+                uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES;
                 uint frameCounterCycle = currentFrameIndex & FRAMES_PER_CYCLE_MASK;
-                if (frameCounterCycle == FRAMES_PER_CYCLE_MASK)
+                if (frameCounterCycle == 0)
                 {
-                    uint idxEnum = (currentFrameIndex >> BYTES_PER_CYCLE) & 15u;
+                    currentFrameIndex--;
+                    uint idxEnum = (currentFrameIndex >> BYTES_PER_CYCLE) & CYCLES_HISTORY_MASK;
                     LogUtils.DoLog($"Stroring data for frame {(currentFrameIndex & ~FRAMES_PER_CYCLE_MASK).ToString("X8")} into idx {idxEnum.ToString("X1")}");
 
                     FinishCycle(idxEnum, ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_linesData, TransportManager.MAX_LINE_COUNT);

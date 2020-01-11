@@ -21,6 +21,7 @@ namespace Klyte.TransportLinesManager
     public class TLMController : MonoBehaviour, ILinearMapParentInterface
     {
         public static ExtensorContainer container => ExtensorContainer.instance;
+        public static TLMTransportLineStatusesManager statuses => TLMTransportLineStatusesManager.instance;
 
         internal static TLMController instance => TransportLinesManagerMod.Instance.Controller;
 
