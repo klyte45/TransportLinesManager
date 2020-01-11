@@ -111,7 +111,7 @@ namespace Klyte.TransportLinesManager.UI
         }
 
 
-        private void RebuildList(ushort lineID)
+        public void RebuildList(ushort lineID)
         {
             Interfaces.IBasicExtensionStorage effectiveConfig = TLMLineUtils.GetEffectiveConfigForLine(lineID);
             TimeableList<BudgetEntryXml> budgetEntries = effectiveConfig.BudgetEntries;
@@ -294,6 +294,8 @@ namespace Klyte.TransportLinesManager.UI
         }
         public void OnGotFocus() { }
         public bool MayBeVisible() => TransportSystemDefinition.From(UVMPublicTransportWorldInfoPanel.GetLineID()).HasVehicles();
+
+        public void Hide() => MainContainer.isVisible = false;
     }
 
 

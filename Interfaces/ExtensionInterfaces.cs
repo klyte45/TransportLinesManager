@@ -15,7 +15,7 @@ namespace Klyte.TransportLinesManager.Interfaces
     }
     public interface IBudgetStorage
     {
-        TimeableList<BudgetEntryXml> BudgetEntries { get; }
+        TimeableList<BudgetEntryXml> BudgetEntries { get; set; }
     }
 
     public interface INameableExtension : ISafeGettable<INameableStorage>, ILineNumberToIndexable

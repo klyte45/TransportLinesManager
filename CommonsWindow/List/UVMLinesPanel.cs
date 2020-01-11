@@ -192,11 +192,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             passengers.eventClicked += Passengers_eventClicked;
 
             KlyteMonoUtils.CreateUIElement(out UILabel profitLW, titleLine.transform, "profit");
-            profitLW.minimumSize = new Vector2(110, 0);
+            profitLW.minimumSize = new Vector2(150, 0);
             profitLW.area = new Vector4(625, 10, profitLW.minimumSize.x, 18);
             KlyteMonoUtils.LimitWidthAndBox(profitLW, (uint) profitLW.width);
             profitLW.textAlignment = UIHorizontalAlignment.Center;
-            profitLW.text = Locale.Get("K45_TLM_BALANCE_LAST_WEEK");
+            profitLW.text = Locale.Get(TLMController.IsRealTimeEnabled ? "K45_TLM_BALANCE_LAST_HOUR_HALF" : "K45_TLM_BALANCE_LAST_WEEK");
             profitLW.eventClicked += Profit_eventClicked;
 
             LogUtils.DoLog("End creating Title Row ");

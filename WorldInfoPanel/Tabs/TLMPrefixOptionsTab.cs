@@ -235,5 +235,6 @@ namespace Klyte.TransportLinesManager.UI
         public void OnDisable() { }
         public void OnGotFocus() { }
         public bool MayBeVisible() => TLMLineUtils.hasPrefix(GetLineID()) && !TLMTransportLineExtension.Instance.IsUsingCustomConfig(GetLineID());
+        public void Hide() =>MainPanel.isVisible=false;
     }
 }

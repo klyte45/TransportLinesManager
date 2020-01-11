@@ -217,7 +217,7 @@ namespace Klyte.TransportLinesManager.UI
                 else
                 {
                     m_obj.m_lineConfigTabs.HideTab(tab.Key);
-                    m_obj.m_lineConfigTabs.selectedIndex = 0;
+                    tab.Value.Hide();
                 }
             }
 

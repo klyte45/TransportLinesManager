@@ -595,6 +595,7 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
+        public void Hide() { }
         internal ushort GetLineID() => UVMPublicTransportWorldInfoPanel.GetLineID();
 
         private void UpdateStopButtons(ushort lineID)

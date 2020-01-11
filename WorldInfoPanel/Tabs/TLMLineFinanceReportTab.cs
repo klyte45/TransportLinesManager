@@ -97,7 +97,7 @@ namespace Klyte.TransportLinesManager.UI
         public static string GetVehicleTypeIcon(ushort lineId) => TransportSystemDefinition.From(lineId).GetTransportTypeIcon();
 
         public bool MayBeVisible() => TransportSystemDefinition.From(UVMPublicTransportWorldInfoPanel.GetLineID()).HasVehicles();
-
+        public void Hide() => m_bg.isVisible = false;
 
     }
 }

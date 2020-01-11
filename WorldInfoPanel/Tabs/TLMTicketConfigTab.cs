@@ -106,7 +106,7 @@ namespace Klyte.TransportLinesManager.UI
         }
 
 
-        private void RebuildList(ushort lineID)
+        public void RebuildList(ushort lineID)
         {
 
             TimeableList<TicketPriceEntryXml> config = TLMLineUtils.GetEffectiveConfigForLine(lineID).TicketPriceEntries;
@@ -178,13 +178,9 @@ namespace Klyte.TransportLinesManager.UI
         }
         private void AddEntry()
         {
-            TimeableList<TicketPriceEntryXml> config = TLMLineUtils.GetEffectiveConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).TicketPriceEntries;
-            config.Add(new TicketPriceEntryXml()
-            {
-                HourOfDay = 0,
-                Value = 0
-            });
-            TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).SetTicketPriceToLine(UVMPublicTransportWorldInfoPanel.GetLineID(),0,0);
+            ushort lineId = UVMPublicTransportWorldInfoPanel.GetLineID();
+            Interfaces.IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
+            config.SetTicketPriceToLine(lineId, 0, 0);
             RebuildList(UVMPublicTransportWorldInfoPanel.GetLineID());
         }
 
@@ -288,6 +284,7 @@ namespace Klyte.TransportLinesManager.UI
         }
         public void OnGotFocus() { }
         public bool MayBeVisible() => TransportSystemDefinition.From(UVMPublicTransportWorldInfoPanel.GetLineID()).HasVehicles();
+        public void Hide() => MainContainer.isVisible = false;
     }
 
 

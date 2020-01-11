@@ -346,5 +346,7 @@ namespace Klyte.TransportLinesManager.UI
         { }
 
         public bool MayBeVisible() => TransportSystem.HasVehicles();
+
+        public void Hide() => MainPanel.isVisible = false;
     }
 }

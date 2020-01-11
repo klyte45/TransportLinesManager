@@ -1,8 +1,12 @@
 using ColossalFramework;
+using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,6 +22,68 @@ namespace Klyte.TransportLinesManager.UI
         private UILabel m_effectiveLabel;
         private UIProgressBar m_effectiveSprite;
 
+        private UIButton m_copyButton;
+        private UIButton m_pasteButton;
+        private UIButton m_eraseButton;
+
+        private string m_clipboard;
+
+
+        private void AwakeActionButtons()
+        {
+            m_copyButton = ConfigureActionButton(m_container, CommonsSpriteNames.K45_Copy);
+            m_copyButton.eventClick += (x, y) => ActionCopy();
+            m_pasteButton = ConfigureActionButton(m_container, CommonsSpriteNames.K45_Paste);
+            m_pasteButton.eventClick += (x, y) => ActionPaste();
+            m_pasteButton.isVisible = false;
+            m_eraseButton = ConfigureActionButton(m_container, CommonsSpriteNames.K45_RemoveIcon);
+            m_eraseButton.eventClick += (x, y) => ActionDelete();
+            m_eraseButton.color = Color.red;
+
+            m_copyButton.tooltip =  Locale.Get("K45_TLM_COPY_CURRENT_LIST_CLIPBOARD");
+            m_pasteButton.tooltip = Locale.Get("K45_TLM_PASTE_CLIPBOARD_TO_CURRENT_LIST");
+            m_eraseButton.tooltip = Locale.Get("K45_TLM_DELETE_CURRENT_LIST");
+
+            m_copyButton.relativePosition = new Vector3(-50, 0);
+            m_pasteButton.relativePosition = new Vector3(-50, 25);
+            m_eraseButton.relativePosition = new Vector3(m_container.width + 30, 0);
+        }
+
+        private void ActionCopy()
+        {
+            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
+            m_clipboard = XmlUtils.DefaultXmlSerialize(TLMLineUtils.GetEffectiveExtensionForLine(lineID).GetBudgetsMultiplierForLine(lineID));
+            m_pasteButton.isVisible = true;
+            UVMBudgetConfigTab.Instance.RebuildList(lineID);
+        }
+        private void ActionPaste()
+        {
+            if (m_clipboard == null)
+            {
+                return;
+            }
+            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
+            TLMLineUtils.GetEffectiveExtensionForLine(lineID).SetAllBudgetMultipliersForLine(lineID, XmlUtils.DefaultXmlDeserialize<TimeableList<BudgetEntryXml>>(m_clipboard));
+            UVMBudgetConfigTab.Instance.RebuildList(lineID);
+        }
+        private void ActionDelete()
+        {
+            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
+            TLMLineUtils.GetEffectiveExtensionForLine(lineID).RemoveAllBudgetMultipliersOfLine(lineID);
+            UVMBudgetConfigTab.Instance.RebuildList(lineID);
+        }
+        protected static UIButton ConfigureActionButton(UIComponent parent, CommonsSpriteNames spriteName)
+        {
+            KlyteMonoUtils.CreateUIElement(out UIButton actionButton, parent.transform, "Btn");
+            KlyteMonoUtils.InitButton(actionButton, false, "ButtonMenu");
+            actionButton.focusedBgSprite = "";
+            actionButton.autoSize = false;
+            actionButton.width = 20;
+            actionButton.height = 20;
+            actionButton.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
+            actionButton.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(spriteName);
+            return actionButton;
+        }
         public void SetValues(List<Tuple<int, Color, uint>> steps)
         {
             if (steps.Count == 0)
@@ -138,6 +204,7 @@ namespace Klyte.TransportLinesManager.UI
             m_effectiveLabel.padding.top = 3;
             KlyteMonoUtils.LimitWidth(m_effectiveLabel, 70, true);
 
+            AwakeActionButtons();
         }
 
         public void Update()

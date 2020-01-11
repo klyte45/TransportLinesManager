@@ -328,6 +328,7 @@ namespace Klyte.TransportLinesManager.UI
             return Mathf.Clamp(Mathf.FloorToInt(num * 100f), 0, 100);
         }
 
+        public void Hide() => m_bg.isVisible = false;
         public void OnGotFocus() { }
         public bool MayBeVisible() => true;
 

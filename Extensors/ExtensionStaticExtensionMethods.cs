@@ -57,9 +57,13 @@ namespace Klyte.TransportLinesManager.Extensors
             });
         }
         public static void RemoveBudgetMultiplierForLine<T>(this T it, ushort lineId, int hour) where T : IBudgetableExtension => it.SafeGet(it.LineToIndex(lineId)).BudgetEntries.RemoveAtHour(hour);
+        public static void RemoveAllBudgetMultipliersOfLine<T>(this T it, ushort lineId) where T : IBudgetableExtension => it.SafeGet(it.LineToIndex(lineId)).BudgetEntries = new TimeableList<BudgetEntryXml>();
+        public static void SetAllBudgetMultipliersForLine<T>(this T it, ushort lineId, TimeableList<BudgetEntryXml> newValue) where T : IBudgetableExtension => it.SafeGet(it.LineToIndex(lineId)).BudgetEntries = newValue;
         #endregion
         #region Ticket Price
         public static TimeableList<TicketPriceEntryXml> GetTicketPricesForLine<T>(this T it, ushort lineId) where T : ITicketPriceExtension => it.SafeGet(it.LineToIndex(lineId)).TicketPriceEntries;
+        public static void SetTicketPricesForLine<T>(this T it, ushort lineId, TimeableList<TicketPriceEntryXml> newPrices) where T : ITicketPriceExtension => it.SafeGet(it.LineToIndex(lineId)).TicketPriceEntries = newPrices;
+        public static void ClearTicketPricesOfLine<T>(this T it, ushort lineId) where T : ITicketPriceExtension => it.SafeGet(it.LineToIndex(lineId)).TicketPriceEntries = new TimeableList<TicketPriceEntryXml>();
         public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForHourForLine<T>(this T it, ushort lineId, float hour) where T : ITicketPriceExtension
         {
             TimeableList<TicketPriceEntryXml> ticketPrices = it.GetTicketPricesForLine(lineId);

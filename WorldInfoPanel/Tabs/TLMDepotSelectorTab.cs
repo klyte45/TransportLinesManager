@@ -239,5 +239,7 @@ namespace Klyte.TransportLinesManager.UI
         public void OnDisable() { }
         public void OnGotFocus() { }
         public bool MayBeVisible() => TransportSystem.HasVehicles();
+
+        public void Hide() => MainPanel.isVisible = false;
     }
 }

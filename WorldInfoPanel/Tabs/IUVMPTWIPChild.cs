@@ -10,5 +10,6 @@ namespace Klyte.TransportLinesManager.UI
         void OnSetTarget(Type source);
         void OnGotFocus();
         bool MayBeVisible();
+        void Hide();
     }
 }

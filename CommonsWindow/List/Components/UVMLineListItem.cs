@@ -337,7 +337,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             CreateLabel(out m_lineBalance);
             m_lineBalance.transform.SetParent(m_lineStops.transform.parent);
             m_lineBalance.name = "LineExpenses";
-            m_lineBalance.minimumSize = new Vector2(105, 18);
+            m_lineBalance.minimumSize = new Vector2(145, 18);
             KlyteMonoUtils.LimitWidth(m_lineBalance);
 
             m_lineBalance.relativePosition = new Vector3(625, 10);
