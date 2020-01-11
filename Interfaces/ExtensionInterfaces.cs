@@ -39,8 +39,8 @@ namespace Klyte.TransportLinesManager.Interfaces
 
     public interface IAssetSelectorExtension : ISafeGettable<IAssetSelectorStorage>, ILineNumberToIndexable
     {
-        Dictionary<string, string> GetAllBasicAssets(uint rel);
-        List<string> GetBasicAssetList(uint rel);
+        Dictionary<string, string> GetAllBasicAssetsForLine(ushort lineId);
+        List<string> GetBasicAssetListForLine(ushort lineId);
         VehicleInfo GetAModel(ushort lineId);
     }
 

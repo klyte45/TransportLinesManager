@@ -55,18 +55,18 @@ namespace Klyte.TransportLinesManager.Extensors
         public void SetDisplayAbsoluteValues(ushort lineId, bool value) => SafeGet(lineId).DisplayAbsoluteValues = value;
         public bool IsDisplayAbsoluteValues(ushort lineId) => SafeGet(lineId).DisplayAbsoluteValues;
         #region Asset List
-        public List<string> GetBasicAssetList(uint rel)
+        public List<string> GetBasicAssetListForLine(ushort lineId)
         {
 
-            var tsd = TransportSystemDefinition.From(rel);
+            var tsd = TransportSystemDefinition.From(lineId);
             if (!m_basicAssetsList.ContainsKey(tsd))
             {
                 m_basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
             }
             return m_basicAssetsList[tsd];
         }
-        public Dictionary<string, string> GetSelectedBasicAssets(uint lineId) => this.GetAssetList(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
-        public Dictionary<string, string> GetAllBasicAssets(uint lineId)
+        public Dictionary<string, string> GetSelectedBasicAssetsForLine(ushort lineId) => this.GetAssetListForLine(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
+        public Dictionary<string, string> GetAllBasicAssetsForLine(ushort lineId)
         {
             var tsd = TransportSystemDefinition.From(lineId);
             if (!m_basicAssetsList.ContainsKey(tsd))
@@ -79,14 +79,14 @@ namespace Klyte.TransportLinesManager.Extensors
         public VehicleInfo GetAModel(ushort lineId)
         {
             VehicleInfo info = null;
-            List<string> assetList = ExtensionStaticExtensionMethods.GetAssetList(this, lineId);
+            List<string> assetList = ExtensionStaticExtensionMethods.GetAssetListForLine(this, lineId);
             while (info == null && assetList.Count > 0)
             {
                 info = VehicleUtils.GetRandomModel(assetList, out string modelName);
                 if (info == null)
                 {
-                    ExtensionStaticExtensionMethods.RemoveAsset(this, lineId, modelName);
-                    assetList = ExtensionStaticExtensionMethods.GetAssetList(this, lineId);
+                    ExtensionStaticExtensionMethods.RemoveAssetFromLine(this, lineId, modelName);
+                    assetList = ExtensionStaticExtensionMethods.GetAssetListForLine(this, lineId);
                 }
             }
             return info;

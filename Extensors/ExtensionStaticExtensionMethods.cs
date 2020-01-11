@@ -12,27 +12,27 @@ namespace Klyte.TransportLinesManager.Extensors
     public static class ExtensionStaticExtensionMethods
     {
         #region Assets List
-        public static List<string> GetAssetList<T>(this T it, uint prefix) where T : IAssetSelectorExtension => it.SafeGet(prefix).AssetList;
-        public static Dictionary<string, string> GetSelectedBasicAssets<T>(this T it, uint prefix) where T : IAssetSelectorExtension => it.GetAssetList(prefix).Intersect(it.GetBasicAssetList(prefix)).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
-        public static void AddAsset<T>(this T it, uint prefix, string assetId) where T : IAssetSelectorExtension
+        public static List<string> GetAssetListForLine<T>(this T it, ushort lineId) where T : IAssetSelectorExtension => it.SafeGet(it.LineToIndex(lineId)).AssetList;
+        public static Dictionary<string, string> GetSelectedBasicAssetsForLine<T>(this T it, ushort lineId) where T : IAssetSelectorExtension => it.GetAssetListForLine(lineId).Intersect(it.GetBasicAssetListForLine(lineId)).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
+        public static void AddAssetToLine<T>(this T it, ushort lineId, string assetId) where T : IAssetSelectorExtension
         {
-            List<string> list = it.GetAssetList(prefix);
+            List<string> list = it.GetAssetListForLine(lineId);
             if (list.Contains(assetId))
             {
                 return;
             }
             list.Add(assetId);
         }
-        public static void RemoveAsset<T>(this T it, uint prefix, string assetId) where T : IAssetSelectorExtension
+        public static void RemoveAssetFromLine<T>(this T it, ushort lineId, string assetId) where T : IAssetSelectorExtension
         {
-            List<string> list = it.GetAssetList(prefix);
+            List<string> list = it.GetAssetListForLine(lineId);
             if (!list.Contains(assetId))
             {
                 return;
             }
             list.RemoveAll(x => x == assetId);
         }
-        public static void UseDefaultAssets<T>(this T it, uint prefix) where T : IAssetSelectorExtension => it.GetAssetList(prefix).Clear();
+        public static void UseDefaultAssetsAtLine<T>(this T it, ushort lineId) where T : IAssetSelectorExtension => it.GetAssetListForLine(lineId).Clear();
         #endregion
 
         #region Name
@@ -109,11 +109,11 @@ namespace Klyte.TransportLinesManager.Extensors
 
             return config;
         }
-        public static void AddDepot<T>(this T it, uint idx, ushort buildingID) where T : IDepotSelectableExtension => EnsureCreationDepotConfig(it, idx).DepotsAllowed.Add(buildingID);
+        public static void AddDepotForLine<T>(this T it, ushort lineId, ushort buildingID) where T : IDepotSelectableExtension => EnsureCreationDepotConfig(it, it.LineToIndex(lineId)).DepotsAllowed.Add(buildingID);
 
-        public static void RemoveDepot<T>(this T it, uint idx, ushort buildingID) where T : IDepotSelectableExtension => EnsureCreationDepotConfig(it, idx).DepotsAllowed.Remove(buildingID);
+        public static void RemoveDepotForLine<T>(this T it, ushort lineId, ushort buildingID) where T : IDepotSelectableExtension => EnsureCreationDepotConfig(it, it.LineToIndex(lineId)).DepotsAllowed.Remove(buildingID);
 
-        public static void RemoveAllDepots<T>(this T it, uint idx) where T : IDepotSelectableExtension => EnsureCreationDepotConfig(it, idx).DepotsAllowed.Clear();
+        public static void RemoveAllDepotsForLine<T>(this T it, ushort lineId) where T : IDepotSelectableExtension => EnsureCreationDepotConfig(it, it.LineToIndex(lineId)).DepotsAllowed.Clear();
 
         public static void AddAllDepots<T>(this T it, uint idx) where T : IDepotSelectableExtension => it.SafeGet(idx).DepotsAllowed = null;
         public static List<ushort> GetAllowedDepots<T>(this T it, ref TransportSystemDefinition tsd, ushort lineId) where T : IDepotSelectableExtension

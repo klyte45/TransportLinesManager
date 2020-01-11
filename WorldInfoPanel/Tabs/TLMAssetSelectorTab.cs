@@ -199,7 +199,6 @@ namespace Klyte.TransportLinesManager.UI
                 return;
             }
 
-            m_lastInfo = default;
             TransportSystemDefinition tsd = TransportSystem;
             if (!tsd.HasVehicles())
             {
@@ -208,11 +207,11 @@ namespace Klyte.TransportLinesManager.UI
             }
             m_isLoading = true;
             TLMUtils.doLog("tsd = {0}", tsd);
-            IBasicExtensionStorage config = TLMLineUtils.GetEffectiveConfigForLine(GetLineID());
+            IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID());
 
             if (TransportSystem != m_lastSystem)
             {
-                m_defaultAssets = tsd.GetTransportExtension().GetAllBasicAssets(0);
+                m_defaultAssets = tsd.GetTransportExtension().GetAllBasicAssetsForLine(0);
                 UIPanel[] depotChecks = m_checkboxTemplateList.SetItemCount(m_defaultAssets.Count);
 
                 TLMUtils.doLog("m_defaultAssets Size = {0} ({1})", m_defaultAssets?.Count, string.Join(",", m_defaultAssets.Keys?.ToArray() ?? new string[0]));
@@ -232,27 +231,17 @@ namespace Klyte.TransportLinesManager.UI
                                   return;
                               }
 
-                              IAssetSelectorExtension extension;
-                              uint id;
-                              if (TLMTransportLineExtension.Instance.SafeGet(GetLineID()).IsCustom)
-                              {
-                                  extension = TLMTransportLineExtension.Instance;
-                                  id = GetLineID();
-                              }
-                              else
-                              {
-                                  extension = TransportSystem.GetTransportExtension();
-                                  id = TLMLineUtils.getPrefix(GetLineID());
-                              }
+                              ushort lineId = GetLineID();
+                              IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
 
-                              TLMUtils.doErrorLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{id}]");
+                              TLMUtils.doErrorLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
                               if (y)
                               {
-                                  extension.AddAsset(id, x.objectUserData.ToString());
+                                  extension.AddAssetToLine(lineId, x.objectUserData.ToString());
                               }
                               else
                               {
-                                  extension.RemoveAsset(id, x.objectUserData.ToString());
+                                  extension.RemoveAssetFromLine(lineId, x.objectUserData.ToString());
                               }
                           };
                         CreateModelCheckBox(checkbox);
@@ -278,14 +267,23 @@ namespace Klyte.TransportLinesManager.UI
                         checkbox.label.objectUserData = true;
                     }
                     checkbox.text = m_defaultAssets[assetName];
-                    checkbox.isChecked = config.AssetList.Contains(assetName);
                 }
                 m_lastSystem = TransportSystem;
+            }
+            else
+            {
+                var allowedAssets = config.GetAssetListForLine(GetLineID());
+                for (int i = 0; i < m_checkboxTemplateList.items.Count; i++)
+                {
+                    UICheckBox checkbox = m_checkboxTemplateList.items[i].GetComponentInChildren<UICheckBox>();
+                    checkbox.isChecked = allowedAssets.Contains(checkbox.objectUserData.ToString());
+                }
             }
 
             if (TransportLinesManagerMod.DebugMode)
             {
-                TLMUtils.doLog($"selectedAssets Size = {config?.AssetList?.Count} ({ string.Join(",", config?.AssetList?.ToArray() ?? new string[0])}) {config?.GetType()}");
+                var allowedAssets = config.GetAssetListForLine(GetLineID());
+                TLMUtils.doLog($"selectedAssets Size = {allowedAssets?.Count} ({ string.Join(",", allowedAssets?.ToArray() ?? new string[0])}) {config?.GetType()}");
             }
 
             if (config is TLMTransportLineConfiguration)

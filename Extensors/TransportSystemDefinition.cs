@@ -10,7 +10,7 @@ namespace Klyte.TransportLinesManager.Extensors
 {
     public struct TransportSystemDefinition
     {
-        private static Dictionary<TransportSystemDefinition, Type> m_sysDefinitions = new Dictionary<TransportSystemDefinition, Type>();
+        private static Dictionary<TransportSystemDefinition, Func<ITLMSysDef>> m_sysDefinitions = new Dictionary<TransportSystemDefinition, Func<ITLMSysDef>>();
 
 
         public static readonly TransportSystemDefinition BUS = new TransportSystemDefinition(ItemClass.SubService.PublicTransportBus, VehicleInfo.VehicleType.Car, TransportInfo.TransportType.Bus);
@@ -31,60 +31,6 @@ namespace Klyte.TransportLinesManager.Extensors
         public static readonly TransportSystemDefinition POST = new TransportSystemDefinition(ItemClass.SubService.PublicTransportPost, VehicleInfo.VehicleType.None, TransportInfo.TransportType.Post);
 
 
-        public static Dictionary<TransportSystemDefinition, ITLMTransportTypeExtension> AvailableDefinitions
-        {
-            get {
-                if (m_availableDefinitions.Count == 0)
-                {
-                    m_availableDefinitions[BUS] = TLMTransportTypeExtensionNorBus.Instance;
-                    m_availableDefinitions[METRO] = TLMTransportTypeExtensionNorMet.Instance;
-                    m_availableDefinitions[TRAIN] = TLMTransportTypeExtensionNorTrn.Instance;
-                    m_availableDefinitions[SHIP] = TLMTransportTypeExtensionNorShp.Instance;
-                    m_availableDefinitions[PLANE] = TLMTransportTypeExtensionNorPln.Instance;
-
-                    //if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.AfterDark))
-                    //{
-                    m_availableDefinitions[TAXI] = TLMTransportTypeExtensionNorTax.Instance;
-                    //}
-
-                    //if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Snowfall))
-                    //{
-                    m_availableDefinitions[TRAM] = TLMTransportTypeExtensionNorTrm.Instance;
-                    //}
-
-                    //if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.NaturalDisasters))
-                    //{
-                    m_availableDefinitions[EVAC_BUS] = TLMTransportTypeExtensionEvcBus.Instance;
-                    //}
-
-                    //if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.InMotion))
-                    //{
-                    m_availableDefinitions[MONORAIL] = TLMTransportTypeExtensionNorMnr.Instance;
-                    m_availableDefinitions[FERRY] = TLMTransportTypeExtensionNorFer.Instance;
-                    m_availableDefinitions[BLIMP] = TLMTransportTypeExtensionNorBlp.Instance;
-                    m_availableDefinitions[CABLE_CAR] = TLMTransportTypeExtensionNorCcr.Instance;
-                    //}
-
-                    //if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.GreenCities))
-                    //{
-                    //NONE
-                    //}
-
-                    //if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Parks))
-                    //{
-                    m_availableDefinitions[TOUR_BUS] = TLMTransportTypeExtensionTouBus.Instance;
-                    m_availableDefinitions[TOUR_PED] = TLMTransportTypeExtensionTouPed.Instance;
-                    m_availableDefinitions[BALLOON] = TLMTransportTypeExtensionTouBal.Instance;
-                    //}
-
-                    //if (Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Industry))
-                    //{
-                    m_availableDefinitions[POST] = TLMTransportTypeExtensionTouBus.Instance;
-                    //}
-                }
-                return m_availableDefinitions;
-            }
-        }
         private static readonly Dictionary<TransportSystemDefinition, TransportInfo> m_infoList = new Dictionary<TransportSystemDefinition, TransportInfo>();
         public static Dictionary<TransportSystemDefinition, TransportInfo> TransportInfoDict
         {
@@ -108,7 +54,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         }
                         m_infoList[tsd] = info;
                     }
-                    IEnumerable<TransportSystemDefinition> missing = AvailableDefinitions.Keys.Where(x => !m_infoList.ContainsKey(x));
+                    IEnumerable<TransportSystemDefinition> missing = m_sysDefinitions.Keys.Where(x => !m_infoList.ContainsKey(x));
                     if (missing.Count() > 0)
                     {
                         TLMUtils.doLog($"Some TSDs can't find their infos: [{string.Join(", ", missing.Select(x => x.ToString()).ToArray())}]\nIgnore if you don't have all DLCs installed");
@@ -118,8 +64,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 return m_infoList;
             }
         }
-        public static readonly Dictionary<TransportSystemDefinition, ITLMTransportTypeExtension> m_availableDefinitions = new Dictionary<TransportSystemDefinition, ITLMTransportTypeExtension>();
-        public static Dictionary<TransportSystemDefinition, Type> SysDefinitions
+        public static Dictionary<TransportSystemDefinition, Func<ITLMSysDef>> SysDefinitions
         {
             get {
                 if (m_sysDefinitions.Count == 0)
@@ -137,56 +82,56 @@ namespace Klyte.TransportLinesManager.Extensors
                     //InitTypes(isLoading, ref m_sysDefinitions);
                     //}
 
-                    InitTypes(true, ref m_sysDefinitions);
+                    InitTypes(ref m_sysDefinitions);
                 }
                 return m_sysDefinitions;
             }
         }
 
-        private static void InitTypes(bool isLoading, ref Dictionary<TransportSystemDefinition, Type> tempDef)
+        private static void InitTypes(ref Dictionary<TransportSystemDefinition, Func<ITLMSysDef>> tempDef)
         {
-            tempDef[BUS] = typeof(TLMSysDefNorBus);
-            tempDef[METRO] = typeof(TLMSysDefNorMet);
-            tempDef[TRAIN] = typeof(TLMSysDefNorTrn);
-            tempDef[SHIP] = typeof(TLMSysDefNorShp);
-            tempDef[PLANE] = typeof(TLMSysDefNorPln);
-            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.AfterDark))
+            tempDef[BUS] = () => TLMSysDefNorBus.instance;
+            tempDef[METRO] = () => TLMSysDefNorMet.instance;
+            tempDef[TRAIN] = () => TLMSysDefNorTrn.instance;
+            tempDef[SHIP] = () => TLMSysDefNorShp.instance;
+            tempDef[PLANE] = () => TLMSysDefNorPln.instance;
+            //if()=>isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.AfterDark))
             //{
-            tempDef[TAXI] = typeof(TLMSysDefNorTax);
+            tempDef[TAXI] = () => TLMSysDefNorTax.instance;
             //}
 
-            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Snowfall))
+            //if()=>isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Snowfall))
             //{
-            tempDef[TRAM] = typeof(TLMSysDefNorTrm);
+            tempDef[TRAM] = () => TLMSysDefNorTrm.instance;
             //}
 
-            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.NaturalDisasters))
+            //if()=>isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.NaturalDisasters))
             //{
-            tempDef[EVAC_BUS] = typeof(TLMSysDefEvcBus);
+            tempDef[EVAC_BUS] = () => TLMSysDefEvcBus.instance;
             //}
 
-            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.InMotion))
+            //if()=>isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.InMotion))
             //{
-            tempDef[MONORAIL] = typeof(TLMSysDefNorMnr);
-            tempDef[FERRY] = typeof(TLMSysDefNorFer);
-            tempDef[BLIMP] = typeof(TLMSysDefNorBlp);
-            tempDef[CABLE_CAR] = typeof(TLMSysDefNorCcr);
+            tempDef[MONORAIL] = () => TLMSysDefNorMnr.instance;
+            tempDef[FERRY] = () => TLMSysDefNorFer.instance;
+            tempDef[BLIMP] = () => TLMSysDefNorBlp.instance;
+            tempDef[CABLE_CAR] = () => TLMSysDefNorCcr.instance;
             //}
 
-            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.GreenCities))
+            //if()=>isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.GreenCities))
             //{
             //NONE
             //}
 
-            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Parks))
+            //if()=>isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Parks))
             //{
-            tempDef[TOUR_BUS] = typeof(TLMSysDefTouBus);
-            tempDef[TOUR_PED] = typeof(TLMSysDefTouPed);
-            tempDef[BALLOON] = typeof(TLMSysDefTouBal);
+            tempDef[TOUR_BUS] = () => TLMSysDefTouBus.instance;
+            tempDef[TOUR_PED] = () => TLMSysDefTouPed.instance;
+            tempDef[BALLOON] = () => TLMSysDefTouBal.instance;
             //}
-            //if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Industry))
+            //if()=>isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Industry))
             //{
-            tempDef[POST] = typeof(TLMSysDefPstPst);
+            tempDef[POST] = () => TLMSysDefPstPst.instance;
             //}
         }
 
@@ -204,11 +149,7 @@ namespace Klyte.TransportLinesManager.Extensors
             TransportType = transportType;
         }
 
-        public ITLMTransportTypeExtension GetTransportExtension()
-        {
-            AvailableDefinitions.TryGetValue(this, out ITLMTransportTypeExtension result);
-            return result;
-        }
+        public ITLMTransportTypeExtension GetTransportExtension() => SysDefinitions[this]().GetExtension();
         public bool IsTour() => SubService == ItemClass.SubService.PublicTransportTours;
         public bool IsShelterAiDepot() => this == EVAC_BUS;
         public bool HasVehicles() => VehicleType != VehicleInfo.VehicleType.None;
@@ -227,7 +168,7 @@ namespace Klyte.TransportLinesManager.Extensors
             }
         }
 
-        public Type GetDefType() => SysDefinitions[this];
+        public Type GetDefType() => SysDefinitions[this]().GetType();
 
         public string GetTransportTypeIcon()
         {
@@ -251,7 +192,7 @@ namespace Klyte.TransportLinesManager.Extensors
             };
         }
 
-        public bool IsFromSystem(VehicleInfo info) => info.m_class.m_subService == SubService && info.m_vehicleType == VehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && (info.GetAI().GetType().GetField("m_transportInfo").GetValue(info.GetAI()) as TransportInfo).m_transportType == TransportType && ReflectionUtils.HasField(info.GetAI(), "m_passengerCapacity");
+        public bool IsFromSystem(VehicleInfo info) => info.m_class.m_subService == SubService && info.m_vehicleType == VehicleType && (VehicleUtils.GetTransportInfoField(info.m_vehicleAI)?.GetValue(info.m_vehicleAI) as TransportInfo)?.m_transportType == TransportType && VehicleUtils.GetVehicleCapacityField(info.m_vehicleAI) != null;
 
         public bool IsFromSystem(TransportInfo info) => info != null && info.m_class.m_subService == SubService && info.m_vehicleType == VehicleType && info.m_transportType == TransportType;
 
@@ -303,7 +244,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 return default;
             }
-            TransportSystemDefinition result = AvailableDefinitions.Keys.FirstOrDefault(x => x.SubService == info.m_class.m_subService && x.VehicleType == info.m_vehicleType && x.TransportType == info.m_transportType);
+            TransportSystemDefinition result = SysDefinitions.Keys.FirstOrDefault(x => x.SubService == info.m_class.m_subService && x.VehicleType == info.m_vehicleType && x.TransportType == info.m_transportType);
             if (result == default)
             {
                 TLMUtils.doErrorLog($"TSD NOT FOUND FOR TRANSPORT INFO: info.m_class.m_subService={info.m_class.m_subService}, info.m_vehicleType={info.m_vehicleType}, info.m_transportType={info.m_transportType}");
@@ -316,7 +257,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 return default;
             }
-            TransportSystemDefinition result = AvailableDefinitions.Keys.FirstOrDefault(x => x.SubService == info.m_class.m_subService && x.VehicleType == info.m_vehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && ReflectionUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo").m_transportType == x.TransportType);
+            TransportSystemDefinition result = SysDefinitions.Keys.FirstOrDefault(x => x.SubService == info.m_class.m_subService && x.VehicleType == info.m_vehicleType && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo") && ReflectionUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo").m_transportType == x.TransportType);
             return result;
         }
         public static TransportSystemDefinition From(uint lineId) => GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineId]);
@@ -400,22 +341,23 @@ namespace Klyte.TransportLinesManager.Extensors
             return result;
         }
     }
-    public abstract class TLMSysDef<T> : Singleton<T> where T : TLMSysDef<T> { public abstract TransportSystemDefinition GetTSD(); }
-    public sealed class TLMSysDefNorBus : TLMSysDef<TLMSysDefNorBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BUS; }
-    public sealed class TLMSysDefEvcBus : TLMSysDef<TLMSysDefEvcBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.EVAC_BUS; }
-    public sealed class TLMSysDefNorTrm : TLMSysDef<TLMSysDefNorTrm> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TRAM; }
-    public sealed class TLMSysDefNorMnr : TLMSysDef<TLMSysDefNorMnr> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.MONORAIL; }
-    public sealed class TLMSysDefNorMet : TLMSysDef<TLMSysDefNorMet> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.METRO; }
-    public sealed class TLMSysDefNorTrn : TLMSysDef<TLMSysDefNorTrn> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TRAIN; }
-    public sealed class TLMSysDefNorFer : TLMSysDef<TLMSysDefNorFer> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.FERRY; }
-    public sealed class TLMSysDefNorBlp : TLMSysDef<TLMSysDefNorBlp> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BLIMP; }
-    public sealed class TLMSysDefNorShp : TLMSysDef<TLMSysDefNorShp> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.SHIP; }
-    public sealed class TLMSysDefNorPln : TLMSysDef<TLMSysDefNorPln> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.PLANE; }
-    public sealed class TLMSysDefTouBus : TLMSysDef<TLMSysDefTouBus> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TOUR_BUS; }
-    public sealed class TLMSysDefPstPst : TLMSysDef<TLMSysDefPstPst> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.POST; }
-    public sealed class TLMSysDefTouPed : TLMSysDef<TLMSysDefTouPed> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TOUR_PED; }
-    public sealed class TLMSysDefTouBal : TLMSysDef<TLMSysDefTouBal> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BALLOON; }
-    public sealed class TLMSysDefNorCcr : TLMSysDef<TLMSysDefNorCcr> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.CABLE_CAR; }
-    public sealed class TLMSysDefNorTax : TLMSysDef<TLMSysDefNorTax> { public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TAXI; }
+    public interface ITLMSysDef { TransportSystemDefinition GetTSD(); ITLMTransportTypeExtension GetExtension(); }
+    public abstract class TLMSysDef<T> : Singleton<T>, ITLMSysDef where T : TLMSysDef<T> { public abstract ITLMTransportTypeExtension GetExtension(); public abstract TransportSystemDefinition GetTSD(); }
+    public sealed class TLMSysDefNorBus : TLMSysDef<TLMSysDefNorBus> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorBus.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BUS; }
+    public sealed class TLMSysDefEvcBus : TLMSysDef<TLMSysDefEvcBus> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionEvcBus.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.EVAC_BUS; }
+    public sealed class TLMSysDefNorTrm : TLMSysDef<TLMSysDefNorTrm> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorTrm.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TRAM; }
+    public sealed class TLMSysDefNorMnr : TLMSysDef<TLMSysDefNorMnr> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorMnr.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.MONORAIL; }
+    public sealed class TLMSysDefNorMet : TLMSysDef<TLMSysDefNorMet> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorMet.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.METRO; }
+    public sealed class TLMSysDefNorTrn : TLMSysDef<TLMSysDefNorTrn> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorTrn.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TRAIN; }
+    public sealed class TLMSysDefNorFer : TLMSysDef<TLMSysDefNorFer> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorFer.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.FERRY; }
+    public sealed class TLMSysDefNorBlp : TLMSysDef<TLMSysDefNorBlp> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorBlp.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BLIMP; }
+    public sealed class TLMSysDefNorShp : TLMSysDef<TLMSysDefNorShp> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorShp.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.SHIP; }
+    public sealed class TLMSysDefNorPln : TLMSysDef<TLMSysDefNorPln> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorPln.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.PLANE; }
+    public sealed class TLMSysDefTouBus : TLMSysDef<TLMSysDefTouBus> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionTouBus.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TOUR_BUS; }
+    public sealed class TLMSysDefPstPst : TLMSysDef<TLMSysDefPstPst> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionPstPst.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.POST; }
+    public sealed class TLMSysDefTouPed : TLMSysDef<TLMSysDefTouPed> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionTouPed.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TOUR_PED; }
+    public sealed class TLMSysDefTouBal : TLMSysDef<TLMSysDefTouBal> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionTouBal.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BALLOON; }
+    public sealed class TLMSysDefNorCcr : TLMSysDef<TLMSysDefNorCcr> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorCcr.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.CABLE_CAR; }
+    public sealed class TLMSysDefNorTax : TLMSysDef<TLMSysDefNorTax> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorTax.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TAXI; }
 
 }

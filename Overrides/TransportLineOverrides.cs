@@ -32,7 +32,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
 
             #region Ticket Override Hooks
-            MethodInfo GetTicketPriceTranspile = typeof(TransportLineOverrides).GetMethod("TicketPriceTranspiler", allFlags);
+            MethodInfo GetTicketPriceTranspile = typeof(TransportLineOverrides).GetMethod("TicketPriceTranspilerEnterVehicle", allFlags);
 
             TLMUtils.doLog("Loading Ticket Override Hooks");
             RedirectorInstance.AddRedirect(typeof(HumanAI).GetMethod("EnterVehicle", allFlags), null, null, GetTicketPriceTranspile);
@@ -206,7 +206,7 @@ namespace Klyte.TransportLinesManager.Overrides
         private static readonly MethodInfo m_getTicketPriceForPrefix = typeof(TLMLineUtils).GetMethod("GetTicketPriceForVehicle", RedirectorUtils.allFlags);
         private static readonly MethodInfo m_getTicketPriceDefault = typeof(VehicleAI).GetMethod("GetTicketPrice", RedirectorUtils.allFlags);
 
-        public static IEnumerable<CodeInstruction> TicketPriceTranspiler(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> TicketPriceTranspilerEnterVehicle(IEnumerable<CodeInstruction> instructions)
         {
             var inst = new List<CodeInstruction>(instructions);
 
@@ -215,6 +215,9 @@ namespace Klyte.TransportLinesManager.Overrides
                 if (inst[i].opcode == OpCodes.Callvirt && inst[i].operand == m_getTicketPriceDefault)
                 {
                     inst[i] = new CodeInstruction(OpCodes.Call, m_getTicketPriceForPrefix);
+                    inst.RemoveAt(i + 3);
+                    inst.RemoveAt(i + 2);
+                    break;
                 }
             }
             LogUtils.PrintMethodIL(inst);

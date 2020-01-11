@@ -305,10 +305,13 @@ namespace Klyte.TransportLinesManager.Utils
             var transportType = tsd.ToConfigIndex();
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum)
             {
-                return Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u;
+                var prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u;
+                //LogUtils.DoLog($"Prefix {prefix} for lineId {idx}");
+                return prefix;
             }
             else
             {
+                //LogUtils.DoLog($"Prefix 0 (def) for lineId {idx}");
                 return 0;
             }
         }
@@ -1202,6 +1205,7 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (def == default)
             {
+                LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}):DEFAULT TSD FOR {ai}");
                 return ai.GetTicketPrice(vehicleID, ref vehicleData);
             }
 
@@ -1218,14 +1222,17 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 if ((servicePolicies & DistrictPolicies.Services.FreeTransport) != DistrictPolicies.Services.None)
                 {
+                    LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): FreeTransport at district!");
                     return 0;
                 }
                 if ((@event & DistrictPolicies.Event.ComeOneComeAll) != DistrictPolicies.Event.None)
                 {
+                    LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): ComeOneComeAll at district!");
                     return 0;
                 }
                 if ((servicePolicies & DistrictPolicies.Services.HighTicketPrices) != DistrictPolicies.Services.None)
                 {
+                    LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): HighTicketPrices at district!");
                     instance.m_districts.m_buffer[district].m_servicePoliciesEffect = (instance.m_districts.m_buffer[district].m_servicePoliciesEffect | DistrictPolicies.Services.HighTicketPrices);
                     multiplier = 5f / 4f;
                 }
@@ -1235,6 +1242,7 @@ namespace Klyte.TransportLinesManager.Utils
                 }
             }
             uint ticketPriceDefault = GetTicketPriceForLine(ref def, vehicleData.m_transportLine).First.Value;
+            LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): multiplier = {multiplier}, ticketPriceDefault = {ticketPriceDefault}");
 
             return (int) (multiplier * ticketPriceDefault);
 
@@ -1275,22 +1283,9 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
                 {
-                    uint idx;
-                    IAssetSelectorExtension extension;
-                    if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
-                    {
-                        idx = lineId;
-                        extension = TLMTransportLineExtension.Instance;
-                    }
-                    else
-                    {
-                        idx = TLMLineUtils.getPrefix(lineId);
-                        var def = TransportSystemDefinition.From(lineId);
-                        extension = def.GetTransportExtension();
-                    }
-
+                    IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
                     ref TransportLine tl = ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
-                    List<string> modelList = extension.GetAssetList(idx);
+                    List<string> modelList = extension.GetAssetListForLine(lineId);
 
                     if (TransportLinesManagerMod.DebugMode)
                     {

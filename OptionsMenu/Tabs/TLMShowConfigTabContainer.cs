@@ -28,13 +28,13 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
             UIComponent bodyContent = CreateContentTemplate(parentWidth, 320, false);
 
-            foreach (System.Collections.Generic.KeyValuePair<TransportSystemDefinition, Type> kv in TransportSystemDefinition.SysDefinitions)
+            foreach (var kv in TransportSystemDefinition.SysDefinitions)
             {
                 Type[] components;
                 Type targetType;
                 try
                 {
-                    targetType = ReflectionUtils.GetImplementationForGenericType(typeof(TLMShowConfigTab<>), kv.Value);
+                    targetType = ReflectionUtils.GetImplementationForGenericType(typeof(TLMShowConfigTab<>), kv.Value().GetType());
                     components = new Type[] { targetType };
                 }
                 catch
@@ -46,7 +46,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                 GameObject body = Instantiate(bodyContent.gameObject);
                 var configIdx = kv.Key.ToConfigIndex();
                 TransportSystemDefinition tsd = kv.Key;
-                string name = kv.Value.Name;
+                string name = kv.Value().GetType().Name;
                 TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
                 string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd), true);
                 string fgIcon = kv.Key.GetTransportTypeIcon();

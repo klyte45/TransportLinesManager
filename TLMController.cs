@@ -1,5 +1,6 @@
 using ColossalFramework;
 using ColossalFramework.UI;
+using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Interfaces;
@@ -16,6 +17,7 @@ namespace Klyte.TransportLinesManager
 {
     public class TLMController : MonoBehaviour, ILinearMapParentInterface
     {
+        public static ExtensorContainer container => ExtensorContainer.instance;
 
         internal static TLMController instance => TransportLinesManagerMod.Instance.Controller;
 

@@ -16,9 +16,8 @@ namespace Klyte.TransportLinesManager.OptionsMenu
     internal class TLMConfigOptions : Singleton<TLMConfigOptions>
     {
 
-        private UIDropDown configSelector;
 
-        private string currentSelectedConfigEditor => TLMConfigOptions.instance.configSelector.selectedIndex == 0 ? currentCityId : TLMConfigWarehouse.GLOBAL_CONFIG_INDEX;
+        private string currentSelectedConfigEditor => currentCityId;
 
         private TLMConfigWarehouse currentConfigWarehouseEditor => TLMConfigWarehouse.GetConfig(currentSelectedConfigEditor, currentCityName);
 
@@ -77,7 +76,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         {
             isLoading = true;
             TLMUtils.doLog("Loading Options");
-            configSelector = helper.AddDropdownLocalized("K45_TLM_SHOW_CONFIG_FOR", optionsForLoadConfig, 0, ReloadData);
 
             KlyteMonoUtils.CreateUIElement(out UITabstrip strip, helper.Self.transform, "TabListTLMopt", new Vector4(5, 0, 730, 40));
             float effectiveOffsetY = strip.height;
@@ -230,9 +228,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         #endregion
 
-        public void ReloadData() => ReloadData(configSelector.selectedIndex);
-
-        private void ReloadData(int selection)
+        public void ReloadData() 
         {
             isLoading = true;
             try

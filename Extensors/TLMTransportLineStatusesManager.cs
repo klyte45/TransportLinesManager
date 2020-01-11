@@ -45,7 +45,6 @@ namespace Klyte.TransportLinesManager.Extensors
         }
 
         public void AddToLine(ushort lineId, long income, long expense, ref Citizen citizenData) => IncrementInArray(lineId, ref m_linesData, (int) LineData.INCOME, (int) LineData.EXPENSE, (int) LineData.TOTAL_PASSENGERS, (int) LineData.TOURIST_PASSENGERS, (int) LineData.STUDENT_PASSENGERS, income, expense, ref citizenData);
-
         public void AddToVehicle(ushort vehicleId, long income, long expense, ref Citizen citizenData) => IncrementInArray(vehicleId, ref m_vehiclesData, (int) VehicleData.INCOME, (int) VehicleData.EXPENSE, (int) VehicleData.TOTAL_PASSENGERS, (int) VehicleData.TOURIST_PASSENGERS, (int) VehicleData.STUDENT_PASSENGERS, income, expense, ref citizenData);
         public void AddToStop(ushort stopId, long income, ref Citizen citizenData) => IncrementInArray(stopId, ref m_stopData, (int) StopData.INCOME, null, (int) StopData.TOTAL_PASSENGERS, (int) StopData.TOURIST_PASSENGERS, (int) StopData.STUDENT_PASSENGERS, income, 0, ref citizenData);
 

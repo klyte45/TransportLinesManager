@@ -162,9 +162,10 @@ namespace Klyte.TransportLinesManager.UI
             }
             m_isLoading = true;
 
+            var lineId = GetLineID();
             List<ushort> cityDepotList = TLMDepotUtils.GetAllDepotsFromCity(ref tsd);
-            Interfaces.IBasicExtensionStorage config = TLMLineUtils.GetEffectiveConfigForLine(GetLineID());
-            HashSet<ushort> targetDepotList = config.DepotsAllowed;
+            Interfaces.IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
+            List<ushort> targetDepotList = config.GetAllowedDepots(ref tsd, lineId);
             UIPanel[] depotChecks = m_checkboxTemplateList.SetItemCount(cityDepotList.Count);
             LogUtils.DoLog($"depotChecks = {depotChecks.Length}");
             for (int idx = 0; idx < cityDepotList.Count; idx++)
@@ -193,11 +194,11 @@ namespace Klyte.TransportLinesManager.UI
                         {
                             if (y)
                             {
-                                TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).AddDepot(UVMPublicTransportWorldInfoPanel.GetLineID(), (ushort) x.objectUserData);
+                                TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).AddDepotForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), (ushort) x.objectUserData);
                             }
                             else
                             {
-                                TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).RemoveDepot(UVMPublicTransportWorldInfoPanel.GetLineID(), (ushort) x.objectUserData);
+                                TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).RemoveDepotForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), (ushort) x.objectUserData);
                             }
                         }
                     };
@@ -208,7 +209,7 @@ namespace Klyte.TransportLinesManager.UI
                         ushort buildingId = (ushort) uiCheck.objectUserData;
                         if (buildingId != 0)
                         {
-                            Vector3 position = BuildingManager.instance.m_buildings.m_buffer[buildingId].m_position;
+                            Vector3 position = BuildingManager.instance.m_buildings.m_buffer[buildingId].m_position;                            
                             ToolsModifierControl.cameraController.SetTarget(new InstanceID() { Building = buildingId }, position, true);
                         }
                     };

@@ -92,13 +92,13 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             UIComponent bodyContent = CreateContentTemplate(m_stripMain.tabContainer.width, m_stripMain.tabContainer.height, false);
 
-            foreach (KeyValuePair<TransportSystemDefinition, Type> kv in TransportSystemDefinition.SysDefinitions)
+            foreach (KeyValuePair<TransportSystemDefinition, Func<ITLMSysDef>> kv in TransportSystemDefinition.SysDefinitions)
             {
                 Type[] components;
                 Type targetType;
                 try
                 {
-                    targetType = ReflectionUtils.GetImplementationForGenericType(typeof(UVMLinesPanel<>), kv.Value);
+                    targetType = ReflectionUtils.GetImplementationForGenericType(typeof(UVMLinesPanel<>), kv.Value().GetType());
                     components = new Type[] { targetType };
                 }
                 catch
@@ -109,7 +109,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 GameObject tab = Instantiate(tabTemplate.gameObject);
                 GameObject body = Instantiate(bodyContent.gameObject);
                 var configIdx = kv.Key.ToConfigIndex();
-                string name = kv.Value.Name;
+                string name = kv.Value().GetType().Name;
                 TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
                 string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd), true);
                 string fgIcon = kv.Key.GetTransportTypeIcon();

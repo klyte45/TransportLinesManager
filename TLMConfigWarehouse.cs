@@ -7,6 +7,7 @@ using Klyte.TransportLinesManager.Legacy;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Linq;
+using System.Xml.Serialization;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager
@@ -14,8 +15,8 @@ namespace Klyte.TransportLinesManager
     public class TLMConfigWarehouse : ConfigWarehouseBase<TLMConfigWarehouse.ConfigIndex, TLMConfigWarehouse>
     {
 
-        public const string TRUE_VALUE = "1";
-        public const string FALSE_VALUE = "0";
+        protected override string ID { get; } = "K45_TLM_ConfigWarehouse";
+        [XmlIgnore]
         public static readonly ConfigIndex[] PALETTES_INDEXES = new ConfigIndex[] {
            ConfigIndex.SHIP_PALETTE_MAIN,
            ConfigIndex.TRAIN_PALETTE_MAIN,
@@ -708,6 +709,7 @@ namespace Klyte.TransportLinesManager
             //TLMConfigWarehouse.ConfigIndex.UNUSED2_SERVICE_CONFIG
         };
 
+
         public enum ConfigIndex
         {
             NIL = -1,
@@ -987,7 +989,7 @@ namespace Klyte.TransportLinesManager
             MONORAIL_DEFAULT_COST_PER_PASSENGER_CAPACITY = MONORAIL_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             FERRY_DEFAULT_COST_PER_PASSENGER_CAPACITY = FERRY_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             BLIMP_DEFAULT_COST_PER_PASSENGER_CAPACITY = BLIMP_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
-          //  TOUR_PED_CONFIG_DEFAULT_COST_PER_PASSENGER_CAPACITY = TOUR_PED_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            //  TOUR_PED_CONFIG_DEFAULT_COST_PER_PASSENGER_CAPACITY = TOUR_PED_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             TOUR_BUS_CONFIG_DEFAULT_COST_PER_PASSENGER_CAPACITY = TOUR_BUS_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
 
             TRAIN_PREFIX_INCREMENT = TRAIN_CONFIG | PREFIX_INCREMENT,

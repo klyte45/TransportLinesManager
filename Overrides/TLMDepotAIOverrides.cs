@@ -82,16 +82,12 @@ namespace Klyte.TransportLinesManager.Overrides
 
             if (reason == m_transportInfo.m_vehicleReason || (__instance.m_secondaryTransportInfo != null && reason == __instance.m_secondaryTransportInfo.m_vehicleReason))
             {
-                VehicleInfo randomVehicleInfo = null;
                 var tsd = TransportSystemDefinition.From(__instance.m_transportInfo);
 
-                TransportLine tl = Singleton<TransportManager>.instance.m_lines.m_buffer[offer.TransportLine];
-                TransportInfo.TransportType t = tl.Info.m_transportType;
-
-                Instance.SetRandomBuilding(ref tsd, tl.m_lineNumber, ref buildingID);
+                Instance.SetRandomBuilding(ref tsd, offer.TransportLine, ref buildingID);
 
                 TLMUtils.doLog("randomVehicleInfo");
-                randomVehicleInfo = DoModelDraw(offer.TransportLine);
+                VehicleInfo randomVehicleInfo = DoModelDraw(offer.TransportLine);
                 if (randomVehicleInfo == null)
                 {
                     randomVehicleInfo = Singleton<VehicleManager>.instance.GetRandomVehicleInfo(ref Singleton<SimulationManager>.instance.m_randomizer, m_info.m_class.m_service, m_info.m_class.m_subService, m_info.m_class.m_level);

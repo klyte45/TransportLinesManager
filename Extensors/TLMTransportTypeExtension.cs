@@ -12,7 +12,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Xml.Serialization;
 using UnityEngine;
 
@@ -51,7 +50,8 @@ namespace Klyte.TransportLinesManager.Extensors
                 {
                     AssetConfigurations = value;
                     InitCapacitiesInAssets();
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
 
                     LogUtils.DoErrorLog($"ERROR SETTING ASSET CONFIG: {e}=> {e.Message}\n{e.StackTrace}");
@@ -153,7 +153,6 @@ namespace Klyte.TransportLinesManager.Extensors
             using var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(TLMLineUtils.UpdateCapacityUnits));
         }
 
-        private static readonly Dictionary<Type, FieldInfo> m_storedField = new Dictionary<Type, FieldInfo>();
         private static readonly Dictionary<string, int> m_defaultCapacities = new Dictionary<string, int>();
 
         public Dictionary<string, MutableTuple<float, int>> GetCapacityRelative(VehicleInfo info)
@@ -210,12 +209,7 @@ namespace Klyte.TransportLinesManager.Extensors
             if (!m_defaultCapacities.ContainsKey(ai.m_info.name))
             {
                 Type aiType = ai.GetType();
-                if (!m_storedField.ContainsKey(aiType))
-                {
-                    m_storedField[aiType] = ai.GetType().GetField("m_passengerCapacity");
-                    LogUtils.DoLog($"STORED FIELD FOR VEHICLE CAPACITY {m_storedField[aiType] } for {aiType}");
-                }
-                m_defaultCapacities[ai.m_info.name] = (int) m_storedField[aiType].GetValue(ai);
+                m_defaultCapacities[ai.m_info.name] = (int) VehicleUtils.GetVehicleCapacityField(ai).GetValue(ai);
                 if (CommonProperties.DebugMode)
                 {
                     LogUtils.DoLog($"STORED DEFAULT VEHICLE CAPACITY {m_defaultCapacities[ai.m_info.name] } for {ai.m_info.name}");
@@ -232,12 +226,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 newCapacity = defaultCapacity;
             }
-            if (!m_storedField.ContainsKey(aiType))
-            {
-                m_storedField[aiType] = ai.GetType().GetField("m_passengerCapacity");
-                LogUtils.DoLog($"STORED FIELD FOR VEHICLE CAPACITY {m_storedField[aiType] } for {aiType}");
-            }
-            m_storedField[aiType].SetValue(ai, newCapacity);
+            VehicleUtils.GetVehicleCapacityField(ai).SetValue(ai, newCapacity);
             if (CommonProperties.DebugMode)
             {
                 LogUtils.DoLog($"SET VEHICLE CAPACITY {newCapacity} at {ai.m_info.name}");
@@ -247,16 +236,16 @@ namespace Klyte.TransportLinesManager.Extensors
         #endregion
 
         #region Asset List
-        public Dictionary<string, string> GetSelectedBasicAssets(uint prefix)
+        public Dictionary<string, string> GetSelectedBasicAssetsForLine(ushort lineId)
         {
             if (m_basicAssetsList == null)
             {
                 LoadBasicAssets();
             }
 
-            return ExtensionStaticExtensionMethods.GetAssetList(this, prefix).Intersect(m_basicAssetsList).ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
+            return ExtensionStaticExtensionMethods.GetAssetListForLine(this, lineId).Intersect(m_basicAssetsList).ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
         }
-        public Dictionary<string, string> GetAllBasicAssets(uint nil = 0)
+        public Dictionary<string, string> GetAllBasicAssetsForLine(ushort lineId = 0)
         {
             if (m_basicAssetsList == null)
             {
@@ -265,7 +254,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
             return m_basicAssetsList.ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
         }
-        public List<string> GetBasicAssetList(uint rel)
+        public List<string> GetBasicAssetListForLine(ushort lineId)
         {
             if (m_basicAssetsList == null)
             {
@@ -275,16 +264,15 @@ namespace Klyte.TransportLinesManager.Extensors
         }
         public VehicleInfo GetAModel(ushort lineID)
         {
-            uint prefix = TLMLineUtils.getPrefix(lineID);
             VehicleInfo info = null;
-            List<string> assetList = ExtensionStaticExtensionMethods.GetAssetList(this, prefix);
+            List<string> assetList = ExtensionStaticExtensionMethods.GetAssetListForLine(this, lineID);
             while (info == null && assetList.Count > 0)
             {
                 info = VehicleUtils.GetRandomModel(assetList, out string modelName);
                 if (info == null)
                 {
-                    ExtensionStaticExtensionMethods.RemoveAsset(this, prefix, modelName);
-                    assetList = ExtensionStaticExtensionMethods.GetAssetList(this, prefix);
+                    ExtensionStaticExtensionMethods.RemoveAssetFromLine(this, lineID, modelName);
+                    assetList = ExtensionStaticExtensionMethods.GetAssetListForLine(this, lineID);
                 }
             }
             return info;
