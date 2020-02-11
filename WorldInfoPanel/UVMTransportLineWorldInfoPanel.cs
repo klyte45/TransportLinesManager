@@ -113,6 +113,7 @@ namespace Klyte.TransportLinesManager.UI
                 TLMTransportLineExtension.Instance.SetUseCustomConfig(GetLineID(), x);
                 MarkDirty(typeof(UVMPublicTransportWorldInfoPanel));
             });
+            m_obj.m_specificConfig.zOrder = 0;
             m_obj.m_specificConfig.relativePosition = new Vector3(10, 530);
             KlyteMonoUtils.LimitWidthAndBox(m_obj.m_specificConfig.label, 500);
         }
