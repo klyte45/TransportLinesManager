@@ -1,4 +1,7 @@
-﻿TLMv13
+﻿TLMv13.0.1
+	- Fixed odd line window loading if the mod is not enabled
+	- Fixed label for defaut ticket price in en, es and pt
+TLMv13
 	- NEW INTERFACE
 	- NEW OPTIONS IN MENU
 	- NEW LINE FINANCES BALANCE OVERVIEW & HISTORY FOR A CYCLE

@@ -8,6 +8,6 @@ namespace Klyte.Commons
         public static string Version => TransportLinesManagerMod.Version;
         public static string ModName => TransportLinesManagerMod.Instance.SimpleName;
         public static string Acronym => "TLM";
-        public static string ModRootFolder => TLMController.FOLDER_PATH;
+        public static string ModRootFolder => TLMController.FOLDER_PATH; 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using Harmony;
 using Klyte.Commons.Extensors;
@@ -8,7 +9,6 @@ using Klyte.TransportLinesManager.Extensors;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 using UnityEngine;
 
@@ -52,27 +52,32 @@ namespace Klyte.TransportLinesManager.UI
 
         public static IEnumerable<CodeInstruction> TranspileStart(IEnumerable<CodeInstruction> instructions)
         {
-            var inst = new List<CodeInstruction>
+            var inst = new List<CodeInstruction>(instructions);
+            var label = new Label();
+            inst[2].labels.Add(label);
+            inst.InsertRange(2, new List<CodeInstruction>
             {
-                instructions.ElementAt(0),
-                instructions.ElementAt(1),
+                new CodeInstruction(OpCodes.Call,typeof(UVMPublicTransportWorldInfoPanel).GetMethod("CheckEnabled", RedirectorUtils.allFlags) ),
+                new CodeInstruction(OpCodes.Brfalse, label),
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Call,typeof(UVMPublicTransportWorldInfoPanel).GetMethod("OverrideStart", RedirectorUtils.allFlags) ),
                 new CodeInstruction(OpCodes.Ret ),
-            };
+            });
+            LogUtils.PrintMethodIL(inst, true);
             return inst;
         }
         public static IEnumerable<CodeInstruction> TranspileUpdateBindings(IEnumerable<CodeInstruction> instructions)
         {
-            var inst = new List<CodeInstruction>
+            var inst = new List<CodeInstruction>(instructions);
+            inst.InsertRange(2, new List<CodeInstruction>
             {
-                instructions.ElementAt(0),
-                instructions.ElementAt(1),
                 new CodeInstruction(OpCodes.Call,typeof(UVMPublicTransportWorldInfoPanel).GetMethod("UpdateBindings", RedirectorUtils.allFlags) ),
                 new CodeInstruction(OpCodes.Ret ),
-            };
+            });
             return inst;
         }
+
+        public static bool CheckEnabled() => PluginManager.instance.FindPluginInfo(typeof(TransportLinesManagerMod).Assembly)?.isEnabled ?? false;
 
         #endregion
 
@@ -80,6 +85,8 @@ namespace Klyte.TransportLinesManager.UI
 
         public static void OverrideStart(PublicTransportWorldInfoPanel __instance)
         {
+            Console.Out.WriteLine("START OVERRIDE");
+
             m_obj.origInstance = __instance;
             __instance.component.width = 800;
 
