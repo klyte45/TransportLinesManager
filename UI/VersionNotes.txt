@@ -1,4 +1,6 @@
-﻿TLMv13.0.2
+﻿TLMv13.0.3
+	- Fixed: Specific button checkbox area is not clickable
+TLMv13.0.2
 	- Fixed: Specific button checkbox area is overlapping the action buttons on lower of line details screen
 TLMv13.0.1
 	- Fixed odd line window loading if the mod is not enabled

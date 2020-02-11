@@ -85,16 +85,12 @@ namespace Klyte.TransportLinesManager.UI
 
         public static void OverrideStart(PublicTransportWorldInfoPanel __instance)
         {
-            Console.Out.WriteLine("START OVERRIDE");
-
             m_obj.origInstance = __instance;
             __instance.component.width = 800;
 
             BindComponents(__instance);
 
             SetNameFieldProperties();
-
-
 
             KlyteMonoUtils.CreateTabsComponent(out m_obj.m_lineConfigTabs, out _, __instance.transform, "LineConfig", new Vector4(15, 45, 365, 30), new Vector4(15, 80, 380, 440));
 
@@ -113,9 +109,9 @@ namespace Klyte.TransportLinesManager.UI
                 TLMTransportLineExtension.Instance.SetUseCustomConfig(GetLineID(), x);
                 MarkDirty(typeof(UVMPublicTransportWorldInfoPanel));
             });
-            m_obj.m_specificConfig.zOrder = 0;
             m_obj.m_specificConfig.relativePosition = new Vector3(10, 530);
-            KlyteMonoUtils.LimitWidthAndBox(m_obj.m_specificConfig.label, 500);
+            m_obj.m_specificConfig.isInteractive = false;
+            KlyteMonoUtils.LimitWidthAndBox(m_obj.m_specificConfig.label, 400);
         }
 
         private static void BindComponents(PublicTransportWorldInfoPanel __instance)
