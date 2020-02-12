@@ -49,11 +49,13 @@ namespace Klyte.TransportLinesManager.UI
 
         private void BindFields(PublicTransportWorldInfoPanel ptwip)
         {
+            LogUtils.DoLog("COLOR");
             UIComponent parentToDestroy = ptwip.Find<UILabel>("Color").parent.parent;
             m_lineColorContainer = RebindUI(ptwip.Find<UILabel>("Color").parent);
-            m_colorField = ptwip.Find<UIColorField>("ColorField");
+            m_colorField = component.Find<UIColorField>("ColorField");
             m_colorFieldButton = m_colorField.Find<UIButton>("Button");
 
+            LogUtils.DoLog("CHART");
             m_ageChart = (ptwip.Find<UIRadialChart>("AgeChart"));
             m_childLegend = (ptwip.Find<UILabel>("ChildAmount"));
             m_teenLegend = (ptwip.Find<UILabel>("TeenAmount"));
@@ -63,24 +65,31 @@ namespace Klyte.TransportLinesManager.UI
             UIComponent parentToDestroy2 = m_ageChart.parent.parent;
             m_ageChartContainer = RebindUI(m_ageChart.parent);
 
+            LogUtils.DoLog("TRIP");
             m_tripSaved = (ptwip.Find<UILabel>("TripSaved"));
             m_tripSavedContainer = RebindUI(m_tripSaved.parent);
 
+
+            LogUtils.DoLog("TYPE");
             m_type = (ptwip.Find<UILabel>("Type"));
             m_typeContainer = RebindUI(m_type.parent);
 
+            LogUtils.DoLog("PASSENGERS");
             m_passengers = (ptwip.Find<UILabel>("Passengers"));
             m_passengersContainer = RebindUI(m_passengers.parent);
 
+            LogUtils.DoLog("LENGTH");
             m_lineLengthLabel = RebindUI(ptwip.Find<UILabel>("LineLengthLabel"));
 
+            LogUtils.DoLog("WALKING");
             m_pullValuePanel = RebindUI(ptwip.Find<UIPanel>("WalkingTourPullValuePanel"));
-            m_pullValue = (ptwip.Find<UILabel>("PullValue"));
-            m_warningTooLongText = (ptwip.Find<UILabel>("WarningTooLongText"));
-            m_warningTooLongIcon = (ptwip.Find<UISprite>("WarningTooLongIcon"));
+            m_pullValue = (component.Find<UILabel>("PullValue"));
+            m_warningTooLongText = (component.Find<UILabel>("WarningTooLongText"));
+            m_warningTooLongIcon = (component.Find<UISprite>("WarningTooLongIcon"));
 
-            Destroy(parentToDestroy);
-            Destroy(parentToDestroy2);
+            LogUtils.DoLog("DESTROY");
+            UVMPublicTransportWorldInfoPanel.FakeDestroy(parentToDestroy);
+            UVMPublicTransportWorldInfoPanel.FakeDestroy(parentToDestroy2);
         }
 
         private T RebindUI<T>(T component) where T : UIComponent

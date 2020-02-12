@@ -44,7 +44,6 @@ namespace Klyte.TransportLinesManager.UI
             AdjustLineStopsPanel(ptwip);
 
             KlyteMonoUtils.CreateUIElement<UIPanel>(out m_panelModeSelector, m_bg.parent.transform);
-            m_panelModeSelector.relativePosition = m_bg.relativePosition - new Vector3(0, 30);
             m_panelModeSelector.autoFitChildrenHorizontally = true;
             m_panelModeSelector.autoFitChildrenVertically = true;
             m_panelModeSelector.autoLayout = true;
@@ -187,6 +186,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 UpdateVehicleButtons(lineID);
                 UpdateStopButtons(lineID);
+                m_panelModeSelector.relativePosition = new Vector3(405, 45);
             }
         }
 

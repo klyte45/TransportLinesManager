@@ -124,30 +124,35 @@ namespace Klyte.TransportLinesManager.UI
 
         private static void DestroyNotUsed(PublicTransportWorldInfoPanel __instance)
         {
-            Destroy(__instance.Find("ActivityPanel"));
-            Destroy(__instance.Find<UIPanel>("LineModelSelectorContainer"));
-            Destroy(__instance.Find<UILabel>("ModelLabel"));
-            Destroy(__instance.Find<UILabel>("LabelPassengers"));
+            FakeDestroy(__instance.Find("ActivityPanel"));
+            FakeDestroy(__instance.Find<UIPanel>("LineModelSelectorContainer"));
+            FakeDestroy(__instance.Find<UILabel>("ModelLabel"));
+            FakeDestroy(__instance.Find<UILabel>("LabelPassengers"));
 
-            Destroy(__instance.Find<UISlider>("SliderModifyVehicleCount"));
-            Destroy(__instance.Find<UILabel>("VehicleCountPercent"));
-            Destroy(__instance.Find<UILabel>("VehicleAmount"));
-            Destroy(__instance.Find<UIPanel>("PanelVehicleCount"));
+            FakeDestroy(__instance.Find<UISlider>("SliderModifyVehicleCount"));
+            FakeDestroy(__instance.Find<UILabel>("VehicleCountPercent"));
+            FakeDestroy(__instance.Find<UILabel>("VehicleAmount"));
+            FakeDestroy(__instance.Find<UIPanel>("PanelVehicleCount"));
 
-            Destroy(__instance.Find<UISlider>("SliderTicketPrice"));
-            Destroy(__instance.Find<UILabel>("LabelTicketPrice"));
-            Destroy(__instance.Find<UIPanel>("TicketPriceSection"));
+            FakeDestroy(__instance.Find<UISlider>("SliderTicketPrice"));
+            FakeDestroy(__instance.Find<UILabel>("LabelTicketPrice"));
+            FakeDestroy(__instance.Find<UIPanel>("TicketPriceSection"));
         }
 
-
+        public static void FakeDestroy(UIComponent comp)
+        {
+            comp.isVisible = false;
+            comp.isEnabled = false;
+            comp.isInteractive = false;
+        }
 
         private static void SetNameFieldProperties()
         {
-            if (m_obj.m_nameField != null)
-            {
-                m_obj.m_nameField.maxLength = 100;
-                m_obj.m_nameField.eventTextSubmitted += OnRename;
-            }
+           if (m_obj.m_nameField != null)
+           {
+               m_obj.m_nameField.maxLength = 100;
+               m_obj.m_nameField.eventTextSubmitted += OnRename;
+           }
         }
 
         public static bool OnEnableOverride()
@@ -180,7 +185,7 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     OnSetTarget();
                 }
-                m_obj.m_vehicleType.spriteName = GetVehicleTypeIcon(lineID);
+                      m_obj.m_vehicleType.spriteName = GetVehicleTypeIcon(lineID);
 
                 foreach (KeyValuePair<string, IUVMPTWIPChild> tab in m_childControls)
                 {
@@ -206,7 +211,7 @@ namespace Klyte.TransportLinesManager.UI
             ushort lineID = GetLineID();
             if (lineID != 0)
             {
-                m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(lineID);
+                    m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(lineID);
                 m_obj.m_specificConfig.isVisible = TransportSystemDefinition.From(lineID).HasVehicles();
                 m_obj.m_specificConfig.isChecked = TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID);
             }
@@ -263,7 +268,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (id == GetLineID())
             {
-                m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(id);
+                         m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(id);
             }
         }
 
@@ -282,7 +287,7 @@ namespace Klyte.TransportLinesManager.UI
                 yield return task.WaitTaskCompleted(this);
                 if (GetLineID() == id)
                 {
-                    m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(id);
+                           m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(id);
                 }
             }
             yield break;

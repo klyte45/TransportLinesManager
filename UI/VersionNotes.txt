@@ -1,4 +1,6 @@
-﻿TLMv13.0.3
+﻿TLMv13.1
+	- Fixed UI glitches at non-1080p resolutions
+TLMv13.0.3
 	- Fixed: Specific button checkbox area is not clickable
 TLMv13.0.2
 	- Fixed: Specific button checkbox area is overlapping the action buttons on lower of line details screen
