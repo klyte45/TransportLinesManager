@@ -99,4 +99,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu
     internal sealed class TLMShowConfigTabNorPln : TLMShowConfigTab<TLMSysDefNorPln> { }
     internal sealed class TLMShowConfigTabTouBus : TLMShowConfigTab<TLMSysDefTouBus> { }
     internal sealed class TLMShowConfigTabTouPed : TLMShowConfigTab<TLMSysDefTouPed> { }
+    internal sealed class TLMShowConfigTabNorTrl : TLMShowConfigTab<TLMSysDefNorTrl> { }
+    internal sealed class TLMShowConfigTabNorHel : TLMShowConfigTab<TLMSysDefNorHel> { }
 }

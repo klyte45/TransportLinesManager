@@ -94,43 +94,16 @@ namespace Klyte.TransportLinesManager
                     return new Color32(110, 152, 251, 255);
                 case ConfigIndex.TOUR_PED_CONFIG:
                     return new Color32(83, 157, 48, 255);
+                case ConfigIndex.TROLLEY_CONFIG:
+                    return new Color(1,.517f, 0, 1);
+                case ConfigIndex.HELICOPTER_CONFIG:
+                    return new Color(.671f, .333f, .604f, 1);
                 default:
                     return new Color();
 
             }
         }
 
-        public static float getCostPerPassengerCapacityLine(ConfigIndex i)
-        {
-            switch (i & ConfigIndex.SYSTEM_PART)
-            {
-                case ConfigIndex.TRAIN_CONFIG:
-                    return 50f / 400;
-                case ConfigIndex.SHIP_CONFIG:
-                    return 50f / 800;
-                case ConfigIndex.PLANE_CONFIG:
-                    return 50f / 1000;
-                case ConfigIndex.TRAM_CONFIG:
-                    return 50f / 90;
-                case ConfigIndex.METRO_CONFIG:
-                    return 50f / 180;
-                case ConfigIndex.MONORAIL_CONFIG:
-                    return 50f / 180;
-                case ConfigIndex.FERRY_CONFIG:
-                    return 50f / 50;
-                case ConfigIndex.BLIMP_CONFIG:
-                    return 50f / 70;
-                case ConfigIndex.BUS_CONFIG:
-                    return 50f / 60;
-                case ConfigIndex.TOUR_BUS_CONFIG:
-                    return 50f / 60;
-                case ConfigIndex.TOUR_PED_CONFIG:
-                    return 0;
-                default:
-                    return 50f / 30;
-
-            }
-        }
 
         public static string GetNameForServiceType(ConfigIndex i) => Locale.Get(GetLocaleIdForIndex(i, out string key, out int index), key, index);
 
@@ -261,6 +234,10 @@ namespace Klyte.TransportLinesManager
                     return LineIconSpriteNames.K45_CameraIcon;
                 case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG:
                     return LineIconSpriteNames.K45_TriangleIcon;
+                case TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG:
+                    return LineIconSpriteNames.K45_OvalIcon;
+                case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG:
+                    return LineIconSpriteNames.K45_S05StarIcon;
                 default:
                     TLMUtils.doErrorLog($"INVALID TT! {transportType}");
                     return LineIconSpriteNames.K45_S09StarIcon;
@@ -298,6 +275,10 @@ namespace Klyte.TransportLinesManager
                     return Locale.Get("VEHICLE_TITLE", "Cable Car");
                 case ConfigIndex.TAXI_CONFIG:
                     return Locale.Get("VEHICLE_TITLE", "Taxi");
+                case ConfigIndex.HELICOPTER_CONFIG:
+                    return Locale.Get("VEHICLE_TITLE", "Passenger Helicopter");
+                case ConfigIndex.TROLLEY_CONFIG:
+                    return Locale.Get("VEHICLE_TITLE", "Trolleybus 01");
                 default:
                     return "???";
             }
@@ -349,6 +330,11 @@ namespace Klyte.TransportLinesManager
                     return ItemClass.SubService.PublicTransportPlane;
                 case ConfigIndex.FERRY_CONFIG:
                     return ItemClass.SubService.PublicTransportShip;
+                case ConfigIndex.TROLLEY_CONFIG:
+                    return ItemClass.SubService.PublicTransportTrolleybus;
+                case ConfigIndex.HELICOPTER_CONFIG:
+                    return ItemClass.SubService.PublicTransportPlane;
+                    ;
 
                 default:
                     return ItemClass.SubService.None;
@@ -392,113 +378,15 @@ namespace Klyte.TransportLinesManager
                     return new TransferManager.TransferReason[] { TransferManager.TransferReason.Blimp };
                 case ConfigIndex.FERRY_CONFIG:
                     return new TransferManager.TransferReason[] { TransferManager.TransferReason.Ferry };
+                case ConfigIndex.TROLLEY_CONFIG:
+                    return new TransferManager.TransferReason[] { TransferManager.TransferReason.Trolleybus };
+                case ConfigIndex.HELICOPTER_CONFIG:
+                    return new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerHelicopter };
 
                 default:
                     return null;
             }
         }
-
-        public static bool isServiceLineNameable(ItemClass.Service s) => GetCurrentConfigBool(ConfigIndex.USE_FOR_AUTO_NAMING_REF | GameServiceExtensions.ToConfigIndex(s, ItemClass.SubService.None));
-        public static string getPrefixForServiceLineNameable(ItemClass.Service s) => GetCurrentConfigString(ConfigIndex.AUTO_NAMING_REF_TEXT | GameServiceExtensions.ToConfigIndex(s, ItemClass.SubService.None));
-        public static bool isPublicTransportLineNameable(ref TransportSystemDefinition tsd) => GetCurrentConfigBool(ConfigIndex.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF | getConfigTransportSystemForDefinition(ref tsd));
-        public static string getPrefixForPublicTransportLineNameable(ref TransportSystemDefinition tsd) => GetCurrentConfigString(ConfigIndex.PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT | getConfigTransportSystemForDefinition(ref tsd));
-
-        public static ConfigIndex getConfigAssetsForAI(ref TransportSystemDefinition tsd)
-        {
-            if (tsd == TransportSystemDefinition.BUS)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_BUS;
-            }
-            else if (tsd == TransportSystemDefinition.TRAIN)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_TRAIN;
-            }
-            else if (tsd == TransportSystemDefinition.TRAM)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_TRAM;
-            }
-            else if (tsd == TransportSystemDefinition.SHIP)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_SHIP;
-            }
-            else if (tsd == TransportSystemDefinition.PLANE)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_PLANE;
-            }
-            else if (tsd == TransportSystemDefinition.FERRY)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_SHIP;
-            }
-            else if (tsd == TransportSystemDefinition.BLIMP)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_PLANE;
-            }
-            else if (tsd == TransportSystemDefinition.MONORAIL)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_MONORAIL;
-            }
-            else if (tsd == TransportSystemDefinition.METRO)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_METRO;
-            }
-            else if (tsd == TransportSystemDefinition.EVAC_BUS)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_EVAC_BUS;
-            }
-            else if (tsd == TransportSystemDefinition.TOUR_BUS)
-            {
-                return ConfigIndex.PREFIX_BASED_ASSETS_TOUR_BUS;
-            }
-            else
-            {
-                return ConfigIndex.NIL;
-            }
-        }
-        public static ConfigIndex getConfigDepotPrefix(ref TransportSystemDefinition tsd)
-        {
-
-            if (tsd == TransportSystemDefinition.BUS)
-            {
-                return ConfigIndex.DEPOT_PREFIXES_BUS;
-            }
-            else if (tsd == TransportSystemDefinition.TRAIN)
-            {
-                return ConfigIndex.DEPOT_PREFIXES_TRAIN;
-            }
-            else if (tsd == TransportSystemDefinition.TRAM)
-            {
-                return ConfigIndex.DEPOT_PREFIXES_TRAM;
-            }
-            else if (tsd == TransportSystemDefinition.SHIP)
-            {
-                return ConfigIndex.DEPOT_PREFIXES_SHIP;
-            }
-            else if (tsd == TransportSystemDefinition.PLANE)
-            {
-                return ConfigIndex.DEPOT_PREFIXES_PLANE;
-            }
-            else if (tsd == TransportSystemDefinition.FERRY)
-            {
-                return ConfigIndex.DEPOT_PREFIXES_SHIP;
-            }
-            else if (tsd == TransportSystemDefinition.BLIMP)
-            {
-                return ConfigIndex.DEPOT_PREFIXES_PLANE;
-            }
-            else if (tsd == TransportSystemDefinition.MONORAIL)
-            {
-                return ConfigIndex.DEPOT_PREFIXES_MONORAIL;
-            }
-            else if (tsd == TransportSystemDefinition.METRO)
-            {
-                return ConfigIndex.DEPOT_PREFIXES_METRO;
-            }
-            else
-            {
-                return ConfigIndex.NIL;
-            }
-        }
-        public static ConfigIndex getConfigPrefixForAI(ref TransportSystemDefinition tsd) => getConfigTransportSystemForDefinition(ref tsd) | ConfigIndex.PREFIX;
 
         public static ConfigIndex getConfigTransportSystemForDefinition(ref TransportSystemDefinition tsd)
         {
@@ -562,6 +450,14 @@ namespace Klyte.TransportLinesManager
             {
                 return ConfigIndex.BALLOON_CONFIG;
             }
+            else if (tsd == TransportSystemDefinition.HELICOPTER)
+            {
+                return ConfigIndex.HELICOPTER_CONFIG;
+            }
+            else if (tsd == TransportSystemDefinition.TROLLEY)
+            {
+                return ConfigIndex.TROLLEY_CONFIG;
+            }
             else
             {
                 return ConfigIndex.NIL;
@@ -596,6 +492,10 @@ namespace Klyte.TransportLinesManager
                     return TransportSystemDefinition.TOUR_BUS;
                 case ConfigIndex.TOUR_PED_CONFIG:
                     return TransportSystemDefinition.TOUR_PED;
+                case ConfigIndex.TROLLEY_CONFIG:
+                    return TransportSystemDefinition.TROLLEY;
+                case ConfigIndex.HELICOPTER_CONFIG:
+                    return TransportSystemDefinition.HELICOPTER;
                 default:
                     return default;
             }
@@ -614,6 +514,8 @@ namespace Klyte.TransportLinesManager
             ConfigIndex. BLIMP_CONFIG      ,
             ConfigIndex. CABLE_CAR_CONFIG  ,
             ConfigIndex. TOUR_BUS_CONFIG   ,
+            ConfigIndex. TROLLEY_CONFIG       ,
+            ConfigIndex. HELICOPTER_CONFIG       ,
         };
 
         public static readonly ConfigIndex[] configurableAutoNameTransportCategories = {
@@ -628,6 +530,8 @@ namespace Klyte.TransportLinesManager
             ConfigIndex.BUS_CONFIG,
             ConfigIndex.TOUR_BUS_CONFIG,
             ConfigIndex.TOUR_PED_CONFIG,
+            ConfigIndex.TROLLEY_CONFIG,
+            ConfigIndex.HELICOPTER_CONFIG,
         };
         public static readonly ConfigIndex[] configurableAutoNameCategories = {
             ConfigIndex.MONUMENT_SERVICE_CONFIG,
@@ -676,12 +580,14 @@ namespace Klyte.TransportLinesManager
             TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG ,
             TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG ,
             TLMConfigWarehouse.ConfigIndex.METRO_CONFIG ,
             TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG ,
             TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG ,
+            TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG ,
             TLMConfigWarehouse.ConfigIndex.BUS_CONFIG   ,
             TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG  ,
             TLMConfigWarehouse.ConfigIndex.NATURAL_SERVICE_CONFIG   ,
@@ -767,6 +673,8 @@ namespace Klyte.TransportLinesManager
             BALLOON_CONFIG = TransportInfo.TransportType.HotAirBalloon << 16,
             BLIMP_CONFIG = (TransportInfo.TransportType.Airplane << 16) | 0x800000,
             FERRY_CONFIG = (TransportInfo.TransportType.Ship << 16) | 0x800000,
+            TROLLEY_CONFIG = TransportInfo.TransportType.Trolleybus << 16,
+            HELICOPTER_CONFIG = TransportInfo.TransportType.Helicopter << 16,
 
 
 
@@ -829,6 +737,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_PREFIX = BLIMP_CONFIG | PREFIX,
             TOUR_PED_CONFIG_PREFIX = TOUR_PED_CONFIG | PREFIX,
             TOUR_BUS_CONFIG_PREFIX = TOUR_BUS_CONFIG | PREFIX,
+            TROLLEY_CONFIG_PREFIX = TROLLEY_CONFIG | PREFIX,
+            HELICOPTER_CONFIG_PREFIX = HELICOPTER_CONFIG| PREFIX,
 
             TRAIN_SEPARATOR = TRAIN_CONFIG | SEPARATOR,
             TRAM_SEPARATOR = TRAM_CONFIG | SEPARATOR,
@@ -841,6 +751,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_SEPARATOR = BLIMP_CONFIG | SEPARATOR,
             TOUR_PED_CONFIG_SEPARATOR = TOUR_PED_CONFIG | SEPARATOR,
             TOUR_BUS_CONFIG_SEPARATOR = TOUR_BUS_CONFIG | SEPARATOR,
+            TROLLEY_CONFIG_SEPARATOR = TROLLEY_CONFIG | SEPARATOR,
+            HELICOPTER_CONFIG_SEPARATOR = HELICOPTER_CONFIG | SEPARATOR,
 
             TRAIN_SUFFIX = TRAIN_CONFIG | SUFFIX,
             TRAM_SUFFIX = TRAM_CONFIG | SUFFIX,
@@ -853,6 +765,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_SUFFIX = BLIMP_CONFIG | SUFFIX,
             TOUR_PED_CONFIG_SUFFIX = TOUR_PED_CONFIG | SUFFIX,
             TOUR_BUS_CONFIG_SUFFIX = TOUR_BUS_CONFIG | SUFFIX,
+            TROLLEY_CONFIG_SUFFIX = TROLLEY_CONFIG | SUFFIX,
+            HELICOPTER_CONFIG_SUFFIX = HELICOPTER_CONFIG | SUFFIX,
 
             TRAIN_NON_PREFIX = TRAIN_CONFIG | NON_PREFIX,
             TRAM_NON_PREFIX = TRAM_CONFIG | NON_PREFIX,
@@ -865,6 +779,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_NON_PREFIX = BLIMP_CONFIG | NON_PREFIX,
             TOUR_PED_CONFIG_NON_PREFIX = TOUR_PED_CONFIG | NON_PREFIX,
             TOUR_BUS_CONFIG_NON_PREFIX = TOUR_BUS_CONFIG | NON_PREFIX,
+            TROLLEY_CONFIG_NON_PREFIX = TROLLEY_CONFIG | NON_PREFIX,
+            HELICOPTER_CONFIG_NON_PREFIX = HELICOPTER_CONFIG | NON_PREFIX,
 
             TRAIN_LEADING_ZEROS = TRAIN_CONFIG | LEADING_ZEROS,
             TRAM_LEADING_ZEROS = TRAM_CONFIG | LEADING_ZEROS,
@@ -877,6 +793,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_LEADING_ZEROS = BLIMP_CONFIG | LEADING_ZEROS,
             TOUR_PED_CONFIG_LEADING_ZEROS = TOUR_PED_CONFIG | LEADING_ZEROS,
             TOUR_BUS_CONFIG_LEADING_ZEROS = TOUR_BUS_CONFIG | LEADING_ZEROS,
+            TROLLEY_CONFIG_LEADING_ZEROS = TROLLEY_CONFIG | LEADING_ZEROS,
+            HELICOPTER_CONFIG_LEADING_ZEROS = HELICOPTER_CONFIG | LEADING_ZEROS,
 
             TRAIN_INVERT_PREFIX_SUFFIX = TRAIN_CONFIG | INVERT_PREFIX_SUFFIX,
             TRAM_INVERT_PREFIX_SUFFIX = TRAM_CONFIG | INVERT_PREFIX_SUFFIX,
@@ -889,6 +807,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_INVERT_PREFIX_SUFFIX = BLIMP_CONFIG | INVERT_PREFIX_SUFFIX,
             TOUR_PED_CONFIG_INVERT_PREFIX_SUFFIX = TOUR_PED_CONFIG | INVERT_PREFIX_SUFFIX,
             TOUR_BUS_CONFIG_INVERT_PREFIX_SUFFIX = TOUR_BUS_CONFIG | INVERT_PREFIX_SUFFIX,
+            TROLLEY_CONFIG_INVERT_PREFIX_SUFFIX = TROLLEY_CONFIG | INVERT_PREFIX_SUFFIX,
+            HELICOPTER_CONFIG_INVERT_PREFIX_SUFFIX = HELICOPTER_CONFIG | INVERT_PREFIX_SUFFIX,
 
             TRAIN_PALETTE_MAIN = TRAIN_CONFIG | PALETTE_MAIN,
             TRAM_PALETTE_MAIN = TRAM_CONFIG | PALETTE_MAIN,
@@ -901,6 +821,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_PALETTE_MAIN = BLIMP_CONFIG | PALETTE_MAIN,
             TOUR_PED_CONFIG_PALETTE_MAIN = TOUR_PED_CONFIG | PALETTE_MAIN,
             TOUR_BUS_CONFIG_PALETTE_MAIN = TOUR_BUS_CONFIG | PALETTE_MAIN,
+            TROLLEY_CONFIG_PALETTE_MAIN = TROLLEY_CONFIG | PALETTE_MAIN,
+            HELICOPTER_CONFIG_PALETTE_MAIN = HELICOPTER_CONFIG | PALETTE_MAIN,
 
             //TRAIN_PALETTE_SUBLINE = TRAIN_CONFIG | PALETTE_SUBLINE,
             //TRAM_PALETTE_SUBLINE = TRAM_CONFIG | PALETTE_SUBLINE,
@@ -925,6 +847,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_PALETTE_RANDOM_ON_OVERFLOW = BLIMP_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             TOUR_PED_CONFIG_PALETTE_RANDOM_ON_OVERFLOW = TOUR_PED_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
             TOUR_BUS_CONFIG_PALETTE_RANDOM_ON_OVERFLOW = TOUR_BUS_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
+            TROLLEY_CONFIG_PALETTE_RANDOM_ON_OVERFLOW = TROLLEY_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
+            HELICOPTER_CONFIG_PALETTE_RANDOM_ON_OVERFLOW = HELICOPTER_CONFIG | PALETTE_RANDOM_ON_OVERFLOW,
 
             TRAIN_PALETTE_PREFIX_BASED = TRAIN_CONFIG | PALETTE_PREFIX_BASED,
             TRAM_PALETTE_PREFIX_BASED = TRAM_CONFIG | PALETTE_PREFIX_BASED,
@@ -937,6 +861,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_PALETTE_PREFIX_BASED = BLIMP_CONFIG | PALETTE_PREFIX_BASED,
             TOUR_PED_CONFIG_PALETTE_PREFIX_BASED = TOUR_PED_CONFIG | PALETTE_PREFIX_BASED,
             TOUR_BUS_CONFIG_PALETTE_PREFIX_BASED = TOUR_BUS_CONFIG | PALETTE_PREFIX_BASED,
+            TROLLEY_CONFIG_PALETTE_PREFIX_BASED = TROLLEY_CONFIG | PALETTE_PREFIX_BASED,
+            HELICOPTER_CONFIG_PALETTE_PREFIX_BASED = HELICOPTER_CONFIG | PALETTE_PREFIX_BASED,
 
             TRAIN_SHOW_IN_LINEAR_MAP = TRAIN_CONFIG | SHOW_IN_LINEAR_MAP,
             TRAM_SHOW_IN_LINEAR_MAP = TRAM_CONFIG | SHOW_IN_LINEAR_MAP,
@@ -952,6 +878,8 @@ namespace Klyte.TransportLinesManager
             EVAC_BUS_SHOW_IN_LINEAR_MAP = EVAC_BUS_CONFIG | SHOW_IN_LINEAR_MAP,
             TOUR_PED_CONFIG_SHOW_IN_LINEAR_MAP = TOUR_PED_CONFIG | SHOW_IN_LINEAR_MAP,
             TOUR_BUS_CONFIG_SHOW_IN_LINEAR_MAP = TOUR_BUS_CONFIG | SHOW_IN_LINEAR_MAP,
+            TROLLEY_CONFIG_SHOW_IN_LINEAR_MAP = TROLLEY_CONFIG | SHOW_IN_LINEAR_MAP,
+            HELICOPTER_CONFIG_SHOW_IN_LINEAR_MAP = HELICOPTER_CONFIG | SHOW_IN_LINEAR_MAP,
 
 
             TRAIN_DEFAULT_TICKET_PRICE = TRAIN_CONFIG | DEFAULT_TICKET_PRICE,
@@ -966,6 +894,8 @@ namespace Klyte.TransportLinesManager
             CABLE_CAR_DEFAULT_TICKET_PRICE = CABLE_CAR_CONFIG | DEFAULT_TICKET_PRICE,
             TAXI_DEFAULT_TICKET_PRICE = TAXI_CONFIG | DEFAULT_TICKET_PRICE,
             TOUR_BUS_CONFIG_DEFAULT_TICKET_PRICE = TOUR_BUS_CONFIG | DEFAULT_TICKET_PRICE,
+            TROLLEY_CONFIG_DEFAULT_TICKET_PRICE = TROLLEY_CONFIG | DEFAULT_TICKET_PRICE,
+            HELICOPTER_CONFIG_DEFAULT_TICKET_PRICE = HELICOPTER_CONFIG | DEFAULT_TICKET_PRICE,
 
             TRAIN_DEFAULT_TRANSPORT_ICON_TLM = TRAIN_CONFIG | TRANSPORT_ICON_TLM,
             TRAM_DEFAULT_TRANSPORT_ICON_TLM = TRAM_CONFIG | TRANSPORT_ICON_TLM,
@@ -979,6 +909,8 @@ namespace Klyte.TransportLinesManager
             CABLE_CAR_DEFAULT_TRANSPORT_ICON_TLM = CABLE_CAR_CONFIG | TRANSPORT_ICON_TLM,
             TAXI_DEFAULT_TRANSPORT_ICON_TLM = TAXI_CONFIG | TRANSPORT_ICON_TLM,
             TOUR_BUS_CONFIG_DEFAULT_TRANSPORT_ICON_TLM = TOUR_BUS_CONFIG | TRANSPORT_ICON_TLM,
+            TROLLEY_CONFIG_TRANSPORT_ICON_TLM = TROLLEY_CONFIG | TRANSPORT_ICON_TLM,
+            HELICOPTER_CONFIG_TRANSPORT_ICON_TLM = HELICOPTER_CONFIG | TRANSPORT_ICON_TLM,
 
             TRAIN_DEFAULT_COST_PER_PASSENGER_CAPACITY = TRAIN_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             TRAM_DEFAULT_COST_PER_PASSENGER_CAPACITY = TRAM_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
@@ -991,6 +923,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_DEFAULT_COST_PER_PASSENGER_CAPACITY = BLIMP_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             //  TOUR_PED_CONFIG_DEFAULT_COST_PER_PASSENGER_CAPACITY = TOUR_PED_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
             TOUR_BUS_CONFIG_DEFAULT_COST_PER_PASSENGER_CAPACITY = TOUR_BUS_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            TROLLEY_CONFIG_DEFAULT_COST_PER_PASSENGER_CAPACITY = TROLLEY_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
+            HELICOPTER_CONFIG_DEFAULT_COST_PER_PASSENGER_CAPACITY = HELICOPTER_CONFIG | DEFAULT_COST_PER_PASSENGER_CAPACITY,
 
             TRAIN_PREFIX_INCREMENT = TRAIN_CONFIG | PREFIX_INCREMENT,
             METRO_PREFIX_INCREMENT = METRO_CONFIG | PREFIX_INCREMENT,
@@ -1003,6 +937,8 @@ namespace Klyte.TransportLinesManager
             BLIMP_PREFIX_INCREMENT = BLIMP_CONFIG | PREFIX_INCREMENT,
             TOUR_PED_CONFIG_PREFIX_INCREMENT = TOUR_PED_CONFIG | PREFIX_INCREMENT,
             TOUR_BUS_CONFIG_PREFIX_INCREMENT = TOUR_BUS_CONFIG | PREFIX_INCREMENT,
+            TROLLEY_CONFIG_PREFIX_INCREMENT = TROLLEY_CONFIG | PREFIX_INCREMENT,
+            HELICOPTER_CONFIG_PREFIX_INCREMENT = HELICOPTER_CONFIG | PREFIX_INCREMENT,
 
             RESIDENTIAL_USE_FOR_AUTO_NAMING_REF = RESIDENTIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
             COMMERCIAL_USE_FOR_AUTO_NAMING_REF = COMMERCIAL_SERVICE_CONFIG | USE_FOR_AUTO_NAMING_REF,
@@ -1051,6 +987,8 @@ namespace Klyte.TransportLinesManager
             TOUR_PED_USE_FOR_AUTO_NAMING_REF = TOUR_PED_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
             TOUR_BUS_USE_FOR_AUTO_NAMING_REF = TOUR_BUS_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
             BALOON_USE_FOR_AUTO_NAMING_REF = BALLOON_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
+            TROLLEY_CONFIG_USE_FOR_AUTO_NAMING_REF = TROLLEY_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
+            HELICOPTER_CONFIG_USE_FOR_AUTO_NAMING_REF = HELICOPTER_CONFIG | PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF,
 
             RESIDENTIAL_AUTO_NAMING_REF_TEXT = RESIDENTIAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
             COMMERCIAL_AUTO_NAMING_REF_TEXT = COMMERCIAL_SERVICE_CONFIG | AUTO_NAMING_REF_TEXT,
@@ -1097,6 +1035,8 @@ namespace Klyte.TransportLinesManager
             TOUR_PED_AUTO_NAMING_REF_TEXT = TOUR_PED_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
             TOUR_BUS_AUTO_NAMING_REF_TEXT = TOUR_BUS_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
             BALOON_AUTO_NAMING_REF_TEXT = BALLOON_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
+            TROLLEY_CONFIG_AUTO_NAMING_REF_TEXT = TROLLEY_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
+            HELICOPTER_CONFIG_AUTO_NAMING_REF_TEXT = HELICOPTER_CONFIG | PUBLICTRANSPORT_AUTO_NAMING_REF_TEXT,
 
 
         }

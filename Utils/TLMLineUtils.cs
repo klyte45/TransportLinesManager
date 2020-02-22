@@ -483,32 +483,38 @@ namespace Klyte.TransportLinesManager.Utils
                         case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG:
                             transportTypeLetter = "C";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG:
                             transportTypeLetter = "D";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
                             transportTypeLetter = "E";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG:
                             transportTypeLetter = "F";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
                             transportTypeLetter = "G";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
                             transportTypeLetter = "H";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
                             transportTypeLetter = "I";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG:
                             transportTypeLetter = "J";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
                             transportTypeLetter = "K";
                             break;
-                        case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
+                        case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
                             transportTypeLetter = "L";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
+                            transportTypeLetter = "M";
+                            break;
+                        case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
+                            transportTypeLetter = "N";
                             break;
                     }
                     otherLinesIntersections.Add(transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0'), s);
@@ -1456,7 +1462,9 @@ namespace Klyte.TransportLinesManager.Utils
         INDUSTRY_AREA,
         DISTRICT,
         ADDRESS,
-        RICO
+        RICO,
+        TROLLEY,
+        HELICOPTER
     }
 
     internal static class NamingTypeExtensions
@@ -1517,6 +1525,10 @@ namespace Klyte.TransportLinesManager.Utils
                     return 0x000000e;
                 case NamingType.CABLE_CAR:
                     return 0x00000004;
+                case NamingType.TROLLEY:
+                    return 0x00000006;
+                case NamingType.HELICOPTER:
+                    return 0x00000001;
                 default:
                     return 0x7FFFFFFF;
             }
@@ -1582,6 +1594,10 @@ namespace Klyte.TransportLinesManager.Utils
                 case TLMCW.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
                 case TLMCW.ConfigIndex.OFFICE_SERVICE_CONFIG:
                     return NamingType.RICO;
+                case TLMCW.ConfigIndex.TROLLEY_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    return NamingType.TROLLEY;
+                case TLMCW.ConfigIndex.HELICOPTER_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    return NamingType.HELICOPTER;
                 default:
                     TLMUtils.doErrorLog($"UNKNOWN NAME TYPE:{ci} ({((int) ci).ToString("X8")})");
                     return NamingType.NONE;

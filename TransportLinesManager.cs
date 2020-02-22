@@ -11,7 +11,7 @@ using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.1.0.1")]
+[assembly: AssemblyVersion("13.2.0.9999")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>

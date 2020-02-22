@@ -79,6 +79,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         ItemClass.SubService.PublicTransportTours => TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
                         ItemClass.SubService.PublicTransportTrain => TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
                         ItemClass.SubService.PublicTransportTram => TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
+                        ItemClass.SubService.PublicTransportTrolleybus => TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
                         _ => TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
                     };
                 case ItemClass.Service.Disaster:
@@ -154,9 +155,12 @@ namespace Klyte.TransportLinesManager.Extensors
                     ss = ItemClass.SubService.PublicTransportMonorail;
                     return ItemClass.Service.PublicTransport;
                 case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                     ss = ItemClass.SubService.PublicTransportPlane;
                     return ItemClass.Service.PublicTransport;
                 case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                     ss = ItemClass.SubService.PublicTransportShip;
                     return ItemClass.Service.PublicTransport;
                 case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
@@ -243,6 +247,8 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BALLOON_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
@@ -292,6 +298,8 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG:
@@ -343,6 +351,8 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG:
@@ -394,6 +404,8 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG:
+                case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
                 case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG:

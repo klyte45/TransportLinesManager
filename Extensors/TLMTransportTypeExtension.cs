@@ -325,6 +325,8 @@ namespace Klyte.TransportLinesManager.Extensors
     public sealed class TLMTransportTypeExtensionTouBal : TLMTransportTypeExtension<TLMSysDefTouBal, TLMTransportTypeExtensionTouBal> { }
     public sealed class TLMTransportTypeExtensionNorCcr : TLMTransportTypeExtension<TLMSysDefNorCcr, TLMTransportTypeExtensionNorCcr> { }
     public sealed class TLMTransportTypeExtensionNorTax : TLMTransportTypeExtension<TLMSysDefNorTax, TLMTransportTypeExtensionNorTax> { }
+    public sealed class TLMTransportTypeExtensionNorTrl : TLMTransportTypeExtension<TLMSysDefNorTrl, TLMTransportTypeExtensionNorTrl> { }
+    public sealed class TLMTransportTypeExtensionNorHel : TLMTransportTypeExtension<TLMSysDefNorHel, TLMTransportTypeExtensionNorHel> { }
     [XmlRoot("AssetConfiguration")]
     public class TLMAssetConfiguration
     {

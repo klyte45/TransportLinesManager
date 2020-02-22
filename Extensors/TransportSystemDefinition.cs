@@ -29,6 +29,8 @@ namespace Klyte.TransportLinesManager.Extensors
         public static readonly TransportSystemDefinition TAXI = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTaxi, VehicleInfo.VehicleType.Car, TransportInfo.TransportType.Taxi);
         public static readonly TransportSystemDefinition BALLOON = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTours, VehicleInfo.VehicleType.None, TransportInfo.TransportType.HotAirBalloon);
         public static readonly TransportSystemDefinition POST = new TransportSystemDefinition(ItemClass.SubService.PublicTransportPost, VehicleInfo.VehicleType.None, TransportInfo.TransportType.Post);
+        public static readonly TransportSystemDefinition TROLLEY = new TransportSystemDefinition(ItemClass.SubService.PublicTransportTrolleybus, VehicleInfo.VehicleType.Trolleybus, TransportInfo.TransportType.Trolleybus);
+        public static readonly TransportSystemDefinition HELICOPTER = new TransportSystemDefinition(ItemClass.SubService.PublicTransportPlane, VehicleInfo.VehicleType.Helicopter, TransportInfo.TransportType.Helicopter);
 
 
         private static readonly Dictionary<TransportSystemDefinition, TransportInfo> m_infoList = new Dictionary<TransportSystemDefinition, TransportInfo>();
@@ -132,6 +134,11 @@ namespace Klyte.TransportLinesManager.Extensors
             //if()=>isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Industry))
             //{
             tempDef[POST] = () => TLMSysDefPstPst.instance;
+            //}
+            // if (isLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Urban))
+            //{
+            tempDef[HELICOPTER] = () => TLMSysDefNorHel.instance;
+            tempDef[TROLLEY] = () => TLMSysDefNorTrl.instance;
             //}
         }
 
@@ -359,5 +366,7 @@ namespace Klyte.TransportLinesManager.Extensors
     public sealed class TLMSysDefTouBal : TLMSysDef<TLMSysDefTouBal> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionTouBal.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BALLOON; }
     public sealed class TLMSysDefNorCcr : TLMSysDef<TLMSysDefNorCcr> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorCcr.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.CABLE_CAR; }
     public sealed class TLMSysDefNorTax : TLMSysDef<TLMSysDefNorTax> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorTax.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TAXI; }
+    public sealed class TLMSysDefNorTrl : TLMSysDef<TLMSysDefNorTrl> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorTrl.Instance;public override TransportSystemDefinition  GetTSD() => TransportSystemDefinition.TROLLEY; }
+    public sealed class TLMSysDefNorHel : TLMSysDef<TLMSysDefNorHel> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorHel.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.HELICOPTER; }
 
 }

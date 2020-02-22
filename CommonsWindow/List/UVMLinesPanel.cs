@@ -517,5 +517,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
     internal sealed class UVMLinesPanelEvcBus : UVMLinesPanel<TLMSysDefEvcBus> { }
     internal sealed class UVMLinesPanelTouBus : UVMLinesPanel<TLMSysDefTouBus> { }
     internal sealed class UVMLinesPanelTouPed : UVMLinesPanel<TLMSysDefTouPed> { }
+    internal sealed class UVMLinesPanelNorTrl : UVMLinesPanel<TLMSysDefNorTrl> { }
+    internal sealed class UVMLinesPanelNorHel : UVMLinesPanel<TLMSysDefNorHel> { }
 
 }
