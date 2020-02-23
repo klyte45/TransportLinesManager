@@ -95,7 +95,7 @@ namespace Klyte.TransportLinesManager
                 case ConfigIndex.TOUR_PED_CONFIG:
                     return new Color32(83, 157, 48, 255);
                 case ConfigIndex.TROLLEY_CONFIG:
-                    return new Color(1,.517f, 0, 1);
+                    return new Color(1, .517f, 0, 1);
                 case ConfigIndex.HELICOPTER_CONFIG:
                     return new Color(.671f, .333f, .604f, 1);
                 default:
@@ -290,6 +290,8 @@ namespace Klyte.TransportLinesManager
         {
             switch (i)
             {
+                case ConfigIndex.MAX_VEHICLES_SPECIFIC_CONFIG:
+                    return 50;
                 default:
                     return 0;
             }
@@ -638,24 +640,7 @@ namespace Klyte.TransportLinesManager
             CIRCULAR_IN_SINGLE_DISTRICT_LINE = GLOBAL_CONFIG | 0x3 | TYPE_BOOL,
             AUTO_NAME_ENABLED = GLOBAL_CONFIG | 0x4 | TYPE_BOOL,
             ADD_LINE_NUMBER_IN_AUTONAME = GLOBAL_CONFIG | 0x9 | TYPE_BOOL,
-            PREFIX_BASED_ASSETS_BUS = GLOBAL_CONFIG | 0xA | TYPE_DICTIONARY,
-            PREFIX_BASED_ASSETS_TRAM = GLOBAL_CONFIG | 0xB | TYPE_DICTIONARY,
-            PREFIX_BASED_ASSETS_TRAIN = GLOBAL_CONFIG | 0xC | TYPE_DICTIONARY,
-            PREFIX_BASED_ASSETS_SHIP = GLOBAL_CONFIG | 0xD | TYPE_DICTIONARY,
-            DEPOT_PREFIXES_BUS = GLOBAL_CONFIG | 0xE | TYPE_DICTIONARY,
-            DEPOT_PREFIXES_TRAM = GLOBAL_CONFIG | 0xF | TYPE_DICTIONARY,
-            DEPOT_PREFIXES_TRAIN = GLOBAL_CONFIG | 0x10 | TYPE_DICTIONARY,
-            DEPOT_PREFIXES_METRO = GLOBAL_CONFIG | 0x11 | TYPE_DICTIONARY,
-            DEPOT_PREFIXES_SHIP = GLOBAL_CONFIG | 0x12 | TYPE_DICTIONARY,
-            DEPOT_PREFIXES_PLANE = GLOBAL_CONFIG | 0x18 | TYPE_DICTIONARY,
-            PREFIX_BASED_ASSETS_PLANE = GLOBAL_CONFIG | 0x19 | TYPE_DICTIONARY,
-            LINES_CONFIG = GLOBAL_CONFIG | 0x1A | TYPE_DICTIONARY,
-            STOPS_CONFIG = GLOBAL_CONFIG | 0x1B | TYPE_DICTIONARY,
-            PREFIX_BASED_ASSETS_MONORAIL = GLOBAL_CONFIG | 0x1D | TYPE_DICTIONARY,
-            DEPOT_PREFIXES_MONORAIL = GLOBAL_CONFIG | 0x1F | TYPE_DICTIONARY,
-            PREFIX_BASED_ASSETS_METRO = GLOBAL_CONFIG | 0x20 | TYPE_DICTIONARY,
-            PREFIX_BASED_ASSETS_EVAC_BUS = GLOBAL_CONFIG | 0x21 | TYPE_DICTIONARY,
-            PREFIX_BASED_ASSETS_TOUR_BUS = GLOBAL_CONFIG | 0x22 | TYPE_DICTIONARY,
+            MAX_VEHICLES_SPECIFIC_CONFIG = GLOBAL_CONFIG | 0x23 | TYPE_INT,
 
 
             TRAIN_CONFIG = TransportInfo.TransportType.Train << 16,
@@ -738,7 +723,7 @@ namespace Klyte.TransportLinesManager
             TOUR_PED_CONFIG_PREFIX = TOUR_PED_CONFIG | PREFIX,
             TOUR_BUS_CONFIG_PREFIX = TOUR_BUS_CONFIG | PREFIX,
             TROLLEY_CONFIG_PREFIX = TROLLEY_CONFIG | PREFIX,
-            HELICOPTER_CONFIG_PREFIX = HELICOPTER_CONFIG| PREFIX,
+            HELICOPTER_CONFIG_PREFIX = HELICOPTER_CONFIG | PREFIX,
 
             TRAIN_SEPARATOR = TRAIN_CONFIG | SEPARATOR,
             TRAM_SEPARATOR = TRAM_CONFIG | SEPARATOR,

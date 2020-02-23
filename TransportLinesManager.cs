@@ -43,6 +43,8 @@ namespace Klyte.TransportLinesManager
 
         public override void Group9SettingsUI(UIHelperExtension group9)
         {
+            TLMConfigOptions.instance.generateNumberFieldConfig(group9, Locale.Get("K45_TLM_MAXIMUM_VEHICLE_COUNT_FOR_SPECIFIC_LINE_CONFIG"), TLMConfigWarehouse.ConfigIndex.MAX_VEHICLES_SPECIFIC_CONFIG).maxLength = 3;
+
             group9.AddButton(Locale.Get("K45_TLM_DRAW_CITY_MAP"), TLMMapDrawer.drawCityMap);
             group9.AddButton("Open generated map folder", () => ColossalFramework.Utils.OpenInFileBrowser(TLMController.exportedMapsFolder));
             group9.AddSpace(2);

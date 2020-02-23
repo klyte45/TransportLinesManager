@@ -15,8 +15,8 @@ namespace Klyte.TransportLinesManager.OptionsMenu
     {
         public UIPanel mainPanel { get; private set; }
         public UIHelperExtension m_uiHelper;
-        private static TLMShowConfigTab<T> m_instance;
-        public static TLMShowConfigTab<T> instance => m_instance;
+
+        public static TLMShowConfigTab<T> instance { get; private set; }
 
         private TransportSystemDefinition m_tsd = TLMSysDef<T>.instance.GetTSD();
         private TLMConfigOptions m_tlmCo = TLMConfigOptions.instance;
@@ -33,7 +33,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         private void Awake()
         {
-            m_instance = this;
+            instance = this;
             mainPanel = GetComponent<UIPanel>();
             mainPanel.autoLayout = true;
             mainPanel.autoLayoutDirection = LayoutDirection.Vertical;

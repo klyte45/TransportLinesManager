@@ -305,7 +305,7 @@ namespace Klyte.TransportLinesManager.Utils
             var transportType = tsd.ToConfigIndex();
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum)
             {
-                var prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u;
+                uint prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u;
                 //LogUtils.DoLog($"Prefix {prefix} for lineId {idx}");
                 return prefix;
             }
@@ -1204,6 +1204,7 @@ namespace Klyte.TransportLinesManager.Utils
         private static bool IsBuildingValidForStation(bool excludeCargo, BuildingManager bm, ushort tempBuildingId) => tempBuildingId > 0 && (!excludeCargo || !(bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is DepotAI || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is CargoStationAI) || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI);
         public static int CalculateTargetVehicleCount(ref TransportLine t, ushort lineId, float lineLength) => CalculateTargetVehicleCount(t.Info, lineLength, GetEffectiveBudget(lineId));
         public static int CalculateTargetVehicleCount(TransportInfo info, float lineLength, float budget) => Mathf.CeilToInt(budget * lineLength / info.m_defaultVehicleDistance);
+        public static float CalculateBudgetForEachVehicle(TransportInfo info, float lineLength) => info.m_defaultVehicleDistance / lineLength;
 
         public static int GetTicketPriceForVehicle(VehicleAI ai, ushort vehicleID, ref Vehicle vehicleData)
         {

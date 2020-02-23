@@ -196,6 +196,7 @@ namespace Klyte.TransportLinesManager.Overrides
                         break;
                     }
                 }
+                t.m_totalLength = lineLength;
             }
             return TLMLineUtils.CalculateTargetVehicleCount(ref t, lineId, lineLength);
         }
