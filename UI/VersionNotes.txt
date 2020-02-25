@@ -1,6 +1,7 @@
 ﻿TLMv13.2
 	- Added support for Donut
 	- NEW REPORT: Tourists/Students/Total passengers by line (last 24h)
+	- NEW REPORT: Passengers by wealth by line (last 24h)
 	- Added summary for financial report
 	- Minor UI fixes
 	- Now specific budget sliders step fits the line lenght (each slider step advance is equal to one vehicle)

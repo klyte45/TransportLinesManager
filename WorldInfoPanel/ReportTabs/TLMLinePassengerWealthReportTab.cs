@@ -8,12 +8,12 @@ using static Klyte.TransportLinesManager.UI.TLMReportsTab;
 namespace Klyte.TransportLinesManager.UI
 {
 
-    public class TLMLinePassengerReportTab : UICustomControl, ITLMReportChild
+    public class TLMLinePassengerWealthReportTab : UICustomControl, ITLMReportChild
     {
 
         private UIPanel m_bg;
-        private TLMPassengerReportLine[] m_reportLines = new TLMPassengerReportLine[17];
-        private TLMPassengerReportLine m_aggregateLine;
+        private TLMPassengerWealthReportLine[] m_reportLines = new TLMPassengerWealthReportLine[17];
+        private TLMPassengerWealthReportLine m_aggregateLine;
 
 
         #region Overridable
@@ -32,10 +32,10 @@ namespace Klyte.TransportLinesManager.UI
             titleLabel.textAlignment = UIHorizontalAlignment.Center;
             titleLabel.minimumSize = new Vector2(m_bg.width, 0);
             KlyteMonoUtils.LimitWidth(titleLabel, m_bg.width);
-            titleLabel.localeID = "K45_TLM_PASSENGERS_LINE_REPORT";
+            titleLabel.localeID = "K45_TLM_PASSENGERS_WEALTH_LINE_REPORT";
 
             KlyteMonoUtils.CreateUIElement(out UIPanel listTitle, m_bg.transform, "LT");
-            TLMPassengerReportLine titleList = listTitle.gameObject.AddComponent<TLMPassengerReportLine>();
+            TLMPassengerWealthReportLine titleList = listTitle.gameObject.AddComponent<TLMPassengerWealthReportLine>();
             titleList.AsTitle();
 
             KlyteMonoUtils.CreateUIElement(out UIPanel reportLinesContainer, m_bg.transform, "listContainer", new Vector4(0, 0, m_bg.width, m_bg.height - titleLabel.height - listTitle.height - 35));
@@ -46,10 +46,10 @@ namespace Klyte.TransportLinesManager.UI
             for (int i = 0; i < m_reportLines.Length; i++)
             {
                 KlyteMonoUtils.CreateUIElement(out UIPanel line, reportLines.transform, $"L{i}");
-                m_reportLines[i] = line.gameObject.AddComponent<TLMPassengerReportLine>();
+                m_reportLines[i] = line.gameObject.AddComponent<TLMPassengerWealthReportLine>();
             }
             KlyteMonoUtils.CreateUIElement(out UIPanel aggregateLine, m_bg.transform, $"L_AGG");
-            m_aggregateLine = aggregateLine.gameObject.AddComponent<TLMPassengerReportLine>();
+            m_aggregateLine = aggregateLine.gameObject.AddComponent<TLMPassengerWealthReportLine>();
         }
 
 
@@ -64,16 +64,16 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (m_bg.isVisible)
             {
-                System.Collections.Generic.List<TLMTransportLineStatusesManager.StudentsTouristsReport> report = TLMTransportLineStatusesManager.instance.GetLineStudentTouristsTotalReport(UVMPublicTransportWorldInfoPanel.GetLineID());
-                var totalizer = new TLMTransportLineStatusesManager.StudentsTouristsReport();
+                System.Collections.Generic.List<TLMTransportLineStatusesManager.WealthPassengerReport> report = TLMTransportLineStatusesManager.instance.GetLineWealthReport(UVMPublicTransportWorldInfoPanel.GetLineID());
+                var totalizer = new TLMTransportLineStatusesManager.WealthPassengerReport();
                 for (int i = 0; i < m_reportLines.Length; i++)
                 {
                     m_reportLines[i].SetData(report[16 - i], showDayTime, TLMController.IsRealTimeEnabled);
                     if (i > 0)
                     {
-                        totalizer.Student += report[16 - i].Student;
-                        totalizer.Tourists += report[16 - i].Tourists;
-                        totalizer.Total += report[16 - i].Total;
+                        totalizer.Low += report[16 - i].Low;
+                        totalizer.Medium += report[16 - i].Medium;
+                        totalizer.High += report[16 - i].High;
                     }
                 }
                 m_aggregateLine.SetDataTotalizer(totalizer);

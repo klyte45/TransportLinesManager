@@ -2,6 +2,7 @@
 using Klyte.Commons.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensors
@@ -180,12 +181,12 @@ namespace Klyte.TransportLinesManager.Extensors
             result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
             return result;
         }
-        public List<PassengerReport> GetLineStudentTouristsTotalReport(ushort lineId)
+        public List<StudentsTouristsReport> GetLineStudentTouristsTotalReport(ushort lineId)
         {
-            var result = new List<PassengerReport>();
+            var result = new List<StudentsTouristsReport>();
             for (int j = 0; j < 16; j++)
             {
-                result.Add(new PassengerReport
+                result.Add(new StudentsTouristsReport
                 {
                     Total = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.TOTAL_PASSENGERS, j),
                     Student = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.STUDENT_PASSENGERS, j),
@@ -194,7 +195,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 });
 
             }
-            result.Add(new PassengerReport
+            result.Add(new StudentsTouristsReport
             {
                 Total = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.TOTAL_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
                 Student = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.STUDENT_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
@@ -204,7 +205,37 @@ namespace Klyte.TransportLinesManager.Extensors
             result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
             return result;
         }
-        public sealed class PassengerReport : BasicReportData
+        public List<WealthPassengerReport> GetLineWealthReport(ushort lineId)
+        {
+            var result = new List<WealthPassengerReport>();
+            for (int j = 0; j < 16; j++)
+            {
+                result.Add(new WealthPassengerReport
+                {
+                    Low = LowWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, j)).Sum(x => x),
+                    Medium = MedWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, j)).Sum(x => x),
+                    High = HghWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, j)).Sum(x => x),
+                    RefFrame = GetStartFrameForArrayIdx(j)
+                });
+
+            }
+            result.Add(new WealthPassengerReport
+            {
+                Low = LowWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                Medium = MedWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                High = HghWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                RefFrame = (Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES) & ~FRAMES_PER_CYCLE_MASK
+            });
+            result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
+            return result;
+        }
+        public sealed class WealthPassengerReport : BasicReportData
+        {
+            public long Low { get; set; }
+            public long Medium { get; set; }
+            public long High { get; set; }
+        }
+        public sealed class StudentsTouristsReport : BasicReportData
         {
             public long Total { get; set; }
             public long Student { get; set; }
@@ -384,6 +415,50 @@ namespace Klyte.TransportLinesManager.Extensors
             W3_ADULT_FEML_PASSENGERS,
             W3_ELDER_FEML_PASSENGERS,
         }
+
+        #endregion
+
+        #region Enum grouping
+
+        private LineDataUshort[] LowWealthData = new LineDataUshort[]
+        {
+            LineDataUshort.W1_CHILD_MALE_PASSENGERS,
+            LineDataUshort.W1_TEENS_MALE_PASSENGERS,
+            LineDataUshort.W1_YOUNG_MALE_PASSENGERS,
+            LineDataUshort.W1_ADULT_MALE_PASSENGERS,
+            LineDataUshort.W1_ELDER_MALE_PASSENGERS,
+            LineDataUshort.W1_CHILD_FEML_PASSENGERS,
+            LineDataUshort.W1_TEENS_FEML_PASSENGERS,
+            LineDataUshort.W1_YOUNG_FEML_PASSENGERS,
+            LineDataUshort.W1_ADULT_FEML_PASSENGERS,
+            LineDataUshort.W1_ELDER_FEML_PASSENGERS,
+};
+        private LineDataUshort[] MedWealthData = new LineDataUshort[]
+         {
+            LineDataUshort.W2_CHILD_MALE_PASSENGERS,
+            LineDataUshort.W2_TEENS_MALE_PASSENGERS,
+            LineDataUshort.W2_YOUNG_MALE_PASSENGERS,
+            LineDataUshort.W2_ADULT_MALE_PASSENGERS,
+            LineDataUshort.W2_ELDER_MALE_PASSENGERS,
+            LineDataUshort.W2_CHILD_FEML_PASSENGERS,
+            LineDataUshort.W2_TEENS_FEML_PASSENGERS,
+            LineDataUshort.W2_YOUNG_FEML_PASSENGERS,
+            LineDataUshort.W2_ADULT_FEML_PASSENGERS,
+            LineDataUshort.W2_ELDER_FEML_PASSENGERS,
+};
+        private LineDataUshort[] HghWealthData = new LineDataUshort[]
+         {
+            LineDataUshort.W3_CHILD_MALE_PASSENGERS,
+            LineDataUshort.W3_TEENS_MALE_PASSENGERS,
+            LineDataUshort.W3_YOUNG_MALE_PASSENGERS,
+            LineDataUshort.W3_ADULT_MALE_PASSENGERS,
+            LineDataUshort.W3_ELDER_MALE_PASSENGERS,
+            LineDataUshort.W3_CHILD_FEML_PASSENGERS,
+            LineDataUshort.W3_TEENS_FEML_PASSENGERS,
+            LineDataUshort.W3_YOUNG_FEML_PASSENGERS,
+            LineDataUshort.W3_ADULT_FEML_PASSENGERS,
+            LineDataUshort.W3_ELDER_FEML_PASSENGERS,
+        };
 
         #endregion
 
