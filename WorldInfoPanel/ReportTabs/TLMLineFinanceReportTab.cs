@@ -89,10 +89,6 @@ namespace Klyte.TransportLinesManager.UI
         }
         public void OnSetTarget(Type source)
         {
-            if (source == GetType())
-            {
-                return;
-            }
         }
 
         #endregion

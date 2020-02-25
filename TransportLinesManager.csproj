@@ -148,6 +148,7 @@
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="Extensors\GameServiceExtensions.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMDefaultCostPerPassengerConfigTab.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\TLMReportsTab.cs" />
     <Compile Include="Xml\TLMTransportLineConfiguration.cs" />
     <Compile Include="Xml\BudgetEntryXml.cs" />
     <Compile Include="Extensors\ExtensionStaticExtensionMethods.cs" />
@@ -198,7 +199,7 @@
     <Compile Include="WorldInfoPanel\Tabs\TLMPrefixOptionsTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMDepotSelectorTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMAssetSelectorTab.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\TLMLineFinanceReportTab.cs" />
+    <Compile Include="WorldInfoPanel\ReportTabs\TLMLineFinanceReportTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMTicketConfigTab.cs" />
     <Compile Include="WorldInfoPanel\Components\UVMBudgetEditorLine.cs" />
     <Compile Include="WorldInfoPanel\Components\UVMBudgetTimeChart.cs" />
