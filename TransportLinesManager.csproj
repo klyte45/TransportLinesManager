@@ -147,7 +147,10 @@
     <Compile Include="commons\Utils\VehicleUtils.cs" />
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="Extensors\GameServiceExtensions.cs" />
+    <Compile Include="Extensors\TransportLineStorageBasicData.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMDefaultCostPerPassengerConfigTab.cs" />
+    <Compile Include="WorldInfoPanel\Components\TLMPassengerReportLine.cs" />
+    <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerReportTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMReportsTab.cs" />
     <Compile Include="Xml\TLMTransportLineConfiguration.cs" />
     <Compile Include="Xml\BudgetEntryXml.cs" />
