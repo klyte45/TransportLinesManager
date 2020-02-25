@@ -307,7 +307,7 @@ namespace Klyte.TransportLinesManager.UI
             m_previewPanel.backgroundSprite = "GenericPanel";
             m_previewPanel.width = MainPanel.width - 15;
             m_previewPanel.height = 140;
-            m_previewPanel.relativePosition = new Vector3(7.5f, MainPanel.height - 135);
+            m_previewPanel.relativePosition = new Vector3(7.5f, MainPanel.height - 142);
             KlyteMonoUtils.CreateUIElement(out m_preview, m_previewPanel.transform);
             m_preview.size = m_previewPanel.size;
             m_preview.relativePosition = Vector3.zero;

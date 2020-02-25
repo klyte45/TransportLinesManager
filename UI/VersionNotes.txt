@@ -1,19 +1,7 @@
-﻿TLMv13.1
-	- Fixed UI glitches at non-1080p resolutions
-TLMv13.0.3
-	- Fixed: Specific button checkbox area is not clickable
-TLMv13.0.2
-	- Fixed: Specific button checkbox area is overlapping the action buttons on lower of line details screen
-TLMv13.0.1
-	- Fixed odd line window loading if the mod is not enabled
-	- Fixed label for defaut ticket price in en, es and pt
-TLMv13
-	- NEW INTERFACE
-	- NEW OPTIONS IN MENU
-	- NEW LINE FINANCES BALANCE OVERVIEW & HISTORY FOR A CYCLE
-	- NEW UI FOR SETTING BUDGET TO LINES/PREFIXES
-	- ADDED INDUSTRIES & CAMPUS BUILDINGS SUPPORT FOR NAMING
-	- New behavior: Vehicles are live switched when allowed models are changed and remove unallowed button is activated
-	- New feature: Depots can be setted by line
-	- Fixed: Custom stop names don't show prefixes setted for buses/trams
-	- Fixed: Custom stop names near stops that have no name set are ignored when searching near named stop
+﻿TLMv13.2
+	- Added support for Donut
+	- Added summary for report
+	- Minor UI fixes
+	- Now specific budget sliders step fits the line lenght (each slider step advance is equal to one vehicle)
+	- New property for max value on specific config vehicle count (defaults 50)
+	- Fixed line symbol header on linear map

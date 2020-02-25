@@ -92,7 +92,7 @@ namespace Klyte.TransportLinesManager.UI
 
             SetNameFieldProperties();
 
-            KlyteMonoUtils.CreateTabsComponent(out m_obj.m_lineConfigTabs, out _, __instance.transform, "LineConfig", new Vector4(15, 45, 365, 30), new Vector4(15, 80, 380, 440));
+            KlyteMonoUtils.CreateTabsComponent(out m_obj.m_lineConfigTabs, out _, __instance.transform, "LineConfig", new Vector4(15, 45, 365, 30), new Vector4(15, 80, 380, 445));
 
             m_childControls.Add("Default", TabCommons.CreateTab<UVMMainWIPTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_STATS_TAB", "Default", false));
             m_childControls.Add("FinanceReport", TabCommons.CreateTab<TLMLineFinanceReportTab>(m_obj.m_lineConfigTabs, "IconMessage", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));

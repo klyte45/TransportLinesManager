@@ -97,12 +97,22 @@ namespace Klyte.TransportLinesManager.UI
             }
             else
             {
-                m_dateTime.text = $"{data.StartDate.ToString(realtimeEnabled? "t" : "d", LocaleManager.cultureInfo)}\n{(m_container.zOrder == 0 ? Locale.Get("K45_TLM_BUDGET_REPORT_LIST_CURRENT_TIME") : data.EndDate.ToString(realtimeEnabled ? "t" : "d", LocaleManager.cultureInfo))}";
+                m_dateTime.text = $"{data.StartDate.ToString(realtimeEnabled ? "t" : "d", LocaleManager.cultureInfo)}\n{(m_container.zOrder == 0 ? Locale.Get("K45_TLM_BUDGET_REPORT_LIST_CURRENT_TIME") : data.EndDate.ToString(realtimeEnabled ? "t" : "d", LocaleManager.cultureInfo))}";
             }
             m_income.text = (data.Income / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
             m_expense.text = (data.Expense / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
             m_balance.text = ((data.Income - data.Expense) / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
             m_balance.color = data.Income < data.Expense ? m_lossColor : m_profitColor;
+        }
+
+        public void SetDataTotalizer(TLMTransportLineStatusesManager.IncomeExpense data)
+        {
+            m_dateTime.text = Locale.Get("K45_TLM_BUDGET_REPORT_TOTALIZER");
+            m_income.text = (data.Income / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
+            m_expense.text = (data.Expense / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
+            m_balance.text = ((data.Income - data.Expense) / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
+            m_balance.color = data.Income < data.Expense ? m_lossColor : m_profitColor;
+            m_background.color = new Color32(15, 20, 30, 255);
         }
 
         public void AsTitle()

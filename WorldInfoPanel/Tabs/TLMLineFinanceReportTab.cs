@@ -13,6 +13,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private UIPanel m_bg;
         private TLMFinanceReportLine[] m_reportLines = new TLMFinanceReportLine[17];
+        private TLMFinanceReportLine m_aggregateLine;
         private bool showDayTime = false;
 
 
@@ -46,7 +47,7 @@ namespace Klyte.TransportLinesManager.UI
             TLMFinanceReportLine titleList = listTitle.gameObject.AddComponent<TLMFinanceReportLine>();
             titleList.AsTitle();
 
-            KlyteMonoUtils.CreateUIElement(out UIPanel reportLinesContainer, m_bg.transform, "listContainer", new Vector4(0, 0, m_bg.width, m_bg.height - titleLabel.height - heightCheck - listTitle.height - 10));
+            KlyteMonoUtils.CreateUIElement(out UIPanel reportLinesContainer, m_bg.transform, "listContainer", new Vector4(0, 0, m_bg.width, m_bg.height - titleLabel.height - heightCheck - listTitle.height - 35));
             reportLinesContainer.autoLayout = true;
             reportLinesContainer.autoLayoutDirection = LayoutDirection.Horizontal;
             KlyteMonoUtils.CreateScrollPanel(reportLinesContainer, out UIScrollablePanel reportLines, out _, reportLinesContainer.width - 10, reportLinesContainer.height, Vector3.zero);
@@ -56,6 +57,8 @@ namespace Klyte.TransportLinesManager.UI
                 KlyteMonoUtils.CreateUIElement(out UIPanel line, reportLines.transform, $"L{i}");
                 m_reportLines[i] = line.gameObject.AddComponent<TLMFinanceReportLine>();
             }
+            KlyteMonoUtils.CreateUIElement(out UIPanel aggregateLine, m_bg.transform, $"L_AGG");
+            m_aggregateLine = aggregateLine.gameObject.AddComponent<TLMFinanceReportLine>();
         }
 
 
@@ -71,10 +74,17 @@ namespace Klyte.TransportLinesManager.UI
             if (m_bg.isVisible)
             {
                 System.Collections.Generic.List<TLMTransportLineStatusesManager.IncomeExpense> report = TLMTransportLineStatusesManager.instance.GetLineReport(GetLineID());
+                var totalizer = new TLMTransportLineStatusesManager.IncomeExpense();
                 for (int i = 0; i < m_reportLines.Length; i++)
                 {
                     m_reportLines[i].SetData(report[16 - i], showDayTime, TLMController.IsRealTimeEnabled);
+                    if (i > 0)
+                    {
+                        totalizer.Income += report[16 - i].Income;
+                        totalizer.Expense += report[16 - i].Expense;
+                    }
                 }
+                m_aggregateLine.SetDataTotalizer(totalizer);
             }
         }
         public void OnSetTarget(Type source)

@@ -146,13 +146,14 @@ namespace Klyte.TransportLinesManager.UI
 
             m_lineStringLabel = Instantiate(m_vehiclesLabel);
             m_lineStringLabel.transform.SetParent(m_vehiclesLabel.transform.parent);
-            m_lineStringLabel.absolutePosition = m_vehiclesLabel.absolutePosition + new Vector3(63, 0);
             m_lineStringLabel.autoSize = false;
             m_lineStringLabel.size = new Vector2(36, 36);
+            m_lineStringLabel.name = "LineStringLabel";
             m_lineStringLabel.isLocalized = false;
             m_lineStringLabel.text = "<k45Symbol K45_TriangleIcon,FF8822,36>";
             m_lineStringLabel.textScale = 1;
             m_lineStringLabel.processMarkup = true;
+            m_lineStringLabel.relativePosition = new Vector3(168, 10);
         }
 
         private void AdjustLineStopsPanel(PublicTransportWorldInfoPanel __instance)
