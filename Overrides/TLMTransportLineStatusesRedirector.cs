@@ -106,7 +106,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
 
             LogUtils.DoLog($"DoTransportLineEconomyManagement : line {lineId} ({tsd} {tl.m_lineNumber}) ;amount = {amount}");
-            TLMTransportLineStatusesManager.instance.AddToLine(lineId, 0, amount, ref refNull);
+            TLMTransportLineStatusesManager.instance.AddToLine(lineId, 0, amount, ref refNull, 0);
             EconomyManager.instance.FetchResource(Resource.Maintenance, amount, tl.Info.m_class);
         }
 
@@ -119,7 +119,7 @@ namespace Klyte.TransportLinesManager.Overrides
             if (lineId != 0)
             {
                 ushort stopId = TransportLine.GetPrevStop(VehicleManager.instance.m_vehicles.m_buffer[vehicleId].m_targetBuilding);
-                TLMTransportLineStatusesManager.instance.AddToLine(lineId, amount, 0, ref citizen);
+                TLMTransportLineStatusesManager.instance.AddToLine(lineId, amount, 0, ref citizen, citizenId);
                 TLMTransportLineStatusesManager.instance.AddToVehicle(vehicleId, amount, 0, ref citizen);
                 TLMTransportLineStatusesManager.instance.AddToStop(stopId, amount, ref citizen);
                 LogUtils.DoLog($"DoHumanAiEconomyManagement : line {lineId};amount = {amount}; citizen = {citizenId}");

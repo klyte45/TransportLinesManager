@@ -64,7 +64,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (m_bg.isVisible)
             {
-                System.Collections.Generic.List<TLMTransportLineStatusesManager.PassengerReport> report = TLMTransportLineStatusesManager.instance.GetLinePassengerReport(UVMPublicTransportWorldInfoPanel.GetLineID());
+                System.Collections.Generic.List<TLMTransportLineStatusesManager.PassengerReport> report = TLMTransportLineStatusesManager.instance.GetLineStudentTouristsTotalReport(UVMPublicTransportWorldInfoPanel.GetLineID());
                 var totalizer = new TLMTransportLineStatusesManager.PassengerReport();
                 for (int i = 0; i < m_reportLines.Length; i++)
                 {

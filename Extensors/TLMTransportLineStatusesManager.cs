@@ -44,6 +44,8 @@ namespace Klyte.TransportLinesManager.Extensors
             InitArray(ref m_linesDataInt, TransportManager.MAX_LINE_COUNT, typeof(LineDataInt));
             InitArray(ref m_vehiclesDataInt, VehicleManager.MAX_VEHICLE_COUNT, typeof(VehicleDataInt));
             InitArray(ref m_stopDataInt, NetManager.MAX_NODE_COUNT, typeof(StopDataInt));
+
+            InitArray(ref m_linesDataUshort, TransportManager.MAX_LINE_COUNT, typeof(LineDataUshort));
         }
 
         private void InitArray<T>(ref T[][] array, int size, Type enumType) where T : struct, IConvertible
@@ -56,7 +58,16 @@ namespace Klyte.TransportLinesManager.Extensors
         }
 
         #region Data feeding
-        public void AddToLine(ushort lineId, long income, long expense, ref Citizen citizenData) => IncrementInArray(lineId, ref m_linesDataLong, ref m_linesDataInt, (int) LineDataLong.INCOME, (int) LineDataLong.EXPENSE, (int) LineDataInt.TOTAL_PASSENGERS, (int) LineDataInt.TOURIST_PASSENGERS, (int) LineDataInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
+        public void AddToLine(ushort lineId, long income, long expense, ref Citizen citizenData, ushort citizenId)
+        {
+            IncrementInArray(lineId, ref m_linesDataLong, ref m_linesDataInt, (int) LineDataLong.INCOME, (int) LineDataLong.EXPENSE, (int) LineDataInt.TOTAL_PASSENGERS, (int) LineDataInt.TOURIST_PASSENGERS, (int) LineDataInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
+            if (!citizenData.Equals(default))
+            {
+                int idxW = ((((int) citizenData.WealthLevel * 5) + (int) Citizen.GetAgeGroup(citizenData.m_age)) << 1) + (int) Citizen.GetGender(citizenId);
+                m_linesDataUshort[(lineId * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][idxW]++;
+            }
+        }
+
         public void AddToVehicle(ushort vehicleId, long income, long expense, ref Citizen citizenData) => IncrementInArray(vehicleId, ref m_vehiclesDataLong, ref m_vehiclesDataInt, (int) VehicleDataLong.INCOME, (int) VehicleDataLong.EXPENSE, (int) VehicleDataInt.TOTAL_PASSENGERS, (int) VehicleDataInt.TOURIST_PASSENGERS, (int) VehicleDataInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
         public void AddToStop(ushort stopId, long income, ref Citizen citizenData) => IncrementInArray(stopId, ref m_stopDataLong, ref m_stopDataInt, (int) StopDataLong.INCOME, null, (int) StopDataInt.TOTAL_PASSENGERS, (int) StopDataInt.TOURIST_PASSENGERS, (int) StopDataInt.STUDENT_PASSENGERS, income, 0, ref citizenData);
 
@@ -98,7 +109,7 @@ namespace Klyte.TransportLinesManager.Extensors
             }
         }
 
-        private static T GetAtArray<T>(ushort id, ref T[][] arrayData, int entryIdx, int dataIdx) where T:struct, IComparable => arrayData[(id * 17) + dataIdx][entryIdx];
+        private static T GetAtArray<T>(ushort id, ref T[][] arrayData, int entryIdx, int dataIdx) where T : struct, IComparable => arrayData[(id * 17) + dataIdx][entryIdx];
 
         private void GetGenericIncome(ushort id, out long income, ref long[][] arrayData, int incomeEntry)
         {
@@ -169,15 +180,15 @@ namespace Klyte.TransportLinesManager.Extensors
             result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
             return result;
         }
-        public List<PassengerReport> GetLinePassengerReport(ushort lineId)
+        public List<PassengerReport> GetLineStudentTouristsTotalReport(ushort lineId)
         {
             var result = new List<PassengerReport>();
             for (int j = 0; j < 16; j++)
             {
                 result.Add(new PassengerReport
                 {
-                    Total =    GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.TOTAL_PASSENGERS, j),
-                    Student =  GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.STUDENT_PASSENGERS, j),
+                    Total = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.TOTAL_PASSENGERS, j),
+                    Student = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.STUDENT_PASSENGERS, j),
                     Tourists = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.TOURIST_PASSENGERS, j),
                     RefFrame = GetStartFrameForArrayIdx(j)
                 });
@@ -249,6 +260,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     FinishCycle(idxEnum, ref instance.m_linesDataInt, TransportManager.MAX_LINE_COUNT);
                     FinishCycle(idxEnum, ref instance.m_vehiclesDataInt, VehicleManager.MAX_VEHICLE_COUNT);
                     FinishCycle(idxEnum, ref instance.m_stopDataInt, NetManager.MAX_NODE_COUNT);
+                    FinishCycle(idxEnum, ref instance.m_linesDataUshort, TransportManager.MAX_LINE_COUNT);
                 }
             }
         }
@@ -289,6 +301,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 ClearArray(ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_linesDataInt);
                 ClearArray(ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_vehiclesDataInt);
                 ClearArray(ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_stopDataInt);
+                ClearArray(ref SingletonLite<TLMTransportLineStatusesManager>.instance.m_linesDataUshort);
             }
             Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndLoading();
         }
@@ -301,6 +314,8 @@ namespace Klyte.TransportLinesManager.Extensors
         private int[][] m_linesDataInt;
         private int[][] m_vehiclesDataInt;
         private int[][] m_stopDataInt;
+
+        private ushort[][] m_linesDataUshort;
 
         #region Enums
         private enum LineDataLong
@@ -336,11 +351,44 @@ namespace Klyte.TransportLinesManager.Extensors
             TOURIST_PASSENGERS,
             STUDENT_PASSENGERS
         }
+        private enum LineDataUshort
+        {
+            W1_CHILD_MALE_PASSENGERS,
+            W1_TEENS_MALE_PASSENGERS,
+            W1_YOUNG_MALE_PASSENGERS,
+            W1_ADULT_MALE_PASSENGERS,
+            W1_ELDER_MALE_PASSENGERS,
+            W2_CHILD_MALE_PASSENGERS,
+            W2_TEENS_MALE_PASSENGERS,
+            W2_YOUNG_MALE_PASSENGERS,
+            W2_ADULT_MALE_PASSENGERS,
+            W2_ELDER_MALE_PASSENGERS,
+            W3_CHILD_MALE_PASSENGERS,
+            W3_TEENS_MALE_PASSENGERS,
+            W3_YOUNG_MALE_PASSENGERS,
+            W3_ADULT_MALE_PASSENGERS,
+            W3_ELDER_MALE_PASSENGERS,
+            W1_CHILD_FEML_PASSENGERS,
+            W1_TEENS_FEML_PASSENGERS,
+            W1_YOUNG_FEML_PASSENGERS,
+            W1_ADULT_FEML_PASSENGERS,
+            W1_ELDER_FEML_PASSENGERS,
+            W2_CHILD_FEML_PASSENGERS,
+            W2_TEENS_FEML_PASSENGERS,
+            W2_YOUNG_FEML_PASSENGERS,
+            W2_ADULT_FEML_PASSENGERS,
+            W2_ELDER_FEML_PASSENGERS,
+            W3_CHILD_FEML_PASSENGERS,
+            W3_TEENS_FEML_PASSENGERS,
+            W3_YOUNG_FEML_PASSENGERS,
+            W3_ADULT_FEML_PASSENGERS,
+            W3_ELDER_FEML_PASSENGERS,
+        }
 
         #endregion
 
         #region Serialization Utils
-        private void DoWithArray(Enum e, DoWithArrayRef<long> action, DoWithArrayRef<int> actionInt)
+        private void DoWithArray(Enum e, DoWithArrayRef<long> action, DoWithArrayRef<int> actionInt, DoWithArrayRef<ushort> actionUshort)
         {
             switch (e)
             {
@@ -362,6 +410,9 @@ namespace Klyte.TransportLinesManager.Extensors
                 case StopDataInt _:
                     actionInt(ref m_stopDataInt);
                     break;
+                case LineDataUshort _:
+                    actionUshort(ref m_linesDataUshort);
+                    break;
             }
         }
 
@@ -382,6 +433,8 @@ namespace Klyte.TransportLinesManager.Extensors
                 case VehicleDataInt l:
                     return (int) l;
                 case StopDataInt l:
+                    return (int) l;
+                case LineDataUshort l:
                     return (int) l;
                 default:
                     e.GetType();
@@ -443,12 +496,48 @@ namespace Klyte.TransportLinesManager.Extensors
                             return 1;
                     }
                     break;
+                case LineDataUshort l:
+                    switch (l)
+                    {
+                        case LineDataUshort.W1_CHILD_MALE_PASSENGERS:
+                        case LineDataUshort.W1_TEENS_MALE_PASSENGERS:
+                        case LineDataUshort.W1_YOUNG_MALE_PASSENGERS:
+                        case LineDataUshort.W1_ADULT_MALE_PASSENGERS:
+                        case LineDataUshort.W1_ELDER_MALE_PASSENGERS:
+                        case LineDataUshort.W2_CHILD_MALE_PASSENGERS:
+                        case LineDataUshort.W2_TEENS_MALE_PASSENGERS:
+                        case LineDataUshort.W2_YOUNG_MALE_PASSENGERS:
+                        case LineDataUshort.W2_ADULT_MALE_PASSENGERS:
+                        case LineDataUshort.W2_ELDER_MALE_PASSENGERS:
+                        case LineDataUshort.W3_CHILD_MALE_PASSENGERS:
+                        case LineDataUshort.W3_TEENS_MALE_PASSENGERS:
+                        case LineDataUshort.W3_YOUNG_MALE_PASSENGERS:
+                        case LineDataUshort.W3_ADULT_MALE_PASSENGERS:
+                        case LineDataUshort.W3_ELDER_MALE_PASSENGERS:
+                        case LineDataUshort.W1_CHILD_FEML_PASSENGERS:
+                        case LineDataUshort.W1_TEENS_FEML_PASSENGERS:
+                        case LineDataUshort.W1_YOUNG_FEML_PASSENGERS:
+                        case LineDataUshort.W1_ADULT_FEML_PASSENGERS:
+                        case LineDataUshort.W1_ELDER_FEML_PASSENGERS:
+                        case LineDataUshort.W2_CHILD_FEML_PASSENGERS:
+                        case LineDataUshort.W2_TEENS_FEML_PASSENGERS:
+                        case LineDataUshort.W2_YOUNG_FEML_PASSENGERS:
+                        case LineDataUshort.W2_ADULT_FEML_PASSENGERS:
+                        case LineDataUshort.W2_ELDER_FEML_PASSENGERS:
+                        case LineDataUshort.W3_CHILD_FEML_PASSENGERS:
+                        case LineDataUshort.W3_TEENS_FEML_PASSENGERS:
+                        case LineDataUshort.W3_YOUNG_FEML_PASSENGERS:
+                        case LineDataUshort.W3_ADULT_FEML_PASSENGERS:
+                        case LineDataUshort.W3_ELDER_FEML_PASSENGERS:
+                            return 3;
+                    }
+                    break;
             }
             return 99999999;
         }
 
         #endregion
 
-        public const long CURRENT_VERSION = 2;
+        public const long CURRENT_VERSION = 3;
     }
 }

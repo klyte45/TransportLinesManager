@@ -1,9 +1,7 @@
-﻿using ColossalFramework;
-using Klyte.Commons.Interfaces;
+﻿using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using System;
 using System.IO;
-using System.Linq;
 
 namespace Klyte.TransportLinesManager.Extensors
 {
@@ -40,6 +38,14 @@ namespace Klyte.TransportLinesManager.Extensors
                             {
                                 arrayRef[i][idx] = (int) DeserializeFunction(s);
                             }
+                        }, (ref ushort[][] arrayRef) =>
+                        {
+                            int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
+
+                            for (int i = 0; i < arrayRef.Length; i++)
+                            {
+                                arrayRef[i][idx] = (ushort) DeserializeFunction(s);
+                            }
                         });
                     }
                 }
@@ -64,6 +70,14 @@ namespace Klyte.TransportLinesManager.Extensors
                         }
                         LogUtils.DoErrorLog($"size: {s.Length} ({e.GetType()} {e})");
                     }, (ref int[][] arrayRef) =>
+                    {
+                        int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
+                        for (int i = 0; i < arrayRef.Length; i++)
+                        {
+                            SerializeFunction(s, arrayRef[i][idx]);
+                        }
+                        LogUtils.DoErrorLog($"size: {s.Length} ({e.GetType()} {e})");
+                    }, (ref ushort[][] arrayRef) =>
                     {
                         int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
                         for (int i = 0; i < arrayRef.Length; i++)
@@ -139,21 +153,6 @@ namespace Klyte.TransportLinesManager.Extensors
                 return num | (s.ReadByte() & 255 & 255L);
             }
 
-            public bool CanDeserialize(Type type, byte[] data)
-            {
-                using var s = new MemoryStream();
-                SerializeFunction(s, 0);
-                long bytesPerEntry = s.Length;
-
-                long count = 0;
-                foreach (Enum e in LoadOrder)
-                {
-                    SingletonLite<TLMTransportLineStatusesManager>.instance.DoWithArray(e, (ref long[][] arrayRef) => count += arrayRef.Select(x => x.Length).Sum(), (ref int[][] arrayRef) => count += arrayRef.Select(x => x.Length).Sum());
-                }
-                return count * bytesPerEntry == data.Length;
-            }
-
-
             protected virtual Action<Stream, long> SerializeFunction { get; } = WriteLong;
             protected virtual Func<Stream, long> DeserializeFunction { get; } = ReadLong;
 
@@ -190,6 +189,46 @@ namespace Klyte.TransportLinesManager.Extensors
                                                             };
             protected override Action<Stream, long> SerializeFunction { get; } = WriteInt24;
             protected override Func<Stream, long> DeserializeFunction { get; } = ReadInt24;
+        }
+        public class TLMTransportLineStorageDetailedPassengerData : TransportLineStorageBasicData
+        {
+            public override string SaveId => "K45_TLM_TLMTransportLineStorageDetailedPassengerData";
+
+            protected override Enum[] LoadOrder { get; } = new Enum[]
+                                                            {
+                                                              LineDataUshort.W1_CHILD_MALE_PASSENGERS,
+                                                              LineDataUshort.W1_TEENS_MALE_PASSENGERS,
+                                                              LineDataUshort.W1_YOUNG_MALE_PASSENGERS,
+                                                              LineDataUshort.W1_ADULT_MALE_PASSENGERS,
+                                                              LineDataUshort.W1_ELDER_MALE_PASSENGERS,
+                                                              LineDataUshort.W2_CHILD_MALE_PASSENGERS,
+                                                              LineDataUshort.W2_TEENS_MALE_PASSENGERS,
+                                                              LineDataUshort.W2_YOUNG_MALE_PASSENGERS,
+                                                              LineDataUshort.W2_ADULT_MALE_PASSENGERS,
+                                                              LineDataUshort.W2_ELDER_MALE_PASSENGERS,
+                                                              LineDataUshort.W3_CHILD_MALE_PASSENGERS,
+                                                              LineDataUshort.W3_TEENS_MALE_PASSENGERS,
+                                                              LineDataUshort.W3_YOUNG_MALE_PASSENGERS,
+                                                              LineDataUshort.W3_ADULT_MALE_PASSENGERS,
+                                                              LineDataUshort.W3_ELDER_MALE_PASSENGERS,
+                                                              LineDataUshort.W1_CHILD_FEML_PASSENGERS,
+                                                              LineDataUshort.W1_TEENS_FEML_PASSENGERS,
+                                                              LineDataUshort.W1_YOUNG_FEML_PASSENGERS,
+                                                              LineDataUshort.W1_ADULT_FEML_PASSENGERS,
+                                                              LineDataUshort.W1_ELDER_FEML_PASSENGERS,
+                                                              LineDataUshort.W2_CHILD_FEML_PASSENGERS,
+                                                              LineDataUshort.W2_TEENS_FEML_PASSENGERS,
+                                                              LineDataUshort.W2_YOUNG_FEML_PASSENGERS,
+                                                              LineDataUshort.W2_ADULT_FEML_PASSENGERS,
+                                                              LineDataUshort.W2_ELDER_FEML_PASSENGERS,
+                                                              LineDataUshort.W3_CHILD_FEML_PASSENGERS,
+                                                              LineDataUshort.W3_TEENS_FEML_PASSENGERS,
+                                                              LineDataUshort.W3_YOUNG_FEML_PASSENGERS,
+                                                              LineDataUshort.W3_ADULT_FEML_PASSENGERS,
+                                                              LineDataUshort.W3_ELDER_FEML_PASSENGERS,
+                                                            };
+            protected override Action<Stream, long> SerializeFunction { get; } = WriteInt16;
+            protected override Func<Stream, long> DeserializeFunction { get; } = ReadInt16;
         }
     }
 }
