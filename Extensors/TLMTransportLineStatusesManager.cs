@@ -61,16 +61,16 @@ namespace Klyte.TransportLinesManager.Extensors
         #region Data feeding
         public void AddToLine(ushort lineId, long income, long expense, ref Citizen citizenData, ushort citizenId)
         {
-            IncrementInArray(lineId, ref m_linesDataLong, ref m_linesDataInt, (int) LineDataLong.INCOME, (int) LineDataLong.EXPENSE, (int) LineDataInt.TOTAL_PASSENGERS, (int) LineDataInt.TOURIST_PASSENGERS, (int) LineDataInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
+            IncrementInArray(lineId, ref m_linesDataLong, ref m_linesDataInt, (int)LineDataLong.INCOME, (int)LineDataLong.EXPENSE, (int)LineDataInt.TOTAL_PASSENGERS, (int)LineDataInt.TOURIST_PASSENGERS, (int)LineDataInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
             if (!citizenData.Equals(default))
             {
-                int idxW = ((((int) citizenData.WealthLevel * 5) + (int) Citizen.GetAgeGroup(citizenData.m_age)) << 1) + (int) Citizen.GetGender(citizenId);
+                int idxW = ((((int)citizenData.WealthLevel * 5) + (int)Citizen.GetAgeGroup(citizenData.m_age)) << 1) + (int)Citizen.GetGender(citizenId);
                 m_linesDataUshort[(lineId * CYCLES_HISTORY_ARRAY_SIZE) + CYCLES_CURRENT_DATA_IDX][idxW]++;
             }
         }
 
-        public void AddToVehicle(ushort vehicleId, long income, long expense, ref Citizen citizenData) => IncrementInArray(vehicleId, ref m_vehiclesDataLong, ref m_vehiclesDataInt, (int) VehicleDataLong.INCOME, (int) VehicleDataLong.EXPENSE, (int) VehicleDataInt.TOTAL_PASSENGERS, (int) VehicleDataInt.TOURIST_PASSENGERS, (int) VehicleDataInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
-        public void AddToStop(ushort stopId, long income, ref Citizen citizenData) => IncrementInArray(stopId, ref m_stopDataLong, ref m_stopDataInt, (int) StopDataLong.INCOME, null, (int) StopDataInt.TOTAL_PASSENGERS, (int) StopDataInt.TOURIST_PASSENGERS, (int) StopDataInt.STUDENT_PASSENGERS, income, 0, ref citizenData);
+        public void AddToVehicle(ushort vehicleId, long income, long expense, ref Citizen citizenData) => IncrementInArray(vehicleId, ref m_vehiclesDataLong, ref m_vehiclesDataInt, (int)VehicleDataLong.INCOME, (int)VehicleDataLong.EXPENSE, (int)VehicleDataInt.TOTAL_PASSENGERS, (int)VehicleDataInt.TOURIST_PASSENGERS, (int)VehicleDataInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
+        public void AddToStop(ushort stopId, long income, ref Citizen citizenData) => IncrementInArray(stopId, ref m_stopDataLong, ref m_stopDataInt, (int)StopDataLong.INCOME, null, (int)StopDataInt.TOTAL_PASSENGERS, (int)StopDataInt.TOURIST_PASSENGERS, (int)StopDataInt.STUDENT_PASSENGERS, income, 0, ref citizenData);
 
         private void IncrementInArray(ushort id, ref long[][] arrayRef, ref int[][] arrayRefInt, int incomeIdx, int? expenseIdx, int totalPassIdx, int tourPassIdx, int studPassIdx, long income, long expense, ref Citizen citizenData)
         {
@@ -97,7 +97,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
         #region Generic Getters Income/Expense
 
-        public void GetIncomeAndExpensesForLine(ushort lineId, out long income, out long expenses) => GetGenericIncomeExpense(lineId, out income, out expenses, ref m_linesDataLong, (int) LineDataLong.INCOME, (int) LineDataLong.EXPENSE);
+        public void GetIncomeAndExpensesForLine(ushort lineId, out long income, out long expenses) => GetGenericIncomeExpense(lineId, out income, out expenses, ref m_linesDataLong, (int)LineDataLong.INCOME, (int)LineDataLong.EXPENSE);
 
         private void GetGenericIncomeExpense(ushort id, out long income, out long expenses, ref long[][] arrayData, int incomeEntry, int expenseEntry)
         {
@@ -124,58 +124,58 @@ namespace Klyte.TransportLinesManager.Extensors
 
         #region Specific Income/Expense Getters
 
-        public void GetIncomeAndExpensesForVehicle(ushort vehicleId, out long income, out long expenses) => GetGenericIncomeExpense(vehicleId, out income, out expenses, ref m_vehiclesDataLong, (int) VehicleDataLong.INCOME, (int) VehicleDataLong.EXPENSE);
-        public void GetStopIncome(ushort stopId, out long income) => GetGenericIncome(stopId, out income, ref m_stopDataLong, (int) StopDataLong.INCOME);
+        public void GetIncomeAndExpensesForVehicle(ushort vehicleId, out long income, out long expenses) => GetGenericIncomeExpense(vehicleId, out income, out expenses, ref m_vehiclesDataLong, (int)VehicleDataLong.INCOME, (int)VehicleDataLong.EXPENSE);
+        public void GetStopIncome(ushort stopId, out long income) => GetGenericIncome(stopId, out income, ref m_stopDataLong, (int)StopDataLong.INCOME);
 
         public void GetCurrentIncomeAndExpensesForLine(ushort lineId, out long income, out long expenses)
         {
-            income = GetAtArray(lineId, ref m_linesDataLong, (int) LineDataLong.INCOME, CYCLES_CURRENT_DATA_IDX);
-            expenses = GetAtArray(lineId, ref m_linesDataLong, (int) LineDataLong.EXPENSE, CYCLES_CURRENT_DATA_IDX);
+            income = GetAtArray(lineId, ref m_linesDataLong, (int)LineDataLong.INCOME, CYCLES_CURRENT_DATA_IDX);
+            expenses = GetAtArray(lineId, ref m_linesDataLong, (int)LineDataLong.EXPENSE, CYCLES_CURRENT_DATA_IDX);
         }
         public void GetCurrentIncomeAndExpensesForVehicles(ushort vehicleId, out long income, out long expenses)
         {
-            income = GetAtArray(vehicleId, ref m_vehiclesDataLong, (int) VehicleDataLong.INCOME, CYCLES_CURRENT_DATA_IDX);
-            expenses = GetAtArray(vehicleId, ref m_vehiclesDataLong, (int) VehicleDataLong.EXPENSE, CYCLES_CURRENT_DATA_IDX);
+            income = GetAtArray(vehicleId, ref m_vehiclesDataLong, (int)VehicleDataLong.INCOME, CYCLES_CURRENT_DATA_IDX);
+            expenses = GetAtArray(vehicleId, ref m_vehiclesDataLong, (int)VehicleDataLong.EXPENSE, CYCLES_CURRENT_DATA_IDX);
         }
-        public void GetCurrentStopIncome(ushort stopId, out long income) => income = GetAtArray(stopId, ref m_stopDataLong, (int) StopDataLong.INCOME, CYCLES_CURRENT_DATA_IDX);
+        public void GetCurrentStopIncome(ushort stopId, out long income) => income = GetAtArray(stopId, ref m_stopDataLong, (int)StopDataLong.INCOME, CYCLES_CURRENT_DATA_IDX);
 
         public void GetLastWeekIncomeAndExpensesForLine(ushort lineId, out long income, out long expenses)
         {
-            int lastIdx = ((int) CurrentArrayEntryIdx + CYCLES_HISTORY_SIZE - 1) & CYCLES_HISTORY_MASK;
-            income = GetAtArray(lineId, ref m_linesDataLong, (int) LineDataLong.INCOME, lastIdx);
-            expenses = GetAtArray(lineId, ref m_linesDataLong, (int) LineDataLong.EXPENSE, lastIdx);
+            int lastIdx = ((int)CurrentArrayEntryIdx + CYCLES_HISTORY_SIZE - 1) & CYCLES_HISTORY_MASK;
+            income = GetAtArray(lineId, ref m_linesDataLong, (int)LineDataLong.INCOME, lastIdx);
+            expenses = GetAtArray(lineId, ref m_linesDataLong, (int)LineDataLong.EXPENSE, lastIdx);
         }
         public void GetLastWeekIncomeAndExpensesForVehicles(ushort vehicleId, out long income, out long expenses)
         {
-            int lastIdx = ((int) CurrentArrayEntryIdx + CYCLES_HISTORY_SIZE - 1) & CYCLES_HISTORY_MASK;
-            income = GetAtArray(vehicleId, ref m_vehiclesDataLong, (int) VehicleDataLong.INCOME, lastIdx);
-            expenses = GetAtArray(vehicleId, ref m_vehiclesDataLong, (int) VehicleDataLong.EXPENSE, lastIdx);
+            int lastIdx = ((int)CurrentArrayEntryIdx + CYCLES_HISTORY_SIZE - 1) & CYCLES_HISTORY_MASK;
+            income = GetAtArray(vehicleId, ref m_vehiclesDataLong, (int)VehicleDataLong.INCOME, lastIdx);
+            expenses = GetAtArray(vehicleId, ref m_vehiclesDataLong, (int)VehicleDataLong.EXPENSE, lastIdx);
         }
         public void GetLastWeekStopIncome(ushort stopId, out long income)
         {
-            int lastIdx = ((int) CurrentArrayEntryIdx + CYCLES_HISTORY_SIZE - 1) & CYCLES_HISTORY_MASK;
-            income = GetAtArray(stopId, ref m_stopDataLong, (int) StopDataLong.INCOME, lastIdx);
+            int lastIdx = ((int)CurrentArrayEntryIdx + CYCLES_HISTORY_SIZE - 1) & CYCLES_HISTORY_MASK;
+            income = GetAtArray(stopId, ref m_stopDataLong, (int)StopDataLong.INCOME, lastIdx);
         }
         #endregion
 
         #region Report extraction
-        public List<IncomeExpense> GetLineFinanceReport(ushort lineId)
+        public List<IncomeExpenseReport> GetLineFinanceReport(ushort lineId)
         {
-            var result = new List<IncomeExpense>();
+            var result = new List<IncomeExpenseReport>();
             for (int j = 0; j < 16; j++)
             {
-                result.Add(new IncomeExpense
+                result.Add(new IncomeExpenseReport
                 {
-                    Income = GetAtArray(lineId, ref m_linesDataLong, (int) LineDataLong.INCOME, j),
-                    Expense = GetAtArray(lineId, ref m_linesDataLong, (int) LineDataLong.EXPENSE, j),
+                    Income = GetAtArray(lineId, ref m_linesDataLong, (int)LineDataLong.INCOME, j),
+                    Expense = GetAtArray(lineId, ref m_linesDataLong, (int)LineDataLong.EXPENSE, j),
                     RefFrame = GetStartFrameForArrayIdx(j)
                 });
 
             }
-            result.Add(new IncomeExpense
+            result.Add(new IncomeExpenseReport
             {
-                Income = GetAtArray(lineId, ref m_linesDataLong, (int) LineDataLong.INCOME, CYCLES_CURRENT_DATA_IDX),
-                Expense = GetAtArray(lineId, ref m_linesDataLong, (int) LineDataLong.EXPENSE, CYCLES_CURRENT_DATA_IDX),
+                Income = GetAtArray(lineId, ref m_linesDataLong, (int)LineDataLong.INCOME, CYCLES_CURRENT_DATA_IDX),
+                Expense = GetAtArray(lineId, ref m_linesDataLong, (int)LineDataLong.EXPENSE, CYCLES_CURRENT_DATA_IDX),
                 RefFrame = (Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES) & ~FRAMES_PER_CYCLE_MASK
             });
             result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
@@ -188,18 +188,18 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 result.Add(new StudentsTouristsReport
                 {
-                    Total = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.TOTAL_PASSENGERS, j),
-                    Student = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.STUDENT_PASSENGERS, j),
-                    Tourists = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.TOURIST_PASSENGERS, j),
+                    Total = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.TOTAL_PASSENGERS, j),
+                    Student = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.STUDENT_PASSENGERS, j),
+                    Tourists = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.TOURIST_PASSENGERS, j),
                     RefFrame = GetStartFrameForArrayIdx(j)
                 });
 
             }
             result.Add(new StudentsTouristsReport
             {
-                Total = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.TOTAL_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
-                Student = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.STUDENT_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
-                Tourists = GetAtArray(lineId, ref m_linesDataInt, (int) LineDataInt.TOURIST_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
+                Total = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.TOTAL_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
+                Student = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.STUDENT_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
+                Tourists = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.TOURIST_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
                 RefFrame = (Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES) & ~FRAMES_PER_CYCLE_MASK
             });
             result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
@@ -212,28 +212,66 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 result.Add(new WealthPassengerReport
                 {
-                    Low = LowWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, j)).Sum(x => x),
-                    Medium = MedWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, j)).Sum(x => x),
-                    High = HghWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, j)).Sum(x => x),
+                    Low = LowWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, j)).Sum(x => x),
+                    Medium = MedWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, j)).Sum(x => x),
+                    High = HghWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, j)).Sum(x => x),
                     RefFrame = GetStartFrameForArrayIdx(j)
                 });
 
             }
             result.Add(new WealthPassengerReport
             {
-                Low = LowWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
-                Medium = MedWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
-                High = HghWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int) x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                Low = LowWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                Medium = MedWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                High = HghWealthData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
                 RefFrame = (Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES) & ~FRAMES_PER_CYCLE_MASK
             });
             result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
             return result;
+        }
+        public List<AgePassengerReport> GetLineAgeReport(ushort lineId)
+        {
+            var result = new List<AgePassengerReport>();
+            for (int j = 0; j < 16; j++)
+            {
+                result.Add(new AgePassengerReport
+                {
+                    Child = ChildData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, j)).Sum(x => x),
+                    Teen = TeenData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, j)).Sum(x => x),
+                    Young = YoungData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, j)).Sum(x => x),
+                    Adult = AdultData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, j)).Sum(x => x),
+                    Elder = ElderData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, j)).Sum(x => x),
+                    RefFrame = GetStartFrameForArrayIdx(j)
+                });
+
+            }
+            result.Add(new AgePassengerReport
+            {
+                Child = ChildData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                Teen = TeenData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                Young = YoungData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                Adult = AdultData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                Elder = ElderData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                RefFrame = (Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES) & ~FRAMES_PER_CYCLE_MASK
+            });
+            result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
+            return result;
+        }
+        public sealed class AgePassengerReport : BasicReportData
+        {
+            public long Child { get; set; }
+            public long Teen { get; set; }
+            public long Young { get; set; }
+            public long Adult { get; set; }
+            public long Elder { get; set; }
+            public long Total => Child + Teen + Young + Adult + Elder;
         }
         public sealed class WealthPassengerReport : BasicReportData
         {
             public long Low { get; set; }
             public long Medium { get; set; }
             public long High { get; set; }
+            public long Total => Low + Medium + High;
         }
         public sealed class StudentsTouristsReport : BasicReportData
         {
@@ -241,7 +279,7 @@ namespace Klyte.TransportLinesManager.Extensors
             public long Student { get; set; }
             public long Tourists { get; set; }
         }
-        public sealed class IncomeExpense : BasicReportData
+        public sealed class IncomeExpenseReport : BasicReportData
         {
             public long Income { get; set; }
             public long Expense { get; set; }
@@ -250,8 +288,8 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             public long RefFrame { get; set; }
 
-            public DateTime StartDate => SimulationManager.instance.FrameToTime((uint) RefFrame - OFFSET_FRAMES);
-            public DateTime EndDate => SimulationManager.instance.FrameToTime((uint) RefFrame + FRAMES_PER_CYCLE_MASK - OFFSET_FRAMES);
+            public DateTime StartDate => SimulationManager.instance.FrameToTime((uint)RefFrame - OFFSET_FRAMES);
+            public DateTime EndDate => SimulationManager.instance.FrameToTime((uint)RefFrame + FRAMES_PER_CYCLE_MASK - OFFSET_FRAMES);
             public float StartDayTime => FrameToDaytime(RefFrame - OFFSET_FRAMES);
             public float EndDayTime => FrameToDaytime(RefFrame + FRAMES_PER_CYCLE_MASK - OFFSET_FRAMES);
 
@@ -460,6 +498,90 @@ namespace Klyte.TransportLinesManager.Extensors
             LineDataUshort.W3_ELDER_FEML_PASSENGERS,
         };
 
+
+
+        private LineDataUshort[] ChildData = new LineDataUshort[]
+        {
+            LineDataUshort.W1_CHILD_MALE_PASSENGERS,
+            LineDataUshort.W1_CHILD_FEML_PASSENGERS,
+            LineDataUshort.W2_CHILD_MALE_PASSENGERS,
+            LineDataUshort.W2_CHILD_FEML_PASSENGERS,
+            LineDataUshort.W3_CHILD_MALE_PASSENGERS,
+            LineDataUshort.W3_CHILD_FEML_PASSENGERS,
+};
+        private LineDataUshort[] TeenData = new LineDataUshort[]
+         {
+            LineDataUshort.W1_TEENS_MALE_PASSENGERS,
+            LineDataUshort.W1_TEENS_FEML_PASSENGERS,
+            LineDataUshort.W2_TEENS_MALE_PASSENGERS,
+            LineDataUshort.W2_TEENS_FEML_PASSENGERS,
+            LineDataUshort.W3_TEENS_MALE_PASSENGERS,
+            LineDataUshort.W3_TEENS_FEML_PASSENGERS,
+};
+        private LineDataUshort[] YoungData = new LineDataUshort[]
+         {
+            LineDataUshort.W1_YOUNG_MALE_PASSENGERS,
+            LineDataUshort.W1_YOUNG_FEML_PASSENGERS,
+            LineDataUshort.W2_YOUNG_MALE_PASSENGERS,
+            LineDataUshort.W2_YOUNG_FEML_PASSENGERS,
+            LineDataUshort.W3_YOUNG_MALE_PASSENGERS,
+            LineDataUshort.W3_YOUNG_FEML_PASSENGERS,
+        };
+        private LineDataUshort[] AdultData = new LineDataUshort[]
+         {
+            LineDataUshort.W1_ADULT_MALE_PASSENGERS,
+            LineDataUshort.W1_ADULT_FEML_PASSENGERS,
+            LineDataUshort.W2_ADULT_MALE_PASSENGERS,
+            LineDataUshort.W2_ADULT_FEML_PASSENGERS,
+            LineDataUshort.W3_ADULT_MALE_PASSENGERS,
+            LineDataUshort.W3_ADULT_FEML_PASSENGERS,
+        };
+        private LineDataUshort[] ElderData = new LineDataUshort[]
+         {
+            LineDataUshort.W1_ELDER_MALE_PASSENGERS,
+            LineDataUshort.W1_ELDER_FEML_PASSENGERS,
+            LineDataUshort.W2_ELDER_MALE_PASSENGERS,
+            LineDataUshort.W2_ELDER_FEML_PASSENGERS,
+            LineDataUshort.W3_ELDER_MALE_PASSENGERS,
+            LineDataUshort.W3_ELDER_FEML_PASSENGERS,
+        };
+        private LineDataUshort[] MaleData = new LineDataUshort[]
+         {
+            LineDataUshort.W1_CHILD_MALE_PASSENGERS,
+            LineDataUshort.W1_TEENS_MALE_PASSENGERS,
+            LineDataUshort.W1_YOUNG_MALE_PASSENGERS,
+            LineDataUshort.W1_ADULT_MALE_PASSENGERS,
+            LineDataUshort.W1_ELDER_MALE_PASSENGERS,
+            LineDataUshort.W2_CHILD_MALE_PASSENGERS,
+            LineDataUshort.W2_TEENS_MALE_PASSENGERS,
+            LineDataUshort.W2_YOUNG_MALE_PASSENGERS,
+            LineDataUshort.W2_ADULT_MALE_PASSENGERS,
+            LineDataUshort.W2_ELDER_MALE_PASSENGERS,
+            LineDataUshort.W3_CHILD_MALE_PASSENGERS,
+            LineDataUshort.W3_TEENS_MALE_PASSENGERS,
+            LineDataUshort.W3_YOUNG_MALE_PASSENGERS,
+            LineDataUshort.W3_ADULT_MALE_PASSENGERS,
+            LineDataUshort.W3_ELDER_MALE_PASSENGERS,
+        };
+        private LineDataUshort[] FemaleData = new LineDataUshort[]
+        {
+           LineDataUshort.W1_CHILD_FEML_PASSENGERS,
+           LineDataUshort.W1_TEENS_FEML_PASSENGERS,
+           LineDataUshort.W1_YOUNG_FEML_PASSENGERS,
+           LineDataUshort.W1_ADULT_FEML_PASSENGERS,
+           LineDataUshort.W1_ELDER_FEML_PASSENGERS,
+           LineDataUshort.W2_CHILD_FEML_PASSENGERS,
+           LineDataUshort.W2_TEENS_FEML_PASSENGERS,
+           LineDataUshort.W2_YOUNG_FEML_PASSENGERS,
+           LineDataUshort.W2_ADULT_FEML_PASSENGERS,
+           LineDataUshort.W2_ELDER_FEML_PASSENGERS,
+           LineDataUshort.W3_CHILD_FEML_PASSENGERS,
+           LineDataUshort.W3_TEENS_FEML_PASSENGERS,
+           LineDataUshort.W3_YOUNG_FEML_PASSENGERS,
+           LineDataUshort.W3_ADULT_FEML_PASSENGERS,
+           LineDataUshort.W3_ELDER_FEML_PASSENGERS,
+        };
+
         #endregion
 
         #region Serialization Utils
@@ -498,19 +620,19 @@ namespace Klyte.TransportLinesManager.Extensors
             switch (e)
             {
                 case LineDataLong l:
-                    return (int) l;
+                    return (int)l;
                 case VehicleDataLong l:
-                    return (int) l;
+                    return (int)l;
                 case StopDataLong l:
-                    return (int) l;
+                    return (int)l;
                 case LineDataInt l:
-                    return (int) l;
+                    return (int)l;
                 case VehicleDataInt l:
-                    return (int) l;
+                    return (int)l;
                 case StopDataInt l:
-                    return (int) l;
+                    return (int)l;
                 case LineDataUshort l:
-                    return (int) l;
+                    return (int)l;
                 default:
                     e.GetType();
                     throw new Exception("Invalid data in array deserialize!");

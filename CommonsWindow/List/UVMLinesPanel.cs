@@ -343,7 +343,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             catch { }
             IsUpdated = true;
         }
-
+         
         #region Sorting
 
         private enum LineSortCriterion

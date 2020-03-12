@@ -32,7 +32,8 @@ namespace Klyte.TransportLinesManager.UI
             }
             KlyteMonoUtils.CreateTabsComponent(out m_reportTabstrip, out _, m_bg.transform, "LineConfig", new Vector4(0, 0, m_bg.width, 30), new Vector4(0, 30, m_bg.width, m_bg.height - heightCheck - 30));
             m_childControls.Add("FinanceReport", TabCommons.CreateTab<TLMLineFinanceReportTab>(m_reportTabstrip, "InfoPanelIconCurrency", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));
-            m_childControls.Add("PassengerReport", TabCommons.CreateTab<TLMLinePassengerReportTab>(m_reportTabstrip, "InfoIconPopulation", "K45_TLM_WIP_PASSENGER_REPORT_TAB", "PassengerReport", false));
+            m_childControls.Add("PassengerAgeReport", TabCommons.CreateTab<TLMLinePassengerAgeReportTab>(m_reportTabstrip, "InfoIconAge", "K45_TLM_WIP_PASSENGER_AGE_REPORT_TAB", "PassengerAgeReport", false));
+            m_childControls.Add("PassengerStudentTouristReport", TabCommons.CreateTab<TLMLinePassengerStudentTouristsReportTab>(m_reportTabstrip, "InfoIconTourism", "K45_TLM_WIP_PASSENGER_REPORT_TAB", "PassengerStudentTouristReport", false));
             m_childControls.Add("PassengerWealthReport", TabCommons.CreateTab<TLMLinePassengerWealthReportTab>(m_reportTabstrip, "InfoIconLandValue", "K45_TLM_WIP_PASSENGER_WEALTH_REPORT_TAB", "PassengerWealthReport", false));
         }
 

@@ -8,12 +8,12 @@ using static Klyte.TransportLinesManager.UI.TLMReportsTab;
 namespace Klyte.TransportLinesManager.UI
 {
 
-    public class TLMLinePassengerStudentTouristsReportTab : UICustomControl, ITLMReportChild
+    public class TLMLinePassengerAgeReportTab : UICustomControl, ITLMReportChild
     {
 
         private UIPanel m_bg;
-        private TLMStudentTouristsReportLine[] m_reportLines = new TLMStudentTouristsReportLine[17];
-        private TLMStudentTouristsReportLine m_aggregateLine;
+        private TLMPassengerAgeReportLine[] m_reportLines = new TLMPassengerAgeReportLine[17];
+        private TLMPassengerAgeReportLine m_aggregateLine;
 
 
         #region Overridable
@@ -32,10 +32,10 @@ namespace Klyte.TransportLinesManager.UI
             titleLabel.textAlignment = UIHorizontalAlignment.Center;
             titleLabel.minimumSize = new Vector2(m_bg.width, 0);
             KlyteMonoUtils.LimitWidth(titleLabel, m_bg.width);
-            titleLabel.localeID = "K45_TLM_PASSENGERS_LINE_REPORT";
+            titleLabel.localeID = "K45_TLM_PASSENGERS_AGE_LINE_REPORT";
 
             KlyteMonoUtils.CreateUIElement(out UIPanel listTitle, m_bg.transform, "LT");
-            TLMStudentTouristsReportLine titleList = listTitle.gameObject.AddComponent<TLMStudentTouristsReportLine>();
+            TLMPassengerAgeReportLine titleList = listTitle.gameObject.AddComponent<TLMPassengerAgeReportLine>();
             titleList.AsTitle();
 
             KlyteMonoUtils.CreateUIElement(out UIPanel reportLinesContainer, m_bg.transform, "listContainer", new Vector4(0, 0, m_bg.width, m_bg.height - titleLabel.height - listTitle.height - 35));
@@ -46,10 +46,10 @@ namespace Klyte.TransportLinesManager.UI
             for (int i = 0; i < m_reportLines.Length; i++)
             {
                 KlyteMonoUtils.CreateUIElement(out UIPanel line, reportLines.transform, $"L{i}");
-                m_reportLines[i] = line.gameObject.AddComponent<TLMStudentTouristsReportLine>();
+                m_reportLines[i] = line.gameObject.AddComponent<TLMPassengerAgeReportLine>();
             }
             KlyteMonoUtils.CreateUIElement(out UIPanel aggregateLine, m_bg.transform, $"L_AGG");
-            m_aggregateLine = aggregateLine.gameObject.AddComponent<TLMStudentTouristsReportLine>();
+            m_aggregateLine = aggregateLine.gameObject.AddComponent<TLMPassengerAgeReportLine>();
         }
 
 
@@ -64,16 +64,18 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (m_bg.isVisible)
             {
-                System.Collections.Generic.List<TLMTransportLineStatusesManager.StudentsTouristsReport> report = TLMTransportLineStatusesManager.instance.GetLineStudentTouristsTotalReport(UVMPublicTransportWorldInfoPanel.GetLineID());
-                var totalizer = new TLMTransportLineStatusesManager.StudentsTouristsReport();
+                System.Collections.Generic.List<TLMTransportLineStatusesManager.AgePassengerReport> report = TLMTransportLineStatusesManager.instance.GetLineAgeReport(UVMPublicTransportWorldInfoPanel.GetLineID());
+                var totalizer = new TLMTransportLineStatusesManager.AgePassengerReport();
                 for (int i = 0; i < m_reportLines.Length; i++)
                 {
                     m_reportLines[i].SetData(report[16 - i], showDayTime, TLMController.IsRealTimeEnabled);
                     if (i > 0)
                     {
-                        totalizer.Student += report[16 - i].Student;
-                        totalizer.Tourists += report[16 - i].Tourists;
-                        totalizer.Total += report[16 - i].Total;
+                        totalizer.Child += report[16 - i].Child;
+                        totalizer.Teen += report[16 - i].Teen;
+                        totalizer.Young += report[16 - i].Young;
+                        totalizer.Adult += report[16 - i].Adult;
+                        totalizer.Elder += report[16 - i].Elder;
                     }
                 }
                 m_aggregateLine.SetDataTotalizer(totalizer);

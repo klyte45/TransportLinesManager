@@ -57,8 +57,8 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (m_bg.isVisible)
             {
-                System.Collections.Generic.List<TLMTransportLineStatusesManager.IncomeExpense> report = TLMTransportLineStatusesManager.instance.GetLineFinanceReport(GetLineID());
-                var totalizer = new TLMTransportLineStatusesManager.IncomeExpense();
+                System.Collections.Generic.List<TLMTransportLineStatusesManager.IncomeExpenseReport> report = TLMTransportLineStatusesManager.instance.GetLineFinanceReport(GetLineID());
+                var totalizer = new TLMTransportLineStatusesManager.IncomeExpenseReport();
                 for (int i = 0; i < m_reportLines.Length; i++)
                 {
                     m_reportLines[i].SetData(report[16 - i], showDayTime, TLMController.IsRealTimeEnabled);
