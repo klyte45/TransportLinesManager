@@ -35,6 +35,7 @@ namespace Klyte.TransportLinesManager.UI
             m_childControls.Add("PassengerAgeReport", TabCommons.CreateTab<TLMLinePassengerAgeReportTab>(m_reportTabstrip, "InfoIconAge", "K45_TLM_WIP_PASSENGER_AGE_REPORT_TAB", "PassengerAgeReport", false));
             m_childControls.Add("PassengerStudentTouristReport", TabCommons.CreateTab<TLMLinePassengerStudentTouristsReportTab>(m_reportTabstrip, "InfoIconTourism", "K45_TLM_WIP_PASSENGER_REPORT_TAB", "PassengerStudentTouristReport", false));
             m_childControls.Add("PassengerWealthReport", TabCommons.CreateTab<TLMLinePassengerWealthReportTab>(m_reportTabstrip, "InfoIconLandValue", "K45_TLM_WIP_PASSENGER_WEALTH_REPORT_TAB", "PassengerWealthReport", false));
+            m_childControls.Add("PassengerGenderReport", TabCommons.CreateTab<TLMLinePassengerGenderReportTab>(m_reportTabstrip, "InfoIconPopulation", "K45_TLM_WIP_PASSENGER_GENDER_REPORT_TAB", "PassengerGenderReport", false));
         }
 
         public void UpdateBindings()

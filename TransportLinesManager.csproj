@@ -150,9 +150,12 @@
     <Compile Include="Extensors\TransportLineStorageBasicData.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMDefaultCostPerPassengerConfigTab.cs" />
     <Compile Include="WorldInfoPanel\Components\BaseReportLine.cs" />
+    <Compile Include="WorldInfoPanel\Components\TLMPassengerGenderReportLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMPassengerAgeReportLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMPassengerWealthReportLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMStudentTouristsReportLine.cs" />
+    <Compile Include="WorldInfoPanel\ReportTabs\BasicReportTab.cs" />
+    <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerGenderReportTab.cs" />
     <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerAgeReportTab.cs" />
     <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerWealthReportTab.cs" />
     <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerReportTab.cs" />

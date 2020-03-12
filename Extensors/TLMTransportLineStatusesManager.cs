@@ -257,6 +257,34 @@ namespace Klyte.TransportLinesManager.Extensors
             result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
             return result;
         }
+        public List<GenderPassengerReport> GetLineGenderReport(ushort lineId)
+        {
+            var result = new List<GenderPassengerReport>();
+            for (int j = 0; j < 16; j++)
+            {
+                result.Add(new GenderPassengerReport
+                {
+                    Male = MaleData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, j)).Sum(x => x),
+                    Female = FemaleData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, j)).Sum(x => x),
+                    RefFrame = GetStartFrameForArrayIdx(j)
+                });
+
+            }
+            result.Add(new GenderPassengerReport
+            {
+                Male = MaleData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                Female = FemaleData.Select(x => GetAtArray(lineId, ref m_linesDataUshort, (int)x, CYCLES_CURRENT_DATA_IDX)).Sum(x => x),
+                RefFrame = (Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES) & ~FRAMES_PER_CYCLE_MASK
+            });
+            result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
+            return result;
+        }
+        public sealed class GenderPassengerReport : BasicReportData
+        {
+            public long Male { get; set; }
+            public long Female { get; set; }
+            public long Total => Male + Female;
+        }
         public sealed class AgePassengerReport : BasicReportData
         {
             public long Child { get; set; }
