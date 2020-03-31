@@ -171,7 +171,7 @@ namespace Klyte.TransportLinesManager.Utils
         private static void AddToArrayWithName(string[] input, List<string> saida, ref TransportSystemDefinition tsd, bool usePrefixName = false)
         {
             ushort offset = (ushort) saida.Count;
-            if (usePrefixName)
+            if (!usePrefixName)
             {
                 saida.AddRange(input);
             }

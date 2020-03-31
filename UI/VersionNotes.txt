@@ -1,4 +1,7 @@
-﻿Patch 13.2.1
+﻿Patch 13.2.2
+    - Fixed: Prefixes names aren't being listed with their keys (except unprefixed)
+	- Improved label with waiting passenger count in linear map
+Patch 13.2.1
 	- Fixed trolley and passenger helicopter selection being ignored
 TLMv13.2
 	- Added support for Sunset Harbor

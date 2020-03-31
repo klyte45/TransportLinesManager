@@ -1,6 +1,8 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
+using ColossalFramework.PlatformServices;
 using ColossalFramework.UI;
+using ICities;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
@@ -9,9 +11,11 @@ using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.OptionsMenu;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
+using System;
+using System.Collections;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.2.1.0")]
+[assembly: AssemblyVersion("13.2.2.0")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -19,6 +23,11 @@ namespace Klyte.TransportLinesManager
 
         public TransportLinesManagerMod() => Construct();
 
+        private IEnumerator UnsubscribeIncompatible()
+        {
+            yield return 0;
+            PlatformService.workshop.Unsubscribe(new PublishedFileId(928128676L));
+        }
 
         public override string SimpleName => "Transport Lines Manager";
         public override string Description => "Allows to customize and manage your public transport systems.";
@@ -30,9 +39,10 @@ namespace Klyte.TransportLinesManager
 
         public override void LoadSettings()
         {
-
             if (m_priorityRedirector == null)
             {
+                LogUtils.DoErrorLog("UNSUBS!");
+                SimulationManager.instance.StartCoroutine(UnsubscribeIncompatible());
                 m_priorityRedirector = KlyteMonoUtils.CreateElement<Redirector>(null, "UVM_PRIO");
                 m_priorityRedirector.AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("Start", RedirectorUtils.allFlags), null, null, typeof(UVMPublicTransportWorldInfoPanel).GetMethod("TranspileStart", RedirectorUtils.allFlags));
             }
