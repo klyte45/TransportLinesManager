@@ -1,5 +1,7 @@
-﻿TLMv13.2
-	- Added support for Donut
+﻿Patch 13.2.1
+	- Fixed trolley and passenger helicopter selection being ignored
+TLMv13.2
+	- Added support for Sunset Harbor
 	- NEW REPORT: Tourists/Students/Total passengers by line (last 24h)
 	- NEW REPORT: Passengers by wealth by line (last 24h)
 	- Added summary for financial report
