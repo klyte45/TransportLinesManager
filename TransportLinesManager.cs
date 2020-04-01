@@ -15,7 +15,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.2.2.0")]
+[assembly: AssemblyVersion("13.2.2.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>

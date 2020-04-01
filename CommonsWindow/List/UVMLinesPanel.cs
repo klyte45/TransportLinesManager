@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Klyte.Commons.Extensors;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
@@ -71,8 +72,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 RefreshLines();
             }
-            DoOnUpdate();
-
         }
 
         protected void RemoveExtraLines(int linesCount)
@@ -147,7 +146,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.CreateUIElement(out titleLine, parent.transform, "TLMtitleline", new Vector4(5, 0, parent.width - 10, 40));
             titleLine.padding = new RectOffset(0, 0, 50, 0);
             m_createdTitleLine = titleLine;
-            TryCreateVisibilityToggleButton();
 
             KlyteMonoUtils.CreateUIElement(out UILabel codColor, titleLine.transform, "codColor");
             codColor.minimumSize = new Vector2(60, 0);
@@ -199,28 +197,30 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             profitLW.text = Locale.Get(TLMController.IsRealTimeEnabled ? "K45_TLM_BALANCE_LAST_HOUR_HALF" : "K45_TLM_BALANCE_LAST_WEEK");
             profitLW.eventClicked += Profit_eventClicked;
 
+            AwakeShowLineButton();
+
             LogUtils.DoLog("End creating Title Row ");
 
         }
 
-        private void TryCreateVisibilityToggleButton()
+        private void AwakeShowLineButton()
         {
-            if (m_pendentCreateViewToggleButton)
-            {
-                try
-                {
-                    m_visibilityToggle = Instantiate(FindObjectOfType<UIView>().FindUIComponent<UICheckBox>("LineVisible"));
-                    m_visibilityToggle.transform.SetParent(m_createdTitleLine.transform);
-                    m_visibilityToggle.eventCheckChanged += ToggleAllLinesVisibility;
-                    m_pendentCreateViewToggleButton = false;
-                }
-                catch
-                {
-                }
-            }
+            m_visibilityToggle = new UIHelperExtension(m_createdTitleLine).AddCheckboxNoLabel("LineVisibility");            
+            ((UISprite)m_visibilityToggle.checkedBoxObject).spriteName = "LineVisibilityToggleOn";
+            ((UISprite)m_visibilityToggle.checkedBoxObject).tooltipLocaleID = "PUBLICTRANSPORT_HIDELINE";
+            ((UISprite)m_visibilityToggle.checkedBoxObject).isTooltipLocalized = true;
+
+            ((UISprite)m_visibilityToggle.checkedBoxObject).size = new Vector2(24, 24);
+            ((UISprite)m_visibilityToggle.components[0]).spriteName = "LineVisibilityToggleOff";
+            ((UISprite)m_visibilityToggle.components[0]).tooltipLocaleID = "PUBLICTRANSPORT_SHOWLINE";
+            ((UISprite)m_visibilityToggle.components[0]).isTooltipLocalized = true;
+            ((UISprite)m_visibilityToggle.components[0]).size = new Vector2(24, 24);
+            m_visibilityToggle.relativePosition = new Vector3(20, 10);
+            m_visibilityToggle.isChecked = true;
+
+            m_visibilityToggle.eventCheckChanged += ToggleAllLinesVisibility;
         }
 
-        protected void DoOnUpdate() => TryCreateVisibilityToggleButton();
 
         private void LineName_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
@@ -303,7 +303,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             try
             {
-                TryCreateVisibilityToggleButton();
                 m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
 
                 int count = 0;
