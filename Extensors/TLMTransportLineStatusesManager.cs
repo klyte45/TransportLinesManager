@@ -24,7 +24,8 @@ namespace Klyte.TransportLinesManager.Extensors
         public static uint FRAMES_PER_CYCLE => 1u << (BYTES_PER_CYCLE);
         public static uint FRAMES_PER_CYCLE_MASK => FRAMES_PER_CYCLE - 1;
         public static uint TOTAL_STORAGE_CAPACITY => (1u << (BYTES_PER_CYCLE + 4));
-        public static uint OFFSET_FRAMES => SimulationManager.instance.m_dayTimeOffsetFrames & FRAMES_PER_CYCLE_MASK;
+        public static uint OFFSET_FRAMES => DayTimeOffsetFrames & FRAMES_PER_CYCLE_MASK;
+        public static uint DayTimeOffsetFrames => SimulationManager.instance.m_enableDayNight ? SimulationManager.instance.m_dayTimeOffsetFrames : 0;
         public static uint INDEX_AND_FRAMES_MASK => TOTAL_STORAGE_CAPACITY - 1;
         public const int CYCLES_HISTORY_SIZE = 16;
         public const int CYCLES_HISTORY_MASK = CYCLES_HISTORY_SIZE - 1;
@@ -323,7 +324,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
             private static float FrameToDaytime(long refFrame)
             {
-                float num = (refFrame + SimulationManager.instance.m_dayTimeOffsetFrames) & (SimulationManager.DAYTIME_FRAMES - 1u);
+                float num = (refFrame + DayTimeOffsetFrames) & (SimulationManager.DAYTIME_FRAMES - 1u);
                 num *= SimulationManager.DAYTIME_FRAME_TO_HOUR;
                 if (num >= 24f)
                 {

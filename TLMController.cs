@@ -36,6 +36,7 @@ namespace Klyte.TransportLinesManager
         public const string PALETTE_SUBFOLDER_NAME = "ColorPalettes";
         public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
         public const ulong REALTIME_MOD_ID = 1420955187;
+        public const ulong IPT2_MOD_ID = 928128676;
         private static bool? m_isRealTimeEnabled = null;
 
         public static bool IsRealTimeEnabled
@@ -48,11 +49,13 @@ namespace Klyte.TransportLinesManager
                 return m_isRealTimeEnabled ?? false;
             }
         }
-        public static void VerifyIfIsRealTimeEnabled()
-        {
-            PluginManager.PluginInfo pluginInfo = Singleton<PluginManager>.instance.GetPluginsInfo().FirstOrDefault((PluginManager.PluginInfo pi) => pi.publishedFileID.AsUInt64 == REALTIME_MOD_ID);
-            m_isRealTimeEnabled = !(pluginInfo == null || !pluginInfo.isEnabled);
+        public static void VerifyIfIsRealTimeEnabled() => m_isRealTimeEnabled = VerifyModEnabled(REALTIME_MOD_ID);
+        public static bool IsIPT2Enabled() => VerifyModEnabled(IPT2_MOD_ID);
 
+        private static bool VerifyModEnabled(ulong modId)
+        {
+            PluginManager.PluginInfo pluginInfo = Singleton<PluginManager>.instance.GetPluginsInfo().FirstOrDefault((PluginManager.PluginInfo pi) => pi.publishedFileID.AsUInt64 == modId);
+            return !(pluginInfo == null || !pluginInfo.isEnabled);
         }
 
         public static string palettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
@@ -183,7 +186,7 @@ namespace Klyte.TransportLinesManager
                 System.Reflection.FieldInfo prop = typeof(WorldInfoPanel).GetField("m_InstanceID", System.Reflection.BindingFlags.NonPublic
                     | System.Reflection.BindingFlags.Instance);
                 WorldInfoPanel wip = parent.gameObject.GetComponent<WorldInfoPanel>();
-                ushort buildingId = ((InstanceID) (prop.GetValue(wip))).Building;
+                ushort buildingId = ((InstanceID)(prop.GetValue(wip))).Building;
                 if (lastBuildingSelected == buildingId && !force)
                 {
                     return;

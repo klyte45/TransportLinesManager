@@ -80,7 +80,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             KlyteMonoUtils.CreateUIElement(out UITabstrip strip, helper.Self.transform, "TabListTLMopt", new Vector4(5, 0, 730, 40));
             float effectiveOffsetY = strip.height;
 
-            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, helper.Self.transform, "TabContainerTLMopt", new Vector4(0, 40, 725, 550));
+            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, helper.Self.transform, "TabContainerTLMopt", new Vector4(0, 40, 725, 710));
             tabContainer.autoSize = true;
             strip.tabPages = tabContainer;
 

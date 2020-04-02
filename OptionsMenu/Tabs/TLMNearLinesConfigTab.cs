@@ -53,6 +53,11 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                 TLMConfigOptions.instance.generateCheckboxConfig(group7, Locale.Get("K45_TLM_NEAR_LINES_SHOW_TOUR_BUS"), TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG_SHOW_IN_LINEAR_MAP);
                 TLMConfigOptions.instance.generateCheckboxConfig(group7, Locale.Get("K45_TLM_NEAR_LINES_SHOW_TOUR_PED"), TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG_SHOW_IN_LINEAR_MAP);
             }
+            if (LoadingManager.instance.m_currentlyLoading || Singleton<LoadingManager>.instance.SupportsExpansion(ICities.Expansion.Urban))
+            {
+                TLMConfigOptions.instance.generateCheckboxConfig(group7, Locale.Get("K45_TLM_NEAR_LINES_SHOW_TROLLEY"), TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG_SHOW_IN_LINEAR_MAP);
+                TLMConfigOptions.instance.generateCheckboxConfig(group7, Locale.Get("K45_TLM_NEAR_LINES_SHOW_PASSENGER_HELICOPTER"), TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG_SHOW_IN_LINEAR_MAP);
+            }
 
         }
         private void toggleShowNearLinesInCityServicesWorldInfoPanel(bool b)

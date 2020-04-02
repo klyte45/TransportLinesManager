@@ -26,7 +26,7 @@ namespace Klyte.TransportLinesManager.UI
             float heightCheck = 0f;
             if (!TLMController.IsRealTimeEnabled)
             {
-                UICheckBox m_checkChangeDateLabel = uiHelper.AddCheckboxLocale("K45_TLM_SHOW_DAYTIME_INSTEAD_DATE", false, (x) => m_showDayTime = x);
+                UICheckBox m_checkChangeDateLabel = uiHelper.AddCheckboxLocale("K45_TLM_SHOW_DAYTIME_INSTEAD_DATE", false, (x) => m_showDayTime = x && SimulationManager.instance.m_enableDayNight);
                 KlyteMonoUtils.LimitWidth(m_checkChangeDateLabel.label, m_bg.width - 50);
                 heightCheck = m_checkChangeDateLabel.height;
             }

@@ -344,6 +344,12 @@ namespace Klyte.TransportLinesManager.Extensors
                 case TransportInfo.TransportType.TouristBus:
                     result = 30;
                     break;
+                case TransportInfo.TransportType.Trolleybus:
+                    result = 30;
+                    break;
+                case TransportInfo.TransportType.Helicopter:
+                    result = 10;
+                    break;
             }
             return result;
         }

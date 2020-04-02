@@ -1,4 +1,11 @@
-﻿Patch 13.2.2
+﻿TLMv13.3
+	- RE-ENABLED THE BACK TO MAIN MENU BUTTON!
+	- Fixed: Slowdown opening the line list window
+	- Fixed: Passenger costs for Trolley and Passenger Helicopter are too high!
+	- Fixed missing configurations for Passenger Helicopter and Trolley (linear map, palette configuration, etc)
+	- Fixed height of mod options panel on configuration menu
+
+Patch 13.2.2
     - Fixed: Prefixes names aren't being listed with their keys (except unprefixed)
 	- Improved label with waiting passenger count in linear map
 Patch 13.2.1

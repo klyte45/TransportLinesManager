@@ -26,7 +26,9 @@ namespace Klyte.TransportLinesManager
            ConfigIndex.PLANE_PALETTE_MAIN ,
            ConfigIndex.MONORAIL_PALETTE_MAIN ,
            ConfigIndex.TOUR_BUS_CONFIG_PALETTE_MAIN ,
-           ConfigIndex.TOUR_PED_CONFIG_PALETTE_MAIN
+           ConfigIndex.TOUR_PED_CONFIG_PALETTE_MAIN,
+           ConfigIndex.TROLLEY_CONFIG_PALETTE_MAIN,
+           ConfigIndex.HELICOPTER_CONFIG_PALETTE_MAIN
         };
         protected bool unsafeMode = false;
         public TLMConfigWarehouse() { }
@@ -574,8 +576,10 @@ namespace Klyte.TransportLinesManager
              ConfigIndex.CABLE_CAR_SHOW_IN_LINEAR_MAP ,
              ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP ,
              ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP ,
-             ConfigIndex.PLANE_SHOW_IN_LINEAR_MAP ,
-             ConfigIndex.SHIP_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.TOUR_PED_CONFIG_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.TOUR_BUS_CONFIG_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.HELICOPTER_CONFIG_SHOW_IN_LINEAR_MAP ,
+             ConfigIndex.TROLLEY_CONFIG_SHOW_IN_LINEAR_MAP ,
         };
         public static readonly ConfigIndex[] namingOrder =
         {

@@ -15,7 +15,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.2.2.*")]
+[assembly: AssemblyVersion("13.3.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -23,12 +23,7 @@ namespace Klyte.TransportLinesManager
 
         public TransportLinesManagerMod() => Construct();
 
-        private IEnumerator UnsubscribeIncompatible()
-        {
-            yield return 0;
-            PlatformService.workshop.Unsubscribe(new PublishedFileId(928128676L));
-        }
-
+ 
         public override string SimpleName => "Transport Lines Manager";
         public override string Description => "Allows to customize and manage your public transport systems.";
         public override bool UseGroup9 => false;
@@ -41,8 +36,6 @@ namespace Klyte.TransportLinesManager
         {
             if (m_priorityRedirector == null)
             {
-                LogUtils.DoErrorLog("UNSUBS!");
-                SimulationManager.instance.StartCoroutine(UnsubscribeIncompatible());
                 m_priorityRedirector = KlyteMonoUtils.CreateElement<Redirector>(null, "UVM_PRIO");
                 m_priorityRedirector.AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("Start", RedirectorUtils.allFlags), null, null, typeof(UVMPublicTransportWorldInfoPanel).GetMethod("TranspileStart", RedirectorUtils.allFlags));
             }
@@ -108,6 +101,10 @@ namespace Klyte.TransportLinesManager
         {
             base.OnLevelLoadingInternal();
             TLMController.VerifyIfIsRealTimeEnabled();
+            if (true || TLMController.IsIPT2Enabled())
+            {
+
+            }
         }
 
         private readonly SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
