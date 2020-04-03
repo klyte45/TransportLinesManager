@@ -1,21 +1,9 @@
 ﻿TLMv13.3
-	- RE-ENABLED THE BACK TO MAIN MENU BUTTON!
+	- RE-ENABLED THE BACK TO MAIN MENU BUTTON! 
+	NOTE: it only will be enabled if there's no other 5th gen mod enabled. Others mod conversions to support it are coming soon!
 	- Fixed: Slowdown opening the line list window
 	- Fixed: Passenger costs for Trolley and Passenger Helicopter are too high!
 	- Fixed missing configurations for Passenger Helicopter and Trolley (linear map, palette configuration, etc)
 	- Fixed height of mod options panel on configuration menu
-
-Patch 13.2.2
-    - Fixed: Prefixes names aren't being listed with their keys (except unprefixed)
-	- Improved label with waiting passenger count in linear map
-Patch 13.2.1
-	- Fixed trolley and passenger helicopter selection being ignored
-TLMv13.2
-	- Added support for Sunset Harbor
-	- NEW REPORT: Tourists/Students/Total passengers by line (last 24h)
-	- NEW REPORT: Passengers by wealth by line (last 24h)
-	- Added summary for financial report
-	- Minor UI fixes
-	- Now specific budget sliders step fits the line lenght (each slider step advance is equal to one vehicle)
-	- New property for max value on specific config vehicle count (defaults 50)
-	- Fixed line symbol header on linear map
+	- Improved perfornance while creating lines
+	- Improved overall performance

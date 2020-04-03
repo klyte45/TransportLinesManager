@@ -37,19 +37,26 @@ namespace Klyte.TransportLinesManager
         public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
         public const ulong REALTIME_MOD_ID = 1420955187;
         public const ulong IPT2_MOD_ID = 928128676;
-        private static bool? m_isRealTimeEnabled = null;
+        private bool? m_isRealTimeEnabled = null;
 
         public static bool IsRealTimeEnabled
         {
             get {
-                if (m_isRealTimeEnabled == null)
+                if (instance?.m_isRealTimeEnabled == null)
                 {
                     VerifyIfIsRealTimeEnabled();
                 }
-                return m_isRealTimeEnabled ?? false;
+                return instance?.m_isRealTimeEnabled ?? false;
             }
         }
-        public static void VerifyIfIsRealTimeEnabled() => m_isRealTimeEnabled = VerifyModEnabled(REALTIME_MOD_ID);
+        public static void VerifyIfIsRealTimeEnabled()
+        {
+            if (instance != null)
+            {
+                instance.m_isRealTimeEnabled = VerifyModEnabled(REALTIME_MOD_ID);
+            }
+        }
+
         public static bool IsIPT2Enabled() => VerifyModEnabled(IPT2_MOD_ID);
 
         private static bool VerifyModEnabled(ulong modId)
@@ -94,6 +101,16 @@ namespace Klyte.TransportLinesManager
         }
 
         internal TLMLineCreationToolbox LineCreationToolbox => PublicTransportInfoViewPanelOverrides.Toolbox;
+
+        public static void RedrawMap(ushort lineCurrent)
+        {
+            instance.SetCurrentSelectedId(lineCurrent);
+            if (lineCurrent > 0 && (Singleton<TransportManager>.instance.m_lines.m_buffer[lineCurrent].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None && TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
+            {
+                TLMController.AutoColor(lineCurrent, true, true);
+            }
+            instance.LinearMapCreatingLine.redrawLine();
+        }
 
         public bool ForceShowStopsDistances => true;
 

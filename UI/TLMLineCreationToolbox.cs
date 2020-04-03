@@ -278,7 +278,7 @@ namespace Klyte.TransportLinesManager.UI
             syncForm();
         }
 
-        private void syncForm()
+        public void syncForm()
         {
 
             var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
@@ -363,6 +363,14 @@ namespace Klyte.TransportLinesManager.UI
             m_toolboxToggleButton.text = lineStr;
             lineNumber.text = lineStr;
         }
+
+      
+
+
+
+     
+     
+
         public int getCurrentNumber()
         {
 

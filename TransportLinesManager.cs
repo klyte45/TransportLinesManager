@@ -7,9 +7,10 @@ using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.OptionsMenu;
 using Klyte.TransportLinesManager.Utils;
+using System.Collections.Generic;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.3.0.*")]
+[assembly: AssemblyVersion("13.3.0.0")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -19,6 +20,15 @@ namespace Klyte.TransportLinesManager
         public override string SimpleName => "Transport Lines Manager";
         public override string Description => "Allows to customize and manage your public transport systems.";
         public override bool UseGroup9 => false;
+
+        public override List<ulong> IncompatibleModList { get; } = new List<ulong>()
+        {
+            TLMController.IPT2_MOD_ID
+        };
+        public override List<string> IncompatibleDllModList { get; } = new List<string>()
+        {
+            "ImprovedPublicTransport2"
+        };
 
         public override void DoErrorLog(string fmt, params object[] args) => TLMUtils.doErrorLog(fmt, args);
 
@@ -85,10 +95,6 @@ namespace Klyte.TransportLinesManager
         {
             base.OnLevelLoadingInternal();
             TLMController.VerifyIfIsRealTimeEnabled();
-            if (true || TLMController.IsIPT2Enabled())
-            {
-
-            }
         }
 
         public override void LoadSettings() { }
