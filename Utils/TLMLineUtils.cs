@@ -33,10 +33,10 @@ namespace Klyte.TransportLinesManager.Utils
             Vector3 position = nm.m_nodes.m_buffer[currentStop].m_position;
             Vector3 position2 = nm.m_nodes.m_buffer[nextStop].m_position;
             nm.m_nodes.m_buffer[currentStop].m_maxWaitTime = 0;
-            int minX = Mathf.Max((int) ((position.x - 32f) / 8f + 1080f), 0);
-            int minZ = Mathf.Max((int) ((position.z - 32f) / 8f + 1080f), 0);
-            int maxX = Mathf.Min((int) ((position.x + 32f) / 8f + 1080f), 2159);
-            int maxZ = Mathf.Min((int) ((position.z + 32f) / 8f + 1080f), 2159);
+            int minX = Mathf.Max((int)((position.x - 32f) / 8f + 1080f), 0);
+            int minZ = Mathf.Max((int)((position.z - 32f) / 8f + 1080f), 0);
+            int maxX = Mathf.Min((int)((position.x + 32f) / 8f + 1080f), 2159);
+            int maxZ = Mathf.Min((int)((position.z + 32f) / 8f + 1080f), 2159);
             residents = 0;
             tourists = 0;
             timeTilBored = 255;
@@ -113,7 +113,7 @@ namespace Klyte.TransportLinesManager.Utils
             TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info;
             Tuple<float, int, int, float, bool> lineBudget = GetBudgetMultiplierLineWithIndexes(transportLine);
             int budgetClass = lineBudget.Fifth ? 100 : Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            return (int) (budgetClass * lineBudget.First);
+            return (int)(budgetClass * lineBudget.First);
         }
 
         public static float GetBudgetMultiplierLine(ushort lineId) => GetBudgetMultiplierLineWithIndexes(lineId).First;
@@ -248,10 +248,10 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else
             {
-                suffix = (ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
-                s = (Separador) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
-                prefix = (ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
-                nonPrefix = (ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
+                suffix = (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
+                s = (Separador)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
+                prefix = (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+                nonPrefix = (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
                 zeros = TLMCW.GetCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
                 invertPrefixSuffix = TLMCW.GetCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
             }
@@ -263,7 +263,7 @@ namespace Klyte.TransportLinesManager.Utils
                 return false;
             }
             var transportType = tsd.ToConfigIndex();
-            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
         public static bool hasPrefix(ref TransportLine t)
@@ -274,7 +274,7 @@ namespace Klyte.TransportLinesManager.Utils
                 return false;
             }
             var transportType = tsd.ToConfigIndex();
-            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
         public static bool hasPrefix(ushort idx)
@@ -285,13 +285,13 @@ namespace Klyte.TransportLinesManager.Utils
                 return false;
             }
             var transportType = tsd.ToConfigIndex();
-            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
         public static bool hasPrefix(TransportInfo t)
         {
             var transportType = TransportSystemDefinition.From(t).ToConfigIndex();
-            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
         }
 
 
@@ -303,7 +303,7 @@ namespace Klyte.TransportLinesManager.Utils
                 return 0;
             }
             var transportType = tsd.ToConfigIndex();
-            if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum)
+            if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum)
             {
                 uint prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u;
                 //LogUtils.DoLog($"Prefix {prefix} for lineId {idx}");
@@ -342,10 +342,10 @@ namespace Klyte.TransportLinesManager.Utils
         public static bool GetNearLines(Vector3 pos, float maxDistance, ref List<ushort> linesFound)
         {
             float extendedMaxDistance = maxDistance * 1.3f;
-            int num = Mathf.Max((int) ((pos.x - extendedMaxDistance) / 64f + 135f), 0);
-            int num2 = Mathf.Max((int) ((pos.z - extendedMaxDistance) / 64f + 135f), 0);
-            int num3 = Mathf.Min((int) ((pos.x + extendedMaxDistance) / 64f + 135f), 269);
-            int num4 = Mathf.Min((int) ((pos.z + extendedMaxDistance) / 64f + 135f), 269);
+            int num = Mathf.Max((int)((pos.x - extendedMaxDistance) / 64f + 135f), 0);
+            int num2 = Mathf.Max((int)((pos.z - extendedMaxDistance) / 64f + 135f), 0);
+            int num3 = Mathf.Min((int)((pos.x + extendedMaxDistance) / 64f + 135f), 269);
+            int num4 = Mathf.Min((int)((pos.z + extendedMaxDistance) / 64f + 135f), 269);
             bool noneFound = true;
             NetManager nm = Singleton<NetManager>.instance;
             TransportManager tm = Singleton<TransportManager>.instance;
@@ -404,10 +404,10 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 subservicesAllowed = new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTrain, ItemClass.SubService.PublicTransportMetro };
             }
-            int num = Mathf.Max((int) ((pos.x - maxDistance) / 64f + 135f), 0);
-            int num2 = Mathf.Max((int) ((pos.z - maxDistance) / 64f + 135f), 0);
-            int num3 = Mathf.Min((int) ((pos.x + maxDistance) / 64f + 135f), 269);
-            int num4 = Mathf.Min((int) ((pos.z + maxDistance) / 64f + 135f), 269);
+            int num = Mathf.Max((int)((pos.x - maxDistance) / 64f + 135f), 0);
+            int num2 = Mathf.Max((int)((pos.z - maxDistance) / 64f + 135f), 0);
+            int num3 = Mathf.Min((int)((pos.x + maxDistance) / 64f + 135f), 269);
+            int num4 = Mathf.Min((int)((pos.z + maxDistance) / 64f + 135f), 269);
             bool noneFound = true;
             NetManager nm = Singleton<NetManager>.instance;
             TransportManager tm = Singleton<TransportManager>.instance;
@@ -593,7 +593,7 @@ namespace Klyte.TransportLinesManager.Utils
                 bool zeroed;
                 unchecked
                 {
-                    zeroed = (tm.m_lines.m_buffer[s.Value].m_flags & (TransportLine.Flags) TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
+                    zeroed = (tm.m_lines.m_buffer[s.Value].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
                 }
                 if (!day || !night || zeroed)
                 {
@@ -842,7 +842,7 @@ namespace Klyte.TransportLinesManager.Utils
             int targetStart = 0;
             int mostRelevantEndIdx = -1;
             int j = 0;
-            int maxDistanceEnd = (int) (idxStations.Count / 8f + 0.5f);
+            int maxDistanceEnd = (int)(idxStations.Count / 8f + 0.5f);
             TLMUtils.doLog("idxStations");
             do
             {
@@ -1105,7 +1105,7 @@ namespace Klyte.TransportLinesManager.Utils
             else
             {
                 NetManager nm = Singleton<NetManager>.instance;
-                NetNode nn = nm.m_nodes.m_buffer[(int) stopId];
+                NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
                 return nn.m_position;
             }
         }
@@ -1159,7 +1159,7 @@ namespace Klyte.TransportLinesManager.Utils
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
-            NetNode nn = nm.m_nodes.m_buffer[(int) stopId];
+            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
             ushort tempBuildingId;
 
 
@@ -1187,7 +1187,7 @@ namespace Klyte.TransportLinesManager.Utils
                 {
                     if (TLMCW.GetCurrentConfigBool(idx))
                     {
-                        tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, (ItemClass.Service) ((int) idx & (int) CIdx.DESC_DATA), TLMCW.getSubserviceFromSystemId(idx), null, Building.Flags.None, Building.Flags.Untouchable);
+                        tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, (ItemClass.Service)((int)idx & (int)CIdx.DESC_DATA), TLMCW.getSubserviceFromSystemId(idx), null, Building.Flags.None, Building.Flags.Untouchable);
                         if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
                         {
                             return tempBuildingId;
@@ -1199,7 +1199,8 @@ namespace Klyte.TransportLinesManager.Utils
             return 0;
 
         }
-        internal static string GetIconString(ushort lineId) => $"<{UIDynamicFontRendererRedirector.TAG_LINE} {getIconForLine(lineId, false)},{Singleton<TransportManager>.instance.GetLineColor(lineId).ToRGB()},{getLineStringId(lineId)}>";
+        internal static string GetIconString(ushort lineId) => GetIconString(getIconForLine(lineId, false), Singleton<TransportManager>.instance.GetLineColor(lineId), getLineStringId(lineId));
+        internal static string GetIconString(string iconName, Color color, string lineString) => $"<{UIDynamicFontRendererRedirector.TAG_LINE} {iconName},{color.ToRGB()},{lineString}>";
 
         private static bool IsBuildingValidForStation(bool excludeCargo, BuildingManager bm, ushort tempBuildingId) => tempBuildingId > 0 && (!excludeCargo || !(bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is DepotAI || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is CargoStationAI) || bm.m_buildings.m_buffer[tempBuildingId].Info.GetAI() is TransportStationAI);
         public static int CalculateTargetVehicleCount(ref TransportLine t, ushort lineId, float lineLength) => CalculateTargetVehicleCount(t.Info, lineLength, GetEffectiveBudget(lineId));
@@ -1251,7 +1252,7 @@ namespace Klyte.TransportLinesManager.Utils
             uint ticketPriceDefault = GetTicketPriceForLine(ref def, vehicleData.m_transportLine).First.Value;
             LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): multiplier = {multiplier}, ticketPriceDefault = {ticketPriceDefault}");
 
-            return (int) (multiplier * ticketPriceDefault);
+            return (int)(multiplier * ticketPriceDefault);
 
         }
 
@@ -1273,11 +1274,11 @@ namespace Klyte.TransportLinesManager.Utils
             }
             if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
             {
-                ticketPriceDefault = Tuple.New(new TicketPriceEntryXml() { Value = (uint) TLMCW.GetSettedTicketPrice(tsd.ToConfigIndex()) }, -1);
+                ticketPriceDefault = Tuple.New(new TicketPriceEntryXml() { Value = (uint)TLMCW.GetSettedTicketPrice(tsd.ToConfigIndex()) }, -1);
             }
             if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
             {
-                ticketPriceDefault = Tuple.New(new TicketPriceEntryXml() { Value = (uint) TransportManager.instance.m_lines.m_buffer[lineId].Info.m_ticketPrice }, -1);
+                ticketPriceDefault = Tuple.New(new TicketPriceEntryXml() { Value = (uint)TransportManager.instance.m_lines.m_buffer[lineId].Info.m_ticketPrice }, -1);
             }
 
             return ticketPriceDefault;
@@ -1365,7 +1366,7 @@ namespace Klyte.TransportLinesManager.Utils
             int num = 0;
             while (unitID != 0u)
             {
-                CitizenUnit citizenUnit = Singleton<CitizenManager>.instance.m_units.m_buffer[(int) ((UIntPtr) unitID)];
+                CitizenUnit citizenUnit = Singleton<CitizenManager>.instance.m_units.m_buffer[(int)((UIntPtr)unitID)];
                 unitID = citizenUnit.m_nextUnit;
                 num++;
             }
@@ -1378,7 +1379,7 @@ namespace Klyte.TransportLinesManager.Utils
             int i = 0;
             TransportSystemDefinition tsd;
             ITLMTransportTypeExtension ext;
-            while (i < (long) ((ulong) vehicles.m_size))
+            while (i < (long)((ulong)vehicles.m_size))
             {
                 if ((vehicles.m_buffer[i].m_flags & Vehicle.Flags.Spawned) == Vehicle.Flags.Spawned && (tsd = TransportSystemDefinition.From(vehicles.m_buffer[i].Info)) != default && (ext = tsd.GetTransportExtension()).IsCustomCapacity(vehicles.m_buffer[i].Info.name))
                 {
@@ -1394,21 +1395,21 @@ namespace Klyte.TransportLinesManager.Utils
                             uint j = unit;
                             for (int k = 1; k < newUnitCount; k++)
                             {
-                                j = units[(int) ((UIntPtr) j)].m_nextUnit;
+                                j = units[(int)((UIntPtr)j)].m_nextUnit;
                             }
-                            Singleton<CitizenManager>.instance.ReleaseUnits(units[(int) ((UIntPtr) j)].m_nextUnit);
-                            units[(int) ((UIntPtr) j)].m_nextUnit = 0u;
+                            Singleton<CitizenManager>.instance.ReleaseUnits(units[(int)((UIntPtr)j)].m_nextUnit);
+                            units[(int)((UIntPtr)j)].m_nextUnit = 0u;
                             count++;
                         }
                         else if (newUnitCount > currentUnitCount)
                         {
                             uint l = unit;
-                            while (units[(int) ((UIntPtr) l)].m_nextUnit != 0u)
+                            while (units[(int)((UIntPtr)l)].m_nextUnit != 0u)
                             {
-                                l = units[(int) ((UIntPtr) l)].m_nextUnit;
+                                l = units[(int)((UIntPtr)l)].m_nextUnit;
                             }
                             int newCapacity = capacity - currentUnitCount * 5;
-                            Singleton<CitizenManager>.instance.CreateUnits(out units[(int) ((UIntPtr) l)].m_nextUnit, ref Singleton<SimulationManager>.instance.m_randomizer, 0, (ushort) i, 0, 0, 0, newCapacity, 0);
+                            Singleton<CitizenManager>.instance.CreateUnits(out units[(int)((UIntPtr)l)].m_nextUnit, ref Singleton<SimulationManager>.instance.m_randomizer, 0, (ushort)i, 0, 0, 0, newCapacity, 0);
                             count++;
                         }
                     }
@@ -1600,7 +1601,7 @@ namespace Klyte.TransportLinesManager.Utils
                 case TLMCW.ConfigIndex.HELICOPTER_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                     return NamingType.HELICOPTER;
                 default:
-                    TLMUtils.doErrorLog($"UNKNOWN NAME TYPE:{ci} ({((int) ci).ToString("X8")})");
+                    TLMUtils.doErrorLog($"UNKNOWN NAME TYPE:{ci} ({((int)ci).ToString("X8")})");
                     return NamingType.NONE;
 
             }

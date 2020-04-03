@@ -1,18 +1,12 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
-using ColossalFramework.PlatformServices;
 using ColossalFramework.UI;
-using ICities;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Interfaces;
-using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.OptionsMenu;
-using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
-using System;
-using System.Collections;
 using System.Reflection;
 
 [assembly: AssemblyVersion("13.3.0.*")]
@@ -20,10 +14,8 @@ namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
     {
-
         public TransportLinesManagerMod() => Construct();
 
- 
         public override string SimpleName => "Transport Lines Manager";
         public override string Description => "Allows to customize and manage your public transport systems.";
         public override bool UseGroup9 => false;
@@ -32,14 +24,6 @@ namespace Klyte.TransportLinesManager
 
         public override void DoLog(string fmt, params object[] args) => TLMUtils.doLog(fmt, args);
 
-        public override void LoadSettings()
-        {
-            if (m_priorityRedirector == null)
-            {
-                m_priorityRedirector = KlyteMonoUtils.CreateElement<Redirector>(null, "UVM_PRIO");
-                m_priorityRedirector.AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("Start", RedirectorUtils.allFlags), null, null, typeof(UVMPublicTransportWorldInfoPanel).GetMethod("TranspileStart", RedirectorUtils.allFlags));
-            }
-        }
         public override void TopSettingsUI(UIHelperExtension helper) => TLMConfigOptions.instance.GenerateOptionsMenu(helper);
 
         internal void PopulateGroup9(UIHelperExtension helper) => CreateGroup9(helper);
@@ -107,9 +91,10 @@ namespace Klyte.TransportLinesManager
             }
         }
 
+        public override void LoadSettings() { }
+
         private readonly SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
         private readonly SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
-        private readonly SavedBool m_savedOverrideDefaultLineInfoPanel = new SavedBool("TLMOverrideDefaultLineInfoPanel", Settings.gameSettingsFile, true, true);
         private readonly SavedBool m_showDistanceInLinearMap = new SavedBool("TLMshowDistanceInLinearMap", Settings.gameSettingsFile, true, true);
 
         public static bool showNearLinesPlop
@@ -131,7 +116,6 @@ namespace Klyte.TransportLinesManager
 
         public override string IconName => "K45_TLM_Icon";
 
-        private static Redirector m_priorityRedirector;
 
     }
 

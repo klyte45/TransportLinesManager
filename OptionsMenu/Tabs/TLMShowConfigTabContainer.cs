@@ -28,7 +28,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
             UIComponent bodyContent = CreateContentTemplate(parentWidth, 320, false);
 
-            foreach (var kv in TransportSystemDefinition.SysDefinitions)
+            foreach (System.Collections.Generic.KeyValuePair<TransportSystemDefinition, Func<ITLMSysDef>> kv in TransportSystemDefinition.SysDefinitions)
             {
                 Type[] components;
                 Type targetType;
@@ -90,7 +90,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         {
             KlyteMonoUtils.CreateUIElement(out UIPanel contentContainer, null);
             contentContainer.name = "Container";
-            contentContainer.area = new Vector4(0, 0, width, height);
+            contentContainer.size = new Vector3(width, height);
             if (scrollable)
             {
                 KlyteMonoUtils.CreateUIElement(out UIScrollablePanel scrollPanel, contentContainer.transform, "ScrollPanel");

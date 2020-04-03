@@ -10,16 +10,17 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.UI
 {
 
-    internal class TLMLineCreationToolbox : MonoBehaviour
+    internal class TLMLineCreationToolbox
     {
 
         #region Line Draw Button Click Impl
 
-        public static void OnButtonClickedPre(ref TransportInfo __state) => __state = Singleton<ToolController>.instance.gameObject.GetComponentInChildren<TransportTool>().m_prefab;
+        public static void OnButtonClickedPre(ref TransportInfo __state) => __state = ToolManager.instance.m_properties?.CurrentTool is TransportTool tt ? tt.m_prefab : null;
 
         public static void OnButtonClickedPos(ref TransportInfo __state)
         {
-            if (__state != Singleton<ToolController>.instance.gameObject.GetComponentInChildren<TransportTool>().m_prefab)
+            TransportInfo newPrefab = ToolManager.instance.m_properties?.CurrentTool is TransportTool tt ? tt.m_prefab : null;
+            if (newPrefab != null && __state != newPrefab)
             {
                 TLMController.instance.LineCreationToolbox.syncForm();
             }
@@ -31,6 +32,7 @@ namespace Klyte.TransportLinesManager.UI
         }
 
         private static FieldInfo tt_nextLineNum = typeof(TransportManager).GetField("m_lineNumber", RedirectorUtils.allFlags);
+        private static readonly SavedBool m_showLineCreationToolBox = new SavedBool("K45_TLM_showLineToolbox", Settings.gameSettingsFile, true);
 
         public TransportInfo.TransportType currentType
         {
@@ -50,26 +52,19 @@ namespace Klyte.TransportLinesManager.UI
 
         private UIHelperExtension uiHelper;
 
+        private UIPanel m_bg;
+        private UIButton m_toolboxToggleButton;
         private UIDropDown linePrefixDropDown;
         private UITextField lineNumberTxtBox;
-        private UILabel lineFormat;
         private UILabel lineNumber;
         private UIPanel mainContainer;
+        private UIPanel contentContainer;
         private UICheckBox prefixIncrementChk;
 
         private TransportInfo lastPrefab;
         private TransportTool _transportTool;
 
-        private TransportTool transportTool
-        {
-            get {
-                if (_transportTool == null)
-                {
-                    _transportTool = Singleton<ToolController>.instance.gameObject.GetComponentInChildren<TransportTool>();
-                }
-                return _transportTool;
-            }
-        }
+        private TransportTool transportTool => ToolManager.instance.m_properties?.CurrentTool as TransportTool;
 
 
         private ushort nextLineNumber
@@ -77,7 +72,7 @@ namespace Klyte.TransportLinesManager.UI
             get {
                 if (tt_nextLineNum != null)
                 {
-                    return ((ushort[]) tt_nextLineNum.GetValue(Singleton<TransportManager>.instance))[(int) currentType];
+                    return ((ushort[])tt_nextLineNum.GetValue(Singleton<TransportManager>.instance))[(int)currentType];
                 }
                 return 0;
             }
@@ -85,34 +80,49 @@ namespace Klyte.TransportLinesManager.UI
 
                 if (tt_nextLineNum != null)
                 {
-                    ushort[] arr = ((ushort[]) tt_nextLineNum.GetValue(Singleton<TransportManager>.instance));
-                    arr[(int) currentType] = value;
+                    ushort[] arr = ((ushort[])tt_nextLineNum.GetValue(Singleton<TransportManager>.instance));
+                    arr[(int)currentType] = value;
                     tt_nextLineNum.SetValue(Singleton<TransportManager>.instance, arr);
                 }
             }
         }
 
-        public bool isVisible() => mainContainer.isVisible;
-        public void setVisible(bool value) => mainContainer.isVisible = value;
+        public void setVisible(bool value) => m_bg.isVisible = value;
 
-        public void Awake()
+        internal TLMLineCreationToolbox(PublicTransportInfoViewPanel parent)
         {
-            createToolbox();
-            setVisible(false);
-        }
+            KlyteMonoUtils.CreateUIElement(out m_bg, parent.GetComponentInChildren<UISlicedSprite>().transform);
+            m_bg.name = "TLMLineCreationToolboxBG";
+            m_bg.height = 0;
+            m_bg.width = 0;
+            m_bg.relativePosition = new Vector3(0, 0);
+            m_bg.isInteractive = false;
 
-        private void createToolbox()
-        {
+            KlyteMonoUtils.CreateUIElement(out m_toolboxToggleButton, m_bg.transform);
+            m_toolboxToggleButton.disabledTextColor = new Color32(128, 128, 128, byte.MaxValue);
+            KlyteMonoUtils.InitButtonFull(m_toolboxToggleButton, false, "OptionBase");
+            m_toolboxToggleButton.size = new Vector2(36, 36);
+            m_toolboxToggleButton.name = "TLMLineCreationToolboxToggle";
+            m_toolboxToggleButton.zOrder = 11;
+            m_toolboxToggleButton.textScale = 1;
+            m_toolboxToggleButton.textVerticalAlignment = UIVerticalAlignment.Middle;
+            m_toolboxToggleButton.textHorizontalAlignment = UIHorizontalAlignment.Center;
+            m_toolboxToggleButton.relativePosition = new Vector3(parent.component.width - 40, 2);
 
-            KlyteMonoUtils.CreateUIElement(out mainContainer, m_controller.TransformLinearMap);
-            mainContainer.absolutePosition = new Vector3(2f, FindObjectOfType<UIView>().fixedHeight - 300f);
+            m_toolboxToggleButton.processMarkup = true;
+            m_toolboxToggleButton.eventClicked += (x, y) =>
+            {
+                m_showLineCreationToolBox.value = !m_showLineCreationToolBox;
+                UpdateToolBoxVisibility();
+            };
+
+            KlyteMonoUtils.CreateUIElement(out mainContainer, m_bg.transform);
             mainContainer.name = "TLMLineCreationToolbox";
-            mainContainer.height = 190;
+            mainContainer.height = 210;
             mainContainer.width = 180;
             mainContainer.backgroundSprite = "MenuPanel2";
-            mainContainer.relativePosition = new Vector3(320f, 57f);
+            mainContainer.relativePosition = new Vector3(parent.component.width, 0);
 
-            uiHelper = new UIHelperExtension(mainContainer);
 
             KlyteMonoUtils.CreateUIElement(out UILabel title, mainContainer.transform);
             title.autoSize = false;
@@ -125,10 +135,16 @@ namespace Klyte.TransportLinesManager.UI
             title.name = "Title";
             title.relativePosition = new Vector3(0, 5);
             title.localeID = "K45_TLM_PREFIX_SELECTOR_WIN_TITLE";
-            KlyteMonoUtils.CreateDragHandle(title, mainContainer);
+
+            KlyteMonoUtils.CreateUIElement(out contentContainer, mainContainer.transform);
+            contentContainer.relativePosition = new Vector3(2f, 32f);
+            contentContainer.name = "TLMLineCreationToolboxContent";
+            contentContainer.size = new Vector3(mainContainer.width - 4, mainContainer.height - 34);
+
+            uiHelper = new UIHelperExtension(contentContainer);
 
 
-            var lpddgo = GameObject.Instantiate(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate).GetComponent<UIPanel>().Find<UIDropDown>("Dropdown").gameObject, mainContainer.transform);
+            var lpddgo = GameObject.Instantiate(UITemplateManager.GetAsGameObject(UIHelperExtension.kDropdownTemplate).GetComponent<UIPanel>().Find<UIDropDown>("Dropdown").gameObject, contentContainer.transform);
             linePrefixDropDown = lpddgo.GetComponent<UIDropDown>();
             linePrefixDropDown.isLocalized = false;
             linePrefixDropDown.autoSize = false;
@@ -142,13 +158,12 @@ namespace Klyte.TransportLinesManager.UI
             linePrefixDropDown.itemPadding = new RectOffset(2, 2, 2, 2);
             linePrefixDropDown.textFieldPadding = new RectOffset(2, 2, 2, 2);
             linePrefixDropDown.eventSelectedIndexChanged += setNextLinePrefix;
-            linePrefixDropDown.relativePosition = new Vector3(5f, 45f);
+            linePrefixDropDown.relativePosition = new Vector3(5f, 13f);
             linePrefixDropDown.normalBgSprite = "OptionsDropboxListbox";
             linePrefixDropDown.horizontalAlignment = UIHorizontalAlignment.Center;
 
-            KlyteMonoUtils.CreateUIElement(out lineNumberTxtBox, mainContainer.transform);
+            KlyteMonoUtils.CreateUIElement(out lineNumberTxtBox, contentContainer.transform);
             lineNumberTxtBox.autoSize = false;
-            lineNumberTxtBox.relativePosition = new Vector3(85f, 45f);
             lineNumberTxtBox.horizontalAlignment = UIHorizontalAlignment.Center;
             lineNumberTxtBox.text = "";
             lineNumberTxtBox.width = 90;
@@ -162,30 +177,20 @@ namespace Klyte.TransportLinesManager.UI
             lineNumberTxtBox.numericalOnly = true;
             lineNumberTxtBox.maxLength = 4;
             lineNumberTxtBox.eventLostFocus += setNextLineNumber;
-            ;
             lineNumberTxtBox.zOrder = 10;
             lineNumberTxtBox.text = "0";
+            lineNumberTxtBox.relativePosition = new Vector3(85f, 13f);
 
-            KlyteMonoUtils.CreateUIElement(out lineFormat, mainContainer.transform);
-            lineFormat.autoSize = false;
-            lineFormat.width = 80;
-            lineFormat.height = 80;
-            lineFormat.color = new Color(1, 0, 0, 1);
-            lineFormat.pivot = UIPivotPoint.MiddleLeft;
-            lineFormat.textAlignment = UIHorizontalAlignment.Center;
-            lineFormat.verticalAlignment = UIVerticalAlignment.Middle;
-            lineFormat.name = "LineFormat";
-            lineFormat.relativePosition = new Vector3(55f, 80f);
-            KlyteMonoUtils.CreateDragHandle(lineFormat, mainContainer);
-
-            KlyteMonoUtils.CreateUIElement(out lineNumber, lineFormat.transform);
+            KlyteMonoUtils.CreateUIElement(out lineNumber, contentContainer.transform);
             lineNumber.autoSize = false;
-            lineNumber.width = lineFormat.width;
             lineNumber.pivot = UIPivotPoint.MiddleCenter;
             lineNumber.name = "LineNumber";
-            lineNumber.width = 80;
+            lineNumber.width = 150;
+            lineNumber.processMarkup = true;
+            lineNumber.textScale = 2.5f;
+            lineNumber.isInteractive = false;
             lineNumber.height = 80;
-            lineNumber.relativePosition = new Vector3(-0.5f, 0.5f);
+            lineNumber.relativePosition = new Vector3(20f, 50);
             lineNumber.autoHeight = false;
             lineNumber.textAlignment = UIHorizontalAlignment.Center;
             lineNumber.verticalAlignment = UIVerticalAlignment.Middle;
@@ -199,8 +204,28 @@ namespace Klyte.TransportLinesManager.UI
                  }
                  TLMConfigWarehouse.SetCurrentConfigBool(tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT, value);
              });
-            prefixIncrementChk.relativePosition = new Vector3(5f, 162.5f);
+            prefixIncrementChk.relativePosition = new Vector3(5f, 130f);
 
+            uiHelper.AddCheckboxLocale("K45_TLM_SHOW_LINEAR_MAP", TLMController.LinearMapWhileCreatingLineVisibility, delegate (bool value)
+            {
+                TLMController.LinearMapWhileCreatingLineVisibility = value;
+            }).relativePosition = new Vector3(5f, 153f);
+
+            UpdateToolBoxVisibility();
+            setVisible(false);
+        }
+
+        private void UpdateToolBoxVisibility()
+        {
+            mainContainer.isVisible = m_showLineCreationToolBox;
+            if (m_showLineCreationToolBox)
+            {
+                m_toolboxToggleButton?.Focus();
+            }
+            else
+            {
+                m_toolboxToggleButton?.Unfocus();
+            }
         }
 
         private void setNextLinePrefix(UIComponent component, int value) => saveLineNumber();
@@ -217,9 +242,9 @@ namespace Klyte.TransportLinesManager.UI
             ushort num = ushort.Parse(value);
             if (prefixo != ModoNomenclatura.Nenhum)
             {
-                num = (ushort) ((valPrefixo * 1000) + (num % 1000));
+                num = (ushort)((valPrefixo * 1000) + (num % 1000));
             }
-            nextLineNumber = (ushort) (num - 1);
+            nextLineNumber = (ushort)(num - 1);
             incrementNumber();
         }
 
@@ -249,7 +274,7 @@ namespace Klyte.TransportLinesManager.UI
 
                 }
             }
-            nextLineNumber = (ushort) num;
+            nextLineNumber = (ushort)num;
             syncForm();
         }
 
@@ -265,7 +290,7 @@ namespace Klyte.TransportLinesManager.UI
                 linePrefixDropDown.selectedIndex = getCurrentPrefix();
                 lineNumberTxtBox.text = getCurrentNumber().ToString();
                 lineNumberTxtBox.width = 90;
-                lineNumberTxtBox.relativePosition = new Vector3(85f, 45f);
+                lineNumberTxtBox.relativePosition = new Vector3(85f, 13);
                 lineNumberTxtBox.maxLength = 3;
                 prefixIncrementChk.isChecked = TLMConfigWarehouse.GetCurrentConfigBool(configIdx | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT);
                 prefixIncrementChk.isVisible = true;
@@ -275,7 +300,7 @@ namespace Klyte.TransportLinesManager.UI
                 linePrefixDropDown.isVisible = false;
                 lineNumberTxtBox.text = getCurrentNumber().ToString();
                 lineNumberTxtBox.width = 170;
-                lineNumberTxtBox.relativePosition = new Vector3(5f, 45f);
+                lineNumberTxtBox.relativePosition = new Vector3(5f, 13f);
                 lineNumberTxtBox.maxLength = 4;
                 prefixIncrementChk.isVisible = false;
             }
@@ -312,11 +337,11 @@ namespace Klyte.TransportLinesManager.UI
                 ushort num = ushort.Parse(value);
                 if (prefixo != ModoNomenclatura.Nenhum)
                 {
-                    num = (ushort) ((valPrefixo * 1000) + (num % 1000));
+                    num = (ushort)((valPrefixo * 1000) + (num % 1000));
                 }
                 if (nextLineNumber + 1 != num)
                 {
-                    nextLineNumber = (ushort) (num - 1);
+                    nextLineNumber = (ushort)(num - 1);
                 }
             }
 
@@ -326,7 +351,7 @@ namespace Klyte.TransportLinesManager.UI
 
             if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
             {
-                color = TLMUtils.CalculateAutoColor((ushort) (nextLineNumber + 1), configIdx, ref tsd, true);
+                color = TLMUtils.CalculateAutoColor((ushort)(nextLineNumber + 1), configIdx, ref tsd, true);
             }
             else
             {
@@ -334,42 +359,9 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             lineNumberTxtBox.color = color;
-            lineFormat.color = color;
-            lineFormat.backgroundSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon((ushort) (nextLineNumber + 1), configIdx, ref tsd), true);
-            lineNumber.text = TLMUtils.getString(prefixo, sep, sufixo, nonPrefix, (nextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix);
-            lineNumber.textColor = KlyteMonoUtils.ContrastColor(color);
-            int txtLen = lineNumber.text.Length;
-            switch (txtLen)
-            {
-                case 1:
-                    lineNumber.textScale = 4;
-                    break;
-                case 2:
-                    lineNumber.textScale = 3;
-                    break;
-                case 3:
-                    lineNumber.textScale = 2.25f;
-                    break;
-                case 4:
-                    lineNumber.textScale = 1.75f;
-                    break;
-                case 5:
-                    lineNumber.textScale = 1.5f;
-                    break;
-                case 6:
-                    lineNumber.textScale = 1.35f;
-                    break;
-                case 7:
-                    lineNumber.textScale = 1.2f;
-                    break;
-                case 8:
-                    lineNumber.textScale = 1.1f;
-                    break;
-                default:
-                    lineNumber.textScale = 1f;
-                    break;
-            }
-
+            string lineStr = TLMLineUtils.GetIconString(KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon((ushort)(nextLineNumber + 1), configIdx, ref tsd), true), color, TLMUtils.getString(prefixo, sep, sufixo, nonPrefix, (nextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix));
+            m_toolboxToggleButton.text = lineStr;
+            lineNumber.text = lineStr;
         }
         public int getCurrentNumber()
         {

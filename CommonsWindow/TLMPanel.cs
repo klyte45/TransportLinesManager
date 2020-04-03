@@ -169,7 +169,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             KlyteMonoUtils.CreateUIElement(out UIPanel contentContainer, null);
             contentContainer.name = "Container";
-            contentContainer.area = new Vector4(0, 0, width, height);
+            contentContainer.size = new Vector4(width, height);
             if (scrollable)
             {
                 KlyteMonoUtils.CreateUIElement(out UIScrollablePanel scrollPanel, contentContainer.transform, "ScrollPanel");

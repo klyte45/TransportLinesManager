@@ -51,7 +51,6 @@ namespace Klyte.TransportLinesManager.UI
         public bool getVisible() => mainContainer.isVisible;
         public void setVisible(bool value) => mainContainer.isVisible = value;
 
-
         public GameObject containerGameObject
         {
             get {
@@ -193,7 +192,7 @@ namespace Klyte.TransportLinesManager.UI
             bool zeroed;
             unchecked
             {
-                zeroed = (t.m_flags & (TransportLine.Flags) TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
+                zeroed = (t.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
             }
             if (!day || !night || zeroed)
             {
@@ -289,7 +288,7 @@ namespace Klyte.TransportLinesManager.UI
                 else
                 {
                     TLMUtils.doLog("Drag Funcionou! {0}/{1} ({2}-{3})", eventParam.source.name, dsi.gameObject.name, res.gameObject.name, idxRes);
-                    var ai = (VehicleAI) Singleton<VehicleManager>.instance.m_vehicles.m_buffer[dvi.vehicleId].Info.GetAI();
+                    var ai = (VehicleAI)Singleton<VehicleManager>.instance.m_vehicles.m_buffer[dvi.vehicleId].Info.GetAI();
                     ai.SetTarget(dvi.vehicleId, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[dvi.vehicleId], dsi.nodeId);
                 }
             }
@@ -719,7 +718,7 @@ namespace Klyte.TransportLinesManager.UI
                         }
                         else
                         {
-                            distance.text = (int) seg.m_averageLength + "m";
+                            distance.text = (int)seg.m_averageLength + "m";
                         }
                         distance.textScale = 0.75f;
                         distance.textAlignment = UIHorizontalAlignment.Center;

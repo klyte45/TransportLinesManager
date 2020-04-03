@@ -6,6 +6,7 @@ using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -18,7 +19,7 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
-    public class TLMController : MonoBehaviour, ILinearMapParentInterface
+    public class TLMController : BaseController<TransportLinesManagerMod, TLMController>, ILinearMapParentInterface
     {
         public static ExtensorContainer container => ExtensorContainer.instance;
         public static TLMTransportLineStatusesManager statuses => TLMTransportLineStatusesManager.instance;
@@ -27,7 +28,6 @@ namespace Klyte.TransportLinesManager
 
         public bool initializedWIP = false;
         private TLMLinearMap m_linearMapCreatingLine;
-        private TLMLineCreationToolbox m_lineCreationToolbox;
 
         //private UIPanel _cachedDefaultListingLinesPanel;
 
@@ -61,12 +61,14 @@ namespace Klyte.TransportLinesManager
         public static string palettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
         public static string exportedMapsFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;
 
-        public Transform TransformLinearMap => FindObjectOfType<UIView>()?.transform;
+        public Transform TransformLinearMap => UIView.GetAView()?.transform;
 
         public ushort CurrentSelectedId { get; private set; }
         public void SetCurrentSelectedId(ushort line) => CurrentSelectedId = line;
 
         public bool CanSwitchView => false;
+
+        private static readonly SavedBool m_showLinearMapWhileCreatingLine = new SavedBool("K45_TLM_showLinearMapWhileCreatingLine", Settings.gameSettingsFile, true);
 
         public TLMLinearMap LinearMapCreatingLine
         {
@@ -82,21 +84,16 @@ namespace Klyte.TransportLinesManager
                 }
             }
         }
-
-        internal TLMLineCreationToolbox LineCreationToolbox
+        public static bool LinearMapWhileCreatingLineVisibility
         {
-            get {
-                if (m_lineCreationToolbox != null)
-                {
-                    return m_lineCreationToolbox;
-                }
-                else
-                {
-                    TLMUtils.doErrorLog("LineCreationToolbox is NULL!!!!");
-                    return null;
-                }
+            get => m_showLinearMapWhileCreatingLine;
+            set {
+                m_showLinearMapWhileCreatingLine.value = value;
+                instance.LinearMapCreatingLine.setVisible(value);
             }
         }
+
+        internal TLMLineCreationToolbox LineCreationToolbox => PublicTransportInfoViewPanelOverrides.Toolbox;
 
         public bool ForceShowStopsDistances => true;
 
@@ -148,7 +145,7 @@ namespace Klyte.TransportLinesManager
         {
             if (!initializedWIP)
             {
-                BuildingWorldInfoPanel[] panelList = GameObject.Find("UIView").GetComponentsInChildren<BuildingWorldInfoPanel>();
+                BuildingWorldInfoPanel[] panelList = UIView.GetAView().GetComponentsInChildren<BuildingWorldInfoPanel>();
                 TLMUtils.doLog("WIP LIST: [{0}]", string.Join(", ", panelList.Select(x => x.name).ToArray()));
 
                 foreach (BuildingWorldInfoPanel wip in panelList)
@@ -163,6 +160,7 @@ namespace Klyte.TransportLinesManager
 
                     parent2.eventVisibilityChanged += EventWIPChanged;
                     parent2.eventPositionChanged += EventWIPChanged;
+                    parent2.eventSizeChanged += EventWIPChanged;
 
                 }
                 initializedWIP = true;
@@ -215,7 +213,7 @@ namespace Klyte.TransportLinesManager
                     TLMLineUtils.PrintIntersections("", "", "", "", "", linesPanelObj.GetComponent<UIPanel>(), lines, sidewalk, scale, perLine);
                 }
                 linesPanelObj.GetComponent<UIPanel>().isVisible = showPanel;
-                linesPanelObj.GetComponent<UIPanel>().relativePosition = new Vector3(0, parent.height);
+                linesPanelObj.GetComponent<UIPanel>().relativePosition = new Vector3(0, parent.height + 10);
             }
             else
             {
@@ -265,11 +263,10 @@ namespace Klyte.TransportLinesManager
 
         //------------------------------------
 
-        public void Start()
+        protected override void StartActions()
         {
             using var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits));
             KlyteMonoUtils.CreateElement(out m_linearMapCreatingLine, transform);
-            KlyteMonoUtils.CreateElement(out m_lineCreationToolbox, transform);
             m_linearMapCreatingLine.parent = this;
             m_linearMapCreatingLine.setVisible(false);
             initNearLinesOnWorldInfoPanel();
