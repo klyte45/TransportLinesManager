@@ -104,12 +104,14 @@ namespace Klyte.TransportLinesManager
 
         public static void RedrawMap(ushort lineCurrent)
         {
-            instance.SetCurrentSelectedId(lineCurrent);
-            if (lineCurrent > 0 && (Singleton<TransportManager>.instance.m_lines.m_buffer[lineCurrent].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None && TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
+            if (Singleton<TransportManager>.instance.m_lines.m_buffer[lineCurrent].m_stops == 0)
             {
-                TLMController.AutoColor(lineCurrent, true, true);
+                lineCurrent = 0;
             }
+
+            instance.SetCurrentSelectedId(lineCurrent);
             instance.LinearMapCreatingLine.redrawLine();
+
         }
 
         public bool ForceShowStopsDistances => true;
@@ -124,7 +126,8 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
+        public static Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false) => AutoColor(i, out _, ignoreRandomIfSet, ignoreAnyIfSet);
+        public static Color AutoColor(ushort i, out AsyncTask<bool> task, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
             TransportLine t = TransportManager.instance.m_lines.m_buffer[i];
             try
@@ -132,16 +135,18 @@ namespace Klyte.TransportLinesManager
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(i);
                 if (tsd == default || (((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreAnyIfSet))
                 {
+                    task = null;
                     return Color.clear;
                 }
                 var transportType = tsd.ToConfigIndex();
                 Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType, ref tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
                 if (c.a == 1)
                 {
-                    TLMLineUtils.setLineColor(i, c);
+                    task = TLMLineUtils.setLineColor(i, c);
                 }
                 else
                 {
+                    task = null;
                     c = Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_color;
                 }
                 //TLMUtils.doLog("Colocada a cor {0} na linha {1} ({3} {2})", c, i, t.m_lineNumber, t.Info.m_transportType);
@@ -151,6 +156,7 @@ namespace Klyte.TransportLinesManager
             {
                 TLMUtils.doErrorLog("ERRO!!!!! " + e.Message);
                 TLMCW.SetCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
+                task = null;
                 return Color.clear;
             }
         }

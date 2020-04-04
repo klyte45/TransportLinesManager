@@ -85,6 +85,7 @@
     <Compile Include="commons\Interfaces\ILibable.cs" />
     <Compile Include="commons\Interfaces\IPropColorContainer.cs" />
     <Compile Include="commons\Interfaces\ITimeable.cs" />
+    <Compile Include="commons\Interfaces\IViewStartActions.cs" />
     <Compile Include="commons\Interfaces\Warehouse\BasicSingletonSerializableDataExtension.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ConfigWarehouseBase.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterface2LevelIntImpl.cs" />
@@ -93,6 +94,8 @@
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceListImpl .cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceSingleImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensorContainer.cs" />
+    <Compile Include="commons\Redirectors\UIViewRedirector.cs" />
+    <Compile Include="commons\Redirectors\UIDynamicPanelsRedirector.cs" />
     <Compile Include="commons\Redirectors\UIDynamicFontRendererRedirector.cs" />
     <Compile Include="commons\Tools\BasicBuildingTool.cs" />
     <Compile Include="commons\Tools\BasicNetTool.cs" />
@@ -102,6 +105,7 @@
     <Compile Include="commons\UI\SpriteNames\LineIconSpriteNames.cs" />
     <Compile Include="commons\UI\TLMAgesChartPanel.cs" />
     <Compile Include="commons\UI\TLMWorkersChartPanel.cs" />
+    <Compile Include="commons\UI\K45DialogControl.cs" />
     <Compile Include="commons\UI\UIRadialChartExtended.cs" />
     <Compile Include="commons\Utils\BuildingUtils.cs" />
     <Compile Include="commons\Utils\DistrictUtils.cs" />

@@ -1,5 +1,4 @@
 ﻿using ColossalFramework;
-using ColossalFramework.Threading;
 using ColossalFramework.UI;
 using Klyte.Commons.Redirectors;
 using Klyte.Commons.Utils;
@@ -775,8 +774,8 @@ namespace Klyte.TransportLinesManager.Utils
 
 
         #region Line Utils
-        public static void setLineColor(ushort lineIdx, Color color) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineColor(lineIdx, color));
-        public static void setLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineName(lineIdx, name));
+        public static AsyncTask<bool> setLineColor(ushort lineIdx, Color color) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineColor(lineIdx, color));
+        public static AsyncTask<bool> setLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineName(lineIdx, name));
 
         private static TransportInfo.TransportType[] roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram };
 

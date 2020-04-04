@@ -1,4 +1,10 @@
-﻿TLMv13.3.1
+﻿<color #AA44FF>TLMv13.3.2</color>
+	- New dialogs (like this) for mod messages. Wait for new good stuff soon in my mods!
+	- Changed line creation tool behavior: Auto color is applied only when line is completed
+	- Fixed ghost modal on game start
+	- Fixed ghost exception on game start
+	- Removed some dirty logs
+<color #888888>v13.3.1
 	- Fixed some bugs in line detail panel
 	- Fixed background exceptions caused by UI events
 	- Fixed setting new capacity to vehicles
@@ -12,3 +18,4 @@ v13.3
 	- Fixed height of mod options panel on configuration menu
 	- Improved perfornance while creating lines
 	- Improved overall performance
+</color>

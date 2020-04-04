@@ -29,12 +29,12 @@ namespace Klyte.TransportLinesManager.Overrides
                 var tt = new TransportTool();
                 RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("OnEnable", allFlags), onEnable);
                 RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("OnDisable", allFlags), onDisable);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("NewLine", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), null, AfterEveryAction);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("AddStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), null, AfterEveryAction);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("RemoveStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), null, AfterEveryActionZeroable);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("CancelPrevStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), null, AfterEveryActionZeroable);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("CancelMoveStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), null, AfterEveryActionZeroable);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("MoveStop", allFlags).Invoke(tt, new object[] { false }).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), null, AfterEveryAction);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("NewLine", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryAction);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("AddStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryAction);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("RemoveStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryActionZeroable);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("CancelPrevStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryActionZeroable);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("CancelMoveStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryActionZeroable);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("MoveStop", allFlags).Invoke(tt, new object[] { false }).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryAction);
                 Destroy(tt);
             }
             catch (Exception e)
@@ -81,10 +81,10 @@ namespace Klyte.TransportLinesManager.Overrides
         private static readonly FieldInfo m_lineNumField = typeof(TransportTool).GetField("m_line", RedirectorUtils.allFlags);
         public static void AfterEveryAction()
         {
-            LogUtils.DoWarnLog("AfterEveryAction!!!");
             ushort lineId = (ushort)m_lineNumField.GetValue(ToolManager.instance.m_properties?.CurrentTool as TransportTool ?? new TransportTool());
             if (lineId > 0)
             {
+                new WaitForFixedUpdate();
                 ThreadHelper.dispatcher.Dispatch(() =>
                 {
                     TLMController.RedrawMap(lineId);
@@ -94,8 +94,8 @@ namespace Klyte.TransportLinesManager.Overrides
         }
         public static void AfterEveryActionZeroable()
         {
-            LogUtils.DoWarnLog("AfterEveryAction!!!");
             ushort lineId = (ushort)m_lineNumField.GetValue(ToolManager.instance.m_properties?.CurrentTool as TransportTool ?? new TransportTool());
+            new WaitForFixedUpdate();
             ThreadHelper.dispatcher.Dispatch(() =>
             {
                 TLMController.RedrawMap(lineId);
