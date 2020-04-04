@@ -292,6 +292,21 @@ namespace Klyte.TransportLinesManager
         public void OpenTLMPanel() => TransportLinesManagerMod.Instance.OpenPanelAtModTab();
         public void CloseTLMPanel() => TransportLinesManagerMod.Instance.ClosePanel();
 
+
+        public IEnumerator RenameCoroutine(ushort id, string newName)
+        {
+            if (Singleton<SimulationManager>.exists)
+            {
+                AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineName(id, newName));
+                yield return task.WaitTaskCompleted(this);
+                if (UVMPublicTransportWorldInfoPanel.GetLineID() == id)
+                {
+                    UVMPublicTransportWorldInfoPanel.m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(id);
+                }
+            }
+            yield break;
+        }
+
     }
 
 

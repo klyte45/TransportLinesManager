@@ -54,7 +54,7 @@ namespace Klyte.TransportLinesManager.UI
                 string text = $"{(UVMBudgetConfigTab.IsAbsoluteValue() ? TLMLineUtils.CalculateTargetVehicleCount(t.Info, t.m_totalLength, Entry.Value / 100f) : (int) Entry.Value)}";
                 m_value.text = UVMBudgetConfigTab.IsAbsoluteValue() ? "<sprite IconPolicyFreePublicTransport>x" : text;
                 m_value.suffix = UVMBudgetConfigTab.IsAbsoluteValue() ? text : "%";
-                LogUtils.DoErrorLog($"t.Info.m_defaultVehicleDistance, t.m_totalLength = {t.Info.m_defaultVehicleDistance}, {t.m_totalLength}");
+                LogUtils.DoLog($"t.Info.m_defaultVehicleDistance, t.m_totalLength = {t.Info.m_defaultVehicleDistance}, {t.m_totalLength}");
                 float stepsize = UVMBudgetConfigTab.IsAbsoluteValue() ? TLMLineUtils.CalculateBudgetForEachVehicle(t.Info, t.m_totalLength) * 100f : 5f;
                 m_slider.maxValue = UVMBudgetConfigTab.IsAbsoluteValue() ? stepsize * GetMaxValue() : 500f;
                 m_slider.value = Entry.Value;
