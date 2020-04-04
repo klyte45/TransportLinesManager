@@ -150,7 +150,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             KlyteMonoUtils.CreateUIElement(out UILabel titlebar, MainPanel.transform, "TLMListPanel", new Vector4(75, 10, MainPanel.width - 150, 20));
             titlebar.autoSize = false;
-            titlebar.text = "Transport Lines Manager v" + TransportLinesManagerMod.FullVersion;
+            titlebar.text = "Transport Lines Manager v" + TransportLinesManagerMod.Version;
             titlebar.textAlignment = UIHorizontalAlignment.Center;
 
             KlyteMonoUtils.CreateUIElement(out UIButton closeButton, MainPanel.transform, "CloseButton", new Vector4(MainPanel.width - 37, 5, 32, 32));

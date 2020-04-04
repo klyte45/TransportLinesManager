@@ -220,7 +220,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 return false;
             }
-            var other = (TransportSystemDefinition) obj;
+            var other = (TransportSystemDefinition)obj;
 
             return SubService == other.SubService && VehicleType == other.VehicleType && TransportType == other.TransportType;
         }
@@ -293,7 +293,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
             return settedCost / 100f;
         }
-        public float GetDefaultPassengerCapacityCost() => TransportInfoDict.TryGetValue(this, out TransportInfo info) ? info.m_maintenanceCostPerVehicle / (float) GetDefaultPassengerCapacity() : -1;
+        public float GetDefaultPassengerCapacityCost() => TransportInfoDict.TryGetValue(this, out TransportInfo info) ? info.m_maintenanceCostPerVehicle / (float)GetDefaultPassengerCapacity() : -1;
         public int GetDefaultPassengerCapacity()
         {
             int result = 1;
@@ -372,7 +372,7 @@ namespace Klyte.TransportLinesManager.Extensors
     public sealed class TLMSysDefTouBal : TLMSysDef<TLMSysDefTouBal> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionTouBal.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.BALLOON; }
     public sealed class TLMSysDefNorCcr : TLMSysDef<TLMSysDefNorCcr> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorCcr.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.CABLE_CAR; }
     public sealed class TLMSysDefNorTax : TLMSysDef<TLMSysDefNorTax> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorTax.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TAXI; }
-    public sealed class TLMSysDefNorTrl : TLMSysDef<TLMSysDefNorTrl> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorTrl.Instance;public override TransportSystemDefinition  GetTSD() => TransportSystemDefinition.TROLLEY; }
+    public sealed class TLMSysDefNorTrl : TLMSysDef<TLMSysDefNorTrl> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorTrl.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.TROLLEY; }
     public sealed class TLMSysDefNorHel : TLMSysDef<TLMSysDefNorHel> { public override ITLMTransportTypeExtension GetExtension() => TLMTransportTypeExtensionNorHel.Instance; public override TransportSystemDefinition GetTSD() => TransportSystemDefinition.HELICOPTER; }
 
 }

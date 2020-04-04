@@ -36,7 +36,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
                             for (int i = 0; i < arrayRef.Length; i++)
                             {
-                                arrayRef[i][idx] = (int) DeserializeFunction(s);
+                                arrayRef[i][idx] = (int)DeserializeFunction(s);
                             }
                         }, (ref ushort[][] arrayRef) =>
                         {
@@ -44,7 +44,7 @@ namespace Klyte.TransportLinesManager.Extensors
 
                             for (int i = 0; i < arrayRef.Length; i++)
                             {
-                                arrayRef[i][idx] = (ushort) DeserializeFunction(s);
+                                arrayRef[i][idx] = (ushort)DeserializeFunction(s);
                             }
                         });
                     }
@@ -92,70 +92,71 @@ namespace Klyte.TransportLinesManager.Extensors
             }
             protected static void WriteLong(Stream s, long value)
             {
-                s.WriteByte((byte) ((value >> 56) & 255L));
-                s.WriteByte((byte) ((value >> 48) & 255L));
-                s.WriteByte((byte) ((value >> 40) & 255L));
-                s.WriteByte((byte) ((value >> 32) & 255L));
-                s.WriteByte((byte) ((value >> 24) & 255L));
-                s.WriteByte((byte) ((value >> 16) & 255L));
-                s.WriteByte((byte) ((value >> 8) & 255L));
-                s.WriteByte((byte) (value & 255L));
+                s.WriteByte((byte)((value >> 56) & 255L));
+                s.WriteByte((byte)((value >> 48) & 255L));
+                s.WriteByte((byte)((value >> 40) & 255L));
+                s.WriteByte((byte)((value >> 32) & 255L));
+                s.WriteByte((byte)((value >> 24) & 255L));
+                s.WriteByte((byte)((value >> 16) & 255L));
+                s.WriteByte((byte)((value >> 8) & 255L));
+                s.WriteByte((byte)(value & 255L));
             }
 
             protected static long ReadLong(Stream s)
             {
-                long num = (long) (s.ReadByte() & 255) << 56;
-                num |= (long) (s.ReadByte() & 255) << 48;
-                num |= (long) (s.ReadByte() & 255) << 40;
-                num |= (long) (s.ReadByte() & 255) << 32;
-                num |= (long) (s.ReadByte() & 255) << 24;
-                num |= (long) (s.ReadByte() & 255) << 16;
-                num |= (long) (s.ReadByte() & 255) << 8;
+                long num = (long)(s.ReadByte() & 255) << 56;
+                num |= (long)(s.ReadByte() & 255) << 48;
+                num |= (long)(s.ReadByte() & 255) << 40;
+                num |= (long)(s.ReadByte() & 255) << 32;
+                num |= (long)(s.ReadByte() & 255) << 24;
+                num |= (long)(s.ReadByte() & 255) << 16;
+                num |= (long)(s.ReadByte() & 255) << 8;
                 return num | (s.ReadByte() & 255 & 255L);
             }
             protected static void WriteInt32(Stream s, long value)
             {
-                s.WriteByte((byte) ((value >> 24) & 255L));
-                s.WriteByte((byte) ((value >> 16) & 255L));
-                s.WriteByte((byte) ((value >> 8) & 255L));
-                s.WriteByte((byte) (value & 255L));
+                s.WriteByte((byte)((value >> 24) & 255L));
+                s.WriteByte((byte)((value >> 16) & 255L));
+                s.WriteByte((byte)((value >> 8) & 255L));
+                s.WriteByte((byte)(value & 255L));
             }
 
             protected static long ReadInt32(Stream s)
             {
-                long num = (long) (s.ReadByte() & 255) << 24;
-                num |= (long) (s.ReadByte() & 255) << 16;
-                num |= (long) (s.ReadByte() & 255) << 8;
+                long num = (long)(s.ReadByte() & 255) << 24;
+                num |= (long)(s.ReadByte() & 255) << 16;
+                num |= (long)(s.ReadByte() & 255) << 8;
                 return num | (s.ReadByte() & 255 & 255L);
             }
             protected static void WriteInt24(Stream s, long value)
             {
-                s.WriteByte((byte) ((value >> 16) & 255L));
-                s.WriteByte((byte) ((value >> 8) & 255L));
-                s.WriteByte((byte) (value & 255L));
+                s.WriteByte((byte)((value >> 16) & 255L));
+                s.WriteByte((byte)((value >> 8) & 255L));
+                s.WriteByte((byte)(value & 255L));
             }
 
             protected static long ReadInt24(Stream s)
             {
-                long num = (long) (s.ReadByte() & 255) << 16;
-                num |= (long) (s.ReadByte() & 255) << 8;
+                long num = (long)(s.ReadByte() & 255) << 16;
+                num |= (long)(s.ReadByte() & 255) << 8;
                 return num | (s.ReadByte() & 255 & 255L);
             }
             protected static void WriteInt16(Stream s, long value)
             {
-                s.WriteByte((byte) ((value >> 8) & 255L));
-                s.WriteByte((byte) (value & 255L));
+                s.WriteByte((byte)((value >> 8) & 255L));
+                s.WriteByte((byte)(value & 255L));
             }
 
             protected static long ReadInt16(Stream s)
             {
-                long num = (long) (s.ReadByte() & 255) << 8;
+                long num = (long)(s.ReadByte() & 255) << 8;
                 return num | (s.ReadByte() & 255 & 255L);
             }
 
             protected virtual Action<Stream, long> SerializeFunction { get; } = WriteLong;
             protected virtual Func<Stream, long> DeserializeFunction { get; } = ReadLong;
 
+            public void OnReleased() { }
         }
 
         public class TLMTransportLineStorageEconomyData : TransportLineStorageBasicData

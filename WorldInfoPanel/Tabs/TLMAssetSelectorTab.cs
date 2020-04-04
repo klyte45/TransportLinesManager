@@ -246,19 +246,8 @@ namespace Klyte.TransportLinesManager.UI
                           };
                         CreateModelCheckBox(checkbox);
                         KlyteMonoUtils.LimitWidthAndBox(checkbox.label, 280);
-                        capacityEditor.eventTextSubmitted += (x, y) =>
-                        {
-                            if (m_isLoading || !int.TryParse(y.IsNullOrWhiteSpace() ? "0" : y, out int value))
-                            {
-                                return;
-                            }
-                            string assetName = x.parent.GetComponentInChildren<UICheckBox>().objectUserData.ToString();
-                            VehicleInfo info = PrefabCollection<VehicleInfo>.FindLoaded(assetName);
-                            TransportSystemDefinition.From(info).GetTransportExtension().SetVehicleCapacity(assetName, value);
-                            m_isLoading = true;
-                            capacityEditor.text = VehicleUtils.GetCapacity(info).ToString("0");
-                            m_isLoading = false;
-                        };
+                        capacityEditor.eventTextSubmitted += CapacityEditor_eventTextSubmitted; ;
+
                         capacityEditor.eventMouseEnter += (x, y) =>
                         {
                             m_lastInfo = PrefabCollection<VehicleInfo>.FindLoaded(checkbox.objectUserData.ToString());
@@ -272,7 +261,7 @@ namespace Klyte.TransportLinesManager.UI
             }
             else
             {
-                var allowedAssets = config.GetAssetListForLine(GetLineID());
+                List<string> allowedAssets = config.GetAssetListForLine(GetLineID());
                 for (int i = 0; i < m_checkboxTemplateList.items.Count; i++)
                 {
                     UICheckBox checkbox = m_checkboxTemplateList.items[i].GetComponentInChildren<UICheckBox>();
@@ -282,7 +271,7 @@ namespace Klyte.TransportLinesManager.UI
 
             if (TransportLinesManagerMod.DebugMode)
             {
-                var allowedAssets = config.GetAssetListForLine(GetLineID());
+                List<string> allowedAssets = config.GetAssetListForLine(GetLineID());
                 TLMUtils.doLog($"selectedAssets Size = {allowedAssets?.Count} ({ string.Join(",", allowedAssets?.ToArray() ?? new string[0])}) {config?.GetType()}");
             }
 
@@ -292,13 +281,28 @@ namespace Klyte.TransportLinesManager.UI
             }
             else
             {
-                int prefix = (int) TLMLineUtils.getPrefix(GetLineID());
+                int prefix = (int)TLMLineUtils.getPrefix(GetLineID());
                 m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.GetStringOptionsForPrefix(tsd), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.ToConfigIndex()));
             }
 
             m_isLoading = false;
 
 
+        }
+
+        private void CapacityEditor_eventTextSubmitted(UIComponent x, string y)
+        {
+            if (m_isLoading || !int.TryParse(y.IsNullOrWhiteSpace() ? "0" : y, out int value))
+            {
+                return;
+            }
+            var capacityEditor = x as UITextField;
+            string assetName = x.parent.GetComponentInChildren<UICheckBox>().objectUserData.ToString();
+            VehicleInfo info = PrefabCollection<VehicleInfo>.FindLoaded(assetName);
+            TransportSystemDefinition.From(info).GetTransportExtension().SetVehicleCapacity(assetName, value);
+            m_isLoading = true;
+            capacityEditor.text = VehicleUtils.GetCapacity(info).ToString("0");
+            m_isLoading = false;
         }
 
         private void SetPreviewWindow()

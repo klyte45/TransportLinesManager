@@ -5,7 +5,6 @@ using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Utils;
 using UnityEngine;
 
@@ -70,15 +69,15 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             LineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_lineNumber;
 
 
-            int averageCount = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_passengers.m_residentPassengers.m_averageCount;
-            int averageCount2 = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_passengers.m_touristPassengers.m_averageCount;
+            int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_passengers.m_residentPassengers.m_averageCount;
+            int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_passengers.m_touristPassengers.m_averageCount;
             m_linePassengers.text = (averageCount + averageCount2).ToString("N0");
 
-            m_linePassengers.tooltip = string.Format("{0}", LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
+            m_linePassengers.tooltip = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
             {
                 averageCount,
                 averageCount2
-            }));
+            });
             TLMLineUtils.setLineNumberCircleOnRef(LineID, m_lineNumberFormatted, 0.8f);
             m_lineColor.atlas = m_linePassengers.atlas;
             m_lineColor.normalFgSprite = TLMLineUtils.getIconForLine(LineID);
@@ -137,19 +136,19 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         public void SetBackgroundColor(bool broken = true)
         {
             Color32 backgroundColor = !broken ? BackgroundColor : BrokenBackgroundColor;
-            backgroundColor.a = !broken ? (byte) ((base.component.zOrder % 2 != 0) ? 127 : 255) : (byte) Mathf.Lerp(127, 255, Mathf.Abs((SimulationManager.instance.m_currentTickIndex % 60 / 30f) - 1));
+            backgroundColor.a = !broken ? (byte)((base.component.zOrder % 2 != 0) ? 127 : 255) : (byte)Mathf.Lerp(127, 255, Mathf.Abs((SimulationManager.instance.m_currentTickIndex % 60 / 30f) - 1));
             if (m_mouseIsOver)
             {
-                backgroundColor.r = (byte) Mathf.Min(255, (backgroundColor.r * 3) >> 1);
-                backgroundColor.g = (byte) Mathf.Min(255, (backgroundColor.g * 3) >> 1);
-                backgroundColor.b = (byte) Mathf.Min(255, (backgroundColor.b * 3) >> 1);
+                backgroundColor.r = (byte)Mathf.Min(255, (backgroundColor.r * 3) >> 1);
+                backgroundColor.g = (byte)Mathf.Min(255, (backgroundColor.g * 3) >> 1);
+                backgroundColor.b = (byte)Mathf.Min(255, (backgroundColor.b * 3) >> 1);
             }
             m_background.color = backgroundColor;
         }
 
         private void LateUpdate()
         {
-            if (base.component.parent.isVisible)
+            if (base.component.parent.isVisible && SimulationManager.instance.isActiveAndEnabled)
             {
                 RefreshData(false, false);
             }
@@ -210,15 +209,15 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         {
             m_lineIsVisible = m_uIHelper.AddCheckboxNoLabel("LineVisibility");
             m_lineIsVisible.eventCheckChanged += (x, y) => ChangeLineVisibility(y);
-            ((UISprite) m_lineIsVisible.checkedBoxObject).spriteName = "LineVisibilityToggleOn";
-            ((UISprite) m_lineIsVisible.checkedBoxObject).tooltipLocaleID = "PUBLICTRANSPORT_HIDELINE";
-            ((UISprite) m_lineIsVisible.checkedBoxObject).isTooltipLocalized = true;
+            ((UISprite)m_lineIsVisible.checkedBoxObject).spriteName = "LineVisibilityToggleOn";
+            ((UISprite)m_lineIsVisible.checkedBoxObject).tooltipLocaleID = "PUBLICTRANSPORT_HIDELINE";
+            ((UISprite)m_lineIsVisible.checkedBoxObject).isTooltipLocalized = true;
 
-            ((UISprite) m_lineIsVisible.checkedBoxObject).size = new Vector2(24, 24);
-            ((UISprite) m_lineIsVisible.components[0]).spriteName = "LineVisibilityToggleOff";
-            ((UISprite) m_lineIsVisible.components[0]).tooltipLocaleID = "PUBLICTRANSPORT_SHOWLINE";
-            ((UISprite) m_lineIsVisible.components[0]).isTooltipLocalized = true;
-            ((UISprite) m_lineIsVisible.components[0]).size = new Vector2(24, 24);
+            ((UISprite)m_lineIsVisible.checkedBoxObject).size = new Vector2(24, 24);
+            ((UISprite)m_lineIsVisible.components[0]).spriteName = "LineVisibilityToggleOff";
+            ((UISprite)m_lineIsVisible.components[0]).tooltipLocaleID = "PUBLICTRANSPORT_SHOWLINE";
+            ((UISprite)m_lineIsVisible.components[0]).isTooltipLocalized = true;
+            ((UISprite)m_lineIsVisible.components[0]).size = new Vector2(24, 24);
             m_lineIsVisible.relativePosition = new Vector3(20, 10);
         }
 

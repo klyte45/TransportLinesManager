@@ -1,4 +1,9 @@
-﻿TLMv13.3
+﻿TLMv13.3.1
+	- Fixed some bugs in line detail panel
+	- Fixed background exceptions caused by UI events
+	- Fixed setting new capacity to vehicles
+	- Fixed unloading custom capacity when finishing game to main menu (avoid savegame data leak to a second new/load game)
+v13.3
 	- RE-ENABLED THE BACK TO MAIN MENU BUTTON! 
 	NOTE: it only will be enabled if there's no other 5th gen mod enabled. Others mod conversions to support it are coming soon!
 	- Fixed: Slowdown opening the line list window

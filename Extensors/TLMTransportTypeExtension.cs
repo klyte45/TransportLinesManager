@@ -1,6 +1,5 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
-using ColossalFramework.Threading;
 using Klyte.Commons;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.UI.Sprites;
@@ -9,7 +8,6 @@ using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
@@ -88,9 +86,9 @@ namespace Klyte.TransportLinesManager.Extensors
             int savedVal = TLMConfigWarehouse.instance.GetInt(TLMConfigWarehouse.ConfigIndex.DEFAULT_TICKET_PRICE | Singleton<TSD>.instance.GetTSD().ToConfigIndex());
             if (savedVal > 0)
             {
-                return (uint) savedVal;
+                return (uint)savedVal;
             }
-            return (uint) TransportManager.instance.GetTransportInfo(Singleton<TSD>.instance.GetTSD().TransportType).m_ticketPrice;
+            return (uint)TransportManager.instance.GetTransportInfo(Singleton<TSD>.instance.GetTSD().TransportType).m_ticketPrice;
         }
         #region Asset properties
 
@@ -122,7 +120,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     VehicleAI vai = PrefabCollection<VehicleInfo>.FindLoaded(entry).m_vehicleAI;
                     SetVehicleCapacity(vai, SafeGetAsset(entry).Capacity);
                 }
-                using var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(TLMLineUtils.UpdateCapacityUnits));
+                SimulationManager.instance.StartCoroutine(TLMLineUtils.UpdateCapacityUnits());
             }
         }
 
@@ -150,7 +148,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     LogUtils.DoErrorLog($"ERROR LOADING ASSET CONFIG: {e}=> {e.Message}\n{e.StackTrace}");
                 }
             }
-            using var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(TLMLineUtils.UpdateCapacityUnits));
+            SimulationManager.instance.StartCoroutine(TLMLineUtils.UpdateCapacityUnits());
         }
 
         private static readonly Dictionary<string, int> m_defaultCapacities = new Dictionary<string, int>();
@@ -177,7 +175,7 @@ namespace Klyte.TransportLinesManager.Extensors
             }
             else
             {
-                relativeParts[info.name] = MutableTuple.New((float) totalCapacity, 1);
+                relativeParts[info.name] = MutableTuple.New((float)totalCapacity, 1);
             }
             if (!noLoop)
             {
@@ -208,8 +206,7 @@ namespace Klyte.TransportLinesManager.Extensors
         {
             if (!m_defaultCapacities.ContainsKey(ai.m_info.name))
             {
-                Type aiType = ai.GetType();
-                m_defaultCapacities[ai.m_info.name] = (int) VehicleUtils.GetVehicleCapacityField(ai).GetValue(ai);
+                m_defaultCapacities[ai.m_info.name] = (int)VehicleUtils.GetVehicleCapacityField(ai).GetValue(ai);
                 if (CommonProperties.DebugMode)
                 {
                     LogUtils.DoLog($"STORED DEFAULT VEHICLE CAPACITY {m_defaultCapacities[ai.m_info.name] } for {ai.m_info.name}");
@@ -220,7 +217,6 @@ namespace Klyte.TransportLinesManager.Extensors
 
         private void SetVehicleCapacity<AI>(AI ai, int newCapacity) where AI : VehicleAI
         {
-            Type aiType = ai.GetType();
             int defaultCapacity = UpdateDefaultCapacity(ai);
             if (newCapacity < 0)
             {
@@ -307,6 +303,28 @@ namespace Klyte.TransportLinesManager.Extensors
         public uint LineToIndex(ushort lineId) => TLMLineUtils.getPrefix(lineId);
 
         public override string SaveId => $"K45_TLM_{GetType()}";
+
+
+        public override void OnReleased()
+        {
+            var keys = Instance.AssetConfigurations.Keys.ToList();
+            foreach (string entry in keys)
+            {
+                try
+                {
+                    VehicleInfo info = PrefabCollection<VehicleInfo>.FindLoaded(entry);
+                    if (info != null)
+                    {
+                        VehicleAI ai = info.m_vehicleAI;
+                        Instance.SetVehicleCapacity(ai, 0);
+                    }
+                }
+                catch (Exception e)
+                {
+                    LogUtils.DoErrorLog($"ERROR ROLLING BACK ASSET CONFIG: {e}=> {e.Message}\n{e.StackTrace}");
+                }
+            }
+        }
     }
 
     public sealed class TLMTransportTypeExtensionNorBus : TLMTransportTypeExtension<TLMSysDefNorBus, TLMTransportTypeExtensionNorBus> { }

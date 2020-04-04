@@ -1372,7 +1372,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return num;
         }
-        public static IEnumerator UpdateCapacityUnits(ThreadBase t)
+        public static IEnumerator UpdateCapacityUnits()
         {
             int count = 0;
             Array16<Vehicle> vehicles = Singleton<VehicleManager>.instance.m_vehicles;
@@ -1409,14 +1409,17 @@ namespace Klyte.TransportLinesManager.Utils
                                 l = units[(int)((UIntPtr)l)].m_nextUnit;
                             }
                             int newCapacity = capacity - currentUnitCount * 5;
-                            Singleton<CitizenManager>.instance.CreateUnits(out units[(int)((UIntPtr)l)].m_nextUnit, ref Singleton<SimulationManager>.instance.m_randomizer, 0, (ushort)i, 0, 0, 0, newCapacity, 0);
+                            if (!Singleton<CitizenManager>.instance.CreateUnits(out units[l].m_nextUnit, ref Singleton<SimulationManager>.instance.m_randomizer, 0, (ushort)i, 0, 0, 0, newCapacity, 0))
+                            {
+                                LogUtils.DoErrorLog("FAILED CREATING UNITS!!!!");
+                            }
                             count++;
                         }
                     }
                 }
                 if (i % 256 == 255)
                 {
-                    yield return null;
+                    yield return i % 256;
                 }
                 i++;
             }

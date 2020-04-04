@@ -21,6 +21,7 @@ namespace Klyte.TransportLinesManager.UI
         #region Awake 
         public void Awake()
         {
+            m_obj = new UVMPublicTransportWorldInfoPanelObject();
 
             AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("Start", RedirectorUtils.allFlags), null, null, typeof(UVMPublicTransportWorldInfoPanel).GetMethod("TranspileStart", RedirectorUtils.allFlags));
             AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("UpdateBindings", RedirectorUtils.allFlags), null, null, typeof(UVMPublicTransportWorldInfoPanel).GetMethod("TranspileUpdateBindings", RedirectorUtils.allFlags));
@@ -76,7 +77,7 @@ namespace Klyte.TransportLinesManager.UI
         }
 
         public static bool CheckEnabled() => PluginManager.instance.FindPluginInfo(typeof(TransportLinesManagerMod).Assembly)?.isEnabled ?? false;
-
+        public static bool ResetScrollPosition() => false;
         #endregion
 
         #region Overridable
@@ -329,7 +330,7 @@ namespace Klyte.TransportLinesManager.UI
 
 
 
-        internal static UVMPublicTransportWorldInfoPanelObject m_obj = new UVMPublicTransportWorldInfoPanelObject();
+        internal static UVMPublicTransportWorldInfoPanelObject m_obj;
         private static bool m_dirty;
         private static Type m_dirtySource;
 
