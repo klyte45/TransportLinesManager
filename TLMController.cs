@@ -24,7 +24,7 @@ namespace Klyte.TransportLinesManager
         public static ExtensorContainer container => ExtensorContainer.instance;
         public static TLMTransportLineStatusesManager statuses => TLMTransportLineStatusesManager.instance;
 
-        internal static TLMController instance => TransportLinesManagerMod.Instance.Controller;
+        internal static TLMController instance => TransportLinesManagerMod.Controller;
 
         public bool initializedWIP = false;
         private TLMLinearMap m_linearMapCreatingLine;

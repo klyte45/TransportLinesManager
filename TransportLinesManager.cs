@@ -6,11 +6,10 @@ using Klyte.Commons.Interfaces;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.OptionsMenu;
-using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.3.2.0")]
+[assembly: AssemblyVersion("13.3.3.0")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -31,9 +30,6 @@ namespace Klyte.TransportLinesManager
             "MoreVehicles"
         };
 
-        public override void DoErrorLog(string fmt, params object[] args) => TLMUtils.doErrorLog(fmt, args);
-
-        public override void DoLog(string fmt, params object[] args) => TLMUtils.doLog(fmt, args);
 
         public override void TopSettingsUI(UIHelperExtension helper) => TLMConfigOptions.instance.GenerateOptionsMenu(helper);
 
@@ -98,27 +94,26 @@ namespace Klyte.TransportLinesManager
             TLMController.VerifyIfIsRealTimeEnabled();
         }
 
-        public override void LoadSettings() { }
 
-        private readonly SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
-        private readonly SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
-        private readonly SavedBool m_showDistanceInLinearMap = new SavedBool("TLMshowDistanceInLinearMap", Settings.gameSettingsFile, true, true);
+        private static readonly SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
+        private static readonly SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
+        private static readonly SavedBool m_showDistanceInLinearMap = new SavedBool("TLMshowDistanceInLinearMap", Settings.gameSettingsFile, true, true);
 
         public static bool showNearLinesPlop
         {
-            get => Instance.m_savedShowNearLinesInCityServicesWorldInfoPanel.value;
-            set => Instance.m_savedShowNearLinesInCityServicesWorldInfoPanel.value = value;
+            get => m_savedShowNearLinesInCityServicesWorldInfoPanel.value;
+            set => m_savedShowNearLinesInCityServicesWorldInfoPanel.value = value;
         }
         public static bool showNearLinesGrow
         {
-            get => Instance.m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value;
-            set => Instance.m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value = value;
+            get => m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value;
+            set => m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value = value;
         }
 
         public static bool showDistanceLinearMap
         {
-            get => Instance.m_showDistanceInLinearMap.value;
-            set => Instance.m_showDistanceInLinearMap.value = value;
+            get => m_showDistanceInLinearMap.value;
+            set => m_showDistanceInLinearMap.value = value;
         }
 
         public override string IconName => "K45_TLM_Icon";

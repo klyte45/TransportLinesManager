@@ -1,10 +1,13 @@
-﻿<color #AA44FF>TLMv13.3.2</color>
+﻿<color #AA44FF>TLMv13.3.3</color>
+	- Fixed exception while creating line
+	- Fixed close button on TLM window at <iconSprite K45_K45Button> button
+<color #888888>TLMv13.3.2
 	- New dialogs (like this) for mod messages. Wait for new good stuff soon in my mods!
 	- Changed line creation tool behavior: Auto color is applied only when line is completed
 	- Fixed ghost modal on game start
 	- Fixed ghost exception on game start
 	- Removed some dirty logs
-<color #888888>v13.3.1
+v13.3.1
 	- Fixed some bugs in line detail panel
 	- Fixed background exceptions caused by UI events
 	- Fixed setting new capacity to vehicles
