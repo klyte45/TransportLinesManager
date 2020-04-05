@@ -9,13 +9,11 @@ using Klyte.TransportLinesManager.OptionsMenu;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.3.3.3")]
+[assembly: AssemblyVersion("13.3.4.0")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
     {
-        public TransportLinesManagerMod() => Construct();
-
         public override string SimpleName => "Transport Lines Manager";
         public override string Description => "Allows to customize and manage your public transport systems.";
         public override bool UseGroup9 => false;

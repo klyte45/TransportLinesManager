@@ -1,8 +1,12 @@
-﻿<color #AA44FF>TLMv13.3.3</color>
+﻿<color #AA44FF>TLMv13.3.4</color>
+
+	- Minor fixes for <k45Symbol K45_CircleIcon,643e00,E>Electric Roads v2 compatibility
+
+<color #888888>TLMv13.3.3
 	- Fixed exception while creating line
 	- Fixed close button on TLM window at <sprite K45_K45Button> button
 	- Fixed <sprite K45_K45Button> button position (and the Done button position while moving it - was hidden under the tabs)
-<color #888888>TLMv13.3.2
+TLMv13.3.2
 	- New dialogs (like this) for mod messages. Wait for new good stuff soon in my mods!
 	- Changed line creation tool behavior: Auto color is applied only when line is completed
 	- Fixed ghost modal on game start

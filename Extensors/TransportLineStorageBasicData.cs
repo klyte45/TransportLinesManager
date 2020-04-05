@@ -157,6 +157,8 @@ namespace Klyte.TransportLinesManager.Extensors
             protected virtual Func<Stream, long> DeserializeFunction { get; } = ReadLong;
 
             public void OnReleased() { }
+
+            public void LoadDefaults() { }
         }
 
         public class TLMTransportLineStorageEconomyData : TransportLineStorageBasicData
