@@ -9,7 +9,7 @@ using Klyte.TransportLinesManager.OptionsMenu;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.3.4.0")]
+[assembly: AssemblyVersion("13.3.5.0")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -72,7 +72,7 @@ namespace Klyte.TransportLinesManager
                 });
                 group9.AddButton(Locale.Get("K45_TLM_SAVE_CURRENT_CITY_CONFIG_AS_DEFAULT"), () =>
                 {
-                    TLMConfigOptions.instance.currentLoadedCityConfig.SaveAsDefault();
+                    TLMConfigOptions.instance.currentLoadedCityConfig.SaveAsDefault(); 
                     TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
                     TLMConfigOptions.instance.ReloadData();
                 });
