@@ -68,7 +68,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         {
                             SerializeFunction(s, arrayRef[i][idx]);
                         }
-                        LogUtils.DoErrorLog($"size: {s.Length} ({e.GetType()} {e})");
+                        LogUtils.DoWarnLog($"size: {s.Length} ({e.GetType()} {e})");
                     }, (ref int[][] arrayRef) =>
                     {
                         int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
@@ -76,7 +76,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         {
                             SerializeFunction(s, arrayRef[i][idx]);
                         }
-                        LogUtils.DoErrorLog($"size: {s.Length} ({e.GetType()} {e})");
+                        LogUtils.DoWarnLog($"size: {s.Length} ({e.GetType()} {e})");
                     }, (ref ushort[][] arrayRef) =>
                     {
                         int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
@@ -84,7 +84,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         {
                             SerializeFunction(s, arrayRef[i][idx]);
                         }
-                        LogUtils.DoErrorLog($"size: {s.Length} ({e.GetType()} {e})");
+                        LogUtils.DoWarnLog($"size: {s.Length} ({e.GetType()} {e})");
                     });
 
                 }

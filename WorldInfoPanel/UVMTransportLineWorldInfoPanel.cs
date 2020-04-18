@@ -49,10 +49,10 @@ namespace Klyte.TransportLinesManager.UI
             };
         }
 
-        public static IEnumerable<CodeInstruction> TranspileStart(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> TranspileStart(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             var inst = new List<CodeInstruction>(instructions);
-            var label = new Label();
+            Label label = il.DefineLabel();
             inst[2].labels.Add(label);
             inst.InsertRange(2, new List<CodeInstruction>
             {
@@ -278,7 +278,7 @@ namespace Klyte.TransportLinesManager.UI
 
 
 
-     
+
 
         internal static UVMPublicTransportWorldInfoPanelObject.LineType GetLineType(ushort lineID)
         {
