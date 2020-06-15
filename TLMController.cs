@@ -6,6 +6,7 @@ using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
@@ -117,6 +118,9 @@ namespace Klyte.TransportLinesManager
         public bool ForceShowStopsDistances => true;
 
         public TransportInfo CurrentTransportInfo => Singleton<TransportTool>.instance.m_prefab;
+
+        public TLMShared SharedInstance { get; internal set; }
+
         public void Update()
         {
             if (!GameObject.FindGameObjectWithTag("GameController") || ((GameObject.FindGameObjectWithTag("GameController")?.GetComponent<ToolController>())?.m_mode & ItemClass.Availability.Game) == ItemClass.Availability.None)
@@ -313,6 +317,7 @@ namespace Klyte.TransportLinesManager
             yield break;
         }
 
+        internal void Awake() => SharedInstance = gameObject.AddComponent<TLMShared>();
     }
 
 

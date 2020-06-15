@@ -156,6 +156,7 @@
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="Extensors\GameServiceExtensions.cs" />
     <Compile Include="Extensors\TransportLineStorageBasicData.cs" />
+    <Compile Include="ModShared\TLMShared.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMDefaultCostPerPassengerConfigTab.cs" />
     <Compile Include="WorldInfoPanel\Components\BaseReportLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMPassengerGenderReportLine.cs" />
@@ -293,6 +294,7 @@
     <EmbeddedResource Include="UI\i18n\cn.properties" />
     <EmbeddedResource Include="UI\i18n\nl.properties" />
     <EmbeddedResource Include="UI\i18n\pl.properties" />
+    <None Include="app.config" />
     <None Include="commons\README.md" />
     <EmbeddedResource Include="commons\UI\i18n\en.properties" />
     <EmbeddedResource Include="commons\UI\i18n\fr.properties" />

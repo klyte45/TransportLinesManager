@@ -15,7 +15,7 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
 {
-    internal class TLMLineUtils
+    public class TLMLineUtils
     {
         public static Vehicle GetVehicleCapacityAndFill(ushort vehicleID, Vehicle vehicleData, out int fill, out int cap)
         {
@@ -465,63 +465,71 @@ namespace Klyte.TransportLinesManager.Utils
                 TransportLine tl = tm.m_lines.m_buffer[s];
                 if (t.Equals(default(TransportLine)) || tl.Info.GetSubService() != t.Info.GetSubService() || tl.m_lineNumber != t.m_lineNumber)
                 {
-                    string transportTypeLetter = "";
-                    var tsd = TransportSystemDefinition.GetDefinitionForLine(s);
-                    if (tsd == default)
+                    var sortString = GetLineSortString(s, ref tl);
+                    if (sortString != null)
                     {
-                        continue;
+                        otherLinesIntersections.Add(sortString, s);
                     }
-                    switch (tsd.ToConfigIndex())
-                    {
-                        case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
-                            transportTypeLetter = "A";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
-                            transportTypeLetter = "B";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG:
-                            transportTypeLetter = "C";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG:
-                            transportTypeLetter = "D";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
-                            transportTypeLetter = "E";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG:
-                            transportTypeLetter = "F";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
-                            transportTypeLetter = "G";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
-                            transportTypeLetter = "H";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
-                            transportTypeLetter = "I";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG:
-                            transportTypeLetter = "J";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
-                            transportTypeLetter = "K";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
-                            transportTypeLetter = "L";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
-                            transportTypeLetter = "M";
-                            break;
-                        case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
-                            transportTypeLetter = "N";
-                            break;
-                    }
-                    otherLinesIntersections.Add(transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0'), s);
                 }
             }
             return otherLinesIntersections;
         }
 
+        public static string GetLineSortString(ushort s, ref TransportLine tl)
+        {
+            string transportTypeLetter = "";
+            var tsd = TransportSystemDefinition.GetDefinitionForLine(s);
+            if (tsd == default)
+            {
+                return null;
+            }
+            switch (tsd.ToConfigIndex())
+            {
+                case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
+                    transportTypeLetter = "A";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
+                    transportTypeLetter = "B";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG:
+                    transportTypeLetter = "C";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG:
+                    transportTypeLetter = "D";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
+                    transportTypeLetter = "E";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG:
+                    transportTypeLetter = "F";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
+                    transportTypeLetter = "G";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
+                    transportTypeLetter = "H";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
+                    transportTypeLetter = "I";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG:
+                    transportTypeLetter = "J";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
+                    transportTypeLetter = "K";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
+                    transportTypeLetter = "L";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
+                    transportTypeLetter = "M";
+                    break;
+                case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
+                    transportTypeLetter = "N";
+                    break;
+            }
+            return transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0');
+        }
 
 
         public static void PrintIntersections(string airport, string harbor, string taxi, string regionalTrainStation, string cableCarStation, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, Vector3 position, float scale = 1.0f, int maxItemsForSizeSwap = 3)
@@ -1198,6 +1206,7 @@ namespace Klyte.TransportLinesManager.Utils
             return 0;
 
         }
+        public static Tuple<string, Color, string> GetIconStringParameters(ushort lineId) => Tuple.New(getIconForLine(lineId, false), Singleton<TransportManager>.instance.GetLineColor(lineId), getLineStringId(lineId));
         internal static string GetIconString(ushort lineId) => GetIconString(getIconForLine(lineId, false), Singleton<TransportManager>.instance.GetLineColor(lineId), getLineStringId(lineId));
         internal static string GetIconString(string iconName, Color color, string lineString) => $"<{UIDynamicFontRendererRedirector.TAG_LINE} {iconName},{color.ToRGB()},{lineString}>";
 
@@ -1439,7 +1448,7 @@ namespace Klyte.TransportLinesManager.Utils
         #endregion
     }
 
-    internal enum NamingType
+    public enum NamingType
     {
         NONE,
         PLANE,

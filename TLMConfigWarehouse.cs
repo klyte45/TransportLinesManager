@@ -4,6 +4,7 @@ using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Legacy;
+using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Linq;
@@ -33,6 +34,44 @@ namespace Klyte.TransportLinesManager
         protected bool unsafeMode = false;
         public TLMConfigWarehouse() { }
 
+        public override void SetBool(ConfigIndex idx, bool? newVal)
+        {
+            base.SetBool(idx, newVal);
+            CheckEvents(idx);
+        }
+
+        public override void SetInt(ConfigIndex idx, int? value)
+        {
+            base.SetInt(idx, value);
+            CheckEvents(idx);
+        }
+
+        public override void SetString(ConfigIndex i, string value)
+        {
+            base.SetString(i, value);
+            CheckEvents(i);
+        }
+
+        private void CheckEvents(ConfigIndex idx)
+        {
+            LogUtils.DoWarnLog($"CheckEvents: {idx} | (idx & ConfigIndex.ADC_DESC_PART) = {(idx & ConfigIndex.ADC_DESC_PART)} | idx & ConfigIndex.DESC_DATA = {idx & ConfigIndex.DESC_DATA}");
+            if ((idx & ConfigIndex.ADC_DESC_PART) == 0)
+            {
+                switch (idx & (ConfigIndex.DESC_DATA| ConfigIndex.TYPE_PART))
+                {
+                    case ConfigIndex.PREFIX:
+                    case ConfigIndex.SEPARATOR:
+                    case ConfigIndex.SUFFIX:
+                    case ConfigIndex.LEADING_ZEROS:
+                    case ConfigIndex.INVERT_PREFIX_SUFFIX:
+                    case ConfigIndex.NON_PREFIX:
+                    case ConfigIndex.TRANSPORT_ICON_TLM:
+                        TLMShared.Instance?.OnLineSymbolParameterChanged();
+                        break;
+                }
+            }
+        }
+
         protected override void FallBackDefaultFile()
         {
             LogUtils.DoErrorLog("FallBackDefaultFile");
@@ -44,7 +83,7 @@ namespace Klyte.TransportLinesManager
                 {
                     try
                     {
-                        switch (((int) ci) & TYPE_PART)
+                        switch (((int)ci) & TYPE_PART)
                         {
                             case TYPE_BOOL:
                                 m_cachedBoolSaved[ci] = legacyConfig.getBool(ci);
@@ -200,7 +239,7 @@ namespace Klyte.TransportLinesManager
             }
             else
             {
-                return ((LineIconSpriteNames) Enum.Parse(typeof(LineIconSpriteNames), iconName));
+                return ((LineIconSpriteNames)Enum.Parse(typeof(LineIconSpriteNames), iconName));
             }
         }
         public static int GetSettedTicketPrice(TLMConfigWarehouse.ConfigIndex transportType) => GetCurrentConfigInt((transportType & TLMConfigWarehouse.ConfigIndex.SYSTEM_PART) | ConfigIndex.DEFAULT_TICKET_PRICE);

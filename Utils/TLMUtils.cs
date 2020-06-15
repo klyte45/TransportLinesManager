@@ -438,7 +438,7 @@ namespace Klyte.TransportLinesManager.Utils
     }
 
 
-    internal enum ModoNomenclatura
+    public enum ModoNomenclatura
     {
         Numero = 0,
         LatinoMinusculo = 1,
@@ -457,7 +457,7 @@ namespace Klyte.TransportLinesManager.Utils
         Romano = 14
     }
 
-    internal enum Separador
+    public enum Separador
     {
         Nenhum = 0,
         Hifen = 1,

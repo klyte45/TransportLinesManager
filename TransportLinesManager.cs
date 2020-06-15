@@ -9,7 +9,7 @@ using Klyte.TransportLinesManager.OptionsMenu;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.3.5.1")]
+[assembly: AssemblyVersion("13.3.6.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>

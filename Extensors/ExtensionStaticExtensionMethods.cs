@@ -1,6 +1,7 @@
 ﻿using ColossalFramework.Globalization;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
@@ -95,6 +96,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 it.SafeGet(prefix).Color = value;
             }
+            TLMShared.Instance?.OnLineSymbolParameterChanged();
         }
 
         public static void CleanColor<T>(this T it, uint prefix) where T : IColorSelectableExtension => it.SafeGet(prefix).Color = default;

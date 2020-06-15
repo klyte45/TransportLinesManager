@@ -5,6 +5,7 @@ using Klyte.Commons.Interfaces;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
@@ -290,14 +291,23 @@ namespace Klyte.TransportLinesManager.Extensors
         #region Custom Palette
         public string GetCustomPalette(uint prefix) => SafeGet(prefix).CustomPalette ?? string.Empty;
 
-        public void SetCustomPalette(uint prefix, string paletteName) => SafeGet(prefix).CustomPalette = paletteName;
+        public void SetCustomPalette(uint prefix, string paletteName)
+        {
+            SafeGet(prefix).CustomPalette = paletteName;
+            TLMShared.Instance?.OnLineSymbolParameterChanged();
+        }
 
         #endregion
 
         #region Custom Format
         public LineIconSpriteNames GetCustomFormat(uint prefix) => SafeGet(prefix).CustomIcon;
 
-        public void SetCustomFormat(uint prefix, LineIconSpriteNames icon) => SafeGet(prefix).CustomIcon = icon;
+        public void SetCustomFormat(uint prefix, LineIconSpriteNames icon)
+        {
+            SafeGet(prefix).CustomIcon = icon;
+
+            TLMShared.Instance?.OnLineSymbolParameterChanged();
+        }
 
         #endregion
         public uint LineToIndex(ushort lineId) => TLMLineUtils.getPrefix(lineId);

@@ -2,6 +2,7 @@
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
@@ -48,6 +49,7 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 Configurations.Remove(lineId);
             }
+            TLMShared.Instance?.OnLineSymbolParameterChanged();
         }
 
         public bool IsUsingCustomConfig(ushort lineId) => SafeGet(lineId).IsCustom;
