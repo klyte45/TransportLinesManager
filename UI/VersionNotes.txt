@@ -1,6 +1,8 @@
-﻿<color #AA44FF>TLMv13.3.5</color>
+﻿<color #AA44FF>TLMv13.3.6</color>
+	- Added russian translate (thanks to <color yellow>vitalii201</color>)
+<color #888888>TLMv13.3.5
 	- Applied fixes from Electric Roads for the popup behavior
-<color #888888>TLMv13.3.4
+TLMv13.3.4
 
 	- Minor fixes for <k45Symbol K45_CircleIcon,643e00,E>Electric Roads v2 compatibility
 
