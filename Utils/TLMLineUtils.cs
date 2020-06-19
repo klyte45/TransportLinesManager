@@ -1172,20 +1172,22 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (ss != ItemClass.SubService.None)
             {
-                tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.None);
                 if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
                 {
-                    return tempBuildingId;
+                    var parent = Building.FindParentBuilding(tempBuildingId);
+                    return parent == 0 ? tempBuildingId : parent;
                 }
             }
             if (!restrictToTransportType)
             {
                 if (nn.m_transportLine > 0)
                 {
-                    tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, TLMCW.getTransferReasonFromSystemId(TransportSystemDefinition.From(TransportManager.instance.m_lines.m_buffer[nn.m_transportLine].Info).ToConfigIndex()), Building.Flags.None, Building.Flags.Untouchable);
+                    tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, TLMCW.getTransferReasonFromSystemId(TransportSystemDefinition.From(TransportManager.instance.m_lines.m_buffer[nn.m_transportLine].Info).ToConfigIndex()), Building.Flags.None, Building.Flags.None);
                     if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
                     {
-                        return tempBuildingId;
+                        var parent = Building.FindParentBuilding(tempBuildingId);
+                        return parent == 0 ? tempBuildingId : parent;
                     }
                 }
 
@@ -1194,10 +1196,11 @@ namespace Klyte.TransportLinesManager.Utils
                 {
                     if (TLMCW.GetCurrentConfigBool(idx))
                     {
-                        tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, (ItemClass.Service)((int)idx & (int)CIdx.DESC_DATA), TLMCW.getSubserviceFromSystemId(idx), null, Building.Flags.None, Building.Flags.Untouchable);
+                        tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, (ItemClass.Service)((int)idx & (int)CIdx.DESC_DATA), TLMCW.getSubserviceFromSystemId(idx), null, Building.Flags.None, Building.Flags.None);
                         if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
                         {
-                            return tempBuildingId;
+                            var parent = Building.FindParentBuilding(tempBuildingId);
+                            return parent == 0 ? tempBuildingId : parent;
                         }
                     }
 

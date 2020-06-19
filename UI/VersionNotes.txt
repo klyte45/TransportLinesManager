@@ -1,16 +1,17 @@
 ﻿<color #AA44FF>TLMv13.3.6</color>
 	- Added russian translate (thanks to <color yellow>vitalii201</color>)
+	- Added WTS integration
 <color #888888>TLMv13.3.5
 	- Applied fixes from Electric Roads for the popup behavior
-TLMv13.3.4
+v13.3.4
 
 	- Minor fixes for <k45Symbol K45_CircleIcon,643e00,E>Electric Roads v2 compatibility
 
-TLMv13.3.3
+v13.3.3
 	- Fixed exception while creating line
 	- Fixed close button on TLM window at <sprite K45_K45Button> button
 	- Fixed <sprite K45_K45Button> button position (and the Done button position while moving it - was hidden under the tabs)
-TLMv13.3.2
+v13.3.2
 	- New dialogs (like this) for mod messages. Wait for new good stuff soon in my mods!
 	- Changed line creation tool behavior: Auto color is applied only when line is completed
 	- Fixed ghost modal on game start
@@ -21,13 +22,4 @@ v13.3.1
 	- Fixed background exceptions caused by UI events
 	- Fixed setting new capacity to vehicles
 	- Fixed unloading custom capacity when finishing game to main menu (avoid savegame data leak to a second new/load game)
-v13.3
-	- RE-ENABLED THE BACK TO MAIN MENU BUTTON! 
-	NOTE: it only will be enabled if there's no other 5th gen mod enabled. Others mod conversions to support it are coming soon!
-	- Fixed: Slowdown opening the line list window
-	- Fixed: Passenger costs for Trolley and Passenger Helicopter are too high!
-	- Fixed missing configurations for Passenger Helicopter and Trolley (linear map, palette configuration, etc)
-	- Fixed height of mod options panel on configuration menu
-	- Improved perfornance while creating lines
-	- Improved overall performance
 </color>
