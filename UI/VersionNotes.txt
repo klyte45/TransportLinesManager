@@ -1,6 +1,7 @@
 ﻿<color #AA44FF>TLMv13.3.6</color>
 	- Added russian translate (thanks to <color yellow>vitalii201</color>)
 	- Added WTS integration
+	- Fixed passengers waiting for line with no budget
 <color #888888>TLMv13.3.5
 	- Applied fixes from Electric Roads for the popup behavior
 v13.3.4

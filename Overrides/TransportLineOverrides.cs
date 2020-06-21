@@ -1,5 +1,4 @@
 ﻿using ColossalFramework;
-using ColossalFramework.Threading;
 using Harmony;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
@@ -7,7 +6,6 @@ using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -115,6 +113,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
         #region Budget Override
         private static readonly MethodInfo m_targetVehicles = typeof(TransportLine).GetMethod("CalculateTargetVehicleCount", RedirectorUtils.allFlags);
+        private static readonly MethodInfo m_setActive = typeof(TransportLine).GetMethod("SetActive", RedirectorUtils.allFlags);
         private static readonly MethodInfo m_newTargetVehicles = typeof(TransportLineOverrides).GetMethod("NewCalculateTargetVehicleCount", RedirectorUtils.allFlags);
         private static readonly FieldInfo m_budgetField = typeof(TransportLine).GetField("m_budget", RedirectorUtils.allFlags);
         private static readonly MethodInfo m_getBudgetInt = typeof(TLMLineUtils).GetMethod("GetEffectiveBudgetInt", RedirectorUtils.allFlags);
@@ -122,6 +121,19 @@ namespace Klyte.TransportLinesManager.Overrides
         {
             var inst = new List<CodeInstruction>(instructions);
 
+            inst.InsertRange(0, new List<CodeInstruction>
+                    {
+                        new CodeInstruction(OpCodes.Ldarg_0),
+                        new CodeInstruction(OpCodes.Ldarg_1),
+                        new CodeInstruction(OpCodes.Call, m_getBudgetInt),
+                        new CodeInstruction(OpCodes.Ldc_I4_0),
+                        new CodeInstruction(OpCodes.Cgt),
+                        new CodeInstruction(OpCodes.Ldarg_1),
+                        new CodeInstruction(OpCodes.Call, m_getBudgetInt),
+                        new CodeInstruction(OpCodes.Ldc_I4_0),
+                        new CodeInstruction(OpCodes.Cgt),
+                        new CodeInstruction(OpCodes.Call,m_setActive ),
+                    });
             for (int i = 0; i < inst.Count; i++)
             {
                 if (inst[i].opcode == OpCodes.Call && inst[i].operand == m_targetVehicles)
@@ -255,7 +267,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(transportLine);
                 if (tsd.TransportType == TransportInfo.TransportType.EvacuationBus)
                 {
-                    return Singleton<TransportManager>.instance.m_properties.m_transportColors[(int) line.Info.m_transportType];
+                    return Singleton<TransportManager>.instance.m_properties.m_transportColors[(int)line.Info.m_transportType];
                 }
 
                 ITLMTransportTypeExtension ext = tsd.GetTransportExtension();
@@ -270,7 +282,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     return Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].GetColor();
                 }
             }
-            return Singleton<TransportManager>.instance.m_properties.m_transportColors[(int) line.Info.m_transportType];
+            return Singleton<TransportManager>.instance.m_properties.m_transportColors[(int)line.Info.m_transportType];
 
         }
         #endregion
@@ -281,7 +293,7 @@ namespace Klyte.TransportLinesManager.Overrides
             if (findTargetStop && (data.Info.GetAI() is BusAI || data.Info.GetAI() is TramAI) && data.m_transportLine > 0)
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[data.m_transportLine];
-                data.m_targetBuilding = t.GetStop(SimulationManager.instance.m_randomizer.Int32((uint) t.CountStops(data.m_transportLine)));
+                data.m_targetBuilding = t.GetStop(SimulationManager.instance.m_randomizer.Int32((uint)t.CountStops(data.m_transportLine)));
             }
         }
         #endregion
