@@ -3,3 +3,4 @@
 	- Added WTS integration
 	- Fixed passengers waiting for line with no budget
 	- Fixed minor UI issues
+	- Draft support to custom vehicle numbers generation in WTS - will be customizable in the future
