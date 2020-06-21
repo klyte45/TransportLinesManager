@@ -9,7 +9,7 @@ using Klyte.TransportLinesManager.OptionsMenu;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.3.6.*")]
+[assembly: AssemblyVersion("13.4.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -18,11 +18,11 @@ namespace Klyte.TransportLinesManager
         public override string Description => "Allows to customize and manage your public transport systems.";
         public override bool UseGroup9 => false;
 
-        public override List<ulong> IncompatibleModList { get; } = new List<ulong>()
+        protected override List<ulong> IncompatibleModList { get; } = new List<ulong>()
         {
             TLMController.IPT2_MOD_ID
         };
-        public override List<string> IncompatibleDllModList { get; } = new List<string>()
+        protected override List<string> IncompatibleDllModList { get; } = new List<string>()
         {
             "ImprovedPublicTransport2",
             "MoreVehicles"

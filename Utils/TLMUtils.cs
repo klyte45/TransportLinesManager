@@ -267,16 +267,8 @@ namespace Klyte.TransportLinesManager.Utils
             if (prefixo != ModoNomenclatura.Nenhum)
             {
                 prefixNum = numero / 1000;
-                if (prefixo == ModoNomenclatura.Romano)
-                {
-                    prefixoSaida = NumberingUtils.ToRomanNumeral((ushort) prefixNum);
-                }
-                else
-                {
-                    TransportSystemDefinition tsd = default;
-                    prefixoSaida = NumberingUtils.GetStringFromNumber(GetStringOptionsForPrefix(prefixo, ref tsd), prefixNum + 1);
-                }
-                numero = numero % 1000;
+                prefixoSaida = GetStringFromNameMode(prefixo, prefixNum);
+                numero %= 1000;
             }
 
             if (numero > 0)
@@ -297,9 +289,6 @@ namespace Klyte.TransportLinesManager.Utils
                         case Separador.Ponto:
                             separadorSaida = ".";
                             break;
-                        case Separador.QuebraLinha:
-                            separadorSaida = "\n";
-                            break;
                         case Separador.Nenhum:
                             if (prefixo == ModoNomenclatura.Romano)
                             {
@@ -308,40 +297,7 @@ namespace Klyte.TransportLinesManager.Utils
                             break;
                     }
                 }
-                switch (prefixo != ModoNomenclatura.Nenhum && prefixNum > 0 ? sufixo : naoPrefixado)
-                {
-                    case ModoNomenclatura.GregoMaiusculo:
-                        sufixoSaida = NumberingUtils.GetStringFromNumber(gregoMaiusculo, numero);
-                        break;
-                    case ModoNomenclatura.GregoMinusculo:
-                        sufixoSaida = NumberingUtils.GetStringFromNumber(gregoMinusculo, numero);
-                        break;
-                    case ModoNomenclatura.CirilicoMaiusculo:
-                        sufixoSaida = NumberingUtils.GetStringFromNumber(cirilicoMaiusculo, numero);
-                        break;
-                    case ModoNomenclatura.CirilicoMinusculo:
-                        sufixoSaida = NumberingUtils.GetStringFromNumber(cirilicoMinusculo, numero);
-                        break;
-                    case ModoNomenclatura.LatinoMaiusculo:
-                        sufixoSaida = NumberingUtils.GetStringFromNumber(latinoMaiusculo, numero);
-                        break;
-                    case ModoNomenclatura.LatinoMinusculo:
-                        sufixoSaida = NumberingUtils.GetStringFromNumber(latinoMinusculo, numero);
-                        break;
-                    case ModoNomenclatura.Romano:
-                        sufixoSaida = NumberingUtils.ToRomanNumeral((ushort) numero);
-                        break;
-                    default:
-                        if (leadingZeros && prefixoSaida != "")
-                        {
-                            sufixoSaida = numero.ToString("D3");
-                        }
-                        else
-                        {
-                            sufixoSaida = numero.ToString();
-                        }
-                        break;
-                }
+                sufixoSaida = GetStringFromNameMode(prefixo != ModoNomenclatura.Nenhum && prefixNum > 0 ? sufixo : naoPrefixado, numero);
 
                 if (invertPrefixSuffix && sufixo == ModoNomenclatura.Numero && prefixo != ModoNomenclatura.Numero && prefixo != ModoNomenclatura.Romano)
                 {
@@ -358,29 +314,20 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
-
-        private static string getString(ModoNomenclatura m, int numero)
+        internal static string GetStringFromNameMode(ModoNomenclatura mode, int num)
         {
-
-            switch (m)
+            string result;
+            if (mode == ModoNomenclatura.Romano)
             {
-                case ModoNomenclatura.GregoMaiusculo:
-                    return NumberingUtils.GetStringFromNumber(gregoMaiusculo, numero);
-                case ModoNomenclatura.GregoMinusculo:
-                    return NumberingUtils.GetStringFromNumber(gregoMinusculo, numero);
-                case ModoNomenclatura.CirilicoMaiusculo:
-                    return NumberingUtils.GetStringFromNumber(cirilicoMaiusculo, numero);
-                case ModoNomenclatura.CirilicoMinusculo:
-                    return NumberingUtils.GetStringFromNumber(cirilicoMinusculo, numero);
-                case ModoNomenclatura.LatinoMaiusculo:
-                    return NumberingUtils.GetStringFromNumber(latinoMaiusculo, numero);
-                case ModoNomenclatura.LatinoMinusculo:
-                    return NumberingUtils.GetStringFromNumber(latinoMinusculo, numero);
-                case ModoNomenclatura.Romano:
-                    return NumberingUtils.ToRomanNumeral((ushort) numero);
-                default:
-                    return "" + numero;
+                result = NumberingUtils.ToRomanNumeral((ushort)num);
             }
+            else
+            {
+                TransportSystemDefinition tsd = default;
+                result = NumberingUtils.GetStringFromNumber(GetStringOptionsForPrefix(mode, ref tsd), num + 1);
+            }
+
+            return result;
         }
         #endregion
 
@@ -464,7 +411,7 @@ namespace Klyte.TransportLinesManager.Utils
         Ponto = 2,
         Barra = 3,
         Espaco = 4,
-        QuebraLinha = 5
+        QuebraLinha = Espaco
     }
 
 }

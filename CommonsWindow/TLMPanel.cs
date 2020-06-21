@@ -1,4 +1,5 @@
 ﻿using ColossalFramework.UI;
+using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Utils;
@@ -9,31 +10,18 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.CommonsWindow
 {
 
-    public class TLMPanel : UICustomControl
+    public class TLMPanel : BasicKPanel<TransportLinesManagerMod, TLMController, TLMPanel>
     {
-        private UIPanel m_controlContainer;
-
-        public static TLMPanel Instance { get; private set; }
-        public UIPanel MainPanel { get; private set; }
-
         private UILabel m_directionLabel;
 
         private UITabstrip m_stripMain;
 
+        public override float PanelWidth => 875;
+        public override float PanelHeight => component.parent.height;
+
         #region Awake
-        public void Awake()
+        protected override void AwakeActions()
         {
-            Instance = this;
-            m_controlContainer = GetComponent<UIPanel>();
-            m_controlContainer.area = new Vector4(0, 0, 0, 0);
-            m_controlContainer.isVisible = false;
-            m_controlContainer.name = "TLMPanel";
-
-            KlyteMonoUtils.CreateUIElement(out UIPanel _mainPanel, GetComponent<UIPanel>().transform, "TLMListPanel", new Vector4(0, 0, 875, m_controlContainer.parent.height));
-            MainPanel = _mainPanel;
-            MainPanel.backgroundSprite = "MenuPanel2";
-
-            CreateTitleBar();
 
             KlyteMonoUtils.CreateUIElement(out m_stripMain, MainPanel.transform, "TLMTabstrip", new Vector4(5, 45, MainPanel.width - 10, 40));
 

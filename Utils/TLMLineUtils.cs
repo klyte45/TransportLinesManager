@@ -190,7 +190,7 @@ namespace Klyte.TransportLinesManager.Utils
             var tsd = TransportSystemDefinition.GetDefinitionForLine(lineIdx);
             if (tsd != default)
             {
-                GetNamingRulesFromTSD(out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, tsd);
+                GetNamingRulesFromTSD(out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, ref tsd);
             }
             else
             {
@@ -232,8 +232,8 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return false;
         }
+        public static void GetNamingRulesFromTSD(out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, ref TransportSystemDefinition tsd)
 
-        public static void GetNamingRulesFromTSD(out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, TransportSystemDefinition tsd)
         {
             var transportType = tsd.ToConfigIndex();
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)

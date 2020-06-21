@@ -1,26 +1,5 @@
-﻿<color #AA44FF>TLMv13.3.6</color>
-	- Added russian translate (thanks to <color yellow>vitalii201</color>)
+﻿<color #AA44FF>TLMv13.4</color>
+	- Added russian translation (thanks to <color yellow>vitalii201</color>)
 	- Added WTS integration
 	- Fixed passengers waiting for line with no budget
-<color #888888>TLMv13.3.5
-	- Applied fixes from Electric Roads for the popup behavior
-v13.3.4
-
-	- Minor fixes for <k45Symbol K45_CircleIcon,643e00,E>Electric Roads v2 compatibility
-
-v13.3.3
-	- Fixed exception while creating line
-	- Fixed close button on TLM window at <sprite K45_K45Button> button
-	- Fixed <sprite K45_K45Button> button position (and the Done button position while moving it - was hidden under the tabs)
-v13.3.2
-	- New dialogs (like this) for mod messages. Wait for new good stuff soon in my mods!
-	- Changed line creation tool behavior: Auto color is applied only when line is completed
-	- Fixed ghost modal on game start
-	- Fixed ghost exception on game start
-	- Removed some dirty logs
-v13.3.1
-	- Fixed some bugs in line detail panel
-	- Fixed background exceptions caused by UI events
-	- Fixed setting new capacity to vehicles
-	- Fixed unloading custom capacity when finishing game to main menu (avoid savegame data leak to a second new/load game)
-</color>
+	- Fixed minor UI issues

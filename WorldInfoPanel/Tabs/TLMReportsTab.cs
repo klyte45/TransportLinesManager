@@ -31,11 +31,11 @@ namespace Klyte.TransportLinesManager.UI
                 heightCheck = m_checkChangeDateLabel.height;
             }
             KlyteMonoUtils.CreateTabsComponent(out m_reportTabstrip, out _, m_bg.transform, "LineConfig", new Vector4(0, 0, m_bg.width, 30), new Vector4(0, 30, m_bg.width, m_bg.height - heightCheck - 30));
-            m_childControls.Add("FinanceReport", TabCommons.CreateTab<TLMLineFinanceReportTab>(m_reportTabstrip, "InfoPanelIconCurrency", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));
-            m_childControls.Add("PassengerAgeReport", TabCommons.CreateTab<TLMLinePassengerAgeReportTab>(m_reportTabstrip, "InfoIconAge", "K45_TLM_WIP_PASSENGER_AGE_REPORT_TAB", "PassengerAgeReport", false));
-            m_childControls.Add("PassengerStudentTouristReport", TabCommons.CreateTab<TLMLinePassengerStudentTouristsReportTab>(m_reportTabstrip, "InfoIconTourism", "K45_TLM_WIP_PASSENGER_REPORT_TAB", "PassengerStudentTouristReport", false));
-            m_childControls.Add("PassengerWealthReport", TabCommons.CreateTab<TLMLinePassengerWealthReportTab>(m_reportTabstrip, "InfoIconLandValue", "K45_TLM_WIP_PASSENGER_WEALTH_REPORT_TAB", "PassengerWealthReport", false));
-            m_childControls.Add("PassengerGenderReport", TabCommons.CreateTab<TLMLinePassengerGenderReportTab>(m_reportTabstrip, "InfoIconPopulation", "K45_TLM_WIP_PASSENGER_GENDER_REPORT_TAB", "PassengerGenderReport", false));
+            m_childControls.Add("FinanceReport", TabCommons.CreateTabLocalized<TLMLineFinanceReportTab>(m_reportTabstrip, "InfoPanelIconCurrency", "K45_TLM_WIP_FINANCE_REPORT_TAB", "FinanceReport", false));
+            m_childControls.Add("PassengerAgeReport", TabCommons.CreateTabLocalized<TLMLinePassengerAgeReportTab>(m_reportTabstrip, "InfoIconAge", "K45_TLM_WIP_PASSENGER_AGE_REPORT_TAB", "PassengerAgeReport", false));
+            m_childControls.Add("PassengerStudentTouristReport", TabCommons.CreateTabLocalized<TLMLinePassengerStudentTouristsReportTab>(m_reportTabstrip, "InfoIconTourism", "K45_TLM_WIP_PASSENGER_REPORT_TAB", "PassengerStudentTouristReport", false));
+            m_childControls.Add("PassengerWealthReport", TabCommons.CreateTabLocalized<TLMLinePassengerWealthReportTab>(m_reportTabstrip, "InfoIconLandValue", "K45_TLM_WIP_PASSENGER_WEALTH_REPORT_TAB", "PassengerWealthReport", false));
+            m_childControls.Add("PassengerGenderReport", TabCommons.CreateTabLocalized<TLMLinePassengerGenderReportTab>(m_reportTabstrip, "InfoIconPopulation", "K45_TLM_WIP_PASSENGER_GENDER_REPORT_TAB", "PassengerGenderReport", false));
         }
 
         public void UpdateBindings()
