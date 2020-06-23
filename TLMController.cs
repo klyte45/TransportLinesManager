@@ -165,7 +165,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static void AutoName(ushort m_LineID) => TLMLineUtils.setLineName(m_LineID, TLMLineUtils.calculateAutoName(m_LineID));
+        public static void AutoName(ushort m_LineID) => TLMLineUtils.setLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, out _, out _, out _, out _));
 
 
         private void initNearLinesOnWorldInfoPanel()

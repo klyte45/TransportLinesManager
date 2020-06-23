@@ -13,8 +13,10 @@ namespace Klyte.TransportLinesManager.ModShared
         public static TLMShared Instance => TransportLinesManagerMod.Controller?.SharedInstance;
 
         internal void OnLineSymbolParameterChanged() => EventLineSymbolParameterChanged?.Invoke();
+        internal void OnAutoNameParameterChanged() => EventAutoNameParameterChanged?.Invoke();
 
         public event Action EventLineSymbolParameterChanged;
+        public event Action EventAutoNameParameterChanged;
 
         private string m_identifierFormatBusTrolley = "E FSTU";
         private string m_identifierFormatMetroTrainTram = "OTUL";

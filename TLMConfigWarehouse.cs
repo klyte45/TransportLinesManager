@@ -54,10 +54,10 @@ namespace Klyte.TransportLinesManager
 
         private void CheckEvents(ConfigIndex idx)
         {
-            LogUtils.DoWarnLog($"CheckEvents: {idx} | (idx & ConfigIndex.ADC_DESC_PART) = {(idx & ConfigIndex.ADC_DESC_PART)} | idx & ConfigIndex.DESC_DATA = {idx & ConfigIndex.DESC_DATA}");
+            LogUtils.DoLog($"CheckEvents: {idx} | (idx & ConfigIndex.ADC_DESC_PART) = {(idx & ConfigIndex.ADC_DESC_PART)} | idx & ConfigIndex.DESC_DATA = {idx & ConfigIndex.DESC_DATA}");
             if ((idx & ConfigIndex.ADC_DESC_PART) == 0)
             {
-                switch (idx & (ConfigIndex.DESC_DATA| ConfigIndex.TYPE_PART))
+                switch (idx & (ConfigIndex.DESC_DATA | ConfigIndex.TYPE_PART))
                 {
                     case ConfigIndex.PREFIX:
                     case ConfigIndex.SEPARATOR:
@@ -69,6 +69,10 @@ namespace Klyte.TransportLinesManager
                         TLMShared.Instance?.OnLineSymbolParameterChanged();
                         break;
                 }
+            }
+            if ((idx & ConfigIndex.AUTO_NAMING_REF_TEXT) != 0 || (idx & ConfigIndex.USE_FOR_AUTO_NAMING_REF) != 0)
+            {
+                TLMShared.Instance.OnAutoNameParameterChanged();
             }
         }
 

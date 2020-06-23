@@ -434,7 +434,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         public void DoAutoColor() => TLMController.AutoColor(m_lineID);
 
-        public void DoAutoName() => TLMLineUtils.setLineName(m_lineID, TLMLineUtils.calculateAutoName(m_lineID));
+        public void DoAutoName() => TLMLineUtils.setLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, out _, out _, out _, out _));
 
         private void OnMouseEnter(UIComponent comp, UIMouseEventParameter param)
         {

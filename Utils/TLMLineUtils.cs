@@ -787,21 +787,25 @@ namespace Klyte.TransportLinesManager.Utils
 
         private static TransportInfo.TransportType[] roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram };
 
-        public static string calculateAutoName(ushort lineIdx)
+        public static string CalculateAutoName(ushort lineIdx, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr)
         {
-            TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx];
+            ref TransportLine t = ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx];
             if ((t.m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None)
             {
+                startStation = 0;
+                endStation = 0;
+                startStationStr = null;
+                endStationStr = null;
                 return null;
             }
             ushort nextStop = t.m_stops;
             bool allowPrefixInStations = roadTransportTypes.Contains(t.Info.m_transportType);
-            var stations = new List<Tuple<NamingType, string>>();
+            var stations = new List<Tuple<NamingType, string, ushort>>();
             do
             {
                 NetNode stopNode = NetManager.instance.m_nodes.m_buffer[nextStop];
                 string stationName = getStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true);
-                var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName);
+                var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName, nextStop);
                 stations.Add(tuple);
                 nextStop = TransportLine.GetNextStop(nextStop);
             } while (nextStop != t.m_stops && nextStop != 0);
@@ -840,11 +844,16 @@ namespace Klyte.TransportLinesManager.Utils
                     }
                     if (simmetric)
                     {
-                        return $"{prefix}{stations[(middle) % stations.Count].Second } - { stations[(middle + stations.Count / 2) % stations.Count].Second}";
+                        startStation = stations[middle % stations.Count].Third;
+                        endStation = stations[(middle + (stations.Count / 2)) % stations.Count].Third;
+
+                        startStationStr = stations[(middle) % stations.Count].Second;
+                        endStationStr = stations[(middle + stations.Count / 2) % stations.Count].Second;
+                        return $"{prefix}{startStationStr} - {endStationStr}";
                     }
                 }
             }
-            var idxStations = stations.Select((x, y) => Tuple.New(y, x.First, x.Second)).OrderBy(x => x.Second.GetNamePrecedenceRate()).ToList();
+            var idxStations = stations.Select((x, y) => Tuple.New(y, x.First, x.Second, x.Third)).OrderBy(x => x.Second.GetNamePrecedenceRate()).ToList();
 
             int targetStart = 0;
             int mostRelevantEndIdx = -1;
@@ -864,11 +873,19 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (mostRelevantEndIdx >= 0)
             {
-                return $"{prefix}{idxStations[targetStart].Third} - {stations[mostRelevantEndIdx].Second}";
+                startStation = idxStations[targetStart].Fourth;
+                endStation = stations[mostRelevantEndIdx].Third;
+                startStationStr = idxStations[targetStart].Third;
+                endStationStr = stations[mostRelevantEndIdx].Second;
+                return $"{prefix}{startStationStr} - {endStationStr}";
             }
             else
             {
-                return prefix + (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + idxStations[0].Third;
+                startStation = idxStations[0].Fourth;
+                endStation = 0;
+                startStationStr = (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + idxStations[0].Third;
+                endStationStr = null;
+                return prefix + startStationStr;
             }
 
         }
