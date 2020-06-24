@@ -66,7 +66,8 @@ namespace Klyte.TransportLinesManager.ModShared
             {
                 if (depotPrefix == null)
                 {
-                    depotPrefix = "ABC".PadLeft(3, '\0');
+                    depotPrefix = VehicleManager.instance.m_vehicles.m_buffer[firstVehicle].m_sourceBuilding.ToString("X3").ToUpper();
+                    depotPrefix = depotPrefix.Substring(depotPrefix.Length - 3, 3);
                 }
                 return depotPrefix;
             }
@@ -76,7 +77,7 @@ namespace Klyte.TransportLinesManager.ModShared
                 {
                     var info = VehicleManager.instance.m_vehicles.m_buffer[firstVehicle].Info;
 
-                    modelPrefix = info.name.Split(new char[] { '.' }, 2)[1].ToUpper().Substring(0, 3);
+                    modelPrefix = (info.name.Contains(".") ? info.name.Split(new char[] { '.' }, 2)[1] : info.name).ToUpper().Substring(0, 3);
                 }
                 return modelPrefix;
             }

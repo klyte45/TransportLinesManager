@@ -42,7 +42,7 @@ namespace Klyte.TransportLinesManager.Utils
 
             var pal = new List<string>();
 
-            if (num >= 0 && TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int) ModoNomenclatura.Nenhum)
+            if (num >= 0 && TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
             {
                 uint prefix = num / 1000u;
                 ITLMTransportTypeExtension ext = tsdRef.GetTransportExtension();
@@ -80,7 +80,7 @@ namespace Klyte.TransportLinesManager.Utils
         internal static LineIconSpriteNames GetLineIcon(ushort num, TLMCW.ConfigIndex transportType, ref TransportSystemDefinition tsdRef)
         {
 
-            if (num > 0 && TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int) ModoNomenclatura.Nenhum)
+            if (num > 0 && TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX) != (int)ModoNomenclatura.Nenhum)
             {
                 uint prefix = num / 1000u;
                 ITLMTransportTypeExtension ext = tsdRef.GetTransportExtension();
@@ -170,7 +170,7 @@ namespace Klyte.TransportLinesManager.Utils
         }
         private static void AddToArrayWithName(string[] input, List<string> saida, ref TransportSystemDefinition tsd, bool usePrefixName = false)
         {
-            ushort offset = (ushort) saida.Count;
+            ushort offset = (ushort)saida.Count;
             if (!usePrefixName)
             {
                 saida.AddRange(input);
@@ -253,21 +253,25 @@ namespace Klyte.TransportLinesManager.Utils
             return saida;
         }
 
-        internal static ModoNomenclatura GetPrefixModoNomenclatura(TLMCW.ConfigIndex transportType) => (ModoNomenclatura) TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+        internal static ModoNomenclatura GetPrefixModoNomenclatura(TLMCW.ConfigIndex transportType) => (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
 
         #endregion
 
         #region Naming Utils
-        internal static string getString(ModoNomenclatura prefixo, Separador s, ModoNomenclatura sufixo, ModoNomenclatura naoPrefixado, int numero, bool leadingZeros, bool invertPrefixSuffix)
+        internal static string GetString(ModoNomenclatura prefixo, Separador s, ModoNomenclatura sufixo, ModoNomenclatura naoPrefixado, int numero, bool leadingZeros, bool invertPrefixSuffix)
         {
             string prefixoSaida = "";
             string separadorSaida = "";
-            string sufixoSaida = "";
+            string sufixoSaida;
             int prefixNum = 0;
             if (prefixo != ModoNomenclatura.Nenhum)
             {
                 prefixNum = numero / 1000;
-                prefixoSaida = GetStringFromNameMode(prefixo, prefixNum);
+                if (prefixNum > 0)
+                {
+                    prefixoSaida = GetStringFromNameMode(prefixo, prefixNum);
+                }
+
                 numero %= 1000;
             }
 
@@ -297,7 +301,10 @@ namespace Klyte.TransportLinesManager.Utils
                             break;
                     }
                 }
-                sufixoSaida = GetStringFromNameMode(prefixo != ModoNomenclatura.Nenhum && prefixNum > 0 ? sufixo : naoPrefixado, numero);
+
+                var targetNameModeSuffix = prefixo != ModoNomenclatura.Nenhum && prefixNum > 0 ? sufixo : naoPrefixado;
+                leadingZeros &= targetNameModeSuffix == ModoNomenclatura.Numero;
+                sufixoSaida = GetStringFromNameMode(targetNameModeSuffix, numero).PadLeft(leadingZeros ? 3 : 0, '0');
 
                 if (invertPrefixSuffix && sufixo == ModoNomenclatura.Numero && prefixo != ModoNomenclatura.Numero && prefixo != ModoNomenclatura.Romano)
                 {
@@ -320,6 +327,10 @@ namespace Klyte.TransportLinesManager.Utils
             if (mode == ModoNomenclatura.Romano)
             {
                 result = NumberingUtils.ToRomanNumeral((ushort)num);
+            }
+            else if (mode == ModoNomenclatura.Numero)
+            {
+                result = num.ToString("D");
             }
             else
             {
@@ -372,7 +383,7 @@ namespace Klyte.TransportLinesManager.Utils
             var basicAssetsList = new List<string>();
 
             TLMUtils.doLog("LoadBasicAssets: pre prefab read");
-            for (uint num = 0u; num < (ulong) PrefabCollection<VehicleInfo>.PrefabCount(); num += 1u)
+            for (uint num = 0u; num < (ulong)PrefabCollection<VehicleInfo>.PrefabCount(); num += 1u)
             {
                 VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
                 if (!(prefab == null) && definition.IsFromSystem(prefab) && !VehicleUtils.IsTrailer(prefab))

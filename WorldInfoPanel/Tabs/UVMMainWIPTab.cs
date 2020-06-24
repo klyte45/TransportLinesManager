@@ -5,6 +5,7 @@ using Klyte.Commons.Extensors;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections;
@@ -192,7 +193,7 @@ namespace Klyte.TransportLinesManager.UI
 
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(lineID);
                 var transportType = tsd.ToConfigIndex();
-                var mnPrefixo = (ModoNomenclatura) TLMConfigWarehouse.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
+                var mnPrefixo = (ModoNomenclatura)TLMConfigWarehouse.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
                 if (TLMLineUtils.hasPrefix(lineID))
                 {
@@ -243,15 +244,15 @@ namespace Klyte.TransportLinesManager.UI
             {
                 TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info;
                 m_type.text = Locale.Get("TRANSPORT_LINE", info.name);
-                int averageCount = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_touristPassengers.m_averageCount;
-                int averageCount2 = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_residentPassengers.m_averageCount;
+                int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_touristPassengers.m_averageCount;
+                int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_residentPassengers.m_averageCount;
                 int total = averageCount + averageCount2;
-                int averageCount3 = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_childPassengers.m_averageCount;
-                int averageCount4 = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_teenPassengers.m_averageCount;
-                int averageCount5 = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_youngPassengers.m_averageCount;
-                int averageCount6 = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_adultPassengers.m_averageCount;
-                int averageCount7 = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_seniorPassengers.m_averageCount;
-                int averageCount8 = (int) Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_carOwningPassengers.m_averageCount;
+                int averageCount3 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_childPassengers.m_averageCount;
+                int averageCount4 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_teenPassengers.m_averageCount;
+                int averageCount5 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_youngPassengers.m_averageCount;
+                int averageCount6 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_adultPassengers.m_averageCount;
+                int averageCount7 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_seniorPassengers.m_averageCount;
+                int averageCount8 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_carOwningPassengers.m_averageCount;
                 int percentageValue = GetPercentageValue(averageCount3, total);
                 int percentageValue2 = GetPercentageValue(averageCount4, total);
                 int percentageValue3 = GetPercentageValue(averageCount5, total);
@@ -287,7 +288,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 if (num6 != 0)
                 {
-                    num5 = (int) (((averageCount8 * 10000L) + (num6 >> 1)) / num6);
+                    num5 = (int)(((averageCount8 * 10000L) + (num6 >> 1)) / num6);
                     num5 = Mathf.Clamp(num5, 0, 100);
                 }
                 m_tripSaved.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_TRIPSAVED", new object[]
@@ -333,7 +334,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private int GetPercentageValue(int value, int total)
         {
-            float num = value / (float) total;
+            float num = value / (float)total;
             return Mathf.Clamp(Mathf.FloorToInt(num * 100f), 0, 100);
         }
 
@@ -392,13 +393,14 @@ namespace Klyte.TransportLinesManager.UI
         {
             yield return 0;
             ushort lineId = UVMPublicTransportWorldInfoPanel.GetLineID();
-            string value = "0" + m_lineNumberLabel.text;
+            string value = m_lineNumberLabel.text;
             int valPrefixo = m_linePrefixDropDown.selectedIndex;
-            TLMLineUtils.getLineNamingParameters(lineId, out ModoNomenclatura prefixo, out Separador sep, out ModoNomenclatura sufixo, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
-            ushort num = ushort.Parse(value);
-            if (prefixo != ModoNomenclatura.Nenhum)
+            var tsd = TransportSystemDefinition.From(lineId);
+            var hasPrefix = TLMLineUtils.hasPrefix(ref tsd);
+            ushort.TryParse(value, out ushort num);
+            if (hasPrefix)
             {
-                num = (ushort) (valPrefixo * 1000 + (num % 1000));
+                num = (ushort)(valPrefixo * 1000 + (num % 1000));
             }
             if (num < 1)
             {
@@ -415,7 +417,8 @@ namespace Klyte.TransportLinesManager.UI
             {
                 m_lineNumberLabel.textColor = new Color(1, 1, 1, 1);
                 Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_lineNumber = num;
-                if (prefixo != ModoNomenclatura.Nenhum)
+                TLMShared.Instance.OnLineSymbolParameterChanged();
+                if (hasPrefix)
                 {
                     m_lineNumberLabel.text = (num % 1000).ToString();
                     m_linePrefixDropDown.selectedIndex = (num / 1000);

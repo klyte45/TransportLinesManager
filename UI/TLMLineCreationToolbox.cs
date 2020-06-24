@@ -359,7 +359,7 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             lineNumberTxtBox.color = color;
-            string lineStr = TLMLineUtils.GetIconString(KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon((ushort)(nextLineNumber + 1), configIdx, ref tsd), true), color, TLMUtils.getString(prefixo, sep, sufixo, nonPrefix, (nextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix));
+            string lineStr = TLMLineUtils.GetIconString(KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon((ushort)(nextLineNumber + 1), configIdx, ref tsd), true), color, TLMUtils.GetString(prefixo, sep, sufixo, nonPrefix, (nextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix));
             m_toolboxToggleButton.text = lineStr;
             lineNumber.text = lineStr;
         }

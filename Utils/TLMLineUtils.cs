@@ -167,7 +167,7 @@ namespace Klyte.TransportLinesManager.Utils
         public static string getLineStringId(ushort lineIdx)
         {
             getLineNamingParameters(lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
-            return TLMUtils.getString(prefix, s, suffix, nonPrefix, Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_lineNumber, zeros, invertPrefixSuffix);
+            return TLMUtils.GetString(prefix, s, suffix, nonPrefix, Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_lineNumber, zeros, invertPrefixSuffix);
         }
 
         public static void getLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix) => getLineNamingParameters(lineIdx, out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, out string nil);
@@ -849,7 +849,17 @@ namespace Klyte.TransportLinesManager.Utils
 
                         startStationStr = stations[(middle) % stations.Count].Second;
                         endStationStr = stations[(middle + stations.Count / 2) % stations.Count].Second;
-                        return $"{prefix}{startStationStr} - {endStationStr}";
+
+                        if (startStationStr == endStationStr)
+                        {
+                            startStationStr = (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + startStationStr;
+                            endStationStr = startStationStr;
+                            return $"{prefix}{startStationStr}";
+                        }
+                        else
+                        {
+                            return $"{prefix}{startStationStr} - {endStationStr}";
+                        }                        
                     }
                 }
             }
@@ -877,7 +887,16 @@ namespace Klyte.TransportLinesManager.Utils
                 endStation = stations[mostRelevantEndIdx].Third;
                 startStationStr = idxStations[targetStart].Third;
                 endStationStr = stations[mostRelevantEndIdx].Second;
-                return $"{prefix}{startStationStr} - {endStationStr}";
+                if (startStationStr == endStationStr)
+                {
+                    startStationStr = (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + startStationStr;
+                    endStationStr = startStationStr;
+                    return $"{prefix}{startStationStr}";
+                }
+                else
+                {
+                    return $"{prefix}{startStationStr} - {endStationStr}";
+                }
             }
             else
             {
