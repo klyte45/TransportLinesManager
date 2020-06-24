@@ -378,6 +378,7 @@
     <EmbeddedResource Include="MapDrawer\app.js" />
     <EmbeddedResource Include="UI\Images\%25K45_TLM_Icon.png" />
     <EmbeddedResource Include="UI\Images\%25K45_24hClock.png" />
+    <EmbeddedResource Include="UI\i18n\zh.properties" />
     <None Include="UI\Images\24hClock.psd" />
     <Content Include="commons\UI\Images\%25K45_Delete.png" />
     <Content Include="commons\UI\Images\%25K45_Down.png" />
