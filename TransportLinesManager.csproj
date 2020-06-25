@@ -181,6 +181,8 @@
     <Compile Include="Utils\NamingType.cs" />
     <Compile Include="Utils\NamingTypeExtensions.cs" />
     <Compile Include="Utils\Separador.cs" />
+    <Compile Include="Utils\TLMBuildingUtils.cs" />
+    <Compile Include="Utils\TLMPrefabUtils.cs" />
     <Compile Include="Utils\TLMPrefixesUtils.cs" />
     <Compile Include="Utils\TLMStationUtils.cs" />
     <Compile Include="Utils\TLMVehicleUtils.cs" />

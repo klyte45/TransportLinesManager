@@ -63,7 +63,7 @@ namespace Klyte.TransportLinesManager.Extensors
             var tsd = TransportSystemDefinition.From(lineId);
             if (!m_basicAssetsList.ContainsKey(tsd))
             {
-                m_basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
+                m_basicAssetsList[tsd] = TLMPrefabUtils.LoadBasicAssets(ref tsd);
             }
             return m_basicAssetsList[tsd];
         }
@@ -73,7 +73,7 @@ namespace Klyte.TransportLinesManager.Extensors
             var tsd = TransportSystemDefinition.From(lineId);
             if (!m_basicAssetsList.ContainsKey(tsd))
             {
-                m_basicAssetsList[tsd] = TLMUtils.LoadBasicAssets(ref tsd);
+                m_basicAssetsList[tsd] = TLMPrefabUtils.LoadBasicAssets(ref tsd);
             }
 
             return m_basicAssetsList[tsd].ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));

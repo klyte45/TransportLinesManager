@@ -108,7 +108,7 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (buildingID > 0)
             {
-                string name = TLMUtils.GetBuildingDetails(buildingID, out serviceFound, out subserviceFound, out prefix, lineId);
+                string name = TLMBuildingUtils.GetBuildingDetails(buildingID, out serviceFound, out subserviceFound, out prefix, lineId);
                 resultNamingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
                 return name;
             }
