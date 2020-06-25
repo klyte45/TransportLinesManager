@@ -133,7 +133,7 @@ namespace Klyte.TransportLinesManager.Utils
         public static string GetLineStringId(ushort lineIdx)
         {
             GetLineNamingParameters(lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
-            return TLMUtils.GetString(prefix, s, suffix, nonPrefix, Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_lineNumber, zeros, invertPrefixSuffix);
+            return TLMPrefixesUtils.GetString(prefix, s, suffix, nonPrefix, Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_lineNumber, zeros, invertPrefixSuffix);
         }
 
         public static void GetLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix) => GetLineNamingParameters(lineIdx, out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, out string nil);
@@ -274,7 +274,7 @@ namespace Klyte.TransportLinesManager.Utils
             TLMCW.ConfigIndex transportType;
             var tsd = TransportSystemDefinition.GetDefinitionForLine(lineIdx);
             transportType = tsd.ToConfigIndex();
-            return KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, transportType, ref tsd), noBorder);
+            return KlyteResourceLoader.GetDefaultSpriteNameFor(TLMPrefixesUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, transportType, ref tsd), noBorder);
         }
 
 

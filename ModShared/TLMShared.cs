@@ -52,8 +52,8 @@ namespace Klyte.TransportLinesManager.ModShared
                     {
                         var tsd = TransportSystemDefinition.From(tl.Info);
                         var prefix = (int)TLMLineUtils.GetPrefix(tlId);
-                        var nameMode = TLMUtils.GetPrefixModoNomenclatura(tsd.ToConfigIndex());
-                        linePrefix = TLMUtils.GetStringFromNameMode(nameMode, prefix).Trim().PadLeft(3, '\0');
+                        var nameMode = TLMPrefixesUtils.GetPrefixModoNomenclatura(tsd.ToConfigIndex());
+                        linePrefix = TLMPrefixesUtils.GetStringFromNameMode(nameMode, prefix).Trim().PadLeft(3, '\0');
                     }
                     else
                     {

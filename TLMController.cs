@@ -142,7 +142,7 @@ namespace Klyte.TransportLinesManager
                     return Color.clear;
                 }
                 var transportType = tsd.ToConfigIndex();
-                Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType, ref tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
+                Color c = TLMPrefixesUtils.CalculateAutoColor(t.m_lineNumber, transportType, ref tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
                 if (c.a == 1)
                 {
                     task = TLMLineUtils.SetLineColor(i, c);

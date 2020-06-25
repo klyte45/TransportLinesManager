@@ -286,7 +286,7 @@ namespace Klyte.TransportLinesManager.UI
             if (TLMLineUtils.HasPrefix(transportTool.m_prefab))
             {
                 linePrefixDropDown.isVisible = true;
-                linePrefixDropDown.items = TLMUtils.GetPrefixesOptions(configIdx, false).ToArray();
+                linePrefixDropDown.items = TLMPrefixesUtils.GetPrefixesOptions(configIdx, false).ToArray();
                 linePrefixDropDown.selectedIndex = getCurrentPrefix();
                 lineNumberTxtBox.text = getCurrentNumber().ToString();
                 lineNumberTxtBox.width = 90;
@@ -351,7 +351,7 @@ namespace Klyte.TransportLinesManager.UI
 
             if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
             {
-                color = TLMUtils.CalculateAutoColor((ushort)(nextLineNumber + 1), configIdx, ref tsd, true);
+                color = TLMPrefixesUtils.CalculateAutoColor((ushort)(nextLineNumber + 1), configIdx, ref tsd, true);
             }
             else
             {
@@ -359,7 +359,7 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             lineNumberTxtBox.color = color;
-            string lineStr = TLMLineUtils.GetIconString(KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon((ushort)(nextLineNumber + 1), configIdx, ref tsd), true), color, TLMUtils.GetString(prefixo, sep, sufixo, nonPrefix, (nextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix));
+            string lineStr = TLMLineUtils.GetIconString(KlyteResourceLoader.GetDefaultSpriteNameFor(TLMPrefixesUtils.GetLineIcon((ushort)(nextLineNumber + 1), configIdx, ref tsd), true), color, TLMPrefixesUtils.GetString(prefixo, sep, sufixo, nonPrefix, (nextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix));
             m_toolboxToggleButton.text = lineStr;
             lineNumber.text = lineStr;
         }

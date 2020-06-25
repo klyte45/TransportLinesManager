@@ -225,7 +225,7 @@ namespace Klyte.TransportLinesManager.UI
             m_paletteDD.selectedIndex = Math.Max(0, m_paletteDD.items.ToList().IndexOf(Extension.GetCustomPalette(sel)));
             m_formatDD.selectedIndex = Math.Max(0, (int) Extension.GetCustomFormat(sel));
 
-            m_title.text = string.Format(Locale.Get("K45_TLM_PREFIX_TAB_WIP_TITLE"), sel > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.GetStringOptionsForPrefix(TransportSystem), (int) sel + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(TransportSystem.ToConfigIndex()));
+            m_title.text = string.Format(Locale.Get("K45_TLM_PREFIX_TAB_WIP_TITLE"), sel > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(TransportSystem), (int) sel + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(TransportSystem.ToConfigIndex()));
 
             m_isLoading = false;
 
