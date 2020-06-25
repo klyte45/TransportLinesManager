@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using CIdx = Klyte.TransportLinesManager.TLMConfigWarehouse.ConfigIndex;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
@@ -774,17 +773,17 @@ namespace Klyte.TransportLinesManager.Utils
             for (int i = 0; i < stopsCount; i++)
             {
                 ushort stationId = t.GetStop(i);
-                result[i] = TLMLineUtils.getFullStationName(stationId, lineID, ss);
+                result[i] = TLMStationUtils.GetFullStationName(stationId, lineID, ss);
             }
             return result;
         }
 
 
         #region Line Utils
-        public static AsyncTask<bool> setLineColor(ushort lineIdx, Color color) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineColor(lineIdx, color));
-        public static AsyncTask<bool> setLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineName(lineIdx, name));
+        public static AsyncTask<bool> SetLineColor(ushort lineIdx, Color color) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineColor(lineIdx, color));
+        public static AsyncTask<bool> SetLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineName(lineIdx, name));
 
-        private static TransportInfo.TransportType[] roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram };
+        private static TransportInfo.TransportType[] m_roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram };
 
         public static string CalculateAutoName(ushort lineIdx, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr)
         {
@@ -798,12 +797,12 @@ namespace Klyte.TransportLinesManager.Utils
                 return null;
             }
             ushort nextStop = t.m_stops;
-            bool allowPrefixInStations = roadTransportTypes.Contains(t.Info.m_transportType);
+            bool allowPrefixInStations = m_roadTransportTypes.Contains(t.Info.m_transportType);
             var stations = new List<Tuple<NamingType, string, ushort>>();
             do
             {
                 NetNode stopNode = NetManager.instance.m_nodes.m_buffer[nextStop];
-                string stationName = getStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true);
+                string stationName = TLMStationUtils.GetStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true);
                 var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName, nextStop);
                 stations.Add(tuple);
                 nextStop = TransportLine.GetNextStop(nextStop);
@@ -846,7 +845,7 @@ namespace Klyte.TransportLinesManager.Utils
                         startStation = stations[middle % stations.Count].Third;
                         endStation = stations[(middle + (stations.Count / 2)) % stations.Count].Third;
 
-                        startStationStr = stations[(middle) % stations.Count].Second;
+                        startStationStr = stations[middle % stations.Count].Second;
                         endStationStr = stations[(middle + stations.Count / 2) % stations.Count].Second;
 
                         if (startStationStr == endStationStr)
@@ -908,52 +907,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         }
 
-        private static string GetStationNameWithPrefix(TLMCW.ConfigIndex transportType, string name) => transportType.GetSystemStationNamePrefix().Trim() + (transportType.GetSystemStationNamePrefix().Trim() != string.Empty ? " " : "") + name;
 
-        public static void setStopName(string newName, ushort stopId, ushort lineId, Action callback)
-        {
-            TLMUtils.doLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
-            ushort buildingId = getStationBuilding(stopId, Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService, true, true);
-            if (buildingId == 0)
-            {
-                TLMUtils.doLog("b=0");
-                Singleton<BuildingManager>.instance.StartCoroutine(SetNodeName(stopId, newName, callback));
-            }
-            else
-            {
-                TLMUtils.doLog("b≠0 ({0})", buildingId);
-                Singleton<BuildingManager>.instance.StartCoroutine(BuildingUtils.SetBuildingName(buildingId, newName, callback));
-            }
-        }
-
-        public static IEnumerator<object> SetNodeName(ushort nodeId, string name, Action function)
-        {
-            yield return Singleton<SimulationManager>.instance.AddAction<bool>(SetNodeName(nodeId, name));
-            function();
-        }
-        public static string GetStopName(ushort stopId)
-        {
-            InstanceID id = default;
-            id.NetNode = stopId;
-            return InstanceManager.instance.GetName(id);
-        }
-
-        private static IEnumerator<bool> SetNodeName(ushort nodeId, string name)
-        {
-            bool result = false;
-            NetNode.Flags flags = NetManager.instance.m_nodes.m_buffer[nodeId].m_flags;
-            TLMUtils.doLog($"SetNodeName({nodeId},{name}) {flags}");
-            if (nodeId != 0 && flags != NetNode.Flags.None)
-            {
-                var id = default(InstanceID);
-                id.NetNode = nodeId;
-                Singleton<InstanceManager>.instance.SetName(id, name.IsNullOrWhiteSpace() ? null : name);
-                result = true;
-            }
-            yield return result;
-            yield break;
-
-        }
         public static bool CalculateSimmetry(ItemClass.SubService ss, int stopsCount, TransportLine t, out int middle)
         {
             int j;
@@ -1010,249 +964,13 @@ namespace Klyte.TransportLinesManager.Utils
             }
 
         }
-        public static string getStationName(ushort stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, out NamingType resultNamingType, bool excludeCargo = false, bool useRestrictionForAreas = false)
-        {
-            string savedName = GetStopName(stopId);
-            var tsd = TransportSystemDefinition.From(lineId);
-            if (savedName != null)
-            {
-                serviceFound = ItemClass.Service.PublicTransport;
-                subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService;
-                prefix = tsd.ToConfigIndex().GetSystemStationNamePrefix(lineId)?.TrimStart();
-                buildingID = 0;
-                resultNamingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
-                return savedName;
-            }
-
-            NetManager nm = Singleton<NetManager>.instance;
-            NetNode nn = nm.m_nodes.m_buffer[stopId];
-            Vector3 location = nn.m_position;
-            if (tsd.VehicleType == VehicleInfo.VehicleType.Car || tsd.VehicleType == VehicleInfo.VehicleType.Tram)
-            {
-                List<ushort> nearStops = StopSearchUtils.FindNearStops(location, nn.Info.GetService(), true, 50f, out _, out _);
-
-                foreach (ushort otherStop in nearStops)
-                {
-                    if (otherStop != stopId)
-                    {
-                        savedName = GetStopName(otherStop);
-                        ;
-                        if (savedName != null)
-                        {
-                            ushort targetLineId = NetManager.instance.m_nodes.m_buffer[otherStop].m_transportLine;
-                            var tsd2 = TransportSystemDefinition.From(targetLineId);
-
-                            serviceFound = ItemClass.Service.PublicTransport;
-                            subserviceFound = Singleton<TransportManager>.instance.m_lines.m_buffer[targetLineId].Info.m_class.m_subService;
-                            prefix = tsd2.ToConfigIndex().GetSystemStationNamePrefix(targetLineId)?.TrimStart();
-                            buildingID = 0;
-                            resultNamingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
-                            return savedName;
-                        }
-                    }
-                }
-            }
-
-            buildingID = getStationBuilding(stopId, ss, excludeCargo);
-
-            if (buildingID > 0)
-            {
-                string name = TLMUtils.getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix, lineId);
-                resultNamingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
-                return name;
-            }
 
 
-            prefix = "";
-            byte parkId = DistrictManager.instance.GetPark(location);
-            if (parkId > 0)
-            {
-                var idx = DistrictManager.instance.m_parks.m_buffer[parkId].ToConfigIndex();
-                if (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(idx | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF))
-                {
-                    prefix = idx.GetSystemStationNamePrefix(lineId)?.TrimStart();
-                    serviceFound = idx.ToServiceSubservice(out subserviceFound);
-                    resultNamingType = idx switch
-                    {
-                        CIdx.CAMPUS_AREA_NAME_CONFIG => NamingType.CAMPUS,
-                        CIdx.INDUSTRIAL_AREA_NAME_CONFIG => NamingType.INDUSTRY_AREA,
-                        _ => NamingType.PARKAREA,
-                    };
-                    return DistrictManager.instance.GetParkName(parkId);
-                }
-            }
-            if (SegmentUtils.GetAddressStreetAndNumber(location, location, out int number, out string streetName) && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)) && !string.IsNullOrEmpty(streetName))
-            {
-                prefix = TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG.GetSystemStationNamePrefix(lineId)?.TrimStart();
-                serviceFound = ItemClass.Service.Road;
-                subserviceFound = ItemClass.SubService.PublicTransportBus;
-                resultNamingType = NamingType.ADDRESS;
-                return streetName + ", " + number;
-
-            }
-            else if (DistrictManager.instance.GetDistrict(location) > 0 && (!useRestrictionForAreas || TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG | TLMConfigWarehouse.ConfigIndex.USE_FOR_AUTO_NAMING_REF)))
-            {
-                prefix = TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG.GetSystemStationNamePrefix(lineId)?.TrimStart();
-                serviceFound = ItemClass.Service.Natural;
-                subserviceFound = ItemClass.SubService.None;
-                resultNamingType = NamingType.DISTRICT;
-                return DistrictManager.instance.GetDistrictName(DistrictManager.instance.GetDistrict(location));
-            }
-            else
-            {
-                serviceFound = ItemClass.Service.None;
-                subserviceFound = ItemClass.SubService.None;
-                resultNamingType = NamingType.NONE;
-                return "????????";
-            }
-        }
-        public static readonly ItemClass.Service[] searchOrder = new ItemClass.Service[]{
-            ItemClass.Service.PublicTransport,
-            ItemClass.Service.Monument,
-            ItemClass.Service.Beautification,
-            ItemClass.Service.Natural,
-            ItemClass.Service.Disaster,
-            ItemClass.Service.HealthCare,
-            ItemClass.Service.FireDepartment,
-            ItemClass.Service.PoliceDepartment,
-            ItemClass.Service.Tourism,
-            ItemClass.Service.Education,
-            ItemClass.Service.Garbage,
-            ItemClass.Service.Office,
-            ItemClass.Service.Commercial,
-            ItemClass.Service.Industrial,
-            ItemClass.Service.Residential,
-            ItemClass.Service.Electricity,
-            ItemClass.Service.Water
-        };
-        public static string getStationName(ushort stopId, ushort lineId, ItemClass.SubService ss) => getStationName(stopId, lineId, ss, out ItemClass.Service serv, out ItemClass.SubService subServ, out string prefix, out ushort buildingId, out NamingType namingType, true);
-        public static string getFullStationName(ushort stopId, ushort lineId, ItemClass.SubService ss)
-        {
-            string result = getStationName(stopId, lineId, ss, out ItemClass.Service serv, out ItemClass.SubService subServ, out string prefix, out ushort buildingId, out NamingType namingType, true);
-            return string.IsNullOrEmpty(prefix) ? result : prefix + " " + result;
-        }
-        public static Vector3 getStationBuildingPosition(uint stopId, ItemClass.SubService ss)
-        {
-            ushort buildingId = getStationBuilding(stopId, ss);
-
-
-            if (buildingId > 0)
-            {
-                BuildingManager bm = Singleton<BuildingManager>.instance;
-                Building b = bm.m_buildings.m_buffer[buildingId];
-                InstanceID iid = default;
-                iid.Building = buildingId;
-                return b.m_position;
-            }
-            else
-            {
-                NetManager nm = Singleton<NetManager>.instance;
-                NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-                return nn.m_position;
-            }
-        }
-
-        //ORDEM DE BUSCA DE CONFIG
-        private static CIdx[] searchOrderStationNamingRule = new CIdx[] {
-        CIdx.PLANE_USE_FOR_AUTO_NAMING_REF                  ,
-        CIdx.SHIP_USE_FOR_AUTO_NAMING_REF                   ,
-        CIdx.BLIMP_USE_FOR_AUTO_NAMING_REF                  ,
-        CIdx.FERRY_USE_FOR_AUTO_NAMING_REF                  ,
-        CIdx.CABLE_CAR_USE_FOR_AUTO_NAMING_REF              ,
-        CIdx.TRAIN_USE_FOR_AUTO_NAMING_REF                  ,
-        CIdx.METRO_USE_FOR_AUTO_NAMING_REF                  ,
-        CIdx.MONORAIL_USE_FOR_AUTO_NAMING_REF               ,
-        CIdx.TRAM_USE_FOR_AUTO_NAMING_REF                   ,
-        CIdx.BUS_USE_FOR_AUTO_NAMING_REF                    ,
-        CIdx.TOUR_PED_USE_FOR_AUTO_NAMING_REF               ,
-        CIdx.TOUR_BUS_USE_FOR_AUTO_NAMING_REF               ,
-        CIdx.BALOON_USE_FOR_AUTO_NAMING_REF                 ,
-        CIdx.TAXI_USE_FOR_AUTO_NAMING_REF                   ,
-        CIdx.PUBLICTRANSPORT_USE_FOR_AUTO_NAMING_REF        ,
-        CIdx.MONUMENT_USE_FOR_AUTO_NAMING_REF               ,
-        CIdx.BEAUTIFICATION_USE_FOR_AUTO_NAMING_REF         ,
-        CIdx.TOURISM_USE_FOR_AUTO_NAMING_REF                ,
-        CIdx.NATURAL_USE_FOR_AUTO_NAMING_REF                ,
-        CIdx.DISASTER_USE_FOR_AUTO_NAMING_REF             ,
-        CIdx.HEALTHCARE_USE_FOR_AUTO_NAMING_REF             ,
-        CIdx.FIREDEPARTMENT_USE_FOR_AUTO_NAMING_REF         ,
-        CIdx.POLICEDEPARTMENT_USE_FOR_AUTO_NAMING_REF       ,
-        CIdx.EDUCATION_USE_FOR_AUTO_NAMING_REF              ,
-        CIdx.GARBAGE_USE_FOR_AUTO_NAMING_REF                ,
-        CIdx.ROAD_USE_FOR_AUTO_NAMING_REF                   ,
-        CIdx.CITIZEN_USE_FOR_AUTO_NAMING_REF                ,
-        CIdx.ELECTRICITY_USE_FOR_AUTO_NAMING_REF            ,
-        CIdx.WATER_USE_FOR_AUTO_NAMING_REF                  ,
-
-        CIdx.OFFICE_USE_FOR_AUTO_NAMING_REF                 ,
-        CIdx.COMMERCIAL_USE_FOR_AUTO_NAMING_REF             ,
-        CIdx.INDUSTRIAL_USE_FOR_AUTO_NAMING_REF             ,
-        CIdx.RESIDENTIAL_USE_FOR_AUTO_NAMING_REF            ,
-
-        //CIdx.UNUSED2_USE_FOR_AUTO_NAMING_REF                ,
-        CIdx.CAMPUS_AREA_USE_FOR_AUTO_NAMING_REF               ,
-        CIdx.PARKAREA_USE_FOR_AUTO_NAMING_REF               ,
-        CIdx.INDUSTRIAL_AREA_USE_FOR_AUTO_NAMING_REF               ,
-        CIdx.DISTRICT_USE_FOR_AUTO_NAMING_REF               ,
-        CIdx.ADDRESS_USE_FOR_AUTO_NAMING_REF                ,
-        };
-
-        public static ushort getStationBuilding(uint stopId, ItemClass.SubService ss, bool excludeCargo = false, bool restrictToTransportType = false)
-        {
-            NetManager nm = Singleton<NetManager>.instance;
-            BuildingManager bm = Singleton<BuildingManager>.instance;
-            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
-            ushort tempBuildingId;
-
-
-            if (ss != ItemClass.SubService.None)
-            {
-                tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.None);
-                if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
-                {
-                    var parent = Building.FindParentBuilding(tempBuildingId);
-                    return parent == 0 ? tempBuildingId : parent;
-                }
-            }
-            if (!restrictToTransportType)
-            {
-                if (nn.m_transportLine > 0)
-                {
-                    tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, TLMCW.getTransferReasonFromSystemId(TransportSystemDefinition.From(TransportManager.instance.m_lines.m_buffer[nn.m_transportLine].Info).ToConfigIndex()), Building.Flags.None, Building.Flags.None);
-                    if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
-                    {
-                        var parent = Building.FindParentBuilding(tempBuildingId);
-                        return parent == 0 ? tempBuildingId : parent;
-                    }
-                }
-
-
-                foreach (CIdx idx in searchOrderStationNamingRule)
-                {
-                    if (TLMCW.GetCurrentConfigBool(idx))
-                    {
-                        tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, (ItemClass.Service)((int)idx & (int)CIdx.DESC_DATA), TLMCW.getSubserviceFromSystemId(idx), null, Building.Flags.None, Building.Flags.None);
-                        if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
-                        {
-                            var parent = Building.FindParentBuilding(tempBuildingId);
-                            return parent == 0 ? tempBuildingId : parent;
-                        }
-                    }
-
-                }
-            }
-            return 0;
-
-        }
         public static Tuple<string, Color, string> GetIconStringParameters(ushort lineId) => Tuple.New(getIconForLine(lineId, false), Singleton<TransportManager>.instance.GetLineColor(lineId), getLineStringId(lineId));
         internal static string GetIconString(ushort lineId) => GetIconString(getIconForLine(lineId, false), Singleton<TransportManager>.instance.GetLineColor(lineId), getLineStringId(lineId));
         internal static string GetIconString(string iconName, Color color, string lineString) => $"<{UIDynamicFontRendererRedirector.TAG_LINE} {iconName},{color.ToRGB()},{lineString}>";
 
-        private static bool IsBuildingValidForStation(bool excludeCargo, BuildingManager bm, ushort tempBuildingId)
-        {
-            var ai = bm.m_buildings.m_buffer[tempBuildingId].Info.m_buildingAI;
-            return tempBuildingId > 0 && ((!excludeCargo && (ai is DepotAI || ai is CargoStationAI)) || ai is TransportStationAI || ai is OutsideConnectionAI);
-        }
+
 
         public static int CalculateTargetVehicleCount(ref TransportLine t, ushort lineId, float lineLength) => CalculateTargetVehicleCount(t.Info, lineLength, GetEffectiveBudget(lineId));
         public static int CalculateTargetVehicleCount(TransportInfo info, float lineLength, float budget) => Mathf.CeilToInt(budget * lineLength / info.m_defaultVehicleDistance);
@@ -1335,52 +1053,8 @@ namespace Klyte.TransportLinesManager.Utils
             return ticketPriceDefault;
         }
 
-        public static void RemoveAllUnwantedVehicles()
-        {
-            VehicleManager vm = Singleton<VehicleManager>.instance;
-            for (ushort lineId = 1; lineId < Singleton<TransportManager>.instance.m_lines.m_size; lineId++)
-            {
-                if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
-                {
-                    IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
-                    ref TransportLine tl = ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
-                    List<string> modelList = extension.GetAssetListForLine(lineId);
 
-                    if (TransportLinesManagerMod.DebugMode)
-                    {
-                        TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
-                    }
 
-                    if (modelList.Count > 0)
-                    {
-                        var vehiclesToRemove = new Dictionary<ushort, VehicleInfo>();
-                        for (int i = 0; i < tl.CountVehicles(lineId); i++)
-                        {
-                            ushort vehicle = tl.GetVehicle(i);
-                            if (vehicle != 0)
-                            {
-                                VehicleInfo info2 = vm.m_vehicles.m_buffer[vehicle].Info;
-                                if (!modelList.Contains(info2.name))
-                                {
-                                    vehiclesToRemove[vehicle] = info2;
-                                }
-                            }
-                        }
-                        foreach (KeyValuePair<ushort, VehicleInfo> item in vehiclesToRemove)
-                        {
-                            if (item.Value.m_vehicleAI is BusAI)
-                            {
-                                VehicleUtils.ReplaceVehicleModel(item.Key, extension.GetAModel(lineId));
-                            }
-                            else
-                            {
-                                item.Value.m_vehicleAI.SetTransportLine(item.Key, ref vm.m_vehicles.m_buffer[item.Key], 0);
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
 
 

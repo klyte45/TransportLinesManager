@@ -257,7 +257,7 @@ namespace Klyte.TransportLinesManager.UI
                     m_cachedStopOrder[idx] = currentStop;
                     UILabel uilabel = stopsButtons[idx].Find<UILabel>("PassengerCount");
 
-                    uilabel.prefix = TLMLineUtils.getFullStationName(currentStop, lineID, TransportSystemDefinition.GetDefinitionForLine(lineID).SubService);
+                    uilabel.prefix = TLMStationUtils.GetFullStationName(currentStop, lineID, TransportSystemDefinition.GetDefinitionForLine(lineID).SubService);
                     uilabel.text = "";
 
                     UILabel dist = stopsButtons[idx].Find<UILabel>("Distance");
@@ -278,7 +278,7 @@ namespace Klyte.TransportLinesManager.UI
                        {
                            uilabel.Hide();
                            stopNameField.Show();
-                           stopNameField.text = TLMLineUtils.getStationName((ushort)button.objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService);
+                           stopNameField.text =TLMStationUtils.GetStationName((ushort)button.objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService);
                            stopNameField.Focus();
                        };
                         stopNameField.eventLeaveFocus += delegate (UIComponent c, UIFocusEventParameter r)
@@ -286,7 +286,7 @@ namespace Klyte.TransportLinesManager.UI
                             stopNameField.Hide();
                             uilabel.Show();
                         };
-                        stopNameField.eventTextSubmitted += (x, y) => TLMLineUtils.setStopName(y.Trim(), (ushort)button.objectUserData, GetLineID(), () => uilabel.prefix = $"<color white>{TLMLineUtils.getFullStationName((ushort)button.GetComponentInChildren<UIButton>().objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService)}</color>");
+                        stopNameField.eventTextSubmitted += (x, y) => TLMStationUtils.SetStopName(y.Trim(), (ushort)button.objectUserData, GetLineID(), () => uilabel.prefix = $"<color white>{TLMStationUtils.GetFullStationName((ushort)button.GetComponentInChildren<UIButton>().objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService)}</color>");
                         uilabel.objectUserData = true;
                     }
                     for (int i = 0; i < 8; i++)
@@ -610,7 +610,7 @@ namespace Klyte.TransportLinesManager.UI
                     UIButton uibutton = uiPanel.Find<UIButton>("StopButton");
                     if (m_dirtyNames)
                     {
-                        uilabel.prefix = TLMLineUtils.getFullStationName((ushort)uibutton.objectUserData, lineID, TransportSystemDefinition.GetDefinitionForLine(lineID).SubService);
+                        uilabel.prefix = TLMStationUtils.GetFullStationName((ushort)uibutton.objectUserData, lineID, TransportSystemDefinition.GetDefinitionForLine(lineID).SubService);
                     }
                     if (GetLineType(lineID) == LineType.WalkingTour)
                     {

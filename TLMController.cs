@@ -145,7 +145,7 @@ namespace Klyte.TransportLinesManager
                 Color c = TLMUtils.CalculateAutoColor(t.m_lineNumber, transportType, ref tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
                 if (c.a == 1)
                 {
-                    task = TLMLineUtils.setLineColor(i, c);
+                    task = TLMLineUtils.SetLineColor(i, c);
                 }
                 else
                 {
@@ -164,7 +164,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static void AutoName(ushort m_LineID) => TLMLineUtils.setLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, out _, out _, out _, out _));
+        public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, out _, out _, out _, out _));
 
 
         private void initNearLinesOnWorldInfoPanel()

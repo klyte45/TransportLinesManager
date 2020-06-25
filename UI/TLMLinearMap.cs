@@ -631,13 +631,13 @@ namespace Klyte.TransportLinesManager.UI
             stationLabel.cursorBlinkTime = 100;
             stationLabel.eventGotFocus += (x, y) =>
             {
-                stationLabel.text = TLMLineUtils.getStationName(stationNodeId, lineID, ss);
+                stationLabel.text =TLMStationUtils.GetStationName(stationNodeId, lineID, ss);
             };
             stationLabel.eventTextSubmitted += (x, y) =>
             {
-                TLMLineUtils.setStopName(y, stationNodeId, lineID, () =>
+                TLMStationUtils.SetStopName(y, stationNodeId, lineID, () =>
                 {
-                    stationLabel.text = TLMLineUtils.getFullStationName(stationNodeId, lineID, ss);
+                    stationLabel.text = TLMStationUtils.GetFullStationName(stationNodeId, lineID, ss);
                     m_autoName = TLMLineUtils.CalculateAutoName(lineID, out _, out _, out _, out _);
                     parent.OnRenameStationAction(autoName);
                 });
@@ -848,7 +848,7 @@ namespace Klyte.TransportLinesManager.UI
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[stopId];
-            stationName = TLMLineUtils.getStationName(stopId, lineId, ss, out ItemClass.Service servFound, out ItemClass.SubService subServFound, out prefix, out ushort buildingId, out NamingType namingType);
+            stationName =TLMStationUtils.GetStationName(stopId, lineId, ss, out ItemClass.Service servFound, out ItemClass.SubService subServFound, out prefix, out ushort buildingId, out NamingType namingType);
 
             //paradas proximas (metro e trem)
             TransportManager tm = Singleton<TransportManager>.instance;

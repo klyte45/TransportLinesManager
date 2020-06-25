@@ -4,6 +4,7 @@ using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Interfaces;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Utils
@@ -74,6 +75,53 @@ namespace Klyte.TransportLinesManager.Utils
                 i++;
             }
             yield break;
+        }
+
+        public static void RemoveAllUnwantedVehicles()
+        {
+            VehicleManager vm = Singleton<VehicleManager>.instance;
+            for (ushort lineId = 1; lineId < Singleton<TransportManager>.instance.m_lines.m_size; lineId++)
+            {
+                if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
+                {
+                    IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
+                    ref TransportLine tl = ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
+                    List<string> modelList = extension.GetAssetListForLine(lineId);
+
+                    if (TransportLinesManagerMod.DebugMode)
+                    {
+                        TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
+                    }
+
+                    if (modelList.Count > 0)
+                    {
+                        var vehiclesToRemove = new Dictionary<ushort, VehicleInfo>();
+                        for (int i = 0; i < tl.CountVehicles(lineId); i++)
+                        {
+                            ushort vehicle = tl.GetVehicle(i);
+                            if (vehicle != 0)
+                            {
+                                VehicleInfo info2 = vm.m_vehicles.m_buffer[vehicle].Info;
+                                if (!modelList.Contains(info2.name))
+                                {
+                                    vehiclesToRemove[vehicle] = info2;
+                                }
+                            }
+                        }
+                        foreach (KeyValuePair<ushort, VehicleInfo> item in vehiclesToRemove)
+                        {
+                            if (item.Value.m_vehicleAI is BusAI)
+                            {
+                                VehicleUtils.ReplaceVehicleModel(item.Key, extension.GetAModel(lineId));
+                            }
+                            else
+                            {
+                                item.Value.m_vehicleAI.SetTransportLine(item.Key, ref vm.m_vehicles.m_buffer[item.Key], 0);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

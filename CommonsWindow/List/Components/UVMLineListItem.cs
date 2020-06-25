@@ -387,7 +387,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_lineNameField.eventLeaveFocus += delegate (UIComponent c, UIFocusEventParameter r)
             {
                 m_lineNameField.Hide();
-                TLMLineUtils.setLineName(LineID, m_lineNameField.text);
+                TLMLineUtils.SetLineName(LineID, m_lineNameField.text);
                 m_lineName.Show();
                 m_lineName.text = m_lineNameField.text;
             };
@@ -434,7 +434,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         public void DoAutoColor() => TLMController.AutoColor(m_lineID);
 
-        public void DoAutoName() => TLMLineUtils.setLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, out _, out _, out _, out _));
+        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, out _, out _, out _, out _));
 
         private void OnMouseEnter(UIComponent comp, UIMouseEventParameter param)
         {
@@ -488,7 +488,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             Singleton<TransportManager>.instance.eventLineNameChanged -= new TransportManager.LineNameChangedHandler(OnLineChanged);
         }
 
-        private void OnRename(UIComponent comp, string text) => TLMLineUtils.setLineName(m_lineID, text);
+        private void OnRename(UIComponent comp, string text) => TLMLineUtils.SetLineName(m_lineID, text);
 
         private void OnLineChanged(ushort id)
         {
@@ -498,7 +498,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             }
         }
 
-        private void OnColorChanged(UIComponent x, Color color) => TLMLineUtils.setLineColor(m_lineID, color);
+        private void OnColorChanged(UIComponent x, Color color) => TLMLineUtils.SetLineColor(m_lineID, color);
 
     }
 }

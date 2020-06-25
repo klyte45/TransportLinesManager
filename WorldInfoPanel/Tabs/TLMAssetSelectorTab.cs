@@ -91,7 +91,7 @@ namespace Klyte.TransportLinesManager.UI
             removeUndesired.isVisible = true;
             removeUndesired.eventClick += (component, eventParam) =>
             {
-                TLMLineUtils.RemoveAllUnwantedVehicles();
+                TLMVehicleUtils.RemoveAllUnwantedVehicles();
             };
 
             UISprite icon = removeUndesired.AddUIComponent<UISprite>();
