@@ -26,7 +26,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
             TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
             lineName = Singleton<TransportManager>.instance.GetLineName(lineId);
-            lineStringIdentifier = TLMLineUtils.getLineStringId(lineId);
+            lineStringIdentifier = TLMLineUtils.GetLineStringId(lineId);
             transportType = t.Info.m_transportType;
             subservice = t.Info.GetSubService();
             vehicleType = t.Info.m_vehicleType;

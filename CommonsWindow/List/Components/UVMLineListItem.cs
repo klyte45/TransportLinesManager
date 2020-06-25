@@ -78,9 +78,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 averageCount,
                 averageCount2
             });
-            TLMLineUtils.setLineNumberCircleOnRef(LineID, m_lineNumberFormatted, 0.8f);
+            TLMLineUtils.SetLineNumberCircleOnRef(LineID, m_lineNumberFormatted, 0.8f);
             m_lineColor.atlas = m_linePassengers.atlas;
-            m_lineColor.normalFgSprite = TLMLineUtils.getIconForLine(LineID);
+            m_lineColor.normalFgSprite = TLMLineUtils.GetIconForLine(LineID);
 
 
             PassengerCountsInt = averageCount + averageCount2;

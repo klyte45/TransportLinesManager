@@ -259,7 +259,7 @@ namespace Klyte.TransportLinesManager.UI
             //TLMUtils.doLog("prefixIncrement = " + prefixIncrementVal + "| num = " + num);
             while (((num + 1) & 0xFFFF) == 0 || TLMLineUtils.IsLineNumberAlredyInUse((num + 1) & 0xFFFF, ref tsd, 0))
             {
-                if (!TLMLineUtils.hasPrefix(transportTool.m_prefab) || !prefixIncrementVal)
+                if (!TLMLineUtils.HasPrefix(transportTool.m_prefab) || !prefixIncrementVal)
                 {
                     num++;
                 }
@@ -283,7 +283,7 @@ namespace Klyte.TransportLinesManager.UI
 
             var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
             var configIdx = tsd.ToConfigIndex();
-            if (TLMLineUtils.hasPrefix(transportTool.m_prefab))
+            if (TLMLineUtils.HasPrefix(transportTool.m_prefab))
             {
                 linePrefixDropDown.isVisible = true;
                 linePrefixDropDown.items = TLMUtils.getPrefixesOptions(configIdx, false).ToArray();
@@ -374,7 +374,7 @@ namespace Klyte.TransportLinesManager.UI
         public int getCurrentNumber()
         {
 
-            if (TLMLineUtils.hasPrefix(transportTool.m_prefab))
+            if (TLMLineUtils.HasPrefix(transportTool.m_prefab))
             {
                 return ((nextLineNumber + 1) & 0xFFFF) % 1000;
             }

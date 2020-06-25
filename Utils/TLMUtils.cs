@@ -158,7 +158,7 @@ namespace Klyte.TransportLinesManager.Utils
                     AddToArrayWithName(tempR, saida, ref tsd, useNameRefSystem);
                     break;
             }
-            if (TLMLineUtils.nomenclaturasComNumeros.Contains(m))
+            if (TLMLineUtils.m_nomenclaturasComNumeros.Contains(m))
             {
                 AddToArrayWithName(numeros, saida, ref tsd, useNameRefSystem);
             }
@@ -246,7 +246,7 @@ namespace Klyte.TransportLinesManager.Utils
                     }
                     break;
             }
-            if (TLMLineUtils.nomenclaturasComNumeros.Contains(m))
+            if (TLMLineUtils.m_nomenclaturasComNumeros.Contains(m))
             {
                 saida.AddRange(numeros.Select(x => x.ToString()));
             }

@@ -78,7 +78,7 @@ namespace Klyte.TransportLinesManager.UI
 
         public void setLineNumberCircle(ushort lineID)
         {
-            TLMLineUtils.setLineNumberCircleOnRef(lineID, linearMapLineNumber);
+            TLMLineUtils.SetLineNumberCircleOnRef(lineID, linearMapLineNumber);
             try
             {
                 m_autoName = TLMLineUtils.CalculateAutoName(lineID, out _, out _, out _, out _);
@@ -117,7 +117,7 @@ namespace Klyte.TransportLinesManager.UI
 
             TLMUtils.doLog("p3");
             ItemClass.SubService ss = TransportSystemDefinition.GetDefinitionForLine(lineID).SubService;
-            linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.getIconForLine(lineID);
+            linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.GetIconForLine(lineID);
             TLMUtils.doLog("p4");
             m_autoName = TLMLineUtils.CalculateAutoName(lineID, out _, out _, out _, out _);
             linearMapLineNumber.tooltip = m_autoName;
@@ -188,7 +188,7 @@ namespace Klyte.TransportLinesManager.UI
         public TransportLine updateSubIconLayer()
         {
             TransportLine t = TransportManager.instance.m_lines.m_buffer[parent.CurrentSelectedId];
-            TLMLineUtils.getLineActive(ref t, out bool day, out bool night);
+            TLMLineUtils.GetLineActive(ref t, out bool day, out bool night);
             bool zeroed;
             unchecked
             {

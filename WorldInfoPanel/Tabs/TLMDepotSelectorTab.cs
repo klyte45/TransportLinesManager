@@ -219,11 +219,11 @@ namespace Klyte.TransportLinesManager.UI
 
             if (config is TLMTransportLineConfiguration)
             {
-                m_title.text = string.Format(Locale.Get("K45_TLM_DEPOT_SELECT_WINDOW_TITLE"), TLMLineUtils.getLineStringId(GetLineID()));
+                m_title.text = string.Format(Locale.Get("K45_TLM_DEPOT_SELECT_WINDOW_TITLE"), TLMLineUtils.GetLineStringId(GetLineID()));
             }
             else
             {
-                int prefix = (int) TLMLineUtils.getPrefix(GetLineID());
+                int prefix = (int) TLMLineUtils.GetPrefix(GetLineID());
                 m_title.text = string.Format(Locale.Get("K45_TLM_DEPOT_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMUtils.GetStringOptionsForPrefix(tsd), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.ToConfigIndex()));
             }
 
