@@ -1,4 +1,5 @@
-﻿using Klyte.TransportLinesManager.Utils;
+﻿using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Utils;
 using System;
 
 namespace Klyte.TransportLinesManager.Extensors
@@ -258,7 +259,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     saida = uint.MaxValue;
                     break;
             }
-            TLMUtils.DoLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
+            LogUtils.DoLog("ConfigIndex.getPriority(): {0} ==> {1}", idx.ToString(), saida);
             return saida;
         }
         public static string GetSystemStationNamePrefix(this TLMConfigWarehouse.ConfigIndex idx, ushort lineId = 0)

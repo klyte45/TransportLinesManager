@@ -24,7 +24,7 @@ namespace Klyte.TransportLinesManager.Overrides
             MethodInfo doAutomation = typeof(TransportLineOverrides).GetMethod("DoAutomation", allFlags);
             MethodInfo preDoAutomation = typeof(TransportLineOverrides).GetMethod("PreDoAutomation", allFlags);
 
-            TLMUtils.DoLog("Loading AutoColor & AutoName Hook");
+            LogUtils.DoLog("Loading AutoColor & AutoName Hook");
             RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("AddStop", allFlags), preDoAutomation, doAutomation);
             #endregion
 
@@ -32,7 +32,7 @@ namespace Klyte.TransportLinesManager.Overrides
             #region Ticket Override Hooks
             MethodInfo GetTicketPriceTranspile = typeof(TransportLineOverrides).GetMethod("TicketPriceTranspilerEnterVehicle", allFlags);
 
-            TLMUtils.DoLog("Loading Ticket Override Hooks");
+            LogUtils.DoLog("Loading Ticket Override Hooks");
             RedirectorInstance.AddRedirect(typeof(HumanAI).GetMethod("EnterVehicle", allFlags), null, null, GetTicketPriceTranspile);
             #endregion
             #region Bus Spawn Unbunching
@@ -46,7 +46,7 @@ namespace Klyte.TransportLinesManager.Overrides
             MethodInfo TranspileGetColor = typeof(TransportLineOverrides).GetMethod("TranspileGetColor", allFlags);
 
             List<Type> allVehicleAI = ReflectionUtils.GetSubtypesRecursive(typeof(VehicleAI), typeof(VehicleAI));
-            TLMUtils.DoLog($"allVehicleAI size = {allVehicleAI.Count}");
+            LogUtils.DoLog($"allVehicleAI size = {allVehicleAI.Count}");
             foreach (Type ai in allVehicleAI)
             {
                 MethodInfo colorMethod = ai.GetMethod("GetColor", allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InfoManager.InfoMode) }, null);
@@ -55,7 +55,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     continue;
                 }
 
-                TLMUtils.DoLog($"Loading Color Override Hooks for {ai}");
+                LogUtils.DoLog($"Loading Color Override Hooks for {ai}");
                 RedirectorInstance.AddRedirect(colorMethod, null, null, TranspileGetColor);
             }
             #endregion
@@ -64,7 +64,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
             MethodInfo TranspileSimulationStepLine = typeof(TransportLineOverrides).GetMethod("TranspileSimulationStepLine", allFlags);
             MethodInfo TranspileSimulationStepAI = typeof(TransportLineOverrides).GetMethod("TranspileSimulationStepAI", allFlags);
-            TLMUtils.DoLog("Loading SimulationStepPre Hook");
+            LogUtils.DoLog("Loading SimulationStepPre Hook");
             RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), null, null, TranspileSimulationStepLine);
             RedirectorInstance.AddRedirect(typeof(TransportLineAI).GetMethod("SimulationStep", allFlags, null, new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }, null), null, null, TranspileSimulationStepAI);
             #endregion
@@ -83,7 +83,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
         public static void DoAutomation(ushort lineID, TransportLine.Flags __state)
         {
-            TLMUtils.DoLog("OLD: " + __state + " ||| NEW: " + Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags);
+            LogUtils.DoLog("OLD: " + __state + " ||| NEW: " + Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags);
             if (lineID > 0 && (__state & TransportLine.Flags.Complete) == TransportLine.Flags.None && (__state & TransportLine.Flags.Temporary) == TransportLine.Flags.None)
             {
                 if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None

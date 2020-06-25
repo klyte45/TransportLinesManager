@@ -75,7 +75,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         public void GenerateOptionsMenu(UIHelperExtension helper)
         {
             isLoading = true;
-            TLMUtils.DoLog("Loading Options");
+            LogUtils.DoLog("Loading Options");
 
             KlyteMonoUtils.CreateUIElement(out UITabstrip strip, helper.Self.transform, "TabListTLMopt", new Vector4(5, 0, 730, 40));
             float effectiveOffsetY = strip.height;
@@ -114,7 +114,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 strip.AddTab(tab.ToString(), superTab.gameObject, contentParent.gameObject, tab.GetTabGenericContentImpl());
             }
 
-            TLMUtils.DoLog("End Loading Options");
+            LogUtils.DoLog("End Loading Options");
             isLoading = false;
         }
 
@@ -233,10 +233,10 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             isLoading = true;
             try
             {
-                TLMUtils.DoLog("OPÇÔES RECARREGANDO ARQUIVO", currentSelectedConfigEditor);
+                LogUtils.DoLog("OPÇÔES RECARREGANDO ARQUIVO", currentSelectedConfigEditor);
                 foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UIDropDown> i in dropDowns)
                 {
-                    TLMUtils.DoLog("OPÇÔES RECARREGANDO {0}", i);
+                    LogUtils.DoLog("OPÇÔES RECARREGANDO {0}", i);
                     try
                     {
                         switch (i.Key & TLMConfigWarehouse.ConfigIndex.TYPE_PART)
@@ -249,24 +249,24 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                                 i.Value.selectedIndex = Math.Max(selectedIndex, 0);
                                 break;
                             default:
-                                TLMUtils.DoLog("TIPO INVÁLIDO!", i);
+                                LogUtils.DoLog("TIPO INVÁLIDO!", i);
                                 break;
                         }
                     }
                     catch
                     {
-                        TLMUtils.DoLog("EXCEPTION! {0} | {1} | [{2}]", i.Key, currentConfigWarehouseEditor.GetString(i.Key), string.Join(",", i.Value.items));
+                        LogUtils.DoLog("EXCEPTION! {0} | {1} | [{2}]", i.Key, currentConfigWarehouseEditor.GetString(i.Key), string.Join(",", i.Value.items));
                     }
 
                 }
                 foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UICheckBox> i in checkBoxes)
                 {
-                    TLMUtils.DoLog("OPÇÔES RECARREGANDO {0}", i);
+                    LogUtils.DoLog("OPÇÔES RECARREGANDO {0}", i);
                     i.Value.isChecked = currentConfigWarehouseEditor.GetBool(i.Key);
                 }
                 foreach (KeyValuePair<TLMConfigWarehouse.ConfigIndex, UITextField> i in textFields)
                 {
-                    TLMUtils.DoLog("OPÇÔES RECARREGANDO {0}", i);
+                    LogUtils.DoLog("OPÇÔES RECARREGANDO {0}", i);
                     i.Value.text = currentConfigWarehouseEditor.GetString(i.Key);
                 }
             }

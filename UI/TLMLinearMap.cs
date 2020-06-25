@@ -60,7 +60,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 catch (Exception e)
                 {
-                    TLMUtils.DoErrorLog(e.ToString());
+                    LogUtils.DoErrorLog(e.ToString());
                     return null;
                 }
 
@@ -91,18 +91,18 @@ namespace Klyte.TransportLinesManager.UI
 
         public void redrawLine()
         {
-            TLMUtils.DoLog("init RedrawLine");
+            LogUtils.DoLog("init RedrawLine");
             ushort lineID = parent.CurrentSelectedId;
             TransportLine t = TransportManager.instance.m_lines.m_buffer[lineID];
             int stopsCount = t.CountStops(lineID);
             int vehicleCount = t.CountVehicles(lineID);
             Color lineColor = TransportManager.instance.GetLineColor(lineID);
-            TLMUtils.DoLog("p1");
+            LogUtils.DoLog("p1");
             setLinearMapColor(lineColor);
             clearStations();
             updateSubIconLayer();
             setLineNumberCircle(lineID);
-            TLMUtils.DoLog("p2");
+            LogUtils.DoLog("p2");
             if (lineID == 0)
             {
                 var tsd = TransportSystemDefinition.From(parent.CurrentTransportInfo);
@@ -115,17 +115,17 @@ namespace Klyte.TransportLinesManager.UI
                 return;
             }
 
-            TLMUtils.DoLog("p3");
+            LogUtils.DoLog("p3");
             ItemClass.SubService ss = TransportSystemDefinition.GetDefinitionForLine(lineID).SubService;
             linearMapLineNumberFormat.backgroundSprite = TLMLineUtils.GetIconForLine(lineID);
-            TLMUtils.DoLog("p4");
+            LogUtils.DoLog("p4");
             m_autoName = TLMLineUtils.CalculateAutoName(lineID, out _, out _, out _, out _);
             linearMapLineNumber.tooltip = m_autoName;
             string stationName;
             Vector3 local;
             string airport, taxi, harbor, regionalStation, cableCarStation;
             string namePrefix;
-            TLMUtils.DoLog("p5");
+            LogUtils.DoLog("p5");
             bool isComplete = (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None;
             bool simmetric = TLMLineUtils.CalculateSimmetry(ss, stopsCount, t, out int middle);
             float addedWidth = 0;
@@ -170,7 +170,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
             }
             lineStationsPanel.width += 20;
-            TLMUtils.DoLog("p6");
+            LogUtils.DoLog("p6");
             lineStationsPanel.width -= addedWidth;
             if (showExtraStopInfo)
             {
@@ -182,7 +182,7 @@ namespace Klyte.TransportLinesManager.UI
                     AddVehicleToLinearMap(lineColor, vehicleId);
                 }
             }
-            TLMUtils.DoLog("end RedrawLine");
+            LogUtils.DoLog("end RedrawLine");
         }
 
         public TransportLine updateSubIconLayer()
@@ -256,7 +256,7 @@ namespace Klyte.TransportLinesManager.UI
             component.GetComponentInChildren<DraggableVehicleInfo>().isDragging = newVal;
             if (oldVal != newVal && newVal == false)
             {
-                TLMUtils.DoLog("onVehicleDrop! {0}", component.name);
+                LogUtils.DoLog("onVehicleDrop! {0}", component.name);
                 DraggableVehicleInfo dvi = eventParam.source.parent.GetComponentInChildren<DraggableVehicleInfo>();
                 UIView view = GameObject.FindObjectOfType<UIView>();
                 PoolList<UIHitInfo> hits = view.RaycastAll(eventParam.ray);
@@ -282,12 +282,12 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 if (dvi == null || dsi == null)
                 {
-                    TLMUtils.DoLog("Drag Drop falhou! {0}", eventParam.source.name);
+                    LogUtils.DoLog("Drag Drop falhou! {0}", eventParam.source.name);
                     return;
                 }
                 else
                 {
-                    TLMUtils.DoLog("Drag Funcionou! {0}/{1} ({2}-{3})", eventParam.source.name, dsi.gameObject.name, res.gameObject.name, idxRes);
+                    LogUtils.DoLog("Drag Funcionou! {0}/{1} ({2}-{3})", eventParam.source.name, dsi.gameObject.name, res.gameObject.name, idxRes);
                     var ai = (VehicleAI)Singleton<VehicleManager>.instance.m_vehicles.m_buffer[dvi.vehicleId].Info.GetAI();
                     ai.SetTarget(dvi.vehicleId, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[dvi.vehicleId], dsi.nodeId);
                 }
@@ -348,8 +348,8 @@ namespace Klyte.TransportLinesManager.UI
             }
             catch (Exception e)
             {
-                TLMUtils.DoLog("ERROR UPDATING VEHICLE!!!");
-                TLMUtils.DoErrorLog(e.ToString());
+                LogUtils.DoLog("ERROR UPDATING VEHICLE!!!");
+                LogUtils.DoErrorLog(e.ToString());
                 //redrawLine();
             }
         }

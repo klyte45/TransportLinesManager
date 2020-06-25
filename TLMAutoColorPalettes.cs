@@ -207,7 +207,7 @@ namespace Klyte.TransportLinesManager
         public static string[] paletteList
         {
             get {
-                TLMUtils.DoLog("TLMAutoColorPalettes paletteList");
+                LogUtils.DoLog("TLMAutoColorPalettes paletteList");
                 if (m_palettes == null)
                 {
                     init();
@@ -219,7 +219,7 @@ namespace Klyte.TransportLinesManager
         public static string[] paletteListForEditing
         {
             get {
-                TLMUtils.DoLog("TLMAutoColorPalettes paletteListForEditing");
+                LogUtils.DoLog("TLMAutoColorPalettes paletteListForEditing");
                 if (m_palettes == null)
                 {
                     init();
@@ -230,7 +230,7 @@ namespace Klyte.TransportLinesManager
 
         private static void init()
         {
-            TLMUtils.DoLog("TLMAutoColorPalettes init()");
+            LogUtils.DoLog("TLMAutoColorPalettes init()");
             Reload();
         }
 
@@ -248,7 +248,7 @@ namespace Klyte.TransportLinesManager
             }
             if (LoadLegacy(oldFile))
             {
-                TLMUtils.DoLog("Converting Palettes");
+                LogUtils.DoLog("Converting Palettes");
                 SaveAll();
             }
         }
@@ -293,7 +293,7 @@ namespace Klyte.TransportLinesManager
                 string fileContents = File.ReadAllText(TLMController.palettesFolder + Path.DirectorySeparatorChar + filename, Encoding.UTF8);
                 var name = filename.Substring(0, filename.Length - 4);
                 m_palettes[name] = AutoColorPalette.FromFileContent(name, fileContents.Split(AutoColorPalette.ENTRY_SEPARATOR).Select(x => x?.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray());
-                TLMUtils.DoLog("LOADED PALETTE ({0}) QTT: {1}", filename, m_palettes[name].Count);
+                LogUtils.DoLog("LOADED PALETTE ({0}) QTT: {1}", filename, m_palettes[name].Count);
             }
         }
 
@@ -302,11 +302,11 @@ namespace Klyte.TransportLinesManager
             string serializedInfo = oldFile.value;
             if (!string.IsNullOrEmpty(serializedInfo))
             {
-                TLMUtils.DoLog("Loading palettes - separator: {1} ; save Value: {0}", serializedInfo, SERIALIZER_ITEM_SEPARATOR);
+                LogUtils.DoLog("Loading palettes - separator: {1} ; save Value: {0}", serializedInfo, SERIALIZER_ITEM_SEPARATOR);
                 string[] items = serializedInfo.Split(SERIALIZER_ITEM_SEPARATOR);
                 foreach (string item in items)
                 {
-                    TLMUtils.DoLog("Loading palette {0}", items);
+                    LogUtils.DoLog("Loading palette {0}", items);
                     AutoColorPalette acp = AutoColorPalette.parseFromString_Legacy(item);
                     if (acp != null)
                     {
@@ -443,7 +443,7 @@ namespace Klyte.TransportLinesManager
                 string[] thisColorCompounds = thisColor.Split(COLOR_COMP_SEPARATOR_LEGACY);
                 if (thisColorCompounds.Length != 3)
                 {
-                    TLMUtils.DoErrorLog("[TLM Palette '" + name + "'] Corrupted serialized color: " + thisColor);
+                    LogUtils.DoErrorLog("[TLM Palette '" + name + "'] Corrupted serialized color: " + thisColor);
                     return null;
                 }
 
@@ -452,7 +452,7 @@ namespace Klyte.TransportLinesManager
                 success &= byte.TryParse(thisColorCompounds[2], out byte b);
                 if (!success)
                 {
-                    TLMUtils.DoErrorLog("[TLM Palette '" + name + "'] Corrupted serialized color: invalid number in " + thisColor);
+                    LogUtils.DoErrorLog("[TLM Palette '" + name + "'] Corrupted serialized color: invalid number in " + thisColor);
                     return null;
                 }
                 colors.Add(new Color32(r, g, b, 255));
@@ -508,7 +508,7 @@ namespace Klyte.TransportLinesManager
                 g = colorBytes[1],
                 b = colorBytes[2]
             };
-            TLMUtils.DoLog(color.ToString());
+            LogUtils.DoLog(color.ToString());
 
             return color;
         }

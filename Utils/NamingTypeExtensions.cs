@@ -1,4 +1,5 @@
-﻿using Klyte.TransportLinesManager.Extensors;
+﻿using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensors;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
@@ -135,7 +136,7 @@ namespace Klyte.TransportLinesManager.Utils
                 case TLMCW.ConfigIndex.HELICOPTER_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                     return NamingType.HELICOPTER;
                 default:
-                    TLMUtils.DoErrorLog($"UNKNOWN NAME TYPE:{ci} ({((int)ci).ToString("X8")})");
+                    LogUtils.DoErrorLog($"UNKNOWN NAME TYPE:{ci} ({((int)ci).ToString("X8")})");
                     return NamingType.NONE;
 
             }

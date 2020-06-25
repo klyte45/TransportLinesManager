@@ -167,7 +167,7 @@ namespace Klyte.TransportLinesManager.Utils
                 return true;
             }
 
-            TLMUtils.DoLog("tsdOr = " + tsdOr + " | lineNum =" + numLinha + "| cfgIdx = " + tsdOr.ToConfigIndex());
+            LogUtils.DoLog("tsdOr = " + tsdOr + " | lineNum =" + numLinha + "| cfgIdx = " + tsdOr.ToConfigIndex());
             var tipo = tsdOr.ToConfigIndex();
 
             for (ushort i = 1; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
@@ -178,7 +178,7 @@ namespace Klyte.TransportLinesManager.Utils
                 }
                 ushort lnum = Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber;
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(i);
-                TLMUtils.DoLog("tsd = " + tsd + "| lineNum = " + lnum + "| I=" + i + "| cfgIdx = " + tsd.ToConfigIndex());
+                LogUtils.DoLog("tsd = " + tsd + "| lineNum = " + lnum + "| I=" + i + "| cfgIdx = " + tsd.ToConfigIndex());
                 if (tsd != default && i != exclude && tsd.ToConfigIndex() == tipo && lnum == numLinha)
                 {
                     return true;
@@ -699,10 +699,10 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 prefix = $"[{GetLineStringId(lineIdx)}] ";
             }
-            TLMUtils.DoLog($"stations => [{string.Join(" ; ", stations.Select(x => $"{x.First}|{x.Second}").ToArray())}]");
+            LogUtils.DoLog($"stations => [{string.Join(" ; ", stations.Select(x => $"{x.First}|{x.Second}").ToArray())}]");
             if (stations.Count % 2 == 0 && stations.Count > 2)
             {
-                TLMUtils.DoLog($"Try Simmetric");
+                LogUtils.DoLog($"Try Simmetric");
                 int middle = -1;
                 for (int i = 1; i <= stations.Count / 2; i++)
                 {
@@ -712,7 +712,7 @@ namespace Klyte.TransportLinesManager.Utils
                         break;
                     }
                 }
-                TLMUtils.DoLog($"middle => {middle}");
+                LogUtils.DoLog($"middle => {middle}");
                 if (middle != -1)
                 {
                     bool simmetric = true;
@@ -754,7 +754,7 @@ namespace Klyte.TransportLinesManager.Utils
             int mostRelevantEndIdx = -1;
             int j = 0;
             int maxDistanceEnd = (int)(idxStations.Count / 8f + 0.5f);
-            TLMUtils.DoLog("idxStations");
+            LogUtils.DoLog("idxStations");
             do
             {
                 Tuple<int, NamingType, string> peerCandidate = idxStations.Where(x => x.Third != idxStations[j].Third && Math.Abs((x.First < idxStations[j].First ? x.First + idxStations.Count : x.First) - idxStations.Count / 2 - idxStations[j].First) <= maxDistanceEnd).OrderBy(x => x.Second.GetNamePrecedenceRate()).FirstOrDefault();
@@ -811,8 +811,8 @@ namespace Klyte.TransportLinesManager.Utils
                 int offsetH = (j + 2) % stopsCount;
                 NetNode nn1 = nm.m_nodes.m_buffer[t.GetStop(offsetL)];
                 NetNode nn2 = nm.m_nodes.m_buffer[t.GetStop(offsetH)];
-                ushort buildingId1 = BuildingUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                ushort buildingId2 = BuildingUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                ushort buildingId1 = BuildingUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                ushort buildingId2 = BuildingUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                 if (buildingId1 == buildingId2)
                 {
                     middle = j + 1;
@@ -828,8 +828,8 @@ namespace Klyte.TransportLinesManager.Utils
                     int offsetH = (j + middle) % stopsCount;
                     NetNode nn1 = nm.m_nodes.m_buffer[t.GetStop(offsetL)];
                     NetNode nn2 = nm.m_nodes.m_buffer[t.GetStop(offsetH)];
-                    ushort buildingId1 = BuildingUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                    ushort buildingId2 = BuildingUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                    ushort buildingId1 = BuildingUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
+                    ushort buildingId2 = BuildingUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
                     if (buildingId1 != buildingId2)
                     {
                         return false;
@@ -945,6 +945,18 @@ namespace Klyte.TransportLinesManager.Utils
         ModoNomenclatura. CirilicoMaiusculoNumero
         };
 
+        public static readonly TransferManager.TransferReason[] defaultAllowedVehicleTypes = {
+            TransferManager.TransferReason.Blimp ,
+            TransferManager.TransferReason.CableCar ,
+            TransferManager.TransferReason.Ferry ,
+            TransferManager.TransferReason.MetroTrain ,
+            TransferManager.TransferReason.Monorail ,
+            TransferManager.TransferReason.PassengerTrain ,
+            TransferManager.TransferReason.PassengerPlane ,
+            TransferManager.TransferReason.PassengerShip ,
+            TransferManager.TransferReason.Tram ,
+            TransferManager.TransferReason.Bus
+        };
         #endregion
     }
 

@@ -11,7 +11,7 @@ namespace Klyte.TransportLinesManager.Utils
         {
             var basicAssetsList = new List<string>();
 
-            TLMUtils.DoLog("LoadBasicAssets: pre prefab read");
+            LogUtils.DoLog("LoadBasicAssets: pre prefab read");
             for (uint num = 0u; num < (ulong)PrefabCollection<VehicleInfo>.PrefabCount(); num += 1u)
             {
                 VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);

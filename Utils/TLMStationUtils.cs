@@ -18,16 +18,16 @@ namespace Klyte.TransportLinesManager.Utils
         private static string GetStationNameWithPrefix(TLMCW.ConfigIndex transportType, string name) => transportType.GetSystemStationNamePrefix().Trim() + (transportType.GetSystemStationNamePrefix().Trim() != string.Empty ? " " : "") + name;
         public static void SetStopName(string newName, ushort stopId, ushort lineId, Action callback)
         {
-            TLMUtils.DoLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
+            LogUtils.DoLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
             ushort buildingId = GetStationBuilding(stopId, Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService, true, true);
             if (buildingId == 0)
             {
-                TLMUtils.DoLog("b=0");
+                LogUtils.DoLog("b=0");
                 Singleton<BuildingManager>.instance.StartCoroutine(SetNodeName(stopId, newName, callback));
             }
             else
             {
-                TLMUtils.DoLog("b≠0 ({0})", buildingId);
+                LogUtils.DoLog("b≠0 ({0})", buildingId);
                 Singleton<BuildingManager>.instance.StartCoroutine(BuildingUtils.SetBuildingName(buildingId, newName, callback));
             }
         }
@@ -48,7 +48,7 @@ namespace Klyte.TransportLinesManager.Utils
         {
             bool result = false;
             NetNode.Flags flags = NetManager.instance.m_nodes.m_buffer[nodeId].m_flags;
-            TLMUtils.DoLog($"SetNodeName({nodeId},{name}) {flags}");
+            LogUtils.DoLog($"SetNodeName({nodeId},{name}) {flags}");
             if (nodeId != 0 && flags != NetNode.Flags.None)
             {
                 var id = default(InstanceID);
@@ -242,7 +242,7 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (ss != ItemClass.SubService.None)
             {
-                tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.None);
+                tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, ItemClass.Service.PublicTransport, ss, TLMLineUtils.defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.None);
                 if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
                 {
                     var parent = Building.FindParentBuilding(tempBuildingId);

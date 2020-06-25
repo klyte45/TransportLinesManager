@@ -23,7 +23,7 @@ namespace Klyte.TransportLinesManager.Overrides
             MethodInfo AfterEveryAction = typeof(TransportToolOverrides).GetMethod("AfterEveryAction", allFlags);
             MethodInfo AfterEveryActionZeroable = typeof(TransportToolOverrides).GetMethod("AfterEveryActionZeroable", allFlags);
 
-            TLMUtils.DoLog($"Loading TransportToolOverrides Hook");
+            LogUtils.DoLog($"Loading TransportToolOverrides Hook");
             try
             {
                 var tt = new TransportTool();
@@ -39,7 +39,7 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             catch (Exception e)
             {
-                TLMUtils.DoErrorLog("ERRO AO CARREGAR HOOKS: {0}\n{1}", e.Message, e.StackTrace);
+                LogUtils.DoErrorLog("ERRO AO CARREGAR HOOKS: {0}\n{1}", e.Message, e.StackTrace);
             }
 
             #endregion
@@ -48,7 +48,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
         public static void OnEnable()
         {
-            TLMUtils.DoLog("OnEnableTransportTool");
+            LogUtils.DoLog("OnEnableTransportTool");
             TransportLinesManagerMod.Instance.ShowVersionInfoPopup();
             TLMController.instance.LinearMapCreatingLine?.setVisible(TLMController.LinearMapWhileCreatingLineVisibility);
             TLMController.instance.LineCreationToolbox?.setVisible(true);
@@ -57,7 +57,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
         public static void OnDisable()
         {
-            TLMUtils.DoLog("OnDisableTransportTool");
+            LogUtils.DoLog("OnDisableTransportTool");
             TLMController.instance.SetCurrentSelectedId(0);
             TLMController.instance.LinearMapCreatingLine?.setVisible(false);
             TLMController.instance.LineCreationToolbox?.setVisible(false);

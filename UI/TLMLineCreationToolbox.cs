@@ -200,7 +200,7 @@ namespace Klyte.TransportLinesManager.UI
                  var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
                  if (TransportLinesManagerMod.DebugMode)
                  {
-                     TLMUtils.DoLog("Type = " + tsd.ToConfigIndex() + "|prop=" + (tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT) + "|valToSet = " + value);
+                     LogUtils.DoLog("Type = " + tsd.ToConfigIndex() + "|prop=" + (tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT) + "|valToSet = " + value);
                  }
                  TLMConfigWarehouse.SetCurrentConfigBool(tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT, value);
              });

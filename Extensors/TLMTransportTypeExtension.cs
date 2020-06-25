@@ -277,7 +277,7 @@ namespace Klyte.TransportLinesManager.Extensors
         private void LoadBasicAssets()
         {
             TransportSystemDefinition tsd = Definition;
-            m_basicAssetsList = TLMUtils.LoadBasicAssets(ref tsd);
+            m_basicAssetsList = TLMPrefabUtils.LoadBasicAssets(ref tsd);
         }
 
         #endregion

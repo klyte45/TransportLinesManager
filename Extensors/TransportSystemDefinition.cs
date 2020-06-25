@@ -39,19 +39,19 @@ namespace Klyte.TransportLinesManager.Extensors
             get {
                 if (m_infoList.Count == 0)
                 {
-                    TLMUtils.DoLog("TSD loading infos");
+                    LogUtils.DoLog("TSD loading infos");
                     for (uint i = 0; i < PrefabCollection<TransportInfo>.LoadedCount(); i++)
                     {
                         TransportInfo info = PrefabCollection<TransportInfo>.GetLoaded(i);
                         var tsd = TransportSystemDefinition.From(info);
                         if (tsd == default)
                         {
-                            TLMUtils.DoErrorLog($"TSD not found for info: {info}");
+                            LogUtils.DoErrorLog($"TSD not found for info: {info}");
                             continue;
                         }
                         if (m_infoList.ContainsKey(tsd))
                         {
-                            TLMUtils.DoErrorLog($"More than one info for same TSD \"{tsd}\": {m_infoList[tsd]},{info}");
+                            LogUtils.DoErrorLog($"More than one info for same TSD \"{tsd}\": {m_infoList[tsd]},{info}");
                             continue;
                         }
                         m_infoList[tsd] = info;
@@ -59,9 +59,9 @@ namespace Klyte.TransportLinesManager.Extensors
                     IEnumerable<TransportSystemDefinition> missing = m_sysDefinitions.Keys.Where(x => !m_infoList.ContainsKey(x));
                     if (missing.Count() > 0)
                     {
-                        TLMUtils.DoLog($"Some TSDs can't find their infos: [{string.Join(", ", missing.Select(x => x.ToString()).ToArray())}]\nIgnore if you don't have all DLCs installed");
+                        LogUtils.DoLog($"Some TSDs can't find their infos: [{string.Join(", ", missing.Select(x => x.ToString()).ToArray())}]\nIgnore if you don't have all DLCs installed");
                     }
-                    TLMUtils.DoLog("TSD end loading infos");
+                    LogUtils.DoLog("TSD end loading infos");
                 }
                 return m_infoList;
             }
@@ -254,7 +254,7 @@ namespace Klyte.TransportLinesManager.Extensors
             TransportSystemDefinition result = SysDefinitions.Keys.FirstOrDefault(x => x.SubService == info.m_class.m_subService && x.VehicleType == info.m_vehicleType && x.TransportType == info.m_transportType);
             if (result == default)
             {
-                TLMUtils.DoErrorLog($"TSD NOT FOUND FOR TRANSPORT INFO: info.m_class.m_subService={info.m_class.m_subService}, info.m_vehicleType={info.m_vehicleType}, info.m_transportType={info.m_transportType}");
+                LogUtils.DoErrorLog($"TSD NOT FOUND FOR TRANSPORT INFO: info.m_class.m_subService={info.m_class.m_subService}, info.m_vehicleType={info.m_vehicleType}, info.m_transportType={info.m_transportType}");
             }
             return result;
         }
