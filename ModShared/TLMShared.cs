@@ -73,7 +73,7 @@ namespace Klyte.TransportLinesManager.ModShared
             {
                 if (depotPrefix == null)
                 {
-                    depotPrefix = VehicleManager.instance.m_vehicles.m_buffer[firstVehicle].m_sourceBuilding.ToString("X3").ToUpper();
+                    depotPrefix = VehicleManager.instance.m_vehicles.m_buffer[firstVehicle].m_sourceBuilding.ToString("D3");
                     depotPrefix = depotPrefix.Substring(depotPrefix.Length - 3, 3);
                 }
                 return depotPrefix;
@@ -217,7 +217,7 @@ namespace Klyte.TransportLinesManager.ModShared
                     };
                 }
             }
-            return result.Replace("\0", "");
+            return result.Replace("\0", "").Trim();
         }
 
         public static void CalculateAutoName(ushort lineId, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr) => TLMLineUtils.CalculateAutoName(lineId, out startStation, out endStation, out startStationStr, out endStationStr);

@@ -20,13 +20,13 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             KlyteMonoUtils.CreateUIElement(out UITabstrip strip, parent.transform, "TLMTabstrip", new Vector4(5, 0, parentWidth - 10, 40));
             float effectiveOffsetY = strip.height;
 
-            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, parent.transform, "TLMTabContainer", new Vector4(0, 40, parentWidth - 10, 320));
+            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, parent.transform, "TLMTabContainer", new Vector4(0, 40, parentWidth - 10, 400));
             tabContainer.autoSize = true;
             strip.tabPages = tabContainer;
 
             UIButton tabTemplate = CreateTabSubStripTemplate();
 
-            UIComponent bodyContent = CreateContentTemplate(parentWidth, 320, false);
+            UIComponent bodyContent = CreateContentTemplate(parentWidth, 400, false);
 
             foreach (System.Collections.Generic.KeyValuePair<TransportSystemDefinition, Func<ITLMSysDef>> kv in TransportSystemDefinition.SysDefinitions)
             {

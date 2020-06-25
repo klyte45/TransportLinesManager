@@ -2,6 +2,7 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensors;
+using Klyte.Commons.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.OptionsMenu.Tabs;
 using Klyte.TransportLinesManager.Utils;
@@ -135,16 +136,16 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         internal UICheckBox generateCheckboxConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex, int maxWidth = 650)
         {
-            checkBoxes[configIndex] = (UICheckBox) group.AddCheckbox(title, currentConfigWarehouseEditor.GetBool(configIndex), delegate (bool b)
-            {
-                if (!isLoading)
-                {
-                    currentConfigWarehouseEditor.SetBool(configIndex, b);
-                }
-            });
+            checkBoxes[configIndex] = (UICheckBox)group.AddCheckbox(title, currentConfigWarehouseEditor.GetBool(configIndex), delegate (bool b)
+           {
+               if (!isLoading)
+               {
+                   currentConfigWarehouseEditor.SetBool(configIndex, b);
+               }
+           });
             Vector3 labelPos = checkBoxes[configIndex].label.relativePosition;
             KlyteMonoUtils.LimitWidthAndBox(checkBoxes[configIndex].label, maxWidth, out UIPanel box);
-            box.padding = new RectOffset((int) labelPos.x, 0, (int) labelPos.y, 0);
+            box.padding = new RectOffset((int)labelPos.x, 0, (int)labelPos.y, 0);
             checkBoxes[configIndex].width = maxWidth + labelPos.x + 5;
             return checkBoxes[configIndex];
         }
@@ -179,7 +180,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             int currentValue;
             try
             {
-                currentValue = (int) Enum.Parse(typeof(T), currentConfigWarehouseEditor.GetString(configIndex));
+                currentValue = (int)Enum.Parse(typeof(T), currentConfigWarehouseEditor.GetString(configIndex));
             }
             catch
             {
@@ -208,6 +209,22 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             return textFields[configIndex];
         }
 
+        internal UITextField GenerateTextFieldConfigNew(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
+        {
+            DefaultEditorUILib.AddTextField(title, out UITextField field, group, (x) => currentConfigWarehouseEditor.GetString(configIndex),
+                (s) =>
+                 {
+                     if (!isLoading)
+                     {
+                         currentConfigWarehouseEditor.SetString(configIndex, s);
+                     }
+                 });
+            ((UIPanel)field.parent).autoFitChildrenHorizontally = true;
+            field.text = currentConfigWarehouseEditor.GetString(configIndex);
+            textFields[configIndex] = field;
+            return textFields[configIndex];
+        }
+
         internal UITextField generateNumberFieldConfig(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
         {
             textFields[configIndex] = group.AddTextField(title, delegate (string s)
@@ -228,7 +245,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         #endregion
 
-        public void ReloadData() 
+        public void ReloadData()
         {
             isLoading = true;
             try

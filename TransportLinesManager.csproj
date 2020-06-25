@@ -460,12 +460,14 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(TargetDir)0Harmony.dll" "$(ProjectDir)\_requiredDLLs\"
 xcopy /Y "$(TargetPath)" "$(ProjectDir)\_requiredDLLs\"
-xcopy /Y "$(ProjectDir)\_requiredDLLs\*" "S:\Steam\steamapps\workshop\content\255710\1312767991\"
+xcopy /Y  /e "$(ProjectDir)\_requiredDLLs\*" "S:\Steam\steamapps\workshop\content\255710\1312767991\"
 
-xcopy /Y "$(ProjectDir)\_requiredDLLs\*" "C:\Users\Leandro\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\TLM\"</PostBuildEvent>
+xcopy /Y /e "$(ProjectDir)\_requiredDLLs\*" "C:\Users\Leandro\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\TLM\"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>del /Q "S:\Steam\steamapps\workshop\content\255710\1312767991\*"
-del /Q  "C:\Users\Leandro\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\TLM\*"</PreBuildEvent>
+del /Q  "C:\Users\Leandro\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\TLM\*"
+rmdir /S /Q  "C:\Users\Leandro\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\TLM\Tutorial"
+rmdir /S /Q "S:\Steam\steamapps\workshop\content\255710\1312767991\Tutorial"</PreBuildEvent>
   </PropertyGroup>
 </Project>

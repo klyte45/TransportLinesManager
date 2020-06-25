@@ -5,7 +5,6 @@ using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Legacy;
 using Klyte.TransportLinesManager.ModShared;
-using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Linq;
 using System.Xml.Serialization;
@@ -341,6 +340,44 @@ namespace Klyte.TransportLinesManager
                     return 0;
             }
         }
+        public override string GetDefaultStringValueForProperty(ConfigIndex i)
+        {
+            if ((i & ConfigIndex.ADC_DESC_PART) == 0)
+            {
+                switch (i & (ConfigIndex.DESC_DATA | ConfigIndex.TYPE_PART))
+                {
+                    case ConfigIndex.VEHICLE_NUMBER_FORMAT_FOREIGN:
+                    case ConfigIndex.VEHICLE_NUMBER_FORMAT_LOCAL:
+                        switch (i & ConfigIndex.SYSTEM_PART)
+                        {
+                            case ConfigIndex.TRAIN_CONFIG:
+                            case ConfigIndex.TRAM_CONFIG:
+                            case ConfigIndex.METRO_CONFIG:
+                            case ConfigIndex.MONORAIL_CONFIG:
+                            case ConfigIndex.CABLE_CAR_CONFIG:
+                                return "FOTUL";
+                            case ConfigIndex.PLANE_CONFIG:
+                            case ConfigIndex.BALLOON_CONFIG:
+                            case ConfigIndex.BLIMP_CONFIG:
+                            case ConfigIndex.HELICOPTER_CONFIG:
+                                return "NO-XYZ";
+                            case ConfigIndex.SHIP_CONFIG:
+                            case ConfigIndex.FERRY_CONFIG:
+                                return "EFNOXYZ";
+                            case ConfigIndex.BUS_CONFIG:
+                            case ConfigIndex.EVAC_BUS_CONFIG:
+                            case ConfigIndex.TOUR_BUS_CONFIG:
+                            case ConfigIndex.TROLLEY_CONFIG:
+                                return "PQR EFSTU";
+                            default:
+                                return "VW.XYZ";
+                        }
+                }
+            }
+            return base.GetDefaultStringValueForProperty(i);
+        }
+
+
 
         public static ItemClass.SubService getSubserviceFromSystemId(ConfigIndex idx)
         {
@@ -757,6 +794,8 @@ namespace Klyte.TransportLinesManager
             PREFIX_INCREMENT = 0xD | TYPE_BOOL,
             DEFAULT_TICKET_PRICE = 0xE | TYPE_INT,
             TRANSPORT_ICON_TLM = 0Xf | TYPE_STRING,
+            VEHICLE_NUMBER_FORMAT_LOCAL = 0X10 | TYPE_STRING,
+            VEHICLE_NUMBER_FORMAT_FOREIGN = 0X11 | TYPE_STRING,
 
             TRAIN_PREFIX = TRAIN_CONFIG | PREFIX,
             TRAM_PREFIX = TRAM_CONFIG | PREFIX,
