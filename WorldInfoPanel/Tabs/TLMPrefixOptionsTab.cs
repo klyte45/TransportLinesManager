@@ -30,7 +30,7 @@ namespace Klyte.TransportLinesManager.UI
         private bool m_isLoading;
         private TransportSystemDefinition TransportSystem => TransportSystemDefinition.From(GetLineID());
         private ITLMTransportTypeExtension Extension => TransportSystem.GetTransportExtension();
-        public uint SelectedPrefix => TLMLineUtils.GetPrefix(GetLineID());
+        public uint SelectedPrefix => TLMPrefixesUtils.GetPrefix(GetLineID());
         internal static ushort GetLineID() => UVMPublicTransportWorldInfoPanel.GetLineID();
 
         public void Awake()
@@ -234,7 +234,7 @@ namespace Klyte.TransportLinesManager.UI
         public void OnEnable() { }
         public void OnDisable() { }
         public void OnGotFocus() { }
-        public bool MayBeVisible() => TLMLineUtils.HasPrefix(GetLineID()) && !TLMTransportLineExtension.Instance.IsUsingCustomConfig(GetLineID());
+        public bool MayBeVisible() => TLMPrefixesUtils.HasPrefix(GetLineID()) && !TLMTransportLineExtension.Instance.IsUsingCustomConfig(GetLineID());
         public void Hide() =>MainPanel.isVisible=false;
     }
 }

@@ -195,7 +195,7 @@ namespace Klyte.TransportLinesManager.UI
                 var transportType = tsd.ToConfigIndex();
                 var mnPrefixo = (ModoNomenclatura)TLMConfigWarehouse.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
-                if (TLMLineUtils.HasPrefix(lineID))
+                if (TLMPrefixesUtils.HasPrefix(lineID))
                 {
                     m_lineNumberLabel.maxLength = 3;
                     m_lineNumberLabel.width = 40;
@@ -396,7 +396,7 @@ namespace Klyte.TransportLinesManager.UI
             string value = m_lineNumberLabel.text;
             int valPrefixo = m_linePrefixDropDown.selectedIndex;
             var tsd = TransportSystemDefinition.From(lineId);
-            var hasPrefix = TLMLineUtils.HasPrefix(ref tsd);
+            var hasPrefix = TLMPrefixesUtils.HasPrefix(ref tsd);
             ushort.TryParse(value, out ushort num);
             if (hasPrefix)
             {

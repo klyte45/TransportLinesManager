@@ -310,7 +310,7 @@ namespace Klyte.TransportLinesManager.Extensors
         }
 
         #endregion
-        public uint LineToIndex(ushort lineId) => TLMLineUtils.GetPrefix(lineId);
+        public uint LineToIndex(ushort lineId) => TLMPrefixesUtils.GetPrefix(lineId);
 
         public override string SaveId => $"K45_TLM_{GetType()}";
 

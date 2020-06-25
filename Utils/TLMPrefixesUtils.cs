@@ -1,4 +1,5 @@
-﻿using ColossalFramework.Globalization;
+﻿using ColossalFramework;
+using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
@@ -15,6 +16,66 @@ namespace Klyte.TransportLinesManager.Utils
     public static class TLMPrefixesUtils
     {
         #region Prefix Operations
+
+        public static bool HasPrefix(ref TransportSystemDefinition tsd)
+        {
+            if (tsd == default)
+            {
+                return false;
+            }
+            var transportType = tsd.ToConfigIndex();
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+        }
+
+        public static bool HasPrefix(ref TransportLine t)
+        {
+            var tsd = TransportSystemDefinition.GetDefinitionForLine(ref t);
+            if (tsd == default)
+            {
+                return false;
+            }
+            var transportType = tsd.ToConfigIndex();
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+        }
+
+        public static bool HasPrefix(ushort idx)
+        {
+            var tsd = TransportSystemDefinition.GetDefinitionForLine(idx);
+            if (tsd == default)
+            {
+                return false;
+            }
+            var transportType = tsd.ToConfigIndex();
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+        }
+
+        public static bool HasPrefix(TransportInfo t)
+        {
+            var transportType = TransportSystemDefinition.From(t).ToConfigIndex();
+            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
+        }
+
+
+        public static uint GetPrefix(ushort idx)
+        {
+            var tsd = TransportSystemDefinition.GetDefinitionForLine(idx);
+            if (tsd == default)
+            {
+                return 0;
+            }
+            var transportType = tsd.ToConfigIndex();
+            if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum)
+            {
+                uint prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u;
+                //LogUtils.DoLog($"Prefix {prefix} for lineId {idx}");
+                return prefix;
+            }
+            else
+            {
+                //LogUtils.DoLog($"Prefix 0 (def) for lineId {idx}");
+                return 0;
+            }
+        }
         internal static Color CalculateAutoColor(ushort num, TLMCW.ConfigIndex transportType, ref TransportSystemDefinition tsdRef, bool avoidRandom = false, bool allowClear = false)
         {
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)

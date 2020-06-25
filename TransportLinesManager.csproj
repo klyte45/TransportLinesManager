@@ -240,7 +240,6 @@
     <Compile Include="Utils\TLMUiTemplateUtils.cs" />
     <Compile Include="Utils\TLMLineUtils.cs" />
     <Compile Include="Utils\TLMDepotUtils.cs" />
-    <Compile Include="Utils\TLMUtils.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMFinanceReportLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMTicketPriceEditorLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMTicketPriceTimeChart.cs" />

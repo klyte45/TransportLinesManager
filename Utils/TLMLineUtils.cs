@@ -100,7 +100,7 @@ namespace Klyte.TransportLinesManager.Utils
             else
             {
                 var tsd = TransportSystemDefinition.From(lineId);
-                return (tsd.GetTransportExtension() as ISafeGettable<TLMPrefixConfiguration>).SafeGet(HasPrefix(ref tsd) ? GetPrefix(lineId) : 0);
+                return (tsd.GetTransportExtension() as ISafeGettable<TLMPrefixConfiguration>).SafeGet(TLMPrefixesUtils.HasPrefix(ref tsd) ? TLMPrefixesUtils.GetPrefix(lineId) : 0);
             }
         }
         public static IBasicExtension GetEffectiveExtensionForLine(ushort lineId)
@@ -207,65 +207,6 @@ namespace Klyte.TransportLinesManager.Utils
                 nonPrefix = (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
                 zeros = TLMCW.GetCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
                 invertPrefixSuffix = TLMCW.GetCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
-            }
-        }
-        public static bool HasPrefix(ref TransportSystemDefinition tsd)
-        {
-            if (tsd == default)
-            {
-                return false;
-            }
-            var transportType = tsd.ToConfigIndex();
-            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
-        }
-
-        public static bool HasPrefix(ref TransportLine t)
-        {
-            var tsd = TransportSystemDefinition.GetDefinitionForLine(ref t);
-            if (tsd == default)
-            {
-                return false;
-            }
-            var transportType = tsd.ToConfigIndex();
-            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
-        }
-
-        public static bool HasPrefix(ushort idx)
-        {
-            var tsd = TransportSystemDefinition.GetDefinitionForLine(idx);
-            if (tsd == default)
-            {
-                return false;
-            }
-            var transportType = tsd.ToConfigIndex();
-            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
-        }
-
-        public static bool HasPrefix(TransportInfo t)
-        {
-            var transportType = TransportSystemDefinition.From(t).ToConfigIndex();
-            return transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum;
-        }
-
-
-        public static uint GetPrefix(ushort idx)
-        {
-            var tsd = TransportSystemDefinition.GetDefinitionForLine(idx);
-            if (tsd == default)
-            {
-                return 0;
-            }
-            var transportType = tsd.ToConfigIndex();
-            if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG || ((ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX)) != ModoNomenclatura.Nenhum)
-            {
-                uint prefix = Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u;
-                //LogUtils.DoLog($"Prefix {prefix} for lineId {idx}");
-                return prefix;
-            }
-            else
-            {
-                //LogUtils.DoLog($"Prefix 0 (def) for lineId {idx}");
-                return 0;
             }
         }
 
@@ -666,7 +607,6 @@ namespace Klyte.TransportLinesManager.Utils
         }
 
 
-        #region Line Utils
         public static AsyncTask<bool> SetLineColor(ushort lineIdx, Color color) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineColor(lineIdx, color));
         public static AsyncTask<bool> SetLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineName(lineIdx, name));
 
@@ -957,7 +897,6 @@ namespace Klyte.TransportLinesManager.Utils
             TransferManager.TransferReason.Tram ,
             TransferManager.TransferReason.Bus
         };
-        #endregion
     }
 
 }

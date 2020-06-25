@@ -48,10 +48,10 @@ namespace Klyte.TransportLinesManager.ModShared
                 if (linePrefix == null)
                 {
                     ref TransportLine tl = ref TransportManager.instance.m_lines.m_buffer[tlId];
-                    if (TLMLineUtils.HasPrefix(ref tl))
+                    if (TLMPrefixesUtils.HasPrefix(ref tl))
                     {
                         var tsd = TransportSystemDefinition.From(tl.Info);
-                        var prefix = (int)TLMLineUtils.GetPrefix(tlId);
+                        var prefix = (int)TLMPrefixesUtils.GetPrefix(tlId);
                         var nameMode = TLMPrefixesUtils.GetPrefixModoNomenclatura(tsd.ToConfigIndex());
                         linePrefix = TLMPrefixesUtils.GetStringFromNameMode(nameMode, prefix).Trim().PadLeft(3, '\0');
                     }
