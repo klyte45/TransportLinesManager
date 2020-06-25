@@ -13,7 +13,7 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
 {
-    public class TLMLineUtils
+    internal class TLMLineUtils
     {
         public static Vehicle GetVehicleCapacityAndFill(ushort vehicleID, Vehicle vehicleData, out int fill, out int cap)
         {

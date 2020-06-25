@@ -9,7 +9,7 @@ using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager.Utils
 {
-    public static class TLMStationUtils
+    internal static class TLMStationUtils
     {
 
         #region Station

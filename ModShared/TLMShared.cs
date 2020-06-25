@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System;
@@ -27,6 +28,12 @@ namespace Klyte.TransportLinesManager.ModShared
             TransportInfo.TransportType.Tram,
             TransportInfo.TransportType.Monorail,
         };
+
+        public static string GetFullStationName(ushort stopId, ushort lineId, ItemClass.SubService subService) => TLMStationUtils.GetFullStationName(stopId, lineId, subService);
+        public static Tuple<string, Color, string> GetIconStringParameters(ushort lineID) => TLMLineUtils.GetIconStringParameters(lineID);
+        public static ushort GetStationBuilding(ushort stopId, ItemClass.SubService subService, bool v) => TLMStationUtils.GetStationBuilding(stopId, subService, v);
+        public static string GetLineSortString(ushort lineId, ref TransportLine transportLine) => TLMLineUtils.GetLineSortString(lineId, ref transportLine);
+
         public string GetVehicleIdentifier(ushort vehicleId)
         {
             var firstVehicle = VehicleManager.instance.m_vehicles.m_buffer[vehicleId].GetFirstVehicle(vehicleId);
@@ -212,5 +219,8 @@ namespace Klyte.TransportLinesManager.ModShared
             }
             return result.Replace("\0", "");
         }
+
+        public static void CalculateAutoName(ushort lineId, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr) => TLMLineUtils.CalculateAutoName(lineId, out startStation, out endStation, out startStationStr, out endStationStr);
+        public static string GetLineStringId(ushort lineId) => TLMLineUtils.GetLineStringId(lineId);
     }
 }
