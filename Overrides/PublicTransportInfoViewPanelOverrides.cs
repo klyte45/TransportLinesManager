@@ -73,7 +73,7 @@ namespace Klyte.TransportLinesManager.Overrides
             MethodInfo OpenDetailPanel = typeof(PublicTransportInfoViewPanelOverrides).GetMethod("OpenDetailPanel", allFlags);
             MethodInfo OpenDetailPanelDefaultTab = typeof(PublicTransportInfoViewPanelOverrides).GetMethod("OpenDetailPanelDefaultTab", allFlags);
 
-            TLMUtils.doLog($"Loading PublicTransportInfoViewPanel Hooks!");
+            TLMUtils.DoLog($"Loading PublicTransportInfoViewPanel Hooks!");
             RedirectorInstance.AddRedirect(typeof(PublicTransportInfoViewPanel).GetMethod("OpenDetailPanel", allFlags), OpenDetailPanel);
             RedirectorInstance.AddRedirect(typeof(PublicTransportInfoViewPanel).GetMethod("OpenDetailPanelDefaultTab", allFlags), OpenDetailPanelDefaultTab);
             RedirectorInstance.AddRedirect(typeof(PublicTransportInfoViewPanel).GetMethod("Start", RedirectorUtils.allFlags), typeof(PublicTransportInfoViewPanelOverrides).GetMethod("AfterAwake", RedirectorUtils.allFlags));
@@ -81,7 +81,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
             MethodInfo preventDefault = typeof(Redirector).GetMethod("PreventDefault", allFlags);
             MethodInfo from3 = typeof(PublicTransportLineInfo).GetMethod("RefreshData", allFlags);
-            TLMUtils.doLog("Muting PublicTransportLineInfo: {0} ({1}=>{2})", typeof(PublicTransportLineInfo), from3, preventDefault);
+            TLMUtils.DoLog("Muting PublicTransportLineInfo: {0} ({1}=>{2})", typeof(PublicTransportLineInfo), from3, preventDefault);
             RedirectorInstance.AddRedirect(from3, preventDefault);
         }
 

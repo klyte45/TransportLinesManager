@@ -32,7 +32,7 @@ namespace Klyte.TransportLinesManager.Overrides
             {
                 if (TransportLinesManagerMod.DebugMode)
                 {
-                    TLMUtils.doLog("allowedDepots.Count --{0}-- == 0||  allowedDepots.Contains({1}): --{2}--  ", allowedDepots.Count, currentId, string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()));
+                    TLMUtils.DoLog("allowedDepots.Count --{0}-- == 0||  allowedDepots.Contains({1}): --{2}--  ", allowedDepots.Count, currentId, string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()));
                 }
 
                 return;
@@ -40,13 +40,13 @@ namespace Klyte.TransportLinesManager.Overrides
             var r = new Randomizer(new System.Random().Next());
             if (TransportLinesManagerMod.DebugMode)
             {
-                TLMUtils.doLog("DEPOT POSSIBLE VALUES FOR {2} LINE {1}: {0} ", string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()), lineId, tsd);
+                TLMUtils.DoLog("DEPOT POSSIBLE VALUES FOR {2} LINE {1}: {0} ", string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()), lineId, tsd);
             }
 
             currentId = allowedDepots[r.Int32(0, allowedDepots.Count - 1)];
             if (TransportLinesManagerMod.DebugMode)
             {
-                TLMUtils.doLog("DEPOT FOR {2} LINE {1}: {0} ", currentId, lineId, tsd);
+                TLMUtils.DoLog("DEPOT FOR {2} LINE {1}: {0} ", currentId, lineId, tsd);
             }
         }
         #endregion
@@ -75,11 +75,11 @@ namespace Klyte.TransportLinesManager.Overrides
                 return true;
             }
 
-            TLMUtils.doLog("START TRANSFER!!!!!!!!");
+            TLMUtils.DoLog("START TRANSFER!!!!!!!!");
             TransportInfo m_transportInfo = __instance.m_transportInfo;
             BuildingInfo m_info = __instance.m_info;
 
-            TLMUtils.doLog("m_info {0} | m_transportInfo {1} | Line: {2}", m_info.name, m_transportInfo.name, offer.TransportLine);
+            TLMUtils.DoLog("m_info {0} | m_transportInfo {1} | Line: {2}", m_info.name, m_transportInfo.name, offer.TransportLine);
 
 
             if (reason == m_transportInfo.m_vehicleReason || (__instance.m_secondaryTransportInfo != null && reason == __instance.m_secondaryTransportInfo.m_vehicleReason))
@@ -88,7 +88,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
                 Instance.SetRandomBuilding(ref tsd, offer.TransportLine, ref buildingID);
 
-                TLMUtils.doLog("randomVehicleInfo");
+                TLMUtils.DoLog("randomVehicleInfo");
                 VehicleInfo randomVehicleInfo = DoModelDraw(offer.TransportLine);
                 if (randomVehicleInfo == null)
                 {
@@ -96,12 +96,12 @@ namespace Klyte.TransportLinesManager.Overrides
                 }
                 if (randomVehicleInfo != null)
                 {
-                    TLMUtils.doLog("randomVehicleInfo != null");
+                    TLMUtils.DoLog("randomVehicleInfo != null");
                     Array16<Vehicle> vehicles = Singleton<VehicleManager>.instance.m_vehicles;
                     __instance.CalculateSpawnPosition(buildingID, ref Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID], ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, out Vector3 position, out Vector3 vector);
                     if (Singleton<VehicleManager>.instance.CreateVehicle(out ushort vehicleID, ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, position, reason, false, true))
                     {
-                        TLMUtils.doLog("CreatedVehicle!!!");
+                        TLMUtils.DoLog("CreatedVehicle!!!");
                         randomVehicleInfo.m_vehicleAI.SetSource(vehicleID, ref vehicles.m_buffer[vehicleID], buildingID);
                         randomVehicleInfo.m_vehicleAI.StartTransfer(vehicleID, ref vehicles.m_buffer[vehicleID], reason, offer);
                     }
@@ -123,7 +123,7 @@ namespace Klyte.TransportLinesManager.Overrides
         public void Awake()
         {
             Instance = this;
-            TLMUtils.doLog("Loading Depot Hooks!");
+            TLMUtils.DoLog("Loading Depot Hooks!");
             RedirectorInstance.AddRedirect(typeof(DepotAI).GetMethod("StartTransfer", allFlags), typeof(TLMDepotAIOverrides).GetMethod("StartTransfer", allFlags));
         }
 

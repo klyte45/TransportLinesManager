@@ -141,7 +141,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     }
                     return 102;
                 default:
-                    TLMUtils.doLog("subservice not found: {0}", tsd.SubService);
+                    TLMUtils.DoLog("subservice not found: {0}", tsd.SubService);
                     return 103;
             }
 

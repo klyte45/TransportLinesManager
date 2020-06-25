@@ -57,24 +57,24 @@ namespace Klyte.TransportLinesManager.UI
 
             m_helper = new UIHelperExtension(MainPanel);
 
-            TLMUtils.doLog("Name");
+            TLMUtils.DoLog("Name");
             m_prefixName = CreateMiniTextField("K45_TLM_PREFIX_NAME", OnPrefixNameChange);
 
 
-            TLMUtils.doLog("ColorForModel");
+            TLMUtils.DoLog("ColorForModel");
             m_useColorForModel = m_helper.AddCheckboxLocale("K45_TLM_USE_PREFIX_COLOR_FOR_VEHICLE", false, OnUseColorVehicleChange);
             KlyteMonoUtils.LimitWidth(m_useColorForModel.label, 340, true);
             m_useColorForModel.label.textScale = 1;
 
-            TLMUtils.doLog("ColorSel");
+            TLMUtils.DoLog("ColorSel");
             CreateColorSelector();
 
-            TLMUtils.doLog("Palette");
+            TLMUtils.DoLog("Palette");
             m_paletteDD = CreateMiniDropdown("K45_TLM_PALETTE", SetPalettePrefix, new string[1]);
             ReloadPalettes();
             TLMPaletteOptionsTab.onPaletteReloaded += ReloadPalettes;
 
-            TLMUtils.doLog("Format");
+            TLMUtils.DoLog("Format");
             m_formatDD = CreateMiniDropdown("K45_TLM_ICON", SetFormatPrefix, TLMLineIconExtension.getDropDownOptions(Locale.Get("K45_TLM_LINE_ICON_ENUM_TT_DEFAULT")));
 
         }

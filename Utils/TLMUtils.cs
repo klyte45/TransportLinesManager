@@ -193,11 +193,11 @@ namespace Klyte.TransportLinesManager.Utils
                 }
             }
         }
-        internal static List<string> getPrefixesOptions(TLMCW.ConfigIndex transportType, bool addDefaults = true)
+        internal static List<string> GetPrefixesOptions(TLMCW.ConfigIndex transportType, bool addDefaults = true)
         {
             transportType &= TLMConfigWarehouse.ConfigIndex.SYSTEM_PART;
             ModoNomenclatura m = GetPrefixModoNomenclatura(transportType);
-            doLog("getPrefixesOptions: MODO NOMENCLATURA = " + m);
+            DoLog("getPrefixesOptions: MODO NOMENCLATURA = " + m);
             var saida = new List<string>();
             if (addDefaults)
             {
@@ -343,7 +343,7 @@ namespace Klyte.TransportLinesManager.Utils
         #endregion
 
         #region Building Utils
-        public static string getBuildingName(ushort buildingId, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, ushort lineId = 0)
+        public static string GetBuildingDetails(ushort buildingId, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, ushort lineId = 0)
         {
 
             NetManager nm = Singleton<NetManager>.instance;
@@ -352,7 +352,7 @@ namespace Klyte.TransportLinesManager.Utils
             Building b = bm.m_buildings.m_buffer[buildingId];
             while (b.m_parentBuilding > 0)
             {
-                doLog("getBuildingName(): building id {0} - parent = {1}", buildingId, b.m_parentBuilding);
+                DoLog("getBuildingName(): building id {0} - parent = {1}", buildingId, b.m_parentBuilding);
                 buildingId = b.m_parentBuilding;
                 b = bm.m_buildings.m_buffer[buildingId];
             }
@@ -368,21 +368,21 @@ namespace Klyte.TransportLinesManager.Utils
                 index = tsd.ToConfigIndex();
             }
             prefix = index.GetSystemStationNamePrefix(lineId)?.TrimStart();
-            doLog($"getBuildingName(): serviceFound {serviceFound} - subserviceFound = {subserviceFound} - tsd = {tsd} - index = {index} - prefix = {prefix}");
+            DoLog($"getBuildingName(): serviceFound {serviceFound} - subserviceFound = {subserviceFound} - tsd = {tsd} - index = {index} - prefix = {prefix}");
 
             return bm.GetBuildingName(buildingId, iid);
         }
         #endregion
         #region Logging
-        public static void doLog(string format, params object[] args) => LogUtils.DoLog(format, args);
-        public static void doErrorLog(string format, params object[] args) => LogUtils.DoErrorLog(format, args);
+        public static void DoLog(string format, params object[] args) => LogUtils.DoLog(format, args);
+        public static void DoErrorLog(string format, params object[] args) => LogUtils.DoErrorLog(format, args);
         #endregion
 
         internal static List<string> LoadBasicAssets(ref TransportSystemDefinition definition)
         {
             var basicAssetsList = new List<string>();
 
-            TLMUtils.doLog("LoadBasicAssets: pre prefab read");
+            TLMUtils.DoLog("LoadBasicAssets: pre prefab read");
             for (uint num = 0u; num < (ulong)PrefabCollection<VehicleInfo>.PrefabCount(); num += 1u)
             {
                 VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
@@ -393,36 +393,6 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return basicAssetsList;
         }
-    }
-
-
-    public enum ModoNomenclatura
-    {
-        Numero = 0,
-        LatinoMinusculo = 1,
-        LatinoMaiusculo = 2,
-        GregoMinusculo = 3,
-        GregoMaiusculo = 4,
-        CirilicoMinusculo = 5,
-        CirilicoMaiusculo = 6,
-        Nenhum = 7,
-        LatinoMinusculoNumero = 8,
-        LatinoMaiusculoNumero = 9,
-        GregoMinusculoNumero = 10,
-        GregoMaiusculoNumero = 11,
-        CirilicoMinusculoNumero = 12,
-        CirilicoMaiusculoNumero = 13,
-        Romano = 14
-    }
-
-    public enum Separador
-    {
-        Nenhum = 0,
-        Hifen = 1,
-        Ponto = 2,
-        Barra = 3,
-        Espaco = 4,
-        QuebraLinha = Espaco
     }
 
 }

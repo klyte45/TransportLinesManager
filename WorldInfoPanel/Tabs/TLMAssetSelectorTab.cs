@@ -206,7 +206,7 @@ namespace Klyte.TransportLinesManager.UI
                 return;
             }
             m_isLoading = true;
-            TLMUtils.doLog("tsd = {0}", tsd);
+            TLMUtils.DoLog("tsd = {0}", tsd);
             IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID());
 
             if (TransportSystem != m_lastSystem)
@@ -214,7 +214,7 @@ namespace Klyte.TransportLinesManager.UI
                 m_defaultAssets = tsd.GetTransportExtension().GetAllBasicAssetsForLine(0);
                 UIPanel[] depotChecks = m_checkboxTemplateList.SetItemCount(m_defaultAssets.Count);
 
-                TLMUtils.doLog("m_defaultAssets Size = {0} ({1})", m_defaultAssets?.Count, string.Join(",", m_defaultAssets.Keys?.ToArray() ?? new string[0]));
+                TLMUtils.DoLog("m_defaultAssets Size = {0} ({1})", m_defaultAssets?.Count, string.Join(",", m_defaultAssets.Keys?.ToArray() ?? new string[0]));
                 for (int i = 0; i < m_defaultAssets.Count; i++)
                 {
                     string assetName = m_defaultAssets.Keys.ElementAt(i);
@@ -234,7 +234,7 @@ namespace Klyte.TransportLinesManager.UI
                               ushort lineId = GetLineID();
                               IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
 
-                              TLMUtils.doErrorLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
+                              TLMUtils.DoErrorLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
                               if (y)
                               {
                                   extension.AddAssetToLine(lineId, x.objectUserData.ToString());
@@ -272,7 +272,7 @@ namespace Klyte.TransportLinesManager.UI
             if (TransportLinesManagerMod.DebugMode)
             {
                 List<string> allowedAssets = config.GetAssetListForLine(GetLineID());
-                TLMUtils.doLog($"selectedAssets Size = {allowedAssets?.Count} ({ string.Join(",", allowedAssets?.ToArray() ?? new string[0])}) {config?.GetType()}");
+                TLMUtils.DoLog($"selectedAssets Size = {allowedAssets?.Count} ({ string.Join(",", allowedAssets?.ToArray() ?? new string[0])}) {config?.GetType()}");
             }
 
             if (config is TLMTransportLineConfiguration)

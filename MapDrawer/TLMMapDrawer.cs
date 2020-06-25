@@ -117,7 +117,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                             TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportShip, ItemClass.SubService.PublicTransportPlane }, 10);
                             TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTrain, ItemClass.SubService.PublicTransportMonorail, ItemClass.SubService.PublicTransportCableCar, ItemClass.SubService.PublicTransportMetro }, 10);
                             TLMLineUtils.GetNearStopPoints(worldPos, range, ref nearStops, new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTram, ItemClass.SubService.PublicTransportBus }, 10);
-                            TLMUtils.doLog("Station: ${0}; nearStops: ${1}", name, string.Join(",", nearStops.Select(x => x.ToString()).ToArray()));
+                            TLMUtils.DoLog("Station: ${0}; nearStops: ${1}", name, string.Join(",", nearStops.Select(x => x.ToString()).ToArray()));
                             var thisStation = new Station(name, pos2D, worldPos, nearStops, nextStationId++, service, nextStop);
                             stations.Add(thisStation);
                             transportLines[lineId].addStation(ref thisStation);

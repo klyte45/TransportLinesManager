@@ -86,7 +86,7 @@ namespace Klyte.TransportLinesManager
                 }
                 else
                 {
-                    TLMUtils.doErrorLog("LinearMapCreatingLine is NULL!!!!");
+                    TLMUtils.DoErrorLog("LinearMapCreatingLine is NULL!!!!");
                     return null;
                 }
             }
@@ -124,7 +124,7 @@ namespace Klyte.TransportLinesManager
         {
             if (!GameObject.FindGameObjectWithTag("GameController") || ((GameObject.FindGameObjectWithTag("GameController")?.GetComponent<ToolController>())?.m_mode & ItemClass.Availability.Game) == ItemClass.Availability.None)
             {
-                TLMUtils.doErrorLog("GameController NOT FOUND!");
+                TLMUtils.DoErrorLog("GameController NOT FOUND!");
                 return;
             }
         }
@@ -157,7 +157,7 @@ namespace Klyte.TransportLinesManager
             }
             catch (Exception e)
             {
-                TLMUtils.doErrorLog("ERRO!!!!! " + e.Message);
+                TLMUtils.DoErrorLog("ERRO!!!!! " + e.Message);
                 TLMCW.SetCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
                 task = null;
                 return Color.clear;
@@ -172,11 +172,11 @@ namespace Klyte.TransportLinesManager
             if (!initializedWIP)
             {
                 BuildingWorldInfoPanel[] panelList = UIView.GetAView().GetComponentsInChildren<BuildingWorldInfoPanel>();
-                TLMUtils.doLog("WIP LIST: [{0}]", string.Join(", ", panelList.Select(x => x.name).ToArray()));
+                TLMUtils.DoLog("WIP LIST: [{0}]", string.Join(", ", panelList.Select(x => x.name).ToArray()));
 
                 foreach (BuildingWorldInfoPanel wip in panelList)
                 {
-                    TLMUtils.doLog("LOADING WIP HOOK FOR: {0}", wip.name);
+                    TLMUtils.DoLog("LOADING WIP HOOK FOR: {0}", wip.name);
                     UIComponent parent2 = wip.GetComponent<UIComponent>();
 
                     if (parent2 == null)

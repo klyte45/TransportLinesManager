@@ -65,7 +65,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
         protected List<Vector2> getPathForStations(Station s1, Station s2)
         {
-            TLMUtils.doLog("Calculando caminho entre '{0}' e '{1}' ", s1.name, s2.name);
+            TLMUtils.DoLog("Calculando caminho entre '{0}' e '{1}' ", s1.name, s2.name);
             Vector2 originalPos = s1.centralPos;
             Vector2 toPos = s2.centralPos;
 
@@ -107,7 +107,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             if (TransportLinesManagerMod.DebugMode)
             {
                 string points = string.Join(",", saida.Select(x => "(" + x.x + "," + x.y + ")").ToArray());
-                TLMUtils.doLog("Points: [{0}]", points);
+                TLMUtils.DoLog("Points: [{0}]", points);
             }
 
             return saida;
@@ -119,7 +119,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
             if (retrying > 7)
             {
-                TLMUtils.doLog("MAX RETRYING REACHED!");
+                TLMUtils.DoLog("MAX RETRYING REACHED!");
                 return;
             }
 
@@ -134,8 +134,8 @@ namespace Klyte.TransportLinesManager.MapDrawer
             var dirS1 = c1.GetCardinalOffset2D();
             var dirS2 = c2.GetCardinalOffset2D();
 
-            TLMUtils.doLog("c1 = {0};dirS1 = {1}", c1, dirS1);
-            TLMUtils.doLog("c2 = {0};dirS2 = {1}", c2, dirS2);
+            TLMUtils.DoLog("c1 = {0};dirS1 = {1}", c1, dirS1);
+            TLMUtils.DoLog("c2 = {0};dirS2 = {1}", c2, dirS2);
 
 
             Vector2 currentPos = p1 + dirS1;
@@ -165,7 +165,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 int indexSumS1 = (int)(currentPos.x + currentPos.y);
                 if (isD1S2)
                 {
-                    TLMUtils.doLog("(D1 - D1)");
+                    TLMUtils.DoLog("(D1 - D1)");
                     int indexSumS2 = (int)(targetPos.x + targetPos.y);
                     if (indexSumS1 != indexSumS2)
                     {
@@ -174,18 +174,18 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
                 else if (isD2S2)
                 {
-                    TLMUtils.doLog("(D1 - D2)");
+                    TLMUtils.DoLog("(D1 - D2)");
                     int indexSubS2 = (int)(targetPos.x - targetPos.y);
                     saida.AddRange(getMidPointsD1D2(currentPos, targetPos, dirS1, dirS2, indexSumS1, indexSubS2));
                 }
                 else if (isHorizontalS2)
                 {
-                    TLMUtils.doLog("(D1 - H)");
+                    TLMUtils.DoLog("(D1 - H)");
                     int s2y = (int)targetPos.y;
                     int targetX = indexSumS1 - s2y;
                     if (!calcIntersecHV(currentPos, targetPos, dirS1, dirS2, targetX, s2y, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        TLMUtils.DoLog("WORST CASE! - RETRYING");
                         c1++;
                         GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, retrying++);
                     }
@@ -193,12 +193,12 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
                 else if (isVerticalS2)
                 {
-                    TLMUtils.doLog("(D1 - V)");
+                    TLMUtils.DoLog("(D1 - V)");
                     int s2x = (int)targetPos.x;
                     int targetY = indexSumS1 - s2x;
                     if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s2x, targetY, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE - RETRYING");
+                        TLMUtils.DoLog("WORST CASE - RETRYING");
                         c1--;
                         GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, retrying++);
                     }
@@ -211,7 +211,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 int indexSubS1 = (int)(currentPos.x - currentPos.y);
                 if (isD1S2)
                 {
-                    TLMUtils.doLog("(D2 - D1)");
+                    TLMUtils.DoLog("(D2 - D1)");
                     int indexSumS2 = (int)(currentPos.x + currentPos.y);
                     var points = getMidPointsD1D2(targetPos, currentPos, dirS2, dirS1, indexSumS2, indexSubS1);
                     points.Reverse();
@@ -219,7 +219,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
                 else if (isD2S2)
                 {
-                    TLMUtils.doLog("(D2 - D2)");
+                    TLMUtils.DoLog("(D2 - D2)");
                     int indexSubS2 = (int)(targetPos.x - targetPos.y);
                     if (indexSubS1 != indexSubS2)
                     {
@@ -229,24 +229,24 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
                 else if (isHorizontalS2)
                 {
-                    TLMUtils.doLog("(D2 - H)");
+                    TLMUtils.DoLog("(D2 - H)");
                     int s2y = (int)targetPos.y;
                     int targetX = indexSubS1 + s2y;
                     if (!calcIntersecHV(currentPos, targetPos, dirS1, dirS2, targetX, s2y, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        TLMUtils.DoLog("WORST CASE! - RETRYING");
                         c1--;
                         GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
                 else if (isVerticalS2)
                 {
-                    TLMUtils.doLog("(D2 - V)");
+                    TLMUtils.DoLog("(D2 - V)");
                     int s2x = (int)targetPos.x;
                     int targetY = indexSubS1 + s2x;
                     if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s2x, targetY, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        TLMUtils.DoLog("WORST CASE! - RETRYING");
                         c1++;
                         GetPointsLine(ref currentPos, ref p2, ref c1, ref c2, ref saida, retrying++);
                     }
@@ -259,31 +259,31 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 int s1y = (int)(currentPos.y);
                 if (isD1S2)
                 {
-                    TLMUtils.doLog("(H - D1)");
+                    TLMUtils.DoLog("(H - D1)");
                     int indexSumS2 = (int)(targetPos.x + targetPos.y);
                     int targetX = indexSumS2 - s1y;
                     if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, targetX, s1y, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        TLMUtils.DoLog("WORST CASE! - RETRYING");
                         c2++;
                         GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
                 else if (isD2S2)
                 {
-                    TLMUtils.doLog("(H - D2)");
+                    TLMUtils.DoLog("(H - D2)");
                     int indexSubS2 = (int)(targetPos.x - targetPos.y);
                     int targetX = indexSubS2 + s1y;
                     if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, targetX, s1y, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE!- RETRYING");
+                        TLMUtils.DoLog("WORST CASE!- RETRYING");
                         c2--;
                         GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
                 else if (isHorizontalS2)
                 {
-                    TLMUtils.doLog("(H - H)");
+                    TLMUtils.DoLog("(H - H)");
                     if (currentPos.x != targetPos.x)
                     {
                         saida.AddRange(pathParallel(dirS1, dirS2, currentPos, targetPos));
@@ -291,7 +291,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
                 else if (isVerticalS2)
                 {
-                    TLMUtils.doLog("(H - V)");
+                    TLMUtils.DoLog("(H - V)");
 
                     if (iΔx != iΔy)
                     {
@@ -307,7 +307,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         }
                         if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s2x, s1y, ref saida))
                         {
-                            TLMUtils.doLog("WORST CASE! - RETRYING");
+                            TLMUtils.DoLog("WORST CASE! - RETRYING");
                             var nextP1 = new Vector2(p1.x + dirS1.x, p1.y + Math.Sign(Δy));
                             if (Math.Sign(Δy) == Math.Sign(dirS1.x))
                             {
@@ -329,31 +329,31 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 int s1x = (int)(currentPos.x);
                 if (isD1S2)
                 {
-                    TLMUtils.doLog("(V - D1)");
+                    TLMUtils.DoLog("(V - D1)");
                     int indexSumS2 = (int)(targetPos.x + targetPos.y);
                     int targetY = indexSumS2 - s1x;
                     if (!calcIntersecHV(currentPos, targetPos, dirS1, dirS2, s1x, targetY, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        TLMUtils.DoLog("WORST CASE! - RETRYING");
                         c2--;
                         GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
                 else if (isD2S2)
                 {
-                    TLMUtils.doLog("(V - D2)");
+                    TLMUtils.DoLog("(V - D2)");
                     int indexSubS2 = (int)(targetPos.x - targetPos.y);
                     int targetY = s1x - indexSubS2;
                     if (!calcIntersecHV(currentPos, targetPos, dirS1, dirS2, s1x, targetY, ref saida))
                     {
-                        TLMUtils.doLog("WORST CASE! - RETRYING");
+                        TLMUtils.DoLog("WORST CASE! - RETRYING");
                         c2++;
                         GetPointsLine(ref p1, ref targetPos, ref c1, ref c2, ref saida, retrying++);
                     }
                 }
                 else if (isHorizontalS2)
                 {
-                    TLMUtils.doLog("(V - H)");
+                    TLMUtils.DoLog("(V - H)");
                     if (iΔx != iΔy)
                     {
                         int s2y = (int)targetPos.y;
@@ -368,7 +368,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                         }
                         if (!calcIntersecHV(targetPos, currentPos, dirS2, dirS1, s1x, s2y, ref saida))
                         {
-                            TLMUtils.doLog("WORST CASE - RETRYING!");
+                            TLMUtils.DoLog("WORST CASE - RETRYING!");
                             var nextP1 = new Vector2(p1.x + Math.Sign(Δx), p1.y + dirS1.y);
                             if (Math.Sign(Δx) == Math.Sign(dirS1.y))
                             {
@@ -384,7 +384,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
                 else if (isVerticalS2)
                 {
-                    TLMUtils.doLog("(V - V)");
+                    TLMUtils.DoLog("(V - V)");
                     if (currentPos.y != targetPos.y)
                     {
                         saida.AddRange(pathParallel(dirS1, dirS2, currentPos, targetPos));
@@ -423,7 +423,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             }
             else
             {
-                TLMUtils.doErrorLog("WORST CASE (midTargetReachableX = {0}, midTargetReachableY= {1})", midTargetReachableX, midTargetReachableY);
+                TLMUtils.DoErrorLog("WORST CASE (midTargetReachableX = {0}, midTargetReachableY= {1})", midTargetReachableX, midTargetReachableY);
             }
             return saida;
         }
@@ -455,7 +455,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             }
             else
             {
-                TLMUtils.doErrorLog("WORST CASE (midTargetReachableX = {0}, midTargetReachableY= {1})", midTargetReachableX, midTargetReachableY);
+                TLMUtils.DoErrorLog("WORST CASE (midTargetReachableX = {0}, midTargetReachableY= {1})", midTargetReachableX, midTargetReachableY);
             }
             return saida;
         }
@@ -472,7 +472,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             }
             else
             {
-                TLMUtils.doErrorLog("WORST CASE (midTargetReachableS1={0};midTargetReachableS2={1})", midTargetReachableS1, midTargetReachableS2);
+                TLMUtils.DoErrorLog("WORST CASE (midTargetReachableS1={0};midTargetReachableS2={1})", midTargetReachableS1, midTargetReachableS2);
                 return false;
             }
         }
@@ -506,22 +506,22 @@ namespace Klyte.TransportLinesManager.MapDrawer
             }
             else
             {
-                TLMUtils.doErrorLog("WORST CASE (currentReachble= {0}; targetReachble={1})", currentReachble, targetReachble);
+                TLMUtils.DoErrorLog("WORST CASE (currentReachble= {0}; targetReachble={1})", currentReachble, targetReachble);
             }
             return saida;
         }
 
         private Vector2 getFreeHorizontal(Vector2 p1, Vector2 p2)
         {
-            TLMUtils.doLog("------------------------------------------------");
+            TLMUtils.DoLog("------------------------------------------------");
             if (p1.y != p2.y) return p2;
             int targetX = (int)p2.x;
-            TLMUtils.doLog("getFreeHorizontal idx: {0} hRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.y, hRanges.ContainsKey((int)p2.y), p1, p2);
+            TLMUtils.DoLog("getFreeHorizontal idx: {0} hRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.y, hRanges.ContainsKey((int)p2.y), p1, p2);
             if (hRanges.ContainsKey((int)p2.y))
             {
                 Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x), (int)Math.Max(p1.x, p2.x));
                 var searchResult = hRanges[(int)p2.y].FindAll(x => x.IntersectRange(lineXs));
-                TLMUtils.doLog(" getFreeHorizontal idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.y, lineXs, searchResult.Count, string.Join(",", hRanges[(int)p2.y].Select(x => x.ToString()).ToArray()));
+                TLMUtils.DoLog(" getFreeHorizontal idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.y, lineXs, searchResult.Count, string.Join(",", hRanges[(int)p2.y].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.x - p1.x)) > 0)
@@ -535,8 +535,8 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     }
                 }
             }
-            TLMUtils.doLog(" getFreeHorizontal RESULT=({0}, {1})", targetX, p2.y);
-            TLMUtils.doLog("------------------------------------------------");
+            TLMUtils.DoLog(" getFreeHorizontal RESULT=({0}, {1})", targetX, p2.y);
+            TLMUtils.DoLog("------------------------------------------------");
             return new Vector2(targetX, p2.y);
         }
 
@@ -546,13 +546,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
             if (p1.x != p2.x) return p2;
             int targetY = (int)p2.y;
-            TLMUtils.doLog("------------------------------------------------");
-            TLMUtils.doLog(" getFreeVertical idx: {0} vRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.x, vRanges.ContainsKey((int)p2.x), p1, p2);
+            TLMUtils.DoLog("------------------------------------------------");
+            TLMUtils.DoLog(" getFreeVertical idx: {0} vRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.x, vRanges.ContainsKey((int)p2.x), p1, p2);
             if (vRanges.ContainsKey((int)p2.x))
             {
                 Range<int> lineYs = new Range<int>((int)Math.Min(p1.y, p2.y), (int)Math.Max(p1.y, p2.y));
                 var searchResult = vRanges[(int)p2.x].FindAll(x => x.IntersectRange(lineYs));
-                TLMUtils.doLog(" getFreeVertical idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.x, lineYs, searchResult.Count, string.Join(",", vRanges[(int)p2.x].Select(x => x.ToString()).ToArray()));
+                TLMUtils.DoLog(" getFreeVertical idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.x, lineYs, searchResult.Count, string.Join(",", vRanges[(int)p2.x].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.y - p1.y)) > 0)
@@ -566,8 +566,8 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
             }
 
-            TLMUtils.doLog(" getFreeVertical RESULT=({1}, {0})", targetY, p2.x);
-            TLMUtils.doLog("------------------------------------------------");
+            TLMUtils.DoLog(" getFreeVertical RESULT=({1}, {0})", targetY, p2.x);
+            TLMUtils.DoLog("------------------------------------------------");
             return new Vector2(p2.x, targetY);
         }
 
@@ -576,12 +576,12 @@ namespace Klyte.TransportLinesManager.MapDrawer
             if (p1.x + p1.y != p2.x + p2.y) return p2;
             int targetX = (int)p2.x;
             int index = (int)(p2.x + p2.y);
-            TLMUtils.doLog(" getFreeHorizontalD1Point idx: {0} d1Ranges.ContainsKey(index)={1}", index, d1Ranges.ContainsKey(index));
+            TLMUtils.DoLog(" getFreeHorizontalD1Point idx: {0} d1Ranges.ContainsKey(index)={1}", index, d1Ranges.ContainsKey(index));
             if (d1Ranges.ContainsKey(index))
             {
                 Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x), (int)Math.Max(p1.x, p2.x));
                 var searchResult = d1Ranges[index].FindAll(x => x.IntersectRange(lineXs));
-                TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = {3} ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d1Ranges[index].Select(x => x.ToString()).ToArray()));
+                TLMUtils.DoLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = {3} ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d1Ranges[index].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.x - p1.x)) > 0)
@@ -605,13 +605,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
             if (p1.x - p1.y != p2.x - p2.y) return p2;
             int targetX = (int)p2.x;
             int index = (int)(p2.x - p2.y);
-            TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0} d2Ranges.ContainsKey(index)={1}", index, d2Ranges.ContainsKey(index));
+            TLMUtils.DoLog(" getFreeHorizontalD2Point idx: {0} d2Ranges.ContainsKey(index)={1}", index, d2Ranges.ContainsKey(index));
 
             if (d2Ranges.ContainsKey(index))
             {
                 Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x), (int)Math.Max(p1.x, p2.x));
                 var searchResult = d2Ranges[index].FindAll(x => x.IntersectRange(lineXs));
-                TLMUtils.doLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d2Ranges[index].Select(x => x.ToString()).ToArray()));
+                TLMUtils.DoLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d2Ranges[index].Select(x => x.ToString()).ToArray()));
                 if (searchResult.Count > 0)
                 {
                     if (Math.Sign((p2.x - p1.x)) > 0)

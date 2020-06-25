@@ -167,7 +167,7 @@ namespace Klyte.TransportLinesManager.Utils
                 return true;
             }
 
-            TLMUtils.doLog("tsdOr = " + tsdOr + " | lineNum =" + numLinha + "| cfgIdx = " + tsdOr.ToConfigIndex());
+            TLMUtils.DoLog("tsdOr = " + tsdOr + " | lineNum =" + numLinha + "| cfgIdx = " + tsdOr.ToConfigIndex());
             var tipo = tsdOr.ToConfigIndex();
 
             for (ushort i = 1; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
@@ -178,7 +178,7 @@ namespace Klyte.TransportLinesManager.Utils
                 }
                 ushort lnum = Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber;
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(i);
-                TLMUtils.doLog("tsd = " + tsd + "| lineNum = " + lnum + "| I=" + i + "| cfgIdx = " + tsd.ToConfigIndex());
+                TLMUtils.DoLog("tsd = " + tsd + "| lineNum = " + lnum + "| I=" + i + "| cfgIdx = " + tsd.ToConfigIndex());
                 if (tsd != default && i != exclude && tsd.ToConfigIndex() == tipo && lnum == numLinha)
                 {
                     return true;
@@ -699,10 +699,10 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 prefix = $"[{GetLineStringId(lineIdx)}] ";
             }
-            TLMUtils.doLog($"stations => [{string.Join(" ; ", stations.Select(x => $"{x.First}|{x.Second}").ToArray())}]");
+            TLMUtils.DoLog($"stations => [{string.Join(" ; ", stations.Select(x => $"{x.First}|{x.Second}").ToArray())}]");
             if (stations.Count % 2 == 0 && stations.Count > 2)
             {
-                TLMUtils.doLog($"Try Simmetric");
+                TLMUtils.DoLog($"Try Simmetric");
                 int middle = -1;
                 for (int i = 1; i <= stations.Count / 2; i++)
                 {
@@ -712,7 +712,7 @@ namespace Klyte.TransportLinesManager.Utils
                         break;
                     }
                 }
-                TLMUtils.doLog($"middle => {middle}");
+                TLMUtils.DoLog($"middle => {middle}");
                 if (middle != -1)
                 {
                     bool simmetric = true;
@@ -754,7 +754,7 @@ namespace Klyte.TransportLinesManager.Utils
             int mostRelevantEndIdx = -1;
             int j = 0;
             int maxDistanceEnd = (int)(idxStations.Count / 8f + 0.5f);
-            TLMUtils.doLog("idxStations");
+            TLMUtils.DoLog("idxStations");
             do
             {
                 Tuple<int, NamingType, string> peerCandidate = idxStations.Where(x => x.Third != idxStations[j].Third && Math.Abs((x.First < idxStations[j].First ? x.First + idxStations.Count : x.First) - idxStations.Count / 2 - idxStations[j].First) <= maxDistanceEnd).OrderBy(x => x.Second.GetNamePrecedenceRate()).FirstOrDefault();

@@ -284,7 +284,7 @@ namespace Klyte.TransportLinesManager
                 case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG:
                     return LineIconSpriteNames.K45_S05StarIcon;
                 default:
-                    TLMUtils.doErrorLog($"INVALID TT! {transportType}");
+                    TLMUtils.DoErrorLog($"INVALID TT! {transportType}");
                     return LineIconSpriteNames.K45_S09StarIcon;
             }
         }

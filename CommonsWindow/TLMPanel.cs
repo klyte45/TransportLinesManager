@@ -98,7 +98,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 GameObject body = Instantiate(bodyContent.gameObject);
                 var configIdx = kv.Key.ToConfigIndex();
                 string name = kv.Value().GetType().Name;
-                TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
+                TLMUtils.DoLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
                 string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd), true);
                 string fgIcon = kv.Key.GetTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();

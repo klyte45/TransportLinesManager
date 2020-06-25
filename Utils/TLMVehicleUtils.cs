@@ -90,7 +90,7 @@ namespace Klyte.TransportLinesManager.Utils
 
                     if (TransportLinesManagerMod.DebugMode)
                     {
-                        TLMUtils.doLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
+                        TLMUtils.DoLog("removeAllUnwantedVehicles: models found: {0}", modelList == null ? "?!?" : modelList.Count.ToString());
                     }
 
                     if (modelList.Count > 0)

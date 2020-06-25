@@ -18,16 +18,16 @@ namespace Klyte.TransportLinesManager.Utils
         private static string GetStationNameWithPrefix(TLMCW.ConfigIndex transportType, string name) => transportType.GetSystemStationNamePrefix().Trim() + (transportType.GetSystemStationNamePrefix().Trim() != string.Empty ? " " : "") + name;
         public static void SetStopName(string newName, ushort stopId, ushort lineId, Action callback)
         {
-            TLMUtils.doLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
+            TLMUtils.DoLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
             ushort buildingId = GetStationBuilding(stopId, Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService, true, true);
             if (buildingId == 0)
             {
-                TLMUtils.doLog("b=0");
+                TLMUtils.DoLog("b=0");
                 Singleton<BuildingManager>.instance.StartCoroutine(SetNodeName(stopId, newName, callback));
             }
             else
             {
-                TLMUtils.doLog("b≠0 ({0})", buildingId);
+                TLMUtils.DoLog("b≠0 ({0})", buildingId);
                 Singleton<BuildingManager>.instance.StartCoroutine(BuildingUtils.SetBuildingName(buildingId, newName, callback));
             }
         }
@@ -48,7 +48,7 @@ namespace Klyte.TransportLinesManager.Utils
         {
             bool result = false;
             NetNode.Flags flags = NetManager.instance.m_nodes.m_buffer[nodeId].m_flags;
-            TLMUtils.doLog($"SetNodeName({nodeId},{name}) {flags}");
+            TLMUtils.DoLog($"SetNodeName({nodeId},{name}) {flags}");
             if (nodeId != 0 && flags != NetNode.Flags.None)
             {
                 var id = default(InstanceID);
@@ -108,7 +108,7 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (buildingID > 0)
             {
-                string name = TLMUtils.getBuildingName(buildingID, out serviceFound, out subserviceFound, out prefix, lineId);
+                string name = TLMUtils.GetBuildingDetails(buildingID, out serviceFound, out subserviceFound, out prefix, lineId);
                 resultNamingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
                 return name;
             }

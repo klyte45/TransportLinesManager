@@ -135,7 +135,7 @@ namespace Klyte.TransportLinesManager.Utils
                 case TLMCW.ConfigIndex.HELICOPTER_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
                     return NamingType.HELICOPTER;
                 default:
-                    TLMUtils.doErrorLog($"UNKNOWN NAME TYPE:{ci} ({((int)ci).ToString("X8")})");
+                    TLMUtils.DoErrorLog($"UNKNOWN NAME TYPE:{ci} ({((int)ci).ToString("X8")})");
                     return NamingType.NONE;
 
             }

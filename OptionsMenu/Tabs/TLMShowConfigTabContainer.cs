@@ -47,7 +47,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                 var configIdx = kv.Key.ToConfigIndex();
                 TransportSystemDefinition tsd = kv.Key;
                 string name = kv.Value().GetType().Name;
-                TLMUtils.doLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
+                TLMUtils.DoLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
                 string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMUtils.GetLineIcon(0, configIdx, ref tsd), true);
                 string fgIcon = kv.Key.GetTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();

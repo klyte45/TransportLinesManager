@@ -17,7 +17,7 @@ namespace Klyte.TransportLinesManager.UI
             MethodInfo OnButtonClickedPre = typeof(TLMLineCreationToolbox).GetMethod("OnButtonClickedPre", allFlags);
             MethodInfo OnButtonClickedPos = typeof(TLMLineCreationToolbox).GetMethod("OnButtonClickedPos", allFlags);
 
-            TLMUtils.doLog("Loading TLMLineCreationToolbox Hook");
+            TLMUtils.DoLog("Loading TLMLineCreationToolbox Hook");
             RedirectorInstance.AddRedirect(typeof(GeneratedScrollPanel).GetMethod("OnClick", allFlags), OnButtonClickedPre, OnButtonClickedPos);
             #endregion
         }

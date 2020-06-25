@@ -200,7 +200,7 @@ namespace Klyte.TransportLinesManager.UI
                  var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
                  if (TransportLinesManagerMod.DebugMode)
                  {
-                     TLMUtils.doLog("Type = " + tsd.ToConfigIndex() + "|prop=" + (tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT) + "|valToSet = " + value);
+                     TLMUtils.DoLog("Type = " + tsd.ToConfigIndex() + "|prop=" + (tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT) + "|valToSet = " + value);
                  }
                  TLMConfigWarehouse.SetCurrentConfigBool(tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.PREFIX_INCREMENT, value);
              });
@@ -286,7 +286,7 @@ namespace Klyte.TransportLinesManager.UI
             if (TLMLineUtils.HasPrefix(transportTool.m_prefab))
             {
                 linePrefixDropDown.isVisible = true;
-                linePrefixDropDown.items = TLMUtils.getPrefixesOptions(configIdx, false).ToArray();
+                linePrefixDropDown.items = TLMUtils.GetPrefixesOptions(configIdx, false).ToArray();
                 linePrefixDropDown.selectedIndex = getCurrentPrefix();
                 lineNumberTxtBox.text = getCurrentNumber().ToString();
                 lineNumberTxtBox.width = 90;
