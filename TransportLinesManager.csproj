@@ -177,6 +177,9 @@
     <Compile Include="Extensors\TransportLineStorageBasicData.cs" />
     <Compile Include="ModShared\TLMShared.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMDefaultCostPerPassengerConfigTab.cs" />
+    <Compile Include="Utils\NamingType.cs" />
+    <Compile Include="Utils\NamingTypeExtensions.cs" />
+    <Compile Include="Utils\VehicleUtils.cs" />
     <Compile Include="WorldInfoPanel\Components\BaseReportLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMPassengerGenderReportLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMPassengerAgeReportLine.cs" />

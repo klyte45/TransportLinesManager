@@ -1,6 +1,5 @@
 using ColossalFramework;
 using ColossalFramework.Plugins;
-using ColossalFramework.Threading;
 using ColossalFramework.UI;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
@@ -292,7 +291,7 @@ namespace Klyte.TransportLinesManager
 
         protected override void StartActions()
         {
-            using var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits));
+            StartCoroutine(TLMVehicleUtils.UpdateCapacityUnitsFromTSD());
             KlyteMonoUtils.CreateElement(out m_linearMapCreatingLine, transform);
             m_linearMapCreatingLine.parent = this;
             m_linearMapCreatingLine.setVisible(false);

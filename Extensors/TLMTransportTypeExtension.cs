@@ -121,7 +121,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     VehicleAI vai = PrefabCollection<VehicleInfo>.FindLoaded(entry).m_vehicleAI;
                     SetVehicleCapacity(vai, SafeGetAsset(entry).Capacity);
                 }
-                SimulationManager.instance.StartCoroutine(TLMLineUtils.UpdateCapacityUnits());
+                SimulationManager.instance.StartCoroutine(TLMVehicleUtils.UpdateCapacityUnitsFromTSD());
             }
         }
 
@@ -149,7 +149,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     LogUtils.DoErrorLog($"ERROR LOADING ASSET CONFIG: {e}=> {e.Message}\n{e.StackTrace}");
                 }
             }
-            SimulationManager.instance.StartCoroutine(TLMLineUtils.UpdateCapacityUnits());
+            SimulationManager.instance.StartCoroutine(TLMVehicleUtils.UpdateCapacityUnitsFromTSD());
         }
 
         private static readonly Dictionary<string, int> m_defaultCapacities = new Dictionary<string, int>();
