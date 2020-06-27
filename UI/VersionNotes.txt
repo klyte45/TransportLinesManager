@@ -1,4 +1,4 @@
-﻿<color #AA44FF>TLMv13.4.1</color>
+﻿<color #AA44FF>TLMv13.5</color>
 	- Added support to <color yellow>More Vehicles</color> mod. Some statatistics may be lost when converting a savegame to use that mod, but it's harmless.
 	- Fixed some Write the Signs integration bugs.
 <color #888888>TLMv13.4
