@@ -1,8 +1,11 @@
-﻿<color #AA44FF>TLMv13.4</color>
+﻿<color #AA44FF>TLMv13.4.1</color>
+	- Added support to <color yellow>More Vehicles</color> mod. Some statatistics may be lost when converting a savegame to use that mod, but it's harmless.
+	- Fixed some Write the Signs integration bugs.
+<color #888888>TLMv13.4
 	- Added Russian translation (thanks to <color yellow>vitalii201</color>)
 	- Added Tradition Chinese translation (thanks to <color yellow>Thick Toaster</color>)
 	- Added WTS integration
 	- Fixed passengers waiting for line with no budget
 	- Fixed minor UI issues
 	- Fixed: Leading zeros setting is being ignored
-	- Draft support to custom vehicle numbers generation in WTS - will be more customizable in the future
+	- Draft support to custom vehicle numbers generation in WTS - will be more customizable in the future</color>

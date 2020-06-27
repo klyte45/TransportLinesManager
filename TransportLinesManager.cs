@@ -9,7 +9,7 @@ using Klyte.TransportLinesManager.OptionsMenu;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly: AssemblyVersion("13.4.0.*")]
+[assembly: AssemblyVersion("13.4.1.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -25,7 +25,7 @@ namespace Klyte.TransportLinesManager
         protected override List<string> IncompatibleDllModList { get; } = new List<string>()
         {
             "ImprovedPublicTransport2",
-            "MoreVehicles"
+     //       "MoreVehicles"
         };
 
 

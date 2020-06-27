@@ -40,12 +40,12 @@ namespace Klyte.TransportLinesManager.Extensors
         public TLMTransportLineStatusesManager()
         {
             InitArray(ref m_linesDataLong, TransportManager.MAX_LINE_COUNT, typeof(LineDataLong));
-            InitArray(ref m_vehiclesDataLong, VehicleManager.MAX_VEHICLE_COUNT, typeof(VehicleDataLong));
+            InitArray(ref m_vehiclesDataLong, (int)VehicleManager.instance.m_vehicles.m_size, typeof(VehicleDataLong));
             InitArray(ref m_stopDataLong, NetManager.MAX_NODE_COUNT, typeof(StopDataLong));
 
-            InitArray(ref m_linesDataInt, TransportManager.MAX_LINE_COUNT, typeof(LineDataInt));
-            InitArray(ref m_vehiclesDataInt, VehicleManager.MAX_VEHICLE_COUNT, typeof(VehicleDataInt));
-            InitArray(ref m_stopDataInt, NetManager.MAX_NODE_COUNT, typeof(StopDataInt));
+            InitArray(ref m_linesDataInt, TransportManager.MAX_LINE_COUNT, typeof(LineDataSmallInt));
+            InitArray(ref m_vehiclesDataInt, (int)VehicleManager.instance.m_vehicles.m_size, typeof(VehicleDataSmallInt));
+            InitArray(ref m_stopDataInt, NetManager.MAX_NODE_COUNT, typeof(StopDataSmallInt));
 
             InitArray(ref m_linesDataUshort, TransportManager.MAX_LINE_COUNT, typeof(LineDataUshort));
         }
@@ -62,7 +62,7 @@ namespace Klyte.TransportLinesManager.Extensors
         #region Data feeding
         public void AddToLine(ushort lineId, long income, long expense, ref Citizen citizenData, ushort citizenId)
         {
-            IncrementInArray(lineId, ref m_linesDataLong, ref m_linesDataInt, (int)LineDataLong.INCOME, (int)LineDataLong.EXPENSE, (int)LineDataInt.TOTAL_PASSENGERS, (int)LineDataInt.TOURIST_PASSENGERS, (int)LineDataInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
+            IncrementInArray(lineId, ref m_linesDataLong, ref m_linesDataInt, (int)LineDataLong.INCOME, (int)LineDataLong.EXPENSE, (int)LineDataSmallInt.TOTAL_PASSENGERS, (int)LineDataSmallInt.TOURIST_PASSENGERS, (int)LineDataSmallInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
             if (!citizenData.Equals(default))
             {
                 int idxW = ((((int)citizenData.WealthLevel * 5) + (int)Citizen.GetAgeGroup(citizenData.m_age)) << 1) + (int)Citizen.GetGender(citizenId);
@@ -70,8 +70,8 @@ namespace Klyte.TransportLinesManager.Extensors
             }
         }
 
-        public void AddToVehicle(ushort vehicleId, long income, long expense, ref Citizen citizenData) => IncrementInArray(vehicleId, ref m_vehiclesDataLong, ref m_vehiclesDataInt, (int)VehicleDataLong.INCOME, (int)VehicleDataLong.EXPENSE, (int)VehicleDataInt.TOTAL_PASSENGERS, (int)VehicleDataInt.TOURIST_PASSENGERS, (int)VehicleDataInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
-        public void AddToStop(ushort stopId, long income, ref Citizen citizenData) => IncrementInArray(stopId, ref m_stopDataLong, ref m_stopDataInt, (int)StopDataLong.INCOME, null, (int)StopDataInt.TOTAL_PASSENGERS, (int)StopDataInt.TOURIST_PASSENGERS, (int)StopDataInt.STUDENT_PASSENGERS, income, 0, ref citizenData);
+        public void AddToVehicle(ushort vehicleId, long income, long expense, ref Citizen citizenData) => IncrementInArray(vehicleId, ref m_vehiclesDataLong, ref m_vehiclesDataInt, (int)VehicleDataLong.INCOME, (int)VehicleDataLong.EXPENSE, (int)VehicleDataSmallInt.TOTAL_PASSENGERS, (int)VehicleDataSmallInt.TOURIST_PASSENGERS, (int)VehicleDataSmallInt.STUDENT_PASSENGERS, income, expense, ref citizenData);
+        public void AddToStop(ushort stopId, long income, ref Citizen citizenData) => IncrementInArray(stopId, ref m_stopDataLong, ref m_stopDataInt, (int)StopDataLong.INCOME, null, (int)StopDataSmallInt.TOTAL_PASSENGERS, (int)StopDataSmallInt.TOURIST_PASSENGERS, (int)StopDataSmallInt.STUDENT_PASSENGERS, income, 0, ref citizenData);
 
         private void IncrementInArray(ushort id, ref long[][] arrayRef, ref int[][] arrayRefInt, int incomeIdx, int? expenseIdx, int totalPassIdx, int tourPassIdx, int studPassIdx, long income, long expense, ref Citizen citizenData)
         {
@@ -189,18 +189,18 @@ namespace Klyte.TransportLinesManager.Extensors
             {
                 result.Add(new StudentsTouristsReport
                 {
-                    Total = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.TOTAL_PASSENGERS, j),
-                    Student = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.STUDENT_PASSENGERS, j),
-                    Tourists = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.TOURIST_PASSENGERS, j),
+                    Total = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataSmallInt.TOTAL_PASSENGERS, j),
+                    Student = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataSmallInt.STUDENT_PASSENGERS, j),
+                    Tourists = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataSmallInt.TOURIST_PASSENGERS, j),
                     RefFrame = GetStartFrameForArrayIdx(j)
                 });
 
             }
             result.Add(new StudentsTouristsReport
             {
-                Total = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.TOTAL_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
-                Student = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.STUDENT_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
-                Tourists = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataInt.TOURIST_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
+                Total = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataSmallInt.TOTAL_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
+                Student = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataSmallInt.STUDENT_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
+                Tourists = GetAtArray(lineId, ref m_linesDataInt, (int)LineDataSmallInt.TOURIST_PASSENGERS, CYCLES_CURRENT_DATA_IDX),
                 RefFrame = (Singleton<SimulationManager>.instance.m_currentFrameIndex + OFFSET_FRAMES) & ~FRAMES_PER_CYCLE_MASK
             });
             result.Sort((a, b) => a.RefFrame.CompareTo(b.RefFrame));
@@ -353,10 +353,10 @@ namespace Klyte.TransportLinesManager.Extensors
                     LogUtils.DoLog($"Stroring data for frame {(currentFrameIndex & ~FRAMES_PER_CYCLE_MASK).ToString("X8")} into idx {idxEnum.ToString("X1")}");
 
                     FinishCycle(idxEnum, ref instance.m_linesDataLong, TransportManager.MAX_LINE_COUNT);
-                    FinishCycle(idxEnum, ref instance.m_vehiclesDataLong, VehicleManager.MAX_VEHICLE_COUNT);
+                    FinishCycle(idxEnum, ref instance.m_vehiclesDataLong, (int)VehicleManager.instance.m_vehicles.m_size);
                     FinishCycle(idxEnum, ref instance.m_stopDataLong, NetManager.MAX_NODE_COUNT);
                     FinishCycle(idxEnum, ref instance.m_linesDataInt, TransportManager.MAX_LINE_COUNT);
-                    FinishCycle(idxEnum, ref instance.m_vehiclesDataInt, VehicleManager.MAX_VEHICLE_COUNT);
+                    FinishCycle(idxEnum, ref instance.m_vehiclesDataInt, (int)VehicleManager.instance.m_vehicles.m_size);
                     FinishCycle(idxEnum, ref instance.m_stopDataInt, NetManager.MAX_NODE_COUNT);
                     FinishCycle(idxEnum, ref instance.m_linesDataUshort, TransportManager.MAX_LINE_COUNT);
                 }
@@ -431,19 +431,19 @@ namespace Klyte.TransportLinesManager.Extensors
             INCOME
         }
 
-        private enum LineDataInt
+        private enum LineDataSmallInt
         {
             TOTAL_PASSENGERS,
             TOURIST_PASSENGERS,
             STUDENT_PASSENGERS
         }
-        private enum VehicleDataInt
+        private enum VehicleDataSmallInt
         {
             TOTAL_PASSENGERS,
             TOURIST_PASSENGERS,
             STUDENT_PASSENGERS
         }
-        private enum StopDataInt
+        private enum StopDataSmallInt
         {
             TOTAL_PASSENGERS,
             TOURIST_PASSENGERS,
@@ -627,19 +627,52 @@ namespace Klyte.TransportLinesManager.Extensors
                 case StopDataLong _:
                     action(ref m_stopDataLong);
                     break;
-                case LineDataInt _:
+                case LineDataSmallInt _:
                     actionInt(ref m_linesDataInt);
                     break;
-                case VehicleDataInt _:
+                case VehicleDataSmallInt _:
                     actionInt(ref m_vehiclesDataInt);
                     break;
-                case StopDataInt _:
+                case StopDataSmallInt _:
                     actionInt(ref m_stopDataInt);
                     break;
                 case LineDataUshort _:
                     actionUshort(ref m_linesDataUshort);
                     break;
             }
+        }
+
+        private static int PredictSize(Enum[] enumArray)
+        {
+            int size = 0;
+            foreach (var e in enumArray)
+            {
+                switch (e)
+                {
+                    case LineDataLong _:
+                        size += 8 * TransportManager.MAX_LINE_COUNT;
+                        break;
+                    case VehicleDataLong _:
+                        size += 8 * (int)VehicleManager.instance.m_vehicles.m_size;
+                        break;
+                    case StopDataLong _:
+                        size += 8 * NetManager.MAX_NODE_COUNT;
+                        break;
+                    case LineDataSmallInt _:
+                        size += 3 * TransportManager.MAX_LINE_COUNT;
+                        break;
+                    case VehicleDataSmallInt _:
+                        size += 3 * (int)VehicleManager.instance.m_vehicles.m_size;
+                        break;
+                    case StopDataSmallInt _:
+                        size += 3 * NetManager.MAX_NODE_COUNT;
+                        break;
+                    case LineDataUshort _:
+                        size += 2 * TransportManager.MAX_LINE_COUNT;
+                        break;
+                }
+            }
+            return size;
         }
 
         private delegate void DoWithArrayRef<T>(ref T[][] arrayRef) where T : struct, IComparable;
@@ -654,11 +687,11 @@ namespace Klyte.TransportLinesManager.Extensors
                     return (int)l;
                 case StopDataLong l:
                     return (int)l;
-                case LineDataInt l:
+                case LineDataSmallInt l:
                     return (int)l;
-                case VehicleDataInt l:
+                case VehicleDataSmallInt l:
                     return (int)l;
-                case StopDataInt l:
+                case StopDataSmallInt l:
                     return (int)l;
                 case LineDataUshort l:
                     return (int)l;
@@ -695,30 +728,30 @@ namespace Klyte.TransportLinesManager.Extensors
                             return 0;
                     }
                     break;
-                case LineDataInt l:
+                case LineDataSmallInt l:
                     switch (l)
                     {
-                        case LineDataInt.TOTAL_PASSENGERS:
-                        case LineDataInt.TOURIST_PASSENGERS:
-                        case LineDataInt.STUDENT_PASSENGERS:
+                        case LineDataSmallInt.TOTAL_PASSENGERS:
+                        case LineDataSmallInt.TOURIST_PASSENGERS:
+                        case LineDataSmallInt.STUDENT_PASSENGERS:
                             return 1;
                     }
                     break;
-                case VehicleDataInt v:
+                case VehicleDataSmallInt v:
                     switch (v)
                     {
-                        case VehicleDataInt.TOTAL_PASSENGERS:
-                        case VehicleDataInt.TOURIST_PASSENGERS:
-                        case VehicleDataInt.STUDENT_PASSENGERS:
+                        case VehicleDataSmallInt.TOTAL_PASSENGERS:
+                        case VehicleDataSmallInt.TOURIST_PASSENGERS:
+                        case VehicleDataSmallInt.STUDENT_PASSENGERS:
                             return 1;
                     }
                     break;
-                case StopDataInt s:
+                case StopDataSmallInt s:
                     switch (s)
                     {
-                        case StopDataInt.TOTAL_PASSENGERS:
-                        case StopDataInt.TOURIST_PASSENGERS:
-                        case StopDataInt.STUDENT_PASSENGERS:
+                        case StopDataSmallInt.TOTAL_PASSENGERS:
+                        case StopDataSmallInt.TOURIST_PASSENGERS:
+                        case StopDataSmallInt.STUDENT_PASSENGERS:
                             return 1;
                     }
                     break;

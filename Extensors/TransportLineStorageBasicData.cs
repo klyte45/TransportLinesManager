@@ -26,7 +26,15 @@ namespace Klyte.TransportLinesManager.Extensors
                     LogUtils.DoWarnLog("NOTE: Data is not zipped!");
                     data = rawData;
                 }
+                var expectedSize = PredictSize(LoadOrder);
 
+                int maxVehicles = (int)VehicleManager.instance.m_vehicles.m_size;
+
+                if (expectedSize > data.Length)
+                {
+                    LogUtils.DoWarnLog($"NOTE: Converting to fit in More Vehicles (expectedSize = {expectedSize} | length = {data.Length})");
+                    maxVehicles = 16384;
+                }
 
                 using var s = new MemoryStream(data);
                 long version = ReadLong(s);
@@ -34,12 +42,12 @@ namespace Klyte.TransportLinesManager.Extensors
                 {
                     if (version >= GetMinVersion(e))
                     {
-
+                        var isVehicleData = IsVehicleEnum(e);
                         TLMTransportLineStatusesManager.instance.DoWithArray(e, (ref long[][] arrayRef) =>
                         {
                             int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
 
-                            for (int i = 0; i < arrayRef.Length; i++)
+                            for (int i = 0; i < (isVehicleData ? maxVehicles : arrayRef.Length); i++)
                             {
                                 arrayRef[i][idx] = DeserializeFunction(s);
                             }
@@ -47,7 +55,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         {
                             int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
 
-                            for (int i = 0; i < arrayRef.Length; i++)
+                            for (int i = 0; i < (isVehicleData ? maxVehicles : arrayRef.Length); i++)
                             {
                                 arrayRef[i][idx] = (int)DeserializeFunction(s);
                             }
@@ -55,7 +63,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         {
                             int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
 
-                            for (int i = 0; i < arrayRef.Length; i++)
+                            for (int i = 0; i < (isVehicleData ? maxVehicles : arrayRef.Length); i++)
                             {
                                 arrayRef[i][idx] = (ushort)DeserializeFunction(s);
                             }
@@ -63,6 +71,17 @@ namespace Klyte.TransportLinesManager.Extensors
                     }
                 }
                 return this;
+            }
+
+            private bool IsVehicleEnum(Enum e)
+            {
+                switch (e)
+                {
+                    case VehicleDataLong _:
+                    case VehicleDataSmallInt _:
+                        return true;
+                }
+                return false;
             }
 
             public byte[] Serialize()
@@ -193,15 +212,15 @@ namespace Klyte.TransportLinesManager.Extensors
 
             protected override Enum[] LoadOrder { get; } = new Enum[]
                                                             {
-                                                                 VehicleDataInt.TOTAL_PASSENGERS,
-                                                                 VehicleDataInt.TOURIST_PASSENGERS,
-                                                                 VehicleDataInt.STUDENT_PASSENGERS,
-                                                                 StopDataInt.TOTAL_PASSENGERS,
-                                                                 StopDataInt.TOURIST_PASSENGERS,
-                                                                 StopDataInt.STUDENT_PASSENGERS,
-                                                                 LineDataInt.TOTAL_PASSENGERS,
-                                                                 LineDataInt.TOURIST_PASSENGERS,
-                                                                 LineDataInt.STUDENT_PASSENGERS
+                                                                 VehicleDataSmallInt.TOTAL_PASSENGERS,
+                                                                 VehicleDataSmallInt.TOURIST_PASSENGERS,
+                                                                 VehicleDataSmallInt.STUDENT_PASSENGERS,
+                                                                 StopDataSmallInt.TOTAL_PASSENGERS,
+                                                                 StopDataSmallInt.TOURIST_PASSENGERS,
+                                                                 StopDataSmallInt.STUDENT_PASSENGERS,
+                                                                 LineDataSmallInt.TOTAL_PASSENGERS,
+                                                                 LineDataSmallInt.TOURIST_PASSENGERS,
+                                                                 LineDataSmallInt.STUDENT_PASSENGERS
                                                             };
             protected override Action<Stream, long> SerializeFunction { get; } = WriteInt24;
             protected override Func<Stream, long> DeserializeFunction { get; } = ReadInt24;
