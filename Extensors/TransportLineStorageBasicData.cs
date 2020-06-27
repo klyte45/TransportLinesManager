@@ -13,8 +13,21 @@ namespace Klyte.TransportLinesManager.Extensors
 
             protected abstract Enum[] LoadOrder { get; }
 
-            public IDataExtensor Deserialize(Type type, byte[] data)
+            public IDataExtensor Deserialize(Type type, byte[] rawData)
             {
+
+                byte[] data;
+                try
+                {
+                    data = ZipUtils.UnzipBytes(rawData);
+                }
+                catch
+                {
+                    LogUtils.DoWarnLog("NOTE: Data is not zipped!");
+                    data = rawData;
+                }
+
+
                 using var s = new MemoryStream(data);
                 long version = ReadLong(s);
                 foreach (Enum e in LoadOrder)
@@ -88,7 +101,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     });
 
                 }
-                return s.ToArray();
+                return ZipUtils.ZipBytes(s.ToArray());
             }
             protected static void WriteLong(Stream s, long value)
             {

@@ -1,6 +1,6 @@
 ﻿<color #AA44FF>TLMv13.4</color>
 	- Added Russian translation (thanks to <color yellow>vitalii201</color>)
-	- Added Tradition Chinese translation (sorry but I lost the author name =/ )
+	- Added Tradition Chinese translation (thanks to <color yellow>Thick Toaster</color>)
 	- Added WTS integration
 	- Fixed passengers waiting for line with no budget
 	- Fixed minor UI issues
