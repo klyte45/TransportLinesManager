@@ -3,9 +3,7 @@ using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Utils;
 using System;
-using System.Linq;
 using UnityEngine;
-using static TransportInfo;
 
 namespace Klyte.TransportLinesManager.ModShared
 {
@@ -15,19 +13,11 @@ namespace Klyte.TransportLinesManager.ModShared
 
         internal void OnLineSymbolParameterChanged() => EventLineSymbolParameterChanged?.Invoke();
         internal void OnAutoNameParameterChanged() => EventAutoNameParameterChanged?.Invoke();
+        internal void OnVehicleIdentifierParameterChanged() => EventVehicleIdentifierParameterChanged?.Invoke();
 
         public event Action EventLineSymbolParameterChanged;
         public event Action EventAutoNameParameterChanged;
-
-        private string m_identifierFormatBusTrolley = "E FSTU";
-        private string m_identifierFormatMetroTrainTram = "OTUL";
-        private TransportType[] m_railTypes = new TransportType[]
-        {
-            TransportInfo.TransportType.Metro,
-            TransportInfo.TransportType.Train,
-            TransportInfo.TransportType.Tram,
-            TransportInfo.TransportType.Monorail,
-        };
+        public event Action EventVehicleIdentifierParameterChanged;
 
         public static string GetFullStationName(ushort stopId, ushort lineId, ItemClass.SubService subService) => TLMStationUtils.GetFullStationName(stopId, lineId, subService);
         public static Tuple<string, Color, string> GetIconStringParameters(ushort lineID) => TLMLineUtils.GetIconStringParameters(lineID);
@@ -37,9 +27,13 @@ namespace Klyte.TransportLinesManager.ModShared
         public string GetVehicleIdentifier(ushort vehicleId)
         {
             var firstVehicle = VehicleManager.instance.m_vehicles.m_buffer[vehicleId].GetFirstVehicle(vehicleId);
-            var tlId = VehicleManager.instance.m_vehicles.m_buffer[firstVehicle].m_transportLine;
+            ref Vehicle vehicle = ref VehicleManager.instance.m_vehicles.m_buffer[firstVehicle];
+            var tlId = vehicle.m_transportLine;
             ref TransportLine tl = ref TransportManager.instance.m_lines.m_buffer[tlId];
-            string identifierFormat = m_railTypes.Contains(tl.Info.m_transportType) ? m_identifierFormatMetroTrainTram : m_identifierFormatBusTrolley;
+
+            var tsd = TransportSystemDefinition.From(vehicle.Info);
+
+            string identifierFormat = TLMConfigWarehouse.GetCurrentConfigString(tsd.ToConfigIndex() | (tlId == 0 && vehicle.m_targetBuilding != 0 ? TLMConfigWarehouse.ConfigIndex.VEHICLE_NUMBER_FORMAT_FOREIGN : TLMConfigWarehouse.ConfigIndex.VEHICLE_NUMBER_FORMAT_LOCAL));
 
             string result = "";
 

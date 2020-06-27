@@ -67,11 +67,15 @@ namespace Klyte.TransportLinesManager
                     case ConfigIndex.TRANSPORT_ICON_TLM:
                         TLMShared.Instance?.OnLineSymbolParameterChanged();
                         break;
+                    case ConfigIndex.VEHICLE_NUMBER_FORMAT_FOREIGN:
+                    case ConfigIndex.VEHICLE_NUMBER_FORMAT_LOCAL:
+                        TLMShared.Instance?.OnVehicleIdentifierParameterChanged();
+                        break;
                 }
             }
             if ((idx & ConfigIndex.AUTO_NAMING_REF_TEXT) != 0 || (idx & ConfigIndex.USE_FOR_AUTO_NAMING_REF) != 0)
             {
-                TLMShared.Instance.OnAutoNameParameterChanged();
+                TLMShared.Instance?.OnAutoNameParameterChanged();
             }
         }
 
