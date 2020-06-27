@@ -4,6 +4,7 @@ using Klyte.TransportLinesManager.Extensors;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static ItemClass;
 using CIdx = Klyte.TransportLinesManager.TLMConfigWarehouse.ConfigIndex;
 using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
@@ -231,6 +232,69 @@ namespace Klyte.TransportLinesManager.Utils
                 return nn.m_position;
             }
         }
+
+        public static ushort GetStationBuilding(ushort stopId, ushort lineId)
+        {
+            NetManager nm = Singleton<NetManager>.instance;
+            BuildingManager bm = Singleton<BuildingManager>.instance;
+            ushort tempBuildingId;
+            Vector3 position = nm.m_nodes.m_buffer[stopId].m_position;
+
+            SubService ss = TransportManager.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService;
+
+            if (ss != ItemClass.SubService.None)
+            {
+                tempBuildingId = BuildingUtils.FindBuilding(position, 100f, ItemClass.Service.PublicTransport, ss, m_defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.None);
+
+                while (BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding != 0)
+                {
+                    tempBuildingId = BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding;
+                }
+                if (BuildingUtils.IsBuildingValidForStation(true, bm, tempBuildingId))
+                {
+                    return tempBuildingId;
+                }
+            }
+
+            tempBuildingId = BuildingUtils.FindBuilding(position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, m_defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.None);
+            while (BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding != 0)
+            {
+                tempBuildingId = BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding;
+            }
+            if (BuildingUtils.IsBuildingValidForStation(true, bm, tempBuildingId))
+            {
+                return tempBuildingId;
+            }
+
+
+            tempBuildingId = BuildingUtils.FindBuilding(position, 100f, ItemClass.Service.Road, ItemClass.SubService.None, null, Building.Flags.None, Building.Flags.None);
+            while (BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding != 0)
+            {
+                tempBuildingId = BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding;
+            }
+            if (BuildingUtils.IsBuildingValidForStation(true, bm, tempBuildingId))
+            {
+                return tempBuildingId;
+            }
+
+            return 0;
+
+        }
+
+        private static readonly TransferManager.TransferReason[] m_defaultAllowedVehicleTypes = {
+            TransferManager.TransferReason.Blimp ,
+            TransferManager.TransferReason.CableCar ,
+            TransferManager.TransferReason.Ferry ,
+            TransferManager.TransferReason.MetroTrain ,
+            TransferManager.TransferReason.Monorail ,
+            TransferManager.TransferReason.PassengerTrain ,
+            TransferManager.TransferReason.PassengerPlane ,
+            TransferManager.TransferReason.PassengerShip ,
+            TransferManager.TransferReason.Tram ,
+            TransferManager.TransferReason.TouristBus ,
+            TransferManager.TransferReason.IntercityBus ,
+            TransferManager.TransferReason.Bus
+        };
 
         public static ushort GetStationBuilding(uint stopId, ItemClass.SubService ss, bool excludeCargo = false, bool restrictToTransportType = false)
         {

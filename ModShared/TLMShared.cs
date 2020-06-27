@@ -31,7 +31,7 @@ namespace Klyte.TransportLinesManager.ModShared
 
         public static string GetFullStationName(ushort stopId, ushort lineId, ItemClass.SubService subService) => TLMStationUtils.GetFullStationName(stopId, lineId, subService);
         public static Tuple<string, Color, string> GetIconStringParameters(ushort lineID) => TLMLineUtils.GetIconStringParameters(lineID);
-        public static ushort GetStationBuilding(ushort stopId, ItemClass.SubService subService, bool v) => TLMStationUtils.GetStationBuilding(stopId, subService, v);
+        public static ushort GetStationBuilding(ushort stopId, ushort lineId) => TLMStationUtils.GetStationBuilding(stopId, lineId);
         public static string GetLineSortString(ushort lineId, ref TransportLine transportLine) => TLMLineUtils.GetLineSortString(lineId, ref transportLine);
 
         public string GetVehicleIdentifier(ushort vehicleId)
