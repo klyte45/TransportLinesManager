@@ -23,7 +23,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 }
                 catch
                 {
-                    LogUtils.DoWarnLog("NOTE: Data is not zipped!");
+                    LogUtils.DoLog("NOTE: Data is not zipped!");
                     data = rawData;
                 }
                 var expectedSize = PredictSize(LoadOrder);
@@ -100,7 +100,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         {
                             SerializeFunction(s, arrayRef[i][idx]);
                         }
-                        LogUtils.DoWarnLog($"size: {s.Length} ({e.GetType()} {e})");
+                        LogUtils.DoWarnLog($"idxs= {arrayRef.Length};byte[] size: {s.Length} ({e.GetType()} {e})");
                     }, (ref int[][] arrayRef) =>
                     {
                         int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
@@ -108,7 +108,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         {
                             SerializeFunction(s, arrayRef[i][idx]);
                         }
-                        LogUtils.DoWarnLog($"size: {s.Length} ({e.GetType()} {e})");
+                        LogUtils.DoWarnLog($"idxs= {arrayRef.Length};byte[] size: {s.Length} ({e.GetType()} {e})");
                     }, (ref ushort[][] arrayRef) =>
                     {
                         int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
@@ -116,7 +116,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         {
                             SerializeFunction(s, arrayRef[i][idx]);
                         }
-                        LogUtils.DoWarnLog($"size: {s.Length} ({e.GetType()} {e})");
+                        LogUtils.DoWarnLog($"idxs= {arrayRef.Length}; byte[] size: {s.Length} ({e.GetType()} {e})");
                     });
 
                 }
@@ -139,6 +139,25 @@ namespace Klyte.TransportLinesManager.Extensors
                 long num = (long)(s.ReadByte() & 255) << 56;
                 num |= (long)(s.ReadByte() & 255) << 48;
                 num |= (long)(s.ReadByte() & 255) << 40;
+                num |= (long)(s.ReadByte() & 255) << 32;
+                num |= (long)(s.ReadByte() & 255) << 24;
+                num |= (long)(s.ReadByte() & 255) << 16;
+                num |= (long)(s.ReadByte() & 255) << 8;
+                return num | (s.ReadByte() & 255 & 255L);
+            }
+            protected static void WriteSemiLong(Stream s, long value)
+            {
+                s.WriteByte((byte)((value >> 40) & 255L));
+                s.WriteByte((byte)((value >> 32) & 255L));
+                s.WriteByte((byte)((value >> 24) & 255L));
+                s.WriteByte((byte)((value >> 16) & 255L));
+                s.WriteByte((byte)((value >> 8) & 255L));
+                s.WriteByte((byte)(value & 255L));
+            }
+
+            protected static long ReadSemiLong(Stream s)
+            {
+                long num = (long)(s.ReadByte() & 255) << 40;
                 num |= (long)(s.ReadByte() & 255) << 32;
                 num |= (long)(s.ReadByte() & 255) << 24;
                 num |= (long)(s.ReadByte() & 255) << 16;
@@ -193,7 +212,7 @@ namespace Klyte.TransportLinesManager.Extensors
             public void LoadDefaults() { }
         }
 
-        public class TLMTransportLineStorageEconomyData : TransportLineStorageBasicData
+        public class TLMTransportLineStorageEconomyData_LineStop : TransportLineStorageBasicData
         {
             public override string SaveId => "K45_TLM_TLMTransportLineStorageEconomyData";
 
@@ -202,11 +221,21 @@ namespace Klyte.TransportLinesManager.Extensors
                                                                 LineDataLong.EXPENSE,
                                                                 LineDataLong.INCOME,
                                                                 StopDataLong.INCOME,
+                                                            };
+        }
+        public class TLMTransportLineStorageEconomyData_Vehicle : TransportLineStorageBasicData
+        {
+            public override string SaveId => "K45_TLM_TLMTransportLineStorageEconomyData_Vehicle";
+
+            protected override Enum[] LoadOrder { get; } = new Enum[]
+                                                            {
                                                                 VehicleDataLong.EXPENSE,
                                                                 VehicleDataLong.INCOME,
                                                             };
+            protected override Action<Stream, long> SerializeFunction { get; } = WriteSemiLong;
+            protected override Func<Stream, long> DeserializeFunction { get; } = ReadSemiLong;
         }
-        public class TLMTransportLineStoragePassengerData : TransportLineStorageBasicData
+        public class TLMTransportLineStoragePassengerData_Vehicles : TransportLineStorageBasicData
         {
             public override string SaveId => "K45_TLM_TLMTransportLineStoragePassengerData";
 
@@ -215,19 +244,29 @@ namespace Klyte.TransportLinesManager.Extensors
                                                                  VehicleDataSmallInt.TOTAL_PASSENGERS,
                                                                  VehicleDataSmallInt.TOURIST_PASSENGERS,
                                                                  VehicleDataSmallInt.STUDENT_PASSENGERS,
-                                                                 StopDataSmallInt.TOTAL_PASSENGERS,
-                                                                 StopDataSmallInt.TOURIST_PASSENGERS,
-                                                                 StopDataSmallInt.STUDENT_PASSENGERS,
-                                                                 LineDataSmallInt.TOTAL_PASSENGERS,
-                                                                 LineDataSmallInt.TOURIST_PASSENGERS,
-                                                                 LineDataSmallInt.STUDENT_PASSENGERS
                                                             };
             protected override Action<Stream, long> SerializeFunction { get; } = WriteInt24;
             protected override Func<Stream, long> DeserializeFunction { get; } = ReadInt24;
         }
-        public class TLMTransportLineStorageDetailedPassengerData : TransportLineStorageBasicData
+        public class TLMTransportLineStoragePassengerData_LineStop : TransportLineStorageBasicData
         {
-            public override string SaveId => "K45_TLM_TLMTransportLineStorageDetailedPassengerData";
+            public override string SaveId => "K45_TLM_TLMTransportLineStoragePassengerData_LineStop";
+
+            protected override Enum[] LoadOrder { get; } = new Enum[]
+                                                            {
+                                                                 LineDataSmallInt.TOTAL_PASSENGERS,
+                                                                 LineDataSmallInt.TOURIST_PASSENGERS,
+                                                                 LineDataSmallInt.STUDENT_PASSENGERS,
+                                                                 StopDataSmallInt.TOTAL_PASSENGERS,
+                                                                 StopDataSmallInt.TOURIST_PASSENGERS,
+                                                                 StopDataSmallInt.STUDENT_PASSENGERS,
+                                                            };
+            protected override Action<Stream, long> SerializeFunction { get; } = WriteInt24;
+            protected override Func<Stream, long> DeserializeFunction { get; } = ReadInt24;
+        }
+        public class TLMTransportLineStorageDetailedPassengerData_W1 : TransportLineStorageBasicData
+        {
+            public override string SaveId => "K45_TLM_TLMTransportLineStorageDetailedPassengerData_W1";
 
             protected override Enum[] LoadOrder { get; } = new Enum[]
                                                             {
@@ -236,26 +275,45 @@ namespace Klyte.TransportLinesManager.Extensors
                                                               LineDataUshort.W1_YOUNG_MALE_PASSENGERS,
                                                               LineDataUshort.W1_ADULT_MALE_PASSENGERS,
                                                               LineDataUshort.W1_ELDER_MALE_PASSENGERS,
-                                                              LineDataUshort.W2_CHILD_MALE_PASSENGERS,
-                                                              LineDataUshort.W2_TEENS_MALE_PASSENGERS,
-                                                              LineDataUshort.W2_YOUNG_MALE_PASSENGERS,
-                                                              LineDataUshort.W2_ADULT_MALE_PASSENGERS,
-                                                              LineDataUshort.W2_ELDER_MALE_PASSENGERS,
-                                                              LineDataUshort.W3_CHILD_MALE_PASSENGERS,
-                                                              LineDataUshort.W3_TEENS_MALE_PASSENGERS,
-                                                              LineDataUshort.W3_YOUNG_MALE_PASSENGERS,
-                                                              LineDataUshort.W3_ADULT_MALE_PASSENGERS,
-                                                              LineDataUshort.W3_ELDER_MALE_PASSENGERS,
                                                               LineDataUshort.W1_CHILD_FEML_PASSENGERS,
                                                               LineDataUshort.W1_TEENS_FEML_PASSENGERS,
                                                               LineDataUshort.W1_YOUNG_FEML_PASSENGERS,
                                                               LineDataUshort.W1_ADULT_FEML_PASSENGERS,
                                                               LineDataUshort.W1_ELDER_FEML_PASSENGERS,
+                                                            };
+            protected override Action<Stream, long> SerializeFunction { get; } = WriteInt16;
+            protected override Func<Stream, long> DeserializeFunction { get; } = ReadInt16;
+        }
+        public class TLMTransportLineStorageDetailedPassengerData_W2 : TransportLineStorageBasicData
+        {
+            public override string SaveId => "K45_TLM_TLMTransportLineStorageDetailedPassengerData_W2";
+
+            protected override Enum[] LoadOrder { get; } = new Enum[]
+                                                            {
+                                                              LineDataUshort.W2_CHILD_MALE_PASSENGERS,
+                                                              LineDataUshort.W2_TEENS_MALE_PASSENGERS,
+                                                              LineDataUshort.W2_YOUNG_MALE_PASSENGERS,
+                                                              LineDataUshort.W2_ADULT_MALE_PASSENGERS,
+                                                              LineDataUshort.W2_ELDER_MALE_PASSENGERS,
                                                               LineDataUshort.W2_CHILD_FEML_PASSENGERS,
                                                               LineDataUshort.W2_TEENS_FEML_PASSENGERS,
                                                               LineDataUshort.W2_YOUNG_FEML_PASSENGERS,
                                                               LineDataUshort.W2_ADULT_FEML_PASSENGERS,
-                                                              LineDataUshort.W2_ELDER_FEML_PASSENGERS,
+                                                            };
+            protected override Action<Stream, long> SerializeFunction { get; } = WriteInt16;
+            protected override Func<Stream, long> DeserializeFunction { get; } = ReadInt16;
+        }
+        public class TLMTransportLineStorageDetailedPassengerData_W3 : TransportLineStorageBasicData
+        {
+            public override string SaveId => "K45_TLM_TLMTransportLineStorageDetailedPassengerData_W3";
+
+            protected override Enum[] LoadOrder { get; } = new Enum[]
+                                                            {
+                                                              LineDataUshort.W3_CHILD_MALE_PASSENGERS,
+                                                              LineDataUshort.W3_TEENS_MALE_PASSENGERS,
+                                                              LineDataUshort.W3_YOUNG_MALE_PASSENGERS,
+                                                              LineDataUshort.W3_ADULT_MALE_PASSENGERS,
+                                                              LineDataUshort.W3_ELDER_MALE_PASSENGERS,
                                                               LineDataUshort.W3_CHILD_FEML_PASSENGERS,
                                                               LineDataUshort.W3_TEENS_FEML_PASSENGERS,
                                                               LineDataUshort.W3_YOUNG_FEML_PASSENGERS,
