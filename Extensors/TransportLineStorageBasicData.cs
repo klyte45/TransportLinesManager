@@ -120,7 +120,7 @@ namespace Klyte.TransportLinesManager.Extensors
                     });
 
                 }
-                return ZipUtils.ZipBytes(s.ToArray());
+                return (s.ToArray());
             }
             protected static void WriteLong(Stream s, long value)
             {

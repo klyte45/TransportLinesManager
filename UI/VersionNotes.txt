@@ -1,6 +1,9 @@
 ﻿<color #AA44FF>TLMv13.5</color>
 	- Added support to <color yellow>More Vehicles</color> mod. Some statatistics may be lost when converting a savegame to use that mod, but it's harmless.
 	- Fixed some Write the Signs integration bugs.
-
+	
 <color yellow>Update r1:</color> Fixed game sometimes freezing when saving. 
 	<color #FF8800>IMPORTANT NOTE: Some stats data will be lost due More Vehicles compatibility implementation!</color>
+
+<color yellow>Update r2:</color> Fixed auto-save issue
+	<color #00ffff>NOTE: The savegame size will be increased.</color>
