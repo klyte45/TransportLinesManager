@@ -68,21 +68,21 @@ namespace Klyte.TransportLinesManager.Extensors
                 case ItemClass.Service.FireDepartment:
                     return TLMConfigWarehouse.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG;
                 case ItemClass.Service.PublicTransport:
-                    return ss switch
+                    switch (ss)
                     {
-                        ItemClass.SubService.PublicTransportBus => TLMConfigWarehouse.ConfigIndex.BUS_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        ItemClass.SubService.PublicTransportCableCar => TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        ItemClass.SubService.PublicTransportMetro => TLMConfigWarehouse.ConfigIndex.METRO_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        ItemClass.SubService.PublicTransportMonorail => TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        ItemClass.SubService.PublicTransportPlane => TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        ItemClass.SubService.PublicTransportShip => TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        ItemClass.SubService.PublicTransportTaxi => TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        ItemClass.SubService.PublicTransportTours => TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        ItemClass.SubService.PublicTransportTrain => TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        ItemClass.SubService.PublicTransportTram => TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        ItemClass.SubService.PublicTransportTrolleybus => TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                        _ => TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG,
-                    };
+                        case ItemClass.SubService.PublicTransportBus: return TLMConfigWarehouse.ConfigIndex.BUS_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportCableCar: return TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportMetro: return TLMConfigWarehouse.ConfigIndex.METRO_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportMonorail: return TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportPlane: return TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportShip: return TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportTaxi: return TLMConfigWarehouse.ConfigIndex.TAXI_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportTours: return TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportTrain: return TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportTram: return TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        case ItemClass.SubService.PublicTransportTrolleybus: return TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG | TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                        default: return TLMConfigWarehouse.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG;
+                    }
                 case ItemClass.Service.Disaster:
                     return TLMConfigWarehouse.ConfigIndex.DISASTER_SERVICE_CONFIG;
                 case ItemClass.Service.PlayerIndustry:

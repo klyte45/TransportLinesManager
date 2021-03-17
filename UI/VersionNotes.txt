@@ -4,6 +4,8 @@
 	
 <color yellow>Update r1:</color> Fixed game sometimes freezing when saving. 
 	<color #FF8800>IMPORTANT NOTE: Some stats data will be lost due More Vehicles compatibility implementation!</color>
-
+	
 <color yellow>Update r2:</color> Fixed auto-save issue
 	<color #00ffff>NOTE: The savegame size will be increased.</color>
+
+<color yellow>Update r10000:</color> Downgrade to C# 7.x

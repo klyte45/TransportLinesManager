@@ -336,57 +336,58 @@ namespace Klyte.TransportLinesManager.OptionsMenu
     {
         public static string GetTabName(this ConfigTabs tab)
         {
-            return tab switch
+            switch (tab)
             {
-                ConfigTabs.TransportSystem => Locale.Get("K45_TLM_TRANSPORT_SYSTEM"),
-                ConfigTabs.TicketPrices => Locale.Get("K45_TLM_DEFAULT_PRICE"),
-                ConfigTabs.NearLines => Locale.Get("K45_TLM_NEAR_LINES_CONFIG"),
-                ConfigTabs.Automation => Locale.Get("K45_TLM_AUTOMATION_CONFIG"),
-                ConfigTabs.AutoName_PT => Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT"),
-                ConfigTabs.AutoName_BD => Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_OTHER"),
-                ConfigTabs.AutoName_PA => Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_AREAS"),
-                ConfigTabs.Palettes => Locale.Get("K45_TLM_CUSTOM_PALETTE_CONFIG"),
-                ConfigTabs.About => Locale.Get("K45_TLM_BETAS_EXTRA_INFO"),
-                ConfigTabs.CostPerPassenger => Locale.Get("K45_TLM_COST_PER_PASSENGER_CONFIG"),
-                _ => throw new Exception($"Not supported: {tab}"),
+                case ConfigTabs.TransportSystem: return Locale.Get("K45_TLM_TRANSPORT_SYSTEM");
+                case ConfigTabs.TicketPrices: return Locale.Get("K45_TLM_DEFAULT_PRICE");
+                case ConfigTabs.NearLines: return Locale.Get("K45_TLM_NEAR_LINES_CONFIG");
+                case ConfigTabs.Automation: return Locale.Get("K45_TLM_AUTOMATION_CONFIG");
+                case ConfigTabs.AutoName_PT: return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT");
+                case ConfigTabs.AutoName_BD: return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_OTHER");
+                case ConfigTabs.AutoName_PA: return Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_AREAS");
+                case ConfigTabs.Palettes: return Locale.Get("K45_TLM_CUSTOM_PALETTE_CONFIG");
+                case ConfigTabs.About: return Locale.Get("K45_TLM_BETAS_EXTRA_INFO");
+                case ConfigTabs.CostPerPassenger: return Locale.Get("K45_TLM_COST_PER_PASSENGER_CONFIG");
+                default: throw new Exception($"Not supported: {tab}");
             };
         }
         public static string GetTabFgSprite(this ConfigTabs tab)
         {
-            return tab switch
+            switch (tab)
             {
-                ConfigTabs.TransportSystem => "ParkLevelStar",
-                ConfigTabs.TicketPrices => "FootballTicketIcon",
-                ConfigTabs.NearLines => "RelocateIcon",
-                ConfigTabs.Automation => "Options",
-                ConfigTabs.AutoName_PT => "ToolbarIconPublicTransport",
-                ConfigTabs.AutoName_BD => "ToolbarIconMonuments",
-                ConfigTabs.AutoName_PA => "ToolbarIconDistrict",
-                ConfigTabs.Palettes => "ZoningOptionFill",
-                ConfigTabs.About => "CityInfo",
-                ConfigTabs.CostPerPassenger => "IconCitizen",
-                _ => throw new Exception($"Not supported: {tab}"),
+                case ConfigTabs.TransportSystem: return "ParkLevelStar";
+                case ConfigTabs.TicketPrices: return "FootballTicketIcon";
+                case ConfigTabs.NearLines: return "RelocateIcon";
+                case ConfigTabs.Automation: return "Options";
+                case ConfigTabs.AutoName_PT: return "ToolbarIconPublicTransport";
+                case ConfigTabs.AutoName_BD: return "ToolbarIconMonuments";
+                case ConfigTabs.AutoName_PA: return "ToolbarIconDistrict";
+                case ConfigTabs.Palettes: return "ZoningOptionFill";
+                case ConfigTabs.About: return "CityInfo";
+                case ConfigTabs.CostPerPassenger:
+                    return "IconCitizen";
+                default: throw new Exception($"Not supported: {tab}");
             };
         }
 
         public static Type GetTabGenericContentImpl(this ConfigTabs tab)
         {
-            return tab switch
+            switch (tab)
             {
-                ConfigTabs.TransportSystem => typeof(TLMShowConfigTabContainer),
-                ConfigTabs.TicketPrices => typeof(TLMDefaultTicketPriceConfigTab),
-                ConfigTabs.NearLines => typeof(TLMNearLinesConfigTab),
-                ConfigTabs.Automation => typeof(TLMAutomationOptionsTab),
-                ConfigTabs.AutoName_PT => typeof(TLMAutoNamePublicTransportTab),
-                ConfigTabs.AutoName_BD => typeof(TLMAutoNameBuildingsTab),
-                ConfigTabs.AutoName_PA => typeof(TLMAutoNamePublicAreasTab),
-                ConfigTabs.Palettes => typeof(TLMPaletteOptionsTab),
-                ConfigTabs.About => typeof(TLMModInfoTab),
-                ConfigTabs.CostPerPassenger => typeof(TLMDefaultCostPerPassengerConfigTab),
-                _ => null,
+                case ConfigTabs.TransportSystem: return typeof(TLMShowConfigTabContainer);
+                case ConfigTabs.TicketPrices: return typeof(TLMDefaultTicketPriceConfigTab);
+                case ConfigTabs.NearLines: return typeof(TLMNearLinesConfigTab);
+                case ConfigTabs.Automation: return typeof(TLMAutomationOptionsTab);
+                case ConfigTabs.AutoName_PT: return typeof(TLMAutoNamePublicTransportTab);
+                case ConfigTabs.AutoName_BD: return typeof(TLMAutoNameBuildingsTab);
+                case ConfigTabs.AutoName_PA: return typeof(TLMAutoNamePublicAreasTab);
+                case ConfigTabs.Palettes: return typeof(TLMPaletteOptionsTab);
+                case ConfigTabs.About: return typeof(TLMModInfoTab);
+                case ConfigTabs.CostPerPassenger: return typeof(TLMDefaultCostPerPassengerConfigTab);
+                default: return null;
             };
-        }
     }
+}
 
 
 }
