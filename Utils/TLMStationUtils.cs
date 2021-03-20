@@ -124,12 +124,16 @@ namespace Klyte.TransportLinesManager.Utils
                 {
                     prefix = idx.GetSystemStationNamePrefix(lineId)?.TrimStart();
                     serviceFound = idx.ToServiceSubservice(out subserviceFound);
-                    resultNamingType = idx switch
+                    resultNamingType = NamingType.PARKAREA;
+                    switch (idx)
                     {
-                        CIdx.CAMPUS_AREA_NAME_CONFIG => NamingType.CAMPUS,
-                        CIdx.INDUSTRIAL_AREA_NAME_CONFIG => NamingType.INDUSTRY_AREA,
-                        _ => NamingType.PARKAREA,
-                    };
+                        case CIdx.CAMPUS_AREA_NAME_CONFIG:
+                            resultNamingType = NamingType.CAMPUS;
+                            break;
+                        case CIdx.INDUSTRIAL_AREA_NAME_CONFIG:
+                            resultNamingType = NamingType.INDUSTRY_AREA;
+                            break;
+                    }
                     return DistrictManager.instance.GetParkName(parkId);
                 }
             }

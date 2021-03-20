@@ -36,38 +36,40 @@ namespace Klyte.TransportLinesManager.Extensors
                     maxVehicles = 16384;
                 }
 
-                using var s = new MemoryStream(data);
-                long version = ReadLong(s);
-                foreach (Enum e in LoadOrder)
+                using (var s = new MemoryStream(data))
                 {
-                    if (version >= GetMinVersion(e))
+                    long version = ReadLong(s);
+                    foreach (Enum e in LoadOrder)
                     {
-                        var isVehicleData = IsVehicleEnum(e);
-                        TLMTransportLineStatusesManager.instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                        if (version >= GetMinVersion(e))
                         {
-                            int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
-
-                            for (int i = 0; i < (isVehicleData ? maxVehicles : arrayRef.Length); i++)
+                            var isVehicleData = IsVehicleEnum(e);
+                            TLMTransportLineStatusesManager.instance.DoWithArray(e, (ref long[][] arrayRef) =>
                             {
-                                arrayRef[i][idx] = DeserializeFunction(s);
-                            }
-                        }, (ref int[][] arrayRef) =>
-                        {
-                            int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
+                                int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
 
-                            for (int i = 0; i < (isVehicleData ? maxVehicles : arrayRef.Length); i++)
+                                for (int i = 0; i < (isVehicleData ? maxVehicles : arrayRef.Length); i++)
+                                {
+                                    arrayRef[i][idx] = DeserializeFunction(s);
+                                }
+                            }, (ref int[][] arrayRef) =>
                             {
-                                arrayRef[i][idx] = (int)DeserializeFunction(s);
-                            }
-                        }, (ref ushort[][] arrayRef) =>
-                        {
-                            int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
+                                int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
 
-                            for (int i = 0; i < (isVehicleData ? maxVehicles : arrayRef.Length); i++)
+                                for (int i = 0; i < (isVehicleData ? maxVehicles : arrayRef.Length); i++)
+                                {
+                                    arrayRef[i][idx] = (int)DeserializeFunction(s);
+                                }
+                            }, (ref ushort[][] arrayRef) =>
                             {
-                                arrayRef[i][idx] = (ushort)DeserializeFunction(s);
-                            }
-                        });
+                                int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
+
+                                for (int i = 0; i < (isVehicleData ? maxVehicles : arrayRef.Length); i++)
+                                {
+                                    arrayRef[i][idx] = (ushort)DeserializeFunction(s);
+                                }
+                            });
+                        }
                     }
                 }
                 return this;
@@ -86,41 +88,41 @@ namespace Klyte.TransportLinesManager.Extensors
 
             public byte[] Serialize()
             {
-                using var s = new MemoryStream();
-
-                WriteLong(s, CURRENT_VERSION);
-
-
-                foreach (Enum e in LoadOrder)
+                using (var s = new MemoryStream())
                 {
-                    TLMTransportLineStatusesManager.instance.DoWithArray(e, (ref long[][] arrayRef) =>
-                    {
-                        int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
-                        for (int i = 0; i < arrayRef.Length; i++)
-                        {
-                            SerializeFunction(s, arrayRef[i][idx]);
-                        }
-                        LogUtils.DoWarnLog($"idxs= {arrayRef.Length};byte[] size: {s.Length} ({e.GetType()} {e})");
-                    }, (ref int[][] arrayRef) =>
-                    {
-                        int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
-                        for (int i = 0; i < arrayRef.Length; i++)
-                        {
-                            SerializeFunction(s, arrayRef[i][idx]);
-                        }
-                        LogUtils.DoWarnLog($"idxs= {arrayRef.Length};byte[] size: {s.Length} ({e.GetType()} {e})");
-                    }, (ref ushort[][] arrayRef) =>
-                    {
-                        int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
-                        for (int i = 0; i < arrayRef.Length; i++)
-                        {
-                            SerializeFunction(s, arrayRef[i][idx]);
-                        }
-                        LogUtils.DoWarnLog($"idxs= {arrayRef.Length}; byte[] size: {s.Length} ({e.GetType()} {e})");
-                    });
 
+                    WriteLong(s, CURRENT_VERSION);
+                    foreach (Enum e in LoadOrder)
+                    {
+                        TLMTransportLineStatusesManager.instance.DoWithArray(e, (ref long[][] arrayRef) =>
+                        {
+                            int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
+                            for (int i = 0; i < arrayRef.Length; i++)
+                            {
+                                SerializeFunction(s, arrayRef[i][idx]);
+                            }
+                            LogUtils.DoWarnLog($"idxs= {arrayRef.Length};byte[] size: {s.Length} ({e.GetType()} {e})");
+                        }, (ref int[][] arrayRef) =>
+                        {
+                            int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
+                            for (int i = 0; i < arrayRef.Length; i++)
+                            {
+                                SerializeFunction(s, arrayRef[i][idx]);
+                            }
+                            LogUtils.DoWarnLog($"idxs= {arrayRef.Length};byte[] size: {s.Length} ({e.GetType()} {e})");
+                        }, (ref ushort[][] arrayRef) =>
+                        {
+                            int idx = TLMTransportLineStatusesManager.instance.GetIdxFor(e);
+                            for (int i = 0; i < arrayRef.Length; i++)
+                            {
+                                SerializeFunction(s, arrayRef[i][idx]);
+                            }
+                            LogUtils.DoWarnLog($"idxs= {arrayRef.Length}; byte[] size: {s.Length} ({e.GetType()} {e})");
+                        });
+
+                    }
+                    return (s.ToArray());
                 }
-                return (s.ToArray());
             }
             protected static void WriteLong(Stream s, long value)
             {

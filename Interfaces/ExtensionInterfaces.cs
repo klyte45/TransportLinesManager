@@ -1,4 +1,5 @@
-﻿using Klyte.Commons.Utils;
+﻿using ColossalFramework.Math;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,14 +35,14 @@ namespace Klyte.TransportLinesManager.Interfaces
 
     public interface ITicketPriceStorage
     {
-        public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; }
+         TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; }
     }
 
     public interface IAssetSelectorExtension : ISafeGettable<IAssetSelectorStorage>, ILineNumberToIndexable
     {
         Dictionary<string, string> GetAllBasicAssetsForLine(ushort lineId);
         List<string> GetBasicAssetListForLine(ushort lineId);
-        VehicleInfo GetAModel(ushort lineId);
+        VehicleInfo GetAModel(ref Randomizer r, ushort lineId);
     }
 
     public interface IAssetSelectorStorage

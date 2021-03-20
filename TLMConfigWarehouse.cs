@@ -157,33 +157,74 @@ namespace Klyte.TransportLinesManager
 
         private static string GetLocaleIdForIndex(ConfigIndex i, out string key, out int index)
         {
-            index = (i & ConfigIndex.DESC_DATA) switch
+            index = 0;
+            switch (i & ConfigIndex.DESC_DATA)
             {
-                ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG => 2,
-                _ => 0,
+                case ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG:
+                    index = 2;
+                    break;
             };
-            key = (i & ConfigIndex.DESC_DATA) switch
+            key = null;
+
+            switch (i & ConfigIndex.DESC_DATA) 
             {
-                ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG => "Beautification",
-                ConfigIndex.ELECTRICITY_SERVICE_CONFIG => "Electricity",
-                ConfigIndex.WATER_SERVICE_CONFIG => "WaterAndSewage",
-                ConfigIndex.GARBAGE_SERVICE_CONFIG => "Garbage",
-                ConfigIndex.ROAD_SERVICE_CONFIG => "Roads",
-                ConfigIndex.HEALTHCARE_SERVICE_CONFIG => "Healthcare",
-                ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG => "Police",
-                ConfigIndex.EDUCATION_SERVICE_CONFIG => "Education",
-                ConfigIndex.MONUMENT_SERVICE_CONFIG => "Monuments",
-                ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG => "FireDepartment",
-                ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG => "PublicTransport",
-                ConfigIndex.DISASTER_SERVICE_CONFIG => "FireDepartment",
-                ConfigIndex.DISTRICT_NAME_CONFIG => "District",
-                ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG => "VarsitySports",
-                ConfigIndex.MUSEUMS_SERVICE_CONFIG => "CampusAreaMuseums",
-                ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG => "Industry",
-                ConfigIndex.PARKAREA_NAME_CONFIG => "ParkAreas",
-                ConfigIndex.INDUSTRIAL_AREA_NAME_CONFIG => "IndustryAreas",
-                ConfigIndex.CAMPUS_AREA_NAME_CONFIG => "CampusAreas",
-                _ => null,
+                case ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG:
+                    key = "Beautification";
+                    break;
+                case ConfigIndex.ELECTRICITY_SERVICE_CONFIG:
+                    key = "Electricity";
+                    break;
+                case ConfigIndex.WATER_SERVICE_CONFIG:
+                    key = "WaterAndSewage";
+                    break;
+                case ConfigIndex.GARBAGE_SERVICE_CONFIG:
+                    key = "Garbage";
+                    break;
+                case ConfigIndex.ROAD_SERVICE_CONFIG:
+                    key = "Roads";
+                    break;
+                case ConfigIndex.HEALTHCARE_SERVICE_CONFIG:
+                    key = "Healthcare";
+                    break;
+                case ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG:
+                    key = "Police";
+                    break;
+                case ConfigIndex.EDUCATION_SERVICE_CONFIG:
+                    key = "Education";
+                    break;
+                case ConfigIndex.MONUMENT_SERVICE_CONFIG:
+                    key = "Monuments";
+                    break;
+                case ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
+                    key = "FireDepartment";
+                    break;
+                case ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
+                    key = "PublicTransport";
+                    break;
+                case ConfigIndex.DISASTER_SERVICE_CONFIG:
+                    key = "FireDepartment";
+                    break;
+                case ConfigIndex.DISTRICT_NAME_CONFIG:
+                    key = "District";
+                    break;
+                case ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG:
+                    key = "VarsitySports";
+                    break;
+                case ConfigIndex.MUSEUMS_SERVICE_CONFIG:
+                    key = "CampusAreaMuseums";
+                    break;
+                case ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG:
+                    key = "Industry";
+                    break;
+                case ConfigIndex.PARKAREA_NAME_CONFIG:
+                    key = "ParkAreas";
+                    break;
+                case ConfigIndex.INDUSTRIAL_AREA_NAME_CONFIG:
+                    key = "IndustryAreas";
+                    break;
+                case ConfigIndex.CAMPUS_AREA_NAME_CONFIG:
+                    key = "CampusAreas";
+                    break;
             };
             switch (i & ConfigIndex.DESC_DATA)
             {

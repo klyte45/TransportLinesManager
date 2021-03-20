@@ -41,7 +41,6 @@ namespace Klyte.TransportLinesManager.UI
             m_total.textAlignment = UIHorizontalAlignment.Center;
         }
 
-        public string FloatToHour(float time) => $"{((int)time).ToString("00")}:{((int)(time % 1 * 60)).ToString("00")}";
         protected override void AddColumns(ref float xAdvance)
         {
             xAdvance += InitField(out m_child, "Ch", "ZONEDBUILDING_CHILDREN", xAdvance, TOTAL_DATA_COLUMNS_SPACE / 6);

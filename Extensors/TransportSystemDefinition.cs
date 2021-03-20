@@ -179,14 +179,14 @@ namespace Klyte.TransportLinesManager.Extensors
 
         public string GetTransportTypeIcon()
         {
-            return TransportType switch
+            switch (TransportType)
             {
-                TransportInfo.TransportType.EvacuationBus => "SubBarFireDepartmentDisaster",
-                TransportInfo.TransportType.Pedestrian => "SubBarPublicTransportWalkingTours",
-                TransportInfo.TransportType.TouristBus => "SubBarPublicTransportTours",
-                TransportInfo.TransportType.HotAirBalloon => "IconBalloonTours",
-                TransportInfo.TransportType.Post => "SubBarPublicTransportPost",
-                TransportInfo.TransportType.CableCar => PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.EvacuationBus),
+                case TransportInfo.TransportType.EvacuationBus: return "SubBarFireDepartmentDisaster";
+                case TransportInfo.TransportType.Pedestrian: return "SubBarPublicTransportWalkingTours";
+                case TransportInfo.TransportType.TouristBus: return "SubBarPublicTransportTours";
+                case TransportInfo.TransportType.HotAirBalloon: return "IconBalloonTours";
+                case TransportInfo.TransportType.Post: return "SubBarPublicTransportPost";
+                case TransportInfo.TransportType.CableCar: return PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.EvacuationBus);
                 //case TransportInfo.TransportType.Ship:
                 //case TransportInfo.TransportType.Airplane:
                 //case TransportInfo.TransportType.Bus:
@@ -195,7 +195,7 @@ namespace Klyte.TransportLinesManager.Extensors
                 //case TransportInfo.TransportType.Taxi:
                 //case TransportInfo.TransportType.Tram:
                 //case TransportInfo.TransportType.Monorail:
-                _ => PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportType),
+                default: return PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportType);
             };
         }
 

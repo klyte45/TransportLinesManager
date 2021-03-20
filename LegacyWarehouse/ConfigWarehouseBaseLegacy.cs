@@ -219,10 +219,10 @@ namespace Klyte.TransportLinesManager.Legacy
 
         public override int getDefaultIntValueForProperty(ConfigIndex i)
         {
-            return i switch
+            switch (i)
             {
-                _ => 0,
-            };
+                default: return 0;
+            }
         }
 
     }

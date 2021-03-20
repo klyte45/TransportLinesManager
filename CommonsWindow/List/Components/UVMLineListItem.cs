@@ -418,13 +418,13 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 {
                     if (r)
                     {
-                        TransportLine[] expr_2A_cp_0 = Singleton<TransportManager>.instance.m_lines.m_buffer;
+                        ref TransportLine[] expr_2A_cp_0 = ref Singleton<TransportManager>.instance.m_lines.m_buffer;
                         ushort expr_2A_cp_1 = m_lineID;
                         expr_2A_cp_0[expr_2A_cp_1].m_flags = (expr_2A_cp_0[expr_2A_cp_1].m_flags & ~TransportLine.Flags.Hidden);
                     }
                     else
                     {
-                        TransportLine[] expr_5C_cp_0 = Singleton<TransportManager>.instance.m_lines.m_buffer;
+                        ref TransportLine[] expr_5C_cp_0 = ref Singleton<TransportManager>.instance.m_lines.m_buffer;
                         ushort expr_5C_cp_1 = m_lineID;
                         expr_5C_cp_0[expr_5C_cp_1].m_flags = (expr_5C_cp_0[expr_5C_cp_1].m_flags | TransportLine.Flags.Hidden);
                     }
@@ -447,7 +447,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     {
                         if ((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
                         {
-                            TransportLine[] expr_40_cp_0 = Singleton<TransportManager>.instance.m_lines.m_buffer;
+                            ref TransportLine[] expr_40_cp_0 = ref Singleton<TransportManager>.instance.m_lines.m_buffer;
                             ushort expr_40_cp_1 = m_lineID;
                             expr_40_cp_0[expr_40_cp_1].m_flags = (expr_40_cp_0[expr_40_cp_1].m_flags | TransportLine.Flags.Highlighted);
                         }
@@ -467,7 +467,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     {
                         if ((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
                         {
-                            TransportLine[] expr_40_cp_0 = Singleton<TransportManager>.instance.m_lines.m_buffer;
+                            ref TransportLine[] expr_40_cp_0 = ref Singleton<TransportManager>.instance.m_lines.m_buffer;
                             ushort expr_40_cp_1 = m_lineID;
                             expr_40_cp_0[expr_40_cp_1].m_flags = (expr_40_cp_0[expr_40_cp_1].m_flags & ~TransportLine.Flags.Highlighted);
                         }

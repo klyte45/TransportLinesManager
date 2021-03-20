@@ -42,7 +42,8 @@ namespace Klyte.TransportLinesManager
 
         public static bool IsRealTimeEnabled
         {
-            get {
+            get
+            {
                 if (instance?.m_isRealTimeEnabled == null)
                 {
                     VerifyIfIsRealTimeEnabled();
@@ -80,7 +81,8 @@ namespace Klyte.TransportLinesManager
 
         public TLMLinearMap LinearMapCreatingLine
         {
-            get {
+            get
+            {
                 if (m_linearMapCreatingLine != null)
                 {
                     return m_linearMapCreatingLine;
@@ -95,7 +97,8 @@ namespace Klyte.TransportLinesManager
         public static bool LinearMapWhileCreatingLineVisibility
         {
             get => m_showLinearMapWhileCreatingLine;
-            set {
+            set
+            {
                 m_showLinearMapWhileCreatingLine.value = value;
                 instance.LinearMapCreatingLine.setVisible(value);
             }
@@ -292,11 +295,13 @@ namespace Klyte.TransportLinesManager
 
         protected override void StartActions()
         {
-            using var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits));
-            KlyteMonoUtils.CreateElement(out m_linearMapCreatingLine, transform);
-            m_linearMapCreatingLine.parent = this;
-            m_linearMapCreatingLine.setVisible(false);
-            initNearLinesOnWorldInfoPanel();
+            using (var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits)))
+            {
+                KlyteMonoUtils.CreateElement(out m_linearMapCreatingLine, transform);
+                m_linearMapCreatingLine.parent = this;
+                m_linearMapCreatingLine.setVisible(false);
+                initNearLinesOnWorldInfoPanel();
+            }
         }
 
         public void OpenTLMPanel() => TransportLinesManagerMod.Instance.OpenPanelAtModTab();

@@ -48,12 +48,12 @@ namespace Klyte.TransportLinesManager.ModShared
             {
                 if (linePrefix == null)
                 {
-                    ref TransportLine tl = ref TransportManager.instance.m_lines.m_buffer[tlId];
-                    if (TLMPrefixesUtils.HasPrefix(ref tl))
+                    ref TransportLine tl2 = ref TransportManager.instance.m_lines.m_buffer[tlId];
+                    if (TLMPrefixesUtils.HasPrefix(ref tl2))
                     {
-                        var tsd = TransportSystemDefinition.From(tl.Info);
+                        var tsd2 = TransportSystemDefinition.From(tl2.Info);
                         var prefix = (int)TLMPrefixesUtils.GetPrefix(tlId);
-                        var nameMode = TLMPrefixesUtils.GetPrefixModoNomenclatura(tsd.ToConfigIndex());
+                        var nameMode = TLMPrefixesUtils.GetPrefixModoNomenclatura(tsd2.ToConfigIndex());
                         linePrefix = TLMPrefixesUtils.GetStringFromNameMode(nameMode, prefix).Trim().PadLeft(3, '\0');
                     }
                     else
@@ -151,6 +151,56 @@ namespace Klyte.TransportLinesManager.ModShared
                 return vehicleNthTrailer;
             }
 
+
+            char GetLetter(char item)
+            {
+                switch (item)
+                {
+                    case 'D': return GetDepotPrefix()[0];
+                    case 'E': return GetDepotPrefix()[1];
+                    case 'F': return GetDepotPrefix()[2];
+
+                    case 'M': return GetModelPrefix()[0];
+                    case 'N': return GetModelPrefix()[1];
+                    case 'O': return GetModelPrefix()[2];
+
+                    case 'P': return GetLinePrefix()[0];
+                    case 'Q': return GetLinePrefix()[1];
+                    case 'R': return GetLinePrefix()[2];
+
+                    case 'J': return GetVehicleNthTrailer().Replace('\0', '0')[0];
+                    case 'K': return GetVehicleNthTrailer().Replace('\0', '0')[1];
+                    case 'L': return GetVehicleNthTrailer().Replace('\0', '0')[2];
+
+                    case 'S': return GetVehicleNthDepot().Replace('\0', '0')[0];
+                    case 'T': return GetVehicleNthDepot().Replace('\0', '0')[1];
+                    case 'U': return GetVehicleNthDepot().Replace('\0', '0')[2];
+
+                    case 'V': return GetVehicleInstanceString().Replace('\0', '0')[0];
+                    case 'W': return GetVehicleInstanceString().Replace('\0', '0')[1];
+                    case 'X': return GetVehicleInstanceString().Replace('\0', '0')[2];
+                    case 'Y': return GetVehicleInstanceString().Replace('\0', '0')[3];
+                    case 'Z': return GetVehicleInstanceString().Replace('\0', '0')[4];
+
+                    case 'j': return GetVehicleNthTrailer()[0];
+                    case 'k': return GetVehicleNthTrailer()[1];
+                    case 'l': return GetVehicleNthTrailer()[2];
+
+                    case 's': return GetVehicleNthDepot()[0];
+                    case 't': return GetVehicleNthDepot()[1];
+                    case 'u': return GetVehicleNthDepot()[2];
+
+                    case 'v': return GetVehicleInstanceString()[0];
+                    case 'w': return GetVehicleInstanceString()[1];
+                    case 'x': return GetVehicleInstanceString()[2];
+                    case 'y': return GetVehicleInstanceString()[3];
+                    case 'z':
+                        return GetVehicleInstanceString()[4];
+
+                    default: return item;
+                };
+            }
+
             bool escapeNext = false;
             foreach (char item in identifierFormat)
             {
@@ -165,50 +215,7 @@ namespace Klyte.TransportLinesManager.ModShared
                 }
                 else
                 {
-                    result += item switch
-                    {
-                        'D' => GetDepotPrefix()[0],
-                        'E' => GetDepotPrefix()[1],
-                        'F' => GetDepotPrefix()[2],
-
-                        'M' => GetModelPrefix()[0],
-                        'N' => GetModelPrefix()[1],
-                        'O' => GetModelPrefix()[2],
-
-                        'P' => GetLinePrefix()[0],
-                        'Q' => GetLinePrefix()[1],
-                        'R' => GetLinePrefix()[2],
-
-                        'J' => GetVehicleNthTrailer().Replace('\0', '0')[0],
-                        'K' => GetVehicleNthTrailer().Replace('\0', '0')[1],
-                        'L' => GetVehicleNthTrailer().Replace('\0', '0')[2],
-
-                        'S' => GetVehicleNthDepot().Replace('\0', '0')[0],
-                        'T' => GetVehicleNthDepot().Replace('\0', '0')[1],
-                        'U' => GetVehicleNthDepot().Replace('\0', '0')[2],
-
-                        'V' => GetVehicleInstanceString().Replace('\0', '0')[0],
-                        'W' => GetVehicleInstanceString().Replace('\0', '0')[1],
-                        'X' => GetVehicleInstanceString().Replace('\0', '0')[2],
-                        'Y' => GetVehicleInstanceString().Replace('\0', '0')[3],
-                        'Z' => GetVehicleInstanceString().Replace('\0', '0')[4],
-
-                        'j' => GetVehicleNthTrailer()[0],
-                        'k' => GetVehicleNthTrailer()[1],
-                        'l' => GetVehicleNthTrailer()[2],
-
-                        's' => GetVehicleNthDepot()[0],
-                        't' => GetVehicleNthDepot()[1],
-                        'u' => GetVehicleNthDepot()[2],
-
-                        'v' => GetVehicleInstanceString()[0],
-                        'w' => GetVehicleInstanceString()[1],
-                        'x' => GetVehicleInstanceString()[2],
-                        'y' => GetVehicleInstanceString()[3],
-                        'z' => GetVehicleInstanceString()[4],
-
-                        _ => item
-                    };
+                    result += GetLetter(item);
                 }
             }
             return result.Replace("\0", "").Trim();
@@ -216,5 +223,6 @@ namespace Klyte.TransportLinesManager.ModShared
 
         public static void CalculateAutoName(ushort lineId, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr) => TLMLineUtils.CalculateAutoName(lineId, out startStation, out endStation, out startStationStr, out endStationStr);
         public static string GetLineStringId(ushort lineId) => TLMLineUtils.GetLineStringId(lineId);
+
     }
 }

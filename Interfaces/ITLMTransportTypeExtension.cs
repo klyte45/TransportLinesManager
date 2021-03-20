@@ -10,22 +10,22 @@ namespace Klyte.TransportLinesManager.Interfaces
         ISafeGettable<TLMPrefixConfiguration>
     {
         #region Use Color For Model
-        public bool IsUsingColorForModel(uint prefix);
+        bool IsUsingColorForModel(uint prefix);
 
-        public void SetUsingColorForModel(uint prefix, bool value);
+        void SetUsingColorForModel(uint prefix, bool value);
         #endregion
 
         #region Custom Palette
-        public string GetCustomPalette(uint prefix);
+        string GetCustomPalette(uint prefix);
 
-        public void SetCustomPalette(uint prefix, string paletteName);
+        void SetCustomPalette(uint prefix, string paletteName);
 
         #endregion
 
         #region Custom Format
-        public LineIconSpriteNames GetCustomFormat(uint prefix);
+        LineIconSpriteNames GetCustomFormat(uint prefix);
 
-        public void SetCustomFormat(uint prefix, LineIconSpriteNames icon);
+        void SetCustomFormat(uint prefix, LineIconSpriteNames icon);
 
         #endregion
 
