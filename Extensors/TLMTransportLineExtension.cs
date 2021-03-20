@@ -1,4 +1,5 @@
 ﻿using ColossalFramework.Globalization;
+using ColossalFramework.Math;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Interfaces;
@@ -78,13 +79,13 @@ namespace Klyte.TransportLinesManager.Extensors
 
             return m_basicAssetsList[tsd].ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
         }
-        public VehicleInfo GetAModel(ushort lineId)
+        public VehicleInfo GetAModel(ref Randomizer r, ushort lineId)
         {
             VehicleInfo info = null;
             List<string> assetList = ExtensionStaticExtensionMethods.GetAssetListForLine(this, lineId);
             while (info == null && assetList.Count > 0)
             {
-                info = VehicleUtils.GetRandomModel(assetList, out string modelName);
+                info = VehicleUtils.GetRandomModel(ref r, assetList, out string modelName);
                 if (info == null)
                 {
                     ExtensionStaticExtensionMethods.RemoveAssetFromLine(this, lineId, modelName);

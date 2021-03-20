@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using ColossalFramework.Math;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensors;
 using Klyte.TransportLinesManager.Interfaces;
@@ -112,7 +113,8 @@ namespace Klyte.TransportLinesManager.Utils
                         {
                             if (item.Value.m_vehicleAI is BusAI)
                             {
-                                VehicleUtils.ReplaceVehicleModel(item.Key, extension.GetAModel(lineId));
+                                var randomizer = new Randomizer((vm.m_vehicles.m_buffer[item.Key].m_sourceBuilding << 8) | (lineId & 0xff));
+                                VehicleUtils.ReplaceVehicleModel(item.Key, extension.GetAModel(ref randomizer, lineId));
                             }
                             else
                             {
