@@ -121,7 +121,7 @@ namespace Klyte.TransportLinesManager.Extensors
                         });
 
                     }
-                    return (s.ToArray());
+                    return ZipUtils.ZipBytes(s.ToArray());
                 }
             }
             protected static void WriteLong(Stream s, long value)
