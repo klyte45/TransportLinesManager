@@ -2,7 +2,6 @@
 using Harmony;
 using Klyte.Commons.Extensors;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -27,14 +26,14 @@ namespace Klyte.TransportLinesManager.Overrides
             try
             {
                 var tt = new TransportTool();
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("OnEnable", allFlags), onEnable);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("OnEnable", allFlags), null, onEnable);
                 RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("OnDisable", allFlags), onDisable);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("NewLine", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryAction);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("AddStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryAction);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("RemoveStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryActionZeroable);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("CancelPrevStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryActionZeroable);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("CancelMoveStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryActionZeroable);
-                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("MoveStop", allFlags).Invoke(tt, new object[] { false }).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags),  AfterEveryAction);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("NewLine", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), AfterEveryAction);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("AddStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), AfterEveryAction);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("RemoveStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), AfterEveryActionZeroable);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("CancelPrevStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), AfterEveryActionZeroable);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("CancelMoveStop", allFlags).Invoke(tt, new object[0]).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), AfterEveryActionZeroable);
+                RedirectorInstance.AddRedirect(typeof(TransportTool).GetMethod("MoveStop", allFlags).Invoke(tt, new object[] { false }).GetType().GetMethod("MoveNext", RedirectorUtils.allFlags), AfterEveryAction);
                 Destroy(tt);
             }
             catch (Exception e)
@@ -49,7 +48,6 @@ namespace Klyte.TransportLinesManager.Overrides
         public static void OnEnable()
         {
             LogUtils.DoLog("OnEnableTransportTool");
-            TransportLinesManagerMod.Instance.ShowVersionInfoPopup();
             TLMController.instance.LinearMapCreatingLine?.setVisible(TLMController.LinearMapWhileCreatingLineVisibility);
             TLMController.instance.LineCreationToolbox?.setVisible(true);
             TLMController.instance.SetCurrentSelectedId(0);
@@ -62,7 +60,7 @@ namespace Klyte.TransportLinesManager.Overrides
             TLMController.instance.LinearMapCreatingLine?.setVisible(false);
             TLMController.instance.LineCreationToolbox?.setVisible(false);
         }
-        
+
         private static IEnumerable<CodeInstruction> TranspileAfterEveryAction(IEnumerable<CodeInstruction> instructions)
         {
             var inst = new List<CodeInstruction>(instructions);
@@ -81,27 +79,34 @@ namespace Klyte.TransportLinesManager.Overrides
         private static readonly FieldInfo m_lineNumField = typeof(TransportTool).GetField("m_line", RedirectorUtils.allFlags);
         public static void AfterEveryAction()
         {
-            ushort lineId = (ushort)m_lineNumField.GetValue(ToolManager.instance.m_properties?.CurrentTool as TransportTool ?? new TransportTool());
-            if (lineId > 0)
+            if (ToolManager.instance.m_properties?.CurrentTool is TransportTool)
             {
+                ushort lineId = (ushort)m_lineNumField.GetValue(ToolManager.instance.m_properties.CurrentTool as TransportTool);
+                if (lineId > 0)
+                {
+                    new WaitForFixedUpdate();
+                    ThreadHelper.dispatcher.Dispatch(() =>
+                    {
+                        TLMController.RedrawMap(lineId);
+                        TLMController.instance.LineCreationToolbox.SyncForm();
+                    });
+                }
+            }
+
+        }
+        public static void AfterEveryActionZeroable()
+        {
+            if (ToolManager.instance.m_properties?.CurrentTool is TransportTool)
+            {
+                ushort lineId = (ushort)m_lineNumField.GetValue(ToolManager.instance.m_properties.CurrentTool as TransportTool);
                 new WaitForFixedUpdate();
                 ThreadHelper.dispatcher.Dispatch(() =>
                 {
                     TLMController.RedrawMap(lineId);
-                    TLMController.instance.LineCreationToolbox.syncForm();
+                    TLMController.instance.LineCreationToolbox.SyncForm();
                 });
-            }
-        }
-        public static void AfterEveryActionZeroable()
-        {
-            ushort lineId = (ushort)m_lineNumField.GetValue(ToolManager.instance.m_properties?.CurrentTool as TransportTool ?? new TransportTool());
-            new WaitForFixedUpdate();
-            ThreadHelper.dispatcher.Dispatch(() =>
-            {
-                TLMController.RedrawMap(lineId);
-                TLMController.instance.LineCreationToolbox.syncForm();
-            });
 
+            }
         }
 
         public Redirector RedirectorInstance { get; } = new Redirector();

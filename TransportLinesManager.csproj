@@ -312,6 +312,7 @@
     </MonoDevelop>
   </ProjectExtensions>
   <ItemGroup>
+    <EmbeddedResource Include="commons\UI\i18n\cn.properties" />
     <EmbeddedResource Include="commons\UI\i18n\en.properties" />
     <EmbeddedResource Include="commons\UI\i18n\fr.properties" />
     <EmbeddedResource Include="commons\UI\i18n\pt.properties" />
@@ -325,29 +326,43 @@
     <EmbeddedResource Include="commons\UI\Images\%25K45_ConeIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_Copy.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_CrossIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Delete.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_DepotIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_DiamondIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Down.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Dropper.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Export.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_FontIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_HeptagonIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_HexagonIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Import.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_K45Button.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_K45ButtonDisabled.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_K45ButtonFocused.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_K45ButtonHovered.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Layers.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Left.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_Load.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Lock.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_MapIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_MenuPanel_color.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Minus.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_MountainIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_MoveCross.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_New.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_OctagonIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_OvalIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_ParachuteIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_Paste.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_PentagonIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_PerHourIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Plus.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_QuestionMark.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_RelativeMode.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_Reload.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_RemoveIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_RemoveUnwantedIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Right.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedHexagonIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedPentagonIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedSquareIcon.png" />
@@ -361,9 +376,14 @@
     <EmbeddedResource Include="commons\UI\Images\%25K45_S09StarIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_S10StarIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_Save.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Settings.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_SquareIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Steam.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_TrapezeIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_TriangleIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Unlock.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_Up.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_X.png" />
     <EmbeddedResource Include="commons\UI\Images\bordersDescriptor.txt" />
     <EmbeddedResource Include="UI\Images\sprites.png" />
   </ItemGroup>
@@ -383,7 +403,6 @@
     <EmbeddedResource Include="UI\i18n\pl.properties" />
     <None Include="app.config" />
     <None Include="commons\README.md" />
-    <EmbeddedResource Include="commons\UI\i18n\cn.properties" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -396,25 +415,6 @@
     <EmbeddedResource Include="UI\Images\%25K45_24hClock.png" />
     <EmbeddedResource Include="UI\i18n\zh.properties" />
     <None Include="UI\Images\24hClock.psd" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Delete.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Down.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Dropper.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Export.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Import.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Layers.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Left.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Lock.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Minus.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_MoveCross.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_New.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Plus.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_QuestionMark.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Right.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Settings.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Steam.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Unlock.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Up.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_X.png" />
     <Content Include="commons\UI\Images\base.psd" />
     <Content Include="commons\UI\Images\sprites.psd" />
     <Content Include="UI\Images\sprites.psd" />

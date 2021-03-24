@@ -63,7 +63,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return false;
         }
 
-        public static void AfterAwake(PublicTransportInfoViewPanel __instance) => Toolbox = new TLMLineCreationToolbox(__instance);
+        public static void AfterAwake(PublicTransportInfoViewPanel __instance) => Toolbox = __instance.gameObject.AddComponent<TLMLineCreationToolbox>();
 
         #region Hooking
 

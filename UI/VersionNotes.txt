@@ -9,3 +9,4 @@
 	<color #00ffff>NOTE: The savegame size will be increased.</color>
 
 <color yellow>Update r10000:</color> Downgrade to C# 7.x
+<color yellow>Update r10002:</color> Fixed some crashes related to picking any of the transport line tools in some conditions.
