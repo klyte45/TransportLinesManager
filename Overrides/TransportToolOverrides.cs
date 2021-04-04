@@ -1,13 +1,13 @@
 ﻿using ColossalFramework.Threading;
 using Harmony;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
-using static Klyte.Commons.Extensors.RedirectorUtils;
+using static Klyte.Commons.Extensions.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.Overrides
 {

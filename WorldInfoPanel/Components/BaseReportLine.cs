@@ -1,7 +1,7 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI

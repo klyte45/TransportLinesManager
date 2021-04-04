@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.OptionsMenu.Tabs;
@@ -211,7 +211,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         internal UITextField GenerateTextFieldConfigNew(UIHelperExtension group, string title, TLMConfigWarehouse.ConfigIndex configIndex)
         {
-            DefaultEditorUILib.AddTextField(title, out UITextField field, group, (x) => currentConfigWarehouseEditor.GetString(configIndex),
+            DefaultEditorUILib.AddTextField(title, out UITextField field, group, (x) => currentConfigWarehouseEditor.GetString(configIndex), null,
                 (s) =>
                  {
                      if (!isLoading)
@@ -386,8 +386,8 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 case ConfigTabs.CostPerPassenger: return typeof(TLMDefaultCostPerPassengerConfigTab);
                 default: return null;
             };
+        }
     }
-}
 
 
 }

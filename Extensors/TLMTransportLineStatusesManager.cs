@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.Extensors
+namespace Klyte.TransportLinesManager.Extensions
 {
     public partial class TLMTransportLineStatusesManager : SingletonLite<TLMTransportLineStatusesManager>
     {

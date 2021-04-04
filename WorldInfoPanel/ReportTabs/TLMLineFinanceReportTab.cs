@@ -1,6 +1,6 @@
-﻿using Klyte.TransportLinesManager.Extensors;
+﻿using Klyte.TransportLinesManager.Extensions;
 using System.Collections.Generic;
-using static Klyte.TransportLinesManager.Extensors.TLMTransportLineStatusesManager;
+using static Klyte.TransportLinesManager.Extensions.TLMTransportLineStatusesManager;
 
 namespace Klyte.TransportLinesManager.UI
 {

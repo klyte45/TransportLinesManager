@@ -1,5 +1,5 @@
 ﻿using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 
 namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {

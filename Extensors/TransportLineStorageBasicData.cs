@@ -3,17 +3,17 @@ using Klyte.Commons.Utils;
 using System;
 using System.IO;
 
-namespace Klyte.TransportLinesManager.Extensors
+namespace Klyte.TransportLinesManager.Extensions
 {
     public partial class TLMTransportLineStatusesManager
     {
-        public abstract class TransportLineStorageBasicData : IDataExtensor
+        public abstract class TransportLineStorageBasicData : IDataExtension
         {
             public abstract string SaveId { get; }
 
             protected abstract Enum[] LoadOrder { get; }
 
-            public IDataExtensor Deserialize(Type type, byte[] rawData)
+            public IDataExtension Deserialize(Type type, byte[] rawData)
             {
 
                 byte[] data;

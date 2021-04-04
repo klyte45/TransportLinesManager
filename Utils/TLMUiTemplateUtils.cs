@@ -1,5 +1,5 @@
 using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using System.Collections.Generic;
 
 namespace Klyte.TransportLinesManager.Utils

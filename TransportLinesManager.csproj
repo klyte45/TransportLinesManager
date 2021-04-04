@@ -73,12 +73,12 @@
     <Compile Include="CommonProperties.cs" />
     <Compile Include="CommonsWindow\List\Components\UVMLineListItem.cs" />
     <Compile Include="CommonsWindow\List\UVMLinesPanel.cs" />
-    <Compile Include="commons\Extensors\Redirector.cs" />
-    <Compile Include="commons\Extensors\UI\CheckboxOrdernatedList.cs" />
-    <Compile Include="commons\Extensors\UI\NumberedColorList.cs" />
-    <Compile Include="commons\Extensors\UI\TextList.cs" />
-    <Compile Include="commons\Extensors\UI\UIHelperExtended.cs" />
-    <Compile Include="commons\Extensors\UI\UITabstripAutoResize.cs" />
+    <Compile Include="commons\Extensions\Redirector.cs" />
+    <Compile Include="commons\Extensions\UI\CheckboxOrdernatedList.cs" />
+    <Compile Include="commons\Extensions\UI\NumberedColorList.cs" />
+    <Compile Include="commons\Extensions\UI\TextList.cs" />
+    <Compile Include="commons\Extensions\UI\UIHelperExtended.cs" />
+    <Compile Include="commons\Extensions\UI\UITabstripAutoResize.cs" />
     <Compile Include="commons\Interfaces\BaseController.cs" />
     <Compile Include="commons\Interfaces\BasicIUserMod.cs" />
     <Compile Include="commons\Interfaces\BasicIUserModSimplified.cs" />
@@ -92,16 +92,16 @@
     <Compile Include="commons\Interfaces\ITimeable.cs" />
     <Compile Include="commons\Interfaces\IViewStartActions.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ConfigWarehouseBase.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\DataExtensorBase.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\DataContainer.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\DataExtensionBase.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterface2LevelIntImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryByEnumImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryByUintImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryStructValSimplImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceListImpl .cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceSingleImpl.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ExtensorContainer.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\IDataExtensor.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\IDataExtensorLegacy.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\IDataExtension.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\IDataExtensionLegacy.cs" />
     <Compile Include="commons\Libraries\BasicLib.cs" />
     <Compile Include="commons\Libraries\LibBaseData.cs" />
     <Compile Include="commons\Libraries\LibBaseFile.cs" />
@@ -402,6 +402,7 @@
     <EmbeddedResource Include="UI\i18n\nl.properties" />
     <EmbeddedResource Include="UI\i18n\pl.properties" />
     <None Include="app.config" />
+    <None Include="commons\LICENSE" />
     <None Include="commons\README.md" />
     <None Include="packages.config" />
   </ItemGroup>

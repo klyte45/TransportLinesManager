@@ -1,5 +1,5 @@
 using ColossalFramework.UI;
-using static Klyte.TransportLinesManager.Extensors.TLMTransportLineStatusesManager;
+using static Klyte.TransportLinesManager.Extensions.TLMTransportLineStatusesManager;
 
 namespace Klyte.TransportLinesManager.UI
 {

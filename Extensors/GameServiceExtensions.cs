@@ -2,7 +2,7 @@
 using Klyte.TransportLinesManager.Utils;
 using System;
 
-namespace Klyte.TransportLinesManager.Extensors
+namespace Klyte.TransportLinesManager.Extensions
 {
     internal static class GameServiceExtensions
     {

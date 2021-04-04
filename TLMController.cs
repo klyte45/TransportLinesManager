@@ -4,7 +4,7 @@ using ColossalFramework.Threading;
 using ColossalFramework.UI;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Overrides;
@@ -22,7 +22,7 @@ namespace Klyte.TransportLinesManager
 {
     public class TLMController : BaseController<TransportLinesManagerMod, TLMController>, ILinearMapParentInterface
     {
-        public static ExtensorContainer container => ExtensorContainer.instance;
+        public static DataContainer container => DataContainer.instance;
         public static TLMTransportLineStatusesManager statuses => TLMTransportLineStatusesManager.instance;
 
         internal static TLMController instance => TransportLinesManagerMod.Controller;

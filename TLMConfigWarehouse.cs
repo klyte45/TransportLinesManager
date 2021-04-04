@@ -2,7 +2,7 @@
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Legacy;
 using Klyte.TransportLinesManager.ModShared;
 using System;

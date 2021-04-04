@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Klyte.TransportLinesManager.Extensors
+namespace Klyte.TransportLinesManager.Extensions
 {
     public struct TransportSystemDefinition
     {

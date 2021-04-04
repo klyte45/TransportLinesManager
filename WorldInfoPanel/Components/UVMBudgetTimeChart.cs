@@ -3,7 +3,7 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
@@ -117,7 +117,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
             }
 
-            var targetValues = steps.Select(x => Mathf.RoundToInt(x.First * 100f / 24f)).ToList();
+            var targetValues = steps.Select(x => Mathf.Round(x.First * 100f / 24f)).ToList();
             m_clock.SetValuesStarts(targetValues.ToArray());
         }
 

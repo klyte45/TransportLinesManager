@@ -1,7 +1,7 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Interfaces;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.MapDrawer;

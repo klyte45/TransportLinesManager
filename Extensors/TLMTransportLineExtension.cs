@@ -10,14 +10,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 
-namespace Klyte.TransportLinesManager.Extensors
+namespace Klyte.TransportLinesManager.Extensions
 {
     internal enum TLMTransportLineFlags : uint
     {
         ZERO_BUDGET_CURRENT = 0x80000000
     }
 
-    public class TLMTransportLineExtension : DataExtensorBase<TLMTransportLineExtension>, ISafeGettable<TLMTransportLineConfiguration>, IBasicExtension
+    public class TLMTransportLineExtension : DataExtensionBase<TLMTransportLineExtension>, ISafeGettable<TLMTransportLineConfiguration>, IBasicExtension
     {
         [XmlElement("Configurations")]
         public SimpleNonSequentialList<TLMTransportLineConfiguration> Configurations { get; set; } = new SimpleNonSequentialList<TLMTransportLineConfiguration>();

@@ -15,9 +15,9 @@ using System.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
 
-namespace Klyte.TransportLinesManager.Extensors
+namespace Klyte.TransportLinesManager.Extensions
 {
-    public abstract class TLMTransportTypeExtension<TSD, SG> : DataExtensorBase<SG>, ITLMTransportTypeExtension
+    public abstract class TLMTransportTypeExtension<TSD, SG> : DataExtensionBase<SG>, ITLMTransportTypeExtension
         where TSD : TLMSysDef<TSD>, new() where SG : TLMTransportTypeExtension<TSD, SG>, new()
     {
 

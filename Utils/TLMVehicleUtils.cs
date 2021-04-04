@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Math;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
 using System;
 using System.Collections;

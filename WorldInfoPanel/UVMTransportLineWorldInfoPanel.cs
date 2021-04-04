@@ -2,10 +2,10 @@
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using Harmony;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;

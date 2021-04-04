@@ -2,9 +2,9 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using UnityEngine;
-using static Klyte.TransportLinesManager.Extensors.TLMTransportLineStatusesManager;
+using static Klyte.TransportLinesManager.Extensions.TLMTransportLineStatusesManager;
 
 namespace Klyte.TransportLinesManager.UI
 {
