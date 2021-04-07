@@ -184,10 +184,10 @@
     <Compile Include="commons\Utils\ZipUtils.cs" />
     <Compile Include="Extensors\GameServiceExtensions.cs" />
     <Compile Include="Extensors\TransportLineStorageBasicData.cs" />
-    <Compile Include="ModShared\ConnectorADR.cs" />
-    <Compile Include="ModShared\ConnectorADRFallback.cs" />
-    <Compile Include="ModShared\IConnectorADR.cs" />
-    <Compile Include="ModShared\TLMShared.cs" />
+    <Compile Include="ModShared\BridgeADR.cs" />
+    <Compile Include="ModShared\BridgeADRFallback.cs" />
+    <Compile Include="ModShared\IBridgeADR.cs" />
+    <Compile Include="ModShared\TLMFacade.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMDefaultCostPerPassengerConfigTab.cs" />
     <Compile Include="Utils\ModoNomenclatura.cs" />
     <Compile Include="Utils\NamingType.cs" />

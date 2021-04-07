@@ -126,7 +126,7 @@ namespace Klyte.TransportLinesManager.UI
             string airport, taxi, harbor, regionalStation, cableCarStation;
             string namePrefix;
             LogUtils.DoLog("p5");
-            bool isComplete = (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None;
+            bool isComplete = (Singleton<TransportManager>.instance.m_lines.m_buffer[TLMController.Instance.CurrentSelectedId].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None;
             bool simmetric = TLMLineUtils.CalculateSimmetry(ss, stopsCount, t, out int middle);
             float addedWidth = 0;
             lineStationsPanel.width = 20;

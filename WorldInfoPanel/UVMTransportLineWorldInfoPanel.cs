@@ -274,7 +274,7 @@ namespace Klyte.TransportLinesManager.UI
 
 
 
-        private static void OnRename(UIComponent comp, string text) => m_obj.origInstance.StartCoroutine(TLMController.instance.RenameCoroutine(GetLineID(), text));
+        private static void OnRename(UIComponent comp, string text) => m_obj.origInstance.StartCoroutine(TLMController.Instance.RenameCoroutine(GetLineID(), text));
 
 
 

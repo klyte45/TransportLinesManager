@@ -7,9 +7,9 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.ModShared
 {
-    public class TLMShared : MonoBehaviour
+    public class TLMFacade : MonoBehaviour
     {
-        public static TLMShared Instance => TransportLinesManagerMod.Controller?.SharedInstance;
+        public static TLMFacade Instance => TransportLinesManagerMod.Controller?.SharedInstance;
 
         internal void OnLineSymbolParameterChanged() => EventLineSymbolParameterChanged?.Invoke();
         internal void OnAutoNameParameterChanged() => EventAutoNameParameterChanged?.Invoke();

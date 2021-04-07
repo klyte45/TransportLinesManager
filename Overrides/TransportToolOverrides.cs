@@ -48,17 +48,17 @@ namespace Klyte.TransportLinesManager.Overrides
         public static void OnEnable()
         {
             LogUtils.DoLog("OnEnableTransportTool");
-            TLMController.instance.LinearMapCreatingLine?.setVisible(TLMController.LinearMapWhileCreatingLineVisibility);
-            TLMController.instance.LineCreationToolbox?.setVisible(true);
-            TLMController.instance.SetCurrentSelectedId(0);
+            TLMController.Instance.LinearMapCreatingLine?.setVisible(TLMController.LinearMapWhileCreatingLineVisibility);
+            TLMController.Instance.LineCreationToolbox?.setVisible(true);
+            TLMController.Instance.SetCurrentSelectedId(0);
         }
 
         public static void OnDisable()
         {
             LogUtils.DoLog("OnDisableTransportTool");
-            TLMController.instance.SetCurrentSelectedId(0);
-            TLMController.instance.LinearMapCreatingLine?.setVisible(false);
-            TLMController.instance.LineCreationToolbox?.setVisible(false);
+            TLMController.Instance.SetCurrentSelectedId(0);
+            TLMController.Instance.LinearMapCreatingLine?.setVisible(false);
+            TLMController.Instance.LineCreationToolbox?.setVisible(false);
         }
 
         private static IEnumerable<CodeInstruction> TranspileAfterEveryAction(IEnumerable<CodeInstruction> instructions)
@@ -88,7 +88,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     ThreadHelper.dispatcher.Dispatch(() =>
                     {
                         TLMController.RedrawMap(lineId);
-                        TLMController.instance.LineCreationToolbox.SyncForm();
+                        TLMController.Instance.LineCreationToolbox.SyncForm();
                     });
                 }
             }
@@ -103,7 +103,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 ThreadHelper.dispatcher.Dispatch(() =>
                 {
                     TLMController.RedrawMap(lineId);
-                    TLMController.instance.LineCreationToolbox.SyncForm();
+                    TLMController.Instance.LineCreationToolbox.SyncForm();
                 });
 
             }

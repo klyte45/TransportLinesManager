@@ -50,7 +50,7 @@ namespace Klyte.TransportLinesManager.Extensions
             {
                 Configurations.Remove(lineId);
             }
-            TLMShared.Instance?.OnLineSymbolParameterChanged();
+            TLMFacade.Instance?.OnLineSymbolParameterChanged();
         }
 
         public bool IsUsingCustomConfig(ushort lineId) => SafeGet(lineId).IsCustom;

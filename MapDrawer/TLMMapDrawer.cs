@@ -23,7 +23,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
         public static void drawCityMap()
         {
 
-            TLMController controller = TLMController.instance;
+            TLMController controller = TLMController.Instance;
             var linesByType = new Dictionary<TransportInfo.TransportType, List<ushort>>();
 
             foreach (object type in Enum.GetValues(typeof(TransportInfo.TransportType)))

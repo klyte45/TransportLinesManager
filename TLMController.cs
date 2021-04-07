@@ -22,10 +22,10 @@ namespace Klyte.TransportLinesManager
 {
     public class TLMController : BaseController<TransportLinesManagerMod, TLMController>, ILinearMapParentInterface
     {
-        public static DataContainer container => DataContainer.instance;
-        public static TLMTransportLineStatusesManager statuses => TLMTransportLineStatusesManager.instance;
+        public static DataContainer Container => DataContainer.instance;
+        public static TLMTransportLineStatusesManager Statuses => TLMTransportLineStatusesManager.instance;
 
-        internal static TLMController instance => TransportLinesManagerMod.Controller;
+        internal static TLMController Instance => TransportLinesManagerMod.Controller;
 
         public bool initializedWIP = false;
         private TLMLinearMap m_linearMapCreatingLine;
@@ -44,18 +44,18 @@ namespace Klyte.TransportLinesManager
         {
             get
             {
-                if (instance?.m_isRealTimeEnabled == null)
+                if (Instance?.m_isRealTimeEnabled == null)
                 {
                     VerifyIfIsRealTimeEnabled();
                 }
-                return instance?.m_isRealTimeEnabled ?? false;
+                return Instance?.m_isRealTimeEnabled ?? false;
             }
         }
         public static void VerifyIfIsRealTimeEnabled()
         {
-            if (instance != null)
+            if (Instance != null)
             {
-                instance.m_isRealTimeEnabled = VerifyModEnabled(REALTIME_MOD_ID);
+                Instance.m_isRealTimeEnabled = VerifyModEnabled(REALTIME_MOD_ID);
             }
         }
 
@@ -100,7 +100,7 @@ namespace Klyte.TransportLinesManager
             set
             {
                 m_showLinearMapWhileCreatingLine.value = value;
-                instance.LinearMapCreatingLine.setVisible(value);
+                Instance.LinearMapCreatingLine.setVisible(value);
             }
         }
 
@@ -113,8 +113,8 @@ namespace Klyte.TransportLinesManager
                 lineCurrent = 0;
             }
 
-            instance.SetCurrentSelectedId(lineCurrent);
-            instance.LinearMapCreatingLine.redrawLine();
+            Instance.SetCurrentSelectedId(lineCurrent);
+            Instance.LinearMapCreatingLine.redrawLine();
 
         }
 
@@ -122,8 +122,8 @@ namespace Klyte.TransportLinesManager
 
         public TransportInfo CurrentTransportInfo => Singleton<TransportTool>.instance.m_prefab;
 
-        public TLMShared SharedInstance { get; internal set; }
-        internal IConnectorADR ConnectorADR { get; private set; }
+        public TLMFacade SharedInstance { get; internal set; }
+        internal IBridgeADR ConnectorADR { get; private set; }
 
         public void Update()
         {
@@ -325,8 +325,8 @@ namespace Klyte.TransportLinesManager
 
         internal void Awake()
         {
-            SharedInstance = gameObject.AddComponent<TLMShared>();
-            ConnectorADR = PluginUtils.GetImplementationTypeForMod<ConnectorADR, ConnectorADRFallback, IConnectorADR>(gameObject, "KlyteAddresses", "2.99.99.0");
+            SharedInstance = gameObject.AddComponent<TLMFacade>();
+            ConnectorADR = PluginUtils.GetImplementationTypeForMod<BridgeADR, BridgeADRFallback, IBridgeADR>(gameObject, "KlyteAddresses", "2.99.99.0");
         }
     }
 

@@ -69,7 +69,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         internal void OpenAt(TransportSystemDefinition tsd)
         {
             m_stripMain.selectedIndex = m_stripMain.Find<UIComponent>(tsd.GetDefType().Name)?.zOrder ?? -1;
-            TLMController.instance.OpenTLMPanel();
+            TLMController.Instance.OpenTLMPanel();
         }
 
         private void CreateTsdTabstrip()
@@ -146,7 +146,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             closeButton.hoveredBgSprite = "buttonclosehover";
             closeButton.eventClick += (x, y) =>
             {
-                TLMController.instance.CloseTLMPanel();
+                TLMController.Instance.CloseTLMPanel();
             };
 
             KlyteMonoUtils.CreateUIElement(out UISprite logo, MainPanel.transform, "TLMLogo", new Vector4(22, 5f, 32, 32));

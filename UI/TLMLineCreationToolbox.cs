@@ -23,7 +23,7 @@ namespace Klyte.TransportLinesManager.UI
             TransportInfo newPrefab = ToolManager.instance.m_properties?.CurrentTool is TransportTool tt ? tt.m_prefab : null;
             if (newPrefab != null && __state != newPrefab)
             {
-                TLMController.instance.LineCreationToolbox.SyncForm();
+                TLMController.Instance.LineCreationToolbox.SyncForm();
             }
         }
         #endregion
@@ -32,7 +32,7 @@ namespace Klyte.TransportLinesManager.UI
         private static readonly SavedBool m_showLineCreationToolBox = new SavedBool("K45_TLM_showLineToolbox", Settings.gameSettingsFile, true);
 
         public TransportInfo.TransportType currentType => transportTool.m_prefab?.m_transportType ?? TransportInfo.TransportType.Bus;
-        private TLMController m_controller => TLMController.instance;
+        private TLMController m_controller => TLMController.Instance;
 
         private UIHelperExtension uiHelper;
 

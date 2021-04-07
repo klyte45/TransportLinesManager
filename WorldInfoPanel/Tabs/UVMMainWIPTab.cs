@@ -417,7 +417,7 @@ namespace Klyte.TransportLinesManager.UI
             {
                 m_lineNumberLabel.textColor = new Color(1, 1, 1, 1);
                 Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_lineNumber = num;
-                TLMShared.Instance.OnLineSymbolParameterChanged();
+                TLMFacade.Instance.OnLineSymbolParameterChanged();
                 if (hasPrefix)
                 {
                     m_lineNumberLabel.text = (num % 1000).ToString();

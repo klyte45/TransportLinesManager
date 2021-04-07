@@ -295,7 +295,7 @@ namespace Klyte.TransportLinesManager.Extensions
         public void SetCustomPalette(uint prefix, string paletteName)
         {
             SafeGet(prefix).CustomPalette = paletteName;
-            TLMShared.Instance?.OnLineSymbolParameterChanged();
+            TLMFacade.Instance?.OnLineSymbolParameterChanged();
         }
 
         #endregion
@@ -307,7 +307,7 @@ namespace Klyte.TransportLinesManager.Extensions
         {
             SafeGet(prefix).CustomIcon = icon;
 
-            TLMShared.Instance?.OnLineSymbolParameterChanged();
+            TLMFacade.Instance?.OnLineSymbolParameterChanged();
         }
 
         #endregion

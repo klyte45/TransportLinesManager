@@ -96,7 +96,7 @@ namespace Klyte.TransportLinesManager.Extensions
             {
                 it.SafeGet(prefix).Color = value;
             }
-            TLMShared.Instance?.OnLineSymbolParameterChanged();
+            TLMFacade.Instance?.OnLineSymbolParameterChanged();
         }
 
         public static void CleanColor<T>(this T it, uint prefix) where T : IColorSelectableExtension => it.SafeGet(prefix).Color = default;

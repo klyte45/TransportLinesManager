@@ -97,7 +97,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     {
                         TLMController.AutoName(lineID);
                     }
-                    TLMController.instance.LineCreationToolbox.incrementNumber();
+                    TLMController.Instance.LineCreationToolbox.incrementNumber();
                     TLMTransportLineExtension.Instance.SafeCleanEntry(lineID);
                 }
             }
