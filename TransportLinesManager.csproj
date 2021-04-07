@@ -94,6 +94,7 @@
     <Compile Include="commons\Interfaces\Warehouse\ConfigWarehouseBase.cs" />
     <Compile Include="commons\Interfaces\Warehouse\DataContainer.cs" />
     <Compile Include="commons\Interfaces\Warehouse\DataExtensionBase.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\DataExtensionLibBase.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterface2LevelIntImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryByEnumImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryByUintImpl.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="commons\Redirectors\UIDynamicFontRendererRedirector.cs" />
     <Compile Include="commons\Redirectors\UIDynamicPanelsRedirector.cs" />
     <Compile Include="commons\Redirectors\UIViewRedirector.cs" />
+    <Compile Include="commons\Redirectors\UIWorkshopAssetRedirector.cs" />
     <Compile Include="commons\Tools\BasicBuildingTool.cs" />
     <Compile Include="commons\Tools\BasicNetTool.cs" />
     <Compile Include="commons\UI\AVOPreviewRenderer.cs" />
@@ -182,6 +184,9 @@
     <Compile Include="commons\Utils\ZipUtils.cs" />
     <Compile Include="Extensors\GameServiceExtensions.cs" />
     <Compile Include="Extensors\TransportLineStorageBasicData.cs" />
+    <Compile Include="ModShared\ConnectorADR.cs" />
+    <Compile Include="ModShared\ConnectorADRFallback.cs" />
+    <Compile Include="ModShared\IConnectorADR.cs" />
     <Compile Include="ModShared\TLMShared.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMDefaultCostPerPassengerConfigTab.cs" />
     <Compile Include="Utils\ModoNomenclatura.cs" />
@@ -416,6 +421,7 @@
     <EmbeddedResource Include="UI\Images\%25K45_24hClock.png" />
     <EmbeddedResource Include="UI\i18n\zh.properties" />
     <None Include="UI\Images\24hClock.psd" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_PaintBucket.png" />
     <Content Include="commons\UI\Images\base.psd" />
     <Content Include="commons\UI\Images\sprites.psd" />
     <Content Include="UI\Images\sprites.psd" />
@@ -466,6 +472,13 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Addresses\Addresses.csproj">
+      <Project>{3518655d-2922-4e78-8875-c38ce7b15adf}</Project>
+      <Name>Addresses</Name>
+      <Aliases>ADR</Aliases>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(TargetDir)0Harmony.dll" "$(ProjectDir)\_requiredDLLs\"

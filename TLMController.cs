@@ -123,6 +123,7 @@ namespace Klyte.TransportLinesManager
         public TransportInfo CurrentTransportInfo => Singleton<TransportTool>.instance.m_prefab;
 
         public TLMShared SharedInstance { get; internal set; }
+        internal IConnectorADR ConnectorADR { get; private set; }
 
         public void Update()
         {
@@ -322,7 +323,11 @@ namespace Klyte.TransportLinesManager
             yield break;
         }
 
-        internal void Awake() => SharedInstance = gameObject.AddComponent<TLMShared>();
+        internal void Awake()
+        {
+            SharedInstance = gameObject.AddComponent<TLMShared>();
+            ConnectorADR = PluginUtils.GetImplementationTypeForMod<ConnectorADR, ConnectorADRFallback, IConnectorADR>(gameObject, "KlyteAddresses", "2.99.99.0");
+        }
     }
 
 

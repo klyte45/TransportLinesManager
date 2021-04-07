@@ -180,7 +180,7 @@ namespace Klyte.TransportLinesManager.UI
                 uilabel.prefix = BuildingUtils.GetBuildingName(buildingID, out _, out _);
                 ref Building depotBuilding = ref BuildingManager.instance.m_buildings.m_buffer[buildingID];
                 Vector3 sidewalk = depotBuilding.CalculateSidewalkPosition();
-                SegmentUtils.GetAddressStreetAndNumber(sidewalk, depotBuilding.m_position, out int number, out string streetName);
+                TransportLinesManagerMod.Controller.ConnectorADR.GetAddressStreetAndNumber(sidewalk, depotBuilding.m_position, out int number, out string streetName);
                 byte districtId = DistrictManager.instance.GetDistrict(sidewalk);
                 uilabel.text = $"\n<color gray>{streetName}, {number} - {(districtId == 0 ? SimulationManager.instance.m_metaData.m_CityName : DistrictManager.instance.GetDistrictName(districtId))}</color>";
 
