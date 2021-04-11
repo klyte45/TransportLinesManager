@@ -58,7 +58,7 @@ namespace Klyte.TransportLinesManager.Utils
                 result = true;
             }
             yield return result;
-            yield break;
+            TransportLinesManagerMod.Controller.SharedInstance.OnAutoNameParameterChanged();
 
         }
 

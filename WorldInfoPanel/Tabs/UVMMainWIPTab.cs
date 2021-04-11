@@ -484,6 +484,7 @@ namespace Klyte.TransportLinesManager.UI
             {
                 TLMController.AutoName(lineId);
             }
+            TransportLinesManagerMod.Controller.SharedInstance.OnAutoNameParameterChanged();
         }
         #endregion
 
