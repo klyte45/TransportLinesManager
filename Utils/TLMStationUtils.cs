@@ -33,6 +33,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
+
         public static IEnumerator<object> SetNodeName(ushort nodeId, string name, Action function)
         {
             yield return Singleton<SimulationManager>.instance.AddAction<bool>(SetNodeName(nodeId, name));
@@ -306,7 +307,6 @@ namespace Klyte.TransportLinesManager.Utils
             BuildingManager bm = Singleton<BuildingManager>.instance;
             NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
             ushort tempBuildingId;
-
 
             if (ss != ItemClass.SubService.None)
             {
