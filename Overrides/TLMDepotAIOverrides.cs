@@ -18,10 +18,10 @@ namespace Klyte.TransportLinesManager.Overrides
 
         #region Generation methods
 
-        private static VehicleInfo DoModelDraw(ref Randomizer r, ushort lineId)
+        private static VehicleInfo DoModelDraw(ushort lineId)
         {
             Interfaces.IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
-            VehicleInfo randomInfo = extension.GetAModel(ref r, lineId);
+            VehicleInfo randomInfo = extension.GetAModel(lineId);
             return randomInfo;
         }
 
@@ -90,8 +90,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 Instance.SetRandomBuilding(ref tsd, offer.TransportLine, ref buildingID);
 
                 LogUtils.DoLog("randomVehicleInfo");
-                var randomizer = new Randomizer((buildingID << 8) | (offer.TransportLine & 0xff));
-                VehicleInfo randomVehicleInfo = DoModelDraw(ref randomizer, offer.TransportLine);
+                VehicleInfo randomVehicleInfo = DoModelDraw(offer.TransportLine);
                 if (randomVehicleInfo == null)
                 {
                     randomVehicleInfo = Singleton<VehicleManager>.instance.GetRandomVehicleInfo(ref Singleton<SimulationManager>.instance.m_randomizer, m_info.m_class.m_service, m_info.m_class.m_subService, m_info.m_class.m_level);
