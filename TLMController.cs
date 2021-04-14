@@ -134,8 +134,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false) => AutoColor(i, out _, ignoreRandomIfSet, ignoreAnyIfSet);
-        public static Color AutoColor(ushort i, out AsyncTask<bool> task, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
+        public static Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
             TransportLine t = TransportManager.instance.m_lines.m_buffer[i];
             try
@@ -143,28 +142,25 @@ namespace Klyte.TransportLinesManager
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(i);
                 if (tsd == default || (((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreAnyIfSet))
                 {
-                    task = null;
                     return Color.clear;
                 }
                 var transportType = tsd.ToConfigIndex();
                 Color c = TLMPrefixesUtils.CalculateAutoColor(t.m_lineNumber, transportType, ref tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
                 if (c.a == 1)
                 {
-                    task = TLMLineUtils.SetLineColor(i, c);
+                    Instance.StartCoroutine(TLMLineUtils.RunColorChange(Instance, i, c));
                 }
                 else
                 {
-                    task = null;
                     c = Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_color;
                 }
-                //TLMUtils.doLog("Colocada a cor {0} na linha {1} ({3} {2})", c, i, t.m_lineNumber, t.Info.m_transportType);
+                LogUtils.DoLog("Colocada a cor #{0} na linha {1} ({3} {2})", c.ToRGB(), i, t.m_lineNumber, t.Info.m_transportType);
                 return c;
             }
             catch (Exception e)
             {
                 LogUtils.DoErrorLog("ERRO!!!!! " + e.Message);
                 TLMCW.SetCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
-                task = null;
                 return Color.clear;
             }
         }

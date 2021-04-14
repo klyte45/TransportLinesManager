@@ -4,8 +4,10 @@ using Klyte.Commons.Redirectors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Xml;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -607,8 +609,47 @@ namespace Klyte.TransportLinesManager.Utils
         }
 
 
-        public static AsyncTask<bool> SetLineColor(ushort lineIdx, Color color) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineColor(lineIdx, color));
-        public static AsyncTask<bool> SetLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineName(lineIdx, name));
+        private static int colorChangeCooldown = 0;
+        private static readonly Dictionary<ushort, Color> colorChangeTarget = new Dictionary<ushort, Color>();
+        internal static void SetLineColor(MonoBehaviour parent, ushort lineId, Color color) => parent.StartCoroutine(ChangeColorCoroutine(parent, lineId, color));
+
+        private static IEnumerator ChangeColorCoroutine(MonoBehaviour comp, ushort id, Color newColor)
+        {
+            colorChangeTarget[id] = newColor;
+            if (colorChangeCooldown > 0)
+            {
+                yield break;
+            }
+            colorChangeCooldown = 3;
+            var targetColor = colorChangeTarget[id];
+            do
+            {
+                colorChangeCooldown--;
+                yield return 0;
+                if (targetColor != colorChangeTarget[id])
+                {
+                    colorChangeCooldown = 3;
+                }
+            } while (colorChangeCooldown > 0);
+
+            yield return RunColorChange(comp, id, targetColor);
+            yield break;
+        }
+
+        public static IEnumerator RunColorChange(MonoBehaviour comp, ushort id, Color targetColor)
+        {
+            if (Singleton<SimulationManager>.exists)
+            {
+                AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineColor(id, targetColor));
+                yield return task.WaitTaskCompleted(comp);
+                if (UVMPublicTransportWorldInfoPanel.GetLineID() == id)
+                {
+                    UVMPublicTransportWorldInfoPanel.ForceReload();
+                }
+            }
+        }
+
+        public static AsyncTask<bool> SetLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction(TransportManager.instance.SetLineName(lineIdx, name));
 
         private static TransportInfo.TransportType[] m_roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram, TransportInfo.TransportType.Trolleybus };
         internal static bool IsRoadLine(ushort lineId) => m_roadTransportTypes.Contains(TransportManager.instance.m_lines.m_buffer[lineId].Info.m_transportType);

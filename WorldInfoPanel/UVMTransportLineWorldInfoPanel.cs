@@ -327,6 +327,8 @@ namespace Klyte.TransportLinesManager.UI
             return 0;
         }
 
+        internal static void ForceReload() => OnSetTarget();
+
         public static string GetVehicleTypeIcon(ushort lineId) => TransportSystemDefinition.From(lineId).GetTransportTypeIcon();
 
 
@@ -348,7 +350,8 @@ namespace Klyte.TransportLinesManager.UI
             private Func<PublicTransportWorldInfoPanel, InstanceID> m_getterInstanceId = ReflectionUtils.GetGetFieldDelegate<PublicTransportWorldInfoPanel, InstanceID>("m_InstanceID", typeof(PublicTransportWorldInfoPanel));
             internal InstanceID CurrentInstanceID
             {
-                get {
+                get
+                {
                     if (origInstance == null)
                     {
                         return default;

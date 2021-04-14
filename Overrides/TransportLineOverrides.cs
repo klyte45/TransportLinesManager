@@ -290,7 +290,7 @@ namespace Klyte.TransportLinesManager.Overrides
         #region Bus Spawn Unbunching
         private static void BusUnbuncher(ushort vehicleID, ref Vehicle data, bool findTargetStop)
         {
-            if (findTargetStop && (data.Info.GetAI() is BusAI || data.Info.GetAI() is TramAI) && data.m_transportLine > 0)
+            if (findTargetStop && (data.Info.GetAI() is BusAI || data.Info.GetAI() is TramAI || data.Info.GetAI() is TrolleybusAI) && data.m_transportLine > 0)
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[data.m_transportLine];
                 data.m_targetBuilding = t.GetStop(SimulationManager.instance.m_randomizer.Int32((uint)t.CountStops(data.m_transportLine)));

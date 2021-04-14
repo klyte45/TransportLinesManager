@@ -42,7 +42,7 @@ namespace Klyte.TransportLinesManager.Interfaces
     {
         Dictionary<string, string> GetAllBasicAssetsForLine(ushort lineId);
         List<string> GetBasicAssetListForLine(ushort lineId);
-        VehicleInfo GetAModel(ref Randomizer r, ushort lineId);
+        VehicleInfo GetAModel(ushort lineId);
     }
 
     public interface IAssetSelectorStorage

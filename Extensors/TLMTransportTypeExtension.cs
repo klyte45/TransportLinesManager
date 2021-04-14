@@ -260,13 +260,13 @@ namespace Klyte.TransportLinesManager.Extensions
             }
             return m_basicAssetsList;
         }
-        public VehicleInfo GetAModel(ref Randomizer r, ushort lineID)
+        public VehicleInfo GetAModel(ushort lineID)
         {
             VehicleInfo info = null;
             List<string> assetList = ExtensionStaticExtensionMethods.GetAssetListForLine(this, lineID);
             while (info == null && assetList.Count > 0)
             {
-                info = VehicleUtils.GetRandomModel(ref r, assetList, out string modelName);
+                info = VehicleUtils.GetRandomModel(assetList, out string modelName);
                 if (info == null)
                 {
                     ExtensionStaticExtensionMethods.RemoveAssetFromLine(this, lineID, modelName);

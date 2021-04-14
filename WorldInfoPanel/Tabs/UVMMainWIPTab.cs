@@ -112,7 +112,7 @@ namespace Klyte.TransportLinesManager.UI
                 m_colorFieldButton.isInteractive = true;
             };
         }
-        private void SetColorPickerEvents() => m_colorField.eventSelectedColorReleased += OnColorChanged;
+        private void SetColorPickerEvents() => m_colorField.eventSelectedColorChanged += OnColorChanged;
         private void SetLegendColors(PublicTransportWorldInfoPanel __instance)
         {
             m_childLegend.color = __instance.m_ChildColor;
@@ -150,13 +150,25 @@ namespace Klyte.TransportLinesManager.UI
 
         public void OnDisable() => Singleton<TransportManager>.instance.eventLineColorChanged -= OnLineColorChanged;
 
+        private int colorChangeCooldown = 0;
         internal void OnColorChanged(UIComponent comp, Color color) => UVMPublicTransportWorldInfoPanel.m_obj.origInstance.StartCoroutine(ChangeColorCoroutine(UVMPublicTransportWorldInfoPanel.GetLineID(), color));
 
         private IEnumerator ChangeColorCoroutine(ushort id, Color color)
         {
+            if(colorChangeCooldown > 0)
+            {
+                yield break;
+            }
+            colorChangeCooldown = 3;
+            do
+            {
+                colorChangeCooldown--;
+                yield return 0;
+            } while (colorChangeCooldown > 0);
+
             if (Singleton<SimulationManager>.exists)
             {
-                AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction<bool>(Singleton<TransportManager>.instance.SetLineColor(id, color));
+                AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineColor(id, color));
                 yield return task.WaitTaskCompleted(this);
                 if (UVMPublicTransportWorldInfoPanel.GetLineID() == id)
                 {

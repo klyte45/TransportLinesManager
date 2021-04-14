@@ -200,7 +200,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_lineColor.width = 40;
             m_lineColor.height = 40;
             m_lineColor.atlas = UIView.GetAView().defaultAtlas;
-            m_lineColor.eventSelectedColorReleased += OnColorChanged;
+            m_lineColor.eventSelectedColorChanged += OnColorChanged;
             m_lineNumberFormatted = m_lineColor.GetComponentInChildren<UIButton>();
             m_lineNumberFormatted.textScale = 1.5f;
             m_lineNumberFormatted.useOutline = true;
@@ -498,7 +498,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             }
         }
 
-        private void OnColorChanged(UIComponent x, Color color) => TLMLineUtils.SetLineColor(m_lineID, color);
+        private void OnColorChanged(UIComponent x, Color color) => TLMLineUtils.SetLineColor(this, m_lineID, color);
 
     }
 }
