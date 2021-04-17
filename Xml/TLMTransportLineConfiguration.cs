@@ -19,4 +19,5 @@ namespace Klyte.TransportLinesManager.Xml
         [XmlElement("DepotsAllowed")]
         public SimpleXmlHashSet<ushort> DepotsAllowed { get; set; } = new SimpleXmlHashSet<ushort>();
     }
+
 }

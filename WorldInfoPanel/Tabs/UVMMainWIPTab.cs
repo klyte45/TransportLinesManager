@@ -205,7 +205,7 @@ namespace Klyte.TransportLinesManager.UI
 
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(lineID);
                 var transportType = tsd.ToConfigIndex();
-                var mnPrefixo = (ModoNomenclatura)TLMConfigWarehouse.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
+                var mnPrefixo = (NamingMode)TLMConfigWarehouse.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
 
                 if (TLMPrefixesUtils.HasPrefix(lineID))
                 {

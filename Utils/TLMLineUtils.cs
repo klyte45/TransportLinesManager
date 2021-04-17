@@ -134,14 +134,14 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static string GetLineStringId(ushort lineIdx)
         {
-            GetLineNamingParameters(lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
+            GetLineNamingParameters(lineIdx, out NamingMode prefix, out Separator s, out NamingMode suffix, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix);
             return TLMPrefixesUtils.GetString(prefix, s, suffix, nonPrefix, Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_lineNumber, zeros, invertPrefixSuffix);
         }
 
-        public static void GetLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix) => GetLineNamingParameters(lineIdx, out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, out string nil);
+        public static void GetLineNamingParameters(ushort lineIdx, out NamingMode prefix, out Separator s, out NamingMode suffix, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix) => GetLineNamingParameters(lineIdx, out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, out string nil);
 
 
-        public static TransportSystemDefinition GetLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, out string icon)
+        public static TransportSystemDefinition GetLineNamingParameters(ushort lineIdx, out NamingMode prefix, out Separator s, out NamingMode suffix, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix, out string icon)
         {
             var tsd = TransportSystemDefinition.GetDefinitionForLine(lineIdx);
             if (tsd != default)
@@ -188,25 +188,25 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return false;
         }
-        public static void GetNamingRulesFromTSD(out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, ref TransportSystemDefinition tsd)
+        public static void GetNamingRulesFromTSD(out NamingMode prefix, out Separator s, out NamingMode suffix, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix, ref TransportSystemDefinition tsd)
 
         {
             var transportType = tsd.ToConfigIndex();
             if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
             {
-                suffix = ModoNomenclatura.Numero;
-                s = Separador.Hifen;
-                prefix = ModoNomenclatura.Romano;
-                nonPrefix = ModoNomenclatura.Numero;
+                suffix = NamingMode.Number;
+                s = Separator.Hyphen;
+                prefix = NamingMode.Roman;
+                nonPrefix = NamingMode.Number;
                 zeros = false;
                 invertPrefixSuffix = false;
             }
             else
             {
-                suffix = (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
-                s = (Separador)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
-                prefix = (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
-                nonPrefix = (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
+                suffix = (NamingMode)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
+                s = (Separator)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
+                prefix = (NamingMode)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
+                nonPrefix = (NamingMode)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
                 zeros = TLMCW.GetCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
                 invertPrefixSuffix = TLMCW.GetCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
             }
@@ -437,7 +437,7 @@ namespace Klyte.TransportLinesManager.Utils
             foreach (KeyValuePair<string, ushort> s in otherLinesIntersections.OrderBy(x => x.Key))
             {
                 TransportLine intersectLine = tm.m_lines.m_buffer[s.Value];
-                ItemClass.SubService ss = GetLineNamingParameters(s.Value, out ModoNomenclatura prefixo, out Separador separador, out ModoNomenclatura sufixo, out ModoNomenclatura naoPrefixado, out bool zeros, out bool invertPrefixSuffix, out string bgSprite).SubService;
+                ItemClass.SubService ss = GetLineNamingParameters(s.Value, out NamingMode prefixo, out Separator separador, out NamingMode sufixo, out NamingMode naoPrefixado, out bool zeros, out bool invertPrefixSuffix, out string bgSprite).SubService;
                 KlyteMonoUtils.CreateUIElement(out UIButtonLineInfo lineCircleIntersect, intersectionsPanel.transform);
                 lineCircleIntersect.autoSize = false;
                 lineCircleIntersect.width = size;
@@ -916,14 +916,14 @@ namespace Klyte.TransportLinesManager.Utils
 
 
 
-        internal static readonly ModoNomenclatura[] m_nomenclaturasComNumeros = new ModoNomenclatura[]
+        internal static readonly NamingMode[] m_nomenclaturasComNumeros = new NamingMode[]
         {
-        ModoNomenclatura. LatinoMinusculoNumero ,
-        ModoNomenclatura. LatinoMaiusculoNumero ,
-        ModoNomenclatura. GregoMinusculoNumero,
-        ModoNomenclatura. GregoMaiusculoNumero,
-        ModoNomenclatura. CirilicoMinusculoNumero,
-        ModoNomenclatura. CirilicoMaiusculoNumero
+        NamingMode. LatinLowerNumber ,
+        NamingMode. LatinUpperNumber ,
+        NamingMode. GreekLowerNumber,
+        NamingMode. GreekUpperNumber,
+        NamingMode. CyrillicLowerNumber,
+        NamingMode. CyrillicUpperUpper
         };
 
         public static readonly TransferManager.TransferReason[] defaultAllowedVehicleTypes = {

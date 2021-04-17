@@ -37,39 +37,39 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
 
         internal readonly string[] namingOptionsSufixo = new string[] {
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 0)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 1)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 2)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 3)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 4)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 5)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 6)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 14))
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 0)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 1)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 2)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 3)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 4)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 5)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 6)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 14))
             };
         internal readonly string[] namingOptionsPrefixo = new string[] {
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 0)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 1)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 2)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 3)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 4)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 5)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 6)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 7)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 8)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 9)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 10)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 11)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 12)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 13)),
-                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(ModoNomenclatura), 14))
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 0)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 1)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 2)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 3)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 4)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 5)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 6)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 7)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 8)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 9)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 10)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 11)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 12)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 13)),
+                Locale.Get("K45_TLM_MODO_NOMENCLATURA",Enum.GetName(typeof(NamingMode), 14))
             };
         internal readonly string[] namingOptionsSeparador = new string[] {
-                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 0)),
-                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 1)),
-                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 2)),
-                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 3)),
-                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 4)),
-                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separador), 5)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separator), 0)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separator), 1)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separator), 2)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separator), 3)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separator), 4)),
+                Locale.Get("K45_TLM_SEPARATOR",Enum.GetName(typeof(Separator), 5)),
             };
 
 

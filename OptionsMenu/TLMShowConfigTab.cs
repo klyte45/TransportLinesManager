@@ -85,20 +85,20 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         private void OnPrefixOptionChange(UIComponent c, int sel)
         {
-            bool isPrefixed = (ModoNomenclatura)sel != ModoNomenclatura.Nenhum;
+            bool isPrefixed = (NamingMode)sel != NamingMode.None;
             separatorContainer.isVisible = isPrefixed;
             prefixIncrement.isVisible = isPrefixed;
             suffixDDContainer.isVisible = isPrefixed;
-            zerosContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero;
-            prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)suffixDD.selectedIndex == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
+            zerosContainer.isVisible = isPrefixed && (NamingMode)suffixDD.selectedIndex == NamingMode.Number;
+            prefixAsSuffixContainer.isVisible = isPrefixed && (NamingMode)suffixDD.selectedIndex == NamingMode.Number && (NamingMode)prefixDD.selectedIndex != NamingMode.Number;
             autoColorBasedContainer.isVisible = isPrefixed;
         }
 
         private void OnSuffixOptionChange(UIComponent c, int sel)
         {
-            bool isPrefixed = (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Nenhum;
-            zerosContainer.isVisible = isPrefixed && (ModoNomenclatura)sel == ModoNomenclatura.Numero;
-            prefixAsSuffixContainer.isVisible = isPrefixed && (ModoNomenclatura)sel == ModoNomenclatura.Numero && (ModoNomenclatura)prefixDD.selectedIndex != ModoNomenclatura.Numero;
+            bool isPrefixed = (NamingMode)prefixDD.selectedIndex != NamingMode.None;
+            zerosContainer.isVisible = isPrefixed && (NamingMode)sel == NamingMode.Number;
+            prefixAsSuffixContainer.isVisible = isPrefixed && (NamingMode)sel == NamingMode.Number && (NamingMode)prefixDD.selectedIndex != NamingMode.Number;
         }
     }
 

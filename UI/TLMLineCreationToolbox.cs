@@ -215,9 +215,9 @@ namespace Klyte.TransportLinesManager.UI
                 int valPrefixo = linePrefixDropDown.selectedIndex;
 
                 var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
-                TLMLineUtils.GetNamingRulesFromTSD(out ModoNomenclatura prefixo, out Separador sep, out ModoNomenclatura sufixo, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, ref tsd);
+                TLMLineUtils.GetNamingRulesFromTSD(out NamingMode prefixo, out Separator sep, out NamingMode sufixo, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix, ref tsd);
                 ushort num = ushort.Parse(value);
-                if (prefixo != ModoNomenclatura.Nenhum)
+                if (prefixo != NamingMode.None)
                 {
                     num = (ushort)((valPrefixo * 1000) + (num % 1000));
                 }
@@ -321,7 +321,7 @@ namespace Klyte.TransportLinesManager.UI
             }
 
             var tsd = TransportSystemDefinition.From(transportTool.m_prefab);
-            TLMLineUtils.GetNamingRulesFromTSD(out ModoNomenclatura prefixo, out Separador sep, out ModoNomenclatura sufixo, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, ref tsd);
+            TLMLineUtils.GetNamingRulesFromTSD(out NamingMode prefixo, out Separator sep, out NamingMode sufixo, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix, ref tsd);
 
             if (syncFromInput)
             {
@@ -329,7 +329,7 @@ namespace Klyte.TransportLinesManager.UI
                 int valPrefixo = linePrefixDropDown.selectedIndex;
 
                 ushort num = ushort.Parse(value);
-                if (prefixo != ModoNomenclatura.Nenhum)
+                if (prefixo != NamingMode.None)
                 {
                     num = (ushort)((valPrefixo * 1000) + (num % 1000));
                 }
