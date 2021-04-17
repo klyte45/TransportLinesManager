@@ -19,17 +19,10 @@ namespace Klyte.TransportLinesManager.ModShared
         public event Action EventAutoNameParameterChanged;
         public event Action EventVehicleIdentifierParameterChanged;
 
-        public static string GetFullStationName(ushort stopId, ushort lineId, ItemClass.SubService subService)
-        {
-            if (TLMLineUtils.IsRoadLine(lineId))
-            {
-                return TLMStationUtils.GetFullStationName(stopId, lineId, subService);
-            }
-            else
-            {
-                return TLMStationUtils.GetStationName(stopId, lineId, subService);
-            }
-        }
+        public static string GetFullStationName(ushort stopId, ushort lineId, ItemClass.SubService subService) =>
+            stopId == 0 ? ""
+                : TLMLineUtils.IsRoadLine(lineId) ? TLMStationUtils.GetFullStationName(stopId, lineId, subService)
+                : TLMStationUtils.GetStationName(stopId, lineId, subService);
 
         public static Tuple<string, Color, string> GetIconStringParameters(ushort lineID) => TLMLineUtils.GetIconStringParameters(lineID);
         public static ushort GetStationBuilding(ushort stopId, ushort lineId) => TLMStationUtils.GetStationBuilding(stopId, lineId);
