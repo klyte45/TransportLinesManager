@@ -185,6 +185,7 @@
     <Compile Include="commons\Utils\ZipUtils.cs" />
     <Compile Include="Extensions\GameServiceExtensions.cs" />
     <Compile Include="Extensions\TLMAssetConfiguration.cs" />
+    <Compile Include="Extensions\TLMTransportTypeDataContainer.cs" />
     <Compile Include="Extensions\TransportLineStorageBasicData.cs" />
     <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_BALLOON.cs" />
     <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_BLIMP.cs" />
@@ -236,7 +237,6 @@
     <Compile Include="Xml\Base\TLMAutoNameConfigurationData.cs" />
     <Compile Include="Xml\Base\TLMBaseConfigXML.cs" />
     <Compile Include="Xml\Base\TLMSpecialNamingClass.cs" />
-    <Compile Include="Xml\Base\TLMTransportTypeConfigXML.cs" />
     <Compile Include="Xml\Base\TsdIdentifiable.cs" />
     <Compile Include="Xml\TLMTransportLineConfiguration.cs" />
     <Compile Include="Xml\BudgetEntryXml.cs" />

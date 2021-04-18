@@ -1,4 +1,5 @@
 ﻿using ColossalFramework.Globalization;
+using ICities;
 using Klyte.Commons;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
@@ -8,12 +9,14 @@ using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensions
 {
+    [XmlRoot("TransportTypeExtension")]
     public class TLMTransportTypeExtension : TsdIdentifiable, ITLMTransportTypeExtension
     {
 
@@ -324,6 +327,38 @@ namespace Klyte.TransportLinesManager.Extensions
                 catch (Exception e)
                 {
                     LogUtils.DoErrorLog($"ERROR ROLLING BACK ASSET CONFIG: {e}=> {e.Message}\n{e.StackTrace}");
+                }
+            }
+        }
+        public static TLMTransportTypeExtension GetLoadData(ISerializableData serializableData, string ID)
+        {
+            if (ID == null || ToolManager.instance.m_properties.m_mode != ItemClass.Availability.Game)
+            {
+                LogUtils.DoWarnLog($"Trying to load out of game!");
+                return null;
+            }
+            if (!serializableData.EnumerateData().Contains(ID))
+            {
+                LogUtils.DoLog($"Savegame has no legacy {ID} (default)");
+                return null;
+            }
+            using (var memoryStream = new MemoryStream(serializableData.LoadData(ID)))
+            {
+                try
+                {
+                    byte[] storage = memoryStream.ToArray();
+                    var file = System.Text.Encoding.UTF8.GetString(storage);
+                    if (!file.StartsWith("<"))
+                    {
+                        file = ZipUtils.Unzip(storage);
+                    }
+                    file = file.Replace(ID.Split('.').Last(), "TransportTypeExtension");
+                    return XmlUtils.DefaultXmlDeserialize<TLMTransportTypeExtension>(file);
+                }
+                catch (Exception e)
+                {
+                    LogUtils.DoErrorLog($"Error trying to load legacy TLMTransportTypeExtension (ID = {ID}): {e.Message}\n{e.StackTrace}");
+                    return null;
                 }
             }
         }

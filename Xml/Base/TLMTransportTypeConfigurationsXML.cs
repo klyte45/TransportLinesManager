@@ -1,5 +1,4 @@
 ﻿using Klyte.Commons.UI.Sprites;
-using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using System.Xml.Serialization;
 
@@ -35,7 +34,7 @@ namespace Klyte.TransportLinesManager.Xml
         [XmlAttribute("defaultTicketPrice")]
         public int DefaultTicketPrice { get; set; } = 0;
         [XmlAttribute("lineIcon")]
-        public LineIconSpriteNames DefaultLineIcon { get; set; } = LineIconSpriteNames.K45_CircleIcon;
+        public LineIconSpriteNames DefaultLineIcon { get; set; } = LineIconSpriteNames.NULL;
         [XmlAttribute("vehicleIdentifierLocal")]
         public string VehicleIdentifierFormatLocal { get; set; } = "";
         [XmlAttribute("VehicleIdentifierForeign")]

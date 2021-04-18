@@ -69,6 +69,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 if (b)
                 {
                     TransportLinesManagerMod.Instance.ShowVersionInfoPopup();
+                    ReloadData();
                 }
                 try
                 {

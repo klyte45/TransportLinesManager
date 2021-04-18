@@ -114,7 +114,7 @@ namespace Klyte.TransportLinesManager.Extensions
         internal static long GetTsdIndex(TransportInfo.TransportType TransportType, ItemClass.SubService SubService, VehicleInfo.VehicleType VehicleType, ItemClass.Level Level)
            => (((long)TransportType & 0xff) << 24) | (((long)KlyteMathUtils.BitScanForward((ulong)VehicleType) + 1) << 16) | (((long)SubService & 0xff) << 8) | ((long)Level & 0xff);
 
-        public ITLMTransportTypeExtension GetTransportExtension() => TLMTransportTypeConfigXML.Instance?.SafeGet(Index_Internal);
+        public ITLMTransportTypeExtension GetTransportExtension() => TLMTransportTypeDataContainer.Instance?.SafeGet(Index_Internal);
         public bool IsTour() => SubService == ItemClass.SubService.PublicTransportTours;
         public bool IsShelterAiDepot() => this == EVAC_BUS;
         public bool HasVehicles() => VehicleType != VehicleInfo.VehicleType.None;

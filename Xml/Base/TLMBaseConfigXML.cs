@@ -94,13 +94,15 @@ namespace Klyte.TransportLinesManager.Xml
         {
             base.LoadDefaults(serializableData);
             var tlmcw = new TLMConfigWarehouse();
-            var legacy = tlmcw.OnLoadData(serializableData);
+            var legacy = tlmcw.GetLoadData(serializableData);
             if (legacy != null)
             {
+                LogUtils.DoWarnLog($"Found Warehouse data (< 13.5)");
                 legacy.WriteToBaseConfigXML(this);
             }
             else
             {
+                LogUtils.DoWarnLog($"Getting default data from Warehouse");
                 tlmcw.WriteToBaseConfigXML(this);
             }
         }
