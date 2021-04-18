@@ -56,7 +56,7 @@ namespace Klyte.TransportLinesManager.Utils
                 }
                 else
                 {
-                    if (prefixBased)
+                    if (prefix > 0 && prefixBased)
                     {
                         num /= 1000;
                     }
