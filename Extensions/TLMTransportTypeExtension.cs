@@ -1,8 +1,5 @@
-﻿using ColossalFramework;
-using ColossalFramework.Globalization;
-using ColossalFramework.Math;
+﻿using ColossalFramework.Globalization;
 using Klyte.Commons;
-using Klyte.Commons.Interfaces;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Interfaces;
@@ -17,13 +14,12 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Extensions
 {
-    public abstract class TLMTransportTypeExtension<TSD, SG> : DataExtensionBase<SG>, ITLMTransportTypeExtension
-        where TSD : TLMSysDef<TSD>, new() where SG : TLMTransportTypeExtension<TSD, SG>, new()
+    public class TLMTransportTypeExtension : TsdIdentifiable, ITLMTransportTypeExtension
     {
 
         private List<string> m_basicAssetsList;
 
-        private TransportSystemDefinition Definition => Singleton<TSD>.instance.GetTSD();
+        private TransportSystemDefinition Definition => ToTSD();
 
         [XmlElement("Configurations")]
         public SimpleNonSequentialList<TLMPrefixConfiguration> Configurations { get; set; } = new SimpleNonSequentialList<TLMPrefixConfiguration>();
@@ -33,7 +29,8 @@ namespace Klyte.TransportLinesManager.Extensions
         [XmlElement("AssetConfigurations")]
         public SimpleXmlDictionary<string, TLMAssetConfiguration> AssetConfigurationsStore
         {
-            get {
+            get
+            {
                 var result = new SimpleXmlDictionary<string, TLMAssetConfiguration>();
                 foreach (KeyValuePair<string, TLMAssetConfiguration> entry in AssetConfigurations)
                 {
@@ -44,7 +41,8 @@ namespace Klyte.TransportLinesManager.Extensions
                 }
                 return result;
             }
-            set {
+            set
+            {
 
                 try
                 {
@@ -85,12 +83,8 @@ namespace Klyte.TransportLinesManager.Extensions
 
         public uint GetDefaultTicketPrice(uint x = 0)
         {
-            int savedVal = TLMConfigWarehouse.instance.GetInt(TLMConfigWarehouse.ConfigIndex.DEFAULT_TICKET_PRICE | Singleton<TSD>.instance.GetTSD().ToConfigIndex());
-            if (savedVal > 0)
-            {
-                return (uint)savedVal;
-            }
-            return (uint)TransportManager.instance.GetTransportInfo(Singleton<TSD>.instance.GetTSD().TransportType).m_ticketPrice;
+            int savedVal = Definition.GetConfig().DefaultTicketPrice;
+            return savedVal > 0 ? (uint)savedVal : (uint)TransportManager.instance.GetTransportInfo(TransportType).m_ticketPrice;
         }
         #region Asset properties
 
@@ -220,7 +214,7 @@ namespace Klyte.TransportLinesManager.Extensions
         private void SetVehicleCapacity<AI>(AI ai, int newCapacity) where AI : VehicleAI
         {
             int defaultCapacity = UpdateDefaultCapacity(ai);
-            if (newCapacity < 0)
+            if (newCapacity <= 0)
             {
                 newCapacity = defaultCapacity;
             }
@@ -278,7 +272,7 @@ namespace Klyte.TransportLinesManager.Extensions
         private void LoadBasicAssets()
         {
             TransportSystemDefinition tsd = Definition;
-            m_basicAssetsList = TLMPrefabUtils.LoadBasicAssets(ref tsd);
+            m_basicAssetsList = TLMPrefabUtils.LoadBasicAssets(tsd);
         }
 
         #endregion
@@ -313,12 +307,9 @@ namespace Klyte.TransportLinesManager.Extensions
         #endregion
         public uint LineToIndex(ushort lineId) => TLMPrefixesUtils.GetPrefix(lineId);
 
-        public override string SaveId => $"K45_TLM_{GetType()}";
-
-
-        public override void OnReleased()
+        public void OnReleased()
         {
-            var keys = Instance.AssetConfigurations.Keys.ToList();
+            var keys = AssetConfigurations.Keys.ToList();
             foreach (string entry in keys)
             {
                 try
@@ -327,7 +318,7 @@ namespace Klyte.TransportLinesManager.Extensions
                     if (info != null)
                     {
                         VehicleAI ai = info.m_vehicleAI;
-                        Instance.SetVehicleCapacity(ai, 0);
+                        SetVehicleCapacity(ai, 0);
                     }
                 }
                 catch (Exception e)
@@ -336,31 +327,5 @@ namespace Klyte.TransportLinesManager.Extensions
                 }
             }
         }
-    }
-
-    public sealed class TLMTransportTypeExtensionNorBus : TLMTransportTypeExtension<TLMSysDefNorBus, TLMTransportTypeExtensionNorBus> { }
-    public sealed class TLMTransportTypeExtensionNorBlp : TLMTransportTypeExtension<TLMSysDefNorBlp, TLMTransportTypeExtensionNorBlp> { }
-    public sealed class TLMTransportTypeExtensionEvcBus : TLMTransportTypeExtension<TLMSysDefEvcBus, TLMTransportTypeExtensionEvcBus> { }
-    public sealed class TLMTransportTypeExtensionNorFer : TLMTransportTypeExtension<TLMSysDefNorFer, TLMTransportTypeExtensionNorFer> { }
-    public sealed class TLMTransportTypeExtensionNorMet : TLMTransportTypeExtension<TLMSysDefNorMet, TLMTransportTypeExtensionNorMet> { }
-    public sealed class TLMTransportTypeExtensionNorMnr : TLMTransportTypeExtension<TLMSysDefNorMnr, TLMTransportTypeExtensionNorMnr> { }
-    public sealed class TLMTransportTypeExtensionNorPln : TLMTransportTypeExtension<TLMSysDefNorPln, TLMTransportTypeExtensionNorPln> { }
-    public sealed class TLMTransportTypeExtensionNorShp : TLMTransportTypeExtension<TLMSysDefNorShp, TLMTransportTypeExtensionNorShp> { }
-    public sealed class TLMTransportTypeExtensionNorTrn : TLMTransportTypeExtension<TLMSysDefNorTrn, TLMTransportTypeExtensionNorTrn> { }
-    public sealed class TLMTransportTypeExtensionNorTrm : TLMTransportTypeExtension<TLMSysDefNorTrm, TLMTransportTypeExtensionNorTrm> { }
-    public sealed class TLMTransportTypeExtensionTouBus : TLMTransportTypeExtension<TLMSysDefTouBus, TLMTransportTypeExtensionTouBus> { }
-    public sealed class TLMTransportTypeExtensionPstPst : TLMTransportTypeExtension<TLMSysDefPstPst, TLMTransportTypeExtensionPstPst> { }
-    public sealed class TLMTransportTypeExtensionTouPed : TLMTransportTypeExtension<TLMSysDefTouPed, TLMTransportTypeExtensionTouPed> { }
-    public sealed class TLMTransportTypeExtensionTouBal : TLMTransportTypeExtension<TLMSysDefTouBal, TLMTransportTypeExtensionTouBal> { }
-    public sealed class TLMTransportTypeExtensionNorCcr : TLMTransportTypeExtension<TLMSysDefNorCcr, TLMTransportTypeExtensionNorCcr> { }
-    public sealed class TLMTransportTypeExtensionNorTax : TLMTransportTypeExtension<TLMSysDefNorTax, TLMTransportTypeExtensionNorTax> { }
-    public sealed class TLMTransportTypeExtensionNorTrl : TLMTransportTypeExtension<TLMSysDefNorTrl, TLMTransportTypeExtensionNorTrl> { }
-    public sealed class TLMTransportTypeExtensionNorHel : TLMTransportTypeExtension<TLMSysDefNorHel, TLMTransportTypeExtensionNorHel> { }
-    [XmlRoot("AssetConfiguration")]
-    public class TLMAssetConfiguration
-    {
-        [XmlAttribute("capacity")]
-        public int Capacity { get; set; }
-
     }
 }

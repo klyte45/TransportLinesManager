@@ -1,4 +1,6 @@
-﻿namespace Klyte.TransportLinesManager.Utils
+﻿using ColossalFramework.Globalization;
+
+namespace Klyte.TransportLinesManager.Utils
 {
     public enum NamingMode
     {
@@ -17,6 +19,11 @@
         CyrillicLowerNumber = 12,
         CyrillicUpperUpper = 13,
         Roman = 14
+    }
+
+    public static class NamingModeExtensions
+    {
+        public static string GetName(this NamingMode namingMode) => Locale.Get("K45_TLM_MODO_NOMENCLATURA", namingMode.ToString());
     }
 
 }

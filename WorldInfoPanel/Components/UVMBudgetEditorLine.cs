@@ -69,15 +69,8 @@ namespace Klyte.TransportLinesManager.UI
 
         private static int GetMaxValue()
         {
-            int savedCount = TLMConfigWarehouse.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.MAX_VEHICLES_SPECIFIC_CONFIG);
-            if (savedCount <= 0)
-            {
-                return TLMConfigWarehouse.instance.GetDefaultIntValueForProperty(TLMConfigWarehouse.ConfigIndex.MAX_VEHICLES_SPECIFIC_CONFIG);
-            }
-            else
-            {
-                return savedCount;
-            }
+            int savedCount = TLMBaseConfigXML.Instance.MaximumValueVehiclesSpecificVehiclesSlider;
+            return savedCount <= 0 ? 50 : savedCount;
         }
 
         public string GetCurrentVal() => m_timeInput.text;

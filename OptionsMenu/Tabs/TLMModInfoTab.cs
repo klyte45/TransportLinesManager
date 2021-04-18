@@ -3,10 +3,12 @@ using Klyte.Commons.Extensions;
 
 namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {
-    internal class TLMModInfoTab : UICustomControl
+    internal class TLMModInfoTab : UICustomControl, ITLMConfigOptionsTab
     {
 
         UIComponent parent;
+
+        public void ReloadData() { }
 
         private void Awake()
         {

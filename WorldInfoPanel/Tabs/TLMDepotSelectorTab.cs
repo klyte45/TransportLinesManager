@@ -163,9 +163,9 @@ namespace Klyte.TransportLinesManager.UI
             m_isLoading = true;
 
             var lineId = GetLineID();
-            List<ushort> cityDepotList = TLMDepotUtils.GetAllDepotsFromCity(ref tsd);
+            List<ushort> cityDepotList = TLMDepotUtils.GetAllDepotsFromCity(tsd);
             Interfaces.IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
-            List<ushort> targetDepotList = config.GetAllowedDepots(ref tsd, lineId);
+            List<ushort> targetDepotList = config.GetAllowedDepots(tsd, lineId);
             UIPanel[] depotChecks = m_checkboxTemplateList.SetItemCount(cityDepotList.Count);
             LogUtils.DoLog($"depotChecks = {depotChecks.Length}");
             for (int idx = 0; idx < cityDepotList.Count; idx++)
@@ -194,11 +194,11 @@ namespace Klyte.TransportLinesManager.UI
                         {
                             if (y)
                             {
-                                TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).AddDepotForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), (ushort) x.objectUserData);
+                                TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).AddDepotForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), (ushort)x.objectUserData);
                             }
                             else
                             {
-                                TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).RemoveDepotForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), (ushort) x.objectUserData);
+                                TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).RemoveDepotForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), (ushort)x.objectUserData);
                             }
                         }
                     };
@@ -206,10 +206,10 @@ namespace Klyte.TransportLinesManager.UI
                     UIButton gotoButton = depotChecks[idx].Find<UIButton>("GoTo");
                     gotoButton.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
                     {
-                        ushort buildingId = (ushort) uiCheck.objectUserData;
+                        ushort buildingId = (ushort)uiCheck.objectUserData;
                         if (buildingId != 0)
                         {
-                            Vector3 position = BuildingManager.instance.m_buildings.m_buffer[buildingId].m_position;                            
+                            Vector3 position = BuildingManager.instance.m_buildings.m_buffer[buildingId].m_position;
                             ToolsModifierControl.cameraController.SetTarget(new InstanceID() { Building = buildingId }, position, true);
                         }
                     };
@@ -224,7 +224,7 @@ namespace Klyte.TransportLinesManager.UI
             else
             {
                 int prefix = (int)TLMPrefixesUtils.GetPrefix(GetLineID());
-                m_title.text = string.Format(Locale.Get("K45_TLM_DEPOT_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(tsd), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.ToConfigIndex()));
+                m_title.text = string.Format(Locale.Get("K45_TLM_DEPOT_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(tsd), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), tsd.GetTransportName());
             }
 
 

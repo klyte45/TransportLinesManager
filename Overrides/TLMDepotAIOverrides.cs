@@ -25,10 +25,10 @@ namespace Klyte.TransportLinesManager.Overrides
             return randomInfo;
         }
 
-        public void SetRandomBuilding(ref TransportSystemDefinition tsd, ushort lineId, ref ushort currentId)
+        public void SetRandomBuilding(TransportSystemDefinition tsd, ushort lineId, ref ushort currentId)
         {
             Interfaces.IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
-            List<ushort> allowedDepots = config.GetAllowedDepots(ref tsd, lineId);
+            List<ushort> allowedDepots = config.GetAllowedDepots(tsd, lineId);
             if (allowedDepots.Count == 0 || allowedDepots.Contains(currentId))
             {
                 if (TransportLinesManagerMod.DebugMode)
@@ -87,7 +87,7 @@ namespace Klyte.TransportLinesManager.Overrides
             {
                 var tsd = TransportSystemDefinition.From(__instance.m_transportInfo);
 
-                Instance.SetRandomBuilding(ref tsd, offer.TransportLine, ref buildingID);
+                Instance.SetRandomBuilding(tsd, offer.TransportLine, ref buildingID);
 
                 LogUtils.DoLog("randomVehicleInfo");
                 VehicleInfo randomVehicleInfo = DoModelDraw(offer.TransportLine);

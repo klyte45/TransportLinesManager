@@ -1,7 +1,5 @@
 ﻿using ColossalFramework.UI;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensions;
-using Klyte.TransportLinesManager.Utils;
 using System;
 using UnityEngine;
 
@@ -18,40 +16,26 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             int parentWidth = 730;
 
             KlyteMonoUtils.CreateUIElement(out UITabstrip strip, parent.transform, "TLMTabstrip", new Vector4(5, 0, parentWidth - 10, 40));
-            float effectiveOffsetY = strip.height;
+            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, parent.transform, "TLMTabContainer", new Vector4(0, 40, parentWidth - 10, 600));
 
-            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, parent.transform, "TLMTabContainer", new Vector4(0, 40, parentWidth - 10, 400));
-            tabContainer.autoSize = true;
             strip.tabPages = tabContainer;
 
             UIButton tabTemplate = CreateTabSubStripTemplate();
 
-            UIComponent bodyContent = CreateContentTemplate(parentWidth, 400, false);
+            UIComponent bodyContent = CreateContentTemplate(parentWidth, 600, false);
 
-            foreach (System.Collections.Generic.KeyValuePair<TransportSystemDefinition, Func<ITLMSysDef>> kv in TransportSystemDefinition.SysDefinitions)
+            foreach (var kv in ReflectionUtils.GetSubtypesRecursive(typeof(TLMShowConfigTab), GetType()))
             {
-                Type[] components;
-                Type targetType;
-                try
-                {
-                    targetType = ReflectionUtils.GetImplementationForGenericType(typeof(TLMShowConfigTab<>), kv.Value().GetType());
-                    components = new Type[] { targetType };
-                }
-                catch
-                {
-                    continue;
-                }
+                var tsd = (kv.GetConstructor(new Type[0]).Invoke(null) as TLMShowConfigTab).TSD;
+
 
                 GameObject tab = Instantiate(tabTemplate.gameObject);
                 GameObject body = Instantiate(bodyContent.gameObject);
-                var configIdx = kv.Key.ToConfigIndex();
-                TransportSystemDefinition tsd = kv.Key;
-                string name = kv.Value().GetType().Name;
-                LogUtils.DoLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
-                string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMPrefixesUtils.GetLineIcon(0, configIdx, ref tsd), true);
-                string fgIcon = kv.Key.GetTransportTypeIcon();
+                string name = tsd.GetTransportName();
+                string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(tsd.DefaultIcon, true);
+                string fgIcon = tsd.GetTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();
-                tabButton.tooltip = TLMConfigWarehouse.getNameForTransportType(configIdx);
+                tabButton.tooltip = name;
                 tabButton.hoveredBgSprite = bgIcon;
                 tabButton.focusedBgSprite = bgIcon;
                 tabButton.normalBgSprite = bgIcon;
@@ -68,7 +52,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                     secSprite.isInteractive = false;
                     secSprite.disabledColor = Color.black;
                 }
-                strip.AddTab(name, tab, body, components);
+                strip.AddTab(name, tab, body, new Type[] { kv });
             }
             strip.selectedIndex = -1;
             strip.selectedIndex = 0;

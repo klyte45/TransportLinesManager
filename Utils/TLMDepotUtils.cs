@@ -5,7 +5,7 @@ namespace Klyte.TransportLinesManager.Utils
 {
     internal class TLMDepotUtils
     {
-        public static List<ushort> GetAllDepotsFromCity(ref TransportSystemDefinition tsd)
+        public static List<ushort> GetAllDepotsFromCity(TransportSystemDefinition tsd)
         {
             var saida = new List<ushort>();
             BuildingManager bm = BuildingManager.instance;

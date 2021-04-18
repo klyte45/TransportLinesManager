@@ -75,7 +75,7 @@ namespace Klyte.TransportLinesManager.UI
             TLMPaletteOptionsTab.onPaletteReloaded += ReloadPalettes;
 
             LogUtils.DoLog("Format");
-            m_formatDD = CreateMiniDropdown("K45_TLM_ICON", SetFormatPrefix, TLMLineIconExtension.getDropDownOptions(Locale.Get("K45_TLM_LINE_ICON_ENUM_TT_DEFAULT")));
+            m_formatDD = CreateMiniDropdown("K45_TLM_ICON", SetFormatPrefix, TLMLineIconExtension.GetDropDownOptions(Locale.Get("K45_TLM_LINE_ICON_ENUM_TT_DEFAULT")));
 
         }
 
@@ -167,7 +167,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (!m_isLoading)
             {
-                Extension.SetCustomFormat(SelectedPrefix, (LineIconSpriteNames) Enum.Parse(typeof(LineIconSpriteNames), value.ToString()));
+                Extension.SetCustomFormat(SelectedPrefix, (LineIconSpriteNames)Enum.Parse(typeof(LineIconSpriteNames), value.ToString()));
                 UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
             }
         }
@@ -223,9 +223,9 @@ namespace Klyte.TransportLinesManager.UI
             m_useColorForModel.isChecked = Extension.IsUsingColorForModel(sel);
             m_prefixName.text = Extension.GetName(sel) ?? "";
             m_paletteDD.selectedIndex = Math.Max(0, m_paletteDD.items.ToList().IndexOf(Extension.GetCustomPalette(sel)));
-            m_formatDD.selectedIndex = Math.Max(0, (int) Extension.GetCustomFormat(sel));
+            m_formatDD.selectedIndex = Math.Max(0, (int)Extension.GetCustomFormat(sel));
 
-            m_title.text = string.Format(Locale.Get("K45_TLM_PREFIX_TAB_WIP_TITLE"), sel > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(TransportSystem), (int) sel + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(TransportSystem.ToConfigIndex()));
+            m_title.text = string.Format(Locale.Get("K45_TLM_PREFIX_TAB_WIP_TITLE"), sel > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(TransportSystem), (int)sel + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TransportSystem.GetTransportName());
 
             m_isLoading = false;
 
@@ -235,6 +235,6 @@ namespace Klyte.TransportLinesManager.UI
         public void OnDisable() { }
         public void OnGotFocus() { }
         public bool MayBeVisible() => TLMPrefixesUtils.HasPrefix(GetLineID()) && !TLMTransportLineExtension.Instance.IsUsingCustomConfig(GetLineID());
-        public void Hide() =>MainPanel.isVisible=false;
+        public void Hide() => MainPanel.isVisible = false;
     }
 }

@@ -69,12 +69,12 @@ namespace Klyte.TransportLinesManager.UI
             UIPanel panel = go.AddComponent<UIPanel>();
             panel.size = new Vector2(36, 36);
             UIButton button = UITemplateManager.Get<UIButton>("StopButton");
-            panel.AttachUIComponent(button.gameObject);
+            panel.AttachUIComponent(button.gameObject).transform.localScale = Vector3.one;
             button.relativePosition = Vector2.zero;
             button.name = "StopButton";
 
             UILabel uilabel = button.Find<UILabel>("PassengerCount");
-            panel.AttachUIComponent(uilabel.gameObject);
+            panel.AttachUIComponent(uilabel.gameObject).transform.localScale = Vector3.one;
             uilabel.relativePosition = new Vector3(32, 12);
             uilabel.processMarkup = true;
             uilabel.isVisible = true;
@@ -278,7 +278,7 @@ namespace Klyte.TransportLinesManager.UI
                        {
                            uilabel.Hide();
                            stopNameField.Show();
-                           stopNameField.text =TLMStationUtils.GetStationName((ushort)button.objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService);
+                           stopNameField.text = TLMStationUtils.GetStationName((ushort)button.objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService);
                            stopNameField.Focus();
                        };
                         stopNameField.eventLeaveFocus += delegate (UIComponent c, UIFocusEventParameter r)
@@ -542,7 +542,7 @@ namespace Klyte.TransportLinesManager.UI
         private void PrintIncomeExpenseVehicle(ushort lineID, int idx, UILabel labelVehicle, long income, long expense, float scale)
         {
             var tsd = TransportSystemDefinition.From(lineID);
-            m_vehicleButtons.items[idx].color = Color.Lerp(Color.white, income > expense ? Color.green : Color.red, Mathf.Max(income, expense) / scale * TLMLineUtils.GetTicketPriceForLine(ref tsd, lineID).First.Value);
+            m_vehicleButtons.items[idx].color = Color.Lerp(Color.white, income > expense ? Color.green : Color.red, Mathf.Max(income, expense) / scale * TLMLineUtils.GetTicketPriceForLine(tsd, lineID).First.Value);
             labelVehicle.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
             labelVehicle.suffix = $"\n<color #ff0000>{(expense / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
         }
@@ -628,7 +628,7 @@ namespace Klyte.TransportLinesManager.UI
                     {
                         case MapMode.WAITING:
                             TLMLineUtils.GetQuantityPassengerWaiting(stop, out int residents, out int tourists, out int timeTillBored);
-                            uilabel.text = "\n"+string.Format(Locale.Get("K45_TLM_WAITING_PASSENGERS_RESIDENT_TOURSTS"), residents + tourists, residents, tourists)+"\n";
+                            uilabel.text = "\n" + string.Format(Locale.Get("K45_TLM_WAITING_PASSENGERS_RESIDENT_TOURSTS"), residents + tourists, residents, tourists) + "\n";
                             uibutton.color = Color.Lerp(Color.red, Color.white, timeTillBored / 255f);
                             uilabel.suffix = string.Format(Locale.Get("K45_TLM_TIME_TILL_BORED_TEMPLATE_STATION_MAP"), uibutton.color.ToRGB(), timeTillBored);
                             break;

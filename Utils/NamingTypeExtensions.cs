@@ -1,6 +1,6 @@
 ﻿using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
+
 
 namespace Klyte.TransportLinesManager.Utils
 {
@@ -71,72 +71,47 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
-        public static NamingType From(ItemClass.Service service, ItemClass.SubService subService) => From(GameServiceExtensions.ToConfigIndex(service, subService));
-        public static NamingType From(TLMCW.ConfigIndex ci)
+        public static NamingType From(TransportSystemDefinition tsd) => tsd == TransportSystemDefinition.PLANE ? NamingType.PLANE
+                    : tsd == TransportSystemDefinition.SHIP ? NamingType.SHIP
+                    : tsd == TransportSystemDefinition.BLIMP ? NamingType.BLIMP
+                    : tsd == TransportSystemDefinition.HELICOPTER ? NamingType.HELICOPTER
+                    : tsd == TransportSystemDefinition.TRAIN ? NamingType.TRAIN
+                    : tsd == TransportSystemDefinition.FERRY ? NamingType.FERRY
+                    : tsd == TransportSystemDefinition.MONORAIL ? NamingType.MONORAIL
+                    : tsd == TransportSystemDefinition.METRO ? NamingType.METRO
+                    : tsd == TransportSystemDefinition.CABLE_CAR ? NamingType.CABLE_CAR
+                    : tsd == TransportSystemDefinition.TROLLEY ? NamingType.TROLLEY
+                    : tsd == TransportSystemDefinition.TRAM ? NamingType.TRAM
+                    : tsd == TransportSystemDefinition.BUS ? NamingType.BUS
+                    : tsd == TransportSystemDefinition.TOUR_BUS ? NamingType.TOUR_BUS
+                    : NamingType.NONE;
+
+        public static NamingType From(ItemClass.Service service, ItemClass.SubService subService)
         {
-            switch (ci & (TLMCW.ConfigIndex.SYSTEM_PART | TLMCW.ConfigIndex.DESC_DATA))
+            switch (service)
             {
-                case TLMCW.ConfigIndex.PLANE_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.PLANE;
-                case TLMCW.ConfigIndex.BLIMP_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.BLIMP;
-                case TLMCW.ConfigIndex.SHIP_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.SHIP;
-                case TLMCW.ConfigIndex.FERRY_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.FERRY;
-                case TLMCW.ConfigIndex.TRAIN_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.TRAIN;
-                case TLMCW.ConfigIndex.MONORAIL_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.MONORAIL;
-                case TLMCW.ConfigIndex.TRAM_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.TRAM;
-                case TLMCW.ConfigIndex.METRO_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.METRO;
-                case TLMCW.ConfigIndex.BUS_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.BUS;
-                case TLMCW.ConfigIndex.TOUR_BUS_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.TOUR_BUS;
-                case TLMCW.ConfigIndex.CABLE_CAR_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.CABLE_CAR;
-                case TLMCW.ConfigIndex.MONUMENT_SERVICE_CONFIG:
-                    return NamingType.MONUMENT;
-                case TLMCW.ConfigIndex.BEAUTIFICATION_SERVICE_CONFIG:
-                    return NamingType.BEAUTIFICATION;
-                case TLMCW.ConfigIndex.HEALTHCARE_SERVICE_CONFIG:
-                    return NamingType.HEALTHCARE;
-                case TLMCW.ConfigIndex.POLICEDEPARTMENT_SERVICE_CONFIG:
-                    return NamingType.POLICEDEPARTMENT;
-                case TLMCW.ConfigIndex.FIREDEPARTMENT_SERVICE_CONFIG:
-                    return NamingType.FIREDEPARTMENT;
-                case TLMCW.ConfigIndex.EDUCATION_SERVICE_CONFIG:
-                    return NamingType.EDUCATION;
-                case TLMCW.ConfigIndex.DISASTER_SERVICE_CONFIG:
-                    return NamingType.DISASTER;
-                case TLMCW.ConfigIndex.GARBAGE_SERVICE_CONFIG:
-                    return NamingType.GARBAGE;
-                case TLMCW.ConfigIndex.PARKAREA_NAME_CONFIG:
-                    return NamingType.PARKAREA;
-                case TLMCW.ConfigIndex.DISTRICT_NAME_CONFIG:
-                    return NamingType.DISTRICT;
-                case TLMCW.ConfigIndex.ADDRESS_NAME_CONFIG:
-                    return NamingType.ADDRESS;
-                case TLMCW.ConfigIndex.VARSITY_SPORTS_SERVICE_CONFIG:
-                case TLMCW.ConfigIndex.MUSEUMS_SERVICE_CONFIG:
-                case TLMCW.ConfigIndex.PLAYER_EDUCATION_SERVICE_CONFIG:
-                    return NamingType.CAMPUS;
-                case TLMCW.ConfigIndex.PLAYER_INDUSTRY_SERVICE_CONFIG:
-                    return NamingType.INDUSTRY_AREA;
-                case TLMCW.ConfigIndex.RESIDENTIAL_SERVICE_CONFIG:
-                case TLMCW.ConfigIndex.INDUSTRIAL_SERVICE_CONFIG:
-                case TLMCW.ConfigIndex.COMMERCIAL_SERVICE_CONFIG:
-                case TLMCW.ConfigIndex.OFFICE_SERVICE_CONFIG:
-                    return NamingType.RICO;
-                case TLMCW.ConfigIndex.TROLLEY_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.TROLLEY;
-                case TLMCW.ConfigIndex.HELICOPTER_CONFIG | TLMCW.ConfigIndex.PUBLICTRANSPORT_SERVICE_CONFIG:
-                    return NamingType.HELICOPTER;
+                case ItemClass.Service.Monument: return NamingType.MONUMENT;
+                case ItemClass.Service.Natural:
+                case ItemClass.Service.Fishing:
+                case ItemClass.Service.Beautification: return NamingType.BEAUTIFICATION;
+                case ItemClass.Service.HealthCare: return NamingType.HEALTHCARE;
+                case ItemClass.Service.PoliceDepartment: return NamingType.POLICEDEPARTMENT;
+                case ItemClass.Service.FireDepartment: return NamingType.FIREDEPARTMENT;
+                case ItemClass.Service.Education: return NamingType.EDUCATION;
+                case ItemClass.Service.Disaster: return NamingType.DISASTER;
+                case ItemClass.Service.Water:
+                case ItemClass.Service.Electricity:
+                case ItemClass.Service.Garbage: return NamingType.GARBAGE;
+                case ItemClass.Service.VarsitySports:
+                case ItemClass.Service.PlayerEducation:
+                case ItemClass.Service.Museums: return NamingType.CAMPUS;
+                case ItemClass.Service.PlayerIndustry: return NamingType.INDUSTRY_AREA;
+                case ItemClass.Service.Office:
+                case ItemClass.Service.Residential:
+                case ItemClass.Service.Industrial:
+                case ItemClass.Service.Commercial: return NamingType.RICO;
                 default:
-                    LogUtils.DoErrorLog($"UNKNOWN NAME TYPE:{ci} ({((int)ci).ToString("X8")})");
+                    LogUtils.DoErrorLog($"UNREGISTRED NAMING TYPE:{service}");
                     return NamingType.NONE;
 
             }

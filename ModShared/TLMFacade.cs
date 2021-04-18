@@ -36,8 +36,8 @@ namespace Klyte.TransportLinesManager.ModShared
             ref TransportLine tl = ref TransportManager.instance.m_lines.m_buffer[tlId];
 
             var tsd = TransportSystemDefinition.From(vehicle.Info);
-
-            string identifierFormat = TLMConfigWarehouse.GetCurrentConfigString(tsd.ToConfigIndex() | (tlId == 0 && vehicle.m_targetBuilding != 0 ? TLMConfigWarehouse.ConfigIndex.VEHICLE_NUMBER_FORMAT_FOREIGN : TLMConfigWarehouse.ConfigIndex.VEHICLE_NUMBER_FORMAT_LOCAL));
+            var config = tsd.GetConfig();
+            string identifierFormat = (tlId == 0 && vehicle.m_targetBuilding != 0 ? config.VehicleIdentifierFormatForeign : config.VehicleIdentifierFormatLocal);
 
             string result = "";
 
@@ -57,8 +57,7 @@ namespace Klyte.TransportLinesManager.ModShared
                     {
                         var tsd2 = TransportSystemDefinition.From(tl2.Info);
                         var prefix = (int)TLMPrefixesUtils.GetPrefix(tlId);
-                        var nameMode = TLMPrefixesUtils.GetPrefixModoNomenclatura(tsd2.ToConfigIndex());
-                        linePrefix = TLMPrefixesUtils.GetStringFromNameMode(nameMode, prefix).Trim().PadLeft(3, '\0');
+                        linePrefix = TLMPrefixesUtils.GetStringFromNameMode(tsd2.GetConfig().Prefix, prefix).Trim().PadLeft(3, '\0');
                     }
                     else
                     {

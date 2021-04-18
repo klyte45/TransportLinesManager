@@ -3,13 +3,17 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
 using Klyte.Commons.Interfaces;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.MapDrawer;
 using Klyte.TransportLinesManager.OptionsMenu;
+using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using System.Reflection;
+using static Klyte.Commons.UI.DefaultEditorUILib;
 
-[assembly: AssemblyVersion("13.5.1.*")]
+[assembly: AssemblyVersion("14.0.0.*")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -34,61 +38,63 @@ namespace Klyte.TransportLinesManager
 
         public override void Group9SettingsUI(UIHelperExtension group9)
         {
-            TLMConfigOptions.instance.generateNumberFieldConfig(group9, Locale.Get("K45_TLM_MAXIMUM_VEHICLE_COUNT_FOR_SPECIFIC_LINE_CONFIG"), TLMConfigWarehouse.ConfigIndex.MAX_VEHICLES_SPECIFIC_CONFIG).maxLength = 3;
+            AddTextField(Locale.Get("K45_TLM_MAXIMUM_VEHICLE_COUNT_FOR_SPECIFIC_LINE_CONFIG"), out UITextField maxTextField, group9, (x) => TLMBaseConfigXML.Instance.MaximumValueVehiclesSpecificVehiclesSlider = int.TryParse(x, out int val) ? val : 50);
+            maxTextField.maxLength = 3;
 
             group9.AddButton(Locale.Get("K45_TLM_DRAW_CITY_MAP"), TLMMapDrawer.drawCityMap);
             group9.AddButton("Open generated map folder", () => ColossalFramework.Utils.OpenInFileBrowser(TLMController.exportedMapsFolder));
             group9.AddSpace(2);
-            group9.AddButton(Locale.Get("K45_TLM_RELOAD_DEFAULT_CONFIGURATION"), () =>
-            {
-                TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
-                TLMConfigOptions.instance.ReloadData();
+            //group9.AddButton(Locale.Get("K45_TLM_RELOAD_DEFAULT_CONFIGURATION"), () =>
+            //{
+            //    TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
+            //    TLMConfigOptions.instance.ReloadData();
 
-            });
-            if (IsCityLoaded)
-            {
-                group9.AddButton(Locale.Get("K45_TLM_EXPORT_CITY_CONFIG"), () =>
-                {
-                    string path = TLMConfigOptions.instance.currentLoadedCityConfig.Export();
-                    ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_EXPORTED_TO_TEMPLATE"), path), (x, y) =>
-                    {
-                        if (y == 1)
-                        {
-                            ColossalFramework.Utils.OpenInFileBrowser(path);
-                        }
-                    });
-                });
-                group9.AddButton(Locale.Get("K45_TLM_IMPORT_CITY_CONFIG"), () =>
-                {
-                    ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_WILL_BE_IMPORTED_TEMPLATE"), TLMConfigOptions.instance.currentLoadedCityConfig.ThisPath), (x, y) =>
-                    {
-                        if (y == 1)
-                        {
-                            TLMConfigOptions.instance.currentLoadedCityConfig.ReloadFromDisk();
-                            TLMConfigOptions.instance.ReloadData();
-                        }
-                    });
-                });
-                group9.AddButton(Locale.Get("K45_TLM_SAVE_CURRENT_CITY_CONFIG_AS_DEFAULT"), () =>
-                {
-                    TLMConfigOptions.instance.currentLoadedCityConfig.SaveAsDefault(); 
-                    TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
-                    TLMConfigOptions.instance.ReloadData();
-                });
-                group9.AddButton(Locale.Get("K45_TLM_LOAD_DEFAULT_AS_CURRENT_CITY_CONFIG"), () =>
-                {
-                    TLMConfigOptions.instance.currentLoadedCityConfig.LoadFromDefault();
-                    TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
-                    TLMConfigOptions.instance.ReloadData();
-                });
+            //});
+            //if (IsCityLoaded)
+            //{
+            //    group9.AddButton(Locale.Get("K45_TLM_EXPORT_CITY_CONFIG"), () =>
+            //    {
+            //        string path = TLMConfigOptions.instance.currentLoadedCityConfig.Export();
+            //        ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_EXPORTED_TO_TEMPLATE"), path), (x, y) =>
+            //        {
+            //            if (y == 1)
+            //            {
+            //                ColossalFramework.Utils.OpenInFileBrowser(path);
+            //            }
+            //        });
+            //    });
+            //    group9.AddButton(Locale.Get("K45_TLM_IMPORT_CITY_CONFIG"), () =>
+            //    {
+            //        ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_WILL_BE_IMPORTED_TEMPLATE"), TLMConfigOptions.instance.currentLoadedCityConfig.ThisPath), (x, y) =>
+            //        {
+            //            if (y == 1)
+            //            {
+            //                TLMConfigOptions.instance.currentLoadedCityConfig.ReloadFromDisk();
+            //                TLMConfigOptions.instance.ReloadData();
+            //            }
+            //        });
+            //    });
+            //    group9.AddButton(Locale.Get("K45_TLM_SAVE_CURRENT_CITY_CONFIG_AS_DEFAULT"), () =>
+            //    {
+            //        TLMConfigOptions.instance.currentLoadedCityConfig.SaveAsDefault(); 
+            //        TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
+            //        TLMConfigOptions.instance.ReloadData();
+            //    });
+            //    group9.AddButton(Locale.Get("K45_TLM_LOAD_DEFAULT_AS_CURRENT_CITY_CONFIG"), () =>
+            //    {
+            //        TLMConfigOptions.instance.currentLoadedCityConfig.LoadFromDefault();
+            //        TLMConfigWarehouse.GetConfig(null, null).ReloadFromDisk();
+            //        TLMConfigOptions.instance.ReloadData();
+            //    });
 
-            }
+            //}
         }
 
         protected override void OnLevelLoadingInternal()
         {
             base.OnLevelLoadingInternal();
             TLMController.VerifyIfIsRealTimeEnabled();
+            TransportSystemDefinition.TransportInfoDict.ToString();
         }
 
 

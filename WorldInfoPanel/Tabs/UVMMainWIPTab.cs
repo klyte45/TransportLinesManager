@@ -7,6 +7,7 @@ using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -155,7 +156,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private IEnumerator ChangeColorCoroutine(ushort id, Color color)
         {
-            if(colorChangeCooldown > 0)
+            if (colorChangeCooldown > 0)
             {
                 yield break;
             }
@@ -204,8 +205,8 @@ namespace Klyte.TransportLinesManager.UI
                 ushort lineNumber = t.m_lineNumber;
 
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(lineID);
-                var transportType = tsd.ToConfigIndex();
-                var mnPrefixo = (NamingMode)TLMConfigWarehouse.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.PREFIX | transportType);
+                var config = tsd.GetConfig();
+                var mnPrefixo = config.Prefix;
 
                 if (TLMPrefixesUtils.HasPrefix(lineID))
                 {
@@ -218,7 +219,7 @@ namespace Klyte.TransportLinesManager.UI
                     m_linePrefixDropDown.items = temp;
                     m_linePrefixDropDown.selectedIndex = lineNumber / 1000;
                     m_linePrefixDropDown.enabled = true;
-                    bool invertPrefixSuffix = TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.INVERT_PREFIX_SUFFIX | transportType);
+                    bool invertPrefixSuffix = config.InvertPrefixSuffix;
                     if (invertPrefixSuffix)
                     {
                         m_linePrefixDropDown.zOrder = 9999;
@@ -408,7 +409,7 @@ namespace Klyte.TransportLinesManager.UI
             string value = m_lineNumberLabel.text;
             int valPrefixo = m_linePrefixDropDown.selectedIndex;
             var tsd = TransportSystemDefinition.From(lineId);
-            var hasPrefix = TLMPrefixesUtils.HasPrefix(ref tsd);
+            var hasPrefix = TLMPrefixesUtils.HasPrefix(tsd);
             ushort.TryParse(value, out ushort num);
             if (hasPrefix)
             {
@@ -444,16 +445,7 @@ namespace Klyte.TransportLinesManager.UI
             yield break;
         }
 
-        private bool IsLineNumberAlredyInUse(int numLinha, ushort lineIdx)
-        {
-            var tsdOr = TransportSystemDefinition.GetDefinitionForLine(lineIdx);
-            if (tsdOr == default)
-            {
-                return true;
-            }
-
-            return TLMLineUtils.IsLineNumberAlredyInUse(numLinha, ref tsdOr, lineIdx);
-        }
+        private bool IsLineNumberAlredyInUse(int numLinha, ushort lineIdx) => TLMLineUtils.IsLineNumberAlredyInUse(numLinha, TransportSystemDefinition.GetDefinitionForLine(lineIdx), lineIdx);
         #endregion
 
         #region First stop
@@ -492,7 +484,7 @@ namespace Klyte.TransportLinesManager.UI
             }
             Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_stops = t.GetStop(idxSel);
             UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
-            if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
+            if (TLMBaseConfigXML.Instance.UseAutoName)
             {
                 TLMController.AutoName(lineId);
             }

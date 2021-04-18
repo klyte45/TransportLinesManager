@@ -10,13 +10,13 @@ using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
@@ -144,8 +144,7 @@ namespace Klyte.TransportLinesManager
                 {
                     return Color.clear;
                 }
-                var transportType = tsd.ToConfigIndex();
-                Color c = TLMPrefixesUtils.CalculateAutoColor(t.m_lineNumber, transportType, ref tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
+                Color c = TLMPrefixesUtils.CalculateAutoColor(t.m_lineNumber, tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
                 if (c.a == 1)
                 {
                     Instance.StartCoroutine(TLMLineUtils.RunColorChange(Instance, i, c));
@@ -160,7 +159,7 @@ namespace Klyte.TransportLinesManager
             catch (Exception e)
             {
                 LogUtils.DoErrorLog("ERRO!!!!! " + e.Message);
-                TLMCW.SetCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
+                TLMBaseConfigXML.Instance.UseAutoColor = false;
                 return Color.clear;
             }
         }

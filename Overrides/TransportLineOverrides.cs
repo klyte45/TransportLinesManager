@@ -5,6 +5,7 @@ using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -89,15 +90,15 @@ namespace Klyte.TransportLinesManager.Overrides
                 if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None
                     && (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags.Temporary)) == TransportLine.Flags.None)
                 {
-                    if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_COLOR_ENABLED))
+                    if (TLMBaseConfigXML.Instance.UseAutoColor)
                     {
                         TLMController.AutoColor(lineID);
                     }
-                    if (TLMConfigWarehouse.GetCurrentConfigBool(TLMConfigWarehouse.ConfigIndex.AUTO_NAME_ENABLED))
+                    if (TLMBaseConfigXML.Instance.UseAutoName)
                     {
                         TLMController.AutoName(lineID);
                     }
-                    TLMController.Instance.LineCreationToolbox.incrementNumber();
+                    TLMController.Instance.LineCreationToolbox.IncrementNumber();
                     TLMTransportLineExtension.Instance.SafeCleanEntry(lineID);
                 }
             }

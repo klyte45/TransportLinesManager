@@ -7,7 +7,7 @@ namespace Klyte.TransportLinesManager.Utils
     public static class TLMPrefabUtils
     {
 
-        internal static List<string> LoadBasicAssets(ref TransportSystemDefinition definition)
+        internal static List<string> LoadBasicAssets(TransportSystemDefinition definition)
         {
             var basicAssetsList = new List<string>();
 
