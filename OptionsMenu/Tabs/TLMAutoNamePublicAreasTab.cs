@@ -1,11 +1,10 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
-using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using static Klyte.Commons.UI.DefaultEditorUILib;
 
 namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
@@ -29,10 +28,10 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             group15.AddLabel(Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT_DESC"));
             group15.AddSpace(15);
 
-            foreach (var service in Enum.GetValues(typeof(TLMSpecialNamingClass)).OfType<TLMSpecialNamingClass>())
+            foreach (var service in Enum.GetValues(typeof(TLMSpecialNamingClass)).OfType<TLMSpecialNamingClass>().Where(x => x != TLMSpecialNamingClass.None))
             {
                 AddCheckbox(service.GetLocalizedName(), out UICheckBox check, group15, (x) => TLMBaseConfigXML.Instance.GetAutoNameData(service).UseInAutoName = x);
-                AddTextField(Locale.Get("K45_TLM_PREFIX_OPTIONAL"), out UITextField textField, group15, (x) => TLMBaseConfigXML.Instance.GetAutoNameData(service).NamingPrefix = x);
+                AddTextField(Locale.Get("K45_TLM_PREFIX_BUILDING_NAMES"), out UITextField textField, group15, (x) => TLMBaseConfigXML.Instance.GetAutoNameData(service).NamingPrefix = x);
                 m_checks[service] = check;
                 m_textFields[service] = textField;
                 group15.AddSpace(5);
@@ -44,11 +43,11 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         {
             foreach (var kv in m_textFields)
             {
-                kv.Value.text = TLMBaseConfigXML.Instance.GetAutoNameData(kv.Key).NamingPrefix;
+                kv.Value.text = TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(kv.Key).NamingPrefix ?? "";
             }
             foreach (var kv in m_checks)
             {
-                kv.Value.isChecked = TLMBaseConfigXML.Instance.GetAutoNameData(kv.Key).UseInAutoName;
+                kv.Value.isChecked = TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(kv.Key).UseInAutoName;
             }
         }
 

@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 {
-    internal class TLMShowConfigTabContainer : UICustomControl
+    internal class TLMShowConfigTabContainer : UICustomControl, ITLMConfigOptionsTab
     {
         private UIScrollablePanel parent;
-
+        private UITabContainer tabContainer;
         private void Awake()
         {
             parent = GetComponentInChildren<UIScrollablePanel>();
@@ -16,13 +16,13 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             int parentWidth = 730;
 
             KlyteMonoUtils.CreateUIElement(out UITabstrip strip, parent.transform, "TLMTabstrip", new Vector4(5, 0, parentWidth - 10, 40));
-            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, parent.transform, "TLMTabContainer", new Vector4(0, 40, parentWidth - 10, 600));
+            KlyteMonoUtils.CreateUIElement(out tabContainer, parent.transform, "TLMTabContainer", new Vector4(0, 40, parentWidth - 10, 660));
 
             strip.tabPages = tabContainer;
 
             UIButton tabTemplate = CreateTabSubStripTemplate();
 
-            UIComponent bodyContent = CreateContentTemplate(parentWidth, 600, false);
+            UIComponent bodyContent = CreateContentTemplate(parentWidth, 660, false);
 
             foreach (var kv in ReflectionUtils.GetSubtypesRecursive(typeof(TLMShowConfigTab), GetType()))
             {
@@ -129,6 +129,21 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                 };
             }
             return contentContainer;
+        }
+
+        public void ReloadData()
+        {
+            foreach (var tab in tabContainer.GetComponentsInChildren<ITLMConfigOptionsTab>())
+            {
+                try
+                {
+                    tab.ReloadData();
+                }
+                catch (Exception e)
+                {
+                    LogUtils.DoErrorLog($"Error reloading data for {tab}: {e.Message}\n{e.StackTrace}");
+                }
+            }
         }
     }
 }

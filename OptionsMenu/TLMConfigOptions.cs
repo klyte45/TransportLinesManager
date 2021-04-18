@@ -2,22 +2,20 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
-using Klyte.Commons.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.OptionsMenu.Tabs;
 using Klyte.TransportLinesManager.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static Klyte.TransportLinesManager.OptionsMenu.TLMConfigOptions;
 
 namespace Klyte.TransportLinesManager.OptionsMenu
 {
     internal class TLMConfigOptions : Singleton<TLMConfigOptions>
-    {        
+    {
         public static bool IsCityLoaded => Singleton<SimulationManager>.instance.m_metaData != null;
 
+        private UITabContainer tabContainer;
 
         internal static readonly NamingMode[] namingOptionsSuffix = new NamingMode[] {
              NamingMode.Number                  ,
@@ -57,13 +55,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu
 
         public void GenerateOptionsMenu(UIHelperExtension helper)
         {
-            isLoading = true;
             LogUtils.DoLog("Loading Options");
 
             KlyteMonoUtils.CreateUIElement(out UITabstrip strip, helper.Self.transform, "TabListTLMopt", new Vector4(5, 0, 730, 40));
             float effectiveOffsetY = strip.height;
 
-            KlyteMonoUtils.CreateUIElement(out UITabContainer tabContainer, helper.Self.transform, "TabContainerTLMopt", new Vector4(0, 40, 725, 710));
+            KlyteMonoUtils.CreateUIElement(out tabContainer, helper.Self.transform, "TabContainerTLMopt", new Vector4(0, 40, 725, 710));
             tabContainer.autoSize = true;
             strip.tabPages = tabContainer;
 
@@ -98,7 +95,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             }
 
             LogUtils.DoLog("End Loading Options");
-            isLoading = false;
         }
 
         #region UI generation utils
@@ -114,20 +110,22 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             return tabTemplate;
         }
 
-        private bool isLoading = false;   
+
 
         #endregion
 
         public void ReloadData()
         {
-            isLoading = true;
-            try
+            foreach (var tab in tabContainer.GetComponentsInChildren<ITLMConfigOptionsTab>())
             {
-
-            }
-            finally
-            {
-                isLoading = false;
+                try
+                {
+                    tab.ReloadData();
+                }
+                catch(Exception e)
+                {
+                    LogUtils.DoErrorLog($"Error reloading data for {tab}: {e.Message}\n{e.StackTrace}");
+                }
             }
         }
 

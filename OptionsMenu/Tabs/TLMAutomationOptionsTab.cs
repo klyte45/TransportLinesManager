@@ -20,10 +20,10 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             {
                 return;
             }
-            m_autoColor.isChecked = TLMBaseConfigXML.Instance.UseAutoColor;
-            m_autoName.isChecked = TLMBaseConfigXML.Instance.UseAutoName;
-            m_circular.isChecked = TLMBaseConfigXML.Instance.CircularIfSingleDistrictLine;
-            m_addLineCode.isChecked = TLMBaseConfigXML.Instance.AddLineCodeInAutoname;
+            m_autoColor.isChecked = TLMBaseConfigXML.CurrentContextConfig.UseAutoColor;
+            m_autoName.isChecked = TLMBaseConfigXML.CurrentContextConfig.UseAutoName;
+            m_circular.isChecked = TLMBaseConfigXML.CurrentContextConfig.CircularIfSingleDistrictLine;
+            m_addLineCode.isChecked = TLMBaseConfigXML.CurrentContextConfig.AddLineCodeInAutoname;
         }
 
         private void Awake()
@@ -37,15 +37,12 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             group7.AddLabel(Locale.Get("K45_TLM_AUTOMATION_CONFIG"));
             group7.AddSpace(15);
 
-            AddCheckboxLocale("K45_TLM_AUTO_COLOR_ENABLED", out m_autoColor, group7, (x) => TLMBaseConfigXML.Instance.UseAutoColor = x);
-            AddCheckboxLocale("K45_TLM_AUTO_NAME_ENABLED", out m_autoName, group7, (x) => TLMBaseConfigXML.Instance.UseAutoName = x);
-            AddCheckboxLocale("K45_TLM_USE_CIRCULAR_AUTO_NAME", out m_circular, group7, (x) => TLMBaseConfigXML.Instance.CircularIfSingleDistrictLine = x);
-            AddCheckboxLocale("K45_TLM_ADD_LINE_NUMBER_AUTO_NAME", out m_addLineCode, group7, (x) => TLMBaseConfigXML.Instance.AddLineCodeInAutoname = x);
+            AddCheckboxLocale("K45_TLM_AUTO_COLOR_ENABLED", out m_autoColor, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.UseAutoColor = x);
+            AddCheckboxLocale("K45_TLM_AUTO_NAME_ENABLED", out m_autoName, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.UseAutoName = x);
+            AddCheckboxLocale("K45_TLM_USE_CIRCULAR_AUTO_NAME", out m_circular, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.CircularIfSingleDistrictLine = x);
+            AddCheckboxLocale("K45_TLM_ADD_LINE_NUMBER_AUTO_NAME", out m_addLineCode, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.AddLineCodeInAutoname = x);
 
-            if (TLMBaseConfigXML.Instance is null)
-            {
-                parent.Disable();
-            }
+      
         }
 
 

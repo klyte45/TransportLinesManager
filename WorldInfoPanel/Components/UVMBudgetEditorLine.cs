@@ -69,7 +69,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private static int GetMaxValue()
         {
-            int savedCount = TLMBaseConfigXML.Instance.MaximumValueVehiclesSpecificVehiclesSlider;
+            int savedCount = TLMBaseConfigXML.Instance.MaxVehiclesOnAbsoluteMode;
             return savedCount <= 0 ? 50 : savedCount;
         }
 

@@ -23,8 +23,9 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         public static TLMShowConfigTab instance { get; private set; }
 
         internal abstract TransportSystemDefinition TSD { get; }
-                
+
         private UIDropDown m_paletteDD;
+        private UIDropDown m_iconDD;
         private UICheckBox m_prefixIncrement;
         private UICheckBox m_zerosContainer;
         private UICheckBox m_prefixAsSuffixContainer;
@@ -46,7 +47,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         {
             instance = this;
             mainPanel = GetComponent<UIPanel>();
-            mainPanel.autoFitChildrenVertically = true;
             mainPanel.autoLayout = true;
             mainPanel.autoLayoutDirection = LayoutDirection.Vertical;
             m_uiHelper = new UIHelperExtension(mainPanel);
@@ -54,7 +54,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             m_uiHelper.AddLabel(string.Format(Locale.Get("K45_TLM_CONFIGS_FOR"), TSD.GetTransportName()));
             UIPanel panel = m_uiHelper.Self.GetComponentInParent<UIPanel>();
             ((UIPanel)m_uiHelper.Self).autoLayoutDirection = LayoutDirection.Vertical;
-            ((UIPanel)m_uiHelper.Self).autoFitChildrenVertically = true;
             ((UIPanel)m_uiHelper.Self).backgroundSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_MenuPanel_color);
             ((UIPanel)m_uiHelper.Self).wrapLayout = true;
             ((UIPanel)m_uiHelper.Self).padding = new RectOffset(10, 10, 10, 15);
@@ -63,25 +62,69 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             m_uiHelper.AddSpace(30);
 
 
-            AddDropdown(Locale.Get("K45_TLM_PREFIX"), out m_prefixDD, m_uiHelper, TLMConfigOptions.namingOptionsPrefix.Select(x => x.GetName()).ToArray(), (x) => TSD.GetConfig().Prefix = TLMConfigOptions.namingOptionsPrefix[x]);
-            AddDropdown(Locale.Get("K45_TLM_SEPARATOR"), out m_separatorDD, m_uiHelper, TLMConfigOptions.namingOptionsSeparator.Select(x => x.GetName()).ToArray(), (x) => TSD.GetConfig().Separator = TLMConfigOptions.namingOptionsSeparator[x]);
-            AddDropdown(Locale.Get("K45_TLM_SUFFIX"), out m_suffixDD, m_uiHelper, TLMConfigOptions.namingOptionsSuffix.Select(x => x.GetName()).ToArray(), (x) => TSD.GetConfig().Suffix = TLMConfigOptions.namingOptionsSuffix[x]);
-            AddDropdown(Locale.Get("K45_TLM_IDENTIFIER_NON_PREFIXED"), out m_nonPrefixDD, m_uiHelper, TLMConfigOptions.namingOptionsSuffix.Select(x => x.GetName()).ToArray(), (x) => TSD.GetConfig().NonPrefixedNaming = TLMConfigOptions.namingOptionsSuffix[x]);
-            AddDropdown(Locale.Get("K45_TLM_PALETTE"), out m_paletteDD, m_uiHelper, TLMAutoColorPalettes.paletteList, (x) => TSD.GetConfig().Palette = TLMAutoColorPalettes.paletteList[x]);
-            AddDropdown(Locale.Get("K45_TLM_PALETTE"), out m_paletteDD, m_uiHelper, Enum.GetValues(typeof(LineIconSpriteNames)).OfType<LineIconSpriteNames>().Select(x => x.GetNameForTLM()).ToArray(), (x) => TSD.GetConfig().DefaultLineIcon = (LineIconSpriteNames)x);
-            m_uiHelper.AddSpace(5);
-
-            AddTextField(Locale.Get("K45_TLM_NUMBERVEHICLEPATTERN_LOCAL"), out m_vehicleNumberFormatLocal, m_uiHelper, (x) => TSD.GetConfig().VehicleIdentifierFormatLocal = x ?? "");
-            AddTextField(Locale.Get("K45_TLM_NUMBERVEHICLEPATTERN_FOREIGN"), out m_vehicleNumberFormatForeign, m_uiHelper, (x) => TSD.GetConfig().VehicleIdentifierFormatForeign = x ?? "");
+            AddDropdown(Locale.Get("K45_TLM_PREFIX"), out m_prefixDD, m_uiHelper, TLMConfigOptions.namingOptionsPrefix.Select(x => x.GetName()).ToArray(), (x) =>
+            {
+                if (x >= 0)
+                {
+                    TSD.GetConfig().Prefix = TLMConfigOptions.namingOptionsPrefix[x];
+                    OnPrefixOptionChange();
+                }
+            });
+            AddDropdown(Locale.Get("K45_TLM_SEPARATOR"), out m_separatorDD, m_uiHelper, TLMConfigOptions.namingOptionsSeparator.Select(x => x.GetName()).ToArray(), (x) =>
+            {
+                if (x >= 0)
+                {
+                    TSD.GetConfig().Separator = TLMConfigOptions.namingOptionsSeparator[x];
+                }
+            });
+            AddDropdown(Locale.Get("K45_TLM_SUFFIX"), out m_suffixDD, m_uiHelper, TLMConfigOptions.namingOptionsSuffix.Select(x => x.GetName()).ToArray(), (x) =>
+            {
+                if (x >= 0)
+                {
+                    TSD.GetConfig().Suffix = TLMConfigOptions.namingOptionsSuffix[x];
+                    OnSuffixOptionChange();
+                }
+            });
+            AddDropdown(Locale.Get("K45_TLM_IDENTIFIER_NON_PREFIXED"), out m_nonPrefixDD, m_uiHelper, TLMConfigOptions.namingOptionsSuffix.Select(x => x.GetName()).ToArray(), (x) =>
+            {
+                if (x >= 0)
+                {
+                    TSD.GetConfig().NonPrefixedNaming = TLMConfigOptions.namingOptionsSuffix[x];
+                }
+            });
+            AddDropdown(Locale.Get("K45_TLM_PALETTE"), out m_paletteDD, m_uiHelper, TLMAutoColorPalettes.paletteList, (x) =>
+            {
+                if (x >= 0)
+                {
+                    TSD.GetConfig().Palette = x == 0 ? null : TLMAutoColorPalettes.paletteList[x];
+                }
+            });
+            AddDropdown(Locale.Get("K45_TLM_ICON"), out m_iconDD, m_uiHelper, Enum.GetValues(typeof(LineIconSpriteNames)).OfType<LineIconSpriteNames>().Select(x => x.GetNameForTLM()).ToArray(), (x) =>
+            {
+                if (x >= 0)
+                {
+                    TSD.GetConfig().DefaultLineIcon = (LineIconSpriteNames)x;
+                }
+            });
             m_uiHelper.AddSpace(5);
 
             AddCheckbox(Locale.Get("K45_TLM_USE_AUTO_NAME"), out m_useInAutoName, m_uiHelper, (x) => TSD.GetConfig().UseInAutoName = x);
-            AddTextField(Locale.Get("K45_TLM_PREFIX_OPTIONAL"), out m_namingPrefix, m_uiHelper, (x) => TSD.GetConfig().DefaultTicketPrice = int.TryParse(x, out int val) ? val : 0, TSD.GetConfig().DefaultTicketPrice.ToString());
+            AddTextField(Locale.Get("K45_TLM_PREFIX_BUILDING_NAMES"), out m_namingPrefix, m_uiHelper, (x) => TSD.GetConfig().DefaultTicketPrice = int.TryParse(x, out int val) ? val : 0, TSD.GetConfig().DefaultTicketPrice.ToString());
             m_uiHelper.AddSpace(5);
 
-            AddTextField(Locale.Get("K45_TLM_COST_PER_PASSENGER_CONFIG"), out m_defaultCost, out m_defaultCostLbl, m_uiHelper, (x) => TSD.GetConfig().DefaultCostPerPassenger = int.TryParse(x, out int val) ? val : 0, TSD.GetConfig().DefaultCostPerPassenger.ToString());
-            AddTextField(Locale.Get("K45_TLM_DEFAULT_PRICE"), out m_defaultTicketPrice, m_uiHelper, (x) => TSD.GetConfig().DefaultTicketPrice = int.TryParse(x, out int val) ? val : 0, TSD.GetConfig().DefaultTicketPrice.ToString());
-            m_uiHelper.AddSpace(5);
+            if (TSD.VehicleType != VehicleInfo.VehicleType.None)
+            {
+                AddTextField(Locale.Get("K45_TLM_NUMBERVEHICLEPATTERN_LOCAL"), out m_vehicleNumberFormatLocal, m_uiHelper, (x) => TSD.GetConfig().VehicleIdentifierFormatLocal = x ?? "");
+                AddTextField(Locale.Get("K45_TLM_NUMBERVEHICLEPATTERN_FOREIGN"), out m_vehicleNumberFormatForeign, m_uiHelper, (x) => TSD.GetConfig().VehicleIdentifierFormatForeign = x ?? "");
+                m_uiHelper.AddSpace(5);
+
+                AddIntField(Locale.Get("K45_TLM_COST_PER_PASSENGER_CONFIG"), out m_defaultCost, out m_defaultCostLbl, m_uiHelper, (x) => TSD.GetConfig().DefaultCostPerPassenger = x, false);
+                if ((TSD.Flags & TransportSystemDefinition.TransportDefinitionFlags.CanChangeTicketPrice) != 0)
+                {
+                    AddIntField(Locale.Get("K45_TLM_DEFAULT_PRICE"), out m_defaultTicketPrice, m_uiHelper, (x) => TSD.GetConfig().DefaultTicketPrice = x, false);
+                }
+                m_uiHelper.AddSpace(5);
+            }
 
             AddCheckboxLocale("K45_TLM_NEAR_LINES_SHOW", out m_zerosContainer, m_uiHelper, (x) => TSD.GetConfig().ShowInLinearMap = x);
             AddCheckboxLocale("K45_TLM_LEADING_ZEROS_SUFFIX", out m_zerosContainer, m_uiHelper, (x) => TSD.GetConfig().UseLeadingZeros = x);
@@ -93,35 +136,33 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             AddButtonInEditorRow(m_vehicleNumberFormatLocal, CommonsSpriteNames.K45_QuestionMark, Help_VehicleNumberFormat, null, true, 30);
             AddButtonInEditorRow(m_vehicleNumberFormatForeign, CommonsSpriteNames.K45_QuestionMark, Help_VehicleNumberFormat, null, true, 30);
 
-            m_prefixDD.eventSelectedIndexChanged += OnPrefixOptionChange;
-            m_suffixDD.eventSelectedIndexChanged += OnSuffixOptionChange;
-            OnPrefixOptionChange(m_prefixDD, m_prefixDD.selectedIndex);
         }
 
         private void Help_VehicleNumberFormat() => K45DialogControl.ShowModalHelp("Vehicles.NumberPattern", Locale.Get("K45_TLM_NUMBERINGVEHICLESHELP"), 0);
 
-        private void OnPrefixOptionChange(UIComponent c, int sel)
+        private void OnPrefixOptionChange()
         {
-            bool isPrefixed = (NamingMode)sel != NamingMode.None;
+            bool isPrefixed = TSD.GetConfig().Prefix != NamingMode.None;
             m_separatorDD.parent.isVisible = isPrefixed;
             m_prefixIncrement.isVisible = isPrefixed;
             m_suffixDD.parent.isVisible = isPrefixed;
-            m_zerosContainer.isVisible = isPrefixed && (NamingMode)m_suffixDD.selectedIndex == NamingMode.Number;
-            m_prefixAsSuffixContainer.isVisible = isPrefixed && (NamingMode)m_suffixDD.selectedIndex == NamingMode.Number && (NamingMode)m_prefixDD.selectedIndex != NamingMode.Number;
             m_autoColorBasedContainer.isVisible = isPrefixed;
+            OnSuffixOptionChange();
         }
 
-        private void OnSuffixOptionChange(UIComponent c, int sel)
+        private void OnSuffixOptionChange()
         {
-            bool isPrefixed = (NamingMode)m_prefixDD.selectedIndex != NamingMode.None;
-            m_zerosContainer.isVisible = isPrefixed && (NamingMode)sel == NamingMode.Number;
-            m_prefixAsSuffixContainer.isVisible = isPrefixed && (NamingMode)sel == NamingMode.Number && (NamingMode)m_prefixDD.selectedIndex != NamingMode.Number;
+            var config = TSD.GetConfig();
+            bool isPrefixed = config.Prefix != NamingMode.None;
+            m_zerosContainer.isVisible = isPrefixed && config.Suffix == NamingMode.Number;
+            m_prefixAsSuffixContainer.isVisible = isPrefixed && config.Suffix == NamingMode.Number && (NamingMode)m_prefixDD.selectedIndex != NamingMode.Number;
         }
 
         public void ReloadData()
         {
             var config = TSD.GetConfig();
-            m_paletteDD.selectedValue = config.Palette;
+            m_paletteDD.selectedValue = config.Palette.TrimToNull() ?? TLMAutoColorPalettes.paletteList[0];
+            m_iconDD.selectedIndex = (int)config.DefaultLineIcon;
             m_suffixDD.selectedIndex = Array.IndexOf(TLMConfigOptions.namingOptionsSuffix, config.Suffix);
             m_nonPrefixDD.selectedIndex = Array.IndexOf(TLMConfigOptions.namingOptionsSuffix, config.NonPrefixedNaming);
             m_separatorDD.selectedIndex = Array.IndexOf(TLMConfigOptions.namingOptionsSeparator, config.Separator);
@@ -131,12 +172,20 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             m_prefixAsSuffixContainer.isChecked = config.InvertPrefixSuffix;
             m_autoColorBasedContainer.isChecked = config.PalettePrefixBased;
             m_randomPaletteOnOverflow.isChecked = config.PaletteRandomOnOverflow;
-            m_vehicleNumberFormatLocal.text = config.VehicleIdentifierFormatLocal ?? "";
-            m_vehicleNumberFormatForeign.text = config.VehicleIdentifierFormatForeign ?? "";
             m_useInAutoName.isChecked = config.UseInAutoName;
             m_namingPrefix.text = config.NamingPrefix ?? "";
-            m_defaultCost.text = config.DefaultCostPerPassenger.ToString();
-            m_defaultCostLbl.suffix = $" (Def: {(TSD.GetDefaultPassengerCapacityCost() is float cost && cost >= 0 ? cost.ToString("C3") : "N/A")})";
+            if (TSD.VehicleType != VehicleInfo.VehicleType.None)
+            {
+                m_vehicleNumberFormatLocal.text = config.VehicleIdentifierFormatLocal ?? "";
+                m_vehicleNumberFormatForeign.text = config.VehicleIdentifierFormatForeign ?? "";
+                m_defaultCost.text = config.DefaultCostPerPassenger.ToString();
+                m_defaultCostLbl.suffix = $" (Def: {(TSD.GetDefaultPassengerCapacityCost() is float cost && cost >= 0 ? (cost * 100).ToString("0.00") + "¢" : "N /A")})";
+                if ((TSD.Flags & TransportSystemDefinition.TransportDefinitionFlags.CanChangeTicketPrice) != 0)
+                {
+                    m_defaultTicketPrice.text = config.DefaultTicketPrice.ToString();
+                }
+            }
+            OnPrefixOptionChange();
         }
     }
 

@@ -39,6 +39,8 @@ namespace Klyte.TransportLinesManager
         public const ulong REALTIME_MOD_ID = 1420955187;
         public const ulong IPT2_MOD_ID = 928128676;
         private bool? m_isRealTimeEnabled = null;
+        protected static string GlobalBaseConfigFileName { get; } = "TLM_GlobalData.xml";
+        public static string GlobalBaseConfigPath { get; } = Path.Combine(FOLDER_PATH, GlobalBaseConfigFileName);
 
         public static bool IsRealTimeEnabled
         {
@@ -48,7 +50,7 @@ namespace Klyte.TransportLinesManager
                 {
                     VerifyIfIsRealTimeEnabled();
                 }
-                return Instance?.m_isRealTimeEnabled ?? false;
+                return Instance?.m_isRealTimeEnabled == true;
             }
         }
         public static void VerifyIfIsRealTimeEnabled()
@@ -67,8 +69,8 @@ namespace Klyte.TransportLinesManager
             return !(pluginInfo == null || !pluginInfo.isEnabled);
         }
 
-        public static string palettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
-        public static string exportedMapsFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;
+        public static string PalettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
+        public static string ExportedMapsFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;
 
         public Transform TransformLinearMap => UIView.GetAView()?.transform;
 
@@ -167,7 +169,7 @@ namespace Klyte.TransportLinesManager
         public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, out _, out _, out _, out _));
 
 
-        private void initNearLinesOnWorldInfoPanel()
+        private void InitNearLinesOnWorldInfoPanel()
         {
             if (!initializedWIP)
             {
@@ -296,7 +298,7 @@ namespace Klyte.TransportLinesManager
                 KlyteMonoUtils.CreateElement(out m_linearMapCreatingLine, transform);
                 m_linearMapCreatingLine.parent = this;
                 m_linearMapCreatingLine.setVisible(false);
-                initNearLinesOnWorldInfoPanel();
+                InitNearLinesOnWorldInfoPanel();
             }
         }
 

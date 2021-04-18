@@ -30,7 +30,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             foreach (var service in TLMStationUtils.GetUsableServiceInAutoName())
             {
                 AddCheckbox(service.ToString(), out UICheckBox check, group14, (x) => TLMBaseConfigXML.Instance.GetAutoNameData(service).UseInAutoName = x);
-                AddTextField(Locale.Get("K45_TLM_PREFIX_OPTIONAL"), out UITextField textField, group14, (x) => TLMBaseConfigXML.Instance.GetAutoNameData(service).NamingPrefix = x);
+                AddTextField(Locale.Get("K45_TLM_PREFIX_BUILDING_NAMES"), out UITextField textField, group14, (x) => TLMBaseConfigXML.Instance.GetAutoNameData(service).NamingPrefix = x);
                 m_checks[service] = check;
                 m_textFields[service] = textField;
                 group14.AddSpace(5);
@@ -40,11 +40,11 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         {
             foreach (var kv in m_textFields)
             {
-                kv.Value.text = TLMBaseConfigXML.Instance.GetAutoNameData(kv.Key).NamingPrefix;
+                kv.Value.text = TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(kv.Key).NamingPrefix ?? "";
             }
             foreach (var kv in m_checks)
             {
-                kv.Value.isChecked = TLMBaseConfigXML.Instance.GetAutoNameData(kv.Key).UseInAutoName;
+                kv.Value.isChecked = TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(kv.Key).UseInAutoName;
             }
         }
 

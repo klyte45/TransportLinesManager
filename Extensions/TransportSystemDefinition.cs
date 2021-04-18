@@ -112,7 +112,7 @@ namespace Klyte.TransportLinesManager.Extensions
         }
 
         internal static long GetTsdIndex(TransportInfo.TransportType TransportType, ItemClass.SubService SubService, VehicleInfo.VehicleType VehicleType, ItemClass.Level Level)
-           => (((long)TransportType & 0xff) << 24) | ((long)KlyteMathUtils.BitScanForward((ulong)VehicleType) << 16) | (((long)SubService & 0xff) << 8) | ((long)Level & 0xff);
+           => (((long)TransportType & 0xff) << 24) | (((long)KlyteMathUtils.BitScanForward((ulong)VehicleType) + 1) << 16) | (((long)SubService & 0xff) << 8) | ((long)Level & 0xff);
 
         public ITLMTransportTypeExtension GetTransportExtension() => TLMTransportTypeConfigXML.Instance?.SafeGet(Index_Internal);
         public bool IsTour() => SubService == ItemClass.SubService.PublicTransportTours;
@@ -127,6 +127,7 @@ namespace Klyte.TransportLinesManager.Extensions
                 case TransportInfo.TransportType.CableCar:
                 case TransportInfo.TransportType.Pedestrian:
                 case TransportInfo.TransportType.EvacuationBus:
+                case TransportInfo.TransportType.Fishing:
                     return false;
                 default:
                     return true;
@@ -239,18 +240,11 @@ namespace Klyte.TransportLinesManager.Extensions
         {
             var conf = GetConfig();
             var iconName = conf.DefaultLineIcon;
-            return conf.DefaultLineIcon == LineIconSpriteNames.NULL ? DefaultIcon : iconName;
+            return iconName == LineIconSpriteNames.NULL ? DefaultIcon : iconName;
         }
 
 
-        public TLMTransportTypeConfigurationsXML GetConfig()
-        {
-            if (!TLMBaseConfigXML.Instance.PublicTransportConfigurations.TryGetValue(Index_Internal, out TLMTransportTypeConfigurationsXML config))
-            {
-                config = TLMBaseConfigXML.Instance.PublicTransportConfigurations[Index_Internal] = new TLMTransportTypeConfigurationsXML();
-            }
-            return config;
-        }
+        public TLMTransportTypeConfigurationsXML GetConfig() => TLMBaseConfigXML.CurrentContextConfig.GetTransportData(this);
 
         public string GetTransportName() =>
               this == TRAIN ? Locale.Get("VEHICLE_TITLE", "Train Engine")

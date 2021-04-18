@@ -1,4 +1,5 @@
-﻿using Klyte.Commons.Interfaces;
+﻿using ICities;
+using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using System;
 using System.IO;
@@ -211,7 +212,7 @@ namespace Klyte.TransportLinesManager.Extensions
 
             public void OnReleased() { }
 
-            public void LoadDefaults() { }
+            public void LoadDefaults(ISerializableData serializableData) { }
         }
 
         public class TLMTransportLineStorageEconomyData_LineStop : TransportLineStorageBasicData

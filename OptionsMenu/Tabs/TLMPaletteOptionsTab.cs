@@ -35,7 +35,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             group6.AddLabel(Locale.Get("K45_TLM_CUSTOM_PALETTE_CONFIG"));
             group6.AddSpace(15);
 
-            FileInfo fiPalette = FileUtils.EnsureFolderCreation(TLMController.palettesFolder);
+            FileInfo fiPalette = FileUtils.EnsureFolderCreation(TLMController.PalettesFolder);
 
             group6.AddLabel(Locale.Get("K45_TLM_PALETTE_FOLDER_LABEL") + ":");
             var namesFilesButton = ((UIButton)group6.AddButton("/", () => ColossalFramework.Utils.OpenInFileBrowser(fiPalette.FullName)));
