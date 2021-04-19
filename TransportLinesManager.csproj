@@ -213,6 +213,7 @@
     <Compile Include="ModShared\TLMFacade.cs" />
     <Compile Include="OptionsMenu\Tabs\ITLMConfigOptionsTab.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMAutoNameBuildingsTab.cs" />
+    <Compile Include="Overrides\BusAIOverrides.cs" />
     <Compile Include="Utils\NamingMode.cs" />
     <Compile Include="Utils\NamingType.cs" />
     <Compile Include="Utils\NamingTypeExtensions.cs" />

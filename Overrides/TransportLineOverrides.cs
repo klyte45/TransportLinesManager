@@ -70,6 +70,12 @@ namespace Klyte.TransportLinesManager.Overrides
             RedirectorInstance.AddRedirect(typeof(TransportLineAI).GetMethod("SimulationStep", allFlags, null, new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }, null), null, null, TranspileSimulationStepAI);
             #endregion
 
+            #region Express Bus Hooks
+            MethodInfo TranspileCanLeaveStop = typeof(TransportLineOverrides).GetMethod("TranspileCanLeaveStop", allFlags);
+            LogUtils.DoLog("Loading CanLeaveStop Hook");
+            RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("CanLeaveStop", allFlags), null, null, TranspileCanLeaveStop);
+
+            #endregion
         }
         #endregion
 
@@ -141,6 +147,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 {
                     inst[i - 1].opcode = OpCodes.Ldarg_1;
                     inst[i] = new CodeInstruction(OpCodes.Call, m_newTargetVehicles);
+                    inst.RemoveRange(i - 6, 5);
                 }
             }
             LogUtils.PrintMethodIL(inst);
@@ -174,7 +181,6 @@ namespace Klyte.TransportLinesManager.Overrides
             LogUtils.PrintMethodIL(inst);
             return inst;
         }
-
         public static int NewCalculateTargetVehicleCount(ushort lineId)
         {
             ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineId];
@@ -299,5 +305,27 @@ namespace Klyte.TransportLinesManager.Overrides
         }
         #endregion
 
+        #region Express Bus
+        public static bool PreCanLeaveStop(ref TransportLine __instance, ushort nextStop) 
+            => __instance.Info.m_transportType == TransportInfo.TransportType.Bus && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled && TransportLine.GetPrevStop(nextStop) != __instance.m_stops;
+        public static IEnumerable<CodeInstruction> TranspileCanLeaveStop(IEnumerable<CodeInstruction> instructions, ILGenerator il)
+        {
+            var inst = new List<CodeInstruction>(instructions);
+
+            var lbl = il.DefineLabel();
+            inst[0].labels.Add(lbl);
+            inst.InsertRange(0, new List<CodeInstruction>
+            {
+                new CodeInstruction(OpCodes.Ldarga_S,0),
+                new CodeInstruction(OpCodes.Ldarg_1),
+                new CodeInstruction(OpCodes.Call, typeof(TransportLineOverrides).GetMethod("PreCanLeaveStop",RedirectorUtils.allFlags)),
+                new CodeInstruction(OpCodes.Brfalse, lbl),
+                new CodeInstruction(OpCodes.Ldc_I4_1),
+                new CodeInstruction(OpCodes.Ret),
+            });
+            LogUtils.PrintMethodIL(inst);
+            return inst;
+        }
+        #endregion
     }
 }
