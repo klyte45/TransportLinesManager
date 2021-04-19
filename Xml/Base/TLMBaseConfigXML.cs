@@ -2,9 +2,12 @@
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
+using Klyte.TransportLinesManager.OptionsMenu;
 using System;
+using System.Collections;
 using System.IO;
 using System.Xml.Serialization;
+using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Xml
 {
@@ -28,8 +31,22 @@ namespace Klyte.TransportLinesManager.Xml
                         TLMConfigWarehouse.GetConfig().WriteToBaseConfigXML(m_globalFile);
                     }
                 }
+                TLMConfigOptions.instance.StartCoroutine(m_globalFile.ScheduleSaveGlobal());
                 return m_globalFile;
             }
+        }
+        private bool scheduled = false;
+        private IEnumerator ScheduleSaveGlobal()
+        {
+            if (scheduled)
+            {
+                yield break;
+            }
+            scheduled = true;
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            ExportAsGlobalConfig();
+            scheduled = false;
         }
 
         public static TLMBaseConfigXML CurrentContextConfig => SimulationManager.instance.m_metaData is null ? GlobalFile : Instance;
@@ -39,7 +56,7 @@ namespace Klyte.TransportLinesManager.Xml
         public void LoadFromGlobal()
         {
             ReloadGlobalFile();
-            Instance = GlobalFile;
+            Instance = XmlUtils.CloneViaXml(GlobalFile);
         }
         [XmlAttribute("autoColor")]
         public bool UseAutoColor { get; set; }
@@ -102,8 +119,8 @@ namespace Klyte.TransportLinesManager.Xml
             }
             else
             {
-                LogUtils.DoWarnLog($"Getting default data from Warehouse");
-                tlmcw.WriteToBaseConfigXML(this);
+                LogUtils.DoWarnLog($"Getting default data from Global");
+                LoadFromGlobal();
             }
         }
     }
