@@ -288,6 +288,7 @@ namespace Klyte.TransportLinesManager
         private static void Load()
         {
             m_palettes = new Dictionary<string, AutoColorPalette>();
+            FileUtils.EnsureFolderCreation(TLMController.PalettesFolder);
             foreach (var filename in Directory.GetFiles(TLMController.PalettesFolder, "*" + EXT_PALETTE).Select(x => x.Split(Path.DirectorySeparatorChar).Last()))
             {
                 string fileContents = File.ReadAllText(TLMController.PalettesFolder + Path.DirectorySeparatorChar + filename, Encoding.UTF8);

@@ -10,13 +10,11 @@ namespace Klyte.TransportLinesManager.Extensions
             ItemClass.SubService.PublicTransportPlane,
             VehicleInfo.VehicleType.Blimp,
             TransportInfo.TransportType.Airplane,
-            ItemClass.Level.Level2, 
+            ItemClass.Level.Level2,
             new TransferManager.TransferReason[] { TransferManager.TransferReason.Blimp },
             new Color32(0xd8, 0x01, 0xaa, 255),
             35,
-            LineIconSpriteNames.K45_ParachuteIcon,
-            TransportDefinitionFlags.CanChangeTicketPrice
-        );
+            LineIconSpriteNames.K45_ParachuteIcon);
     }
 
 }

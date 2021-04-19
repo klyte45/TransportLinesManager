@@ -83,20 +83,18 @@ namespace Klyte.TransportLinesManager.Extensions
         public Color Color { get; }
         public int DefaultCapacity { get; }
         public LineIconSpriteNames DefaultIcon { get; }
-        public TransportDefinitionFlags Flags { get; }
         public long? Id { get => Index_Internal; set { } }
 
         private TransportSystemDefinition(
         ItemClass.SubService subService,
-        VehicleInfo.VehicleType vehicleType,
-        TransportInfo.TransportType transportType,
-        ItemClass.Level level,
-        TransferReason[] reasons,
-        Color color,
-        int defaultCapacity,
-        LineIconSpriteNames defaultIcon,
-        TransportDefinitionFlags flags,
-        ItemClass.Level? levelAdditional = null)
+            VehicleInfo.VehicleType vehicleType,
+            TransportInfo.TransportType transportType,
+            ItemClass.Level level,
+            TransferReason[] reasons,
+            Color color,
+            int defaultCapacity,
+            LineIconSpriteNames defaultIcon,
+            ItemClass.Level? levelAdditional = null)
         {
             VehicleType = vehicleType;
             SubService = subService;
@@ -107,7 +105,6 @@ namespace Klyte.TransportLinesManager.Extensions
             Color = color;
             DefaultCapacity = defaultCapacity;
             DefaultIcon = defaultIcon;
-            Flags = flags;
             Index_Internal = GetTsdIndex(TransportType, SubService, VehicleType, Level);
         }
 
@@ -264,10 +261,5 @@ namespace Klyte.TransportLinesManager.Extensions
             : this == HELICOPTER ? Locale.Get("VEHICLE_TITLE", "Passenger Helicopter")
             : this == TROLLEY ? Locale.Get("VEHICLE_TITLE", "Trolleybus 01")
             : "???";
-
-        public enum TransportDefinitionFlags
-        {
-            CanChangeTicketPrice,
-        }
     }
 }
