@@ -8,10 +8,10 @@ namespace Klyte.TransportLinesManager.Extensions
     {
         public static readonly TransportSystemDefinition EVAC_BUS = new TransportSystemDefinition(
                     ItemClass.SubService.None,
-                    VehicleInfo.VehicleType.Car,
-                    TransportInfo.TransportType.EvacuationBus,
-                    ItemClass.Level.Level4,
-                    new TransferManager.TransferReason[] {
+            VehicleInfo.VehicleType.Car,
+            TransportInfo.TransportType.EvacuationBus,
+            ItemClass.Level.Level4,
+            new TransferManager.TransferReason[] {
                         TransferManager.TransferReason.EvacuateA,
                         TransferManager.TransferReason.EvacuateB,
                         TransferManager.TransferReason.EvacuateC,
@@ -21,11 +21,9 @@ namespace Klyte.TransportLinesManager.Extensions
                         TransferManager.TransferReason.EvacuateVipC,
                         TransferManager.TransferReason.EvacuateVipD
                     },
-                    new Color32(202, 162, 31, 255),
-                    50,
-                    LineIconSpriteNames.K45_CrossIcon,
-                    0
-                );
+            new Color32(202, 162, 31, 255),
+            50,
+            LineIconSpriteNames.K45_CrossIcon);
     }
 
 }

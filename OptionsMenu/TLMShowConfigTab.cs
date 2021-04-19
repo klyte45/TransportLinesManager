@@ -119,10 +119,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 m_uiHelper.AddSpace(5);
 
                 AddIntField(Locale.Get("K45_TLM_COST_PER_PASSENGER_CONFIG"), out m_defaultCost, out m_defaultCostLbl, m_uiHelper, (x) => TSD.GetConfig().DefaultCostPerPassenger = x, false);
-                if ((TSD.Flags & TransportSystemDefinition.TransportDefinitionFlags.CanChangeTicketPrice) != 0)
-                {
-                    AddIntField(Locale.Get("K45_TLM_DEFAULT_PRICE"), out m_defaultTicketPrice, m_uiHelper, (x) => TSD.GetConfig().DefaultTicketPrice = x, false);
-                }
+                AddIntField(Locale.Get("K45_TLM_DEFAULT_PRICE"), out m_defaultTicketPrice, m_uiHelper, (x) => TSD.GetConfig().DefaultTicketPrice = x, false);
                 m_uiHelper.AddSpace(5);
             }
 
@@ -180,10 +177,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 m_vehicleNumberFormatForeign.text = config.VehicleIdentifierFormatForeign ?? "";
                 m_defaultCost.text = config.DefaultCostPerPassenger.ToString();
                 m_defaultCostLbl.suffix = $" (Def: {(TSD.GetDefaultPassengerCapacityCost() is float cost && cost >= 0 ? (cost * 100).ToString("0.00") + "¢" : "N /A")})";
-                if ((TSD.Flags & TransportSystemDefinition.TransportDefinitionFlags.CanChangeTicketPrice) != 0)
-                {
-                    m_defaultTicketPrice.text = config.DefaultTicketPrice.ToString();
-                }
+                m_defaultTicketPrice.text = config.DefaultTicketPrice.ToString();
             }
             OnPrefixOptionChange();
         }

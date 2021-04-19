@@ -592,6 +592,7 @@ namespace Klyte.TransportLinesManager.Utils
                 if (targetColor != colorChangeTarget[id])
                 {
                     colorChangeCooldown = 3;
+                    targetColor = colorChangeTarget[id];
                 }
             } while (colorChangeCooldown > 0);
 

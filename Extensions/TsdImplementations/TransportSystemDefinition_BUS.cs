@@ -13,9 +13,8 @@ namespace Klyte.TransportLinesManager.Extensions
             ItemClass.Level.Level1,
             new TransferManager.TransferReason[] { TransferManager.TransferReason.Bus },
             new Color32(53, 121, 188, 255),
-            30, 
+            30,
             LineIconSpriteNames.K45_HexagonIcon,
-            TransportDefinitionFlags.CanChangeTicketPrice,
             ItemClass.Level.Level2
         );
     }
