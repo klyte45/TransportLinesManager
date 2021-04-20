@@ -306,8 +306,20 @@ namespace Klyte.TransportLinesManager.Overrides
         #endregion
 
         #region Express Bus
-        public static bool PreCanLeaveStop(ref TransportLine __instance, ushort nextStop) 
-            => __instance.Info.m_transportType == TransportInfo.TransportType.Bus && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled && TransportLine.GetPrevStop(nextStop) != __instance.m_stops;
+        public static bool PreCanLeaveStop(ref TransportLine __instance, ushort nextStop)
+        {
+            if (__instance.m_vehicles == 0)
+            {
+                return false;
+            }
+
+            ref Vehicle vehicleRef = ref VehicleManager.instance.m_vehicles.m_buffer[__instance.m_vehicles];
+            var validType = (vehicleRef.Info.m_vehicleType == VehicleInfo.VehicleType.Car && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled)
+                || (vehicleRef.Info.m_vehicleType == VehicleInfo.VehicleType.Tram && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled)
+                || (vehicleRef.Info.m_vehicleType == VehicleInfo.VehicleType.Trolleybus && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled);
+            return validType && TransportLine.GetPrevStop(nextStop) != __instance.m_stops;
+        }
+
         public static IEnumerable<CodeInstruction> TranspileCanLeaveStop(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             var inst = new List<CodeInstruction>(instructions);

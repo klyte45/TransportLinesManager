@@ -64,6 +64,10 @@ namespace Klyte.TransportLinesManager.Xml
         public bool CircularIfSingleDistrictLine { get; set; }
         [XmlAttribute("expressBuses")]
         public bool ExpressBusesEnabled { get; set; } = true;
+        [XmlAttribute("expressTram")]
+        public bool ExpressTramsEnabled { get; set; } = true;
+        [XmlAttribute("expressTrolleybuses")]
+        public bool ExpressTrolleybusesEnabled { get; set; } = true;
         [XmlAttribute("autoName")]
         public bool UseAutoName { get; set; }
         [XmlAttribute("lineCodeInAutoname")]
