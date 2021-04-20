@@ -13,7 +13,9 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
         private UICheckBox m_autoName;
         private UICheckBox m_circular;
         private UICheckBox m_addLineCode;
+        private UICheckBox m_expressTrams;
         private UICheckBox m_expressBuses;
+        private UICheckBox m_expressTrolleys;
 
         public void ReloadData()
         {
@@ -26,6 +28,8 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             m_circular.isChecked = TLMBaseConfigXML.CurrentContextConfig.CircularIfSingleDistrictLine;
             m_addLineCode.isChecked = TLMBaseConfigXML.CurrentContextConfig.AddLineCodeInAutoname;
             m_expressBuses.isChecked = TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled;
+            m_expressTrams.isChecked = TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled;
+            m_expressTrolleys.isChecked = TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled;
         }
 
         private void Awake()
@@ -45,6 +49,10 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             AddCheckboxLocale("K45_TLM_ADD_LINE_NUMBER_AUTO_NAME", out m_addLineCode, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.AddLineCodeInAutoname = x);
             AddCheckboxLocale("K45_TLM_ENABLE_EXPRESS_BUSES", out m_expressBuses, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled = x);
             m_expressBuses.tooltipLocaleID = "K45_TLM_ENABLE_EXPRESS_BUSES_DESC";
+            AddCheckboxLocale("K45_TLM_ENABLE_EXPRESS_TRAMS", out m_expressTrams, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled = x);
+            m_expressTrams.tooltipLocaleID = "K45_TLM_ENABLE_EXPRESS_TRAMS_DESC";
+            AddCheckboxLocale("K45_TLM_ENABLE_EXPRESS_TROLLEYS", out m_expressTrolleys, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled = x);
+            m_expressTrolleys.tooltipLocaleID = "K45_TLM_ENABLE_EXPRESS_TROLLEYS_DESC";
 
 
         }
