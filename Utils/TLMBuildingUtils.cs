@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
-
+using Klyte.TransportLinesManager.Xml;
 
 namespace Klyte.TransportLinesManager.Utils
 {
@@ -24,10 +24,19 @@ namespace Klyte.TransportLinesManager.Utils
             serviceFound = b.Info?.GetService() ?? default;
             subserviceFound = b.Info?.GetSubService() ?? default;
             TransportSystemDefinition tsd = TransportSystemDefinition.From(b.Info.GetAI());
-            prefix = tsd.GetConfig().NamingPrefix?.TrimStart();
-            LogUtils.DoLog($"getBuildingName(): serviceFound {serviceFound} - subserviceFound = {subserviceFound} - tsd = {tsd} - prefix = {prefix}");
-            namingType = NamingTypeExtensions.From(tsd);
+            if (tsd is null)
+            {
+                var data = TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(serviceFound);
+                prefix = data?.NamingPrefix?.Trim();
+                namingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
 
+            }
+            else
+            {
+                prefix = tsd.GetConfig().NamingPrefix?.TrimStart();
+                LogUtils.DoLog($"getBuildingName(): serviceFound {serviceFound} - subserviceFound = {subserviceFound} - tsd = {tsd} - prefix = {prefix}");
+                namingType = NamingTypeExtensions.From(tsd);
+            }
             return bm.GetBuildingName(buildingId, iid);
         }
     }

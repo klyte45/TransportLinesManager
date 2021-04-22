@@ -1,28 +1,30 @@
-﻿
-* {
+﻿* {
     color: rgba(0, 0, 0, 0.5);
     font-family: klytetica lt sss;
+}
+
+body {
+    background-color: antiquewhite;
 }
 
 div.stationContainer {
     display: table;
     position: absolute;
-    transform-origin: left top 0;
 }
 
     div.stationContainer > p {
-        display: table-cell;
+        display: block;
         font-size: 9px;
-        height: auto;
-        left: 0;
         padding: 0;
         position: relative;
         text-align: start;
-        text-shadow: 0.45px 0.45px 0 white, -0.45px 0.45px 0 white, -0.45px -0.45px 0 white, 0.45px -0.45px 0 white;
-        transform-origin: left top 0;
-        vertical-align: middle;
-        width: 20px;
+        text-shadow: 0.45px 0.45px 0 antiquewhite, -0.45px 0.45px 0 antiquewhite, -0.45px -0.45px 0 antiquewhite, 0.45px -0.45px 0 antiquewhite;
+        transform-origin: center;
+        width: 0px;
+        height: 0;
+        margin: -1em 0;
     }
+
 
 svg path {
     filter: drop-shadow(-0.25px 0.25px 0 #fff) drop-shadow(-0.25px -0.25px 0 #fff) drop-shadow(0.25px 0.25px 0 #fff) drop-shadow(0.25px -0.25px 0 #fff);
@@ -33,7 +35,10 @@ svg polyline {
 }
 
 div.stationContainer > p > x {
-    display: block;
+    display: flex;
+    height: 0;
+    transform-origin: left;
+    align-items: center;
 }
 
 div.stationContainer > p > y {
@@ -66,7 +71,7 @@ div.stationContainer > p > y {
 .pathShip {
     stroke-width: 4px;
     fill: none;
-    stroke-dasharray: 15,10;
+    stroke-dasharray: 15, 10;
 }
 
 
@@ -150,23 +155,3 @@ div.stationContainer > p > y {
                 stroke: black;
                 stroke-width: 0.2px;
             }
-
-
-/*
-svg#map :not(._lid_232), .stationContainer :not(._lid_232) {
-    opacity: 0.2;
-    filter: grayscale(100%);
-}
-
-.stationContainer._lid_232 p,
-.stationContainer._lid_232 p * {
-    opacity: 1 !important;
-    filter: grayscale(0%) !important;
-    z-index: 999;
-    color: black !important;
-}
-
-circle._lid_232 {
-    fill: white !important;
-}
-    */

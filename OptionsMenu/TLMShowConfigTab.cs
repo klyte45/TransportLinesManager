@@ -121,6 +121,9 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 AddIntField(Locale.Get("K45_TLM_COST_PER_PASSENGER_CONFIG"), out m_defaultCost, out m_defaultCostLbl, m_uiHelper, (x) => TSD.GetConfig().DefaultCostPerPassenger = x, false);
                 AddIntField(Locale.Get("K45_TLM_DEFAULT_PRICE"), out m_defaultTicketPrice, m_uiHelper, (x) => TSD.GetConfig().DefaultTicketPrice = x, false);
                 m_uiHelper.AddSpace(5);
+
+                AddButtonInEditorRow(m_vehicleNumberFormatLocal, CommonsSpriteNames.K45_QuestionMark, Help_VehicleNumberFormat, null, true, 30);
+                AddButtonInEditorRow(m_vehicleNumberFormatForeign, CommonsSpriteNames.K45_QuestionMark, Help_VehicleNumberFormat, null, true, 30);
             }
 
             AddCheckboxLocale("K45_TLM_NEAR_LINES_SHOW", out m_zerosContainer, m_uiHelper, (x) => TSD.GetConfig().ShowInLinearMap = x);
@@ -129,9 +132,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             AddCheckboxLocale("K45_TLM_RANDOM_ON_PALETTE_OVERFLOW", out m_randomPaletteOnOverflow, m_uiHelper, (x) => TSD.GetConfig().PaletteRandomOnOverflow = x);
             AddCheckboxLocale("K45_TLM_AUTO_COLOR_BASED_ON_PREFIX", out m_autoColorBasedContainer, m_uiHelper, (x) => TSD.GetConfig().PalettePrefixBased = x);
             AddCheckboxLocale("K45_TLM_LINENUMBERING_BASED_IN_PREFIX", out m_prefixIncrement, m_uiHelper, (x) => TSD.GetConfig().IncrementPrefixOnNewLine = x);
-
-            AddButtonInEditorRow(m_vehicleNumberFormatLocal, CommonsSpriteNames.K45_QuestionMark, Help_VehicleNumberFormat, null, true, 30);
-            AddButtonInEditorRow(m_vehicleNumberFormatForeign, CommonsSpriteNames.K45_QuestionMark, Help_VehicleNumberFormat, null, true, 30);
 
         }
 
