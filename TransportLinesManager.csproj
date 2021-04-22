@@ -207,6 +207,7 @@
     <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_TRAIN.cs" />
     <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_TRAM.cs" />
     <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_TROLLEY.cs" />
+    <Compile Include="MapDrawer\TLMMapHtmlTemplate.cs" />
     <Compile Include="ModShared\BridgeADR.cs" />
     <Compile Include="ModShared\BridgeADRFallback.cs" />
     <Compile Include="ModShared\IBridgeADR.cs" />
@@ -268,7 +269,7 @@
     <Compile Include="Overrides\TransportLineOverrides.cs" />
     <Compile Include="Overrides\PublicTransportInfoViewPanelOverrides.cs" />
     <Compile Include="MapDrawer\MapLineSegmentStation.cs" />
-    <Compile Include="MapDrawer\TLMMapLine.cs" />
+    <Compile Include="MapDrawer\TLMMapTransportLine.cs" />
     <Compile Include="TLMConfigWarehouse.cs" />
     <Compile Include="MapDrawer\TLMMapDrawer.cs" />
     <Compile Include="TransportLinesManager.cs" />

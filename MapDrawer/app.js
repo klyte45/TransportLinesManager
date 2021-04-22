@@ -1,4 +1,5 @@
-﻿ var sizeMultiplier = 50;
+﻿
+        var sizeMultiplier = 50;
 
 
         var stopsPositionList = {};
@@ -17,7 +18,7 @@
                 let currentStop = _infoLines.transportLines[x].stations[s].stopId;
                 let nextStop = _infoLines.transportLines[x].stations[(s + 1) % _infoLines.transportLines[x].stations.length].stopId;
                 dist = Math.sqrt(Math.pow(stopsPositionList[currentStop][0] - stopsPositionList[nextStop][0], 2) + Math.pow(stopsPositionList[currentStop][1] - stopsPositionList[nextStop][1], 2));
-                if (dist < minDistance && dist > 8) {
+                if (dist < minDistance && dist > 0) {
                     minDistance = dist;
                 }
             }
@@ -34,12 +35,16 @@
             tgPosToRealY[ty] = stopsPositionList[stopId][1];
         }
 
+        var stationIdExitAngleCount = {};
+        var stationIdExitAngleDrawCount = {};
+
         function recalculate() {
             stopToTgPos = {};
             tgPosToStop = {};
             tgPosToRealX = {};
             tgPosToRealY = {};
             stopToMapPos = {};
+            stationIdExitAngleCount = {};
 
             for (let x in _infoLines.transportLines) {
                 //   if (_infoLines.transportLines[x].transportType != "Train") continue;
@@ -49,8 +54,8 @@
                 }
             }
 
-            let xSortedKeys = Object.keys(tgPosToRealX).map(x => x * 1).sort(x => x);
-            let ySortedKeys = Object.keys(tgPosToRealY).map(x => x * 1).sort(x => -x);
+            let xSortedKeys = Object.keys(tgPosToRealX).map(x => x * 1).sort((x, y) => x - y);
+            let ySortedKeys = Object.keys(tgPosToRealY).map(x => x * 1).sort((x, y) => y - x);
 
             for (let stop in stopToTgPos) {
                 stopToMapPos[stop] = [xSortedKeys.indexOf(stopToTgPos[stop][0]), ySortedKeys.indexOf(stopToTgPos[stop][1])];
@@ -75,6 +80,8 @@
         for (let x in _infoLines.transportLines) {
             // if (_infoLines.transportLines[x].transportType != "Train") continue;
             for (let s in _infoLines.transportLines[x].stations) {
+                let stationStartId = _infoLines.transportLines[x].stations[s].id;
+                let stationEndId = getNextItemArray(_infoLines.transportLines[x].stations, 1 * s).id;
                 let currentStop = _infoLines.transportLines[x].stations[s].stopId;
                 let nextStop = getNextItemArray(_infoLines.transportLines[x].stations, 1 * s).stopId;
 
@@ -105,27 +112,38 @@
                     tmp = coord3;
                     coord3 = coord0;
                     coord0 = tmp;
+                    tmp = stationStartId;
+                    stationStartId = stationEndId;
+                    stationEndId = tmp;
                 }
                 let segmentId = coord1Id.toString(16).padStart(8, "0") + coord2Id.toString(16).padStart(8, "0");
                 var segmentAngle = Math.atan2(coord2[0] - coord1[0], coord2[1] - coord1[1]) * 180 / Math.PI;
+                let segmentAngleIdx = Math.round(((segmentAngle + 360) % 360) / 45) % 8;
                 // let angle1 = segmentAngle//coord0 == coord2 ? -segmentAngle : Math.atan2(coord1[0] + coord0[0], coord1[1] - coord0[1]) * 180 / Math.PI;
                 // let angle2 = segmentAngle//coord1 == coord3 ? -segmentAngle : Math.atan2(-coord3[0] + coord2[0], coord3[1] - coord2[1]) * 180 / Math.PI;
                 let lineObj = {
                     lineId: _infoLines.transportLines[x].lineId,
                     lineColor: _infoLines.transportLines[x].lineColor,
-                    //coord1Angle: Math.round(((angle1 + 360) % 360) / 45) % 8,
-                    // coord2Angle: Math.round(((angle2 + 360) % 360) / 45) % 8,
+                    lineTransportType: _infoLines.transportLines[x].transportType,
                 };
                 if (segments[segmentId] === undefined) {
                     segments[segmentId] = {
-                        segmentTransportType: _infoLines.transportLines[x].transportType,
                         passingLines: [lineObj],
-                        segmentAngle: Math.round(((segmentAngle + 360) % 360) / 45) % 8,
-                        segmentId: segmentId
+                        segmentAngle: segmentAngleIdx,
+                        segmentId: segmentId,
+                        stationStartId: stationStartId,
+                        stationEndId: stationEndId
                     }
                 } else {
                     segments[segmentId].passingLines.push(lineObj);
                 }
+                var idxStationStart = (stationStartId << 3) + (segmentAngleIdx + 4) % 8;
+                var idxStationEnd = (stationEndId << 3) + segmentAngleIdx % 8;
+                if (stationIdExitAngleCount[idxStationStart] === undefined) stationIdExitAngleCount[idxStationStart.toString()] = 0;
+                if (stationIdExitAngleCount[idxStationEnd] === undefined) stationIdExitAngleCount[idxStationEnd.toString()] = 0;
+                let width = getBorderSize(_infoLines.transportLines[x].transportType);
+                stationIdExitAngleCount[idxStationStart] += width;
+                stationIdExitAngleCount[idxStationEnd] += width;
             }
         }
 
@@ -140,30 +158,37 @@
             [1, 0],
             [1, -1],
         ]
+        const transformOrigins = [
+            ["center", "bottom"],
+            ["right", "bottom"],
+            ["right", "center"],
+            ["right", "top"],
+            ["center", "top"],
+            ["left", "top"],
+            ["left", "center"],
+            ["left", "bottom"],
+        ]
         const segmentDirectionDeltasPerp = segmentDirectionDeltas.map(x => x[0] != 0 && x[1] != 0 ? x.map(y => y * 0.7071) : x);
 
-
-        function fillLineTemplateSvg(lineObj, coordinates) {
-            return `<polyline points="${coordinates}" class="path${lineObj.transportType} _lid_${lineObj.lineId}" style='stroke:${lineObj.lineColor};stroke-width: ${getBorderSize(lineObj.transportType)}px' stroke-linejoin="round" stroke-linecap="round" />`;
-        }
-
-
         /*
-          lineId: _infoLines.transportLines[x].lineId,
-                    coord1Angle: Math.round(((angle1 + 180) % 180) / 45),
-                    coord2Angle: Math.round(((angle2 + 180) % 180) / 45),
-                    coord1Direction: Math.sign(angle1) || 1,
-                    coord1Direction: Math.sign(angle2) || 1,
-        */
+           lineId: _infoLines.transportLines[x].lineId,
+                     coord1Angle: Math.round(((angle1 + 180) % 180) / 45),
+                     coord2Angle: Math.round(((angle2 + 180) % 180) / 45),
+                     coord1Direction: Math.sign(angle1) || 1,
+                     coord1Direction: Math.sign(angle2) || 1,
+         */
 
-        var sizeMultiplier = 50;
+        var sizeMultiplier = 100;
 
-        function fillSegmentTemplateSvg(segmentObj) {
+        function fillSegmentTemplateSvg(segmentObj, line) {
             let result = "";
             let p1 = parseInt(segmentObj.segmentId.substr(0, 8), 16)
             let p2 = parseInt(segmentObj.segmentId.substr(8, 8), 16)
             let startPoint = [p1 >> 12, p1 & ((1 << 12) - 1)];
             let endPoint = [p2 >> 12, p2 & ((1 << 12) - 1)];
+
+            let angleStart = (4 + segmentObj.segmentAngle) % 8;
+            let angleEnd = segmentObj.segmentAngle;
 
             let startingDirDelta = segmentDirectionDeltas[(4 + segmentObj.segmentAngle) % 8];
             let startingPerpDelta = segmentDirectionDeltasPerp[(2 + segmentObj.segmentAngle) % 8];
@@ -171,39 +196,84 @@
             let endingDirDelta = segmentDirectionDeltas[segmentObj.segmentAngle];
             let endingPerpDelta = segmentDirectionDeltasPerp[(segmentObj.segmentAngle + 2) % 8];
 
-            let width = getBorderSize(segmentObj.segmentTransportType);
-            for (let l in segmentObj.passingLines.sort(x => x.lineId)) {
-                let line = segmentObj.passingLines[l]
-                //     if (line.lineId != 187) continue;
+            let baseStartStationId = (segmentObj.stationStartId << 3) + angleStart;
+            let baseEndStationId = (segmentObj.stationEndId << 3) + angleEnd;
 
-                let diagOffset;
-                if (startingDirDelta[0] == 0) {
-                    diagOffset = Math.abs(Math.abs(startPoint[0] - endPoint[0]) - Math.abs(startPoint[1] - endPoint[1])) / 2;
-                } else if (startingDirDelta[1] == 0) {
-                    diagOffset = Math.abs(Math.abs(startPoint[1] - endPoint[1]) - Math.abs(startPoint[0] - endPoint[0])) / 2;
+            //     if (line.lineId != 187) continue;
+
+            let width = getBorderSize(line.lineTransportType);
+            let diagOffset;
+            stationIdExitAngleDrawCount[baseStartStationId] ??= 0;
+            stationIdExitAngleDrawCount[baseEndStationId] ??= 0;
+            let offsetValStart = (stationIdExitAngleDrawCount[baseStartStationId]) - stationIdExitAngleCount[baseStartStationId] / 2;
+            let offsetValEnd = (stationIdExitAngleDrawCount[baseEndStationId]) - stationIdExitAngleCount[baseEndStationId] / 2;
+            let deltaOffset = Math.abs(offsetValStart - offsetValEnd);
+            if (deltaOffset > 0 && deltaOffset < width) {
+                if (offsetValStart > offsetValEnd) {
+                    stationIdExitAngleDrawCount[baseEndStationId] += deltaOffset;
+                    offsetValEnd = offsetValStart;
                 } else {
-                    diagOffset = Math.min(Math.abs(startPoint[0] - endPoint[0]), Math.abs(startPoint[1] - endPoint[1])) / 2;
+                    stationIdExitAngleDrawCount[baseStartStationId] += deltaOffset;
+                    offsetValStart = offsetValEnd;
                 }
-
-                let offsetVal = (l);
-
-                let coordinates = [startPoint.map((x, i) => x * sizeMultiplier + 120 + startingPerpDelta[i] * width * offsetVal)];
-                coordinates.push(startPoint.map((x, i) => (x + startingDirDelta[i] * diagOffset) * sizeMultiplier + 120 + startingPerpDelta[i] * width * offsetVal))
-
-                coordinates.push(endPoint.map((x, i) => (x + endingDirDelta[i] * diagOffset) * sizeMultiplier + 120 + endingPerpDelta[i] * width * offsetVal))
-                coordinates.push(endPoint.map((x, i) => x * sizeMultiplier + 120 + endingPerpDelta[i] * width * offsetVal));
-
-
-                result += `<polyline  title="segmentObj.segmentAngle = ${segmentObj.segmentAngle}; line.coord1Angle = ${line.coord1Angle}; line.coord2Angle = ${line.coord2Angle}" points="${coordinates.map(x => x.map(x => x).join(',')).join(',')}" class="path${segmentObj.segmentTransportType} _lid_${line.lineId}" style='stroke:${line.lineColor};stroke-width: ${width}px' stroke-linejoin="round" stroke-linecap="round" />`;
             }
+
+            stationIdExitAngleDrawCount[baseStartStationId] += width;
+            stationIdExitAngleDrawCount[baseEndStationId] += width;
+
+            let lineStartPoint = startPoint.map((x, i) => x + (startingPerpDelta[i] * offsetValStart + startingPerpDelta[i] * width / 2) / sizeMultiplier)
+            let lineEndPoint = endPoint.map((x, i) => x + (endingPerpDelta[i] * offsetValEnd + startingPerpDelta[i] * width / 2) / sizeMultiplier)
+
+            let spacingOffset = 0;
+
+            if (startingDirDelta[0] == 0) {
+                diagOffset = Math.abs(Math.abs(lineStartPoint[0] - lineEndPoint[0]) - Math.abs(lineStartPoint[1] - lineEndPoint[1])) / 2;
+                spacingOffset = Math.sign(offsetValStart) / .707;
+            } else if (startingDirDelta[1] == 0) {
+                diagOffset = Math.abs(Math.abs(lineStartPoint[1] - lineEndPoint[1]) - Math.abs(lineStartPoint[0] - lineEndPoint[0])) / 2;
+                spacingOffset = Math.sign(offsetValStart) / .707;
+
+            } else {
+                diagOffset = Math.min(Math.abs(lineStartPoint[0] - lineEndPoint[0]), Math.abs(lineStartPoint[1] - lineEndPoint[1])) / 2;
+                spacingOffset = Math.sign(offsetValStart) * Math.sign(startingDirDelta[1]) * Math.sign(startingDirDelta[0]);
+            }
+
+            switch (angleStart) {
+                case 0:
+                case 2:
+                case 4:
+                case 6:
+                    spacingOffset = Math.sign(offsetValStart) / .707;
+                    break;
+                case 1: spacingOffset = Math.sign(offsetValStart) * Math.sign(startingDirDelta[1]) * Math.sign(startingDirDelta[0]);
+                    break;
+                case 3: spacingOffset = Math.sign(offsetValStart) * Math.sign(startingDirDelta[1]) * Math.sign(startingDirDelta[0]);
+                    break;
+                case 5: spacingOffset = -Math.sign(offsetValStart) * Math.sign(startingDirDelta[1]) * Math.sign(startingDirDelta[0]);
+                    break;
+                case 7: spacingOffset = -Math.sign(offsetValStart) * Math.sign(startingDirDelta[1]) * Math.sign(startingDirDelta[0]);
+                    break;
+            }
+
+            let coordinates = [lineStartPoint.map((x, i) => x * sizeMultiplier + 120)];
+            coordinates.push(lineStartPoint.map((x, i) => (x + startingDirDelta[i] * diagOffset) * sizeMultiplier + 120 - startingDirDelta[i] * ((offsetValStart - offsetValEnd) / 2 * spacingOffset - (offsetValStart - offsetValEnd) / 2)))
+
+            coordinates.push(lineEndPoint.map((x, i) => (x + endingDirDelta[i] * diagOffset) * sizeMultiplier + 120 - startingDirDelta[i] * ((offsetValStart - offsetValEnd) / 2 * spacingOffset - (offsetValStart - offsetValEnd) / 2)))
+            coordinates.push(lineEndPoint.map((x, i) => x * sizeMultiplier + 120));
+
+
+            result += `<polyline points="${coordinates.map(x => x.map(x => x).join(',')).join(',')}" class="path${line.lineTransportType}" style='stroke:antiquewhite;stroke-width: ${width}px' stroke-linejoin="round" stroke-linecap="round" />`;
+            result += `<polyline points="${coordinates.map(x => x.map(x => x).join(',')).join(',')}" class="path${line.lineTransportType} _lid_${line.lineId}" style='stroke:${line.lineColor};stroke-width: ${width * .8}px' stroke-linejoin="round" stroke-linecap="round" />`;
+
             return result;
         }
 
         function addStation(stationData) {
+            if ($(`#stationPoint${stationData.id}`)[0]) return;
             let pos = stopToMapPos[stationData.stopId].map(x => x * sizeMultiplier + 120).join(",");
-            let result = `<circle style="stroke:white; stroke-width:1" fill="white" r="6" cy="0" cx="0" transform="translate(${pos})" class="${stationData.linesPassing.map(x => `_lid_${x}`).join(" ")}" />`;
+            let result = `<circle id="stationPoint${stationData.id}" style="stroke:antiquewhite; stroke-width:1" fill="white" r="6" cy="0" cx="0" transform="translate(${pos})" class="${stationData.linesPassing.map(x => `_lid_${x}`).join(" ")}" />`;
             let currentCircleSize = 6;
-            let orderedLines = stationData.linesPassing.sort(x => -getBorderSize(_infoLines.transportLines[x].transportType))
+            let orderedLines = stationData.linesPassing.sort((a, b) => getBorderSize(_infoLines.transportLines[b].transportType) - getBorderSize(_infoLines.transportLines[a].transportType))
             for (let lineIdx in orderedLines) {
                 let data = _infoLines.transportLines[orderedLines[lineIdx]];
                 let borderSize = getBorderSize(data.transportType);
@@ -215,11 +285,39 @@
         }
 
         function addStationLabel(stationData, offset) {
+            if ($(`#station${stationData.id}`)[0]) return;
             let pos = stopToMapPos[stationData.stopId].map(x => x * sizeMultiplier + 120);
-            let writeAngle = (stationData.writeAngle + 360) % 360;
-            return `<div class='stationContainer ${stationData.linesPassing.map(x => `_lid_${x}`).join(" ")} _tt_${_infoLines.transportLines[stationData.linesPassing[0]].transportType}' style='top: ${pos[1]}px; left: ${pos[0]}px;'>
-            <p style='transform: rotate(${writeAngle}deg) translate(${offset}px, ${offset}px) scale(${stationData.linesPassing.reduce((y, x) => Math.max(y, getTextScale(_infoLines.transportLines[x].transportType)), 0)});'>
-               <x style='${writeAngle >= 90 && writeAngle < 270 ? "display: flex;font-weight: inherit;text-align: right;" : ""}transform: rotate(${writeAngle > 45 && writeAngle < 315 ? -writeAngle : 0}deg)${writeAngle >= 45 && writeAngle < 270 ? `  translate(${writeAngle == 45 ? offset / 2 : writeAngle <= 135 ? offset : 0}px, ${writeAngle >= 135 ? offset : writeAngle == 45 ? -offset : 0}px);` : ""}'>${stationData.name}</x> 
+            let writeAngle = 0;
+            for (let x = 6; x < 14; x++) {
+                if (!stationIdExitAngleCount[(stationData.id << 3) + (x % 8)]) {
+                    writeAngle = x % 8;
+                    break;
+                }
+            }
+            let dir = segmentDirectionDeltasPerp[writeAngle];
+            let targetScale = stationData.linesPassing.reduce((y, x) => Math.max(y, getTextScale(_infoLines.transportLines[x].transportType)), 0);
+            let xElemOffset = 0;
+            switch (writeAngle) {
+                case 0:
+                    xElemOffset = -5; break;
+                case 1:
+                    xElemOffset = -90; break;
+                case 2:
+                    xElemOffset = -100; break;
+                case 3:
+                    xElemOffset = -110; break;
+                case 4:
+                    xElemOffset = 12.5 / Math.sqrt(targetScale); break;
+                case 5:
+                    xElemOffset = 12.5 / Math.sqrt(targetScale); break;
+                case 7:
+                    xElemOffset = -10; break;
+
+            }
+            return `<div id="station${stationData.id}" class='stationContainer ${stationData.linesPassing.map(x => `_lid_${x}`).join(" ")} _tt_${_infoLines.transportLines[stationData.linesPassing[0]].transportType}' style='top: ${pos[1]}px; left: ${pos[0]}px;'>
+            <p style='transform-origin: center;transform:  translate(${(offset) * (dir[0])}px,${(offset) * (dir[1])}px) scale(${targetScale}) '>
+               <x title='writeAngle = ${writeAngle}; stationId = ${stationData.id}' style='${(writeAngle < 4 && writeAngle != 0) ? "text-align: right;" : ""
+                } transform: rotate(${writeAngle % 4 == 1 || writeAngle == 4 ? 45 : writeAngle % 4 == 3 || writeAngle == 0 ? -45 : 0}deg) translate(${xElemOffset}%,0); width: ${60 / targetScale}px; ${writeAngle == 6 ? "margin:-33% 33% ;" : ""}'>${stationData.name}</x>
             </p>
         </div>`
         }//${stationData.writeAngle >= 135 && stationData.writeAngle < 270 ? `<y>${stationData.name}</y>` : `<x>${stationData.name}</x>`}
@@ -250,19 +348,21 @@
         function getBorderSize(transportType) {
             switch (transportType) {
                 case "Tram":
-                    return 2;
+                    return 4;
                 case "Train":
-                    return 4;
+                    return 8;
                 case "Metro":
-                    return 4;
+                    return 8;
                 case "Monorail":
-                    return 4;
+                    return 8;
                 case "Ship":
-                    return 8;
+                    return 16;
                 case "Airplane":
-                    return 8;
+                case "Helicopter":
+                    return 16;
                 case "Bus":
-                    return 2;
+                case "Trolleybus":
+                    return 4;
             }
         }
         function getTextScale(transportType) {
@@ -270,16 +370,18 @@
                 case "Tram":
                     return .75;
                 case "Train":
-                    return 1.7;
+                    return 1.5;
                 case "Metro":
-                    return 1.7;
+                    return 1.5;
                 case "Monorail":
-                    return 1.7;
+                    return 1.5;
                 case "Ship":
                     return 2;
                 case "Airplane":
+                case "Helicopter":
                     return 2;
                 case "Bus":
+                case "Trolleybus":
                     return .666;
             }
         }
@@ -326,9 +428,16 @@
                 }
                 return a.transportType.localeCompare(b.transportType)
             });
-            var ordSegments = Object.keys(segments).map(x => { return { "k": x, "v": segments[x] } }).sort(x => -getBorderSize(x.v.segmentTransportType))
+            var ordSegments = Object.keys(segments).map(x => {
+                return { "k": x, "v": segments[x] }
+            }).map(x => x.v.passingLines.map(y => {
+                return { k: x.k, segment: x.v, line: y, size: getBorderSize(y.lineTransportType) }
+            })
+            ).reduce((p, x) => p.concat(x), [])
+            ordSegments.sort((a, b) => b.size - a.size || b.line.id - a.line.id)
+            var stationIdExitAngleDrawCount = {};
             for (let x in ordSegments) {
-                $("#map")[0].innerHTML += fillSegmentTemplateSvg(ordSegments[x].v);
+                $("#map")[0].innerHTML += fillSegmentTemplateSvg(ordSegments[x].segment, ordSegments[x].line,);
             }
             for (let x in lines) {
                 $("#linesPanel #content").append(getLineBlockString(lines[x]))

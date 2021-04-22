@@ -1,155 +1,157 @@
 ﻿* {
-color: rgba(0, 0, 0, 0.5);
-font-family: Helvetica;
+    color: rgba(0, 0, 0, 0.5);
+    font-family: klytetica lt sss;
 }
 
 body {
-background-color: antiquewhite;
+    background-color: antiquewhite;
 }
 
 div.stationContainer {
-display: table;
-position: absolute;
-transform-origin: left top 0;
+    display: table;
+    position: absolute;
 }
 
-div.stationContainer > p {
-display: table-cell;
-font-size: 9px;
-height: auto;
-left: 0;
-padding: 0;
-position: relative;
-text-align: start;
-text-shadow: 0.45px 0.45px 0 white, -0.45px 0.45px 0 white, -0.45px -0.45px 0 white, 0.45px -0.45px 0 white;
-transform-origin: left top 0;
-vertical-align: middle;
-width: 20px;
-}
+    div.stationContainer > p {
+        display: block;
+        font-size: 9px;
+        padding: 0;
+        position: relative;
+        text-align: start;
+        text-shadow: 0.45px 0.45px 0 antiquewhite, -0.45px 0.45px 0 antiquewhite, -0.45px -0.45px 0 antiquewhite, 0.45px -0.45px 0 antiquewhite;
+        transform-origin: center;
+        width: 0px;
+        height: 0;
+        margin: -1em 0;
+    }
+
 
 svg path {
-filter: drop-shadow(-0.25px 0.25px 0 #fff) drop-shadow(-0.25px -0.25px 0 #fff) drop-shadow(0.25px 0.25px 0 #fff) drop-shadow(0.25px -0.25px 0 #fff);
+    filter: drop-shadow(-0.25px 0.25px 0 #fff) drop-shadow(-0.25px -0.25px 0 #fff) drop-shadow(0.25px 0.25px 0 #fff) drop-shadow(0.25px -0.25px 0 #fff);
 }
 
 svg polyline {
-fill: none;
+    fill: none;
 }
 
 div.stationContainer > p > x {
-display: block;
+    display: flex;
+    height: 0;
+    transform-origin: left;
+    align-items: center;
 }
 
 div.stationContainer > p > y {
-display: flex;
-font-weight: inherit;
-text-align: right;
-transform: scale(-1, -1);
+    display: flex;
+    font-weight: inherit;
+    text-align: right;
+    transform: scale(-1, -1);
 }
 
 .pathMetro {
-stroke-width: 2.5px;
-fill: none;
+    stroke-width: 2.5px;
+    fill: none;
 }
 
 .pathMonorail {
-stroke-width: 3.5px;
-fill: none;
+    stroke-width: 3.5px;
+    fill: none;
 }
 
 .pathTrain {
-stroke-width: 5px;
-fill: none;
+    stroke-width: 5px;
+    fill: none;
 }
 
 .pathTram {
-stroke-width: 1px;
-fill: none;
+    stroke-width: 1px;
+    fill: none;
 }
 
 .pathShip {
-stroke-width: 4px;
-fill: none;
-stroke-dasharray: 15, 10;
+    stroke-width: 4px;
+    fill: none;
+    stroke-dasharray: 15, 10;
 }
 
 
 #linesPanel {
-position: fixed;
-right: 0;
-top: 0;
-bottom: 0;
-width: 400px;
-border-left: 2px solid black;
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 400px;
+    border-left: 2px solid black;
 }
 
 
-#linesPanel #title {
-position: relative;
-top: 0;
-left: 0;
-right: 0;
-text-align: center;
-height: 40px;
-font-size: 30px;
-color: black;
-}
+    #linesPanel #title {
+        position: relative;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        height: 40px;
+        font-size: 30px;
+        color: black;
+    }
 
-#linesPanel #date {
-position: relative;
-top: 0;
-left: 0;
-right: 0;
-text-align: center;
-color: gray;
-}
+    #linesPanel #date {
+        position: relative;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: gray;
+    }
 
 
-#linesPanel #content * {
-overflow: hidden;
-}
+    #linesPanel #content * {
+        overflow: hidden;
+    }
 
-#linesPanel #content {
-position: absolute;
-top: 60px;
-left: 0;
-right: 0;
-bottom: 0;
-overflow-y: auto;
-}
+    #linesPanel #content {
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow-y: auto;
+    }
 
-#linesPanel #content * {
-overflow: hidden;
-}
+        #linesPanel #content * {
+            overflow: hidden;
+        }
 
-#linesPanel #content .lineBlock {
-background: pink;
-height: 50px;
-display: block;
-float: left;
-width: 100%;
-}
+        #linesPanel #content .lineBlock {
+            background: pink;
+            height: 50px;
+            display: block;
+            float: left;
+            width: 100%;
+        }
 
-#linesPanel #content .lineBlock .lineNumber {
-    position: relative;
-    top: 2px;
-    left: 2px;
-    width: 46px;
-    height: 46px;
-    display: table-caption;
-    vertical-align: top;
-    -webkit-text-stroke-color: black;
-    -webkit-text-stroke-width: 0.5px;
-    text-align: center;
-    color: white;
-    font-size: 40px;
-    z-index: 5;
-}
+            #linesPanel #content .lineBlock .lineNumber {
+                position: relative;
+                top: 2px;
+                left: 2px;
+                width: 46px;
+                height: 46px;
+                display: table-caption;
+                vertical-align: top;
+                -webkit-text-stroke-color: black;
+                -webkit-text-stroke-width: 0.5px;
+                text-align: center;
+                color: white;
+                font-size: 40px;
+                z-index: 5;
+            }
 
-#linesPanel #content .lineBlock svg text {
-    fill: white;
-    text-anchor: middle;
-    font-size: 40px;
-    dominant-baseline: central;
-    stroke: black;
-    stroke-width: 0.2px;
-}
+            #linesPanel #content .lineBlock svg text {
+                fill: white;
+                text-anchor: middle;
+                font-size: 40px;
+                dominant-baseline: central;
+                stroke: black;
+                stroke-width: 0.2px;
+            }

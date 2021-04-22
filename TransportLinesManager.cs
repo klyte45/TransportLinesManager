@@ -38,7 +38,7 @@ namespace Klyte.TransportLinesManager
 
         public override void Group9SettingsUI(UIHelperExtension group9)
         {
-            group9.AddButton(Locale.Get("K45_TLM_DRAW_CITY_MAP"), TLMMapDrawer.drawCityMap);
+            group9.AddButton(Locale.Get("K45_TLM_DRAW_CITY_MAP"), TLMMapDrawer.DrawCityMap);
             group9.AddButton("Open generated map folder", () => ColossalFramework.Utils.OpenInFileBrowser(TLMController.ExportedMapsFolder));
             group9.AddSpace(2);
             group9.AddButton(Locale.Get("K45_TLM_RELOAD_DEFAULT_CONFIGURATION"), () =>

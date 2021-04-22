@@ -20,42 +20,9 @@ namespace Klyte.TransportLinesManager.MapDrawer
         /// </summary>
         private Dictionary<int, List<Range<int>>> d2Ranges = new Dictionary<int, List<Range<int>>>();
         private Dictionary<int, LineSegmentStations> segments = new Dictionary<int, LineSegmentStations>();
+       
 
-        public void addLine(Station s1, Station s2, MapTransportLine line, Direction d)
-        {
-            LineSegmentStations lss = getStationsSegment(s1, s2, out bool invert);
-            if (invert)
-            {
-                switch (d)
-                {
-                    case Direction.S1_TO_S2:
-                        d = Direction.S2_TO_S1;
-                        break;
-                    case Direction.S2_TO_S1:
-                        d = Direction.S1_TO_S2;
-                        break;
-                }
-            }
-            lss.addLine(line, d);
-        }
-
-        public List<LineSegmentStations> getSegments()
-        {
-            return segments.Values.ToList();
-        }
-
-
-        private LineSegmentStations getStationsSegment(Station s1, Station s2, out bool invert)
-        {
-            int id = LineSegmentStations.getIdForSegments(s1, s2, out invert);
-            if (!segments.ContainsKey(id))
-            {
-                segments[id] = new LineSegmentStations(s1, s2, this);
-            }
-
-            return segments[id];
-
-        }
+     
 
         //d1 = x+y; d2 = x-y
         private Vector2 getIntersectionPoint(int d1Index, int d2Index)
@@ -511,131 +478,6 @@ namespace Klyte.TransportLinesManager.MapDrawer
             return saida;
         }
 
-        private Vector2 getFreeHorizontal(Vector2 p1, Vector2 p2)
-        {
-            LogUtils.DoLog("------------------------------------------------");
-            if (p1.y != p2.y) return p2;
-            int targetX = (int)p2.x;
-            LogUtils.DoLog("getFreeHorizontal idx: {0} hRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.y, hRanges.ContainsKey((int)p2.y), p1, p2);
-            if (hRanges.ContainsKey((int)p2.y))
-            {
-                Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x), (int)Math.Max(p1.x, p2.x));
-                var searchResult = hRanges[(int)p2.y].FindAll(x => x.IntersectRange(lineXs));
-                LogUtils.DoLog(" getFreeHorizontal idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.y, lineXs, searchResult.Count, string.Join(",", hRanges[(int)p2.y].Select(x => x.ToString()).ToArray()));
-                if (searchResult.Count > 0)
-                {
-                    if (Math.Sign((p2.x - p1.x)) > 0)
-                    {
-
-                        targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Max(), (int)p1.x);
-                    }
-                    else
-                    {
-                        targetX = Math.Min(searchResult.Select(x => x.Maximum + 1).Min(), (int)p1.x);
-                    }
-                }
-            }
-            LogUtils.DoLog(" getFreeHorizontal RESULT=({0}, {1})", targetX, p2.y);
-            LogUtils.DoLog("------------------------------------------------");
-            return new Vector2(targetX, p2.y);
-        }
-
-
-
-        private Vector2 getFreeVertical(Vector2 p1, Vector2 p2)
-        {
-            if (p1.x != p2.x) return p2;
-            int targetY = (int)p2.y;
-            LogUtils.DoLog("------------------------------------------------");
-            LogUtils.DoLog(" getFreeVertical idx: {0} vRanges.ContainsKey(index)={1}; p1={2}; p2={3}", (int)p2.x, vRanges.ContainsKey((int)p2.x), p1, p2);
-            if (vRanges.ContainsKey((int)p2.x))
-            {
-                Range<int> lineYs = new Range<int>((int)Math.Min(p1.y, p2.y), (int)Math.Max(p1.y, p2.y));
-                var searchResult = vRanges[(int)p2.x].FindAll(x => x.IntersectRange(lineYs));
-                LogUtils.DoLog(" getFreeVertical idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", (int)p2.x, lineYs, searchResult.Count, string.Join(",", vRanges[(int)p2.x].Select(x => x.ToString()).ToArray()));
-                if (searchResult.Count > 0)
-                {
-                    if (Math.Sign((p2.y - p1.y)) > 0)
-                    {
-                        targetY = Math.Max(searchResult.Select(x => x.Minimum - 1).Max(), (int)p1.y);
-                    }
-                    else
-                    {
-                        targetY = Math.Min(searchResult.Select(x => x.Maximum + 1).Min(), (int)p1.y);
-                    }
-                }
-            }
-
-            LogUtils.DoLog(" getFreeVertical RESULT=({1}, {0})", targetY, p2.x);
-            LogUtils.DoLog("------------------------------------------------");
-            return new Vector2(p2.x, targetY);
-        }
-
-        private Vector2 getFreeD1Point(Vector2 p1, Vector2 p2)
-        {
-            if (p1.x + p1.y != p2.x + p2.y) return p2;
-            int targetX = (int)p2.x;
-            int index = (int)(p2.x + p2.y);
-            LogUtils.DoLog(" getFreeHorizontalD1Point idx: {0} d1Ranges.ContainsKey(index)={1}", index, d1Ranges.ContainsKey(index));
-            if (d1Ranges.ContainsKey(index))
-            {
-                Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x), (int)Math.Max(p1.x, p2.x));
-                var searchResult = d1Ranges[index].FindAll(x => x.IntersectRange(lineXs));
-                LogUtils.DoLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = {3} ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d1Ranges[index].Select(x => x.ToString()).ToArray()));
-                if (searchResult.Count > 0)
-                {
-                    if (Math.Sign((p2.x - p1.x)) > 0)
-                    {
-                        targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Max(), (int)p1.x);
-                    }
-                    else
-                    {
-                        targetX = Math.Min(searchResult.Select(x => x.Maximum + 1).Min(), (int)p1.x);
-                    }
-                }
-            }
-
-            return new Vector2(targetX, index - targetX);
-        }
-
-
-
-        private Vector2 getFreeD2Point(Vector2 p1, Vector2 p2)
-        {
-            if (p1.x - p1.y != p2.x - p2.y) return p2;
-            int targetX = (int)p2.x;
-            int index = (int)(p2.x - p2.y);
-            LogUtils.DoLog(" getFreeHorizontalD2Point idx: {0} d2Ranges.ContainsKey(index)={1}", index, d2Ranges.ContainsKey(index));
-
-            if (d2Ranges.ContainsKey(index))
-            {
-                Range<int> lineXs = new Range<int>((int)Math.Min(p1.x, p2.x), (int)Math.Max(p1.x, p2.x));
-                var searchResult = d2Ranges[index].FindAll(x => x.IntersectRange(lineXs));
-                LogUtils.DoLog(" getFreeHorizontalD2Point idx: {0}; X={1};LIST = [{3}] ; SRC = {2}", index, lineXs, searchResult.Count, string.Join(",", d2Ranges[index].Select(x => x.ToString()).ToArray()));
-                if (searchResult.Count > 0)
-                {
-                    if (Math.Sign((p2.x - p1.x)) > 0)
-                    {
-                        targetX = Math.Max(searchResult.Select(x => x.Minimum - 1).Max(), (int)p1.x);
-                    }
-                    else
-                    {
-                        targetX = Math.Min(searchResult.Select(x => x.Maximum + 1).Min(), (int)p1.x);
-                    }
-                }
-            }
-
-            return new Vector2(targetX, targetX - index);
-        }
-
-        public void addStationToAllRangeMaps(Vector2 station)
-        {
-            addVerticalRange((int)station.x, new Range<int>((int)station.y, (int)station.y));
-            addHorizontalRange((int)station.y, new Range<int>((int)station.x, (int)station.x));
-            addD1Range(station, new Range<int>((int)station.x, (int)station.x));
-            addD2Range(station, new Range<int>((int)station.x, (int)station.x));
-        }
-
         private void addVerticalRange(int x, Range<int> values)
         {
             if (!vRanges.ContainsKey(x))
@@ -716,7 +558,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             }
 
 
-            public Dictionary<MapTransportLine, Direction> lines = new Dictionary<MapTransportLine, Direction>();
+            public Dictionary<TLMMapTransportLine, Direction> lines = new Dictionary<TLMMapTransportLine, Direction>();
 
             public static int getIdForSegments(Station a, Station b, out bool invert)
             {
@@ -755,7 +597,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                 }
                 path = manager.getPathForStations(s1, s2);
             }
-            public void addLine(MapTransportLine m, Direction d)
+            public void addLine(TLMMapTransportLine m, Direction d)
             {
                 if (lines.ContainsKey(m))
                 {
