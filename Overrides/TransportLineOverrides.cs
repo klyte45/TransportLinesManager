@@ -312,10 +312,11 @@ namespace Klyte.TransportLinesManager.Overrides
             {
                 return false;
             }
+            var info = VehicleManager.instance.m_vehicles.m_buffer[__instance.m_vehicles].Info;
 
-            var validType = (__instance.Info.m_vehicleType == VehicleInfo.VehicleType.Car && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled)
-                || (__instance.Info.m_vehicleType == VehicleInfo.VehicleType.Tram && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled)
-                || (__instance.Info.m_vehicleType == VehicleInfo.VehicleType.Trolleybus && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled);
+            var validType = (info.m_vehicleType == VehicleInfo.VehicleType.Car && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled)
+                || (info.m_vehicleType == VehicleInfo.VehicleType.Tram && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled)
+                || (info.m_vehicleType == VehicleInfo.VehicleType.Trolleybus && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled);
             return validType && TransportLine.GetPrevStop(nextStop) != __instance.m_stops;
         }
 
