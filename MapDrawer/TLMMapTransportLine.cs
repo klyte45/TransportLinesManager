@@ -11,7 +11,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
     public struct TLMMapTransportLine
     {
         public ushort lineId;
-        private List<Station> stations;
+        private List<TLMMapStation> stations;
         public TransportInfo.TransportType TransportType { get; private set; }
         private ItemClass.SubService subservice;
         private VehicleInfo.VehicleType vehicleType;
@@ -30,7 +30,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             TransportType = t.Info.m_transportType;
             subservice = t.Info.GetSubService();
             vehicleType = t.Info.m_vehicleType;
-            stations = new List<Station>();
+            stations = new List<TLMMapStation>();
             lineColor = color;
             activeDay = day;
             activeNight = night;
@@ -38,13 +38,13 @@ namespace Klyte.TransportLinesManager.MapDrawer
             lineNumber = t.m_lineNumber;
         }
 
-        public void AddStation(ref Station s)
+        public void AddStation(ref TLMMapStation s)
         {
             stations.Add(s);
             s.AddLine(lineId);
         }
 
-        public Station this[int i] => stations[i];
+        public TLMMapStation this[int i] => stations[i];
 
         public int StationsCount() => stations.Count;
 
