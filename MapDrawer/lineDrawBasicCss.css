@@ -1,18 +1,56 @@
-﻿* {
+﻿
+* {
     color: rgba(0, 0, 0, 0.5);
     font-family: Helvetica, Arial;
 }
+
+.unselect {
+    opacity: 50%;
+}
+
+.pathBG.unselect {
+    opacity: 100%;
+    stroke: transparent !important;
+}
+
+.pathFG.unselect {
+    opacity: 100%;
+    stroke: wheat !important;
+}
+
+.stationCircle.unselect {
+    opacity: 100%;
+    fill: wheat !important;
+}
+
+.stationArc.unselect {
+    opacity: 100%;
+    stroke: wheat !important;
+}
+
+.startArrow.unselect {
+    opacity: 0%;
+    fill: wheat !important;
+}
+
+.stationLabel.unselect {
+    opacity: 100%;
+}
+
+    .stationLabel.unselect * {
+        color: wheat !important;
+    }
 
 body {
     background-color: antiquewhite;
 }
 
-div.stationContainer {
+div.stationLabel {
     display: table;
     position: absolute;
 }
 
-    div.stationContainer > p {
+    div.stationLabel > p {
         display: block;
         font-size: 9px;
         padding: 0;
@@ -34,7 +72,7 @@ svg polyline {
     fill: none;
 }
 
-div.stationContainer > p > x {
+div.stationLabel > p > x {
     display: inline-block;
     height: 0;
     transform-origin: left;
@@ -45,7 +83,7 @@ div.stationContainer > p > x {
     font-weight: bold;
 }
 
-    div.stationContainer > p > x > k {
+    div.stationLabel > p > x > k {
         display: block;
         width: 60px;
         user-select: none;
@@ -220,4 +258,9 @@ k.textAngle5 {
 
 div#mapGroup {
     transform-origin: top left;
+    transition: transform 1s ease-in-out;
 }
+
+    div#mapGroup.noAnimation {
+        transition: none;
+    }

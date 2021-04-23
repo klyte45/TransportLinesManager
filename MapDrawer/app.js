@@ -1,4 +1,5 @@
-﻿const segmentDirectionDeltas = [
+﻿
+        const segmentDirectionDeltas = [
             [0, -1],
             [-1, -1],
             [-1, 0],
@@ -22,6 +23,7 @@
 
         var g_size = 30;
         var g_preferredAngleText = 6;
+        var g_baseStationCircleSize = 5;
 
         let stationIdExitAngleCount = {};
         let stationIdExitAngleDrawCount = {};
@@ -128,7 +130,8 @@
                     if (coord1Id == coord2Id) continue;
                     while (coord2Id == coord3Id) { coord3 = stopToMapPos[getNextItemArray(_infoLines.transportLines[x].stations, 1 * s + ++exitOffset).stopId]; coord3Id = coord3[0] << 12 | coord3[1]; }
 
-                    if (coord1Id > coord2Id) {
+                    let isInverse = coord1Id > coord2Id;
+                    if (isInverse) {
                         let tmp = coord1Id;
                         coord1Id = coord2Id;
                         coord2Id = tmp;
@@ -143,12 +146,13 @@
                         stationEndId = tmp;
                     }
                     let segmentId = coord1Id.toString(16).padStart(8, "0") + coord2Id.toString(16).padStart(8, "0");
-                    var segmentAngle = Math.atan2(coord2[0] - coord1[0], coord2[1] - coord1[1]) * 180 / Math.PI;
+                    let segmentAngle = Math.atan2(coord2[0] - coord1[0], coord2[1] - coord1[1]) * 180 / Math.PI;
                     let segmentAngleIdx = Math.round(((segmentAngle + 360) % 360) / 45) % 8;
                     let lineObj = {
                         lineId: _infoLines.transportLines[x].lineId,
                         lineColor: _infoLines.transportLines[x].lineColor,
                         lineTransportType: _infoLines.transportLines[x].transportType,
+                        inverse:isInverse
                     };
                     if (segments[segmentId] === undefined) {
                         segments[segmentId] = {
@@ -161,8 +165,8 @@
                     } else {
                         segments[segmentId].passingLines.push(lineObj);
                     }
-                    var idxStationStart = (stationStartId << 3) + (segmentAngleIdx + 4) % 8;
-                    var idxStationEnd = (stationEndId << 3) + segmentAngleIdx % 8;
+                    let idxStationStart = (stationStartId << 3) + (segmentAngleIdx + 4) % 8;
+                    let idxStationEnd = (stationEndId << 3) + segmentAngleIdx % 8;
                     if (exitAngleCount[idxStationStart] === undefined) exitAngleCount[idxStationStart.toString()] = 0;
                     if (exitAngleCount[idxStationEnd] === undefined) exitAngleCount[idxStationEnd.toString()] = 0;
                     let width = getBorderSize(_infoLines.transportLines[x].transportType);
@@ -176,8 +180,8 @@
 
         stationIdExitAngleCount = recalculateSegments()
 
-        function fillSegmentTemplateSvg(segmentObj, line, sizeMultiplier) {
-            let result = "";
+        function fillSegmentTemplateSvg(segmentObj, line) {
+            let result = [];
             let p1 = parseInt(segmentObj.segmentId.substr(0, 8), 16)
             let p2 = parseInt(segmentObj.segmentId.substr(8, 8), 16)
             let startPoint = [p1 >> 12, p1 & ((1 << 12) - 1)];
@@ -215,8 +219,8 @@
             stationIdExitAngleDrawCount[baseStartStationId] += width * Math.max(Math.abs(startingDirDelta[1]), Math.abs(startingDirDelta[0]));
             stationIdExitAngleDrawCount[baseEndStationId] += width * Math.max(Math.abs(endingDirDelta[1]), Math.abs(endingDirDelta[0]));
 
-            let lineStartPoint = startPoint.map((x, i) => x + (startingPerpDelta[i] * offsetValStart + startingPerpDelta[i] * width / 2) / sizeMultiplier)
-            let lineEndPoint = endPoint.map((x, i) => x + (endingPerpDelta[i] * offsetValEnd + startingPerpDelta[i] * width / 2) / sizeMultiplier)
+            let lineStartPoint = startPoint.map((x, i) => x + (startingPerpDelta[i] * offsetValStart + startingPerpDelta[i] * width / 2) / g_size)
+            let lineEndPoint = endPoint.map((x, i) => x + (endingPerpDelta[i] * offsetValEnd + startingPerpDelta[i] * width / 2) / g_size)
 
             let spacingOffset = 0;
 
@@ -250,29 +254,41 @@
             }
             let randomness = .25;
 
-            let coordinates = [lineStartPoint.map((x, i) => x * sizeMultiplier + 120)];
-            coordinates.push(lineStartPoint.map((x, i) => (x + startingDirDelta[i] * (diagOffset + randomness)) * sizeMultiplier + 120 - startingDirDelta[i] * ((offsetValStart - offsetValEnd) / 2 * spacingOffset - (offsetValStart - offsetValEnd) / 2)))
+            // lineStartPoint=lineStartPoint.map((x, i) => Math.round( x  * sizeMultiplier / Math.SQRT2) * Math.SQRT2/  sizeMultiplier  );
+            // lineEndPoint=lineEndPoint.map((x, i) => Math.round( x  * sizeMultiplier / Math.SQRT2) * Math.SQRT2 /  sizeMultiplier  );
+            let startStation = _infoLines.stations.filter(x=>x.id ==(line.inverse ? segmentObj.stationEndId:segmentObj.stationStartId))[0];
+            let startStationSize = getStationSize(startStation);
+            let startPixelDir = line.inverse ?endingDirDelta:startingDirDelta;
+            let startPixelPerp =line.inverse ?endingPerpDelta:startingPerpDelta;
+            let startPixelCoords = (line.inverse ?lineEndPoint:lineStartPoint).map(mapCoordToPixel).map((x,i)=> x + Math.sign(startPixelDir[i])*startPixelDir[i]* startPixelDir[i] *startStationSize/2);
 
-            coordinates.push(lineEndPoint.map((x, i) => (x + endingDirDelta[i] * (diagOffset - randomness)) * sizeMultiplier + 120 - startingDirDelta[i] * ((offsetValStart - offsetValEnd) / 2 * spacingOffset - (offsetValStart - offsetValEnd) / 2)))
-            coordinates.push(lineEndPoint.map((x, i) => x * sizeMultiplier + 120));
+            let coordinates = [lineStartPoint.map(mapCoordToPixel)];
+            coordinates.push(lineStartPoint.map((x, i) => (x + startingDirDelta[i] * (diagOffset + randomness)) * g_size + 120 - startingDirDelta[i] * ((offsetValStart - offsetValEnd) / 2 * spacingOffset - (offsetValStart - offsetValEnd) / 2)))
 
+            coordinates.push(lineEndPoint.map((x, i) => (x + endingDirDelta[i] * (diagOffset - randomness)) * g_size + 120 - startingDirDelta[i] * ((offsetValStart - offsetValEnd) / 2 * spacingOffset - (offsetValStart - offsetValEnd) / 2)))
+            coordinates.push(lineEndPoint.map(mapCoordToPixel ));
 
-            result += `<polyline points="${coordinates.map(x => x.map(x => Math.round(x / Math.SQRT2) * Math.SQRT2).join(',')).join(',')}" class="path${line.lineTransportType}" style='stroke:antiquewhite;stroke-width: ${width}px' stroke-linejoin="round" stroke-linecap="round" />`;
-            result += `<polyline points="${coordinates.map(x => x.map(x => Math.round(x / Math.SQRT2) * Math.SQRT2).join(',')).join(',')}" class="path${line.lineTransportType} _lid_${line.lineId}" style='stroke:${line.lineColor};stroke-width: ${width * .8}px' stroke-linejoin="round" stroke-linecap="round" />`;
+            result[0]= `<polyline points="${coordinates.map(x => x.join(',')).join(',')}" class="path${line.lineTransportType} _lid_${line.lineId} pathBG" style='stroke:antiquewhite;stroke-width: ${width}px' stroke-linejoin="round" stroke-linecap="round" />`;
+            result[0] += `<polyline points="${coordinates.map(x => x.join(',')).join(',')}" class="path${line.lineTransportType} _lid_${line.lineId} pathFG" style='stroke:${line.lineColor};stroke-width: ${width * .8}px' stroke-linejoin="round" stroke-linecap="round" />`;
+            result[1] = `<path d="M ${startPixelCoords.join(' ')} L ${startPixelCoords.map((x,i)=> x + width*startPixelPerp[i]).join(' ')} L ${startPixelCoords.map((x,i)=> x + width*startPixelDir[i]*3).join(' ')} L ${startPixelCoords.map((x,i)=> x - width*startPixelPerp[i]).join(' ')} Z" class="path${line.lineTransportType} _lid_${line.lineId} startArrow" style='fill:${line.lineColor};stroke:antiquewhite;stroke-width: ${width*.2}px' stroke-linejoin="round" stroke-linecap="round" />`;
 
             return result;
+        }
+
+        function mapCoordToPixel(x){
+            return x * g_size + 120;
         }
 
         function addStation(stationData, sizeMultiplier) {
             if ($(`#stationPoint${stationData.id}`)[0]) return;
             let pos = stopToMapPos[stationData.stopId].map(x => x * sizeMultiplier + 120).join(",");
-            let result = `<circle id="stationPoint${stationData.id}" style="stroke:antiquewhite; stroke-width:1" fill="white" r="5" cy="0" cx="0" transform="translate(${pos})" class="${stationData.linesPassing.map(x => `_lid_${x}`).join(" ")}" />`;
-            let currentCircleSize = 5;
+            let result = `<circle id="stationPoint${stationData.id}" style="stroke:antiquewhite; stroke-width:1" fill="white" r="5" cy="0" cx="0" transform="translate(${pos})" class="stationCircle ${stationData.linesPassing.map(x => `_lid_${x}`).join(" ")}" />`;
+            let currentCircleSize = g_baseStationCircleSize;
             let orderedLines = stationData.linesPassing.sort((a, b) => getBorderSize(_infoLines.transportLines[b].transportType) - getBorderSize(_infoLines.transportLines[a].transportType))
             for (let lineIdx in orderedLines) {
                 let data = _infoLines.transportLines[orderedLines[lineIdx]];
                 let borderSize = getBorderSize(data.transportType);
-                result += `<circle style="stroke:${data.lineColor}; stroke-width:${borderSize / Math.SQRT2}" fill="transparent" r="${currentCircleSize + borderSize / 2 / Math.SQRT2}" cy="0" cx="0" transform="translate(${pos})" class="stationCircle _lid_${data.lineId}" />`;
+                result += `<circle style="stroke:${data.lineColor}; stroke-width:${borderSize / Math.SQRT2}" fill="transparent" r="${currentCircleSize + borderSize / 2 / Math.SQRT2}" cy="0" cx="0" transform="translate(${pos})" class="stationArc _lid_${data.lineId}" />`;
                 currentCircleSize += borderSize / Math.SQRT2;
             }
             $("#stationsContainer").append(addStationLabel(stationData, currentCircleSize + 3, sizeMultiplier));
@@ -308,7 +324,7 @@
                     rotate = -45;
                     break;
             }
-            return `<div id="station${stationData.id}" class='stationContainer ${stationData.linesPassing.map(x => `_lid_${x}`).join(" ")} _tt_${_infoLines.transportLines[stationData.linesPassing[0]].transportType}' style='top: ${pos[1]}px; left: ${pos[0]}px;'>
+            return `<div id="station${stationData.id}" class='stationLabel ${stationData.linesPassing.map(x => `_lid_${x}`).join(" ")} _tt_${_infoLines.transportLines[stationData.linesPassing[0]].transportType}' style='top: ${pos[1]}px; left: ${pos[0]}px;'>
             <p style='transform-origin: center;transform:  translate(${(offset) * (dir[0])}px,${(offset) * (dir[1])}px) scale(${targetScale}) '>
                <x title='writeAngle = ${writeAngle}; stationId = ${stationData.id}'>
                 <k class="textAngle${writeAngle}" style="transform: translate(0, ${50 / targetScale}%) rotate(${rotate}deg);">${stationData.name}</k>
@@ -380,7 +396,7 @@
         }
 
         function getLineBlockString(lineObj) {
-            return `<div class="lineBlock _lid_${lineObj.lineId}" style="--lineColor: ${lineObj.lineColor}">
+            return `<div class="lineBlock _lid_${lineObj.lineId}" style="--lineColor: ${lineObj.lineColor}" data-lineId="${lineObj.lineId}">
                 <div class="lineNumber lineNumber">
                     <svg width="45" height="45" xmlns="http://www.w3.org/2000/svg"><path d="${getPathForTransportVehicle(lineObj.transportType, lineObj.vehicleType)}" style="fill: var(--lineColor)"/>
                         <text lengthAdjust="${lineObj.lineStringIdentifier.length > 2 ? "spacingAndGlyphs" : "spacing"}" x="22.5" y="22.5" textLength="42">${lineObj.lineStringIdentifier}</text>
@@ -389,6 +405,10 @@
                 <div class="lineName">${lineObj.lineName}</div>
                 <div class="lineType">${lineObj.transportType} (${lineObj.vehicleType})</div></div>
             </div>`;
+        }
+
+        function getStationSize(station){
+            return station.linesPassing.map(l => getBorderSize(_infoLines.transportLines[l].transportType)).reduce((p, x) => p + x, 0) + g_baseStationCircleSize;
         }
 
         function redrawMap() {
@@ -412,9 +432,13 @@
             ).reduce((p, x) => p.concat(x), [])
             ordSegments.sort((a, b) => b.size - a.size || a.line.id - b.line.id)
             var stationIdExitAngleDrawCount = {};
+            let arrowsBuffer = "";
             for (let x in ordSegments) {
-                $("#map")[0].innerHTML += fillSegmentTemplateSvg(ordSegments[x].segment, ordSegments[x].line, g_size);
+                let res = fillSegmentTemplateSvg(ordSegments[x].segment, ordSegments[x].line, g_size);
+                $("#map")[0].innerHTML += res[0];
+                arrowsBuffer += res[1];
             }
+            $("#map")[0].innerHTML +=arrowsBuffer;
             for (let x in lines) {
                 $("#linesPanel #content").append(getLineBlockString(lines[x]))
                 let lineId = lines[x].lineId;
@@ -424,7 +448,7 @@
             let biggestStation = undefined;
             let biggestStationSize = -1;
             for (let x in _infoLines.stations) {
-                let size = _infoLines.stations[x].linesPassing.map(l => getBorderSize(_infoLines.transportLines[l].transportType)).reduce((p, x) => p + x, 0);
+                let size = getStationSize(_infoLines.stations[x]);
                 if (size > biggestStationSize) {
                     biggestStationSize = size;
                     biggestStation = _infoLines.stations[x];
@@ -438,10 +462,12 @@
             redrawMap();
             $("#mapContainer").on('mousedown', function (ev) {
                 g_mapContainer_isMoving = true;
+                $("#mapGroup").addClass("noAnimation");
                 ev.stopPropagation();
             });
             $("*").on('mouseup', function (ev) {
                 g_mapContainer_isMoving = false;
+                $("#mapGroup").removeClass("noAnimation");
                 ev.stopPropagation();
             });
             $("*").on('mousemove', function (ev) {
@@ -452,6 +478,27 @@
             });
             $("#mapContainer").on('mousewheel', function (ev) {
                 zoomMapOffset(ev.originalEvent.deltaY);
+                ev.stopPropagation();
+            });
+            $("#linesPanel .lineBlock").on('click', function (ev) {
+                let line = ev.currentTarget.getAttribute("data-lineid");
+                if(!$(ev.currentTarget).hasClass("select")){
+                     $(`#linesPanel .lineBlock:not(._lid_${line})`).addClass("unselect");
+                     $(`#linesPanel .lineBlock._lid_${line}`).removeClass("unselect");
+                     $(`#linesPanel .lineBlock._lid_${line}`).addClass("select");
+                     
+                     $(`#mapContainer [class^=_lid_]:not(._lid_${line}),#mapContainer [class*=' _lid_']:not(._lid_${line})`).addClass("unselect");
+                     $(`#mapContainer ._lid_${line}`).removeClass("unselect");
+                     $(`#mapContainer ._lid_${line}`).addClass("select");
+                     let stopPos =stopToMapPos[ _infoLines.transportLines[line].stations[0].stopId]
+                     moveMapTo(...stopPos.map(mapCoordToPixel));
+                }else{
+                     $(`#linesPanel .lineBlock`).removeClass("unselect");
+                     $(`#linesPanel .lineBlock`).removeClass("select");
+
+                     $(`#mapContainer [class^=_lid_],#mapContainer [class*=' _lid_']`).removeClass("unselect");
+                     $(`#mapContainer [class^=_lid_],#mapContainer [class*=' _lid_']`).removeClass("select");
+                }
                 ev.stopPropagation();
             });
         });
