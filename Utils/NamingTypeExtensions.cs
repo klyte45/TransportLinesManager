@@ -35,7 +35,7 @@ namespace Klyte.TransportLinesManager.Utils
                 case NamingType.MONUMENT:
                     return 0x00000005;
                 case NamingType.CAMPUS:
-                    return 0x00000005;
+                    return 0x00000010;
                 case NamingType.BEAUTIFICATION:
                     return 0x0000000a;
                 case NamingType.HEALTHCARE:
@@ -51,7 +51,7 @@ namespace Klyte.TransportLinesManager.Utils
                 case NamingType.GARBAGE:
                     return 0x0000000f;
                 case NamingType.PARKAREA:
-                    return 0x00000005;
+                    return 0x00000010;
                 case NamingType.DISTRICT:
                     return 0x00000010;
                 case NamingType.INDUSTRY_AREA:

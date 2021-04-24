@@ -39,8 +39,10 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static string GetStopName(ushort stopId)
         {
-            InstanceID id = default;
-            id.NetNode = stopId;
+            InstanceID id = new InstanceID
+            {
+                NetNode = stopId
+            };
             return InstanceManager.instance.GetName(id);
         }
 
@@ -58,7 +60,6 @@ namespace Klyte.TransportLinesManager.Utils
             }
             yield return result;
             TransportLinesManagerMod.Controller.SharedInstance.OnAutoNameParameterChanged();
-
         }
 
         public static string GetStationName(ushort stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, out NamingType resultNamingType, bool excludeCargo = false, bool useRestrictionForAreas = false)

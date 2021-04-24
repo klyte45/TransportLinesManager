@@ -183,30 +183,31 @@
     <Compile Include="commons\Utils\VehicleUtils.cs" />
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="commons\Utils\ZipUtils.cs" />
-    <Compile Include="Extensions\GameServiceExtensions.cs" />
-    <Compile Include="Extensions\TLMAssetConfiguration.cs" />
-    <Compile Include="Extensions\TLMTransportTypeDataContainer.cs" />
-    <Compile Include="Extensions\TransportLineStorageBasicData.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_BALLOON.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_BLIMP.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_BUS.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_CABLE_CAR.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_EVAC_BUS.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_FERRY.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_FISHING .cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_HELICOPTER.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_INTERCITY_BUS.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_METRO.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_MONORAIL.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_PLANE.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_POST.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_SHIP.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_TAXI.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_TOUR_BUS.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_TOUR_PED.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_TRAIN.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_TRAM.cs" />
-    <Compile Include="Extensions\TsdImplementations\TransportSystemDefinition_TROLLEY.cs" />
+    <Compile Include="Data\Extensions\GameServiceExtensions.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMAssetConfiguration.cs" />
+    <Compile Include="Data\DataContainers\TLMTransportTypeDataContainer.cs" />
+    <Compile Include="Data\Managers\TransportLineStorageBasicData.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_BALLOON.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_BLIMP.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_BUS.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_CABLE_CAR.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_EVAC_BUS.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_FERRY.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_FISHING .cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_HELICOPTER.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_INTERCITY_BUS.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_METRO.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_MONORAIL.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_PLANE.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_POST.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_SHIP.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TAXI.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TOUR_BUS.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TOUR_PED.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TRAIN.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TRAM.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TROLLEY.cs" />
+    <Compile Include="Data\Extensions\TLMSpecialNamingClassExtensions.cs" />
     <Compile Include="MapDrawer\TLMMapCityTransportObject.cs" />
     <Compile Include="MapDrawer\TLMMapHtmlTemplate.cs" />
     <Compile Include="MapDrawer\TLMMapStation.cs" />
@@ -237,21 +238,21 @@
     <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerWealthReportTab.cs" />
     <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerReportTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMReportsTab.cs" />
-    <Compile Include="Xml\Base\ITLMAutoNameConfigurable.cs" />
-    <Compile Include="Xml\Base\TLMAutoNameConfigurationData.cs" />
-    <Compile Include="Xml\Base\TLMBaseConfigXML.cs" />
-    <Compile Include="Xml\Base\TLMSpecialNamingClass.cs" />
-    <Compile Include="Xml\Base\TsdIdentifiable.cs" />
-    <Compile Include="Xml\TLMTransportLineConfiguration.cs" />
-    <Compile Include="Xml\BudgetEntryXml.cs" />
-    <Compile Include="Extensions\ExtensionStaticExtensionMethods.cs" />
+    <Compile Include="Data\Base\Interfaces\ITLMAutoNameConfigurable.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMAutoNameConfigurationData.cs" />
+    <Compile Include="Data\DataContainers\TLMBaseConfigXML.cs" />
+    <Compile Include="Data\Base\Enums\TLMSpecialNamingClass.cs" />
+    <Compile Include="Data\Base\TsdIdentifiable.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMTransportLineConfiguration.cs" />
+    <Compile Include="Data\Base\BudgetEntryXml.cs" />
+    <Compile Include="Data\Extensions\ExtensionStaticExtensionMethods.cs" />
     <Compile Include="Interfaces\ITLMTransportTypeExtension.cs" />
-    <Compile Include="Xml\TLMPrefixConfiguration.cs" />
-    <Compile Include="Xml\TicketPriceEntryXml.cs" />
-    <Compile Include="Extensions\TLMTransportTypeExtension.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMPrefixConfiguration.cs" />
+    <Compile Include="Data\Base\TicketPriceEntryXml.cs" />
+    <Compile Include="Data\DataContainers\TLMTransportTypeExtension.cs" />
     <Compile Include="Overrides\TLMDepotAIOverrides.cs" />
-    <Compile Include="Extensions\TLMTransportLineExtension.cs" />
-    <Compile Include="Extensions\TLMTransportLineStatusesManager.cs" />
+    <Compile Include="Data\DataContainers\TLMTransportLineExtension.cs" />
+    <Compile Include="Data\Managers\TLMTransportLineStatusesManager.cs" />
     <Compile Include="Interfaces\ExtensionInterfaces.cs" />
     <Compile Include="Interfaces\LinearMapParentInterface.cs" />
     <Compile Include="Overrides\InstanceManagerOverrides.cs" />
@@ -274,7 +275,7 @@
     <Compile Include="TLMConfigWarehouse.cs" />
     <Compile Include="MapDrawer\TLMMapDrawer.cs" />
     <Compile Include="TransportLinesManager.cs" />
-    <Compile Include="Extensions\TransportSystemDefinition.cs" />
+    <Compile Include="Data\Base\TransportSystemDefinition.cs" />
     <Compile Include="TLMController.cs" />
     <Compile Include="UI\TLMLinearMap.cs" />
     <Compile Include="TLMAutoColorPalettes.cs" />
@@ -297,7 +298,7 @@
     <Compile Include="WorldInfoPanel\Tabs\UVMMainWIPTab.cs" />
     <Compile Include="WorldInfoPanel\UVMTransportLineLinearMap.cs" />
     <Compile Include="WorldInfoPanel\UVMTransportLineWorldInfoPanel.cs" />
-    <Compile Include="Xml\Base\TLMTransportTypeConfigurationsXML.cs" />
+    <Compile Include="Data\DataContainers\TLMTransportTypeConfigurationsXML.cs" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
@@ -502,6 +503,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Data\Xml\Base\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
