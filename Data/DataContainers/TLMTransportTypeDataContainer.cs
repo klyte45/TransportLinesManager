@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace Klyte.TransportLinesManager.Extensions
 {
     [XmlRoot("TransportTypeDataContainer")]
-    public class TLMTransportTypeDataContainer : ExtensionInterfaceIndexableImpl<TLMTransportTypeExtension, TLMTransportTypeDataContainer>
+    public class TLMTransportTypeDataContainer : ExtensionInterfaceIndexableImpl<TLMTransportTypeConfigurations, TLMTransportTypeDataContainer>
     {
         public override string SaveId => "K45_TLM_TLMTransportTypeDataContainer";
 
@@ -33,7 +33,7 @@ namespace Klyte.TransportLinesManager.Extensions
             base.LoadDefaults(serializableData);
             foreach (var entry in legacyLinks)
             {
-                var legacyData = TLMTransportTypeExtension.GetLoadData(serializableData, entry.Key);
+                var legacyData = TLMTransportTypeConfigurations.GetLoadData(serializableData, entry.Key);
                 if (legacyData != null)
                 {
                     LogUtils.DoWarnLog($"Loaded transport type extension from legacy: {entry.Key} to {entry.Value}");

@@ -102,7 +102,7 @@ namespace Klyte.TransportLinesManager
             set
             {
                 m_showLinearMapWhileCreatingLine.value = value;
-                Instance.LinearMapCreatingLine.setVisible(value);
+                Instance.LinearMapCreatingLine.SetVisible(value);
             }
         }
 
@@ -116,7 +116,7 @@ namespace Klyte.TransportLinesManager
             }
 
             Instance.SetCurrentSelectedId(lineCurrent);
-            Instance.LinearMapCreatingLine.redrawLine();
+            Instance.LinearMapCreatingLine.RedrawLine();
 
         }
 
@@ -166,7 +166,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, out _, out _, out _, out _));
+        public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, out _));
 
 
         private void InitNearLinesOnWorldInfoPanel()
@@ -195,12 +195,12 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        private void EventWIPChanged<T>(UIComponent component, T value) => updateNearLines(TransportLinesManagerMod.showNearLinesGrow ? component : null, true);
+        private void EventWIPChanged<T>(UIComponent component, T value) => UpdateNearLines(TransportLinesManagerMod.showNearLinesGrow ? component : null, true);
 
 
         private ushort lastBuildingSelected = 0;
 
-        private void updateNearLines(UIComponent parent, bool force = false)
+        private void UpdateNearLines(UIComponent parent, bool force = false)
         {
             if (parent != null)
             {
@@ -296,8 +296,8 @@ namespace Klyte.TransportLinesManager
             using (var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits)))
             {
                 KlyteMonoUtils.CreateElement(out m_linearMapCreatingLine, transform);
-                m_linearMapCreatingLine.parent = this;
-                m_linearMapCreatingLine.setVisible(false);
+                m_linearMapCreatingLine.Parent = this;
+                m_linearMapCreatingLine.SetVisible(false);
                 InitNearLinesOnWorldInfoPanel();
             }
         }

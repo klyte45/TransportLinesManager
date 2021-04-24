@@ -17,7 +17,7 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.Extensions
 {
     [XmlRoot("TransportTypeExtension")]
-    public class TLMTransportTypeExtension : TsdIdentifiable, ITLMTransportTypeExtension
+    public class TLMTransportTypeConfigurations : TsdIdentifiable, ITLMTransportTypeExtension
     {
 
         private List<string> m_basicAssetsList;
@@ -46,7 +46,6 @@ namespace Klyte.TransportLinesManager.Extensions
             }
             set
             {
-
                 try
                 {
                     AssetConfigurations = value;
@@ -330,7 +329,7 @@ namespace Klyte.TransportLinesManager.Extensions
                 }
             }
         }
-        public static TLMTransportTypeExtension GetLoadData(ISerializableData serializableData, string ID)
+        public static TLMTransportTypeConfigurations GetLoadData(ISerializableData serializableData, string ID)
         {
             if (ID == null || ToolManager.instance.m_properties.m_mode != ItemClass.Availability.Game)
             {
@@ -353,7 +352,7 @@ namespace Klyte.TransportLinesManager.Extensions
                         file = ZipUtils.Unzip(storage);
                     }
                     file = file.Replace(ID.Split('.').Last(), "TransportTypeExtension");
-                    return XmlUtils.DefaultXmlDeserialize<TLMTransportTypeExtension>(file);
+                    return XmlUtils.DefaultXmlDeserialize<TLMTransportTypeConfigurations>(file);
                 }
                 catch (Exception e)
                 {

@@ -39,6 +39,7 @@ namespace Klyte.TransportLinesManager.Extensions
         };
 
         private static readonly Dictionary<TransportSystemDefinition, TransportInfo> m_infoList = new Dictionary<TransportSystemDefinition, TransportInfo>();
+
         public static Dictionary<TransportSystemDefinition, TransportInfo> TransportInfoDict
         {
             get
@@ -261,5 +262,9 @@ namespace Klyte.TransportLinesManager.Extensions
             : this == HELICOPTER ? Locale.Get("VEHICLE_TITLE", "Passenger Helicopter")
             : this == TROLLEY ? Locale.Get("VEHICLE_TITLE", "Trolleybus 01")
             : "???";
+        public bool CanHaveTerminals() =>
+            (TransportType == TransportInfo.TransportType.Bus && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled) ||
+            (TransportType == TransportInfo.TransportType.Tram && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled) ||
+            (TransportType == TransportInfo.TransportType.Trolleybus && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled);
     }
 }

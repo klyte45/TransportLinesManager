@@ -1,4 +1,5 @@
 ﻿using Klyte.Commons.Extensions;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
@@ -26,7 +27,7 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             var currentStop = vehicleData.m_targetBuilding;
             ref TransportLine line = ref TransportManager.instance.m_lines.m_buffer[vehicleData.m_transportLine];
-            if (currentStop == 0 || currentStop == line.m_stops)
+            if (currentStop == 0 || currentStop == line.m_stops || TLMStopDataContainer.Instance.SafeGet(currentStop).IsTerminus)
             {
                 return true;
             }

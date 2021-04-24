@@ -234,7 +234,7 @@ namespace Klyte.TransportLinesManager.UI
                               ushort lineId = GetLineID();
                               IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
 
-                              LogUtils.DoErrorLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
+                              LogUtils.DoLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
                               if (y)
                               {
                                   extension.AddAssetToLine(lineId, x.objectUserData.ToString());
