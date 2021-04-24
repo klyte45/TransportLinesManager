@@ -113,14 +113,12 @@ namespace Klyte.TransportLinesManager.Overrides
                         TLMController.AutoName(lineID);
                     }
                     TLMController.Instance.LineCreationToolbox.IncrementNumber();
-                    TLMTransportLineExtension.Instance.SafeCleanEntry(lineID);
                 }
             }
-            if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None &&
-                (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.CustomColor) != TransportLine.Flags.None
-                )
+            if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None)
             {
                 Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags &= ~TransportLine.Flags.CustomColor;
+                TLMTransportLineExtension.Instance.SafeCleanEntry(lineID);
             }
 
         }

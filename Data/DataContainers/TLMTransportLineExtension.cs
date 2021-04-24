@@ -41,14 +41,7 @@ namespace Klyte.TransportLinesManager.Extensions
 
         public void SetUseCustomConfig(ushort lineId, bool value)
         {
-            if (value)
-            {
-                SafeGet(lineId).IsCustom = value;
-            }
-            else
-            {
-                Configurations.Remove(lineId);
-            }
+            SafeGet(lineId).IsCustom = value;
             TLMFacade.Instance?.OnLineSymbolParameterChanged();
         }
 
