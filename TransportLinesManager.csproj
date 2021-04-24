@@ -183,6 +183,8 @@
     <Compile Include="commons\Utils\VehicleUtils.cs" />
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="commons\Utils\ZipUtils.cs" />
+    <Compile Include="Data\DataContainers\TLMStopDataContainer.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMStopsConfiguration.cs" />
     <Compile Include="Data\Extensions\GameServiceExtensions.cs" />
     <Compile Include="Data\Base\ConfigurationContainers\TLMAssetConfiguration.cs" />
     <Compile Include="Data\DataContainers\TLMTransportTypeDataContainer.cs" />
@@ -249,7 +251,7 @@
     <Compile Include="Interfaces\ITLMTransportTypeExtension.cs" />
     <Compile Include="Data\Base\ConfigurationContainers\TLMPrefixConfiguration.cs" />
     <Compile Include="Data\Base\TicketPriceEntryXml.cs" />
-    <Compile Include="Data\DataContainers\TLMTransportTypeExtension.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMTransportTypeExtension.cs" />
     <Compile Include="Overrides\TLMDepotAIOverrides.cs" />
     <Compile Include="Data\DataContainers\TLMTransportLineExtension.cs" />
     <Compile Include="Data\Managers\TLMTransportLineStatusesManager.cs" />

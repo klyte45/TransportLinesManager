@@ -66,6 +66,8 @@ namespace Klyte.TransportLinesManager.Utils
                     return 0x00000006;
                 case NamingType.HELICOPTER:
                     return 0x00000001;
+                case NamingType.TERMINAL:
+                    return -0x00000020;
                 default:
                     return 0x7FFFFFFF;
             }

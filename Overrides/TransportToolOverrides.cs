@@ -48,7 +48,7 @@ namespace Klyte.TransportLinesManager.Overrides
         public static void OnEnable()
         {
             LogUtils.DoLog("OnEnableTransportTool");
-            TLMController.Instance.LinearMapCreatingLine?.setVisible(TLMController.LinearMapWhileCreatingLineVisibility);
+            TLMController.Instance.LinearMapCreatingLine?.SetVisible(TLMController.LinearMapWhileCreatingLineVisibility);
             TLMController.Instance.LineCreationToolbox?.SetVisible(true);
             TLMController.Instance.SetCurrentSelectedId(0);
         }
@@ -57,7 +57,7 @@ namespace Klyte.TransportLinesManager.Overrides
         {
             LogUtils.DoLog("OnDisableTransportTool");
             TLMController.Instance.SetCurrentSelectedId(0);
-            TLMController.Instance.LinearMapCreatingLine?.setVisible(false);
+            TLMController.Instance.LinearMapCreatingLine?.SetVisible(false);
             TLMController.Instance.LineCreationToolbox?.SetVisible(false);
         }
 

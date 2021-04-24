@@ -11,7 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
+using static Klyte.TransportLinesManager.ModShared.TLMFacade;
 
 namespace Klyte.TransportLinesManager.Utils
 {
@@ -709,25 +709,23 @@ namespace Klyte.TransportLinesManager.Utils
 
         private static TransportInfo.TransportType[] m_roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram, TransportInfo.TransportType.Trolleybus };
         internal static bool IsRoadLine(ushort lineId) => m_roadTransportTypes.Contains(TransportManager.instance.m_lines.m_buffer[lineId].Info.m_transportType);
-        public static string CalculateAutoName(ushort lineIdx, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr)
+        public static string CalculateAutoName(ushort lineIdx, out List<DestinationPoco> stationDestinations)
         {
             ref TransportLine t = ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx];
+            stationDestinations = new List<DestinationPoco>();
             if ((t.m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None)
             {
-                startStation = 0;
-                endStation = 0;
-                startStationStr = null;
-                endStationStr = null;
                 return null;
             }
             ushort nextStop = t.m_stops;
             bool allowPrefixInStations = m_roadTransportTypes.Contains(t.Info.m_transportType);
-            var stations = new List<Tuple<NamingType, string, ushort>>();
+            var stations = new List<Tuple<NamingType, string, ushort, bool>>();
+            var allowTerminals = TransportSystemDefinition.From(lineIdx).CanHaveTerminals();
             do
             {
                 NetNode stopNode = NetManager.instance.m_nodes.m_buffer[nextStop];
-                string stationName = TLMStationUtils.GetStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true);
-                var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName.Trim(), nextStop);
+                string stationName = TLMStationUtils.GetStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true, true);
+                var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName.Trim(), nextStop, allowTerminals && (TLMStopDataContainer.Instance.SafeGet(nextStop).IsTerminus || nextStop == t.m_stops));
                 stations.Add(tuple);
                 nextStop = TransportLine.GetNextStop(nextStop);
             } while (nextStop != t.m_stops && nextStop != 0);
@@ -736,7 +734,14 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 prefix = $"[{GetLineStringId(lineIdx)}] ";
             }
+            var hasAnyTerminals = allowTerminals && stations.Where(x => x.Fourth).Count() > 1;
+            if (hasAnyTerminals)
+            {
+                stations = stations.Select((x) => x.Fourth ? Tuple.New(NamingType.TERMINAL, x.Second, x.Third, x.Fourth) : x).ToList();
+                stationDestinations = stations.Where(x => x.Fourth).Select(x => new DestinationPoco { stopId = x.Third, stopName = x.Second }).ToList();
+            }
             LogUtils.DoLog($"stations => [{string.Join(" ; ", stations.Select(x => $"{x.First}|{x.Second}").ToArray())}]");
+            string startStationStr, endStationStr;
             if (stations.Count % 2 == 0 && stations.Count > 2)
             {
                 LogUtils.DoLog($"Try Simmetric");
@@ -766,11 +771,14 @@ namespace Klyte.TransportLinesManager.Utils
                     }
                     if (simmetric)
                     {
-                        startStation = stations[middle % stations.Count].Third;
-                        endStation = stations[(middle + (stations.Count / 2)) % stations.Count].Third;
-
                         startStationStr = stations[middle % stations.Count].Second;
-                        endStationStr = stations[(middle + stations.Count / 2) % stations.Count].Second;
+                        endStationStr = stations[(middle + (stations.Count / 2)) % stations.Count].Second;
+                        if (!hasAnyTerminals)
+                        {
+                            stationDestinations.Add(new DestinationPoco { stopId = stations[middle % stations.Count].Third, stopName = startStationStr });
+                            stationDestinations.Add(new DestinationPoco { stopId = stations[(middle + (stations.Count / 2)) % stations.Count].Third, stopName = endStationStr });
+                        }
+
 
                         if (startStationStr == endStationStr)
                         {
@@ -790,7 +798,7 @@ namespace Klyte.TransportLinesManager.Utils
             int targetStart = 0;
             int mostRelevantEndIdx = -1;
             int j = 0;
-            int maxDistanceEnd = (int)(idxStations.Count / 8f + 0.5f);
+            int maxDistanceEnd = (int)((idxStations.Count / 8f) + 0.5f);
             LogUtils.DoLog("idxStations");
             do
             {
@@ -805,10 +813,13 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (mostRelevantEndIdx >= 0)
             {
-                startStation = idxStations[targetStart].Fourth;
-                endStation = stations[mostRelevantEndIdx].Third;
                 startStationStr = idxStations[targetStart].Third;
                 endStationStr = stations[mostRelevantEndIdx].Second;
+                if (!hasAnyTerminals)
+                {
+                    stationDestinations.Add(new DestinationPoco { stopId = idxStations[targetStart].Fourth, stopName = startStationStr });
+                    stationDestinations.Add(new DestinationPoco { stopId = stations[mostRelevantEndIdx].Third, stopName = endStationStr });
+                }
                 if (startStationStr == endStationStr)
                 {
                     startStationStr = (TLMBaseConfigXML.Instance.CircularIfSingleDistrictLine ? "Circular " : "") + startStationStr;
@@ -822,10 +833,11 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else
             {
-                startStation = idxStations[0].Fourth;
-                endStation = 0;
                 startStationStr = (TLMBaseConfigXML.Instance.CircularIfSingleDistrictLine ? "Circular " : "") + idxStations[0].Third;
-                endStationStr = null;
+                if (!hasAnyTerminals)
+                {
+                    stationDestinations.Add(new DestinationPoco { stopId = idxStations[0].Fourth, stopName = startStationStr });
+                }
                 return prefix + startStationStr;
             }
 

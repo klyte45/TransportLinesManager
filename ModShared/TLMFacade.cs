@@ -2,7 +2,10 @@
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.ModShared
@@ -11,13 +14,46 @@ namespace Klyte.TransportLinesManager.ModShared
     {
         public static TLMFacade Instance => TransportLinesManagerMod.Controller?.SharedInstance;
 
-        internal void OnLineSymbolParameterChanged() => EventLineSymbolParameterChanged?.Invoke();
-        internal void OnAutoNameParameterChanged() => EventAutoNameParameterChanged?.Invoke();
-        internal void OnVehicleIdentifierParameterChanged() => EventVehicleIdentifierParameterChanged?.Invoke();
+        internal void OnLineSymbolParameterChanged()
+        {
+            if (LoadingManager.instance.m_loadingComplete)
+            {
+                EventLineSymbolParameterChanged?.Invoke();
+            }
+        }
+
+        internal void OnAutoNameParameterChanged()
+        {
+            if (LoadingManager.instance.m_loadingComplete)
+            {
+                EventAutoNameParameterChanged?.Invoke();
+            }
+        }
+
+        internal void OnVehicleIdentifierParameterChanged()
+        {
+            if (LoadingManager.instance.m_loadingComplete)
+            {
+                EventVehicleIdentifierParameterChanged?.Invoke();
+            }
+        }
+
+        internal void OnLineDestinationsChanged(ushort lineId)
+        {
+            if (LoadingManager.instance.m_loadingComplete)
+            {
+                EventLineDestinationsChanged?.Invoke(lineId);
+                if (TLMBaseConfigXML.Instance.UseAutoName)
+                {
+                    TLMController.AutoName(lineId);
+                }
+            }
+        }
 
         public event Action EventLineSymbolParameterChanged;
         public event Action EventAutoNameParameterChanged;
         public event Action EventVehicleIdentifierParameterChanged;
+        public event Action<ushort> EventLineDestinationsChanged;
 
         public static string GetFullStationName(ushort stopId, ushort lineId, ItemClass.SubService subService) =>
             stopId == 0 ? ""
@@ -223,9 +259,33 @@ namespace Klyte.TransportLinesManager.ModShared
             }
             return result.Replace("\0", "").Trim();
         }
+        [Obsolete("Deprecated in TLM14, use the alternative signature with destination list.", true)]
+        public static void CalculateAutoName(ushort lineId, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr)
+        {
+            TLMLineUtils.CalculateAutoName(lineId, out List<DestinationPoco> destinations);
+            if (destinations.Count > 0)
+            {
+                startStation = destinations.First().stopId;
+                endStation = destinations.Last().stopId;
+                startStationStr = destinations.First().stopName;
+                endStationStr = destinations.Last().stopName;
+            }
+            else
+            {
+                startStation = endStation = 0;
+                startStationStr = endStationStr = null;
+            }
 
-        public static void CalculateAutoName(ushort lineId, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr) => TLMLineUtils.CalculateAutoName(lineId, out startStation, out endStation, out startStationStr, out endStationStr);
+        }
+        public static void CalculateAutoName(ushort lineId, out List<DestinationPoco> destinations)
+            => TLMLineUtils.CalculateAutoName(lineId, out destinations);
+
         public static string GetLineStringId(ushort lineId) => TLMLineUtils.GetLineStringId(lineId);
 
+        public class DestinationPoco
+        {
+            public ushort stopId;
+            public string stopName;
+        }
     }
 }

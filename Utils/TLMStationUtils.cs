@@ -62,7 +62,7 @@ namespace Klyte.TransportLinesManager.Utils
             TransportLinesManagerMod.Controller.SharedInstance.OnAutoNameParameterChanged();
         }
 
-        public static string GetStationName(ushort stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, out NamingType resultNamingType, bool excludeCargo = false, bool useRestrictionForAreas = false)
+        public static string GetStationName(ushort stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, out NamingType resultNamingType, bool excludeCargo = false, bool useRestrictionForAreas = false, bool useRoadMainNameOnAddress = false)
         {
             string savedName = GetStopName(stopId);
             var tsd = TransportSystemDefinition.From(lineId);
@@ -133,15 +133,16 @@ namespace Klyte.TransportLinesManager.Utils
                     return DistrictManager.instance.GetParkName(parkId);
                 }
             }
-            if (TransportLinesManagerMod.Controller.ConnectorADR.GetAddressStreetAndNumber(location, location, out int number, out string streetName)
-                && !string.IsNullOrEmpty(streetName)
+            int number = 0;
+            if ((useRoadMainNameOnAddress ? TransportLinesManagerMod.Controller.ConnectorADR.GetStreetSuffix(location, location, out string streetName) : TransportLinesManagerMod.Controller.ConnectorADR.GetAddressStreetAndNumber(location, location, out number, out streetName))
+                && !streetName.IsNullOrWhiteSpace()
                 && (!useRestrictionForAreas || TLMSpecialNamingClass.Address.GetConfig().UseInAutoName))
             {
                 prefix = TLMSpecialNamingClass.Address.GetConfig().NamingPrefix?.TrimStart();
                 serviceFound = ItemClass.Service.Road;
                 subserviceFound = ItemClass.SubService.PublicTransportBus;
                 resultNamingType = NamingType.ADDRESS;
-                return streetName + ", " + number;
+                return useRoadMainNameOnAddress ? streetName : streetName + ", " + number;
 
             }
             else if (DistrictManager.instance.GetDistrict(location) > 0 && (!useRestrictionForAreas || TLMSpecialNamingClass.District.GetConfig().UseInAutoName))

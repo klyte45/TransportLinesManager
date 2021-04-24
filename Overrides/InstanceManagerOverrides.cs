@@ -43,13 +43,7 @@ namespace Klyte.TransportLinesManager.Overrides
         public static void CallBuildRenamedEvent(ushort building) => BuildingManager.instance.StartCoroutine(CallBuildRenamedEvent_impl(building));
         private static IEnumerator CallBuildRenamedEvent_impl(ushort building)
         {
-
-            //returning 0 will make it wait 1 frame
             yield return new WaitForSeconds(1);
-
-
-            //code goes here
-
             EventOnBuildingRenamed?.Invoke(building);
         }
 

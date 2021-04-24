@@ -2,6 +2,7 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
+using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensions;
@@ -25,6 +26,7 @@ namespace Klyte.TransportLinesManager.UI
         private bool m_cachedUnscaledMode = true;
         private static bool m_dirty;
         private static bool m_dirtyNames;
+        private static bool m_dirtyTerminal;
 
         #region Overridable
 
@@ -43,7 +45,7 @@ namespace Klyte.TransportLinesManager.UI
             BindComponents(ptwip);
             AdjustLineStopsPanel(ptwip);
 
-            KlyteMonoUtils.CreateUIElement<UIPanel>(out m_panelModeSelector, m_bg.parent.transform);
+            KlyteMonoUtils.CreateUIElement(out m_panelModeSelector, m_bg.parent.transform);
             m_panelModeSelector.autoFitChildrenHorizontally = true;
             m_panelModeSelector.autoFitChildrenVertically = true;
             m_panelModeSelector.autoLayout = true;
@@ -72,14 +74,21 @@ namespace Klyte.TransportLinesManager.UI
             panel.AttachUIComponent(button.gameObject).transform.localScale = Vector3.one;
             button.relativePosition = Vector2.zero;
             button.name = "StopButton";
+            button.scaleFactor = 1f;
+            button.spritePadding.top = 2;
+            button.isTooltipLocalized = true;
+            KlyteMonoUtils.InitButtonFg(button, false, "DistrictOptionBrushMedium");
+            KlyteMonoUtils.InitButtonSameSprite(button, "");
 
             UILabel uilabel = button.Find<UILabel>("PassengerCount");
             panel.AttachUIComponent(uilabel.gameObject).transform.localScale = Vector3.one;
-            uilabel.relativePosition = new Vector3(32, 12);
+            uilabel.relativePosition = new Vector3(38, 12);
             uilabel.processMarkup = true;
             uilabel.isVisible = true;
-            uilabel.minimumSize = new Vector2(180, 50);
+            uilabel.minimumSize = new Vector2(175, 50);
             uilabel.verticalAlignment = UIVerticalAlignment.Middle;
+            KlyteMonoUtils.LimitWidthAndBox(uilabel, 175, true);
+
 
             UIPanel connectionPanel = panel.AddUIComponent<UIPanel>();
             connectionPanel.name = "ConnectionPanel";
@@ -102,7 +111,7 @@ namespace Klyte.TransportLinesManager.UI
             distLabel.minimumSize = new Vector2(60, 0);
             distLabel.outlineColor = Color.black;
 
-            KlyteMonoUtils.CreateUIElement(out UITextField lineNameField, panel.transform, "StopNameField", new Vector4(uilabel.relativePosition.x, uilabel.relativePosition.y, 180, 50));
+            KlyteMonoUtils.CreateUIElement(out UITextField lineNameField, panel.transform, "StopNameField", new Vector4(38, -6, 175, 50));
             lineNameField.maxLength = 256;
             lineNameField.isVisible = false;
             lineNameField.verticalAlignment = UIVerticalAlignment.Middle;
@@ -110,8 +119,9 @@ namespace Klyte.TransportLinesManager.UI
             lineNameField.selectionSprite = "EmptySprite";
             lineNameField.builtinKeyNavigation = true;
             lineNameField.textScale = uilabel.textScale;
-            lineNameField.padding.top = 14;
-            lineNameField.padding.bottom = 24;
+            lineNameField.padding.top = 18;
+            lineNameField.padding.left = 5;
+            lineNameField.padding.bottom = 14;
             KlyteMonoUtils.InitButtonFull(lineNameField, false, "TextFieldPanel");
 
 
@@ -161,10 +171,6 @@ namespace Klyte.TransportLinesManager.UI
             m_scrollPanel = __instance.Find<UIScrollablePanel>("ScrollablePanel");
             m_scrollPanel.eventGotFocus += OnGotFocusBind;
         }
-
-
-
-
 
         public void OnEnable()
         {
@@ -263,11 +269,14 @@ namespace Klyte.TransportLinesManager.UI
                     UILabel dist = stopsButtons[idx].Find<UILabel>("Distance");
                     dist.text = "(???)";
 
-                    KlyteMonoUtils.LimitWidth(uilabel, 180, true);
-
 
                     CreateConnectionPanel(instance, stopsButtons[idx], currentStop);
                     UIButton button = stopsButtons[idx].GetComponentInChildren<UIButton>();
+                    UpdateTerminalStatus(lineID, currentStop, button);
+                    button.tooltipLocaleID
+                        = !TransportSystemDefinition.From(lineID).CanHaveTerminals() ? ""
+                        : currentStop == firstStop ? "K45_TLM_FIRSTSTOPALWAYSTERMINAL"
+                        : "K45_TLM_RIGHTCLICKSETTERMINAL";
 
                     if (uilabel.objectUserData == null)
                     {
@@ -275,18 +284,35 @@ namespace Klyte.TransportLinesManager.UI
                         uilabel.eventMouseEnter += (c, r) => uilabel.backgroundSprite = "TextFieldPanelHovered";
                         uilabel.eventMouseLeave += (c, r) => uilabel.backgroundSprite = string.Empty;
                         uilabel.eventClick += (c, r) =>
-                       {
-                           uilabel.Hide();
-                           stopNameField.Show();
-                           stopNameField.text = TLMStationUtils.GetStationName((ushort)button.objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService);
-                           stopNameField.Focus();
-                       };
+                        {
+                            uilabel.Hide();
+                            stopNameField.Show();
+                            stopNameField.text = TLMStationUtils.GetStationName((ushort)button.objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService);
+                            stopNameField.Focus();
+                        };
                         stopNameField.eventLeaveFocus += delegate (UIComponent c, UIFocusEventParameter r)
                         {
                             stopNameField.Hide();
                             uilabel.Show();
                         };
                         stopNameField.eventTextSubmitted += (x, y) => TLMStationUtils.SetStopName(y.Trim(), (ushort)button.objectUserData, GetLineID(), () => uilabel.prefix = $"<color white>{TLMStationUtils.GetFullStationName((ushort)button.GetComponentInChildren<UIButton>().objectUserData, GetLineID(), TransportSystemDefinition.GetDefinitionForLine(GetLineID()).SubService)}</color>");
+                        button.eventMouseUp += (x, y) =>
+                        {
+                            var stop = (ushort)x.objectUserData;
+                            var lineId = GetLineID();
+                            if ((y.buttons & UIMouseButton.Right) != 0 && TransportSystemDefinition.From(lineId).CanHaveTerminals() && stop != Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_stops)
+                            {
+                                var newVal = TLMStopDataContainer.Instance.SafeGet(stop).IsTerminus;
+                                TLMStopDataContainer.Instance.SafeGet(stop).IsTerminus = !newVal;
+                                NetProperties properties = NetManager.instance.m_properties;
+                                if (!(properties is null) && !(properties.m_drawSound is null))
+                                {
+                                    AudioManager.instance.DefaultGroup.AddPlayer(0, properties.m_drawSound, 1f);
+                                }
+                                m_dirtyTerminal = true;
+                            }
+                        };
+
                         uilabel.objectUserData = true;
                     }
                     for (int i = 0; i < 8; i++)
@@ -382,6 +408,10 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
+        private void UpdateTerminalStatus(ushort lineID, ushort currentStop, UIButton button) => button.normalBgSprite =
+                                TransportSystemDefinition.From(lineID).CanHaveTerminals() && (currentStop == Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_stops || TLMStopDataContainer.Instance.SafeGet(currentStop).IsTerminus)
+                                ? KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_S05StarIcon, true)
+                                : "";// KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_CircleIcon, true);
         private void CreateConnectionPanel(NetManager instance, UIPanel basePanel, ushort currentStop)
         {
             ushort lineID = GetLineID();
@@ -469,22 +499,11 @@ namespace Klyte.TransportLinesManager.UI
                         nextStationIdx += m_cachedStopOrder.Length;
                     }
                     Vector3 relativePosition = m_vehicleButtons.items[idx].relativePosition;
-                    if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & (Vehicle.Flags.Leaving)) != 0)
-                    {
-                        relativePosition.y = (prevStationIdx * 0.75f) + (nextStationIdx * 0.25f);
-                    }
-                    else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & (Vehicle.Flags.Arriving)) != 0)
-                    {
-                        relativePosition.y = (prevStationIdx * 0.25f) + (nextStationIdx * 0.75f);
-                    }
-                    else if ((Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & (Vehicle.Flags.Stopped)) != 0)
-                    {
-                        relativePosition.y = (prevStationIdx);
-                    }
-                    else
-                    {
-                        relativePosition.y = (prevStationIdx * 0.5f) + (nextStationIdx * 0.5f);
-                    }
+                    relativePosition.y
+                        = (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & (Vehicle.Flags.Leaving)) != 0 ? (prevStationIdx * 0.75f) + (nextStationIdx * 0.25f)
+                        : (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & (Vehicle.Flags.Arriving)) != 0 ? (prevStationIdx * 0.25f) + (nextStationIdx * 0.75f)
+                        : (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId].m_flags & (Vehicle.Flags.Stopped)) != 0 ? prevStationIdx
+                        : (prevStationIdx * 0.5f) + (nextStationIdx * 0.5f);
                     relativePosition.y = ShiftVerticalPosition(relativePosition.y * m_kminStopDistance);
                     m_vehicleButtons.items[idx].relativePosition = relativePosition;
                 }
@@ -499,7 +518,8 @@ namespace Klyte.TransportLinesManager.UI
                         m_vehicleButtons.items[idx].relativePosition = relativePosition;
                     }
                 }
-                info.m_vehicleAI.GetBufferStatus(vehicleId, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId], out string text, out int passengerQuantity, out int passengerCapacity);
+
+                info.m_vehicleAI.GetBufferStatus(vehicleId, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleId], out _, out int passengerQuantity, out int passengerCapacity);
                 UILabel labelVehicle = m_vehicleButtons.items[idx].Find<UILabel>("PassengerCount");
                 labelVehicle.prefix = passengerQuantity.ToString() + "/" + passengerCapacity.ToString();
                 labelVehicle.processMarkup = true;
@@ -612,10 +632,15 @@ namespace Klyte.TransportLinesManager.UI
                     {
                         uilabel.prefix = TLMStationUtils.GetFullStationName((ushort)uibutton.objectUserData, lineID, TransportSystemDefinition.GetDefinitionForLine(lineID).SubService);
                     }
+                    if (m_dirtyTerminal)
+                    {
+                        UpdateTerminalStatus(lineID, stop, uibutton);
+                    }
                     if (GetLineType(lineID) == LineType.WalkingTour)
                     {
                         continue;
                     }
+
 
                     UIPanel connectionPanel = uiPanel.Find<UIPanel>("ConnectionPanel");
                     if (connectionPanel != null)
@@ -660,6 +685,7 @@ namespace Klyte.TransportLinesManager.UI
                     stop = TransportLine.GetNextStop(stop);
                 }
                 m_dirtyNames = false;
+                m_dirtyTerminal = false;
             }
         }
 
