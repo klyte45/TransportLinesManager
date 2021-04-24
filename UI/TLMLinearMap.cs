@@ -616,7 +616,7 @@ namespace Klyte.TransportLinesManager.UI
                         Parent.OnRenameStationAction(AutoName);
                     });
 
-            if (TransportSystemDefinition.From(lineID).CanHaveTerminals() && (TLMStopDataContainer.Instance.SafeGet(stationNodeId).IsTerminus || stationNodeId == t.m_stops))
+            if (TransportSystemDefinition.From(lineID).CanHaveTerminals() && (TLMStopDataContainer.Instance.SafeGet(stationNodeId).IsTerminal || stationNodeId == t.m_stops))
             {
                 KlyteMonoUtils.InitButtonSameSprite(stationButton, KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_S05StarIcon, true));
             }

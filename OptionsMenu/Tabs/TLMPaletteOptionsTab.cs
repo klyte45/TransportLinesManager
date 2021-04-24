@@ -40,7 +40,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             group6.AddLabel(Locale.Get("K45_TLM_PALETTE_FOLDER_LABEL") + ":");
             var namesFilesButton = ((UIButton)group6.AddButton("/", () => ColossalFramework.Utils.OpenInFileBrowser(fiPalette.FullName)));
             namesFilesButton.textColor = Color.yellow;
-            KlyteMonoUtils.LimitWidth(namesFilesButton, 710);
+            KlyteMonoUtils.LimitWidthAndBox(namesFilesButton, 710);
             namesFilesButton.text = fiPalette.FullName + Path.DirectorySeparatorChar;
             ((UIButton)group6.AddButton(Locale.Get("K45_TLM_RELOAD_PALETTES"), delegate ()
             {

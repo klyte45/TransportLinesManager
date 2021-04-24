@@ -302,8 +302,8 @@ namespace Klyte.TransportLinesManager.UI
                             var lineId = GetLineID();
                             if ((y.buttons & UIMouseButton.Right) != 0 && TransportSystemDefinition.From(lineId).CanHaveTerminals() && stop != Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_stops)
                             {
-                                var newVal = TLMStopDataContainer.Instance.SafeGet(stop).IsTerminus;
-                                TLMStopDataContainer.Instance.SafeGet(stop).IsTerminus = !newVal;
+                                var newVal = TLMStopDataContainer.Instance.SafeGet(stop).IsTerminal;
+                                TLMStopDataContainer.Instance.SafeGet(stop).IsTerminal = !newVal;
                                 NetProperties properties = NetManager.instance.m_properties;
                                 if (!(properties is null) && !(properties.m_drawSound is null))
                                 {
@@ -409,7 +409,7 @@ namespace Klyte.TransportLinesManager.UI
         }
 
         private void UpdateTerminalStatus(ushort lineID, ushort currentStop, UIButton button) => button.normalBgSprite =
-                                TransportSystemDefinition.From(lineID).CanHaveTerminals() && (currentStop == Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_stops || TLMStopDataContainer.Instance.SafeGet(currentStop).IsTerminus)
+                                TransportSystemDefinition.From(lineID).CanHaveTerminals() && (currentStop == Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_stops || TLMStopDataContainer.Instance.SafeGet(currentStop).IsTerminal)
                                 ? KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_S05StarIcon, true)
                                 : "";// KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_CircleIcon, true);
         private void CreateConnectionPanel(NetManager instance, UIPanel basePanel, ushort currentStop)

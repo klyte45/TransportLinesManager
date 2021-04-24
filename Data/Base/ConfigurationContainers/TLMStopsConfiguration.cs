@@ -5,17 +5,17 @@ namespace Klyte.TransportLinesManager.Extensions
 {
     public class TLMStopsConfiguration : IIdentifiable
     {
-        private bool isTerminus = false;
+        private bool isTerminal = false;
 
-        [XmlIgnore]
+        [XmlAttribute("stopId")]
         public long? Id { get; set; }
 
-        [XmlAttribute("isTerminus")]
-        public bool IsTerminus
+        [XmlAttribute("isTerminal")]
+        public bool IsTerminal
         {
-            get => isTerminus; set
+            get => isTerminal; set
             {
-                isTerminus = value;
+                isTerminal = value;
                 TLMController.Instance.SharedInstance.OnLineDestinationsChanged(NetManager.instance.m_nodes.m_buffer[Id ?? 0].m_transportLine);
             }
         }

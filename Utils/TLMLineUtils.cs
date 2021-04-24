@@ -83,97 +83,6 @@ namespace Klyte.TransportLinesManager.Utils
                 zIterator++;
             }
         }
-        public static int GetQuantityPassengerUnloadOnNextStop(ushort vehicleId, ref Vehicle data, out bool full)
-        {
-            var firstVehicle = data.GetFirstVehicle(vehicleId);
-            if (firstVehicle != vehicleId)
-            {
-                return GetQuantityPassengerUnloadOnNextStop(firstVehicle, ref VehicleManager.instance.m_vehicles.m_buffer[firstVehicle], out full);
-            }
-            if (data.m_transportLine == 0)
-            {
-                full = false;
-                return -1;
-            }
-            var stopNodeId = data.m_targetBuilding;
-            if (stopNodeId == 0)
-            {
-                full = false;
-                return 0;
-            }
-            NetManager nmInstance = Singleton<NetManager>.instance;
-            Vector3 position = nmInstance.m_nodes.m_buffer[stopNodeId].m_position;
-            ushort nextStop = TransportLine.GetNextStop(stopNodeId);
-            bool forceUnload = nextStop == 0;
-
-            int serviceCounter = 0;
-            CitizenManager instance = Singleton<CitizenManager>.instance;
-            uint num2 = data.m_citizenUnits;
-            int num3 = 0;
-            while (num2 != 0U)
-            {
-                uint nextUnit = instance.m_units.m_buffer[(int)((UIntPtr)num2)].m_nextUnit;
-                for (int i = 0; i < 5; i++)
-                {
-                    uint citizen = instance.m_units.m_buffer[(int)((UIntPtr)num2)].GetCitizen(i);
-                    if (citizen != 0U)
-                    {
-                        ushort instance2 = instance.m_citizens.m_buffer[(int)((UIntPtr)citizen)].m_instance;
-                        if (instance2 != 0)
-                        {
-                            if (!TransportArriveAtTarget(ref instance.m_instances.m_buffer[instance2], position, forceUnload))
-                            {
-                                serviceCounter++;
-                            }
-                        }
-                    }
-                }
-                num2 = nextUnit;
-                if (++num3 > 524288)
-                {
-                    CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
-                    break;
-                }
-            }
-            data.Info.m_vehicleAI.GetBufferStatus(vehicleId, ref data, out _, out int passengers, out int capacity);
-            full = capacity - passengers <= 0;
-            return passengers - serviceCounter;
-        }
-        public static bool TransportArriveAtTarget(ref CitizenInstance citizenData, Vector3 currentPos, bool forceUnload)
-        {
-            PathManager instance = Singleton<PathManager>.instance;
-            NetManager instance2 = Singleton<NetManager>.instance;
-            if ((citizenData.m_flags & CitizenInstance.Flags.OnTour) == CitizenInstance.Flags.OnTour)
-            {
-                if ((citizenData.m_flags & CitizenInstance.Flags.TargetIsNode) == CitizenInstance.Flags.TargetIsNode)
-                {
-                    ushort targetBuilding = citizenData.m_targetBuilding;
-                    if (targetBuilding != 0 && Vector3.SqrMagnitude(instance2.m_nodes.m_buffer[targetBuilding].m_position - currentPos) < 4f)
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            if (citizenData.m_path != 0U)
-            {
-                if (instance.m_pathUnits.m_buffer[(int)((UIntPtr)citizenData.m_path)].GetPosition(citizenData.m_pathPositionIndex >> 1, out PathUnit.Position pathPos2))
-                {
-                    citizenData.m_lastPathOffset = pathPos2.m_offset;
-                    uint laneID2 = PathManager.GetLaneID(pathPos2);
-                    Vector3 pathPositionTarget = instance2.m_lanes.m_buffer[(int)((UIntPtr)laneID2)].CalculatePosition(citizenData.m_lastPathOffset / 255f);
-                    float distNext = Vector3.SqrMagnitude(pathPositionTarget - currentPos);
-                    if (distNext < 4f)
-                    {
-                        if (!forceUnload)
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
-        }
 
 
         public static float GetEffectiveBudget(ushort transportLine) => GetEffectiveBudgetInt(transportLine) / 100f;
@@ -725,7 +634,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 NetNode stopNode = NetManager.instance.m_nodes.m_buffer[nextStop];
                 string stationName = TLMStationUtils.GetStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true, true);
-                var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName.Trim(), nextStop, allowTerminals && (TLMStopDataContainer.Instance.SafeGet(nextStop).IsTerminus || nextStop == t.m_stops));
+                var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName.Trim(), nextStop, allowTerminals && (TLMStopDataContainer.Instance.SafeGet(nextStop).IsTerminal || nextStop == t.m_stops));
                 stations.Add(tuple);
                 nextStop = TransportLine.GetNextStop(nextStop);
             } while (nextStop != t.m_stops && nextStop != 0);

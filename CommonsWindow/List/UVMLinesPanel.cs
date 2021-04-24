@@ -60,7 +60,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 return;
             }
-            if (Singleton<TransportManager>.exists && m_lastLineCount != Singleton<TransportManager>.instance.m_lineCount)
+            if (m_lastLineCount != TransportManager.instance.m_lineCount)
             {
                 RefreshLines();
                 m_lastLineCount = Singleton<TransportManager>.instance.m_lineCount;
@@ -278,7 +278,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 var temp = new GameObject();
                 temp.AddComponent<UIPanel>();
                 lineInfoItem = (UVMLineListItem)temp.AddComponent(implClassBuildingLine);
-                mainPanel.AttachUIComponent(lineInfoItem.gameObject).transform.localScale = Vector3.one;                
+                mainPanel.AttachUIComponent(lineInfoItem.gameObject).transform.localScale = Vector3.one;
                 lineInfoItem.transform.localScale = Vector3.one;
             }
             else

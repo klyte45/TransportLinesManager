@@ -25,27 +25,30 @@ namespace Klyte.TransportLinesManager.Overrides
                     def = TransportSystemDefinition.BUS;
                     break;
                 case 1:
-                    def = TransportSystemDefinition.TRAM;
+                    def = TransportSystemDefinition.TROLLEY;
                     break;
                 case 2:
-                    def = TransportSystemDefinition.METRO;
+                    def = TransportSystemDefinition.TRAM;
                     break;
                 case 3:
-                    def = TransportSystemDefinition.TRAIN;
+                    def = TransportSystemDefinition.METRO;
                     break;
                 case 4:
-                    def = TransportSystemDefinition.FERRY;
+                    def = TransportSystemDefinition.TRAIN;
                     break;
                 case 5:
-                    def = TransportSystemDefinition.BLIMP;
+                    def = TransportSystemDefinition.FERRY;
                     break;
                 case 6:
+                    def = TransportSystemDefinition.BLIMP;
+                    break;
+                case 7:
                     def = TransportSystemDefinition.MONORAIL;
                     break;
-                case 8:
+                case 9:
                     def = TransportSystemDefinition.TOUR_PED;
                     break;
-                case 9:
+                case 10:
                     def = TransportSystemDefinition.TOUR_BUS;
                     break;
                 default:
