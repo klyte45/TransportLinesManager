@@ -6,8 +6,25 @@ namespace Klyte.TransportLinesManager.Xml
 {
     public class TLMTransportLineConfiguration : IBasicExtensionStorage
     {
+        private string customIdentifier;
+        private bool isCustom = false;
+
         [XmlAttribute("isCustom")]
-        public bool IsCustom { get; set; } = false;
+        public bool IsCustom
+        {
+            get => isCustom; set
+            {
+                if(!value && isCustom)
+                {
+                    DisplayAbsoluteValues = false;
+                    BudgetEntries = new TimeableList<BudgetEntryXml>();
+                    AssetList = new SimpleXmlList<string>();
+                    TicketPriceEntries = new TimeableList<TicketPriceEntryXml>();
+                    DepotsAllowed = new SimpleXmlHashSet<ushort>();
+                }
+                isCustom = value;
+            }
+        }
         [XmlAttribute("displayAbsoluteValues")]
         public bool DisplayAbsoluteValues { get; set; } = false;
         [XmlElement("Budget")]
@@ -18,6 +35,15 @@ namespace Klyte.TransportLinesManager.Xml
         public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; } = new TimeableList<TicketPriceEntryXml>();
         [XmlElement("DepotsAllowed")]
         public SimpleXmlHashSet<ushort> DepotsAllowed { get; set; } = new SimpleXmlHashSet<ushort>();
+        [XmlAttribute("customIdentifier")]
+        public string CustomCode
+        {
+            get => customIdentifier; set
+            {
+                customIdentifier = value.TrimToNull();
+                TLMController.Instance.SharedInstance.OnLineSymbolParameterChanged();
+            }
+        }
     }
 
 }

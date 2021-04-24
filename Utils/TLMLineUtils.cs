@@ -135,6 +135,10 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static string GetLineStringId(ushort lineIdx)
         {
+            if(TLMTransportLineExtension.Instance.SafeGet(lineIdx).CustomCode is string customId)
+            {
+                return customId;
+            }
             GetLineNamingParameters(lineIdx, out NamingMode prefix, out Separator s, out NamingMode suffix, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix);
             return TLMPrefixesUtils.GetString(prefix, s, suffix, nonPrefix, Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_lineNumber, zeros, invertPrefixSuffix);
         }

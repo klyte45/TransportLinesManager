@@ -47,6 +47,7 @@ namespace Klyte.TransportLinesManager.UI
             CreatePrefixAndLineNumberEditor();
             CreateFirstStopSelector();
             CreateActionButtonsRow();
+            CreateCustomLineCodeEditor();
         }
 
         private void BindFields(PublicTransportWorldInfoPanel ptwip)
@@ -200,6 +201,7 @@ namespace Klyte.TransportLinesManager.UI
 
                 m_linePrefixDropDown.eventSelectedIndexChanged -= SaveLineNumber;
                 m_lineNumberLabel.eventLostFocus -= SaveLineNumber;
+                m_customLineCodeInput.eventTextSubmitted -= SaveLineCode;
 
                 ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineID];
                 ushort lineNumber = t.m_lineNumber;
@@ -241,11 +243,12 @@ namespace Klyte.TransportLinesManager.UI
 
 
                 m_lineNumberLabel.color = TransportManager.instance.GetLineColor(lineID);
-
+                m_customLineCodeInput.text = TLMTransportLineExtension.Instance.SafeGet(lineID).CustomCode ?? "";
 
 
                 m_linePrefixDropDown.eventSelectedIndexChanged += SaveLineNumber;
                 m_lineNumberLabel.eventLostFocus += SaveLineNumber;
+                m_customLineCodeInput.eventTextSubmitted += SaveLineCode;
 
             }
         }
@@ -400,6 +403,8 @@ namespace Klyte.TransportLinesManager.UI
             container.autoLayout = true;
             container.relativePosition = new Vector3(0, 375);
         }
+
+
         private void SaveLineNumber<T>(UIComponent c, T v) => StartCoroutine(SaveLineNumber());
 
         private IEnumerator SaveLineNumber()
@@ -446,6 +451,34 @@ namespace Klyte.TransportLinesManager.UI
         }
 
         private bool IsLineNumberAlredyInUse(int numLinha, ushort lineIdx) => TLMLineUtils.IsLineNumberAlredyInUse(numLinha, TransportSystemDefinition.GetDefinitionForLine(lineIdx), lineIdx);
+        #endregion
+
+        #region Custom line code
+
+        private void CreateCustomLineCodeEditor()
+        {
+            m_customLineCodeInput = UIHelperExtension.AddTextfield(m_bg, Locale.Get("K45_TLM_CUSTOMLINECODE"), "", out UILabel lbl, out UIPanel container);
+            container.width = m_bg.width / 2;
+            container.autoLayout = true;
+            container.autoLayoutDirection = LayoutDirection.Vertical;
+            KlyteMonoUtils.LimitWidthAndBox(lbl, m_bg.width / 2, true);
+            lbl.textAlignment = UIHorizontalAlignment.Center;
+
+            m_customLineCodeInput.autoSize = false;
+            m_customLineCodeInput.horizontalAlignment = UIHorizontalAlignment.Center;
+            m_customLineCodeInput.text = "";
+            m_customLineCodeInput.maxLength = 20;
+            m_customLineCodeInput.submitOnFocusLost = true;
+            m_customLineCodeInput.eventTextSubmitted += SaveLineCode;
+            m_customLineCodeInput.size = new Vector4(m_bg.width / 2, 25);
+            container.relativePosition = new Vector3(m_bg.width / 2, 315);
+        }
+
+        private void SaveLineCode(UIComponent component, string text)
+        {
+            TLMTransportLineExtension.Instance.SafeGet(UVMPublicTransportWorldInfoPanel.GetLineID()).CustomCode = text;
+            UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
+        }
         #endregion
 
         #region First stop
@@ -561,6 +594,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private UIDropDown m_linePrefixDropDown;
         private UITextField m_lineNumberLabel;
+        private UITextField m_customLineCodeInput;
         private UIDropDown m_firstStopSelect;
     }
 }
