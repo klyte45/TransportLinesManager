@@ -167,7 +167,7 @@ namespace Klyte.TransportLinesManager.UI
             KlyteMonoUtils.CreateUIElement(out UILabel titleEffective, m_container.transform, "TitleEffective");
             titleEffective.width = 70;
             titleEffective.height = 30;
-            KlyteMonoUtils.LimitWidth(titleEffective, 70, true);
+            KlyteMonoUtils.LimitWidthAndBox(titleEffective, 70, true);
             titleEffective.relativePosition = new Vector3(70, 0);
             titleEffective.textScale = 0.8f;
             titleEffective.color = Color.white;
@@ -193,7 +193,7 @@ namespace Klyte.TransportLinesManager.UI
             m_effectiveLabel.useOutline = true;
             m_effectiveLabel.backgroundSprite = "PlainWhite";
             m_effectiveLabel.padding.top = 3;
-            KlyteMonoUtils.LimitWidth(m_effectiveLabel, 70, true);
+            KlyteMonoUtils.LimitWidthAndBox(m_effectiveLabel, 70, true);
 
             AwakeActionButtons();
         }

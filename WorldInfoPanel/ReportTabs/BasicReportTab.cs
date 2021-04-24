@@ -33,7 +33,6 @@ namespace Klyte.TransportLinesManager.UI
             titleLabel.autoSize = true;
             titleLabel.textAlignment = UIHorizontalAlignment.Center;
             titleLabel.minimumSize = new Vector2(m_bg.width, 0);
-            KlyteMonoUtils.LimitWidth(titleLabel, m_bg.width);
             titleLabel.localeID = TitleLocaleID;
 
             KlyteMonoUtils.CreateUIElement(out UIPanel listTitle, m_bg.transform, "LT");

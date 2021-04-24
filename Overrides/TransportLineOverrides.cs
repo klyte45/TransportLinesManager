@@ -36,17 +36,18 @@ namespace Klyte.TransportLinesManager.Overrides
             LogUtils.DoLog("Loading Ticket Override Hooks");
             RedirectorInstance.AddRedirect(typeof(HumanAI).GetMethod("EnterVehicle", allFlags), null, null, GetTicketPriceTranspile);
             #endregion
+
             #region Bus Spawn Unbunching
             MethodInfo BusUnbuncher = typeof(TransportLineOverrides).GetMethod("BusUnbuncher", allFlags);
             RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("AddVehicle", allFlags), null, BusUnbuncher);
             #endregion
 
 
+            List<Type> allVehicleAI = ReflectionUtils.GetSubtypesRecursive(typeof(VehicleAI), typeof(VehicleAI));
 
             #region Color Override Hooks
             MethodInfo TranspileGetColor = typeof(TransportLineOverrides).GetMethod("TranspileGetColor", allFlags);
 
-            List<Type> allVehicleAI = ReflectionUtils.GetSubtypesRecursive(typeof(VehicleAI), typeof(VehicleAI));
             LogUtils.DoLog($"allVehicleAI size = {allVehicleAI.Count}");
             foreach (Type ai in allVehicleAI)
             {
@@ -55,7 +56,6 @@ namespace Klyte.TransportLinesManager.Overrides
                 {
                     continue;
                 }
-
                 LogUtils.DoLog($"Loading Color Override Hooks for {ai}");
                 RedirectorInstance.AddRedirect(colorMethod, null, null, TranspileGetColor);
             }
@@ -73,8 +73,16 @@ namespace Klyte.TransportLinesManager.Overrides
             #region Express Bus Hooks
             MethodInfo TranspileCanLeaveStop = typeof(TransportLineOverrides).GetMethod("TranspileCanLeaveStop", allFlags);
             LogUtils.DoLog("Loading CanLeaveStop Hook");
-            RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("CanLeaveStop", allFlags), null, null, TranspileCanLeaveStop);
-
+            foreach (Type ai in allVehicleAI)
+            {
+                var canLeaveMI = ai.GetMethod("CanLeave", allFlags);
+                if (canLeaveMI is null)
+                {
+                    LogUtils.DoLog($"Skipping: {ai} doesn't have CanLeave");
+                    continue;
+                }
+                RedirectorInstance.AddRedirect(canLeaveMI, null, null, TranspileCanLeaveStop);
+            }
             #endregion
         }
         #endregion
@@ -267,7 +275,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return inst;
         }
 
-        private static Color GetColorFor(ref TransportLine line, ushort transportLine)
+        public static Color GetColorFor(ref TransportLine line, ushort transportLine)
         {
             if (transportLine != 0)
             {
@@ -295,7 +303,7 @@ namespace Klyte.TransportLinesManager.Overrides
         #endregion
 
         #region Bus Spawn Unbunching
-        private static void BusUnbuncher(ushort vehicleID, ref Vehicle data, bool findTargetStop)
+        public static void BusUnbuncher(ushort vehicleID, ref Vehicle data, bool findTargetStop)
         {
             if (findTargetStop && (data.Info.GetAI() is BusAI || data.Info.GetAI() is TramAI || data.Info.GetAI() is TrolleybusAI) && data.m_transportLine > 0)
             {
@@ -306,37 +314,36 @@ namespace Klyte.TransportLinesManager.Overrides
         #endregion
 
         #region Express Bus
-        public static bool PreCanLeaveStop(ref TransportLine __instance, ushort nextStop)
+        public static bool PreCanLeaveStop(ref TransportLine tl, ushort nextStop, int waitTime)
         {
-            if (__instance.m_vehicles == 0 || (__instance.m_flags & TransportLine.Flags.Created) == 0)
+            if (tl.m_vehicles == 0 || (tl.m_flags & TransportLine.Flags.Created) == 0)
             {
-                return false;
+                return tl.CanLeaveStop(nextStop, waitTime);
             }
-            var info = VehicleManager.instance.m_vehicles.m_buffer[__instance.m_vehicles].Info;
+            var info = VehicleManager.instance.m_vehicles.m_buffer[tl.m_vehicles].Info;
 
             var validType = (info.m_vehicleType == VehicleInfo.VehicleType.Car && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled)
                 || (info.m_vehicleType == VehicleInfo.VehicleType.Tram && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled)
                 || (info.m_vehicleType == VehicleInfo.VehicleType.Trolleybus && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled);
-            return validType && TransportLine.GetPrevStop(nextStop) != __instance.m_stops;
+            return validType && TransportLine.GetPrevStop(nextStop) != tl.m_stops && !TLMStopDataContainer.Instance.SafeGet(nextStop).IsTerminal ? true : tl.CanLeaveStop(nextStop, waitTime);
         }
+
+        private static MethodInfo CanLeaveStop = typeof(TransportLine).GetMethod("CanLeaveStop", RedirectorUtils.allFlags);
 
         public static IEnumerable<CodeInstruction> TranspileCanLeaveStop(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
-            var inst = new List<CodeInstruction>(instructions);
-
-            var lbl = il.DefineLabel();
-            inst[0].labels.Add(lbl);
-            inst.InsertRange(0, new List<CodeInstruction>
+            var instrList = new List<CodeInstruction>(instructions);
+            var preCanLeave = typeof(TransportLineOverrides).GetMethod("PreCanLeaveStop", RedirectorUtils.allFlags);
+            for (int i = 0; i < instrList.Count; i++)
             {
-                new CodeInstruction(OpCodes.Ldarga_S,0),
-                new CodeInstruction(OpCodes.Ldarg_1),
-                new CodeInstruction(OpCodes.Call, typeof(TransportLineOverrides).GetMethod("PreCanLeaveStop",RedirectorUtils.allFlags)),
-                new CodeInstruction(OpCodes.Brfalse, lbl),
-                new CodeInstruction(OpCodes.Ldc_I4_1),
-                new CodeInstruction(OpCodes.Ret),
-            });
-            LogUtils.PrintMethodIL(inst);
-            return inst;
+                if (instrList[i].operand == CanLeaveStop)
+                {
+                    instrList[i].opcode = OpCodes.Call;
+                    instrList[i].operand = preCanLeave;
+                }
+            }
+            LogUtils.PrintMethodIL(instrList);
+            return instrList;
         }
         #endregion
     }

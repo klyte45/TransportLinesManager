@@ -63,7 +63,7 @@ namespace Klyte.TransportLinesManager.UI
 
             LogUtils.DoLog("ColorForModel");
             m_useColorForModel = m_helper.AddCheckboxLocale("K45_TLM_USE_PREFIX_COLOR_FOR_VEHICLE", false, OnUseColorVehicleChange);
-            KlyteMonoUtils.LimitWidth(m_useColorForModel.label, 340, true);
+            KlyteMonoUtils.LimitWidthAndBox(m_useColorForModel.label, 340, true);
             m_useColorForModel.label.textScale = 1;
 
             LogUtils.DoLog("ColorSel");
@@ -198,7 +198,7 @@ namespace Klyte.TransportLinesManager.UI
 
             KlyteMonoUtils.CreateUIElement(out UIButton resetColor, container.transform, "PrefixColorReset", new Vector4(290, 0, 0, 0));
             KlyteMonoUtils.InitButton(resetColor, false, "ButtonMenu");
-            KlyteMonoUtils.LimitWidth(resetColor, 80, true);
+            KlyteMonoUtils.LimitWidthAndBox(resetColor, 80, true);
             resetColor.textPadding = new RectOffset(5, 5, 5, 2);
             resetColor.autoSize = true;
             resetColor.localeID = "K45_TLM_RESET_COLOR";

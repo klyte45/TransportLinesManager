@@ -312,36 +312,42 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_lineVehicles.pivot = UIPivotPoint.TopLeft;
             m_lineVehicles.verticalAlignment = UIVerticalAlignment.Middle;
             m_lineVehicles.minimumSize = new Vector2(80, 18);
-            m_lineVehicles.relativePosition = new Vector2(445, 0);
             m_lineVehicles.textAlignment = UIHorizontalAlignment.Center;
             m_lineVehicles.textColor = ForegroundColor;
-            KlyteMonoUtils.LimitWidth(m_lineVehicles);
+            KlyteMonoUtils.LimitWidthAndBox(m_lineVehicles, out UIPanel containerVehicles);
 
-            m_lineBudgetLabel = GameObject.Instantiate(m_lineStops, m_lineStops.transform.parent);
-            m_lineBudgetLabel.relativePosition = new Vector3(m_lineVehicles.relativePosition.x, 19, 0);
-            KlyteMonoUtils.LimitWidth(m_lineBudgetLabel);
+            KlyteMonoUtils.CreateUIElement(out m_lineBudgetLabel, transform, "LineVehicles");
+            m_lineBudgetLabel.autoSize = true;
+            m_lineBudgetLabel.pivot = UIPivotPoint.TopLeft;
+            m_lineBudgetLabel.verticalAlignment = UIVerticalAlignment.Middle;
+            m_lineBudgetLabel.minimumSize = new Vector2(80, 18);
+            m_lineBudgetLabel.textAlignment = UIHorizontalAlignment.Center;
+            m_lineBudgetLabel.textColor = ForegroundColor;
+            KlyteMonoUtils.LimitWidthAndBox(m_lineBudgetLabel, out UIPanel containerBudget);
+            containerVehicles.relativePosition = new Vector2(445, 0);
+            containerBudget.relativePosition = new Vector2(445, 19);
         }
 
         private void AwakeLabels()
         {
             CreateLabel(out m_lineStops);
-            KlyteMonoUtils.LimitWidth(m_lineStops);
+            KlyteMonoUtils.LimitWidthAndBox(m_lineStops, out UIPanel containerLineStops);
 
             CreateLabel(out m_linePassengers);
             m_linePassengers.transform.SetParent(m_lineStops.transform.parent);
             m_linePassengers.name = "LinePassengers";
-            KlyteMonoUtils.LimitWidth(m_linePassengers);
+            KlyteMonoUtils.LimitWidthAndBox(m_linePassengers, out UIPanel containerPassenger);
 
 
             CreateLabel(out m_lineBalance);
             m_lineBalance.transform.SetParent(m_lineStops.transform.parent);
             m_lineBalance.name = "LineExpenses";
             m_lineBalance.minimumSize = new Vector2(145, 18);
-            KlyteMonoUtils.LimitWidth(m_lineBalance);
+            KlyteMonoUtils.LimitWidthAndBox(m_lineBalance,out UIPanel containerLineBalance);
 
-            m_lineBalance.relativePosition = new Vector3(625, 10);
-            m_linePassengers.relativePosition = new Vector3(540, 10);
-            m_lineStops.relativePosition = new Vector3(340, 10);
+            containerLineBalance.relativePosition = new Vector3(625, 10);
+            containerPassenger.relativePosition = new Vector3(540, 10);
+            containerLineStops.relativePosition = new Vector3(340, 10);
         }
 
         private void CreateLabel(out UILabel label)

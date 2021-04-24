@@ -70,8 +70,8 @@ namespace Klyte.TransportLinesManager.UI
             label.padding = new RectOffset(3, 3, 5, 3);
             label.isTooltipLocalized = true;
             label.tooltipLocaleID = tooltipLocale;
-            KlyteMonoUtils.LimitWidthAndBox(label);
-            return label.minimumSize.x;
+            KlyteMonoUtils.LimitWidthAndBox(label, columnWidth);
+            return columnWidth;
         }
 
         public void SetData(T data, bool showDaytime, bool realtimeEnabled)
