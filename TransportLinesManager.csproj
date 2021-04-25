@@ -70,6 +70,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Compile Include="Palettes\TLMAutoColorPalette.cs" />
     <Compile Include="CommonProperties.cs" />
     <Compile Include="CommonsWindow\List\Components\UVMLineListItem.cs" />
     <Compile Include="CommonsWindow\List\UVMLinesPanel.cs" />
@@ -220,6 +221,7 @@
     <Compile Include="OptionsMenu\Tabs\ITLMConfigOptionsTab.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMAutoNameBuildingsTab.cs" />
     <Compile Include="Overrides\PublicTransportAtRoadAIOverrides.cs" />
+    <Compile Include="Palettes\RandomPastelColorGenerator.cs" />
     <Compile Include="Utils\NamingMode.cs" />
     <Compile Include="Utils\NamingType.cs" />
     <Compile Include="Utils\NamingTypeExtensions.cs" />
@@ -280,7 +282,7 @@
     <Compile Include="Data\Base\TransportSystemDefinition.cs" />
     <Compile Include="TLMController.cs" />
     <Compile Include="UI\TLMLinearMap.cs" />
-    <Compile Include="TLMAutoColorPalettes.cs" />
+    <Compile Include="Palettes\TLMAutoColorPaletteContainer.cs" />
     <Compile Include="UI\TLMLineCreationToolbox.cs" />
     <Compile Include="Utils\TLMUiTemplateUtils.cs" />
     <Compile Include="Utils\TLMLineUtils.cs" />

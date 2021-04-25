@@ -92,11 +92,11 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                     TSD.GetConfig().NonPrefixedNaming = TLMConfigOptions.namingOptionsSuffix[x];
                 }
             });
-            AddDropdown(Locale.Get("K45_TLM_PALETTE"), out m_paletteDD, m_uiHelper, TLMAutoColorPalettes.paletteList, (x) =>
+            AddDropdown(Locale.Get("K45_TLM_PALETTE"), out m_paletteDD, m_uiHelper, TLMAutoColorPaletteContainer.PaletteList, (x) =>
             {
                 if (x >= 0)
                 {
-                    TSD.GetConfig().Palette = x == 0 ? null : TLMAutoColorPalettes.paletteList[x];
+                    TSD.GetConfig().Palette = x == 0 ? null : TLMAutoColorPaletteContainer.PaletteList[x];
                 }
             });
             AddDropdown(Locale.Get("K45_TLM_ICON"), out m_iconDD, m_uiHelper, Enum.GetValues(typeof(LineIconSpriteNames)).OfType<LineIconSpriteNames>().Select(x => x.GetNameForTLM()).ToArray(), (x) =>
@@ -158,7 +158,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         public void ReloadData()
         {
             var config = TSD.GetConfig();
-            m_paletteDD.selectedValue = config.Palette.TrimToNull() ?? TLMAutoColorPalettes.paletteList[0];
+            m_paletteDD.selectedValue = config.Palette.TrimToNull() ?? TLMAutoColorPaletteContainer.PaletteList[0];
             m_iconDD.selectedIndex = (int)config.DefaultLineIcon;
             m_suffixDD.selectedIndex = Array.IndexOf(TLMConfigOptions.namingOptionsSuffix, config.Suffix);
             m_nonPrefixDD.selectedIndex = Array.IndexOf(TLMConfigOptions.namingOptionsSuffix, config.NonPrefixedNaming);

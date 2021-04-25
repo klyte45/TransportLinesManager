@@ -9,7 +9,7 @@ namespace Klyte.TransportLinesManager.Xml
     public class TLMAutoNameConfigurationData<E> : IIdentifiable, ITLMAutoNameConfigurable where E : struct, Enum
     {
         [XmlAttribute("refName")]
-        public E? Index { get; set; }
+        public E Index { get; set; }
 
         [XmlAttribute("useInAutoname")]
         public bool UseInAutoName { get; set; }
@@ -19,7 +19,7 @@ namespace Klyte.TransportLinesManager.Xml
         [XmlIgnore]
         public long? Id
         {
-            get => Index is null ? null : (long?)Convert.ToInt32(Index); set => Index = Enum.GetValues(typeof(E)).OfType<E?>().Where(x => Convert.ToInt32(x) == value).FirstOrDefault();
+            get => (long?)Convert.ToInt32(Index); set => Index = Enum.GetValues(typeof(E)).OfType<E>().Where(x => Convert.ToInt32(x) == value).FirstOrDefault();
         }
     }
 

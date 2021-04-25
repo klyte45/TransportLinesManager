@@ -72,7 +72,7 @@ namespace Klyte.TransportLinesManager.UI
             LogUtils.DoLog("Palette");
             m_paletteDD = CreateMiniDropdown("K45_TLM_PALETTE", SetPalettePrefix, new string[1]);
             ReloadPalettes();
-            TLMPaletteOptionsTab.onPaletteReloaded += ReloadPalettes;
+            TLMPaletteOptionsTab.OnPaletteReloaded += ReloadPalettes;
 
             LogUtils.DoLog("Format");
             m_formatDD = CreateMiniDropdown("K45_TLM_ICON", SetFormatPrefix, TLMLineIconExtension.GetDropDownOptions(Locale.Get("K45_TLM_LINE_ICON_ENUM_TT_DEFAULT")));
@@ -176,10 +176,10 @@ namespace Klyte.TransportLinesManager.UI
         {
             m_isLoading = true;
             string valSel = (m_paletteDD.selectedValue);
-            m_paletteDD.items = TLMAutoColorPalettes.paletteList;
+            m_paletteDD.items = TLMAutoColorPaletteContainer.PaletteList;
             if (!m_paletteDD.items.Contains(valSel))
             {
-                valSel = TLMAutoColorPalettes.PALETTE_RANDOM;
+                valSel = TLMAutoColorPaletteContainer.PALETTE_RANDOM;
             }
             m_paletteDD.selectedIndex = m_paletteDD.items.ToList().IndexOf(valSel);
             m_paletteDD.items[0] = Locale.Get("K45_TLM_USE_DEFAULT_PALETTE");

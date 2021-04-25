@@ -204,6 +204,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_lineNumberFormatted = m_lineColor.GetComponentInChildren<UIButton>();
             m_lineNumberFormatted.textScale = 1.5f;
             m_lineNumberFormatted.useOutline = true;
+
+            m_lineColor.relativePosition = new Vector3(90, 0);
         }
         private void AwakeShowLineButton()
         {
@@ -343,7 +345,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_lineBalance.transform.SetParent(m_lineStops.transform.parent);
             m_lineBalance.name = "LineExpenses";
             m_lineBalance.minimumSize = new Vector2(145, 18);
-            KlyteMonoUtils.LimitWidthAndBox(m_lineBalance,out UIPanel containerLineBalance);
+            KlyteMonoUtils.LimitWidthAndBox(m_lineBalance, out UIPanel containerLineBalance);
 
             containerLineBalance.relativePosition = new Vector3(625, 10);
             containerPassenger.relativePosition = new Vector3(540, 10);

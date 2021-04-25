@@ -20,12 +20,14 @@ namespace Klyte.TransportLinesManager.UI
             m_bg.autoLayout = true;
             m_bg.autoLayoutDirection = LayoutDirection.Vertical;
             m_bg.clipChildren = true;
+        }
 
-            var uiHelper = new UIHelperExtension(m_bg);
-
+        public void Start()
+        {
             float heightCheck = 0f;
             if (!TLMController.IsRealTimeEnabled)
             {
+                var uiHelper = new UIHelperExtension(m_bg);
                 UICheckBox m_checkChangeDateLabel = uiHelper.AddCheckboxLocale("K45_TLM_SHOW_DAYTIME_INSTEAD_DATE", false, (x) => m_showDayTime = x && SimulationManager.instance.m_enableDayNight);
                 KlyteMonoUtils.LimitWidthAndBox(m_checkChangeDateLabel.label, m_bg.width - 50);
                 heightCheck = m_checkChangeDateLabel.height;

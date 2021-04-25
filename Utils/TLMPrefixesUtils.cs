@@ -72,7 +72,7 @@ namespace Klyte.TransportLinesManager.Utils
                 pal.Add(config.Palette);
             }
             Color c;
-            c = TLMAutoColorPalettes.getColor(num, pal.ToArray(), randomOnOverflow, avoidRandom);
+            c = TLMAutoColorPaletteContainer.GetColor(num, pal.ToArray(), randomOnOverflow, avoidRandom);
             if (c == Color.clear && !allowClear)
             {
                 c = tsdRef.Color;
