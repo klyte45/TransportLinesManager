@@ -21,13 +21,13 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             group7.AddLabel(Locale.Get("K45_TLM_NEAR_LINES_CONFIG"));
             group7.AddSpace(15);
 
-            group7.AddCheckbox(Locale.Get("K45_TLM_NEAR_LINES_SHOW_IN_SERVICES_BUILDINGS"), TransportLinesManagerMod.showNearLinesPlop, toggleShowNearLinesInCityServicesWorldInfoPanel);
-            group7.AddCheckbox(Locale.Get("K45_TLM_NEAR_LINES_SHOW_IN_ZONED_BUILDINGS"), TransportLinesManagerMod.showNearLinesGrow, toggleShowNearLinesInZonedBuildingWorldInfoPanel);
+            group7.AddCheckbox(Locale.Get("K45_TLM_NEAR_LINES_SHOW_IN_SERVICES_BUILDINGS"), TransportLinesManagerMod.ShowNearLinesPlop, toggleShowNearLinesInCityServicesWorldInfoPanel);
+            group7.AddCheckbox(Locale.Get("K45_TLM_NEAR_LINES_SHOW_IN_ZONED_BUILDINGS"), TransportLinesManagerMod.ShowNearLinesGrow, toggleShowNearLinesInZonedBuildingWorldInfoPanel);
 
         }
-        private void toggleShowNearLinesInCityServicesWorldInfoPanel(bool b) => TransportLinesManagerMod.showNearLinesPlop = b;
+        private void toggleShowNearLinesInCityServicesWorldInfoPanel(bool b) => TransportLinesManagerMod.ShowNearLinesPlop = b;
 
-        private void toggleShowNearLinesInZonedBuildingWorldInfoPanel(bool b) => TransportLinesManagerMod.showNearLinesGrow = b;
+        private void toggleShowNearLinesInZonedBuildingWorldInfoPanel(bool b) => TransportLinesManagerMod.ShowNearLinesGrow = b;
 
 
     }

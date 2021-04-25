@@ -167,8 +167,8 @@ namespace Klyte.TransportLinesManager.UI
             KlyteMonoUtils.CreateUIElement(out UILabel titleEffective, m_container.transform, "TitleEffective");
             titleEffective.width = 70;
             titleEffective.height = 30;
-            KlyteMonoUtils.LimitWidthAndBox(titleEffective, 70, true);
-            titleEffective.relativePosition = new Vector3(70, 0);
+            KlyteMonoUtils.LimitWidthAndBox(titleEffective, 70,out UIPanel container, true);
+            container.relativePosition = new Vector3(70, 0);
             titleEffective.textScale = 0.8f;
             titleEffective.color = Color.white;
             titleEffective.isLocalized = true;
@@ -203,8 +203,8 @@ namespace Klyte.TransportLinesManager.UI
             if (m_container.isVisible)
             {
                 ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-                m_minutePointer.transform.localEulerAngles = new Vector3(0, 0, (SimulationManager.instance.m_currentDayTimeHour % 1 * -360) + 180);
-                m_hourPointer.transform.localEulerAngles = new Vector3(0, 0, (SimulationManager.instance.m_currentDayTimeHour / 24 * -360) + 180);
+                m_minutePointer.transform.localEulerAngles = new Vector3(0, 0, (TLMLineUtils.ReferenceTimer % 1 * -360) + 180);
+                m_hourPointer.transform.localEulerAngles = new Vector3(0, 0,   (TLMLineUtils.ReferenceTimer / 24 * -360) + 180);
                 var tsd = TransportSystemDefinition.From(lineID);
                 Tuple<TicketPriceEntryXml, int> value = TLMLineUtils.GetTicketPriceForLine(tsd, lineID);
                 m_effectiveLabel.color = value.Second < 0 ? Color.gray : TLMTicketConfigTab.m_colorOrder[value.Second % TLMTicketConfigTab.m_colorOrder.Count];

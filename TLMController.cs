@@ -185,17 +185,17 @@ namespace Klyte.TransportLinesManager
                     {
                         continue;
                     }
-
-                    parent2.eventVisibilityChanged += EventWIPChanged;
-                    parent2.eventPositionChanged += EventWIPChanged;
-                    parent2.eventSizeChanged += EventWIPChanged;
+                    var isGrow = wip is ZonedBuildingWorldInfoPanel;
+                    parent2.eventVisibilityChanged += (x, y) => EventWIPChanged(x, isGrow);
+                    parent2.eventPositionChanged += (x, y) => EventWIPChanged(x, isGrow);
+                    parent2.eventSizeChanged += (x, y) => EventWIPChanged(x, isGrow);
 
                 }
                 initializedWIP = true;
             }
         }
 
-        private void EventWIPChanged<T>(UIComponent component, T value) => UpdateNearLines(TransportLinesManagerMod.showNearLinesGrow ? component : null, true);
+        private void EventWIPChanged(UIComponent component, bool isGrow) => UpdateNearLines((isGrow ? TransportLinesManagerMod.ShowNearLinesGrow : TransportLinesManagerMod.ShowNearLinesPlop) ? component : null, true);
 
 
         private ushort lastBuildingSelected = 0;

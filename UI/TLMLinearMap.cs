@@ -156,7 +156,7 @@ namespace Klyte.TransportLinesManager.UI
                     local = GetStation(lineID, stationId, ss, out stationName, out List<ushort> intersections, out airport, out harbor, out taxi, out regionalStation, out cableCarStation, out namePrefix);
                     lineStationsPanel.width += AddStationToLinearMap(namePrefix, stationName, local, lineStationsPanel.width, intersections, airport, harbor, taxi, regionalStation, cableCarStation, stationId, ss, true);
                 }
-                else if (TransportLinesManagerMod.showDistanceLinearMap || Parent.ForceShowStopsDistances)
+                else if (TransportLinesManagerMod.ShowDistanceLinearMap || Parent.ForceShowStopsDistances)
                 {
                     minI--;
                 }
@@ -487,7 +487,7 @@ namespace Klyte.TransportLinesManager.UI
                 distanceToggle.text = "Δd";
                 distanceToggle.eventClick += (x, y) =>
                 {
-                    TransportLinesManagerMod.showDistanceLinearMap = !TransportLinesManagerMod.showDistanceLinearMap;
+                    TransportLinesManagerMod.ShowDistanceLinearMap = !TransportLinesManagerMod.ShowDistanceLinearMap;
                     RedrawLine();
                 };
             }
@@ -652,7 +652,7 @@ namespace Klyte.TransportLinesManager.UI
                     UILabel distance = null;
                     int intersectionCount = otherLinesIntersections.Count + (airport != string.Empty ? 1 : 0) + (taxi != string.Empty ? 1 : 0) + (harbor != string.Empty ? 1 : 0) + (regionalTrainStation != string.Empty ? 1 : 0) + (cableCarStation != string.Empty ? 1 : 0);
 
-                    if ((TransportLinesManagerMod.showDistanceLinearMap || Parent.ForceShowStopsDistances) && offsetX > 20)
+                    if ((TransportLinesManagerMod.ShowDistanceLinearMap || Parent.ForceShowStopsDistances) && offsetX > 20)
                     {
                         NetSegment seg = Singleton<NetManager>.instance.m_segments.m_buffer[Singleton<NetManager>.instance.m_nodes.m_buffer[stationNodeId].m_segment0];
                         if (seg.m_endNode != stationNodeId)
