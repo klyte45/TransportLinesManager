@@ -1,13 +1,15 @@
-﻿<color #AA44FF>TLMv13.5</color>
-	- Added support to <color yellow>More Vehicles</color> mod. Some statatistics may be lost when converting a savegame to use that mod, but it's harmless.
-	- Fixed some Write the Signs integration bugs.
-	
-<color yellow>Update r1:</color> Fixed game sometimes freezing when saving. 
-	<color #FF8800>IMPORTANT NOTE: Some stats data will be lost due More Vehicles compatibility implementation!</color>
-	
-<color yellow>Update r2:</color> Fixed auto-save issue
-	<color #00ffff>NOTE: The savegame size will be increased.</color>
+﻿<extended><color #9999FF>TLM 14 - 29/APR/21</color>
 
-<color yellow>Update r10000:</color> Downgrade to C# 7.x
-<color yellow>Update r10002:</color> Fixed some crashes related to picking any of the transport line tools in some conditions.
-<color yellow>Update r10003:</color> Reducing savegame size for the statistics.
+- Perfomance: the data storage system was fully rewritten and now the mod is 30% faster in average than v13.5.
+- <color yellow>Express services for bus, tram and trolleybus</color>: when active, they will only stop if there's any passenger exchange scheduled in the stop.
+- <color yellow>Terminal mark for road shared modals</color>: useful when using express services to force the vehicles to stop. Also will be used to set destinations in Write The Signs 0.3. Right click in a stop in the map to mark it.
+- <color yellow>New map exporter algorithm</color>: It's usable finally! It generates a basic features HTML with the public transport lines from the city.
+- Added spawn unbunching feature to trolleybus (as well it already exists for bus and tram).
+- New palette editor ingame - load a city to edit the colors!
+- Now supports the RealTime clock if the day/night cycle is disabled - enable the option in menu for it!
+- Small changes on auto name algorithm.
+- Integration with Addresses 3 name new road name generation system.
+- Minor fixes in integrations with Addresses and Write the Signs mods.
+- Minor UI Fixes.
+
+See all changes in GitHub in the third button below.
