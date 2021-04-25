@@ -119,6 +119,8 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
+        public static float ReferenceTimer => (TransportLinesManagerMod.UseGameClockAsReferenceIfNoDayNight && !Singleton<SimulationManager>.instance.m_enableDayNight) ? (float)Singleton<SimulationManager>.instance.m_currentGameTime.TimeOfDay.TotalHours % 24 : Singleton<SimulationManager>.instance.m_currentDayTimeHour;
+
         public static Tuple<float, int, int, float, bool> GetBudgetMultiplierLineWithIndexes(ushort lineId)
         {
             IBasicExtensionStorage currentConfig = GetEffectiveConfigForLine(lineId);
@@ -129,13 +131,13 @@ namespace Klyte.TransportLinesManager.Utils
                 currentConfig = GetEffectiveConfigForLine(lineId);
                 budgetConfig = currentConfig.BudgetEntries;
             }
-            Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
+            Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(ReferenceTimer);
             return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third) / 100f, currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third, currentConfig is TLMTransportLineConfiguration);
 
         }
         public static string GetLineStringId(ushort lineIdx)
         {
-            if(TLMTransportLineExtension.Instance.SafeGet(lineIdx).CustomCode is string customId)
+            if (TLMTransportLineExtension.Instance.SafeGet(lineIdx).CustomCode is string customId)
             {
                 return customId;
             }
@@ -866,7 +868,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         }
 
-        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(TransportSystemDefinition tsd, ushort lineId) => GetTicketPriceForLine(tsd, lineId, SimulationManager.instance.m_currentDayTimeHour);
+        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(TransportSystemDefinition tsd, ushort lineId) => GetTicketPriceForLine(tsd, lineId, ReferenceTimer);
         public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(TransportSystemDefinition tsd, ushort lineId, float hour)
         {
             Tuple<TicketPriceEntryXml, int> ticketPriceDefault = null;

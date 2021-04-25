@@ -10,7 +10,6 @@ using Klyte.TransportLinesManager.OptionsMenu;
 using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using System.Reflection;
-using static Klyte.Commons.UI.DefaultEditorUILib;
 
 [assembly: AssemblyVersion("14.0.0.*")]
 namespace Klyte.TransportLinesManager
@@ -48,28 +47,6 @@ namespace Klyte.TransportLinesManager
             });
             if (IsCityLoaded)
             {
-                //group9.AddButton(Locale.Get("K45_TLM_EXPORT_CITY_CONFIG"), () =>
-                //{
-                //    string path = TLMConfigOptions.instance.currentLoadedCityConfig.Export();
-                //    ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_EXPORTED_TO_TEMPLATE"), path), (x, y) =>
-                //    {
-                //        if (y == 1)
-                //        {
-                //            ColossalFramework.Utils.OpenInFileBrowser(path);
-                //        }
-                //    });
-                //});
-                //group9.AddButton(Locale.Get("K45_TLM_IMPORT_CITY_CONFIG"), () =>
-                //{
-                //    ConfirmPanel.ShowModal(Name, string.Format(Locale.Get("K45_TLM_FILE_WILL_BE_IMPORTED_TEMPLATE"), TLMConfigOptions.instance.currentLoadedCityConfig.ThisPath), (x, y) =>
-                //    {
-                //        if (y == 1)
-                //        {
-                //            TLMConfigOptions.instance.currentLoadedCityConfig.ReloadFromDisk();
-                //            TLMConfigOptions.instance.ReloadData();
-                //        }
-                //    });
-                //});
                 group9.AddButton(Locale.Get("K45_TLM_SAVE_CURRENT_CITY_CONFIG_AS_DEFAULT"), () =>
                 {
                     TLMBaseConfigXML.Instance.ExportAsGlobalConfig();
@@ -99,27 +76,32 @@ namespace Klyte.TransportLinesManager
         }
 
 
-        private static readonly SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
-        private static readonly SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
-        private static readonly SavedBool m_showDistanceInLinearMap = new SavedBool("TLMshowDistanceInLinearMap", Settings.gameSettingsFile, true, true);
+        private static readonly SavedBool m_savedShowNearLinesInCityServicesWorldInfoPanel = new SavedBool("K45_TLM_showNearLinesInCityServicesWorldInfoPanel", Settings.gameSettingsFile, true, true);
+        private static readonly SavedBool m_savedShowNearLinesInZonedBuildingWorldInfoPanel = new SavedBool("K45_TLM_showNearLinesInZonedBuildingWorldInfoPanel", Settings.gameSettingsFile, false, true);
+        private static readonly SavedBool m_savedUseGameClockAsReferenceIfNoDayNightCycle = new SavedBool("K45_TLM_useGameClockAsReferenceIfNoDayNightCycle", Settings.gameSettingsFile, false, true);
+        private static readonly SavedBool m_showDistanceInLinearMap = new SavedBool("K45_TLM_showDistanceInLinearMap", Settings.gameSettingsFile, true, true);
 
-        public static bool showNearLinesPlop
+        public static bool ShowNearLinesPlop
         {
             get => m_savedShowNearLinesInCityServicesWorldInfoPanel.value;
             set => m_savedShowNearLinesInCityServicesWorldInfoPanel.value = value;
         }
-        public static bool showNearLinesGrow
+        public static bool ShowNearLinesGrow
         {
             get => m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value;
             set => m_savedShowNearLinesInZonedBuildingWorldInfoPanel.value = value;
         }
 
-        public static bool showDistanceLinearMap
+        public static bool ShowDistanceLinearMap
         {
             get => m_showDistanceInLinearMap.value;
             set => m_showDistanceInLinearMap.value = value;
         }
-
+        public static bool UseGameClockAsReferenceIfNoDayNight
+        {
+            get => m_savedUseGameClockAsReferenceIfNoDayNightCycle.value;
+            set => m_savedUseGameClockAsReferenceIfNoDayNightCycle.value = value;
+        }
         public override string IconName => "K45_TLM_Icon";
 
 

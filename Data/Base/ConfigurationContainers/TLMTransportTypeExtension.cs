@@ -49,7 +49,10 @@ namespace Klyte.TransportLinesManager.Extensions
                 try
                 {
                     AssetConfigurations = value;
-                    InitCapacitiesInAssets();
+                    if (!LoadingManager.instance.m_currentlyLoading)
+                    {
+                        InitCapacitiesInAssets();
+                    }
                 }
                 catch (Exception e)
                 {

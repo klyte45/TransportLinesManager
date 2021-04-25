@@ -14,7 +14,7 @@ namespace Klyte.TransportLinesManager.Xml
         {
             get => isCustom; set
             {
-                if(!value && isCustom)
+                if (!value && isCustom)
                 {
                     DisplayAbsoluteValues = false;
                     BudgetEntries = new TimeableList<BudgetEntryXml>();
@@ -41,7 +41,10 @@ namespace Klyte.TransportLinesManager.Xml
             get => customIdentifier; set
             {
                 customIdentifier = value.TrimToNull();
-                TLMController.Instance.SharedInstance.OnLineSymbolParameterChanged();
+                if (!LoadingManager.instance.m_currentlyLoading)
+                {
+                    TLMController.Instance.SharedInstance.OnLineSymbolParameterChanged();
+                }
             }
         }
     }
