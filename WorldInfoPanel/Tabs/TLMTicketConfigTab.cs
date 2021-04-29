@@ -1,8 +1,8 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
@@ -34,16 +34,15 @@ namespace Klyte.TransportLinesManager.UI
             MainContainer = GetComponent<UIComponent>();
             m_uiHelper = new UIHelperExtension(MainContainer);
 
-            ((UIPanel) m_uiHelper.Self).autoLayoutDirection = LayoutDirection.Horizontal;
-            ((UIPanel) m_uiHelper.Self).wrapLayout = true;
-            ((UIPanel) m_uiHelper.Self).autoLayout = true;
+            ((UIPanel)m_uiHelper.Self).autoLayoutDirection = LayoutDirection.Horizontal;
+            ((UIPanel)m_uiHelper.Self).wrapLayout = true;
+            ((UIPanel)m_uiHelper.Self).autoLayout = true;
 
             UILabel titleLabel = m_uiHelper.AddLabel("");
             titleLabel.autoSize = true;
             titleLabel.textAlignment = UIHorizontalAlignment.Center;
             titleLabel.wordWrap = false;
-            titleLabel.minimumSize = new Vector2(MainContainer.width - 10, 0);
-            KlyteMonoUtils.LimitWidth(titleLabel, MainContainer.width);
+            titleLabel.minimumSize = new Vector2(MainContainer.width - 10, 0);;
             titleLabel.localeID = "K45_TLM_PER_HOUR_TICKET_PRICE_TITLE";
 
             m_uiHelper.AddSpace(5);
@@ -95,7 +94,7 @@ namespace Klyte.TransportLinesManager.UI
             nameContainer.autoLayoutDirection = LayoutDirection.Horizontal;
 
             KlyteMonoUtils.CreateUIElement(out label, nameContainer.transform, name);
-            KlyteMonoUtils.LimitWidth(label, width);
+            KlyteMonoUtils.LimitWidthAndBox(label, width);
             label.autoSize = true;
             label.height = 30;
             label.padding = new RectOffset(3, 3, 4, 3);
@@ -129,7 +128,7 @@ namespace Klyte.TransportLinesManager.UI
             TLMTicketPriceEditorLine[] currentLines = m_entryListContainer.GetComponentsInChildren<TLMTicketPriceEditorLine>();
             m_timeRows = new List<TLMTicketPriceEditorLine>();
             var tsd = TransportSystemDefinition.GetDefinitionForLine(ref tl);
-            uint maxTicketPrice = TLMLineUtils.GetTicketPriceForLine(ref tsd, 0).First.Value * 5;
+            uint maxTicketPrice = TLMLineUtils.GetTicketPriceForLine(tsd, 0).First.Value * 5;
             int count = 0;
             for (int i = 0; i < stopsCount; i++, count++)
             {
@@ -173,7 +172,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void SetBudget(TicketPriceEntryXml idx, float val)
         {
-            idx.Value = (uint) val;
+            idx.Value = (uint)val;
             RedrawList();
         }
         private void AddEntry()
@@ -211,7 +210,7 @@ namespace Klyte.TransportLinesManager.UI
                 for (int i = 0; i < m_timeRows.Count; i++)
                 {
                     int zOrder = sortedValues.IndexOf(values[i]);
-                    updateInfo.Add(Tuple.New(zOrder, (int) values[i], GetColorForNumber(i), m_timeRows[i]));
+                    updateInfo.Add(Tuple.New(zOrder, (int)values[i], GetColorForNumber(i), m_timeRows[i]));
                 }
                 updateInfo.Sort((x, y) => x.First - y.First);
                 for (int i = 0; i < updateInfo.Count; i++)

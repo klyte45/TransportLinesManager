@@ -1,11 +1,10 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
-using Klyte.TransportLinesManager.Overrides;
+using Klyte.TransportLinesManager.Extensions;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,9 +12,11 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.CommonsWindow
 {
 
-    internal class UVMLinesPanel<T> : UICustomControl where T : TLMSysDef<T>
+    internal abstract class UVMLinesPanel : UICustomControl
     {
         public UIPanel MainContainer { get; private set; }
+
+        internal abstract TransportSystemDefinition TSD { get; }
 
         private UICheckBox m_visibilityToggle;
         private LineSortCriterion m_lastSortCriterionLines;
@@ -23,11 +24,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private UIButton m_autoNameAll;
         private UIButton m_autoColorAll;
         private int m_lastLineCount;
-
-        private bool m_pendentCreateViewToggleButton = true;
         private UIPanel m_createdTitleLine;
-
-
         protected UIScrollablePanel mainPanel;
         protected UIPanel titleLine;
         public bool IsUpdated { get; set; }
@@ -63,7 +60,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 return;
             }
-            if (Singleton<TransportManager>.exists && m_lastLineCount != Singleton<TransportManager>.instance.m_lineCount)
+            if (m_lastLineCount != TransportManager.instance.m_lineCount)
             {
                 RefreshLines();
                 m_lastLineCount = Singleton<TransportManager>.instance.m_lineCount;
@@ -87,9 +84,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         #region Sorting
 
         protected static int NaturalCompare(string left, string right) => SortingUtils.NaturalCompare(left, right);
-
-
-
         protected static void Quicksort(IList<UIComponent> elements, Comparison<UIComponent> comp, bool invert) => SortingUtils.Quicksort(elements, comp, invert);
 
         #endregion
@@ -150,7 +144,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.CreateUIElement(out UILabel codColor, titleLine.transform, "codColor");
             codColor.minimumSize = new Vector2(60, 0);
             codColor.area = new Vector4(80, 10, codColor.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidthAndBox(codColor, (uint) codColor.width);
+            KlyteMonoUtils.LimitWidthAndBox(codColor, (uint)codColor.width);
             codColor.textAlignment = UIHorizontalAlignment.Center;
             codColor.prefix = Locale.Get("PUBLICTRANSPORT_LINECOLOR");
             codColor.text = "/";
@@ -160,7 +154,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.CreateUIElement(out UILabel lineName, titleLine.transform, "lineName");
             lineName.minimumSize = new Vector2(200, 0);
             lineName.area = new Vector4(140, 10, lineName.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidthAndBox(lineName, (uint) lineName.width);
+            KlyteMonoUtils.LimitWidthAndBox(lineName, (uint)lineName.width);
             lineName.textAlignment = UIHorizontalAlignment.Center;
             lineName.text = Locale.Get("PUBLICTRANSPORT_LINENAME");
             lineName.eventClicked += LineName_eventClicked;
@@ -168,7 +162,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.CreateUIElement(out UILabel stops, titleLine.transform, "stops");
             stops.minimumSize = new Vector2(80, 0);
             stops.area = new Vector4(340, 10, stops.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidthAndBox(stops, (uint) stops.width);
+            KlyteMonoUtils.LimitWidthAndBox(stops, (uint)stops.width);
             stops.textAlignment = UIHorizontalAlignment.Center;
             stops.text = Locale.Get("PUBLICTRANSPORT_LINESTOPS");
             stops.eventClicked += Stops_eventClicked;
@@ -176,7 +170,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.CreateUIElement(out UILabel vehicles, titleLine.transform, "vehicles");
             vehicles.minimumSize = new Vector2(110, 0);
             vehicles.area = new Vector4(430, 10, vehicles.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidthAndBox(vehicles, (uint) vehicles.width);
+            KlyteMonoUtils.LimitWidthAndBox(vehicles, (uint)vehicles.width);
             vehicles.textAlignment = UIHorizontalAlignment.Center;
             vehicles.text = Locale.Get("PUBLICTRANSPORT_VEHICLES");
             vehicles.eventClicked += Vehicles_eventClicked;
@@ -184,7 +178,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.CreateUIElement(out UILabel passengers, titleLine.transform, "passengers");
             passengers.minimumSize = new Vector2(80, 0);
             passengers.area = new Vector4(540, 10, passengers.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidthAndBox(passengers, (uint) passengers.width);
+            KlyteMonoUtils.LimitWidthAndBox(passengers, (uint)passengers.width);
             passengers.textAlignment = UIHorizontalAlignment.Center;
             passengers.text = Locale.Get("PUBLICTRANSPORT_PASSENGERS");
             passengers.eventClicked += Passengers_eventClicked;
@@ -192,7 +186,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             KlyteMonoUtils.CreateUIElement(out UILabel profitLW, titleLine.transform, "profit");
             profitLW.minimumSize = new Vector2(150, 0);
             profitLW.area = new Vector4(625, 10, profitLW.minimumSize.x, 18);
-            KlyteMonoUtils.LimitWidthAndBox(profitLW, (uint) profitLW.width);
+            KlyteMonoUtils.LimitWidthAndBox(profitLW, (uint)profitLW.width);
             profitLW.textAlignment = UIHorizontalAlignment.Center;
             profitLW.text = Locale.Get(TLMController.IsRealTimeEnabled ? "K45_TLM_BALANCE_LAST_HOUR_HALF" : "K45_TLM_BALANCE_LAST_WEEK");
             profitLW.eventClicked += Profit_eventClicked;
@@ -205,7 +199,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void AwakeShowLineButton()
         {
-            m_visibilityToggle = new UIHelperExtension(m_createdTitleLine).AddCheckboxNoLabel("LineVisibility");            
+            m_visibilityToggle = new UIHelperExtension(m_createdTitleLine).AddCheckboxNoLabel("LineVisibility");
             ((UISprite)m_visibilityToggle.checkedBoxObject).spriteName = "LineVisibilityToggleOn";
             ((UISprite)m_visibilityToggle.checkedBoxObject).tooltipLocaleID = "PUBLICTRANSPORT_HIDELINE";
             ((UISprite)m_visibilityToggle.checkedBoxObject).isTooltipLocalized = true;
@@ -263,18 +257,16 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             RefreshLines();
         }
 
-        private void ToggleAllLinesVisibility(UIComponent component, bool value)
-        {
+        private void ToggleAllLinesVisibility(UIComponent component, bool value) =>
             Singleton<SimulationManager>.instance.AddAction(() =>
-            {
-                foreach (UIComponent item in mainPanel.components)
-                {
-                    var comp = (UVMLineListItem) item.GetComponent(ImplClassChildren);
-                    comp.ChangeLineVisibility(value);
-                }
-                IsUpdated = false;
-            });
-        }
+                                                                {
+                                                                    foreach (UIComponent item in mainPanel.components)
+                                                                    {
+                                                                        var comp = (UVMLineListItem)item.GetComponent(ImplClassChildren);
+                                                                        comp.ChangeLineVisibility(value);
+                                                                    }
+                                                                    IsUpdated = false;
+                                                                });
         #endregion
 
         private void AddToList(ushort lineID, ref int count)
@@ -285,12 +277,13 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 var temp = new GameObject();
                 temp.AddComponent<UIPanel>();
-                lineInfoItem = (UVMLineListItem) temp.AddComponent(implClassBuildingLine);
-                mainPanel.AttachUIComponent(lineInfoItem.gameObject);
+                lineInfoItem = (UVMLineListItem)temp.AddComponent(implClassBuildingLine);
+                mainPanel.AttachUIComponent(lineInfoItem.gameObject).transform.localScale = Vector3.one;
+                lineInfoItem.transform.localScale = Vector3.one;
             }
             else
             {
-                lineInfoItem = (UVMLineListItem) mainPanel.components[count].GetComponent(implClassBuildingLine);
+                lineInfoItem = (UVMLineListItem)mainPanel.components[count].GetComponent(implClassBuildingLine);
             }
             lineInfoItem.LineID = lineID;
             lineInfoItem.RefreshData(true, true);
@@ -298,7 +291,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         }
 
         private static Type ImplClassChildren => typeof(UVMLineListItem);
-        private readonly TransportSystemDefinition m_sysDef = TLMSysDef<T>.instance.GetTSD();
         public void RefreshLines()
         {
             try
@@ -308,7 +300,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 int count = 0;
                 for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
                 {
-                    if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created && m_sysDef.IsFromSystem(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID]))
+                    if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created && TSD.IsFromSystem(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID]))
                     {
                         AddToList(lineID, ref count);
                     }
@@ -342,7 +334,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             catch { }
             IsUpdated = true;
         }
-         
+
         #region Sorting
 
         private enum LineSortCriterion
@@ -504,19 +496,19 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
     }
 
-    internal sealed class UVMLinesPanelNorBus : UVMLinesPanel<TLMSysDefNorBus> { }
-    internal sealed class UVMLinesPanelNorTrm : UVMLinesPanel<TLMSysDefNorTrm> { }
-    internal sealed class UVMLinesPanelNorMnr : UVMLinesPanel<TLMSysDefNorMnr> { }
-    internal sealed class UVMLinesPanelNorMet : UVMLinesPanel<TLMSysDefNorMet> { }
-    internal sealed class UVMLinesPanelNorTrn : UVMLinesPanel<TLMSysDefNorTrn> { }
-    internal sealed class UVMLinesPanelNorFer : UVMLinesPanel<TLMSysDefNorFer> { }
-    internal sealed class UVMLinesPanelNorBlp : UVMLinesPanel<TLMSysDefNorBlp> { }
-    internal sealed class UVMLinesPanelNorShp : UVMLinesPanel<TLMSysDefNorShp> { }
-    internal sealed class UVMLinesPanelNorPln : UVMLinesPanel<TLMSysDefNorPln> { }
-    internal sealed class UVMLinesPanelEvcBus : UVMLinesPanel<TLMSysDefEvcBus> { }
-    internal sealed class UVMLinesPanelTouBus : UVMLinesPanel<TLMSysDefTouBus> { }
-    internal sealed class UVMLinesPanelTouPed : UVMLinesPanel<TLMSysDefTouPed> { }
-    internal sealed class UVMLinesPanelNorTrl : UVMLinesPanel<TLMSysDefNorTrl> { }
-    internal sealed class UVMLinesPanelNorHel : UVMLinesPanel<TLMSysDefNorHel> { }
+    internal sealed class UVMLinesPanelNorBus : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.BUS; }
+    internal sealed class UVMLinesPanelNorTrm : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TRAM; }
+    internal sealed class UVMLinesPanelNorMnr : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.MONORAIL; }
+    internal sealed class UVMLinesPanelNorMet : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.METRO; }
+    internal sealed class UVMLinesPanelNorTrn : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TRAIN; }
+    internal sealed class UVMLinesPanelNorFer : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.FERRY; }
+    internal sealed class UVMLinesPanelNorBlp : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.EVAC_BUS; }
+    internal sealed class UVMLinesPanelNorShp : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.BLIMP; }
+    internal sealed class UVMLinesPanelNorPln : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.SHIP; }
+    internal sealed class UVMLinesPanelEvcBus : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.PLANE; }
+    internal sealed class UVMLinesPanelTouBus : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TOUR_BUS; }
+    internal sealed class UVMLinesPanelTouPed : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TOUR_PED; }
+    internal sealed class UVMLinesPanelNorTrl : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TROLLEY; }
+    internal sealed class UVMLinesPanelNorHel : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.HELICOPTER; }
 
 }

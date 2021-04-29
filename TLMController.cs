@@ -4,28 +4,28 @@ using ColossalFramework.Threading;
 using ColossalFramework.UI;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
+using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
 
 namespace Klyte.TransportLinesManager
 {
     public class TLMController : BaseController<TransportLinesManagerMod, TLMController>, ILinearMapParentInterface
     {
-        public static ExtensorContainer container => ExtensorContainer.instance;
-        public static TLMTransportLineStatusesManager statuses => TLMTransportLineStatusesManager.instance;
+        public static DataContainer Container => DataContainer.instance;
+        public static TLMTransportLineStatusesManager Statuses => TLMTransportLineStatusesManager.instance;
 
-        internal static TLMController instance => TransportLinesManagerMod.Controller;
+        internal static TLMController Instance => TransportLinesManagerMod.Controller;
 
         public bool initializedWIP = false;
         private TLMLinearMap m_linearMapCreatingLine;
@@ -39,23 +39,25 @@ namespace Klyte.TransportLinesManager
         public const ulong REALTIME_MOD_ID = 1420955187;
         public const ulong IPT2_MOD_ID = 928128676;
         private bool? m_isRealTimeEnabled = null;
+        protected static string GlobalBaseConfigFileName { get; } = "TLM_GlobalData.xml";
+        public static string GlobalBaseConfigPath { get; } = Path.Combine(FOLDER_PATH, GlobalBaseConfigFileName);
 
         public static bool IsRealTimeEnabled
         {
             get
             {
-                if (instance?.m_isRealTimeEnabled == null)
+                if (Instance?.m_isRealTimeEnabled == null)
                 {
                     VerifyIfIsRealTimeEnabled();
                 }
-                return instance?.m_isRealTimeEnabled ?? false;
+                return Instance?.m_isRealTimeEnabled == true;
             }
         }
         public static void VerifyIfIsRealTimeEnabled()
         {
-            if (instance != null)
+            if (Instance != null)
             {
-                instance.m_isRealTimeEnabled = VerifyModEnabled(REALTIME_MOD_ID);
+                Instance.m_isRealTimeEnabled = VerifyModEnabled(REALTIME_MOD_ID);
             }
         }
 
@@ -67,8 +69,8 @@ namespace Klyte.TransportLinesManager
             return !(pluginInfo == null || !pluginInfo.isEnabled);
         }
 
-        public static string palettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
-        public static string exportedMapsFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;
+        public static string PalettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
+        public static string ExportedMapsFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;
 
         public Transform TransformLinearMap => UIView.GetAView()?.transform;
 
@@ -100,7 +102,7 @@ namespace Klyte.TransportLinesManager
             set
             {
                 m_showLinearMapWhileCreatingLine.value = value;
-                instance.LinearMapCreatingLine.setVisible(value);
+                Instance.LinearMapCreatingLine.SetVisible(value);
             }
         }
 
@@ -113,8 +115,8 @@ namespace Klyte.TransportLinesManager
                 lineCurrent = 0;
             }
 
-            instance.SetCurrentSelectedId(lineCurrent);
-            instance.LinearMapCreatingLine.redrawLine();
+            Instance.SetCurrentSelectedId(lineCurrent);
+            Instance.LinearMapCreatingLine.RedrawLine();
 
         }
 
@@ -122,7 +124,8 @@ namespace Klyte.TransportLinesManager
 
         public TransportInfo CurrentTransportInfo => Singleton<TransportTool>.instance.m_prefab;
 
-        public TLMShared SharedInstance { get; internal set; }
+        public TLMFacade SharedInstance { get; internal set; }
+        internal IBridgeADR ConnectorADR { get; private set; }
 
         public void Update()
         {
@@ -133,8 +136,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false) => AutoColor(i, out _, ignoreRandomIfSet, ignoreAnyIfSet);
-        public static Color AutoColor(ushort i, out AsyncTask<bool> task, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
+        public static Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
             TransportLine t = TransportManager.instance.m_lines.m_buffer[i];
             try
@@ -142,36 +144,32 @@ namespace Klyte.TransportLinesManager
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(i);
                 if (tsd == default || (((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreAnyIfSet))
                 {
-                    task = null;
                     return Color.clear;
                 }
-                var transportType = tsd.ToConfigIndex();
-                Color c = TLMPrefixesUtils.CalculateAutoColor(t.m_lineNumber, transportType, ref tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
+                Color c = TLMPrefixesUtils.CalculateAutoColor(t.m_lineNumber, tsd, ((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreRandomIfSet, true);
                 if (c.a == 1)
                 {
-                    task = TLMLineUtils.SetLineColor(i, c);
+                    Instance.StartCoroutine(TLMLineUtils.RunColorChange(Instance, i, c));
                 }
                 else
                 {
-                    task = null;
                     c = Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_color;
                 }
-                //TLMUtils.doLog("Colocada a cor {0} na linha {1} ({3} {2})", c, i, t.m_lineNumber, t.Info.m_transportType);
+                LogUtils.DoLog("Colocada a cor #{0} na linha {1} ({3} {2})", c.ToRGB(), i, t.m_lineNumber, t.Info.m_transportType);
                 return c;
             }
             catch (Exception e)
             {
                 LogUtils.DoErrorLog("ERRO!!!!! " + e.Message);
-                TLMCW.SetCurrentConfigBool(TLMCW.ConfigIndex.AUTO_COLOR_ENABLED, false);
-                task = null;
+                TLMBaseConfigXML.Instance.UseAutoColor = false;
                 return Color.clear;
             }
         }
 
-        public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, out _, out _, out _, out _));
+        public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, out _));
 
 
-        private void initNearLinesOnWorldInfoPanel()
+        private void InitNearLinesOnWorldInfoPanel()
         {
             if (!initializedWIP)
             {
@@ -187,22 +185,22 @@ namespace Klyte.TransportLinesManager
                     {
                         continue;
                     }
-
-                    parent2.eventVisibilityChanged += EventWIPChanged;
-                    parent2.eventPositionChanged += EventWIPChanged;
-                    parent2.eventSizeChanged += EventWIPChanged;
+                    var isGrow = wip is ZonedBuildingWorldInfoPanel;
+                    parent2.eventVisibilityChanged += (x, y) => EventWIPChanged(x, isGrow);
+                    parent2.eventPositionChanged += (x, y) => EventWIPChanged(x, isGrow);
+                    parent2.eventSizeChanged += (x, y) => EventWIPChanged(x, isGrow);
 
                 }
                 initializedWIP = true;
             }
         }
 
-        private void EventWIPChanged<T>(UIComponent component, T value) => updateNearLines(TransportLinesManagerMod.showNearLinesGrow ? component : null, true);
+        private void EventWIPChanged(UIComponent component, bool isGrow) => UpdateNearLines((isGrow ? TransportLinesManagerMod.ShowNearLinesGrow : TransportLinesManagerMod.ShowNearLinesPlop) ? component : null, true);
 
 
         private ushort lastBuildingSelected = 0;
 
-        private void updateNearLines(UIComponent parent, bool force = false)
+        private void UpdateNearLines(UIComponent parent, bool force = false)
         {
             if (parent != null)
             {
@@ -298,9 +296,9 @@ namespace Klyte.TransportLinesManager
             using (var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits)))
             {
                 KlyteMonoUtils.CreateElement(out m_linearMapCreatingLine, transform);
-                m_linearMapCreatingLine.parent = this;
-                m_linearMapCreatingLine.setVisible(false);
-                initNearLinesOnWorldInfoPanel();
+                m_linearMapCreatingLine.Parent = this;
+                m_linearMapCreatingLine.SetVisible(false);
+                InitNearLinesOnWorldInfoPanel();
             }
         }
 
@@ -322,7 +320,11 @@ namespace Klyte.TransportLinesManager
             yield break;
         }
 
-        internal void Awake() => SharedInstance = gameObject.AddComponent<TLMShared>();
+        internal void Awake()
+        {
+            SharedInstance = gameObject.AddComponent<TLMFacade>();
+            ConnectorADR = PluginUtils.GetImplementationTypeForMod<BridgeADR, BridgeADRFallback, IBridgeADR>(gameObject, "KlyteAddresses", "2.99.99.0");
+        }
     }
 
 

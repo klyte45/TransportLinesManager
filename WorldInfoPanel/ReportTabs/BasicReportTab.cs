@@ -1,10 +1,10 @@
 ﻿using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using System.Collections.Generic;
 using UnityEngine;
-using static Klyte.TransportLinesManager.Extensors.TLMTransportLineStatusesManager;
+using static Klyte.TransportLinesManager.Extensions.TLMTransportLineStatusesManager;
 using static Klyte.TransportLinesManager.UI.TLMReportsTab;
 
 namespace Klyte.TransportLinesManager.UI
@@ -33,7 +33,6 @@ namespace Klyte.TransportLinesManager.UI
             titleLabel.autoSize = true;
             titleLabel.textAlignment = UIHorizontalAlignment.Center;
             titleLabel.minimumSize = new Vector2(m_bg.width, 0);
-            KlyteMonoUtils.LimitWidth(titleLabel, m_bg.width);
             titleLabel.localeID = TitleLocaleID;
 
             KlyteMonoUtils.CreateUIElement(out UIPanel listTitle, m_bg.transform, "LT");

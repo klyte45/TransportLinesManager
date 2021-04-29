@@ -2,14 +2,16 @@
 using ColossalFramework.UI;
 using Klyte.Commons.Redirectors;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Xml;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using TLMCW = Klyte.TransportLinesManager.TLMConfigWarehouse;
+using static Klyte.TransportLinesManager.ModShared.TLMFacade;
 
 namespace Klyte.TransportLinesManager.Utils
 {
@@ -82,6 +84,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
+
         public static float GetEffectiveBudget(ushort transportLine) => GetEffectiveBudgetInt(transportLine) / 100f;
         public static int GetEffectiveBudgetInt(ushort transportLine)
         {
@@ -100,7 +103,7 @@ namespace Klyte.TransportLinesManager.Utils
             else
             {
                 var tsd = TransportSystemDefinition.From(lineId);
-                return (tsd.GetTransportExtension() as ISafeGettable<TLMPrefixConfiguration>).SafeGet(TLMPrefixesUtils.HasPrefix(ref tsd) ? TLMPrefixesUtils.GetPrefix(lineId) : 0);
+                return (tsd.GetTransportExtension() as ISafeGettable<TLMPrefixConfiguration>).SafeGet(TLMPrefixesUtils.GetPrefix(lineId));
             }
         }
         public static IBasicExtension GetEffectiveExtensionForLine(ushort lineId)
@@ -116,6 +119,8 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
+        public static float ReferenceTimer => (TransportLinesManagerMod.UseGameClockAsReferenceIfNoDayNight && !Singleton<SimulationManager>.instance.m_enableDayNight) ? (float)Singleton<SimulationManager>.instance.m_currentGameTime.TimeOfDay.TotalHours % 24 : Singleton<SimulationManager>.instance.m_currentDayTimeHour;
+
         public static Tuple<float, int, int, float, bool> GetBudgetMultiplierLineWithIndexes(ushort lineId)
         {
             IBasicExtensionStorage currentConfig = GetEffectiveConfigForLine(lineId);
@@ -126,25 +131,29 @@ namespace Klyte.TransportLinesManager.Utils
                 currentConfig = GetEffectiveConfigForLine(lineId);
                 budgetConfig = currentConfig.BudgetEntries;
             }
-            Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(Singleton<SimulationManager>.instance.m_currentDayTimeHour);
+            Tuple<Tuple<BudgetEntryXml, int>, Tuple<BudgetEntryXml, int>, float> currentBudget = budgetConfig.GetAtHour(ReferenceTimer);
             return Tuple.New(Mathf.Lerp(currentBudget.First.First.Value, currentBudget.Second.First.Value, currentBudget.Third) / 100f, currentBudget.First.Second, currentBudget.Second.Second, currentBudget.Third, currentConfig is TLMTransportLineConfiguration);
 
         }
         public static string GetLineStringId(ushort lineIdx)
         {
-            GetLineNamingParameters(lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix);
+            if (TLMTransportLineExtension.Instance.SafeGet(lineIdx).CustomCode is string customId)
+            {
+                return customId;
+            }
+            GetLineNamingParameters(lineIdx, out NamingMode prefix, out Separator s, out NamingMode suffix, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix);
             return TLMPrefixesUtils.GetString(prefix, s, suffix, nonPrefix, Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx].m_lineNumber, zeros, invertPrefixSuffix);
         }
 
-        public static void GetLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix) => GetLineNamingParameters(lineIdx, out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, out string nil);
+        public static void GetLineNamingParameters(ushort lineIdx, out NamingMode prefix, out Separator s, out NamingMode suffix, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix) => GetLineNamingParameters(lineIdx, out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, out string nil);
 
 
-        public static TransportSystemDefinition GetLineNamingParameters(ushort lineIdx, out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, out string icon)
+        public static TransportSystemDefinition GetLineNamingParameters(ushort lineIdx, out NamingMode prefix, out Separator s, out NamingMode suffix, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix, out string icon)
         {
             var tsd = TransportSystemDefinition.GetDefinitionForLine(lineIdx);
             if (tsd != default)
             {
-                GetNamingRulesFromTSD(out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, ref tsd);
+                GetNamingRulesFromTSD(out prefix, out s, out suffix, out nonPrefix, out zeros, out invertPrefixSuffix, tsd);
             }
             else
             {
@@ -159,16 +168,13 @@ namespace Klyte.TransportLinesManager.Utils
             return tsd;
         }
 
-        public static bool IsLineNumberAlredyInUse(int numLinha, ref TransportSystemDefinition tsdOr, int exclude)
+        public static bool IsLineNumberAlredyInUse(int numLinha, TransportSystemDefinition tsdOr, int exclude)
         {
-            numLinha = numLinha & 0xFFFF;
+            numLinha &= 0xFFFF;
             if (numLinha == 0)
             {
                 return true;
             }
-
-            LogUtils.DoLog("tsdOr = " + tsdOr + " | lineNum =" + numLinha + "| cfgIdx = " + tsdOr.ToConfigIndex());
-            var tipo = tsdOr.ToConfigIndex();
 
             for (ushort i = 1; i < Singleton<TransportManager>.instance.m_lines.m_buffer.Length; i++)
             {
@@ -178,45 +184,39 @@ namespace Klyte.TransportLinesManager.Utils
                 }
                 ushort lnum = Singleton<TransportManager>.instance.m_lines.m_buffer[i].m_lineNumber;
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(i);
-                LogUtils.DoLog("tsd = " + tsd + "| lineNum = " + lnum + "| I=" + i + "| cfgIdx = " + tsd.ToConfigIndex());
-                if (tsd != default && i != exclude && tsd.ToConfigIndex() == tipo && lnum == numLinha)
+                if (tsd != default && i != exclude && tsd == tsdOr && lnum == numLinha)
                 {
                     return true;
                 }
             }
             return false;
         }
-        public static void GetNamingRulesFromTSD(out ModoNomenclatura prefix, out Separador s, out ModoNomenclatura suffix, out ModoNomenclatura nonPrefix, out bool zeros, out bool invertPrefixSuffix, ref TransportSystemDefinition tsd)
+        public static void GetNamingRulesFromTSD(out NamingMode prefix, out Separator s, out NamingMode suffix, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix, TransportSystemDefinition tsd)
 
         {
-            var transportType = tsd.ToConfigIndex();
-            if (transportType == TLMCW.ConfigIndex.EVAC_BUS_CONFIG)
+            if (tsd == TransportSystemDefinition.EVAC_BUS)
             {
-                suffix = ModoNomenclatura.Numero;
-                s = Separador.Hifen;
-                prefix = ModoNomenclatura.Romano;
-                nonPrefix = ModoNomenclatura.Numero;
+                suffix = NamingMode.Number;
+                s = Separator.Hyphen;
+                prefix = NamingMode.Roman;
+                nonPrefix = NamingMode.Number;
                 zeros = false;
                 invertPrefixSuffix = false;
             }
             else
             {
-                suffix = (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.SUFFIX);
-                s = (Separador)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.SEPARATOR);
-                prefix = (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.PREFIX);
-                nonPrefix = (ModoNomenclatura)TLMCW.GetCurrentConfigInt(transportType | TLMCW.ConfigIndex.NON_PREFIX);
-                zeros = TLMCW.GetCurrentConfigBool(transportType | TLMCW.ConfigIndex.LEADING_ZEROS);
-                invertPrefixSuffix = TLMCW.GetCurrentConfigBool(transportType | TLMCW.ConfigIndex.INVERT_PREFIX_SUFFIX);
+                var config = tsd.GetConfig();
+                suffix = config.Suffix;
+                s = config.Separator;
+                prefix = config.Prefix;
+                nonPrefix = config.NonPrefixedNaming;
+                zeros = config.UseLeadingZeros;
+                invertPrefixSuffix = config.InvertPrefixSuffix;
             }
         }
 
-        public static string GetIconForLine(ushort lineIdx, bool noBorder = true)
-        {
-            TLMCW.ConfigIndex transportType;
-            var tsd = TransportSystemDefinition.GetDefinitionForLine(lineIdx);
-            transportType = tsd.ToConfigIndex();
-            return KlyteResourceLoader.GetDefaultSpriteNameFor(TLMPrefixesUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, transportType, ref tsd), noBorder);
-        }
+        public static string GetIconForLine(ushort lineIdx, bool noBorder = true) =>
+            KlyteResourceLoader.GetDefaultSpriteNameFor(TLMPrefixesUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, TransportSystemDefinition.GetDefinitionForLine(lineIdx)), noBorder);
 
 
         public static bool GetNearLines(Vector3 pos, float maxDistance, ref List<ushort> linesFound)
@@ -242,7 +242,7 @@ namespace Klyte.TransportLinesManager.Utils
                         {
                             ushort transportLine = nm.m_nodes.m_buffer[num6].m_transportLine;
                             var tsd = TransportSystemDefinition.GetDefinitionForLine(transportLine);
-                            if (transportLine != 0 && tsd != default && TLMCW.GetCurrentConfigBool(tsd.ToConfigIndex() | TLMConfigWarehouse.ConfigIndex.SHOW_IN_LINEAR_MAP))
+                            if (transportLine != 0 && tsd != default && tsd.GetConfig().ShowInLinearMap)
                             {
                                 TransportInfo info2 = tm.m_lines.m_buffer[transportLine].Info;
                                 if (!linesFound.Contains(transportLine) && (tm.m_lines.m_buffer[transportLine].m_flags & TransportLine.Flags.Temporary) == TransportLine.Flags.None)
@@ -350,57 +350,29 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static string GetLineSortString(ushort s, ref TransportLine tl)
         {
-            string transportTypeLetter = "";
             var tsd = TransportSystemDefinition.GetDefinitionForLine(s);
             if (tsd == default)
             {
                 return null;
             }
-            switch (tsd.ToConfigIndex())
-            {
-                case TLMConfigWarehouse.ConfigIndex.PLANE_CONFIG:
-                    transportTypeLetter = "A";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.SHIP_CONFIG:
-                    transportTypeLetter = "B";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.BLIMP_CONFIG:
-                    transportTypeLetter = "C";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.HELICOPTER_CONFIG:
-                    transportTypeLetter = "D";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.TRAIN_CONFIG:
-                    transportTypeLetter = "E";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.FERRY_CONFIG:
-                    transportTypeLetter = "F";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.MONORAIL_CONFIG:
-                    transportTypeLetter = "G";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.METRO_CONFIG:
-                    transportTypeLetter = "H";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.CABLE_CAR_CONFIG:
-                    transportTypeLetter = "I";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.TROLLEY_CONFIG:
-                    transportTypeLetter = "J";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.TRAM_CONFIG:
-                    transportTypeLetter = "K";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.BUS_CONFIG:
-                    transportTypeLetter = "L";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.TOUR_BUS_CONFIG:
-                    transportTypeLetter = "M";
-                    break;
-                case TLMConfigWarehouse.ConfigIndex.TOUR_PED_CONFIG:
-                    transportTypeLetter = "N";
-                    break;
-            }
+            string transportTypeLetter =
+              tsd == TransportSystemDefinition.PLANE ? "A"
+            : tsd == TransportSystemDefinition.SHIP ? "B"
+            : tsd == TransportSystemDefinition.BLIMP ? "C"
+            : tsd == TransportSystemDefinition.HELICOPTER ? "D"
+            : tsd == TransportSystemDefinition.TRAIN ? "E"
+            : tsd == TransportSystemDefinition.FERRY ? "F"
+            : tsd == TransportSystemDefinition.MONORAIL ? "G"
+            : tsd == TransportSystemDefinition.METRO ? "H"
+            : tsd == TransportSystemDefinition.CABLE_CAR ? "I"
+            : tsd == TransportSystemDefinition.TROLLEY ? "J"
+            : tsd == TransportSystemDefinition.TRAM ? "K"
+            : tsd == TransportSystemDefinition.BUS ? "L"
+            : tsd == TransportSystemDefinition.TOUR_BUS ? "M"
+            : tsd == TransportSystemDefinition.TOUR_PED ? "N"
+            : "";
+
+
             return transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0');
         }
 
@@ -435,7 +407,7 @@ namespace Klyte.TransportLinesManager.Utils
             foreach (KeyValuePair<string, ushort> s in otherLinesIntersections.OrderBy(x => x.Key))
             {
                 TransportLine intersectLine = tm.m_lines.m_buffer[s.Value];
-                ItemClass.SubService ss = GetLineNamingParameters(s.Value, out ModoNomenclatura prefixo, out Separador separador, out ModoNomenclatura sufixo, out ModoNomenclatura naoPrefixado, out bool zeros, out bool invertPrefixSuffix, out string bgSprite).SubService;
+                ItemClass.SubService ss = GetLineNamingParameters(s.Value, out NamingMode prefixo, out Separator separador, out NamingMode sufixo, out NamingMode naoPrefixado, out bool zeros, out bool invertPrefixSuffix, out string bgSprite).SubService;
                 KlyteMonoUtils.CreateUIElement(out UIButtonLineInfo lineCircleIntersect, intersectionsPanel.transform);
                 lineCircleIntersect.autoSize = false;
                 lineCircleIntersect.width = size;
@@ -607,39 +579,84 @@ namespace Klyte.TransportLinesManager.Utils
         }
 
 
-        public static AsyncTask<bool> SetLineColor(ushort lineIdx, Color color) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineColor(lineIdx, color));
-        public static AsyncTask<bool> SetLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction<bool>(TransportManager.instance.SetLineName(lineIdx, name));
+        private static int colorChangeCooldown = 0;
+        private static readonly Dictionary<ushort, Color> colorChangeTarget = new Dictionary<ushort, Color>();
+        internal static void SetLineColor(MonoBehaviour parent, ushort lineId, Color color) => parent.StartCoroutine(ChangeColorCoroutine(parent, lineId, color));
 
-        private static TransportInfo.TransportType[] m_roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram };
+        private static IEnumerator ChangeColorCoroutine(MonoBehaviour comp, ushort id, Color newColor)
+        {
+            colorChangeTarget[id] = newColor;
+            if (colorChangeCooldown > 0)
+            {
+                yield break;
+            }
+            colorChangeCooldown = 3;
+            var targetColor = colorChangeTarget[id];
+            do
+            {
+                colorChangeCooldown--;
+                yield return 0;
+                if (targetColor != colorChangeTarget[id])
+                {
+                    colorChangeCooldown = 3;
+                    targetColor = colorChangeTarget[id];
+                }
+            } while (colorChangeCooldown > 0);
 
-        public static string CalculateAutoName(ushort lineIdx, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr)
+            yield return RunColorChange(comp, id, targetColor);
+            yield break;
+        }
+
+        public static IEnumerator RunColorChange(MonoBehaviour comp, ushort id, Color targetColor)
+        {
+            if (Singleton<SimulationManager>.exists)
+            {
+                AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineColor(id, targetColor));
+                yield return task.WaitTaskCompleted(comp);
+                if (UVMPublicTransportWorldInfoPanel.GetLineID() == id)
+                {
+                    UVMPublicTransportWorldInfoPanel.ForceReload();
+                }
+            }
+        }
+
+        public static AsyncTask<bool> SetLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction(TransportManager.instance.SetLineName(lineIdx, name));
+
+        private static TransportInfo.TransportType[] m_roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram, TransportInfo.TransportType.Trolleybus };
+        internal static bool IsRoadLine(ushort lineId) => m_roadTransportTypes.Contains(TransportManager.instance.m_lines.m_buffer[lineId].Info.m_transportType);
+        public static string CalculateAutoName(ushort lineIdx, out List<DestinationPoco> stationDestinations)
         {
             ref TransportLine t = ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineIdx];
+            stationDestinations = new List<DestinationPoco>();
             if ((t.m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None)
             {
-                startStation = 0;
-                endStation = 0;
-                startStationStr = null;
-                endStationStr = null;
                 return null;
             }
             ushort nextStop = t.m_stops;
             bool allowPrefixInStations = m_roadTransportTypes.Contains(t.Info.m_transportType);
-            var stations = new List<Tuple<NamingType, string, ushort>>();
+            var stations = new List<Tuple<NamingType, string, ushort, bool>>();
+            var allowTerminals = TransportSystemDefinition.From(lineIdx).CanHaveTerminals();
             do
             {
                 NetNode stopNode = NetManager.instance.m_nodes.m_buffer[nextStop];
-                string stationName = TLMStationUtils.GetStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true);
-                var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName, nextStop);
+                string stationName = TLMStationUtils.GetStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true, true);
+                var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName.Trim(), nextStop, allowTerminals && (TLMStopDataContainer.Instance.SafeGet(nextStop).IsTerminal || nextStop == t.m_stops));
                 stations.Add(tuple);
                 nextStop = TransportLine.GetNextStop(nextStop);
             } while (nextStop != t.m_stops && nextStop != 0);
             string prefix = "";
-            if (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.ADD_LINE_NUMBER_IN_AUTONAME))
+            if (TLMBaseConfigXML.Instance.AddLineCodeInAutoname)
             {
                 prefix = $"[{GetLineStringId(lineIdx)}] ";
             }
+            var hasAnyTerminals = allowTerminals && stations.Where(x => x.Fourth).Count() > 1;
+            if (hasAnyTerminals)
+            {
+                stations = stations.Select((x) => x.Fourth ? Tuple.New(NamingType.TERMINAL, x.Second, x.Third, x.Fourth) : x).ToList();
+                stationDestinations = stations.Where(x => x.Fourth).Select(x => new DestinationPoco { stopId = x.Third, stopName = x.Second }).ToList();
+            }
             LogUtils.DoLog($"stations => [{string.Join(" ; ", stations.Select(x => $"{x.First}|{x.Second}").ToArray())}]");
+            string startStationStr, endStationStr;
             if (stations.Count % 2 == 0 && stations.Count > 2)
             {
                 LogUtils.DoLog($"Try Simmetric");
@@ -669,15 +686,18 @@ namespace Klyte.TransportLinesManager.Utils
                     }
                     if (simmetric)
                     {
-                        startStation = stations[middle % stations.Count].Third;
-                        endStation = stations[(middle + (stations.Count / 2)) % stations.Count].Third;
-
                         startStationStr = stations[middle % stations.Count].Second;
-                        endStationStr = stations[(middle + stations.Count / 2) % stations.Count].Second;
+                        endStationStr = stations[(middle + (stations.Count / 2)) % stations.Count].Second;
+                        if (!hasAnyTerminals)
+                        {
+                            stationDestinations.Add(new DestinationPoco { stopId = stations[middle % stations.Count].Third, stopName = startStationStr });
+                            stationDestinations.Add(new DestinationPoco { stopId = stations[(middle + (stations.Count / 2)) % stations.Count].Third, stopName = endStationStr });
+                        }
+
 
                         if (startStationStr == endStationStr)
                         {
-                            startStationStr = (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + startStationStr;
+                            startStationStr = (TLMBaseConfigXML.Instance.CircularIfSingleDistrictLine ? "Circular " : "") + startStationStr;
                             endStationStr = startStationStr;
                             return $"{prefix}{startStationStr}";
                         }
@@ -693,7 +713,7 @@ namespace Klyte.TransportLinesManager.Utils
             int targetStart = 0;
             int mostRelevantEndIdx = -1;
             int j = 0;
-            int maxDistanceEnd = (int)(idxStations.Count / 8f + 0.5f);
+            int maxDistanceEnd = (int)((idxStations.Count / 8f) + 0.5f);
             LogUtils.DoLog("idxStations");
             do
             {
@@ -708,13 +728,16 @@ namespace Klyte.TransportLinesManager.Utils
 
             if (mostRelevantEndIdx >= 0)
             {
-                startStation = idxStations[targetStart].Fourth;
-                endStation = stations[mostRelevantEndIdx].Third;
                 startStationStr = idxStations[targetStart].Third;
                 endStationStr = stations[mostRelevantEndIdx].Second;
+                if (!hasAnyTerminals)
+                {
+                    stationDestinations.Add(new DestinationPoco { stopId = idxStations[targetStart].Fourth, stopName = startStationStr });
+                    stationDestinations.Add(new DestinationPoco { stopId = stations[mostRelevantEndIdx].Third, stopName = endStationStr });
+                }
                 if (startStationStr == endStationStr)
                 {
-                    startStationStr = (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + startStationStr;
+                    startStationStr = (TLMBaseConfigXML.Instance.CircularIfSingleDistrictLine ? "Circular " : "") + startStationStr;
                     endStationStr = startStationStr;
                     return $"{prefix}{startStationStr}";
                 }
@@ -725,10 +748,11 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else
             {
-                startStation = idxStations[0].Fourth;
-                endStation = 0;
-                startStationStr = (TLMCW.GetCurrentConfigBool(TLMCW.ConfigIndex.CIRCULAR_IN_SINGLE_DISTRICT_LINE) ? "Circular " : "") + idxStations[0].Third;
-                endStationStr = null;
+                startStationStr = (TLMBaseConfigXML.Instance.CircularIfSingleDistrictLine ? "Circular " : "") + idxStations[0].Third;
+                if (!hasAnyTerminals)
+                {
+                    stationDestinations.Add(new DestinationPoco { stopId = idxStations[0].Fourth, stopName = startStationStr });
+                }
                 return prefix + startStationStr;
             }
 
@@ -837,15 +861,15 @@ namespace Klyte.TransportLinesManager.Utils
                     multiplier = 1;
                 }
             }
-            uint ticketPriceDefault = GetTicketPriceForLine(ref def, vehicleData.m_transportLine).First.Value;
+            uint ticketPriceDefault = GetTicketPriceForLine(def, vehicleData.m_transportLine).First.Value;
             LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): multiplier = {multiplier}, ticketPriceDefault = {ticketPriceDefault}");
 
             return (int)(multiplier * ticketPriceDefault);
 
         }
 
-        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(ref TransportSystemDefinition tsd, ushort lineId) => GetTicketPriceForLine(ref tsd, lineId, SimulationManager.instance.m_currentDayTimeHour);
-        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(ref TransportSystemDefinition tsd, ushort lineId, float hour)
+        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(TransportSystemDefinition tsd, ushort lineId) => GetTicketPriceForLine(tsd, lineId, ReferenceTimer);
+        public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(TransportSystemDefinition tsd, ushort lineId, float hour)
         {
             Tuple<TicketPriceEntryXml, int> ticketPriceDefault = null;
             if (lineId > 0)
@@ -862,7 +886,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
             {
-                ticketPriceDefault = Tuple.New(new TicketPriceEntryXml() { Value = (uint)TLMCW.GetSettedTicketPrice(tsd.ToConfigIndex()) }, -1);
+                ticketPriceDefault = Tuple.New(new TicketPriceEntryXml() { Value = (uint)tsd.GetConfig().DefaultTicketPrice }, -1);
             }
             if ((ticketPriceDefault?.First?.Value ?? 0) == 0)
             {
@@ -875,14 +899,14 @@ namespace Klyte.TransportLinesManager.Utils
 
 
 
-        internal static readonly ModoNomenclatura[] m_nomenclaturasComNumeros = new ModoNomenclatura[]
+        internal static readonly NamingMode[] m_numberedNamingTypes = new NamingMode[]
         {
-        ModoNomenclatura. LatinoMinusculoNumero ,
-        ModoNomenclatura. LatinoMaiusculoNumero ,
-        ModoNomenclatura. GregoMinusculoNumero,
-        ModoNomenclatura. GregoMaiusculoNumero,
-        ModoNomenclatura. CirilicoMinusculoNumero,
-        ModoNomenclatura. CirilicoMaiusculoNumero
+        NamingMode. LatinLowerNumber ,
+        NamingMode. LatinUpperNumber ,
+        NamingMode. GreekLowerNumber,
+        NamingMode. GreekUpperNumber,
+        NamingMode. CyrillicLowerNumber,
+        NamingMode. CyrillicUpperUpper
         };
 
         public static readonly TransferManager.TransferReason[] defaultAllowedVehicleTypes = {

@@ -1,10 +1,10 @@
 ﻿using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using System.Collections.Generic;
 using UnityEngine;
-using static Klyte.TransportLinesManager.Extensors.TLMTransportLineStatusesManager;
+using static Klyte.TransportLinesManager.Extensions.TLMTransportLineStatusesManager;
 using static Klyte.TransportLinesManager.UI.TLMReportsTab;
 
 namespace Klyte.TransportLinesManager.UI

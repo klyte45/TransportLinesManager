@@ -29,7 +29,8 @@
         ADDRESS,
         RICO,
         TROLLEY,
-        HELICOPTER
+        HELICOPTER,
+        TERMINAL
     }
 
 }

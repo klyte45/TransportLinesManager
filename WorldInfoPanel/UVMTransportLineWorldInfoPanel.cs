@@ -2,10 +2,10 @@
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using Harmony;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -274,7 +274,7 @@ namespace Klyte.TransportLinesManager.UI
 
 
 
-        private static void OnRename(UIComponent comp, string text) => m_obj.origInstance.StartCoroutine(TLMController.instance.RenameCoroutine(GetLineID(), text));
+        private static void OnRename(UIComponent comp, string text) => m_obj.origInstance.StartCoroutine(TLMController.Instance.RenameCoroutine(GetLineID(), text));
 
 
 
@@ -327,6 +327,8 @@ namespace Klyte.TransportLinesManager.UI
             return 0;
         }
 
+        internal static void ForceReload() => OnSetTarget();
+
         public static string GetVehicleTypeIcon(ushort lineId) => TransportSystemDefinition.From(lineId).GetTransportTypeIcon();
 
 
@@ -348,7 +350,8 @@ namespace Klyte.TransportLinesManager.UI
             private Func<PublicTransportWorldInfoPanel, InstanceID> m_getterInstanceId = ReflectionUtils.GetGetFieldDelegate<PublicTransportWorldInfoPanel, InstanceID>("m_InstanceID", typeof(PublicTransportWorldInfoPanel));
             internal InstanceID CurrentInstanceID
             {
-                get {
+                get
+                {
                     if (origInstance == null)
                     {
                         return default;

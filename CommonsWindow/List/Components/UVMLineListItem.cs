@@ -2,9 +2,9 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using UnityEngine;
 
@@ -200,10 +200,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_lineColor.width = 40;
             m_lineColor.height = 40;
             m_lineColor.atlas = UIView.GetAView().defaultAtlas;
-            m_lineColor.eventSelectedColorReleased += OnColorChanged;
+            m_lineColor.eventSelectedColorChanged += OnColorChanged;
             m_lineNumberFormatted = m_lineColor.GetComponentInChildren<UIButton>();
             m_lineNumberFormatted.textScale = 1.5f;
             m_lineNumberFormatted.useOutline = true;
+
+            m_lineColor.relativePosition = new Vector3(90, 0);
         }
         private void AwakeShowLineButton()
         {
@@ -312,36 +314,42 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_lineVehicles.pivot = UIPivotPoint.TopLeft;
             m_lineVehicles.verticalAlignment = UIVerticalAlignment.Middle;
             m_lineVehicles.minimumSize = new Vector2(80, 18);
-            m_lineVehicles.relativePosition = new Vector2(445, 0);
             m_lineVehicles.textAlignment = UIHorizontalAlignment.Center;
             m_lineVehicles.textColor = ForegroundColor;
-            KlyteMonoUtils.LimitWidth(m_lineVehicles);
+            KlyteMonoUtils.LimitWidthAndBox(m_lineVehicles, out UIPanel containerVehicles);
 
-            m_lineBudgetLabel = GameObject.Instantiate(m_lineStops, m_lineStops.transform.parent);
-            m_lineBudgetLabel.relativePosition = new Vector3(m_lineVehicles.relativePosition.x, 19, 0);
-            KlyteMonoUtils.LimitWidth(m_lineBudgetLabel);
+            KlyteMonoUtils.CreateUIElement(out m_lineBudgetLabel, transform, "LineVehicles");
+            m_lineBudgetLabel.autoSize = true;
+            m_lineBudgetLabel.pivot = UIPivotPoint.TopLeft;
+            m_lineBudgetLabel.verticalAlignment = UIVerticalAlignment.Middle;
+            m_lineBudgetLabel.minimumSize = new Vector2(80, 18);
+            m_lineBudgetLabel.textAlignment = UIHorizontalAlignment.Center;
+            m_lineBudgetLabel.textColor = ForegroundColor;
+            KlyteMonoUtils.LimitWidthAndBox(m_lineBudgetLabel, out UIPanel containerBudget);
+            containerVehicles.relativePosition = new Vector2(445, 0);
+            containerBudget.relativePosition = new Vector2(445, 19);
         }
 
         private void AwakeLabels()
         {
             CreateLabel(out m_lineStops);
-            KlyteMonoUtils.LimitWidth(m_lineStops);
+            KlyteMonoUtils.LimitWidthAndBox(m_lineStops, out UIPanel containerLineStops);
 
             CreateLabel(out m_linePassengers);
             m_linePassengers.transform.SetParent(m_lineStops.transform.parent);
             m_linePassengers.name = "LinePassengers";
-            KlyteMonoUtils.LimitWidth(m_linePassengers);
+            KlyteMonoUtils.LimitWidthAndBox(m_linePassengers, out UIPanel containerPassenger);
 
 
             CreateLabel(out m_lineBalance);
             m_lineBalance.transform.SetParent(m_lineStops.transform.parent);
             m_lineBalance.name = "LineExpenses";
             m_lineBalance.minimumSize = new Vector2(145, 18);
-            KlyteMonoUtils.LimitWidth(m_lineBalance);
+            KlyteMonoUtils.LimitWidthAndBox(m_lineBalance, out UIPanel containerLineBalance);
 
-            m_lineBalance.relativePosition = new Vector3(625, 10);
-            m_linePassengers.relativePosition = new Vector3(540, 10);
-            m_lineStops.relativePosition = new Vector3(340, 10);
+            containerLineBalance.relativePosition = new Vector3(625, 10);
+            containerPassenger.relativePosition = new Vector3(540, 10);
+            containerLineStops.relativePosition = new Vector3(340, 10);
         }
 
         private void CreateLabel(out UILabel label)
@@ -434,7 +442,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         public void DoAutoColor() => TLMController.AutoColor(m_lineID);
 
-        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, out _, out _, out _, out _));
+        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, out _));
 
         private void OnMouseEnter(UIComponent comp, UIMouseEventParameter param)
         {
@@ -498,7 +506,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             }
         }
 
-        private void OnColorChanged(UIComponent x, Color color) => TLMLineUtils.SetLineColor(m_lineID, color);
+        private void OnColorChanged(UIComponent x, Color color) => TLMLineUtils.SetLineColor(this, m_lineID, color);
 
     }
 }

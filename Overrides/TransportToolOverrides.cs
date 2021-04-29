@@ -1,13 +1,13 @@
 ﻿using ColossalFramework.Threading;
 using Harmony;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
-using static Klyte.Commons.Extensors.RedirectorUtils;
+using static Klyte.Commons.Extensions.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
@@ -48,17 +48,17 @@ namespace Klyte.TransportLinesManager.Overrides
         public static void OnEnable()
         {
             LogUtils.DoLog("OnEnableTransportTool");
-            TLMController.instance.LinearMapCreatingLine?.setVisible(TLMController.LinearMapWhileCreatingLineVisibility);
-            TLMController.instance.LineCreationToolbox?.setVisible(true);
-            TLMController.instance.SetCurrentSelectedId(0);
+            TLMController.Instance.LinearMapCreatingLine?.SetVisible(TLMController.LinearMapWhileCreatingLineVisibility);
+            TLMController.Instance.LineCreationToolbox?.SetVisible(true);
+            TLMController.Instance.SetCurrentSelectedId(0);
         }
 
         public static void OnDisable()
         {
             LogUtils.DoLog("OnDisableTransportTool");
-            TLMController.instance.SetCurrentSelectedId(0);
-            TLMController.instance.LinearMapCreatingLine?.setVisible(false);
-            TLMController.instance.LineCreationToolbox?.setVisible(false);
+            TLMController.Instance.SetCurrentSelectedId(0);
+            TLMController.Instance.LinearMapCreatingLine?.SetVisible(false);
+            TLMController.Instance.LineCreationToolbox?.SetVisible(false);
         }
 
         private static IEnumerable<CodeInstruction> TranspileAfterEveryAction(IEnumerable<CodeInstruction> instructions)
@@ -88,7 +88,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     ThreadHelper.dispatcher.Dispatch(() =>
                     {
                         TLMController.RedrawMap(lineId);
-                        TLMController.instance.LineCreationToolbox.SyncForm();
+                        TLMController.Instance.LineCreationToolbox.SyncForm();
                     });
                 }
             }
@@ -103,7 +103,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 ThreadHelper.dispatcher.Dispatch(() =>
                 {
                     TLMController.RedrawMap(lineId);
-                    TLMController.instance.LineCreationToolbox.SyncForm();
+                    TLMController.Instance.LineCreationToolbox.SyncForm();
                 });
 
             }

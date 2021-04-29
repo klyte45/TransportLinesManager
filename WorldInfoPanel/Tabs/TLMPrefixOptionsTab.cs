@@ -1,10 +1,10 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using ICities;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.OptionsMenu.Tabs;
 using Klyte.TransportLinesManager.Utils;
@@ -63,7 +63,7 @@ namespace Klyte.TransportLinesManager.UI
 
             LogUtils.DoLog("ColorForModel");
             m_useColorForModel = m_helper.AddCheckboxLocale("K45_TLM_USE_PREFIX_COLOR_FOR_VEHICLE", false, OnUseColorVehicleChange);
-            KlyteMonoUtils.LimitWidth(m_useColorForModel.label, 340, true);
+            KlyteMonoUtils.LimitWidthAndBox(m_useColorForModel.label, 340, true);
             m_useColorForModel.label.textScale = 1;
 
             LogUtils.DoLog("ColorSel");
@@ -72,10 +72,10 @@ namespace Klyte.TransportLinesManager.UI
             LogUtils.DoLog("Palette");
             m_paletteDD = CreateMiniDropdown("K45_TLM_PALETTE", SetPalettePrefix, new string[1]);
             ReloadPalettes();
-            TLMPaletteOptionsTab.onPaletteReloaded += ReloadPalettes;
+            TLMPaletteOptionsTab.OnPaletteReloaded += ReloadPalettes;
 
             LogUtils.DoLog("Format");
-            m_formatDD = CreateMiniDropdown("K45_TLM_ICON", SetFormatPrefix, TLMLineIconExtension.getDropDownOptions(Locale.Get("K45_TLM_LINE_ICON_ENUM_TT_DEFAULT")));
+            m_formatDD = CreateMiniDropdown("K45_TLM_ICON", SetFormatPrefix, TLMLineIconExtension.GetDropDownOptions(Locale.Get("K45_TLM_LINE_ICON_ENUM_TT_DEFAULT")));
 
         }
 
@@ -167,7 +167,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (!m_isLoading)
             {
-                Extension.SetCustomFormat(SelectedPrefix, (LineIconSpriteNames) Enum.Parse(typeof(LineIconSpriteNames), value.ToString()));
+                Extension.SetCustomFormat(SelectedPrefix, (LineIconSpriteNames)Enum.Parse(typeof(LineIconSpriteNames), value.ToString()));
                 UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
             }
         }
@@ -176,10 +176,10 @@ namespace Klyte.TransportLinesManager.UI
         {
             m_isLoading = true;
             string valSel = (m_paletteDD.selectedValue);
-            m_paletteDD.items = TLMAutoColorPalettes.paletteList;
+            m_paletteDD.items = TLMAutoColorPaletteContainer.PaletteList;
             if (!m_paletteDD.items.Contains(valSel))
             {
-                valSel = TLMAutoColorPalettes.PALETTE_RANDOM;
+                valSel = TLMAutoColorPaletteContainer.PALETTE_RANDOM;
             }
             m_paletteDD.selectedIndex = m_paletteDD.items.ToList().IndexOf(valSel);
             m_paletteDD.items[0] = Locale.Get("K45_TLM_USE_DEFAULT_PALETTE");
@@ -198,7 +198,7 @@ namespace Klyte.TransportLinesManager.UI
 
             KlyteMonoUtils.CreateUIElement(out UIButton resetColor, container.transform, "PrefixColorReset", new Vector4(290, 0, 0, 0));
             KlyteMonoUtils.InitButton(resetColor, false, "ButtonMenu");
-            KlyteMonoUtils.LimitWidth(resetColor, 80, true);
+            KlyteMonoUtils.LimitWidthAndBox(resetColor, 80, true);
             resetColor.textPadding = new RectOffset(5, 5, 5, 2);
             resetColor.autoSize = true;
             resetColor.localeID = "K45_TLM_RESET_COLOR";
@@ -223,9 +223,9 @@ namespace Klyte.TransportLinesManager.UI
             m_useColorForModel.isChecked = Extension.IsUsingColorForModel(sel);
             m_prefixName.text = Extension.GetName(sel) ?? "";
             m_paletteDD.selectedIndex = Math.Max(0, m_paletteDD.items.ToList().IndexOf(Extension.GetCustomPalette(sel)));
-            m_formatDD.selectedIndex = Math.Max(0, (int) Extension.GetCustomFormat(sel));
+            m_formatDD.selectedIndex = Math.Max(0, (int)Extension.GetCustomFormat(sel));
 
-            m_title.text = string.Format(Locale.Get("K45_TLM_PREFIX_TAB_WIP_TITLE"), sel > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(TransportSystem), (int) sel + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(TransportSystem.ToConfigIndex()));
+            m_title.text = string.Format(Locale.Get("K45_TLM_PREFIX_TAB_WIP_TITLE"), sel > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(TransportSystem), (int)sel + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TransportSystem.GetTransportName());
 
             m_isLoading = false;
 
@@ -235,6 +235,6 @@ namespace Klyte.TransportLinesManager.UI
         public void OnDisable() { }
         public void OnGotFocus() { }
         public bool MayBeVisible() => TLMPrefixesUtils.HasPrefix(GetLineID()) && !TLMTransportLineExtension.Instance.IsUsingCustomConfig(GetLineID());
-        public void Hide() =>MainPanel.isVisible=false;
+        public void Hide() => MainPanel.isVisible = false;
     }
 }

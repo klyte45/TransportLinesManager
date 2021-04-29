@@ -1,9 +1,9 @@
-﻿using Klyte.Commons.Extensors;
+﻿using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
 using System.Reflection;
 using UnityEngine;
-using static Klyte.Commons.Extensors.RedirectorUtils;
+using static Klyte.Commons.Extensions.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.UI
 {

@@ -1,11 +1,11 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
@@ -234,7 +234,7 @@ namespace Klyte.TransportLinesManager.UI
                               ushort lineId = GetLineID();
                               IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
 
-                              LogUtils.DoErrorLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
+                              LogUtils.DoLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
                               if (y)
                               {
                                   extension.AddAssetToLine(lineId, x.objectUserData.ToString());
@@ -282,7 +282,7 @@ namespace Klyte.TransportLinesManager.UI
             else
             {
                 int prefix = (int)TLMPrefixesUtils.GetPrefix(GetLineID());
-                m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(tsd), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), TLMConfigWarehouse.getNameForTransportType(tsd.ToConfigIndex()));
+                m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(tsd), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), tsd.GetTransportName());
             }
 
             m_isLoading = false;

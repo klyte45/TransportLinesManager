@@ -1,8 +1,8 @@
 ﻿using ColossalFramework;
 using Harmony;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Reflection;

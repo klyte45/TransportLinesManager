@@ -1,6 +1,6 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
@@ -27,7 +27,8 @@ namespace Klyte.TransportLinesManager.UI
 
         public TicketPriceEntryXml Entry
         {
-            get => m_entry; set {
+            get => m_entry; set
+            {
                 m_entry = value;
                 FillData();
             }
@@ -40,7 +41,7 @@ namespace Klyte.TransportLinesManager.UI
         public void SetLegendInfo(Color c, uint maxValue)
         {
             m_timeInput.eventTextChanged -= SendText;
-            ((UISprite) m_slider.thumbObject).color = c;
+            ((UISprite)m_slider.thumbObject).color = c;
             m_bugdetSlider.maxValue = maxValue;
             m_timeInput.eventTextChanged += SendText;
         }
@@ -132,8 +133,8 @@ namespace Klyte.TransportLinesManager.UI
 
             m_bugdetSlider.thumbObject.width = 400;
             m_bugdetSlider.thumbObject.height = 20;
-            ((UISprite) m_bugdetSlider.thumbObject).spriteName = "PlainWhite";
-            ((UISprite) m_bugdetSlider.thumbObject).color = new Color32(1, 140, 46, 255);
+            ((UISprite)m_bugdetSlider.thumbObject).spriteName = "PlainWhite";
+            ((UISprite)m_bugdetSlider.thumbObject).color = new Color32(1, 140, 46, 255);
 
             m_bugdetSlider.eventValueChanged += delegate (UIComponent c, float val)
             {
@@ -154,16 +155,30 @@ namespace Klyte.TransportLinesManager.UI
             FillData();
         }
 
+        private bool alreadyCalling = false;
         private void SendText(UIComponent x, string y)
         {
             if (m_loading)
             {
                 return;
             }
-            if (int.TryParse(y, out int time))
+            if (alreadyCalling)
             {
-                OnTimeChanged?.Invoke(Entry, time);
+                LogUtils.DoErrorLog($"TLMTicketPriceEditorLine: Recursive eventTextChanged call! {Environment.StackTrace}");
             }
+            alreadyCalling = true;
+            try
+            {
+                if (int.TryParse(y, out int time))
+                {
+                    OnTimeChanged?.Invoke(Entry, time);
+                }
+            }
+            finally
+            {
+                alreadyCalling = false;
+            }
+
         }
     }
 

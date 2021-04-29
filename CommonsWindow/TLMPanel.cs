@@ -1,10 +1,9 @@
 ﻿using ColossalFramework.UI;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.CommonsWindow
@@ -12,8 +11,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
     public class TLMPanel : BasicKPanel<TransportLinesManagerMod, TLMController, TLMPanel>
     {
-        private UILabel m_directionLabel;
-
         private UITabstrip m_stripMain;
 
         public override float PanelWidth => 875;
@@ -32,7 +29,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             m_stripMain.selectedIndex = 0;
             m_stripMain.selectedIndex = -1;
-            m_stripMain.eventSelectedIndexChanged += SetViewMode;
             m_stripMain.eventVisibilityChanged += OnOpenClosePanel;
         }
 
@@ -41,35 +37,13 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             if (value)
             {
                 TransportLinesManagerMod.Instance.ShowVersionInfoPopup();
-                SetViewMode(null, m_stripMain.selectedIndex);
             }
-        }
-
-        private void SetViewMode(UIComponent component, int value)
-        {
-            //if (!GetComponent<UIComponent>().isVisible)
-            //{
-            return;
-            //}
-            //switch ((UiCategoryTab)value)
-            //{
-            //    case UiCategoryTab.LineListing:
-            //    case UiCategoryTab.DepotListing:
-            //        InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.Transport, InfoManager.SubInfoMode.Default);
-            //        return;
-            //    case UiCategoryTab.TourListing:
-            //        InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.Tours, InfoManager.SubInfoMode.Default);
-            //        return;
-            //    default:
-            //        InfoManager.instance.SetCurrentMode(InfoManager.InfoMode.None, InfoManager.SubInfoMode.Default);
-            //        return;
-            //}
         }
 
         internal void OpenAt(TransportSystemDefinition tsd)
         {
-            m_stripMain.selectedIndex = m_stripMain.Find<UIComponent>(tsd.GetDefType().Name)?.zOrder ?? -1;
-            TLMController.instance.OpenTLMPanel();
+            TLMController.Instance.OpenTLMPanel();
+            m_stripMain.selectedIndex = m_stripMain.Find<UIComponent>(tsd.GetTransportName())?.zOrder ?? -1;
         }
 
         private void CreateTsdTabstrip()
@@ -80,29 +54,17 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
             UIComponent bodyContent = CreateContentTemplate(m_stripMain.tabContainer.width, m_stripMain.tabContainer.height, false);
 
-            foreach (KeyValuePair<TransportSystemDefinition, Func<ITLMSysDef>> kv in TransportSystemDefinition.SysDefinitions)
+            foreach (var targetType in ReflectionUtils.GetSubtypesRecursive(typeof(UVMLinesPanel), GetType()))
             {
-                Type[] components;
-                Type targetType;
-                try
-                {
-                    targetType = ReflectionUtils.GetImplementationForGenericType(typeof(UVMLinesPanel<>), kv.Value().GetType());
-                    components = new Type[] { targetType };
-                }
-                catch
-                {
-                    continue;
-                }
-                TransportSystemDefinition tsd = kv.Key;
+
+                TransportSystemDefinition tsd = (targetType.GetConstructor(new Type[0]).Invoke(null) as UVMLinesPanel).TSD;
                 GameObject tab = Instantiate(tabTemplate.gameObject);
                 GameObject body = Instantiate(bodyContent.gameObject);
-                var configIdx = kv.Key.ToConfigIndex();
-                string name = kv.Value().GetType().Name;
-                LogUtils.DoLog($"configIdx = {configIdx};kv.Key = {kv.Key}; kv.Value= {kv.Value} ");
-                string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMPrefixesUtils.GetLineIcon(0, configIdx, ref tsd), true);
-                string fgIcon = kv.Key.GetTransportTypeIcon();
+                string name = tsd.GetTransportName();
+                string bgIcon = KlyteResourceLoader.GetDefaultSpriteNameFor(TLMPrefixesUtils.GetLineIcon(0, tsd), true);
+                string fgIcon = tsd.GetTransportTypeIcon();
                 UIButton tabButton = tab.GetComponent<UIButton>();
-                tabButton.tooltip = TLMConfigWarehouse.getNameForTransportType(configIdx);
+                tabButton.tooltip = name;
                 tabButton.hoveredBgSprite = bgIcon;
                 tabButton.focusedBgSprite = bgIcon;
                 tabButton.normalBgSprite = bgIcon;
@@ -119,7 +81,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     secSprite.isInteractive = false;
                     secSprite.disabledColor = Color.black;
                 }
-                m_stripMain.AddTab(name, tab, body, components);
+                m_stripMain.AddTab(name, tab, body, new Type[] { targetType });
             }
         }
 
@@ -132,25 +94,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             tabTemplate.height = 40;
             tabTemplate.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
             return tabTemplate;
-        }
-
-        private void CreateTitleBar()
-        {
-            KlyteMonoUtils.CreateUIElement(out UILabel titlebar, MainPanel.transform, "TLMListPanel", new Vector4(75, 10, MainPanel.width - 150, 20));
-            titlebar.autoSize = false;
-            titlebar.text = "Transport Lines Manager v" + TransportLinesManagerMod.Version;
-            titlebar.textAlignment = UIHorizontalAlignment.Center;
-
-            KlyteMonoUtils.CreateUIElement(out UIButton closeButton, MainPanel.transform, "CloseButton", new Vector4(MainPanel.width - 37, 5, 32, 32));
-            KlyteMonoUtils.InitButton(closeButton, false, "buttonclose", true);
-            closeButton.hoveredBgSprite = "buttonclosehover";
-            closeButton.eventClick += (x, y) =>
-            {
-                TLMController.instance.CloseTLMPanel();
-            };
-
-            KlyteMonoUtils.CreateUIElement(out UISprite logo, MainPanel.transform, "TLMLogo", new Vector4(22, 5f, 32, 32));
-            logo.spriteName = TransportLinesManagerMod.Instance.IconName;
         }
 
         private static UIComponent CreateContentTemplate(float width, float height, bool scrollable)

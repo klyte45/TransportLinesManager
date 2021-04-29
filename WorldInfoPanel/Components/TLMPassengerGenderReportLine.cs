@@ -1,7 +1,7 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.TransportLinesManager.Extensors;
-using static Klyte.TransportLinesManager.Extensors.TLMTransportLineStatusesManager;
+using Klyte.TransportLinesManager.Extensions;
+using static Klyte.TransportLinesManager.Extensions.TLMTransportLineStatusesManager;
 
 namespace Klyte.TransportLinesManager.UI
 {

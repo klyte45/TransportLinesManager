@@ -1,13 +1,13 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Math;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static Klyte.Commons.Extensors.RedirectorUtils;
+using static Klyte.Commons.Extensions.RedirectorUtils;
 
 namespace Klyte.TransportLinesManager.Overrides
 {
@@ -18,17 +18,17 @@ namespace Klyte.TransportLinesManager.Overrides
 
         #region Generation methods
 
-        private static VehicleInfo DoModelDraw(ref Randomizer r, ushort lineId)
+        private static VehicleInfo DoModelDraw(ushort lineId)
         {
             Interfaces.IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
-            VehicleInfo randomInfo = extension.GetAModel(ref r, lineId);
+            VehicleInfo randomInfo = extension.GetAModel(lineId);
             return randomInfo;
         }
 
-        public void SetRandomBuilding(ref TransportSystemDefinition tsd, ushort lineId, ref ushort currentId)
+        public void SetRandomBuilding(TransportSystemDefinition tsd, ushort lineId, ref ushort currentId)
         {
             Interfaces.IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
-            List<ushort> allowedDepots = config.GetAllowedDepots(ref tsd, lineId);
+            List<ushort> allowedDepots = config.GetAllowedDepots(tsd, lineId);
             if (allowedDepots.Count == 0 || allowedDepots.Contains(currentId))
             {
                 if (TransportLinesManagerMod.DebugMode)
@@ -87,11 +87,10 @@ namespace Klyte.TransportLinesManager.Overrides
             {
                 var tsd = TransportSystemDefinition.From(__instance.m_transportInfo);
 
-                Instance.SetRandomBuilding(ref tsd, offer.TransportLine, ref buildingID);
+                Instance.SetRandomBuilding(tsd, offer.TransportLine, ref buildingID);
 
                 LogUtils.DoLog("randomVehicleInfo");
-                var randomizer = new Randomizer((buildingID << 8) | (offer.TransportLine & 0xff));
-                VehicleInfo randomVehicleInfo = DoModelDraw(ref randomizer, offer.TransportLine);
+                VehicleInfo randomVehicleInfo = DoModelDraw(offer.TransportLine);
                 if (randomVehicleInfo == null)
                 {
                     randomVehicleInfo = Singleton<VehicleManager>.instance.GetRandomVehicleInfo(ref Singleton<SimulationManager>.instance.m_randomizer, m_info.m_class.m_service, m_info.m_class.m_subService, m_info.m_class.m_level);

@@ -70,15 +70,16 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Compile Include="Palettes\TLMAutoColorPalette.cs" />
     <Compile Include="CommonProperties.cs" />
     <Compile Include="CommonsWindow\List\Components\UVMLineListItem.cs" />
     <Compile Include="CommonsWindow\List\UVMLinesPanel.cs" />
-    <Compile Include="commons\Extensors\Redirector.cs" />
-    <Compile Include="commons\Extensors\UI\CheckboxOrdernatedList.cs" />
-    <Compile Include="commons\Extensors\UI\NumberedColorList.cs" />
-    <Compile Include="commons\Extensors\UI\TextList.cs" />
-    <Compile Include="commons\Extensors\UI\UIHelperExtended.cs" />
-    <Compile Include="commons\Extensors\UI\UITabstripAutoResize.cs" />
+    <Compile Include="commons\Extensions\Redirector.cs" />
+    <Compile Include="commons\Extensions\UI\CheckboxOrdernatedList.cs" />
+    <Compile Include="commons\Extensions\UI\NumberedColorList.cs" />
+    <Compile Include="commons\Extensions\UI\TextList.cs" />
+    <Compile Include="commons\Extensions\UI\UIHelperExtended.cs" />
+    <Compile Include="commons\Extensions\UI\UITabstripAutoResize.cs" />
     <Compile Include="commons\Interfaces\BaseController.cs" />
     <Compile Include="commons\Interfaces\BasicIUserMod.cs" />
     <Compile Include="commons\Interfaces\BasicIUserModSimplified.cs" />
@@ -92,22 +93,25 @@
     <Compile Include="commons\Interfaces\ITimeable.cs" />
     <Compile Include="commons\Interfaces\IViewStartActions.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ConfigWarehouseBase.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\DataExtensorBase.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\DataContainer.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\DataExtensionBase.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\DataExtensionLibBase.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterface2LevelIntImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryByEnumImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryByUintImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryStructValSimplImpl.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceIndexableImpl.cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceListImpl .cs" />
     <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceSingleImpl.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ExtensorContainer.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\IDataExtensor.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\IDataExtensorLegacy.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\IDataExtension.cs" />
+    <Compile Include="commons\Interfaces\Warehouse\IDataExtensionLegacy.cs" />
     <Compile Include="commons\Libraries\BasicLib.cs" />
     <Compile Include="commons\Libraries\LibBaseData.cs" />
     <Compile Include="commons\Libraries\LibBaseFile.cs" />
     <Compile Include="commons\Redirectors\UIDynamicFontRendererRedirector.cs" />
     <Compile Include="commons\Redirectors\UIDynamicPanelsRedirector.cs" />
     <Compile Include="commons\Redirectors\UIViewRedirector.cs" />
+    <Compile Include="commons\Redirectors\UIWorkshopAssetRedirector.cs" />
     <Compile Include="commons\Tools\BasicBuildingTool.cs" />
     <Compile Include="commons\Tools\BasicNetTool.cs" />
     <Compile Include="commons\UI\AVOPreviewRenderer.cs" />
@@ -180,14 +184,48 @@
     <Compile Include="commons\Utils\VehicleUtils.cs" />
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="commons\Utils\ZipUtils.cs" />
-    <Compile Include="Extensors\GameServiceExtensions.cs" />
-    <Compile Include="Extensors\TransportLineStorageBasicData.cs" />
-    <Compile Include="ModShared\TLMShared.cs" />
-    <Compile Include="OptionsMenu\Tabs\TLMDefaultCostPerPassengerConfigTab.cs" />
-    <Compile Include="Utils\ModoNomenclatura.cs" />
+    <Compile Include="Data\DataContainers\TLMStopDataContainer.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMStopsConfiguration.cs" />
+    <Compile Include="Data\Extensions\GameServiceExtensions.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMAssetConfiguration.cs" />
+    <Compile Include="Data\DataContainers\TLMTransportTypeDataContainer.cs" />
+    <Compile Include="Data\Managers\TransportLineStorageBasicData.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_BALLOON.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_BLIMP.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_BUS.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_CABLE_CAR.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_EVAC_BUS.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_FERRY.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_FISHING .cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_HELICOPTER.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_INTERCITY_BUS.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_METRO.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_MONORAIL.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_PLANE.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_POST.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_SHIP.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TAXI.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TOUR_BUS.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TOUR_PED.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TRAIN.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TRAM.cs" />
+    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TROLLEY.cs" />
+    <Compile Include="Data\Extensions\TLMSpecialNamingClassExtensions.cs" />
+    <Compile Include="MapDrawer\TLMMapCityTransportObject.cs" />
+    <Compile Include="MapDrawer\TLMMapHtmlTemplate.cs" />
+    <Compile Include="MapDrawer\TLMMapStation.cs" />
+    <Compile Include="ModShared\BridgeADR.cs" />
+    <Compile Include="ModShared\BridgeADRFallback.cs" />
+    <Compile Include="ModShared\IBridgeADR.cs" />
+    <Compile Include="ModShared\TLMFacade.cs" />
+    <Compile Include="OptionsMenu\Tabs\ITLMConfigOptionsTab.cs" />
+    <Compile Include="OptionsMenu\Tabs\TLMAutoNameBuildingsTab.cs" />
+    <Compile Include="Overrides\PublicTransportAtRoadAIOverrides.cs" />
+    <Compile Include="Palettes\RandomPastelColorGenerator.cs" />
+    <Compile Include="Utils\NamingMode.cs" />
     <Compile Include="Utils\NamingType.cs" />
     <Compile Include="Utils\NamingTypeExtensions.cs" />
-    <Compile Include="Utils\Separador.cs" />
+    <Compile Include="Utils\Separator.cs" />
     <Compile Include="Utils\TLMBuildingUtils.cs" />
     <Compile Include="Utils\TLMPrefabUtils.cs" />
     <Compile Include="Utils\TLMPrefixesUtils.cs" />
@@ -204,19 +242,23 @@
     <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerWealthReportTab.cs" />
     <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerReportTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\TLMReportsTab.cs" />
-    <Compile Include="Xml\TLMTransportLineConfiguration.cs" />
-    <Compile Include="Xml\BudgetEntryXml.cs" />
-    <Compile Include="Extensors\ExtensionStaticExtensionMethods.cs" />
+    <Compile Include="Data\Base\Interfaces\ITLMAutoNameConfigurable.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMAutoNameConfigurationData.cs" />
+    <Compile Include="Data\DataContainers\TLMBaseConfigXML.cs" />
+    <Compile Include="Data\Base\Enums\TLMSpecialNamingClass.cs" />
+    <Compile Include="Data\Base\TsdIdentifiable.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMTransportLineConfiguration.cs" />
+    <Compile Include="Data\Base\BudgetEntryXml.cs" />
+    <Compile Include="Data\Extensions\ExtensionStaticExtensionMethods.cs" />
     <Compile Include="Interfaces\ITLMTransportTypeExtension.cs" />
-    <Compile Include="Xml\TLMPrefixConfiguration.cs" />
-    <Compile Include="Xml\TicketPriceEntryXml.cs" />
-    <Compile Include="Extensors\TLMTransportTypeExtension.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMPrefixConfiguration.cs" />
+    <Compile Include="Data\Base\TicketPriceEntryXml.cs" />
+    <Compile Include="Data\Base\ConfigurationContainers\TLMTransportTypeExtension.cs" />
     <Compile Include="Overrides\TLMDepotAIOverrides.cs" />
-    <Compile Include="Extensors\TLMTransportLineExtension.cs" />
-    <Compile Include="Extensors\TLMTransportLineStatusesManager.cs" />
+    <Compile Include="Data\DataContainers\TLMTransportLineExtension.cs" />
+    <Compile Include="Data\Managers\TLMTransportLineStatusesManager.cs" />
     <Compile Include="Interfaces\ExtensionInterfaces.cs" />
     <Compile Include="Interfaces\LinearMapParentInterface.cs" />
-    <Compile Include="LegacyWarehouse\ConfigWarehouseBaseLegacy.cs" />
     <Compile Include="Overrides\InstanceManagerOverrides.cs" />
     <Compile Include="Overrides\TLMTransportLineStatusesRedirector.cs" />
     <Compile Include="UI\TLMLineCreationToolboxHooks.cs" />
@@ -224,25 +266,23 @@
     <Compile Include="CommonsWindow\TLMPanel.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMModInfoTab.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMPaletteOptionsTab.cs" />
-    <Compile Include="OptionsMenu\Tabs\TLMAutoNameTabs.cs" />
+    <Compile Include="OptionsMenu\Tabs\TLMAutoNamePublicAreasTab.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMAutomationOptionsTab.cs" />
     <Compile Include="OptionsMenu\Tabs\TLMNearLinesConfigTab.cs" />
-    <Compile Include="OptionsMenu\Tabs\TLMDefaultTicketPriceConfigTab .cs" />
     <Compile Include="OptionsMenu\Tabs\TLMShowConfigTabContainer.cs" />
     <Compile Include="OptionsMenu\TLMShowConfigTab.cs" />
     <Compile Include="OptionsMenu\TLMConfigOptions.cs" />
     <Compile Include="Overrides\TransportToolOverrides.cs" />
     <Compile Include="Overrides\TransportLineOverrides.cs" />
     <Compile Include="Overrides\PublicTransportInfoViewPanelOverrides.cs" />
-    <Compile Include="MapDrawer\MapLineSegmentStation.cs" />
-    <Compile Include="MapDrawer\TLMMapLine.cs" />
+    <Compile Include="MapDrawer\TLMMapTransportLine.cs" />
     <Compile Include="TLMConfigWarehouse.cs" />
     <Compile Include="MapDrawer\TLMMapDrawer.cs" />
     <Compile Include="TransportLinesManager.cs" />
-    <Compile Include="Extensors\TransportSystemDefinition.cs" />
+    <Compile Include="Data\Base\TransportSystemDefinition.cs" />
     <Compile Include="TLMController.cs" />
     <Compile Include="UI\TLMLinearMap.cs" />
-    <Compile Include="TLMAutoColorPalettes.cs" />
+    <Compile Include="Palettes\TLMAutoColorPaletteContainer.cs" />
     <Compile Include="UI\TLMLineCreationToolbox.cs" />
     <Compile Include="Utils\TLMUiTemplateUtils.cs" />
     <Compile Include="Utils\TLMLineUtils.cs" />
@@ -262,6 +302,7 @@
     <Compile Include="WorldInfoPanel\Tabs\UVMMainWIPTab.cs" />
     <Compile Include="WorldInfoPanel\UVMTransportLineLinearMap.cs" />
     <Compile Include="WorldInfoPanel\UVMTransportLineWorldInfoPanel.cs" />
+    <Compile Include="Data\DataContainers\TLMTransportTypeConfigurationsXML.cs" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
@@ -402,6 +443,7 @@
     <EmbeddedResource Include="UI\i18n\nl.properties" />
     <EmbeddedResource Include="UI\i18n\pl.properties" />
     <None Include="app.config" />
+    <None Include="commons\LICENSE" />
     <None Include="commons\README.md" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -415,6 +457,7 @@
     <EmbeddedResource Include="UI\Images\%25K45_24hClock.png" />
     <EmbeddedResource Include="UI\i18n\zh.properties" />
     <None Include="UI\Images\24hClock.psd" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_PaintBucket.png" />
     <Content Include="commons\UI\Images\base.psd" />
     <Content Include="commons\UI\Images\sprites.psd" />
     <Content Include="UI\Images\sprites.psd" />
@@ -464,7 +507,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Data\Xml\Base\" />
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Addresses\Addresses.csproj">
+      <Project>{3518655d-2922-4e78-8875-c38ce7b15adf}</Project>
+      <Name>Addresses</Name>
+      <Aliases>ADR</Aliases>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(TargetDir)0Harmony.dll" "$(ProjectDir)\_requiredDLLs\"

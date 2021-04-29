@@ -2,7 +2,7 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensors;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
@@ -118,7 +118,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
             }
 
-            var targetValues = steps.Select(x => Mathf.RoundToInt(x.First * 100f / 24f)).ToList();
+            var targetValues = steps.Select(x => Mathf.Round(x.First * 100f / 24f)).ToList();
             m_clock.SetValuesStarts(targetValues.ToArray());
         }
 
@@ -167,8 +167,8 @@ namespace Klyte.TransportLinesManager.UI
             KlyteMonoUtils.CreateUIElement(out UILabel titleEffective, m_container.transform, "TitleEffective");
             titleEffective.width = 70;
             titleEffective.height = 30;
-            KlyteMonoUtils.LimitWidth(titleEffective, 70, true);
-            titleEffective.relativePosition = new Vector3(70, 0);
+            KlyteMonoUtils.LimitWidthAndBox(titleEffective, 70,out UIPanel container, true);
+            container.relativePosition = new Vector3(70, 0);
             titleEffective.textScale = 0.8f;
             titleEffective.color = Color.white;
             titleEffective.isLocalized = true;
@@ -193,7 +193,7 @@ namespace Klyte.TransportLinesManager.UI
             m_effectiveLabel.useOutline = true;
             m_effectiveLabel.backgroundSprite = "PlainWhite";
             m_effectiveLabel.padding.top = 3;
-            KlyteMonoUtils.LimitWidth(m_effectiveLabel, 70, true);
+            KlyteMonoUtils.LimitWidthAndBox(m_effectiveLabel, 70, true);
 
             AwakeActionButtons();
         }
@@ -203,10 +203,10 @@ namespace Klyte.TransportLinesManager.UI
             if (m_container.isVisible)
             {
                 ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-                m_minutePointer.transform.localEulerAngles = new Vector3(0, 0, (SimulationManager.instance.m_currentDayTimeHour % 1 * -360) + 180);
-                m_hourPointer.transform.localEulerAngles = new Vector3(0, 0, (SimulationManager.instance.m_currentDayTimeHour / 24 * -360) + 180);
+                m_minutePointer.transform.localEulerAngles = new Vector3(0, 0, (TLMLineUtils.ReferenceTimer % 1 * -360) + 180);
+                m_hourPointer.transform.localEulerAngles = new Vector3(0, 0,   (TLMLineUtils.ReferenceTimer / 24 * -360) + 180);
                 var tsd = TransportSystemDefinition.From(lineID);
-                Tuple<TicketPriceEntryXml, int> value = TLMLineUtils.GetTicketPriceForLine(ref tsd, lineID);
+                Tuple<TicketPriceEntryXml, int> value = TLMLineUtils.GetTicketPriceForLine(tsd, lineID);
                 m_effectiveLabel.color = value.Second < 0 ? Color.gray : TLMTicketConfigTab.m_colorOrder[value.Second % TLMTicketConfigTab.m_colorOrder.Count];
                 m_effectiveLabel.text = (value.First.Value / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
             }

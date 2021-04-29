@@ -1,6 +1,6 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.Extensors;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
@@ -27,7 +27,8 @@ namespace Klyte.TransportLinesManager.UI
 
         public BudgetEntryXml Entry
         {
-            get => m_entry; set {
+            get => m_entry; set
+            {
                 m_entry = value;
                 FillData();
             }
@@ -40,7 +41,7 @@ namespace Klyte.TransportLinesManager.UI
         public void SetLegendInfo(Color c)
         {
             m_timeInput.eventTextChanged -= SendText;
-            ((UISprite) m_slider.thumbObject).color = c;
+            ((UISprite)m_slider.thumbObject).color = c;
             m_timeInput.eventTextChanged += SendText;
         }
 
@@ -51,7 +52,7 @@ namespace Klyte.TransportLinesManager.UI
             {
                 ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[UVMPublicTransportWorldInfoPanel.GetLineID()];
                 m_timeInput.text = Entry.HourOfDay.ToString();
-                string text = $"{(UVMBudgetConfigTab.IsAbsoluteValue() ? TLMLineUtils.CalculateTargetVehicleCount(t.Info, t.m_totalLength, Entry.Value / 100f) : (int) Entry.Value)}";
+                string text = $"{(UVMBudgetConfigTab.IsAbsoluteValue() ? TLMLineUtils.CalculateTargetVehicleCount(t.Info, t.m_totalLength, Entry.Value / 100f) : (int)Entry.Value)}";
                 m_value.text = UVMBudgetConfigTab.IsAbsoluteValue() ? "<sprite IconPolicyFreePublicTransport>x" : text;
                 m_value.suffix = UVMBudgetConfigTab.IsAbsoluteValue() ? text : "%";
                 LogUtils.DoLog($"t.Info.m_defaultVehicleDistance, t.m_totalLength = {t.Info.m_defaultVehicleDistance}, {t.m_totalLength}");
@@ -68,15 +69,8 @@ namespace Klyte.TransportLinesManager.UI
 
         private static int GetMaxValue()
         {
-            int savedCount = TLMConfigWarehouse.GetCurrentConfigInt(TLMConfigWarehouse.ConfigIndex.MAX_VEHICLES_SPECIFIC_CONFIG);
-            if (savedCount <= 0)
-            {
-                return TLMConfigWarehouse.instance.GetDefaultIntValueForProperty(TLMConfigWarehouse.ConfigIndex.MAX_VEHICLES_SPECIFIC_CONFIG);
-            }
-            else
-            {
-                return savedCount;
-            }
+            int savedCount = TLMBaseConfigXML.Instance.MaxVehiclesOnAbsoluteMode;
+            return savedCount <= 0 ? 50 : savedCount;
         }
 
         public string GetCurrentVal() => m_timeInput.text;
@@ -151,8 +145,8 @@ namespace Klyte.TransportLinesManager.UI
 
             bugdetSlider.thumbObject.width = 400;
             bugdetSlider.thumbObject.height = 20;
-            ((UISprite) bugdetSlider.thumbObject).spriteName = "PlainWhite";
-            ((UISprite) bugdetSlider.thumbObject).color = new Color32(1, 140, 46, 255);
+            ((UISprite)bugdetSlider.thumbObject).spriteName = "PlainWhite";
+            ((UISprite)bugdetSlider.thumbObject).color = new Color32(1, 140, 46, 255);
 
             bugdetSlider.eventValueChanged += delegate (UIComponent c, float val)
             {
@@ -173,15 +167,28 @@ namespace Klyte.TransportLinesManager.UI
             FillData();
         }
 
+        private bool alreadyCalling = false;
         private void SendText(UIComponent x, string y)
         {
             if (m_loading)
             {
                 return;
             }
-            if (int.TryParse(y, out int time))
+            if (alreadyCalling)
             {
-                OnTimeChanged?.Invoke(Entry, time);
+                LogUtils.DoErrorLog($"TLMTicketPriceEditorLine: Recursive eventTextChanged call! {Environment.StackTrace}");
+            }
+            alreadyCalling = true;
+            try
+            {
+                if (int.TryParse(y, out int time))
+                {
+                    OnTimeChanged?.Invoke(Entry, time);
+                }
+            }
+            finally
+            {
+                alreadyCalling = false;
             }
         }
     }
