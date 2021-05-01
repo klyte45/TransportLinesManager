@@ -12,4 +12,7 @@
 - Minor fixes in integrations with Addresses and Write the Signs mods.
 - Minor UI Fixes.
 
+<color yellow>r1 (30/APR/21):</color> Updated korean translation (thanks to <color yellow>PC28K</color>).
+<color yellow>r2 (02/MAY/21):</color> Fixed some wrong WTS's destinations when going to a outside connection.
+
 See all changes in GitHub in the third button below.
