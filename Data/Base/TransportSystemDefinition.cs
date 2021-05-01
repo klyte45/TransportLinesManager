@@ -66,7 +66,7 @@ namespace Klyte.TransportLinesManager.Extensions
                     IEnumerable<TransportSystemDefinition> missing = registeredTsd.Values.Where(x => !m_infoList.ContainsKey(x));
                     if (missing.Count() > 0)
                     {
-                        LogUtils.DoWarnLog($"Some TSDs can't find their infos: [{string.Join(", ", missing.Select(x => x.ToString()).ToArray())}]\nIgnore if you don't have all DLCs installed");
+                        LogUtils.DoLog($"Some TSDs can't find their infos: [{string.Join(", ", missing.Select(x => x.ToString()).ToArray())}]\nIgnore if you don't have all DLCs installed");
                     }
                     LogUtils.DoLog("TSD end loading infos");
                 }
