@@ -17,6 +17,11 @@ namespace Klyte.TransportLinesManager.Utils
         #region Station
         public static void SetStopName(string newName, ushort stopId, ushort lineId, Action callback)
         {
+            if (lineId == 0)
+            {
+                return;
+            }
+
             LogUtils.DoLog("setStopName! {0} - {1} - {2}", newName, stopId, lineId);
             ushort buildingId = GetStationBuilding(stopId, Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].Info.m_class.m_subService, true, true);
             if (buildingId == 0)
@@ -64,6 +69,11 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static string GetStationName(ushort stopId, ushort lineId, ItemClass.SubService ss, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefix, out ushort buildingID, out NamingType resultNamingType, bool excludeCargo = false, bool useRestrictionForAreas = false, bool useRoadMainNameOnAddress = false)
         {
+            if (lineId == 0)
+            {
+                buildingID = stopId;
+                return GetBuildingNameForStation(lineId, out serviceFound, out subserviceFound, out prefix, stopId, out resultNamingType);
+            }
             string savedName = GetStopName(stopId);
             var tsd = TransportSystemDefinition.From(lineId);
             if (savedName != null)
@@ -105,16 +115,12 @@ namespace Klyte.TransportLinesManager.Utils
                 }
             }
 
+
             buildingID = GetStationBuilding(stopId, ss, excludeCargo);
 
             if (buildingID > 0)
             {
-                string name = TLMBuildingUtils.GetBuildingDetails(buildingID, out serviceFound, out subserviceFound, out prefix, out resultNamingType, lineId);
-                if (resultNamingType == NamingType.NONE)
-                {
-                    resultNamingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
-                }
-                return name;
+                return GetBuildingNameForStation(lineId, out serviceFound, out subserviceFound, out prefix, buildingID, out resultNamingType);
             }
 
 
@@ -160,6 +166,16 @@ namespace Klyte.TransportLinesManager.Utils
                 resultNamingType = NamingType.NONE;
                 return "<Somewhere>";
             }
+        }
+
+        private static string GetBuildingNameForStation(ushort lineId, out Service serviceFound, out SubService subserviceFound, out string prefix, ushort buildingID, out NamingType resultNamingType)
+        {
+            string name = TLMBuildingUtils.GetBuildingDetails(buildingID, out serviceFound, out subserviceFound, out prefix, out resultNamingType, lineId);
+            if (resultNamingType == NamingType.NONE)
+            {
+                resultNamingType = NamingTypeExtensions.From(serviceFound, subserviceFound);
+            }
+            return name;
         }
 
         public static Service[] GetUsableServiceInAutoName() => m_searchOrderStationNamingRule.OfType<Service>().ToArray();
@@ -236,6 +252,11 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static ushort GetStationBuilding(ushort stopId, ushort lineId)
         {
+            if (lineId == 0)
+            {
+                return stopId;
+            }
+
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
             ushort tempBuildingId;

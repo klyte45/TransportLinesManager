@@ -3,6 +3,7 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
 using Klyte.Commons.Interfaces;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.MapDrawer;
@@ -11,7 +12,7 @@ using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly: AssemblyVersion("14.0.0.*")]
+[assembly: AssemblyVersion("14.0.0.1")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -104,7 +105,7 @@ namespace Klyte.TransportLinesManager
         }
         public override string IconName => "K45_TLM_Icon";
 
-
+        protected override Tuple<string, string> GetButtonLink() => Tuple.New("View details of v14 at TLM's GitHub", "https://github.com/klyte45/TransportLinesManager/milestone/1");
     }
 
     public class UIButtonLineInfo : UIButton
