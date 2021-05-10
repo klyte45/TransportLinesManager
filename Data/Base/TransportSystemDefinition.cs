@@ -262,7 +262,7 @@ namespace Klyte.TransportLinesManager.Extensions
             : this == HELICOPTER ? Locale.Get("VEHICLE_TITLE", "Passenger Helicopter")
             : this == TROLLEY ? Locale.Get("VEHICLE_TITLE", "Trolleybus 01")
             : "???";
-        public bool CanHaveTerminals() =>
+        public bool CanHaveTerminals() => TLMController.Instance.ConnectorWTS.WtsAvailable ||
             (TransportType == TransportInfo.TransportType.Bus && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled) ||
             (TransportType == TransportInfo.TransportType.Tram && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled) ||
             (TransportType == TransportInfo.TransportType.Trolleybus && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled);
