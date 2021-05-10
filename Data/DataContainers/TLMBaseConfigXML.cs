@@ -88,7 +88,7 @@ namespace Klyte.TransportLinesManager.Xml
 
 
         [Obsolete("XML Export only!", true)]
-        public NonSequentialList<TLMAutoNameConfigurationData<ItemClass.Service>> ServiceAutoName { get => ServiceAutoName_internal; set => ServiceAutoName_internal = value; }
+        public NonSequentialList<TLMAutoNameConfigurationData<ItemClass.Service>> ServiceAutoName { get => ServiceAutoName_internal; set => ServiceAutoName_internal = value ?? new NonSequentialList<TLMAutoNameConfigurationData<ItemClass.Service>>(); }
         private NonSequentialList<TLMAutoNameConfigurationData<ItemClass.Service>> ServiceAutoName_internal { get; set; } = new NonSequentialList<TLMAutoNameConfigurationData<ItemClass.Service>>();
         public TLMAutoNameConfigurationData<ItemClass.Service> GetAutoNameData(ItemClass.Service service)
         {
@@ -100,7 +100,7 @@ namespace Klyte.TransportLinesManager.Xml
         }
 
         [Obsolete("XML Export only!", true)]
-        public NonSequentialList<TLMAutoNameConfigurationData<TLMSpecialNamingClass>> SpecialAutoName { get => SpecialAutoName_internal; set => SpecialAutoName_internal = value; }
+        public NonSequentialList<TLMAutoNameConfigurationData<TLMSpecialNamingClass>> SpecialAutoName { get => SpecialAutoName_internal; set => SpecialAutoName_internal = value ?? new NonSequentialList<TLMAutoNameConfigurationData<TLMSpecialNamingClass>>(); }
         private NonSequentialList<TLMAutoNameConfigurationData<TLMSpecialNamingClass>> SpecialAutoName_internal { get; set; } = new NonSequentialList<TLMAutoNameConfigurationData<TLMSpecialNamingClass>>();
         public TLMAutoNameConfigurationData<TLMSpecialNamingClass> GetAutoNameData(TLMSpecialNamingClass clazz)
         {

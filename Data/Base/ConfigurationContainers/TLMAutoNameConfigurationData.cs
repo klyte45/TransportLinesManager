@@ -19,7 +19,13 @@ namespace Klyte.TransportLinesManager.Xml
         [XmlIgnore]
         public long? Id
         {
-            get => (long?)Convert.ToInt32(Index); set => Index = Enum.GetValues(typeof(E)).OfType<E>().Where(x => Convert.ToInt32(x) == value).FirstOrDefault();
+            get
+            {
+                long? longVal = Convert.ToInt32(Index);
+                return longVal == 0 ? null : longVal;
+            }
+
+            set => Index = Enum.GetValues(typeof(E)).OfType<E>().Where(x => Convert.ToInt32(x) == value).FirstOrDefault();
         }
     }
 
