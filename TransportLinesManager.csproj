@@ -181,6 +181,9 @@
     <Compile Include="commons\Utils\VehicleUtils.cs" />
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="commons\Utils\ZipUtils.cs" />
+    <Compile Include="ModShared\BridgeWTS.cs" />
+    <Compile Include="ModShared\BridgeWTSFallback.cs" />
+    <Compile Include="ModShared\IBridgeWTS.cs" />
     <Compile Include="Palettes\TLMAutoColorPalette.cs" />
     <Compile Include="CommonProperties.cs" />
     <Compile Include="CommonsWindow\List\Components\UVMLineListItem.cs" />

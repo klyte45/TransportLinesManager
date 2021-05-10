@@ -126,6 +126,7 @@ namespace Klyte.TransportLinesManager
 
         public TLMFacade SharedInstance { get; internal set; }
         internal IBridgeADR ConnectorADR { get; private set; }
+        internal IBridgeWTS ConnectorWTS { get; private set; }
 
         public void Update()
         {
@@ -326,6 +327,7 @@ namespace Klyte.TransportLinesManager
         {
             SharedInstance = gameObject.AddComponent<TLMFacade>();
             ConnectorADR = PluginUtils.GetImplementationTypeForMod<BridgeADR, BridgeADRFallback, IBridgeADR>(gameObject, "KlyteAddresses", "2.99.99.0");
+            ConnectorWTS = PluginUtils.GetImplementationTypeForMod<BridgeWTS, BridgeWTSFallback, IBridgeWTS>(gameObject, "KlyteWriteTheSigns", "0.3.0.0");
         }
 
     }
