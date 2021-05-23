@@ -125,7 +125,7 @@ namespace Klyte.TransportLinesManager.Extensions
             }
         }
 
-        private void InitCapacitiesInAssets()
+        public void InitCapacitiesInAssets()
         {
             var keys = AssetConfigurations.Keys.ToList();
             foreach (string entry in keys)

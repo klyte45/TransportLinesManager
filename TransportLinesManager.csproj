@@ -70,10 +70,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Compile Include="Palettes\TLMAutoColorPalette.cs" />
-    <Compile Include="CommonProperties.cs" />
-    <Compile Include="CommonsWindow\List\Components\UVMLineListItem.cs" />
-    <Compile Include="CommonsWindow\List\UVMLinesPanel.cs" />
     <Compile Include="commons\Extensions\Redirector.cs" />
     <Compile Include="commons\Extensions\UI\CheckboxOrdernatedList.cs" />
     <Compile Include="commons\Extensions\UI\NumberedColorList.cs" />
@@ -114,6 +110,7 @@
     <Compile Include="commons\Redirectors\UIWorkshopAssetRedirector.cs" />
     <Compile Include="commons\Tools\BasicBuildingTool.cs" />
     <Compile Include="commons\Tools\BasicNetTool.cs" />
+    <Compile Include="commons\Tools\BasicVehicleTool.cs" />
     <Compile Include="commons\UI\AVOPreviewRenderer.cs" />
     <Compile Include="commons\UI\BasicRulesList.cs" />
     <Compile Include="commons\UI\DefaultEditorUILib.cs" />
@@ -184,6 +181,13 @@
     <Compile Include="commons\Utils\VehicleUtils.cs" />
     <Compile Include="commons\Utils\XmlUtils.cs" />
     <Compile Include="commons\Utils\ZipUtils.cs" />
+    <Compile Include="ModShared\BridgeWTS.cs" />
+    <Compile Include="ModShared\BridgeWTSFallback.cs" />
+    <Compile Include="ModShared\IBridgeWTS.cs" />
+    <Compile Include="Palettes\TLMAutoColorPalette.cs" />
+    <Compile Include="CommonProperties.cs" />
+    <Compile Include="CommonsWindow\List\Components\UVMLineListItem.cs" />
+    <Compile Include="CommonsWindow\List\UVMLinesPanel.cs" />
     <Compile Include="Data\DataContainers\TLMStopDataContainer.cs" />
     <Compile Include="Data\Base\ConfigurationContainers\TLMStopsConfiguration.cs" />
     <Compile Include="Data\Extensions\GameServiceExtensions.cs" />
@@ -393,6 +397,7 @@
     <EmbeddedResource Include="commons\UI\Images\%25K45_New.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_OctagonIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_OvalIcon.png" />
+    <EmbeddedResource Include="commons\UI\Images\%25K45_PaintBucket.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_ParachuteIcon.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_Paste.png" />
     <EmbeddedResource Include="commons\UI\Images\%25K45_PentagonIcon.png" />
@@ -457,7 +462,6 @@
     <EmbeddedResource Include="UI\Images\%25K45_24hClock.png" />
     <EmbeddedResource Include="UI\i18n\zh.properties" />
     <None Include="UI\Images\24hClock.psd" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_PaintBucket.png" />
     <Content Include="commons\UI\Images\base.psd" />
     <Content Include="commons\UI\Images\sprites.psd" />
     <Content Include="UI\Images\sprites.psd" />

@@ -66,7 +66,8 @@ namespace Klyte.TransportLinesManager.Overrides
                 TransferManager.TransferReason.Bus,
                 TransferManager.TransferReason.Ferry,
                 TransferManager.TransferReason.Trolleybus,
-                TransferManager.TransferReason.PassengerHelicopter
+                TransferManager.TransferReason.PassengerHelicopter,
+                TransferManager.TransferReason.TouristBus,
             };
 
         public static bool StartTransfer(DepotAI __instance, ushort buildingID, TransferManager.TransferReason reason, TransferManager.TransferOffer offer)

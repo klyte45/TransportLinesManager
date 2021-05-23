@@ -28,16 +28,19 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             group15.AddLabel(Locale.Get("K45_TLM_AUTO_NAME_SETTINGS_PUBLIC_TRANSPORT_DESC"));
             group15.AddSpace(15);
 
-            foreach (var service in Enum.GetValues(typeof(TLMSpecialNamingClass)).OfType<TLMSpecialNamingClass>().Where(x => x != TLMSpecialNamingClass.None))
+            foreach (var serviceIt in Enum.GetValues(typeof(TLMSpecialNamingClass)).OfType<TLMSpecialNamingClass>().Where(x => x != TLMSpecialNamingClass.None))
             {
-                AddCheckbox(service.GetLocalizedName(), out UICheckBox check, group15, (x) => TLMBaseConfigXML.Instance.GetAutoNameData(service).UseInAutoName = x);
-                AddTextField(Locale.Get("K45_TLM_PREFIX_BUILDING_NAMES"), out UITextField textField, group15, (x) => TLMBaseConfigXML.Instance.GetAutoNameData(service).NamingPrefix = x);
+                var service = serviceIt;
+                AddCheckbox(service.GetLocalizedName(), out UICheckBox check, group15, (x) => SetUseAutoName(service, x));
+                AddTextField(Locale.Get("K45_TLM_PREFIX_BUILDING_NAMES"), out UITextField textField, group15, (x) => SetPrefix(service, x));
                 m_checks[service] = check;
                 m_textFields[service] = textField;
                 group15.AddSpace(5);
             }
         }
 
+        private void SetUseAutoName(TLMSpecialNamingClass service, bool x) => TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(service).UseInAutoName = x;
+        private void SetPrefix(TLMSpecialNamingClass service, string x) => TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(service).NamingPrefix = x;
 
         public void ReloadData()
         {

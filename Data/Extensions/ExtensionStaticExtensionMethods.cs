@@ -14,7 +14,6 @@ namespace Klyte.TransportLinesManager.Extensions
     {
         #region Assets List
         public static List<string> GetAssetListForLine<T>(this T it, ushort lineId) where T : IAssetSelectorExtension => it.SafeGet(it.LineToIndex(lineId)).AssetList;
-        public static Dictionary<string, string> GetSelectedBasicAssetsForLine<T>(this T it, ushort lineId) where T : IAssetSelectorExtension => it.GetAssetListForLine(lineId).Intersect(it.GetBasicAssetListForLine(lineId)).ToDictionary(x => x, x => string.Format("[Cap={0}] {1}", VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(x)), Locale.Get("VEHICLE_TITLE", x)));
         public static void AddAssetToLine<T>(this T it, ushort lineId, string assetId) where T : IAssetSelectorExtension
         {
             List<string> list = it.GetAssetListForLine(lineId);

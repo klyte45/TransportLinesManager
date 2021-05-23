@@ -28,6 +28,14 @@ namespace Klyte.TransportLinesManager.Extensions
             ["K45_TLM_Klyte.TransportLinesManager.Extensions.TLMTransportTypeExtensionNorTrl"] = TransportSystemDefinition.TROLLEY,
             ["K45_TLM_Klyte.TransportLinesManager.Extensions.TLMTransportTypeExtensionNorHel"] = TransportSystemDefinition.HELICOPTER,
         };
+
+        public void RefreshCapacities()
+        {
+            foreach(var tsdItem in m_cachedList)
+            {
+                tsdItem.Value.InitCapacitiesInAssets();
+            }
+        }
         public override void LoadDefaults(ISerializableData serializableData)
         {
             base.LoadDefaults(serializableData);
