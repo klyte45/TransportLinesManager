@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
+using Klyte.Commons;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
@@ -64,7 +65,7 @@ namespace Klyte.TransportLinesManager.Extensions
                         m_infoList[tsd] = info;
                     }
                     IEnumerable<TransportSystemDefinition> missing = registeredTsd.Values.Where(x => !m_infoList.ContainsKey(x));
-                    if (missing.Count() > 0)
+                    if (missing.Count() > 0 && CommonProperties.DebugMode)
                     {
                         LogUtils.DoLog($"Some TSDs can't find their infos: [{string.Join(", ", missing.Select(x => x.ToString()).ToArray())}]\nIgnore if you don't have all DLCs installed");
                     }
