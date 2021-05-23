@@ -12,4 +12,12 @@
 - Minor fixes in integrations with Addresses and Write the Signs mods.
 - Minor UI Fixes.
 
-See all changes in GitHub in the third button below.
+<color yellow>r1 (30/APR/21):</color> Updated korean translation (thanks to <color yellow>PC28K</color>).
+<color yellow>r2 (02/MAY/21):</color> Fixed some wrong WTS's destinations when going to a outside connection.
+<color yellow>r3 (23/MAY/21):</color>
+ - Fixing glitches in the earnings panel in some screens
+ - Fixing the font glitches that were caused by K45 mods - ensure all mods were updated with versions from May/21
+ - Fixed: Tourist bus model selection isn't being respected
+ - Terminals now can be always used in ANY kind of line if Write The Signs mod is enabled
+ - Fixed vehicle selection randomizing not working in some situations
+ - Fixed vehicles capacity not being loaded when the game starts
