@@ -109,7 +109,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             m_uiHelper.AddSpace(5);
 
             AddCheckbox(Locale.Get("K45_TLM_USE_AUTO_NAME"), out m_useInAutoName, m_uiHelper, (x) => TSD.GetConfig().UseInAutoName = x);
-            AddTextField(Locale.Get("K45_TLM_PREFIX_BUILDING_NAMES"), out m_namingPrefix, m_uiHelper, (x) => TSD.GetConfig().DefaultTicketPrice = int.TryParse(x, out int val) ? val : 0, TSD.GetConfig().DefaultTicketPrice.ToString());
+            AddTextField(Locale.Get("K45_TLM_PREFIX_BUILDING_NAMES"), out m_namingPrefix, m_uiHelper, (x) => TSD.GetConfig().NamingPrefix = x, TSD.GetConfig().NamingPrefix);
             m_uiHelper.AddSpace(5);
 
             if (TSD.VehicleType != VehicleInfo.VehicleType.None)
