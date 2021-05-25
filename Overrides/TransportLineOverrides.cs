@@ -323,7 +323,8 @@ namespace Klyte.TransportLinesManager.Overrides
             var validType = (info.m_vehicleType == VehicleInfo.VehicleType.Car && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled)
                 || (info.m_vehicleType == VehicleInfo.VehicleType.Tram && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled)
                 || (info.m_vehicleType == VehicleInfo.VehicleType.Trolleybus && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled);
-            return validType && TransportLine.GetPrevStop(nextStop) != tl.m_stops && !TLMStopDataContainer.Instance.SafeGet(nextStop).IsTerminal ? true : tl.CanLeaveStop(nextStop, waitTime);
+            var currentStop = TransportLine.GetPrevStop(nextStop);
+            return validType && currentStop != tl.m_stops && !TLMStopDataContainer.Instance.SafeGet(currentStop).IsTerminal ? true : tl.CanLeaveStop(nextStop, waitTime);
         }
 
         private static MethodInfo CanLeaveStop = typeof(TransportLine).GetMethod("CanLeaveStop", RedirectorUtils.allFlags);
