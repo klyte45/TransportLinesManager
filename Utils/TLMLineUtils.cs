@@ -4,6 +4,7 @@ using Klyte.Commons.Redirectors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Xml;
 using System;
@@ -78,12 +79,27 @@ namespace Klyte.TransportLinesManager.Utils
         }
 
         public static float GetEffectiveBudget(ushort transportLine) => GetEffectiveBudgetInt(transportLine) / 100f;
+
         public static int GetEffectiveBudgetInt(ushort transportLine)
         {
-            TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].Info;
+            ref TransportLine tl = ref Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine];
+            TransportInfo info = tl.Info;
             Tuple<float, int, int, float, bool> lineBudget = GetBudgetMultiplierLineWithIndexes(transportLine);
             int budgetClass = lineBudget.Fifth ? 100 : Singleton<EconomyManager>.instance.GetBudget(info.m_class);
-            return (int)(budgetClass * lineBudget.First);
+
+            var result = (int)(budgetClass * lineBudget.First);
+            if (result == 0 != ((tl.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0))
+            {
+                if(result == 0)
+                {
+                    tl.m_flags |= (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
+                }
+                else
+                {
+                    tl.m_flags &= (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
+                }
+            }
+            return result;
         }
 
         public static IBasicExtensionStorage GetEffectiveConfigForLine(ushort lineId)

@@ -1,5 +1,6 @@
 ﻿using ColossalFramework.UI;
 using Klyte.TransportLinesManager.Extensions;
+using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Utils;
 using System.Linq;
 using UnityEngine;
@@ -51,11 +52,7 @@ namespace Klyte.TransportLinesManager
             button.color = lineObj.m_color;
             button.normalBgSprite = TLMLineUtils.GetIconForLine(lineId);
             button.tooltip = tm.GetLineName(lineId);
-            bool zeroed;
-            unchecked
-            {
-                zeroed = (lineObj.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
-            }
+            bool zeroed = (lineObj.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;            
             if (!day || !night || zeroed)
             {
                 daytimeIndicatorLabel.isVisible = true;
