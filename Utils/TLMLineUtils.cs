@@ -376,7 +376,7 @@ namespace Klyte.TransportLinesManager.Utils
             return transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0');
         }
 
-
+        [Obsolete]
         public static void PrintIntersections(string airport, string harbor, string taxi, string regionalTrainStation, string cableCarStation, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, Vector3 position, float scale = 1.0f, int maxItemsForSizeSwap = 3)
         {
             TransportManager tm = Singleton<TransportManager>.instance;
