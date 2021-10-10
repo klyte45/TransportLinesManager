@@ -170,11 +170,6 @@ namespace Klyte.TransportLinesManager.UI
              });
             prefixIncrementChk.relativePosition = new Vector3(5f, 50f);
 
-            uiHelper.AddCheckboxLocale("K45_TLM_SHOW_LINEAR_MAP", TLMController.LinearMapWhileCreatingLineVisibility, delegate (bool value)
-            {
-                TLMController.LinearMapWhileCreatingLineVisibility = value;
-            }).relativePosition = new Vector3(5f, 73f);
-
             UpdateToolBoxVisibility();
             SetVisible(false);
         }

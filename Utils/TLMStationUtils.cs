@@ -148,7 +148,7 @@ namespace Klyte.TransportLinesManager.Utils
                 serviceFound = ItemClass.Service.Road;
                 subserviceFound = ItemClass.SubService.PublicTransportBus;
                 resultNamingType = NamingType.ADDRESS;
-                return useRoadMainNameOnAddress ? streetName : streetName + ", " + number;
+                return useRoadMainNameOnAddress ? streetName : $"{number} {streetName}";
 
             }
             else if (DistrictManager.instance.GetDistrict(location) > 0 && (!useRestrictionForAreas || TLMSpecialNamingClass.District.GetConfig().UseInAutoName))

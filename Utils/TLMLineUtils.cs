@@ -17,13 +17,6 @@ namespace Klyte.TransportLinesManager.Utils
 {
     internal class TLMLineUtils
     {
-        public static Vehicle GetVehicleCapacityAndFill(ushort vehicleID, Vehicle vehicleData, out int fill, out int cap)
-        {
-            ushort firstVehicle = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleID].GetFirstVehicle(vehicleID);
-            vehicleData.Info.m_vehicleAI.GetBufferStatus(firstVehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[firstVehicle], out string text, out fill, out cap);
-            return vehicleData;
-        }
-
         public static void GetQuantityPassengerWaiting(ushort currentStop, out int residents, out int tourists, out int timeTilBored)
         {
             ushort nextStop = TransportLine.GetNextStop(currentStop);
@@ -83,7 +76,6 @@ namespace Klyte.TransportLinesManager.Utils
                 zIterator++;
             }
         }
-
 
         public static float GetEffectiveBudget(ushort transportLine) => GetEffectiveBudgetInt(transportLine) / 100f;
         public static int GetEffectiveBudgetInt(ushort transportLine)
@@ -376,137 +368,7 @@ namespace Klyte.TransportLinesManager.Utils
             return transportTypeLetter + tl.m_lineNumber.ToString().PadLeft(5, '0');
         }
 
-        [Obsolete]
-        public static void PrintIntersections(string airport, string harbor, string taxi, string regionalTrainStation, string cableCarStation, UIPanel intersectionsPanel, Dictionary<string, ushort> otherLinesIntersections, Vector3 position, float scale = 1.0f, int maxItemsForSizeSwap = 3)
-        {
-            TransportManager tm = Singleton<TransportManager>.instance;
 
-            int intersectionCount = otherLinesIntersections.Count;
-            if (!string.IsNullOrEmpty(airport))
-            {
-                intersectionCount++;
-            }
-            if (!string.IsNullOrEmpty(harbor))
-            {
-                intersectionCount++;
-            }
-            if (!string.IsNullOrEmpty(taxi))
-            {
-                intersectionCount++;
-            }
-            if (!string.IsNullOrEmpty(regionalTrainStation))
-            {
-                intersectionCount++;
-            }
-            if (!string.IsNullOrEmpty(cableCarStation))
-            {
-                intersectionCount++;
-            }
-            float size = scale * (intersectionCount > maxItemsForSizeSwap ? 20 : 40);
-            float multiplier = scale * (intersectionCount > maxItemsForSizeSwap ? 0.4f : 0.8f);
-            foreach (KeyValuePair<string, ushort> s in otherLinesIntersections.OrderBy(x => x.Key))
-            {
-                TransportLine intersectLine = tm.m_lines.m_buffer[s.Value];
-                ItemClass.SubService ss = GetLineNamingParameters(s.Value, out NamingMode prefixo, out Separator separador, out NamingMode sufixo, out NamingMode naoPrefixado, out bool zeros, out bool invertPrefixSuffix, out string bgSprite).SubService;
-                KlyteMonoUtils.CreateUIElement(out UIButtonLineInfo lineCircleIntersect, intersectionsPanel.transform);
-                lineCircleIntersect.autoSize = false;
-                lineCircleIntersect.width = size;
-                lineCircleIntersect.height = size;
-                lineCircleIntersect.color = intersectLine.m_color;
-                lineCircleIntersect.pivot = UIPivotPoint.MiddleLeft;
-                lineCircleIntersect.verticalAlignment = UIVerticalAlignment.Middle;
-                lineCircleIntersect.name = "LineFormat";
-                lineCircleIntersect.relativePosition = new Vector3(0f, 0f);
-                lineCircleIntersect.normalBgSprite = bgSprite;
-                lineCircleIntersect.hoveredColor = Color.white;
-                lineCircleIntersect.hoveredTextColor = Color.red;
-                lineCircleIntersect.lineID = s.Value;
-                lineCircleIntersect.tooltip = tm.GetLineName(s.Value);
-                lineCircleIntersect.eventClick += (x, y) =>
-                {
-                    InstanceID iid = InstanceID.Empty;
-                    iid.TransportLine = s.Value;
-                    WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(position, iid);
-
-                };
-                KlyteMonoUtils.CreateUIElement(out UILabel lineNumberIntersect, lineCircleIntersect.transform);
-                lineNumberIntersect.autoSize = false;
-                lineNumberIntersect.autoHeight = false;
-                lineNumberIntersect.width = lineCircleIntersect.width;
-                lineNumberIntersect.pivot = UIPivotPoint.MiddleCenter;
-                lineNumberIntersect.textAlignment = UIHorizontalAlignment.Center;
-                lineNumberIntersect.verticalAlignment = UIVerticalAlignment.Middle;
-                lineNumberIntersect.name = "LineNumber";
-                lineNumberIntersect.height = size;
-                lineNumberIntersect.relativePosition = new Vector3(-0.5f, 0.5f);
-                lineNumberIntersect.outlineColor = Color.black;
-                lineNumberIntersect.useOutline = true;
-                GetLineActive(ref intersectLine, out bool day, out bool night);
-                bool zeroed;
-                unchecked
-                {
-                    zeroed = (tm.m_lines.m_buffer[s.Value].m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0;
-                }
-                if (!day || !night || zeroed)
-                {
-                    KlyteMonoUtils.CreateUIElement(out UILabel daytimeIndicator, lineCircleIntersect.transform);
-                    daytimeIndicator.autoSize = false;
-                    daytimeIndicator.width = size;
-                    daytimeIndicator.height = size;
-                    daytimeIndicator.color = Color.white;
-                    daytimeIndicator.pivot = UIPivotPoint.MiddleLeft;
-                    daytimeIndicator.verticalAlignment = UIVerticalAlignment.Middle;
-                    daytimeIndicator.name = "LineTime";
-                    daytimeIndicator.relativePosition = new Vector3(0f, 0f);
-                    /*TODO: !!!!!! */
-                    daytimeIndicator.backgroundSprite = zeroed ? "NoBudgetIcon" : day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
-                }
-                SetLineNumberCircleOnRef(s.Value, lineNumberIntersect);
-                lineNumberIntersect.textScale *= multiplier;
-                lineNumberIntersect.relativePosition *= multiplier;
-            }
-            if (airport != string.Empty)
-            {
-                AddExtraStationBuildingIntersection(intersectionsPanel, size, "AirplaneIcon", airport);
-            }
-            if (harbor != string.Empty)
-            {
-                AddExtraStationBuildingIntersection(intersectionsPanel, size, "ShipIcon", harbor);
-            }
-            if (taxi != string.Empty)
-            {
-                AddExtraStationBuildingIntersection(intersectionsPanel, size, "TaxiIcon", taxi);
-            }
-            if (regionalTrainStation != string.Empty)
-            {
-                AddExtraStationBuildingIntersection(intersectionsPanel, size, "RegionalTrainIcon", regionalTrainStation);
-            }
-            if (cableCarStation != string.Empty)
-            {
-                AddExtraStationBuildingIntersection(intersectionsPanel, size, "CableCarIcon", cableCarStation);
-            }
-        }
-
-
-        public static void GetLineActive(ref TransportLine t, out bool day, out bool night)
-        {
-            day = (t.m_flags & TransportLine.Flags.DisabledDay) == TransportLine.Flags.None;
-            night = (t.m_flags & TransportLine.Flags.DisabledNight) == TransportLine.Flags.None;
-        }
-
-        private static void AddExtraStationBuildingIntersection(UIComponent parent, float size, string bgSprite, string description)
-        {
-            KlyteMonoUtils.CreateUIElement(out UILabel lineCircleIntersect, parent.transform);
-            lineCircleIntersect.autoSize = false;
-            lineCircleIntersect.width = size;
-            lineCircleIntersect.height = size;
-            lineCircleIntersect.pivot = UIPivotPoint.MiddleLeft;
-            lineCircleIntersect.verticalAlignment = UIVerticalAlignment.Middle;
-            lineCircleIntersect.name = "LineFormat";
-            lineCircleIntersect.relativePosition = new Vector3(0f, 0f);
-            lineCircleIntersect.backgroundSprite = bgSprite;
-            lineCircleIntersect.tooltip = description;
-        }
 
         public static void SetLineNumberCircleOnRef(ushort lineID, UITextComponent reference, float ratio = 1f)
         {
@@ -758,57 +620,6 @@ namespace Klyte.TransportLinesManager.Utils
 
         }
 
-
-        public static bool CalculateSimmetry(ItemClass.SubService ss, int stopsCount, TransportLine t, out int middle)
-        {
-            int j;
-            NetManager nm = Singleton<NetManager>.instance;
-            middle = -1;
-            if ((t.m_flags & (TransportLine.Flags.Invalid | TransportLine.Flags.Temporary)) != TransportLine.Flags.None)
-            {
-                return false;
-            }
-            //try to find the loop
-            for (j = -1; j < stopsCount / 2; j++)
-            {
-                int offsetL = (j + stopsCount) % stopsCount;
-                int offsetH = (j + 2) % stopsCount;
-                NetNode nn1 = nm.m_nodes.m_buffer[t.GetStop(offsetL)];
-                NetNode nn2 = nm.m_nodes.m_buffer[t.GetStop(offsetH)];
-                ushort buildingId1 = BuildingUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                ushort buildingId2 = BuildingUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                if (buildingId1 == buildingId2)
-                {
-                    middle = j + 1;
-                    break;
-                }
-            }
-            //				TLMUtils.doLog("middle="+middle);
-            if (middle >= 0)
-            {
-                for (j = 1; j <= stopsCount / 2; j++)
-                {
-                    int offsetL = (-j + middle + stopsCount) % stopsCount;
-                    int offsetH = (j + middle) % stopsCount;
-                    NetNode nn1 = nm.m_nodes.m_buffer[t.GetStop(offsetL)];
-                    NetNode nn2 = nm.m_nodes.m_buffer[t.GetStop(offsetH)];
-                    ushort buildingId1 = BuildingUtils.FindBuilding(nn1.m_position, 100f, ItemClass.Service.PublicTransport, ss, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                    ushort buildingId2 = BuildingUtils.FindBuilding(nn2.m_position, 100f, ItemClass.Service.PublicTransport, ss, defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.Untouchable);
-                    if (buildingId1 != buildingId2)
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-
-        }
-
-
         public static Tuple<string, Color, string> GetIconStringParameters(ushort lineId) => Tuple.New(GetIconForLine(lineId, false), Singleton<TransportManager>.instance.GetLineColor(lineId), GetLineStringId(lineId));
         internal static string GetIconString(ushort lineId) => GetIconString(GetIconForLine(lineId, false), Singleton<TransportManager>.instance.GetLineColor(lineId), GetLineStringId(lineId));
         internal static string GetIconString(string iconName, Color color, string lineString) => $"<{UIDynamicFontRendererRedirector.TAG_LINE} {iconName},{color.ToRGB()},{lineString}>";
@@ -818,55 +629,6 @@ namespace Klyte.TransportLinesManager.Utils
         public static int CalculateTargetVehicleCount(ref TransportLine t, ushort lineId, float lineLength) => CalculateTargetVehicleCount(t.Info, lineLength, GetEffectiveBudget(lineId));
         public static int CalculateTargetVehicleCount(TransportInfo info, float lineLength, float budget) => Mathf.CeilToInt(budget * lineLength / info.m_defaultVehicleDistance);
         public static float CalculateBudgetForEachVehicle(TransportInfo info, float lineLength) => info.m_defaultVehicleDistance / lineLength;
-
-        public static int GetTicketPriceForVehicle(VehicleAI ai, ushort vehicleID, ref Vehicle vehicleData)
-        {
-            var def = TransportSystemDefinition.From(vehicleData.Info);
-
-            if (def == default)
-            {
-                LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}):DEFAULT TSD FOR {ai}");
-                return ai.GetTicketPrice(vehicleID, ref vehicleData);
-            }
-
-            DistrictManager instance = Singleton<DistrictManager>.instance;
-            byte district = instance.GetDistrict(vehicleData.m_targetPos3);
-            DistrictPolicies.Services servicePolicies = instance.m_districts.m_buffer[district].m_servicePolicies;
-            DistrictPolicies.Event @event = instance.m_districts.m_buffer[district].m_eventPolicies & Singleton<EventManager>.instance.GetEventPolicyMask();
-            float multiplier;
-            if (vehicleData.Info.m_class.m_subService == ItemClass.SubService.PublicTransportTours)
-            {
-                multiplier = 1;
-            }
-            else
-            {
-                if ((servicePolicies & DistrictPolicies.Services.FreeTransport) != DistrictPolicies.Services.None)
-                {
-                    LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): FreeTransport at district!");
-                    return 0;
-                }
-                if ((@event & DistrictPolicies.Event.ComeOneComeAll) != DistrictPolicies.Event.None)
-                {
-                    LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): ComeOneComeAll at district!");
-                    return 0;
-                }
-                if ((servicePolicies & DistrictPolicies.Services.HighTicketPrices) != DistrictPolicies.Services.None)
-                {
-                    LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): HighTicketPrices at district!");
-                    instance.m_districts.m_buffer[district].m_servicePoliciesEffect = (instance.m_districts.m_buffer[district].m_servicePoliciesEffect | DistrictPolicies.Services.HighTicketPrices);
-                    multiplier = 5f / 4f;
-                }
-                else
-                {
-                    multiplier = 1;
-                }
-            }
-            uint ticketPriceDefault = GetTicketPriceForLine(def, vehicleData.m_transportLine).First.Value;
-            LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): multiplier = {multiplier}, ticketPriceDefault = {ticketPriceDefault}");
-
-            return (int)(multiplier * ticketPriceDefault);
-
-        }
 
         public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(TransportSystemDefinition tsd, ushort lineId) => GetTicketPriceForLine(tsd, lineId, ReferenceTimer);
         public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(TransportSystemDefinition tsd, ushort lineId, float hour)
