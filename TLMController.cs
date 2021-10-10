@@ -27,7 +27,6 @@ namespace Klyte.TransportLinesManager
         internal static TLMController Instance => TransportLinesManagerMod.Controller;
 
         public bool initializedWIP = false;
-        private TLMLinearMap m_linearMapCreatingLine;
 
         //private UIPanel _cachedDefaultListingLinesPanel;
 
@@ -78,46 +77,9 @@ namespace Klyte.TransportLinesManager
 
         public bool CanSwitchView => false;
 
-        private static readonly SavedBool m_showLinearMapWhileCreatingLine = new SavedBool("K45_TLM_showLinearMapWhileCreatingLine", Settings.gameSettingsFile, true);
-
-        public TLMLinearMap LinearMapCreatingLine
-        {
-            get
-            {
-                if (m_linearMapCreatingLine != null)
-                {
-                    return m_linearMapCreatingLine;
-                }
-                else
-                {
-                    LogUtils.DoErrorLog("LinearMapCreatingLine is NULL!!!!");
-                    return null;
-                }
-            }
-        }
-        public static bool LinearMapWhileCreatingLineVisibility
-        {
-            get => m_showLinearMapWhileCreatingLine;
-            set
-            {
-                m_showLinearMapWhileCreatingLine.value = value;
-                Instance.LinearMapCreatingLine.SetVisible(value);
-            }
-        }
+        private static readonly SavedBool m_showLinearMapWhileCreatingLine = new SavedBool("K45_TLM_showLinearMapWhileCreatingLine", Settings.gameSettingsFile, true);            
 
         internal TLMLineCreationToolbox LineCreationToolbox => PublicTransportInfoViewPanelOverrides.Toolbox;
-
-        public static void RedrawMap(ushort lineCurrent)
-        {
-            if (Singleton<TransportManager>.instance.m_lines.m_buffer[lineCurrent].m_stops == 0)
-            {
-                lineCurrent = 0;
-            }
-
-            Instance.SetCurrentSelectedId(lineCurrent);
-            Instance.LinearMapCreatingLine.RedrawLine();
-
-        }
 
         public bool ForceShowStopsDistances => true;
 
@@ -180,9 +142,6 @@ namespace Klyte.TransportLinesManager
 
             using (var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits)))
             {
-                KlyteMonoUtils.CreateElement(out m_linearMapCreatingLine, transform);
-                m_linearMapCreatingLine.Parent = this;
-                m_linearMapCreatingLine.SetVisible(false);
                 TLMNearLinesController.InitNearLinesOnWorldInfoPanel();
             }
         }

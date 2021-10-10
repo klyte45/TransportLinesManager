@@ -287,7 +287,6 @@
     <Compile Include="TransportLinesManager.cs" />
     <Compile Include="Data\Base\TransportSystemDefinition.cs" />
     <Compile Include="TLMController.cs" />
-    <Compile Include="UI\TLMLinearMap.cs" />
     <Compile Include="Palettes\TLMAutoColorPaletteContainer.cs" />
     <Compile Include="UI\TLMLineCreationToolbox.cs" />
     <Compile Include="Utils\TLMUiTemplateUtils.cs" />
