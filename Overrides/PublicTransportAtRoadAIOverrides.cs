@@ -36,12 +36,14 @@ namespace Klyte.TransportLinesManager.Overrides
                 || (__instance is TrolleybusAI && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled)
                 ) || vehicleData.m_transportLine == 0 || (vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0 || vehicleData.GetFirstVehicle(vehicleID) != vehicleID)
             {
+                CheckDespawn(vehicleID, ref vehicleData);
                 return true;
             }
             var currentStop = vehicleData.m_targetBuilding;
             ref TransportLine line = ref TransportManager.instance.m_lines.m_buffer[vehicleData.m_transportLine];
             if (currentStop == 0 || currentStop == line.m_stops || TLMStopDataContainer.Instance.SafeGet(currentStop).IsTerminal)
             {
+                CheckDespawn(vehicleID, ref vehicleData);
                 return true;
             }
             TLMLineUtils.GetQuantityPassengerWaiting(currentStop, out int residents, out int tourists, out _);
@@ -52,41 +54,41 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             var nextStop = TransportLine.GetNextStop(currentStop);
             vehicleData.m_targetBuilding = nextStop;
-            var obj = new object[] { vehicleID, vehicleData };
-            var unloadSig = new object[] { vehicleID, vehicleData, currentStop, nextStop };
+            var pathfindParams = new object[] { vehicleID, vehicleData };
+            var unloadParams = new object[] { vehicleID, vehicleData, currentStop, nextStop };
             if (__instance is BusAI busAi)
             {
-                if (!(bool)BusAI_StartPathFind.Invoke(busAi, obj))
+                if (!(bool)BusAI_StartPathFind.Invoke(busAi, pathfindParams))
                 {
                     vehicleData.m_targetBuilding = currentStop;
                     return true;
                 }
-                vehicleData = (Vehicle)obj[1];
+                vehicleData = (Vehicle)pathfindParams[1];
 
-                BusAI_UnloadPassengers.Invoke(busAi, unloadSig);
+                BusAI_UnloadPassengers.Invoke(busAi, unloadParams);
 
             }
             else if (__instance is TrolleybusAI trolleyAI)
             {
-                if (!(bool)TrolleyAI_StartPathFind.Invoke(trolleyAI, obj))
+                if (!(bool)TrolleyAI_StartPathFind.Invoke(trolleyAI, pathfindParams))
                 {
                     vehicleData.m_targetBuilding = currentStop;
                     return true;
                 }
-                vehicleData = (Vehicle)obj[1];
+                vehicleData = (Vehicle)pathfindParams[1];
 
-                TrolleybusAI_UnloadPassengers.Invoke(trolleyAI, unloadSig);
+                TrolleybusAI_UnloadPassengers.Invoke(trolleyAI, unloadParams);
             }
             else if (__instance is TramAI tramAI)
             {
-                if (!(bool)TramAI_StartPathFind.Invoke(tramAI, obj))
+                if (!(bool)TramAI_StartPathFind.Invoke(tramAI, pathfindParams))
                 {
                     vehicleData.m_targetBuilding = currentStop;
                     return true;
                 }
-                vehicleData = (Vehicle)obj[1];
+                vehicleData = (Vehicle)pathfindParams[1];
 
-                TramAI_UnloadPassengers.Invoke(tramAI, unloadSig);
+                TramAI_UnloadPassengers.Invoke(tramAI, unloadParams);
             }
             else
             {
@@ -94,6 +96,20 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             return false;
         }
+
+        private static void CheckDespawn(ushort vehicleID, ref Vehicle vehicleData)
+        {
+            if (vehicleData.m_transportLine != 0)
+            {
+                int currentVehicleCount = TransportManager.instance.m_lines.m_buffer[vehicleData.m_transportLine].CountVehicles(vehicleData.m_transportLine);
+                int targetVehicleCount = TransportLineOverrides.NewCalculateTargetVehicleCount(vehicleData.m_transportLine);
+                if (currentVehicleCount > targetVehicleCount)
+                {
+                    TLMVehicleUtils.DoSoftDespawn(vehicleID, ref vehicleData);
+                }
+            }
+        }
+
 
 
         private static int GetQuantityPassengerUnloadOnNextStop(ushort vehicleId, ref Vehicle data, out bool full)

@@ -52,7 +52,7 @@ namespace Klyte.TransportLinesManager.UI
             {
                 ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[UVMPublicTransportWorldInfoPanel.GetLineID()];
                 m_timeInput.text = Entry.HourOfDay.ToString();
-                string text = $"{(UVMBudgetConfigTab.IsAbsoluteValue() ? TLMLineUtils.CalculateTargetVehicleCount(t.Info, t.m_totalLength, Entry.Value / 100f) : (int)Entry.Value)}";
+                string text = $"{(UVMBudgetConfigTab.IsAbsoluteValue() ? TLMLineUtils.ProjectTargetVehicleCount(t.Info, t.m_totalLength, Entry.Value / 100f) : (int)Entry.Value)}";
                 m_value.text = UVMBudgetConfigTab.IsAbsoluteValue() ? "<sprite IconPolicyFreePublicTransport>x" : text;
                 m_value.suffix = UVMBudgetConfigTab.IsAbsoluteValue() ? text : "%";
                 LogUtils.DoLog($"t.Info.m_defaultVehicleDistance, t.m_totalLength = {t.Info.m_defaultVehicleDistance}, {t.m_totalLength}");
