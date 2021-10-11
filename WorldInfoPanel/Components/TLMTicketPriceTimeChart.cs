@@ -51,7 +51,7 @@ namespace Klyte.TransportLinesManager.UI
             ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
             m_clipboard = XmlUtils.DefaultXmlSerialize(TLMLineUtils.GetEffectiveExtensionForLine(lineID).GetTicketPricesForLine(lineID));
             m_pasteButton.isVisible = true;
-            TLMTicketConfigTab.Instance.RebuildList(lineID);
+            TLMTicketConfigTab.Instance.RebuildList();
         }
         private void ActionPaste()
         {
@@ -61,13 +61,13 @@ namespace Klyte.TransportLinesManager.UI
             }
             ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
             TLMLineUtils.GetEffectiveExtensionForLine(lineID).SetTicketPricesForLine(lineID, XmlUtils.DefaultXmlDeserialize<TimeableList<TicketPriceEntryXml>>(m_clipboard));
-            TLMTicketConfigTab.Instance.RebuildList(lineID);
+            TLMTicketConfigTab.Instance.RebuildList();
         }
         private void ActionDelete()
         {
             ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
             TLMLineUtils.GetEffectiveExtensionForLine(lineID).ClearTicketPricesOfLine(lineID);
-            TLMTicketConfigTab.Instance.RebuildList(lineID);
+            TLMTicketConfigTab.Instance.RebuildList();
         }
 
         protected static UIButton ConfigureActionButton(UIComponent parent, CommonsSpriteNames spriteName)
@@ -207,7 +207,7 @@ namespace Klyte.TransportLinesManager.UI
                 m_hourPointer.transform.localEulerAngles = new Vector3(0, 0,   (TLMLineUtils.ReferenceTimer / 24 * -360) + 180);
                 var tsd = TransportSystemDefinition.From(lineID);
                 Tuple<TicketPriceEntryXml, int> value = TLMLineUtils.GetTicketPriceForLine(tsd, lineID);
-                m_effectiveLabel.color = value.Second < 0 ? Color.gray : TLMTicketConfigTab.m_colorOrder[value.Second % TLMTicketConfigTab.m_colorOrder.Count];
+                m_effectiveLabel.color = value.Second < 0 ? Color.gray : TLMTicketConfigTab.Instance.ColorOrder[value.Second % TLMTicketConfigTab.Instance.ColorOrder.Count];
                 m_effectiveLabel.text = (value.First.Value / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
             }
         }

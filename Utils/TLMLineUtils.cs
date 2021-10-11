@@ -1,10 +1,9 @@
 ﻿using ColossalFramework;
+using ColossalFramework.Math;
 using ColossalFramework.UI;
-using Klyte.Commons.Redirectors;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Xml;
 using System;
@@ -20,19 +19,41 @@ namespace Klyte.TransportLinesManager.Utils
     {
         public static void GetQuantityPassengerWaiting(ushort currentStop, out int residents, out int tourists, out int timeTilBored)
         {
+            var residentsIn = 0;
+            var touristsIn = 0;
+            var timeTilBoredIn = 255;
+            var cm = CitizenManager.instance;
+            DoWithEachPassengerWaiting(currentStop, (citizen) =>
+            {
+                if ((cm.m_citizens.m_buffer[citizen].m_flags & Citizen.Flags.Tourist) != Citizen.Flags.None)
+                {
+                    touristsIn++;
+                }
+                else
+                {
+                    residentsIn++;
+                }
+                timeTilBoredIn = Math.Min(255 - cm.m_instances.m_buffer[citizen].m_waitCounter, timeTilBoredIn);
+            });
+
+            residents = residentsIn;
+            tourists = touristsIn;
+            timeTilBored = timeTilBoredIn;
+        }
+
+
+        public static void DoWithEachPassengerWaiting(ushort currentStop, Action<ushort> actionToDo)
+        {
             ushort nextStop = TransportLine.GetNextStop(currentStop);
             CitizenManager cm = Singleton<CitizenManager>.instance;
             NetManager nm = Singleton<NetManager>.instance;
             Vector3 position = nm.m_nodes.m_buffer[currentStop].m_position;
             Vector3 position2 = nm.m_nodes.m_buffer[nextStop].m_position;
             nm.m_nodes.m_buffer[currentStop].m_maxWaitTime = 0;
-            int minX = Mathf.Max((int)((position.x - 32f) / 8f + 1080f), 0);
-            int minZ = Mathf.Max((int)((position.z - 32f) / 8f + 1080f), 0);
-            int maxX = Mathf.Min((int)((position.x + 32f) / 8f + 1080f), 2159);
-            int maxZ = Mathf.Min((int)((position.z + 32f) / 8f + 1080f), 2159);
-            residents = 0;
-            tourists = 0;
-            timeTilBored = 255;
+            int minX = Mathf.Max((int)((position.x - 64) / 8f + 1080f), 0);
+            int minZ = Mathf.Max((int)((position.z - 64) / 8f + 1080f), 0);
+            int maxX = Mathf.Min((int)((position.x + 64) / 8f + 1080f), 2159);
+            int maxZ = Mathf.Min((int)((position.z + 64) / 8f + 1080f), 2159);
             int zIterator = minZ;
             while (zIterator <= maxZ)
             {
@@ -48,20 +69,12 @@ namespace Klyte.TransportLinesManager.Utils
                         {
                             Vector3 a = cm.m_instances.m_buffer[citizenIterator].m_targetPos;
                             float distance = Vector3.SqrMagnitude(a - position);
-                            if (distance < 1024f)
+                            if (distance < 8196f)
                             {
                                 CitizenInfo info = cm.m_instances.m_buffer[citizenIterator].Info;
                                 if (info.m_citizenAI.TransportArriveAtSource(citizenIterator, ref cm.m_instances.m_buffer[citizenIterator], position, position2))
                                 {
-                                    if ((cm.m_citizens.m_buffer[citizenIterator].m_flags & Citizen.Flags.Tourist) != Citizen.Flags.None)
-                                    {
-                                        tourists++;
-                                    }
-                                    else
-                                    {
-                                        residents++;
-                                    }
-                                    timeTilBored = Math.Min(255 - cm.m_instances.m_buffer[citizenIterator].m_waitCounter, timeTilBored);
+                                    actionToDo(citizenIterator);
                                 }
                             }
                         }
@@ -92,8 +105,43 @@ namespace Klyte.TransportLinesManager.Utils
             if (result == 0 != lineCfg.IsZeroed)
             {
                 lineCfg.IsZeroed = result == 0;
+                if (lineCfg.IsZeroed)
+                {
+                    SimulationManager.instance.StartCoroutine(MakePassengersBored(transportLine, SimulationManager.instance.m_referenceFrameIndex));
+                }
             }
             return result;
+        }
+
+        private static IEnumerator MakePassengersBored(ushort transportLine, uint simulationFrameStart)
+        {
+            int citizensCount = 0;
+            do
+            {
+                do
+                {
+                    yield return 0;
+                } while (SimulationManager.instance.m_referenceFrameIndex - simulationFrameStart < 5);
+                if (!TLMTransportLineExtension.Instance.SafeGet(transportLine).IsZeroed)
+                {
+                    yield break;
+                }
+                ushort stop = Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].m_stops;
+                citizensCount = 0;
+                do
+                {
+                    var citizensToBored = new List<ushort>();
+                    DoWithEachPassengerWaiting(stop, (citizenId) => citizensToBored.Add(citizenId));
+                    Randomizer r = new Randomizer();
+                    foreach (var citizenId in citizensToBored)
+                    {
+                        CitizenManager.instance.m_instances.m_buffer[citizenId].m_waitCounter = byte.MaxValue;
+                    }
+                    citizensCount += citizensToBored.Count;
+                    stop = TransportLine.GetNextStop(stop);
+                } while (stop != Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].m_stops);
+                simulationFrameStart = SimulationManager.instance.m_referenceFrameIndex;
+            } while (citizensCount > 0 || !TLMTransportLineExtension.Instance.SafeGet(transportLine).IsZeroed);
         }
 
         public static IBasicExtensionStorage GetEffectiveConfigForLine(ushort lineId)
@@ -637,7 +685,7 @@ namespace Klyte.TransportLinesManager.Utils
         public static int ProjectTargetVehicleCount(TransportInfo info, float lineLength, float budget) => Mathf.CeilToInt(budget * lineLength / info.m_defaultVehicleDistance);
         public static float CalculateBudgetForEachVehicle(TransportInfo info, float lineLength) => info.m_defaultVehicleDistance / lineLength;
 
-   
+
         public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(TransportSystemDefinition tsd, ushort lineId) => GetTicketPriceForLine(tsd, lineId, ReferenceTimer);
         public static Tuple<TicketPriceEntryXml, int> GetTicketPriceForLine(TransportSystemDefinition tsd, ushort lineId, float hour)
         {

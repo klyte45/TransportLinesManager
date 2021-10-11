@@ -40,7 +40,7 @@ namespace Klyte.TransportLinesManager.UI
             m_eraseButton.eventClick += (x, y) => ActionDelete();
             m_eraseButton.color = Color.red;
 
-            m_copyButton.tooltip =  Locale.Get("K45_TLM_COPY_CURRENT_LIST_CLIPBOARD");
+            m_copyButton.tooltip = Locale.Get("K45_TLM_COPY_CURRENT_LIST_CLIPBOARD");
             m_pasteButton.tooltip = Locale.Get("K45_TLM_PASTE_CLIPBOARD_TO_CURRENT_LIST");
             m_eraseButton.tooltip = Locale.Get("K45_TLM_DELETE_CURRENT_LIST");
 
@@ -54,7 +54,7 @@ namespace Klyte.TransportLinesManager.UI
             ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
             m_clipboard = XmlUtils.DefaultXmlSerialize(TLMLineUtils.GetEffectiveExtensionForLine(lineID).GetBudgetsMultiplierForLine(lineID));
             m_pasteButton.isVisible = true;
-            UVMBudgetConfigTab.Instance.RebuildList(lineID);
+            UVMBudgetConfigTab.Instance.RebuildList();
         }
         private void ActionPaste()
         {
@@ -64,13 +64,13 @@ namespace Klyte.TransportLinesManager.UI
             }
             ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
             TLMLineUtils.GetEffectiveExtensionForLine(lineID).SetAllBudgetMultipliersForLine(lineID, XmlUtils.DefaultXmlDeserialize<TimeableList<BudgetEntryXml>>(m_clipboard));
-            UVMBudgetConfigTab.Instance.RebuildList(lineID);
+            UVMBudgetConfigTab.Instance.RebuildList();
         }
         private void ActionDelete()
         {
             ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
             TLMLineUtils.GetEffectiveExtensionForLine(lineID).RemoveAllBudgetMultipliersOfLine(lineID);
-            UVMBudgetConfigTab.Instance.RebuildList(lineID);
+            UVMBudgetConfigTab.Instance.RebuildList();
         }
         protected static UIButton ConfigureActionButton(UIComponent parent, CommonsSpriteNames spriteName)
         {
@@ -166,7 +166,7 @@ namespace Klyte.TransportLinesManager.UI
             KlyteMonoUtils.CreateUIElement(out UILabel titleEffective, m_container.transform, "TitleEffective");
             titleEffective.width = 70;
             titleEffective.height = 30;
-            KlyteMonoUtils.LimitWidthAndBox(titleEffective, 70,out UIPanel container, true);
+            KlyteMonoUtils.LimitWidthAndBox(titleEffective, 70, out UIPanel container, true);
             container.relativePosition = new Vector3(70, 0);
             titleEffective.textScale = 0.8f;
             titleEffective.color = Color.white;
@@ -213,10 +213,10 @@ namespace Klyte.TransportLinesManager.UI
             {
                 ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
                 m_minutePointer.transform.localEulerAngles = new Vector3(0, 0, (TLMLineUtils.ReferenceTimer % 1 * -360) + 180);
-                m_hourPointer.transform.localEulerAngles = new Vector3(0, 0,   (TLMLineUtils.ReferenceTimer / 24 * -360) + 180);
+                m_hourPointer.transform.localEulerAngles = new Vector3(0, 0, (TLMLineUtils.ReferenceTimer / 24 * -360) + 180);
                 Tuple<float, int, int, float> value = TLMLineUtils.GetBudgetMultiplierLineWithIndexes(lineID);
-                m_effectiveSprite.color = UVMBudgetConfigTab.m_colorOrder[value.Second % UVMBudgetConfigTab.m_colorOrder.Count];
-                m_effectiveSprite.progressColor = UVMBudgetConfigTab.m_colorOrder[value.Third % UVMBudgetConfigTab.m_colorOrder.Count];
+                m_effectiveSprite.color = UVMBudgetConfigTab.Instance.ColorOrder[value.Second % UVMBudgetConfigTab.Instance.ColorOrder.Count];
+                m_effectiveSprite.progressColor = UVMBudgetConfigTab.Instance.ColorOrder[value.Third % UVMBudgetConfigTab.Instance.ColorOrder.Count];
                 m_effectiveSprite.value = value.Fourth;
                 int currentVehicleCount = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CountVehicles(lineID);
                 int targetVehicleCount = TransportLineOverrides.NewCalculateTargetVehicleCount(lineID);
