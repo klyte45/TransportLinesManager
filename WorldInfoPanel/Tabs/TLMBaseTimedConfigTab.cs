@@ -3,7 +3,6 @@ using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
-using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,7 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
 {
-    public abstract class TLMTimedConfigTab<T, L, V> : UICustomControl, IUVMPTWIPChild where T : TLMTimedConfigTab<T, L, V> where V : UintValueHourEntryXml<V>, new() where L : TLMBaseSliderEditorLine<L, V>
+    public abstract class TLMBaseTimedConfigTab<T, C, L, V> : UICustomControl, IUVMPTWIPChild where T : TLMBaseTimedConfigTab<T, C, L, V> where V : UintValueHourEntryXml<V> where L : TLMBaseSliderEditorLine<L, V> where C : TLMBaseTimeChart<T, C, L, V>
     {
         public abstract string GetTitleLocale();
         public abstract string GetValueColumnLocale();
@@ -33,7 +32,7 @@ namespace Klyte.TransportLinesManager.UI
 
         protected UIHelperExtension m_uiHelper;
 
-        private TLMTicketPriceTimeChart m_clockChart;
+        private C m_clockChart;
         private UIPanel m_titleContainer;
         protected UITemplateList<UIPanel> m_timeRows;
 
@@ -91,7 +90,7 @@ namespace Klyte.TransportLinesManager.UI
             add.textScale = 1f;
             add.width = 30;
             add.height = 30;
-            add.tooltip = Locale.Get("K45_TLM_ADD_TICKET_ENTRY");
+            add.tooltip = Locale.Get("K45_TLM_ADD_ENTRY");
             KlyteMonoUtils.InitButton(add, true, "OptionBase");
             add.isVisible = true;
             add.text = "+";
@@ -125,19 +124,9 @@ namespace Klyte.TransportLinesManager.UI
         private void RecountRows()
         {
 
-            var stopsCount = Config.Count;
-            if (stopsCount == 0)
-            {
-                Config.Add(new V()
-                {
-                    HourOfDay = 0,
-                    Value = 0
-                });
-            }
-
-            var newRows = m_timeRows.SetItemCount(stopsCount);
-            int count = 0;
-            for (int i = 0; i < stopsCount; i++, count++)
+            var rulesCount = Config.Count;
+            var newRows = m_timeRows.SetItemCount(rulesCount);
+            for (int i = 0; i < rulesCount; i++)
             {
                 var controller = newRows[i].GetComponent<L>();
                 controller.SetSliderParams(GetColorForNumber(i), GetMaxSliderValue());
@@ -151,7 +140,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void ReorderLines()
         {
-            var values = TLMLineUtils.GetEffectiveConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).TicketPriceEntries.Select(x => x.HourOfDay ?? 999).ToArray();
+            var values = Config.Select(x => x.HourOfDay ?? 999).ToArray();
             var sortedValues = new List<int>(values);
             sortedValues.Sort();
             var updateInfo = new List<Tuple<int, int, Color, L>>();

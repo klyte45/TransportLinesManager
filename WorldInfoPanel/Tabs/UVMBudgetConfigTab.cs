@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.UI
 {
 
-    public class UVMBudgetConfigTab : TLMTimedConfigTab<UVMBudgetConfigTab, UVMBudgetEditorLine, BudgetEntryXml>
+    public class UVMBudgetConfigTab : TLMBaseTimedConfigTab<UVMBudgetConfigTab, UVMBudgetTimeChart, UVMBudgetEditorLine, BudgetEntryXml>
     {
         private UICheckBox m_showAbsoluteCheckbox;
         public override string GetTitleLocale() => "K45_TLM_PER_HOUR_BUDGET_TITLE";

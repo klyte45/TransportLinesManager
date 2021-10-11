@@ -226,6 +226,7 @@
     <Compile Include="Overrides\PublicTransportAtRoadAIOverrides.cs" />
     <Compile Include="Palettes\RandomPastelColorGenerator.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMBaseSliderEditorLine.cs" />
+    <Compile Include="WorldInfoPanel\Components\TLMBaseTimeChart.cs" />
     <Compile Include="WorldInfoPanel\NearLines\TLMLineItemButtonControl.cs" />
     <Compile Include="WorldInfoPanel\NearLines\TLMNearLinesController.cs" />
     <Compile Include="Utils\NamingMode.cs" />
@@ -302,7 +303,7 @@
     <Compile Include="WorldInfoPanel\Components\UVMBudgetEditorLine.cs" />
     <Compile Include="WorldInfoPanel\Components\UVMBudgetTimeChart.cs" />
     <Compile Include="WorldInfoPanel\Tabs\IUVMPTWIPChild.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\TLMTimedConfigTab.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\TLMBaseTimedConfigTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\UVMBudgetConfigTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\UVMMainWIPTab.cs" />
     <Compile Include="WorldInfoPanel\UVMTransportLineLinearMap.cs" />

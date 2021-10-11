@@ -8,7 +8,9 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
 {
-    public abstract class TLMBaseSliderEditorLine<L, V> : UICustomControl where L : TLMBaseSliderEditorLine<L, V> where V : UintValueHourEntryXml<V>
+    public abstract class TLMBaseSliderEditorLine<L, V> : UICustomControl
+        where L : TLMBaseSliderEditorLine<L, V>
+        where V : UintValueHourEntryXml<V>
     {
         protected UIPanel m_container;
         protected UITextField m_timeInput;
@@ -117,6 +119,7 @@ namespace Klyte.TransportLinesManager.UI
             m_value.textScale = 1.125f;
             m_value.textAlignment = UIHorizontalAlignment.Center;
             m_value.padding = new RectOffset(3, 3, 5, 3);
+            m_value.processMarkup = true;
 
             var m_ValueSlider = UIHelperExtension.AddSlider(m_container, null, 0, 500, 5, -1,
                  (x) =>
