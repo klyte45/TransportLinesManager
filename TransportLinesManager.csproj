@@ -104,7 +104,6 @@
     <Compile Include="commons\Libraries\BasicLib.cs" />
     <Compile Include="commons\Libraries\LibBaseData.cs" />
     <Compile Include="commons\Libraries\LibBaseFile.cs" />
-    <Compile Include="commons\Redirectors\UIDynamicFontRendererRedirector.cs" />
     <Compile Include="commons\Redirectors\UIDynamicPanelsRedirector.cs" />
     <Compile Include="commons\Redirectors\UIViewRedirector.cs" />
     <Compile Include="commons\Redirectors\UIWorkshopAssetRedirector.cs" />
@@ -226,7 +225,7 @@
     <Compile Include="OptionsMenu\Tabs\TLMAutoNameBuildingsTab.cs" />
     <Compile Include="Overrides\PublicTransportAtRoadAIOverrides.cs" />
     <Compile Include="Palettes\RandomPastelColorGenerator.cs" />
-    <Compile Include="WorldInfoPanel\NearLines\TLMLineItemController.cs" />
+    <Compile Include="WorldInfoPanel\NearLines\TLMLineItemButtonControl.cs" />
     <Compile Include="WorldInfoPanel\NearLines\TLMNearLinesController.cs" />
     <Compile Include="Utils\NamingMode.cs" />
     <Compile Include="Utils\NamingType.cs" />

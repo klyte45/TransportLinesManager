@@ -14,11 +14,6 @@ using UnityEngine;
 using static Klyte.Commons.Extensions.RedirectorUtils;
 namespace Klyte.TransportLinesManager.Overrides
 {
-    internal enum TLMTransportLineFlags
-    {
-        ZERO_BUDGET_CURRENT = 0x40000000
-    }
-
     public class TransportLineOverrides : MonoBehaviour, IRedirectable
     {
         #region Hooking

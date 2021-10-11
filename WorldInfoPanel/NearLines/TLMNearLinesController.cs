@@ -10,7 +10,6 @@ namespace Klyte.TransportLinesManager
 {
     public class TLMNearLinesController
     {
-        private const string NEAR_LINE_TEMPLATE = "K45_TLM_NearLinesItemTemplate";
 
         private static ushort lastBuildingSelected = 0;
 
@@ -18,7 +17,7 @@ namespace Klyte.TransportLinesManager
         {
             BuildingWorldInfoPanel[] panelList = UIView.GetAView().GetComponentsInChildren<BuildingWorldInfoPanel>();
             LogUtils.DoLog("WIP LIST: [{0}]", string.Join(", ", panelList.Select(x => x.name).ToArray()));
-            CreateNearLineTemplate();
+            TLMLineItemButtonControl.EnsureTemplate();
             foreach (BuildingWorldInfoPanel wip in panelList)
             {
                 LogUtils.DoLog("LOADING WIP HOOK FOR: {0}", wip.name);
@@ -36,52 +35,6 @@ namespace Klyte.TransportLinesManager
 
             }
 
-        }
-
-        private static void CreateNearLineTemplate()
-        {
-            var go = new GameObject();
-            var size = 40;
-            var multiplier = .8f;
-            var lineCircleIntersect = go.AddComponent<UIButton>();
-            lineCircleIntersect.autoSize = false;
-            lineCircleIntersect.width = size;
-            lineCircleIntersect.height = size;
-            lineCircleIntersect.pivot = UIPivotPoint.MiddleLeft;
-            lineCircleIntersect.verticalAlignment = UIVerticalAlignment.Middle;
-            lineCircleIntersect.name = "LineFormat";
-            lineCircleIntersect.relativePosition = new Vector3(0f, 0f);
-            lineCircleIntersect.hoveredColor = Color.white;
-            lineCircleIntersect.hoveredTextColor = Color.red;
-
-            KlyteMonoUtils.CreateUIElement(out UILabel lineNumberIntersect, lineCircleIntersect.transform);
-            lineNumberIntersect.autoSize = false;
-            lineNumberIntersect.autoHeight = false;
-            lineNumberIntersect.width = lineCircleIntersect.width;
-            lineNumberIntersect.pivot = UIPivotPoint.MiddleCenter;
-            lineNumberIntersect.textAlignment = UIHorizontalAlignment.Center;
-            lineNumberIntersect.verticalAlignment = UIVerticalAlignment.Middle;
-            lineNumberIntersect.name = "LineNumber";
-            lineNumberIntersect.height = size;
-            lineNumberIntersect.relativePosition = new Vector3(-0.5f, 0.5f);
-            lineNumberIntersect.outlineColor = Color.black;
-            lineNumberIntersect.useOutline = true;
-            KlyteMonoUtils.CreateUIElement(out UILabel daytimeIndicator, lineCircleIntersect.transform);
-            daytimeIndicator.autoSize = false;
-            daytimeIndicator.width = size;
-            daytimeIndicator.height = size;
-            daytimeIndicator.color = Color.white;
-            daytimeIndicator.pivot = UIPivotPoint.MiddleLeft;
-            daytimeIndicator.verticalAlignment = UIVerticalAlignment.Middle;
-            daytimeIndicator.name = "LineTime";
-            daytimeIndicator.relativePosition = new Vector3(0f, 0f);
-
-            lineNumberIntersect.textScale *= multiplier;
-            lineNumberIntersect.relativePosition *= multiplier;
-
-            go.AddComponent<TLMLineItemController>();
-
-            UITemplateUtils.GetTemplateDict()[NEAR_LINE_TEMPLATE] = lineCircleIntersect;
         }
 
         private static Transform InitPanelNearLinesOnWorldInfoPanel(UIComponent parent)
@@ -123,7 +76,7 @@ namespace Klyte.TransportLinesManager
             listContainer.wrapLayout = true;
             listContainer.name = "TLMLinesNearList";
 
-            listContainer.objectUserData = new UITemplateList<UIButton>(listContainer, NEAR_LINE_TEMPLATE);
+            listContainer.objectUserData = new UITemplateList<UIButton>(listContainer, TLMLineItemButtonControl.LINE_ITEM_TEMPLATE);
 
             return innerContainer.transform;
         }
@@ -169,7 +122,7 @@ namespace Klyte.TransportLinesManager
                     for (int idx = 0; idx < lines.Length; idx++)
                     {
                         ushort lineId = lines[idx];
-                        var itemControl = itemsEntries[idx].GetComponent<TLMLineItemController>();
+                        var itemControl = itemsEntries[idx].GetComponent<TLMLineItemButtonControl>();
                         itemControl.ResetData(lineId, sidewalk);
                     }
 

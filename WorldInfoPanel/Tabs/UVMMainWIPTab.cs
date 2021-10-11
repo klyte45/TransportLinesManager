@@ -215,12 +215,9 @@ namespace Klyte.TransportLinesManager.UI
                     m_lineNumberLabel.maxLength = 3;
                     m_lineNumberLabel.width = 40;
                     m_lineNumberLabel.text = (lineNumber % 1000).ToString();
-                    m_linePrefixDropDown.enabled = false;
-
                     string[] temp = TLMPrefixesUtils.GetStringOptionsForPrefix(tsd, true, true, false);
                     m_linePrefixDropDown.items = temp;
                     m_linePrefixDropDown.selectedIndex = lineNumber / 1000;
-                    m_linePrefixDropDown.enabled = true;
                     bool invertPrefixSuffix = config.InvertPrefixSuffix;
                     if (invertPrefixSuffix)
                     {
@@ -230,7 +227,7 @@ namespace Klyte.TransportLinesManager.UI
                     {
                         m_lineNumberLabel.zOrder = 9999;
                     }
-
+                    m_linePrefixDropDown.enabled = true;
                 }
                 else
                 {

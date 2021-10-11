@@ -88,16 +88,10 @@ namespace Klyte.TransportLinesManager.Utils
             int budgetClass = lineBudget.Fifth ? 100 : Singleton<EconomyManager>.instance.GetBudget(info.m_class);
 
             var result = (int)(budgetClass * lineBudget.First);
-            if (result == 0 != ((tl.m_flags & (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT) != 0))
+            var lineCfg = TLMTransportLineExtension.Instance.SafeGet(transportLine);
+            if (result == 0 != lineCfg.IsZeroed)
             {
-                if(result == 0)
-                {
-                    tl.m_flags |= (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
-                }
-                else
-                {
-                    tl.m_flags &= (TransportLine.Flags)TLMTransportLineFlags.ZERO_BUDGET_CURRENT;
-                }
+                lineCfg.IsZeroed = result == 0;
             }
             return result;
         }
@@ -637,8 +631,6 @@ namespace Klyte.TransportLinesManager.Utils
         }
 
         public static Tuple<string, Color, string> GetIconStringParameters(ushort lineId) => Tuple.New(GetIconForLine(lineId, false), Singleton<TransportManager>.instance.GetLineColor(lineId), GetLineStringId(lineId));
-        internal static string GetIconString(ushort lineId) => GetIconString(GetIconForLine(lineId, false), Singleton<TransportManager>.instance.GetLineColor(lineId), GetLineStringId(lineId));
-        internal static string GetIconString(string iconName, Color color, string lineString) => $"<{UIDynamicFontRendererRedirector.TAG_LINE} {iconName},{color.ToRGB()},{lineString}>";
 
 
 

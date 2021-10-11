@@ -98,6 +98,9 @@ namespace Klyte.TransportLinesManager.UI
             connectionPanel.wrapLayout = true;
             connectionPanel.autoLayoutDirection = LayoutDirection.Vertical;
             connectionPanel.autoLayoutStart = LayoutStart.TopRight;
+            TLMLineItemButtonControl.EnsureTemplate();
+            connectionPanel.objectUserData = new UITemplateList<UIButton>(connectionPanel, TLMLineItemButtonControl.LINE_ITEM_TEMPLATE);
+
 
 
             UILabel distLabel = panel.AddUIComponent<UILabel>();
@@ -154,16 +157,12 @@ namespace Klyte.TransportLinesManager.UI
             m_connectionLabel.absolutePosition = m_vehiclesLabel.absolutePosition;
             m_connectionLabel.localeID = "K45_TLM_CONNECTIONS";
 
-            m_lineStringLabel = Instantiate(m_vehiclesLabel);
-            m_lineStringLabel.transform.SetParent(m_vehiclesLabel.transform.parent);
-            m_lineStringLabel.autoSize = false;
-            m_lineStringLabel.size = new Vector2(36, 36);
-            m_lineStringLabel.name = "LineStringLabel";
-            m_lineStringLabel.isLocalized = false;
-            m_lineStringLabel.text = "<k45Symbol K45_TriangleIcon,FF8822,36>";
-            m_lineStringLabel.textScale = 1;
-            m_lineStringLabel.processMarkup = true;
-            m_lineStringLabel.relativePosition = new Vector3(168, 10);
+            var lineStringButton = m_vehiclesLabel.parent.AttachUIComponent(UITemplateManager.GetAsGameObject(TLMLineItemButtonControl.LINE_ITEM_TEMPLATE)) as UIButton;
+            m_lineTitleBtnCtrl = lineStringButton.GetComponent<TLMLineItemButtonControl>();
+            m_lineTitleBtnCtrl.Resize(36);
+            lineStringButton.relativePosition = new Vector3(170, 4);
+            lineStringButton.Disable();
+
         }
 
         private void AdjustLineStopsPanel(PublicTransportWorldInfoPanel __instance)
@@ -244,7 +243,7 @@ namespace Klyte.TransportLinesManager.UI
                     m_actualStopsX = m_kstopsX;
 
                 }
-                m_lineStringLabel.text = TLMLineUtils.GetIconString(lineID);
+                m_lineTitleBtnCtrl.ResetData(lineID, Vector3.zero);
                 m_stopsLineSprite.color = Singleton<TransportManager>.instance.GetLineColor(lineID);
                 NetManager instance = Singleton<NetManager>.instance;
                 int stopsCount = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CountStops(lineID);
@@ -416,38 +415,26 @@ namespace Klyte.TransportLinesManager.UI
         {
             ushort lineID = GetLineID();
             var linesFound = new List<ushort>();
-            TLMLineUtils.GetNearLines(instance.m_nodes.m_buffer[currentStop].m_position, 150f, ref linesFound);
+            var targetPos = instance.m_nodes.m_buffer[currentStop].m_position;
+            TLMLineUtils.GetNearLines(targetPos, 150f, ref linesFound);
             linesFound.Remove(lineID);
             UIPanel connectionPanel = basePanel.Find<UIPanel>("ConnectionPanel");
+            if(connectionPanel.objectUserData is null)
+            {
+                connectionPanel.objectUserData = new UITemplateList<UIButton>(connectionPanel, TLMLineItemButtonControl.LINE_ITEM_TEMPLATE);
+            }
+            var templateList = connectionPanel.objectUserData as UITemplateList<UIButton>;
+            
+            int newSize = linesFound.Count > m_kMaxConnectionsLine ? 18 : 36;
 
-            while (connectionPanel.childCount < linesFound.Count)
+            var itemsEntries = templateList.SetItemCount(linesFound.Count);
+            for (int idx = 0; idx < linesFound.Count; idx++)
             {
-                KlyteMonoUtils.CreateUIElement(out UILabel lineLabel, connectionPanel.transform, "", new Vector4(0, 0, 17, 17));
-                lineLabel.processMarkup = true;
-                lineLabel.textScale = 0.5f;
-                lineLabel.eventClicked += OpenLineLabel;
-                lineLabel.verticalAlignment = UIVerticalAlignment.Middle;
+                ushort lineId = linesFound[idx];
+                var itemControl = itemsEntries[idx].GetComponent<TLMLineItemButtonControl>();
+                itemControl.Resize(newSize);
+                itemControl.ResetData(lineId, targetPos);
             }
-            while (connectionPanel.childCount > linesFound.Count)
-            {
-                UIComponent comp = connectionPanel.components[linesFound.Count];
-                connectionPanel.components.RemoveAt(linesFound.Count);
-                GameObject.Destroy(comp);
-                connectionPanel.Invalidate();
-            }
-            int multiplier = linesFound.Count > m_kMaxConnectionsLine ? 1 : 2;
-            for (int i = 0; i < linesFound.Count; i++)
-            {
-                ushort line = linesFound[i];
-                UILabel lineLabel = connectionPanel.components[i].GetComponent<UILabel>();
-                lineLabel.name = $"L{line}";
-                lineLabel.tooltip = Singleton<TransportManager>.instance.GetLineName(line);
-                lineLabel.text = TLMLineUtils.GetIconString(line);
-                lineLabel.stringUserData = line.ToString();
-                lineLabel.size = m_kBasicConnectionLogoSize * multiplier;
-                lineLabel.textScale = m_kBasicConnectionLogoFontSize * multiplier;
-            }
-
             connectionPanel.isVisible = m_currentMode == MapMode.CONNECTIONS;
         }
 
@@ -726,8 +713,6 @@ namespace Klyte.TransportLinesManager.UI
         internal float m_actualStopsX;
         internal Vector2 m_kLineSSpritePosition = new Vector2(175f, 20f);
         internal Vector2 m_kLineSSpritePositionForWalkingTours = new Vector2(175f, 20f);
-        internal Vector2 m_kBasicConnectionLogoSize = new Vector2(18, 18);
-        internal float m_kBasicConnectionLogoFontSize = 0.5f;
         internal int m_kMaxConnectionsLine = 4;
 
         internal UILabel m_stopsLabel;
@@ -735,7 +720,7 @@ namespace Klyte.TransportLinesManager.UI
         internal UILabel m_vehiclesLabel;
 
         internal UILabel m_connectionLabel;
-        internal UILabel m_lineStringLabel;
+        internal TLMLineItemButtonControl m_lineTitleBtnCtrl;
 
         public static UIScrollablePanel m_scrollPanel;
 
