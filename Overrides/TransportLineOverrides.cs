@@ -8,6 +8,7 @@ using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
@@ -230,7 +231,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 t.m_totalLength = lineLength;
             }
             return TLMLineUtils.ProjectTargetVehicleCount(t.Info, lineLength, TLMLineUtils.GetEffectiveBudget(lineId));
-        }        
+        }
 
         #endregion
 
@@ -361,7 +362,16 @@ namespace Klyte.TransportLinesManager.Overrides
             if (findTargetStop && (data.Info.GetAI() is BusAI || data.Info.GetAI() is TramAI || data.Info.GetAI() is TrolleybusAI) && data.m_transportLine > 0)
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[data.m_transportLine];
-                data.m_targetBuilding = t.GetStop(SimulationManager.instance.m_randomizer.Int32((uint)t.CountStops(data.m_transportLine)));
+                if (TransportSystemDefinition.GetDefinitionForLine(ref t).GetConfig().RequireLineStartTerminal)
+                {
+                    var terminalMarkedStops = new ushort[t.CountStops(data.m_transportLine) - 1].Select((x, i) => Tuple.New(t.GetStop(i + 1), TLMStopDataContainer.Instance.SafeGet(t.GetStop(i + 1)).IsTerminal)).Where(x => x.Second).Select(x => x.First);
+                    var terminalStops = new ushort[] { t.m_stops }.Union(terminalMarkedStops).ToList();
+                    data.m_targetBuilding = terminalStops[SimulationManager.instance.m_randomizer.Int32((uint)terminalStops.Count)];
+                }
+                else
+                {
+                    data.m_targetBuilding = t.GetStop(SimulationManager.instance.m_randomizer.Int32((uint)t.CountStops(data.m_transportLine)));
+                }
             }
         }
         #endregion
