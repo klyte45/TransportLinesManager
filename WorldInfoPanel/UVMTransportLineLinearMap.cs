@@ -178,21 +178,25 @@ namespace Klyte.TransportLinesManager.UI
         public void OnDisable()
         {
         }
-
+        private uint m_lastDrawTick;
         public void UpdateBindings()
         {
-            ushort lineID = GetLineID();
-            if (lineID != 0)
+            if(component.isVisible && (m_lastDrawTick + 23 < SimulationManager.instance.m_referenceFrameIndex || m_dirty))
             {
-                if (m_cachedUnscaledMode != m_unscaledMode || m_dirty)
+                ushort lineID = GetLineID();
+                if (lineID != 0)
                 {
-                    OnSetTarget(null);
-                    m_cachedUnscaledMode = m_unscaledMode;
-                    m_dirty = false;
+                    if (m_cachedUnscaledMode != m_unscaledMode || m_dirty)
+                    {
+                        OnSetTarget(null);
+                        m_cachedUnscaledMode = m_unscaledMode;
+                        m_dirty = false;
+                    }
+                    UpdateVehicleButtons(lineID);
+                    UpdateStopButtons(lineID);
+                    m_panelModeSelector.relativePosition = new Vector3(405, 45);
                 }
-                UpdateVehicleButtons(lineID);
-                UpdateStopButtons(lineID);
-                m_panelModeSelector.relativePosition = new Vector3(405, 45);
+                m_lastDrawTick = SimulationManager.instance.m_referenceFrameIndex;
             }
         }
 
