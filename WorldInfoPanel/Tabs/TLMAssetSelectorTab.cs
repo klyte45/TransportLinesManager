@@ -324,21 +324,24 @@ namespace Klyte.TransportLinesManager.UI
 
         public void UpdateBindings()
         {
-            if (m_lastInfo != default(VehicleInfo) && GetComponentInParent<UIComponent>().isVisible)
+            if (m_lastInfo != default(VehicleInfo) && GetComponentInParent<UIComponent>().isVisible && m_lastDrawTick + 9 < SimulationManager.instance.m_currentTickIndex)
             {
-                m_previewRenderer.CameraRotation -= 2;
+                m_previewRenderer.CameraRotation -= 10;
                 RedrawModel();
+                m_lastDrawTick = SimulationManager.instance.m_currentTickIndex;
             }
         }
 
+        private uint m_lastDrawTick;
+
         private void RedrawModel()
-        {
+        {            
             if (m_lastInfo == default(VehicleInfo))
             {
                 m_preview.isVisible = false;
                 return;
             }
-            m_preview.isVisible = true;
+            m_preview.isVisible = true;            
             m_previewRenderer.RenderVehicle(m_lastInfo, m_lastColor == Color.clear ? Color.HSVToRGB(Math.Abs(m_previewRenderer.CameraRotation) / 360f, .5f, .5f) : m_lastColor, true);
         }
 

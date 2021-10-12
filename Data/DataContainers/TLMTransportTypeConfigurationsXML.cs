@@ -43,6 +43,8 @@ namespace Klyte.TransportLinesManager.Xml
         public bool UseInAutoName { get; set; }
         [XmlAttribute("buildingNamePrefix")]
         public string NamingPrefix { get; set; }
+        [XmlAttribute("requireLineStartTerminal")]
+        public bool RequireLineStartTerminal { get; set; }
 
     }
 

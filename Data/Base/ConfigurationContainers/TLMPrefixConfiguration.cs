@@ -10,7 +10,7 @@ namespace Klyte.TransportLinesManager.Xml
 {
     public class TLMPrefixConfiguration : IAssetSelectorStorage, INameableStorage, IColorSelectableStorage, IBasicExtensionStorage
     {
-        [XmlElement("Budget")]
+        [XmlElement("Budget")]        
         public TimeableList<BudgetEntryXml> BudgetEntries { get; set; } = new TimeableList<BudgetEntryXml>();
         [XmlElement("TicketPrices")]
         public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; } = new TimeableList<TicketPriceEntryXml>();

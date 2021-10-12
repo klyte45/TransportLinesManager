@@ -104,7 +104,6 @@
     <Compile Include="commons\Libraries\BasicLib.cs" />
     <Compile Include="commons\Libraries\LibBaseData.cs" />
     <Compile Include="commons\Libraries\LibBaseFile.cs" />
-    <Compile Include="commons\Redirectors\UIDynamicFontRendererRedirector.cs" />
     <Compile Include="commons\Redirectors\UIDynamicPanelsRedirector.cs" />
     <Compile Include="commons\Redirectors\UIViewRedirector.cs" />
     <Compile Include="commons\Redirectors\UIWorkshopAssetRedirector.cs" />
@@ -226,6 +225,10 @@
     <Compile Include="OptionsMenu\Tabs\TLMAutoNameBuildingsTab.cs" />
     <Compile Include="Overrides\PublicTransportAtRoadAIOverrides.cs" />
     <Compile Include="Palettes\RandomPastelColorGenerator.cs" />
+    <Compile Include="WorldInfoPanel\Components\TLMBaseSliderEditorLine.cs" />
+    <Compile Include="WorldInfoPanel\Components\TLMBaseTimeChart.cs" />
+    <Compile Include="WorldInfoPanel\NearLines\TLMLineItemButtonControl.cs" />
+    <Compile Include="WorldInfoPanel\NearLines\TLMNearLinesController.cs" />
     <Compile Include="Utils\NamingMode.cs" />
     <Compile Include="Utils\NamingType.cs" />
     <Compile Include="Utils\NamingTypeExtensions.cs" />
@@ -252,11 +255,10 @@
     <Compile Include="Data\Base\Enums\TLMSpecialNamingClass.cs" />
     <Compile Include="Data\Base\TsdIdentifiable.cs" />
     <Compile Include="Data\Base\ConfigurationContainers\TLMTransportLineConfiguration.cs" />
-    <Compile Include="Data\Base\BudgetEntryXml.cs" />
+    <Compile Include="Data\Base\UintValueHourEntryXml.cs" />
     <Compile Include="Data\Extensions\ExtensionStaticExtensionMethods.cs" />
     <Compile Include="Interfaces\ITLMTransportTypeExtension.cs" />
     <Compile Include="Data\Base\ConfigurationContainers\TLMPrefixConfiguration.cs" />
-    <Compile Include="Data\Base\TicketPriceEntryXml.cs" />
     <Compile Include="Data\Base\ConfigurationContainers\TLMTransportTypeExtension.cs" />
     <Compile Include="Overrides\TLMDepotAIOverrides.cs" />
     <Compile Include="Data\DataContainers\TLMTransportLineExtension.cs" />
@@ -285,7 +287,6 @@
     <Compile Include="TransportLinesManager.cs" />
     <Compile Include="Data\Base\TransportSystemDefinition.cs" />
     <Compile Include="TLMController.cs" />
-    <Compile Include="UI\TLMLinearMap.cs" />
     <Compile Include="Palettes\TLMAutoColorPaletteContainer.cs" />
     <Compile Include="UI\TLMLineCreationToolbox.cs" />
     <Compile Include="Utils\TLMUiTemplateUtils.cs" />
@@ -302,6 +303,7 @@
     <Compile Include="WorldInfoPanel\Components\UVMBudgetEditorLine.cs" />
     <Compile Include="WorldInfoPanel\Components\UVMBudgetTimeChart.cs" />
     <Compile Include="WorldInfoPanel\Tabs\IUVMPTWIPChild.cs" />
+    <Compile Include="WorldInfoPanel\Tabs\TLMBaseTimedConfigTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\UVMBudgetConfigTab.cs" />
     <Compile Include="WorldInfoPanel\Tabs\UVMMainWIPTab.cs" />
     <Compile Include="WorldInfoPanel\UVMTransportLineLinearMap.cs" />

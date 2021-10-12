@@ -116,12 +116,19 @@ namespace Klyte.TransportLinesManager.Utils
                             }
                             else
                             {
-                                item.Value.m_vehicleAI.SetTransportLine(item.Key, ref vm.m_vehicles.m_buffer[item.Key], 0);
+                                DoSoftDespawn(item.Key, ref vm.m_vehicles.m_buffer[item.Key]);
                             }
                         }
                     }
                 }
             }
+        }
+        public static void DoSoftDespawn(ushort vehicleID, ref Vehicle vehicleData)
+        {
+            var targetBuilding = vehicleData.m_targetBuilding;
+            TransportManager.instance.m_lines.m_buffer[vehicleData.m_transportLine].RemoveVehicle(vehicleID, ref vehicleData);
+            vehicleData.m_transportLine = 0;
+            vehicleData.m_targetBuilding = targetBuilding;
         }
     }
 

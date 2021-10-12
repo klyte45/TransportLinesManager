@@ -38,6 +38,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
         private UITextField m_vehicleNumberFormatLocal;
         private UITextField m_vehicleNumberFormatForeign;
         private UICheckBox m_useInAutoName;
+        private UICheckBox m_requireStartAtTerminal;
         private UITextField m_namingPrefix;
         private UILabel m_defaultCostLbl;
         private UITextField m_defaultCost;
@@ -109,6 +110,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             m_uiHelper.AddSpace(5);
 
             AddCheckbox(Locale.Get("K45_TLM_USE_AUTO_NAME"), out m_useInAutoName, m_uiHelper, (x) => TSD.GetConfig().UseInAutoName = x);
+            AddCheckbox(Locale.Get("K45_TLM_REQUIRESTARTTERMINAL"), out m_requireStartAtTerminal, m_uiHelper, (x) => TSD.GetConfig().RequireLineStartTerminal = x);
             AddTextField(Locale.Get("K45_TLM_PREFIX_BUILDING_NAMES"), out m_namingPrefix, m_uiHelper, (x) => TSD.GetConfig().NamingPrefix = x, TSD.GetConfig().NamingPrefix);
             m_uiHelper.AddSpace(5);
 
