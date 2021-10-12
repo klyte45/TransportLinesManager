@@ -75,7 +75,10 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 {
                     strip.selectedIndex = strip.tabCount - 1;
                 }
-                catch { }
+                catch (Exception e)
+                {
+                    LogUtils.DoErrorLog(e.Message + "\n" + e.StackTrace);
+                }
             };
 
             foreach (ConfigTabs tab in Enum.GetValues(typeof(ConfigTabs)))
@@ -123,7 +126,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 {
                     tab.ReloadData();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     LogUtils.DoErrorLog($"Error reloading data for {tab}: {e.Message}\n{e.StackTrace}");
                 }

@@ -187,7 +187,7 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static string GetLineStringId(ushort lineIdx)
         {
-            if (TLMTransportLineExtension.Instance.SafeGet(lineIdx).CustomCode is string customId)
+            if (TLMTransportLineExtension.Instance.SafeGet(lineIdx).CustomCode is string customId && !customId.IsNullOrWhiteSpace())
             {
                 return customId;
             }

@@ -1,4 +1,4 @@
-﻿<extended><color #9999FF>TLM 14.1 - 29/APR/21</color>
+﻿<extended><color #9999FF>TLM 14.1 - ??/???/21</color>
 	- New near lines positioning - fixes some crashing situations
 	- Removed the legacy linear map completely
 	- The transport tool now shows information about the stops hovered (line it belongs to, distance between stops)
