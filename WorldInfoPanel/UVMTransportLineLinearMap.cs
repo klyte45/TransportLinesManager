@@ -54,12 +54,17 @@ namespace Klyte.TransportLinesManager.UI
                {
                    m_currentMode = (MapMode)idx;
                    RefreshVehicleButtons(GetLineID());
+                   MarkDirty();
                }, m_panelModeSelector);
             m_mapModeDropDown.textScale = 0.75f;
             m_mapModeDropDown.size = new Vector2(200, 25);
             m_mapModeDropDown.itemHeight = 16;
 
-            UICheckBox unscaledCheck = UIHelperExtension.AddCheckboxLocale(m_panelModeSelector, "K45_TLM_LINEAR_MAP_SHOW_UNSCALED", m_unscaledMode, (val) => m_unscaledMode = val);
+            UICheckBox unscaledCheck = UIHelperExtension.AddCheckboxLocale(m_panelModeSelector, "K45_TLM_LINEAR_MAP_SHOW_UNSCALED", m_unscaledMode, (val) =>
+            {
+                m_unscaledMode = val;
+                MarkDirty();
+            });
             KlyteMonoUtils.LimitWidthAndBox(unscaledCheck.label, 165);
 
             InstanceManagerOverrides.EventOnBuildingRenamed += (x) => m_dirtyNames = true;
@@ -313,6 +318,7 @@ namespace Klyte.TransportLinesManager.UI
                                     AudioManager.instance.DefaultGroup.AddPlayer(0, properties.m_drawSound, 1f);
                                 }
                                 m_dirtyTerminal = true;
+                                MarkDirty();
                             }
                         };
 

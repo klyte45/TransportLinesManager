@@ -29,7 +29,7 @@ namespace Klyte.TransportLinesManager.Overrides
         {
             Interfaces.IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
             List<ushort> allowedDepots = config.GetAllowedDepots(tsd, lineId);
-            if (allowedDepots.Count == 0 || allowedDepots.Contains(currentId))
+            if (allowedDepots.Count == 0)
             {
                 if (TransportLinesManagerMod.DebugMode)
                 {
@@ -100,7 +100,7 @@ namespace Klyte.TransportLinesManager.Overrides
                 {
                     LogUtils.DoLog("randomVehicleInfo != null");
                     Array16<Vehicle> vehicles = Singleton<VehicleManager>.instance.m_vehicles;
-                    __instance.CalculateSpawnPosition(buildingID, ref Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID], ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, out Vector3 position, out Vector3 vector);
+                    __instance.CalculateSpawnPosition(buildingID, ref Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID], ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, out Vector3 position, out _);
                     if (Singleton<VehicleManager>.instance.CreateVehicle(out ushort vehicleID, ref Singleton<SimulationManager>.instance.m_randomizer, randomVehicleInfo, position, reason, false, true))
                     {
                         LogUtils.DoLog("CreatedVehicle!!!");
