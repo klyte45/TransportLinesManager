@@ -215,12 +215,9 @@ namespace Klyte.TransportLinesManager.UI
                     m_lineNumberLabel.maxLength = 3;
                     m_lineNumberLabel.width = 40;
                     m_lineNumberLabel.text = (lineNumber % 1000).ToString();
-                    m_linePrefixDropDown.enabled = false;
-
                     string[] temp = TLMPrefixesUtils.GetStringOptionsForPrefix(tsd, true, true, false);
                     m_linePrefixDropDown.items = temp;
                     m_linePrefixDropDown.selectedIndex = lineNumber / 1000;
-                    m_linePrefixDropDown.enabled = true;
                     bool invertPrefixSuffix = config.InvertPrefixSuffix;
                     if (invertPrefixSuffix)
                     {
@@ -230,7 +227,7 @@ namespace Klyte.TransportLinesManager.UI
                     {
                         m_lineNumberLabel.zOrder = 9999;
                     }
-
+                    m_linePrefixDropDown.enabled = true;
                 }
                 else
                 {
@@ -253,89 +250,94 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
+        private uint m_lastDrawTick;
         public void UpdateBindings()
         {
-            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-            if (lineID != 0)
+            if (component.isVisible && m_lastDrawTick + 31 < SimulationManager.instance.m_currentTickIndex)
             {
-                TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info;
-                m_type.text = Locale.Get("TRANSPORT_LINE", info.name);
-                int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_touristPassengers.m_averageCount;
-                int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_residentPassengers.m_averageCount;
-                int total = averageCount + averageCount2;
-                int averageCount3 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_childPassengers.m_averageCount;
-                int averageCount4 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_teenPassengers.m_averageCount;
-                int averageCount5 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_youngPassengers.m_averageCount;
-                int averageCount6 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_adultPassengers.m_averageCount;
-                int averageCount7 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_seniorPassengers.m_averageCount;
-                int averageCount8 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_carOwningPassengers.m_averageCount;
-                int percentageValue = GetPercentageValue(averageCount3, total);
-                int percentageValue2 = GetPercentageValue(averageCount4, total);
-                int percentageValue3 = GetPercentageValue(averageCount5, total);
-                int num3 = GetPercentageValue(averageCount6, total);
-                int percentageValue4 = GetPercentageValue(averageCount7, total);
-                int num4 = percentageValue + percentageValue2 + percentageValue3 + num3 + percentageValue4;
-                if (num4 != 0 && num4 != 100)
+                ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
+                if (lineID != 0)
                 {
-                    num3 = 100 - (percentageValue + percentageValue2 + percentageValue3 + percentageValue4);
-                }
-                m_ageChart.SetValues(new int[]
-                {
+                    TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info;
+                    m_type.text = Locale.Get("TRANSPORT_LINE", info.name);
+                    int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_touristPassengers.m_averageCount;
+                    int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_residentPassengers.m_averageCount;
+                    int total = averageCount + averageCount2;
+                    int averageCount3 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_childPassengers.m_averageCount;
+                    int averageCount4 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_teenPassengers.m_averageCount;
+                    int averageCount5 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_youngPassengers.m_averageCount;
+                    int averageCount6 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_adultPassengers.m_averageCount;
+                    int averageCount7 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_seniorPassengers.m_averageCount;
+                    int averageCount8 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_passengers.m_carOwningPassengers.m_averageCount;
+                    int percentageValue = GetPercentageValue(averageCount3, total);
+                    int percentageValue2 = GetPercentageValue(averageCount4, total);
+                    int percentageValue3 = GetPercentageValue(averageCount5, total);
+                    int num3 = GetPercentageValue(averageCount6, total);
+                    int percentageValue4 = GetPercentageValue(averageCount7, total);
+                    int num4 = percentageValue + percentageValue2 + percentageValue3 + num3 + percentageValue4;
+                    if (num4 != 0 && num4 != 100)
+                    {
+                        num3 = 100 - (percentageValue + percentageValue2 + percentageValue3 + percentageValue4);
+                    }
+                    m_ageChart.SetValues(new int[]
+                    {
                 percentageValue,
                 percentageValue2,
                 percentageValue3,
                 num3,
                 percentageValue4
-                });
-                m_passengers.text = LocaleFormatter.FormatGeneric(m_weeklyPassengersString, new object[]
-                {
+                    });
+                    m_passengers.text = LocaleFormatter.FormatGeneric(m_weeklyPassengersString, new object[]
+                    {
                 averageCount2,
                 averageCount
-                });
-                int num5 = 0;
-                int num6 = 0;
-                if (averageCount2 + averageCount != 0)
-                {
-                    num6 += averageCount3 * 0;
-                    num6 += averageCount4 * 5;
-                    num6 += averageCount5 * (((15 * averageCount2) + (20 * averageCount) + ((averageCount2 + averageCount) >> 1)) / (averageCount2 + averageCount));
-                    num6 += averageCount6 * (((20 * averageCount2) + (20 * averageCount) + ((averageCount2 + averageCount) >> 1)) / (averageCount2 + averageCount));
-                    num6 += averageCount7 * (((10 * averageCount2) + (20 * averageCount) + ((averageCount2 + averageCount) >> 1)) / (averageCount2 + averageCount));
-                }
-                if (num6 != 0)
-                {
-                    num5 = (int)(((averageCount8 * 10000L) + (num6 >> 1)) / num6);
-                    num5 = Mathf.Clamp(num5, 0, 100);
-                }
-                m_tripSaved.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_TRIPSAVED", new object[]
-                {
-                num5
-                });
-                if (m_pullValuePanel.isVisible)
-                {
-                    m_pullValue.text = StringUtils.SafeFormat(Locale.Get("PUBTRANSWORLDINFOPANEL_PULLVALUE"), Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].GetPullValue(lineID));
-                    ushort stop = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].GetStop(0);
-                    if ((Singleton<NetManager>.instance.m_nodes.m_buffer[stop].m_problems & Notification.Problem.TooLong) != Notification.Problem.None)
+                    });
+                    int num5 = 0;
+                    int num6 = 0;
+                    if (averageCount2 + averageCount != 0)
                     {
-                        m_warningTooLongIcon.isVisible = true;
-                        m_warningTooLongText.isVisible = true;
-                        if ((Singleton<NetManager>.instance.m_nodes.m_buffer[stop].m_problems & Notification.Problem.MajorProblem) != Notification.Problem.None)
+                        num6 += averageCount3 * 0;
+                        num6 += averageCount4 * 5;
+                        num6 += averageCount5 * (((15 * averageCount2) + (20 * averageCount) + ((averageCount2 + averageCount) >> 1)) / (averageCount2 + averageCount));
+                        num6 += averageCount6 * (((20 * averageCount2) + (20 * averageCount) + ((averageCount2 + averageCount) >> 1)) / (averageCount2 + averageCount));
+                        num6 += averageCount7 * (((10 * averageCount2) + (20 * averageCount) + ((averageCount2 + averageCount) >> 1)) / (averageCount2 + averageCount));
+                    }
+                    if (num6 != 0)
+                    {
+                        num5 = (int)(((averageCount8 * 10000L) + (num6 >> 1)) / num6);
+                        num5 = Mathf.Clamp(num5, 0, 100);
+                    }
+                    m_tripSaved.text = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_TRIPSAVED", new object[]
+                    {
+                num5
+                    });
+                    if (m_pullValuePanel.isVisible)
+                    {
+                        m_pullValue.text = StringUtils.SafeFormat(Locale.Get("PUBTRANSWORLDINFOPANEL_PULLVALUE"), Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].GetPullValue(lineID));
+                        ushort stop = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].GetStop(0);
+                        if ((Singleton<NetManager>.instance.m_nodes.m_buffer[stop].m_problems & Notification.Problem.TooLong) != Notification.Problem.None)
                         {
-                            m_warningTooLongText.text = Locale.Get("PUBTRANSWORLDINFOPANEL_LINEWAYTOOLONG");
-                            m_warningTooLongIcon.spriteName = "BuildingNotificationTooLongTour";
+                            m_warningTooLongIcon.isVisible = true;
+                            m_warningTooLongText.isVisible = true;
+                            if ((Singleton<NetManager>.instance.m_nodes.m_buffer[stop].m_problems & Notification.Problem.MajorProblem) != Notification.Problem.None)
+                            {
+                                m_warningTooLongText.text = Locale.Get("PUBTRANSWORLDINFOPANEL_LINEWAYTOOLONG");
+                                m_warningTooLongIcon.spriteName = "BuildingNotificationTooLongTour";
+                            }
+                            else
+                            {
+                                m_warningTooLongText.text = Locale.Get("PUBTRANSWORLDINFOPANEL_LINETOOLONG");
+                                m_warningTooLongIcon.spriteName = "BuildingNotificationVeryLongTour";
+                            }
                         }
                         else
                         {
-                            m_warningTooLongText.text = Locale.Get("PUBTRANSWORLDINFOPANEL_LINETOOLONG");
-                            m_warningTooLongIcon.spriteName = "BuildingNotificationVeryLongTour";
+                            m_warningTooLongIcon.isVisible = false;
+                            m_warningTooLongText.isVisible = false;
                         }
                     }
-                    else
-                    {
-                        m_warningTooLongIcon.isVisible = false;
-                        m_warningTooLongText.isVisible = false;
-                    }
                 }
+                m_lastDrawTick = SimulationManager.instance.m_currentTickIndex;
             }
         }
         #endregion

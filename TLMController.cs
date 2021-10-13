@@ -13,7 +13,6 @@ using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -28,7 +27,6 @@ namespace Klyte.TransportLinesManager
         internal static TLMController Instance => TransportLinesManagerMod.Controller;
 
         public bool initializedWIP = false;
-        private TLMLinearMap m_linearMapCreatingLine;
 
         //private UIPanel _cachedDefaultListingLinesPanel;
 
@@ -79,46 +77,9 @@ namespace Klyte.TransportLinesManager
 
         public bool CanSwitchView => false;
 
-        private static readonly SavedBool m_showLinearMapWhileCreatingLine = new SavedBool("K45_TLM_showLinearMapWhileCreatingLine", Settings.gameSettingsFile, true);
-
-        public TLMLinearMap LinearMapCreatingLine
-        {
-            get
-            {
-                if (m_linearMapCreatingLine != null)
-                {
-                    return m_linearMapCreatingLine;
-                }
-                else
-                {
-                    LogUtils.DoErrorLog("LinearMapCreatingLine is NULL!!!!");
-                    return null;
-                }
-            }
-        }
-        public static bool LinearMapWhileCreatingLineVisibility
-        {
-            get => m_showLinearMapWhileCreatingLine;
-            set
-            {
-                m_showLinearMapWhileCreatingLine.value = value;
-                Instance.LinearMapCreatingLine.SetVisible(value);
-            }
-        }
+        private static readonly SavedBool m_showLinearMapWhileCreatingLine = new SavedBool("K45_TLM_showLinearMapWhileCreatingLine", Settings.gameSettingsFile, true);            
 
         internal TLMLineCreationToolbox LineCreationToolbox => PublicTransportInfoViewPanelOverrides.Toolbox;
-
-        public static void RedrawMap(ushort lineCurrent)
-        {
-            if (Singleton<TransportManager>.instance.m_lines.m_buffer[lineCurrent].m_stops == 0)
-            {
-                lineCurrent = 0;
-            }
-
-            Instance.SetCurrentSelectedId(lineCurrent);
-            Instance.LinearMapCreatingLine.RedrawLine();
-
-        }
 
         public bool ForceShowStopsDistances => true;
 
@@ -168,123 +129,6 @@ namespace Klyte.TransportLinesManager
         }
 
         public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, out _));
-
-
-        private void InitNearLinesOnWorldInfoPanel()
-        {
-            if (!initializedWIP)
-            {
-                BuildingWorldInfoPanel[] panelList = UIView.GetAView().GetComponentsInChildren<BuildingWorldInfoPanel>();
-                LogUtils.DoLog("WIP LIST: [{0}]", string.Join(", ", panelList.Select(x => x.name).ToArray()));
-
-                foreach (BuildingWorldInfoPanel wip in panelList)
-                {
-                    LogUtils.DoLog("LOADING WIP HOOK FOR: {0}", wip.name);
-                    UIComponent parent2 = wip.GetComponent<UIComponent>();
-
-                    if (parent2 == null)
-                    {
-                        continue;
-                    }
-                    var isGrow = wip is ZonedBuildingWorldInfoPanel;
-                    parent2.eventVisibilityChanged += (x, y) => EventWIPChanged(x, isGrow);
-                    parent2.eventPositionChanged += (x, y) => EventWIPChanged(x, isGrow);
-                    parent2.eventSizeChanged += (x, y) => EventWIPChanged(x, isGrow);
-
-                }
-                initializedWIP = true;
-            }
-        }
-
-        private void EventWIPChanged(UIComponent component, bool isGrow) => UpdateNearLines((isGrow ? TransportLinesManagerMod.ShowNearLinesGrow : TransportLinesManagerMod.ShowNearLinesPlop) ? component : null, true);
-
-
-        private ushort lastBuildingSelected = 0;
-
-        private void UpdateNearLines(UIComponent parent, bool force = false)
-        {
-            if (parent != null)
-            {
-                Transform linesPanelObj = parent.transform.Find("TLMLinesNear");
-                if (!linesPanelObj)
-                {
-                    linesPanelObj = InitPanelNearLinesOnWorldInfoPanel(parent);
-                }
-                System.Reflection.FieldInfo prop = typeof(WorldInfoPanel).GetField("m_InstanceID", System.Reflection.BindingFlags.NonPublic
-                    | System.Reflection.BindingFlags.Instance);
-                WorldInfoPanel wip = parent.gameObject.GetComponent<WorldInfoPanel>();
-                ushort buildingId = ((InstanceID)(prop.GetValue(wip))).Building;
-                if (lastBuildingSelected == buildingId && !force)
-                {
-                    return;
-                }
-                else
-                {
-                    lastBuildingSelected = buildingId;
-                }
-                Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingId];
-
-                var nearLines = new List<ushort>();
-                Vector3 sidewalk = b.CalculateSidewalkPosition();
-                TLMLineUtils.GetNearLines(sidewalk, 120f, ref nearLines);
-                bool showPanel = nearLines.Count > 0;
-                //				DebugOutputPanel.AddMessage (PluginManager.MessageType.Warning, "nearLines.Count = " + nearLines.Count);
-                if (showPanel)
-                {
-                    foreach (Transform t in linesPanelObj)
-                    {
-                        if (t.GetComponent<UILabel>() == null)
-                        {
-                            GameObject.Destroy(t.gameObject);
-                        }
-                    }
-                    Dictionary<string, ushort> lines = TLMLineUtils.SortLines(nearLines);
-                    TLMLineUtils.PrintIntersections("", "", "", "", "", linesPanelObj.GetComponent<UIPanel>(), lines, sidewalk, scale, perLine);
-                }
-                linesPanelObj.GetComponent<UIPanel>().isVisible = showPanel;
-                linesPanelObj.GetComponent<UIPanel>().relativePosition = new Vector3(0, parent.height + 10);
-            }
-            else
-            {
-                var go = GameObject.Find("TLMLinesNear");
-                if (!go)
-                {
-                    return;
-                }
-                Transform linesPanelObj = go.transform;
-                linesPanelObj.GetComponent<UIPanel>().isVisible = false;
-            }
-        }
-
-
-
-        private float scale = 1f;
-        private int perLine = 9;
-
-        private Transform InitPanelNearLinesOnWorldInfoPanel(UIComponent parent)
-        {
-            UIPanel saida = parent.AddUIComponent<UIPanel>();
-            saida.relativePosition = new Vector3(0, parent.height);
-            saida.width = parent.width;
-            saida.autoFitChildrenVertically = true;
-            saida.autoLayout = true;
-            saida.autoLayoutDirection = LayoutDirection.Horizontal;
-            saida.autoLayoutPadding = new RectOffset(2, 2, 2, 2);
-            saida.padding = new RectOffset(2, 2, 2, 2);
-            saida.autoLayoutStart = LayoutStart.TopLeft;
-            saida.wrapLayout = true;
-            saida.name = "TLMLinesNear";
-            saida.backgroundSprite = "GenericPanel";
-            UILabel title = saida.AddUIComponent<UILabel>();
-            title.autoSize = false;
-            title.width = saida.width;
-            title.textAlignment = UIHorizontalAlignment.Left;
-            title.localeID = "K45_TLM_NEAR_LINES";
-            title.useOutline = true;
-            title.height = 18;
-            return saida.transform;
-        }
-
         public void OnRenameStationAction(string autoName)
         {
 
@@ -298,10 +142,7 @@ namespace Klyte.TransportLinesManager
 
             using (var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits)))
             {
-                KlyteMonoUtils.CreateElement(out m_linearMapCreatingLine, transform);
-                m_linearMapCreatingLine.Parent = this;
-                m_linearMapCreatingLine.SetVisible(false);
-                InitNearLinesOnWorldInfoPanel();
+                TLMNearLinesController.InitNearLinesOnWorldInfoPanel();
             }
         }
 
@@ -331,6 +172,5 @@ namespace Klyte.TransportLinesManager
         }
 
     }
-
 
 }

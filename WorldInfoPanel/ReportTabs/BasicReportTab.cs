@@ -1,7 +1,6 @@
 ﻿using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Extensions;
 using System.Collections.Generic;
 using UnityEngine;
 using static Klyte.TransportLinesManager.Extensions.TLMTransportLineStatusesManager;
@@ -65,9 +64,11 @@ namespace Klyte.TransportLinesManager.UI
         protected abstract void AddToTotalizer(ref D totalizer, D data);
         protected abstract string TitleLocaleID { get; }
 
+        private uint m_lastUpdateFrame;
+
         public void UpdateBindings(bool showDayTime)
         {
-            if (m_bg.isVisible)
+            if (m_bg.isVisible && m_lastUpdateFrame + 30 < SimulationManager.instance.m_referenceFrameIndex)
             {
                 List<D> report = GetReportData(UVMPublicTransportWorldInfoPanel.GetLineID());
                 var totalizer = new D();
@@ -80,6 +81,7 @@ namespace Klyte.TransportLinesManager.UI
                     }
                 }
                 m_aggregateLine.SetDataTotalizer(totalizer);
+                m_lastUpdateFrame = SimulationManager.instance.m_referenceFrameIndex;
             }
         }
 
