@@ -12,7 +12,7 @@ using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly: AssemblyVersion("14.1.0.0")]
+[assembly: AssemblyVersion("14.1.0.1")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -105,7 +105,7 @@ namespace Klyte.TransportLinesManager
         }
         public override string IconName => "K45_TLM_Icon";
 
-        protected override Tuple<string, string> GetButtonLink() => Tuple.New("View details of v14 at TLM's GitHub", "https://github.com/klyte45/TransportLinesManager/milestone/1");
+        protected override Tuple<string, string> GetButtonLink() => Tuple.New("View details of v14.1 at TLM's GitHub", "https://github.com/klyte45/TransportLinesManager/issues?q=milestone%3Av14.1+is%3Aclosed");
     }
 
     public class UIButtonLineInfo : UIButton
