@@ -16,8 +16,12 @@ namespace Klyte.TransportLinesManager.Overrides
         {
             var src = typeof(VehicleAI).GetMethod("ArrivingToDestination", RedirectorUtils.allFlags);
             var dest = GetType().GetMethod("PreArrivingToDestination", RedirectorUtils.allFlags);
+            var srcSS = typeof(VehicleAI).GetMethod("SimulationStep", RedirectorUtils.allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(int) }, null);
+            var destSS = GetType().GetMethod("PreSimulationStep", RedirectorUtils.allFlags);
             LogUtils.DoLog($"pre detour: {src} => {dest}");
             AddRedirect(src, dest);
+            LogUtils.DoLog($"pre detour SS: {srcSS} => {destSS}");
+            AddRedirect(srcSS, destSS);
         }
 
         private static MethodInfo BusAI_StartPathFind = typeof(BusAI).GetMethod("StartPathFind", RedirectorUtils.allFlags, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
@@ -27,6 +31,15 @@ namespace Klyte.TransportLinesManager.Overrides
         private static MethodInfo BusAI_UnloadPassengers = typeof(BusAI).GetMethod("UnloadPassengers", RedirectorUtils.allFlags);
         private static MethodInfo TramAI_UnloadPassengers = typeof(TramAI).GetMethod("UnloadPassengers", RedirectorUtils.allFlags);
         private static MethodInfo TrolleybusAI_UnloadPassengers = typeof(TrolleybusAI).GetMethod("UnloadPassengers", RedirectorUtils.allFlags);
+
+        public static void PreSimulationStep(ushort vehicleID, ref Vehicle vehicleData)
+        {
+            if (vehicleData.m_transportLine != 0 && vehicleData.m_path == 0 && (vehicleData.m_flags & Vehicle.Flags.WaitingPath) != 0)
+            {
+                vehicleData.m_flags &= ~Vehicle.Flags.WaitingPath;
+                vehicleData.Info.m_vehicleAI.SetTransportLine(vehicleID, ref vehicleData, 0);
+            }
+        }
 
         public static bool PreArrivingToDestination(ushort vehicleID, ref Vehicle vehicleData, VehicleAI __instance)
         {
@@ -97,6 +110,11 @@ namespace Klyte.TransportLinesManager.Overrides
             else
             {
                 return true;
+            }
+            if (vehicleData.m_path == 0 && (vehicleData.m_flags & Vehicle.Flags.WaitingPath) != 0)
+            {
+                vehicleData.m_flags &= ~Vehicle.Flags.WaitingPath;
+                vehicleData.Info.m_vehicleAI.SetTransportLine(vehicleID, ref vehicleData, 0);
             }
             return false;
         }
