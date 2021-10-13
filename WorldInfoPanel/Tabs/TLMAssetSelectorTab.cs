@@ -1,7 +1,5 @@
-﻿using ColossalFramework;
-using ColossalFramework.Globalization;
+﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.Extensions;
 using Klyte.Commons.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
@@ -25,15 +23,12 @@ namespace Klyte.TransportLinesManager.UI
         public UIPanel MainPanel { get; private set; }
 
         private UIScrollablePanel m_scrollablePanel;
-        private UIScrollbar m_scrollbar;
         private AVOPreviewRenderer m_previewRenderer;
         private UITextureSprite m_preview;
         private UIPanel m_previewPanel;
         private VehicleInfo m_lastInfo;
-        private Dictionary<string, string> m_defaultAssets = new Dictionary<string, string>();
         private UITemplateList<UIPanel> m_checkboxTemplateList;
-        private bool m_isLoading;
-        private TransportSystemDefinition m_lastSystem = default;
+        private UITextField m_nameFilter;
         private TransportSystemDefinition TransportSystem => TransportSystemDefinition.From(GetLineID());
         internal static ushort GetLineID() => UVMPublicTransportWorldInfoPanel.GetLineID();
 
@@ -41,46 +36,35 @@ namespace Klyte.TransportLinesManager.UI
         {
             CreateMainPanel();
 
+            KlyteMonoUtils.CreateUIElement(out m_nameFilter, MainPanel.transform);
+            KlyteMonoUtils.UiTextFieldDefaults(m_nameFilter);
+            KlyteMonoUtils.InitButtonFull(m_nameFilter, false, "OptionsDropboxListbox");
+            m_nameFilter.tooltipLocaleID = "K45_TLM_ASSET_FILTERBY";
+            m_nameFilter.relativePosition = new Vector3(5, 35);
+            m_nameFilter.height = 23;
+            m_nameFilter.width = MainPanel.width - 10f;
+            m_nameFilter.eventKeyUp += (x, y) => UpdateAssetList(TLMLineUtils.GetEffectiveExtensionForLine(GetLineID()));
+            m_nameFilter.horizontalAlignment = UIHorizontalAlignment.Left;
+            m_nameFilter.padding = new RectOffset(2, 2, 4, 2);
+
             CreateScrollPanel();
 
             SetPreviewWindow();
 
             CreateRemoveUndesiredModelsButton();
 
-            CreateAssetLineTemplate();
             CreateTemplateList();
         }
-        private void CreateTemplateList() => m_checkboxTemplateList = new UITemplateList<UIPanel>(m_scrollablePanel, "K45_TLM_AssetSelectionTabLineTemplate");
-        private void CreateAssetLineTemplate()
+
+        private void CreateTemplateList()
         {
-            var go = new GameObject();
-            UIPanel panel = go.AddComponent<UIPanel>();
-            panel.size = new Vector2(m_scrollablePanel.width - 40f, 36);
-            panel.autoLayout = true;
-            panel.wrapLayout = false;
-            panel.autoLayoutDirection = LayoutDirection.Horizontal;
-
-            UICheckBox uiCheckbox = UIHelperExtension.AddCheckbox(panel, "AAAAAA", false);
-            uiCheckbox.name = "AssetCheckbox";
-            uiCheckbox.height = 29f;
-            uiCheckbox.width = 290f;
-            uiCheckbox.label.processMarkup = true;
-            uiCheckbox.label.textScale = 0.8f;
-
-            KlyteMonoUtils.CreateUIElement(out UITextField capEditField, panel.transform, "Cap", new Vector4(0, 0, 50, 30));
-            KlyteMonoUtils.UiTextFieldDefaults(capEditField);
-            KlyteMonoUtils.InitButtonFull(capEditField, false, "OptionsDropboxListbox");
-            capEditField.isTooltipLocalized = true;
-            capEditField.tooltipLocaleID = "K45_TLM_ASSET_CAPACITY_FIELD_DESCRIPTION";
-            capEditField.numericalOnly = true;
-            capEditField.maxLength = 6;
-            capEditField.padding = new RectOffset(2, 2, 4, 2);
-
-            TLMUiTemplateUtils.GetTemplateDict()["K45_TLM_AssetSelectionTabLineTemplate"] = panel;
+            TLMAssetItemLine.EnsureTemplate();
+            m_checkboxTemplateList = new UITemplateList<UIPanel>(m_scrollablePanel, TLMAssetItemLine.TEMPLATE_NAME);
         }
+
         private void CreateRemoveUndesiredModelsButton()
         {
-            KlyteMonoUtils.CreateUIElement<UIButton>(out UIButton removeUndesired, MainPanel.transform);
+            KlyteMonoUtils.CreateUIElement(out UIButton removeUndesired, MainPanel.transform);
             removeUndesired.relativePosition = new Vector3(MainPanel.width - 25f, 0f);
             removeUndesired.textScale = 0.6f;
             removeUndesired.width = 20;
@@ -128,70 +112,15 @@ namespace Klyte.TransportLinesManager.UI
 
         private void CreateScrollPanel()
         {
-            KlyteMonoUtils.CreateUIElement(out m_scrollablePanel, MainPanel.transform);
-            m_scrollablePanel.width = MainPanel.width - 20f;
-            m_scrollablePanel.height = MainPanel.height - 180f;
-            m_scrollablePanel.autoLayoutDirection = LayoutDirection.Vertical;
-            m_scrollablePanel.autoLayoutStart = LayoutStart.TopLeft;
-            m_scrollablePanel.autoLayoutPadding = new RectOffset(0, 0, 0, 0);
-            m_scrollablePanel.scrollPadding = new RectOffset(10, 10, 10, 10);
-            m_scrollablePanel.autoLayout = true;
-            m_scrollablePanel.clipChildren = true;
-            m_scrollablePanel.relativePosition = new Vector3(5, 35);
+            KlyteMonoUtils.CreateScrollPanel(MainPanel, out m_scrollablePanel, out _, MainPanel.width - 25f, MainPanel.height - 205f, new Vector3(5, 60));
             m_scrollablePanel.backgroundSprite = "ScrollbarTrack";
-
-            KlyteMonoUtils.CreateUIElement(out UIPanel trackballPanel, MainPanel.transform);
-            trackballPanel.width = 10f;
-            trackballPanel.height = m_scrollablePanel.height;
-            trackballPanel.autoLayoutDirection = LayoutDirection.Horizontal;
-            trackballPanel.autoLayoutStart = LayoutStart.TopLeft;
-            trackballPanel.autoLayoutPadding = new RectOffset(0, 0, 0, 0);
-            trackballPanel.autoLayout = true;
-            trackballPanel.relativePosition = new Vector3(MainPanel.width - 15, m_scrollablePanel.relativePosition.y);
-
-
-            KlyteMonoUtils.CreateUIElement(out m_scrollbar, trackballPanel.transform);
-            m_scrollbar.width = 10f;
-            m_scrollbar.height = m_scrollbar.parent.height;
-            m_scrollbar.orientation = UIOrientation.Vertical;
-            m_scrollbar.pivot = UIPivotPoint.BottomLeft;
-            m_scrollbar.AlignTo(trackballPanel, UIAlignAnchor.TopRight);
-            m_scrollbar.minValue = 0f;
-            m_scrollbar.value = 0f;
-            m_scrollbar.incrementAmount = 25f;
-
-            KlyteMonoUtils.CreateUIElement(out UISlicedSprite scrollBg, m_scrollbar.transform);
-            scrollBg.relativePosition = Vector2.zero;
-            scrollBg.autoSize = true;
-            scrollBg.size = scrollBg.parent.size;
-            scrollBg.fillDirection = UIFillDirection.Vertical;
-            scrollBg.spriteName = "ScrollbarTrack";
-            m_scrollbar.trackObject = scrollBg;
-
-            KlyteMonoUtils.CreateUIElement(out UISlicedSprite scrollFg, scrollBg.transform);
-            scrollFg.relativePosition = Vector2.zero;
-            scrollFg.fillDirection = UIFillDirection.Vertical;
-            scrollFg.autoSize = true;
-            scrollFg.width = scrollFg.parent.width - 4f;
-            scrollFg.spriteName = "ScrollbarThumb";
-            m_scrollbar.thumbObject = scrollFg;
-            m_scrollablePanel.verticalScrollbar = m_scrollbar;
-            m_scrollablePanel.eventMouseWheel += delegate (UIComponent component, UIMouseEventParameter param)
-            {
-                m_scrollablePanel.scrollPosition += new Vector2(0f, Mathf.Sign(param.wheelDelta) * -1f * m_scrollbar.incrementAmount);
-            };
-
+            m_scrollablePanel.scrollPadding.top = 10;
+            m_scrollablePanel.scrollPadding.bottom = 10;
+            m_scrollablePanel.scrollPadding.left = 8;
+            m_scrollablePanel.scrollPadding.right = 8;
+            m_scrollablePanel.eventMouseLeave += (x, u) => m_lastInfo = default;
         }
 
-        private void CreateModelCheckBox(UICheckBox checkbox)
-        {
-            checkbox.eventMouseEnter += (x, y) =>
-            {
-                m_lastInfo = PrefabCollection<VehicleInfo>.FindLoaded(x.objectUserData.ToString());
-                RedrawModel();
-            };
-
-        }
         public void OnSetTarget(Type source)
         {
             if (source == GetType())
@@ -205,75 +134,11 @@ namespace Klyte.TransportLinesManager.UI
                 MainPanel.isVisible = false;
                 return;
             }
-            m_isLoading = true;
             LogUtils.DoLog("tsd = {0}", tsd);
             IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID());
 
-            if (TransportSystem != m_lastSystem)
-            {
-                m_defaultAssets = tsd.GetTransportExtension().GetAllBasicAssetsForLine(0);
-                UIPanel[] depotChecks = m_checkboxTemplateList.SetItemCount(m_defaultAssets.Count);
+            UpdateAssetList(config);
 
-                LogUtils.DoLog("m_defaultAssets Size = {0} ({1})", m_defaultAssets?.Count, string.Join(",", m_defaultAssets.Keys?.ToArray() ?? new string[0]));
-                for (int i = 0; i < m_defaultAssets.Count; i++)
-                {
-                    string assetName = m_defaultAssets.Keys.ElementAt(i);
-                    UICheckBox checkbox = depotChecks[i].GetComponentInChildren<UICheckBox>();
-                    checkbox.objectUserData = assetName;
-                    UITextField capacityEditor = depotChecks[i].GetComponentInChildren<UITextField>();
-                    capacityEditor.text = VehicleUtils.GetCapacity(PrefabCollection<VehicleInfo>.FindLoaded(assetName)).ToString("0");
-                    if (checkbox.label.objectUserData == null)
-                    {
-                        checkbox.eventCheckChanged += (x, y) =>
-                          {
-                              if (m_isLoading)
-                              {
-                                  return;
-                              }
-
-                              ushort lineId = GetLineID();
-                              IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
-
-                              LogUtils.DoLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
-                              if (y)
-                              {
-                                  extension.AddAssetToLine(lineId, x.objectUserData.ToString());
-                              }
-                              else
-                              {
-                                  extension.RemoveAssetFromLine(lineId, x.objectUserData.ToString());
-                              }
-                          };
-                        CreateModelCheckBox(checkbox);
-                        KlyteMonoUtils.LimitWidthAndBox(checkbox.label, 280);
-                        capacityEditor.eventTextSubmitted += CapacityEditor_eventTextSubmitted; ;
-
-                        capacityEditor.eventMouseEnter += (x, y) =>
-                        {
-                            m_lastInfo = PrefabCollection<VehicleInfo>.FindLoaded(checkbox.objectUserData.ToString());
-                            RedrawModel();
-                        };
-                        checkbox.label.objectUserData = true;
-                    }
-                    checkbox.text = m_defaultAssets[assetName];
-                }
-                m_lastSystem = TransportSystem;
-            }
-            else
-            {
-                List<string> allowedAssets = config.GetAssetListForLine(GetLineID());
-                for (int i = 0; i < m_checkboxTemplateList.items.Count; i++)
-                {
-                    UICheckBox checkbox = m_checkboxTemplateList.items[i].GetComponentInChildren<UICheckBox>();
-                    checkbox.isChecked = allowedAssets.Contains(checkbox.objectUserData.ToString());
-                }
-            }
-
-            if (TransportLinesManagerMod.DebugMode)
-            {
-                List<string> allowedAssets = config.GetAssetListForLine(GetLineID());
-                LogUtils.DoLog($"selectedAssets Size = {allowedAssets?.Count} ({ string.Join(",", allowedAssets?.ToArray() ?? new string[0])}) {config?.GetType()}");
-            }
 
             if (config is TLMTransportLineConfiguration)
             {
@@ -284,25 +149,31 @@ namespace Klyte.TransportLinesManager.UI
                 int prefix = (int)TLMPrefixesUtils.GetPrefix(GetLineID());
                 m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(tsd), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), tsd.GetTransportName());
             }
-
-            m_isLoading = false;
-
-
         }
 
-        private void CapacityEditor_eventTextSubmitted(UIComponent x, string y)
+        private void UpdateAssetList(IBasicExtension config)
         {
-            if (m_isLoading || !int.TryParse(y.IsNullOrWhiteSpace() ? "0" : y, out int value))
+            m_lastInfo = default;
+            var targetAssets = TransportSystem.GetTransportExtension().GetAllBasicAssetsForLine(0).Where(x => x.Value.Contains(m_nameFilter.text)).ToList();
+            UIPanel[] depotChecks = m_checkboxTemplateList.SetItemCount(targetAssets.Count);
+            List<string> allowedAssets = config.GetAssetListForLine(GetLineID());
+
+            if (TransportLinesManagerMod.DebugMode)
             {
-                return;
+                LogUtils.DoLog($"selectedAssets Size = {allowedAssets?.Count} ({ string.Join(",", allowedAssets?.ToArray() ?? new string[0])}) {config?.GetType()}");
             }
-            var capacityEditor = x as UITextField;
-            string assetName = x.parent.GetComponentInChildren<UICheckBox>().objectUserData.ToString();
-            VehicleInfo info = PrefabCollection<VehicleInfo>.FindLoaded(assetName);
-            TransportSystemDefinition.From(info).GetTransportExtension().SetVehicleCapacity(assetName, value);
-            m_isLoading = true;
-            capacityEditor.text = VehicleUtils.GetCapacity(info).ToString("0");
-            m_isLoading = false;
+
+            for (int i = 0; i < depotChecks.Length; i++)
+            {
+                string assetName = targetAssets[i].Key;
+                var controller = depotChecks[i].GetComponent<TLMAssetItemLine>();
+                controller.SetAsset(assetName, allowedAssets.Contains(assetName));
+                controller.OnMouseEnter = () =>
+                {
+                    m_lastInfo = PrefabCollection<VehicleInfo>.FindLoaded(assetName);
+                    RedrawModel();
+                };
+            }
         }
 
         private void SetPreviewWindow()
@@ -324,27 +195,24 @@ namespace Klyte.TransportLinesManager.UI
 
         public void UpdateBindings()
         {
-            if (m_lastInfo != default(VehicleInfo) && GetComponentInParent<UIComponent>().isVisible && m_lastDrawTick + 9 < SimulationManager.instance.m_currentTickIndex)
+            if (GetComponentInParent<UIComponent>().isVisible)
             {
-                m_previewRenderer.CameraRotation -= 10;
-                RedrawModel();
-                m_lastDrawTick = SimulationManager.instance.m_currentTickIndex;
+                if (m_lastInfo is null)
+                {
+                    m_preview.isVisible = false;
+                    return;
+                }
+                else
+                {
+                    m_preview.isVisible = true;
+                    m_previewRenderer.CameraRotation -= 1;
+                    RedrawModel();
+                    
+                }
             }
-        }
+        }        
 
-        private uint m_lastDrawTick;
-
-        private void RedrawModel()
-        {            
-            if (m_lastInfo == default(VehicleInfo))
-            {
-                m_preview.isVisible = false;
-                return;
-            }
-            m_preview.isVisible = true;            
-            m_previewRenderer.RenderVehicle(m_lastInfo, m_lastColor == Color.clear ? Color.HSVToRGB(Math.Abs(m_previewRenderer.CameraRotation) / 360f, .5f, .5f) : m_lastColor, true);
-        }
-
+        private void RedrawModel() => m_previewRenderer.RenderVehicle(m_lastInfo, m_lastColor == Color.clear ? Color.HSVToRGB(Math.Abs(m_previewRenderer.CameraRotation) / 360f, .5f, .5f) : m_lastColor, true);
         public void OnEnable()
         { }
         public void OnDisable()
