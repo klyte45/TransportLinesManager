@@ -1,6 +1,7 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
+using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Xml;
@@ -84,16 +85,17 @@ namespace Klyte.TransportLinesManager.UI
             container.name = "AzimuthEditorTitle";
 
             CreateTitleLabel(container, out UILabel cityId, "StartHour", Locale.Get("K45_TLM_START_HOUR"), 50);
-            CreateTitleLabel(container, out UILabel generatedName, "GenName", Locale.Get(GetValueColumnLocale()), 270);
+            CreateTitleLabel(container, out UILabel generatedName, "GenName", Locale.Get(GetValueColumnLocale()), 269);
 
             KlyteMonoUtils.CreateUIElement(out UIButton add, container.transform, "RegenName");
             add.textScale = 1f;
-            add.width = 30;
-            add.height = 30;
+            add.width = 25;
+            add.height = 25;
             add.tooltip = Locale.Get("K45_TLM_ADD_ENTRY");
             KlyteMonoUtils.InitButton(add, true, "OptionBase");
             add.isVisible = true;
-            add.text = "+";
+            add.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
+            add.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_Plus);
             add.eventClick += (component, eventParam) => AddEntry();
         }
 

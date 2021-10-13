@@ -13,6 +13,7 @@ namespace Klyte.TransportLinesManager.Extensions
     {
         #region Assets List
         public static List<string> GetAssetListForLine<T>(this T it, ushort lineId) where T : IAssetSelectorExtension => it.SafeGet(it.LineToIndex(lineId)).AssetList;
+        public static void SetAssetListForLine<T>(this T it, ushort lineId, List<string> list) where T : IAssetSelectorExtension => it.SafeGet(it.LineToIndex(lineId)).AssetList = new SimpleXmlList<string>(list);
         public static void AddAssetToLine<T>(this T it, ushort lineId, string assetId) where T : IAssetSelectorExtension
         {
             List<string> list = it.GetAssetListForLine(lineId);

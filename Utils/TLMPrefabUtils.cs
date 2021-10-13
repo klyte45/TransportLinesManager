@@ -10,12 +10,12 @@ namespace Klyte.TransportLinesManager.Utils
         internal static List<string> LoadBasicAssets(TransportSystemDefinition definition)
         {
             var basicAssetsList = new List<string>();
-
+            
             LogUtils.DoLog("LoadBasicAssets: pre prefab read");
-            for (uint num = 0u; num < (ulong)PrefabCollection<VehicleInfo>.PrefabCount(); num += 1u)
+            foreach (var prefabEntry in VehiclesIndexes.instance.PrefabsLoaded)
             {
-                VehicleInfo prefab = PrefabCollection<VehicleInfo>.GetPrefab(num);
-                if (!(prefab == null) && definition.IsFromSystem(prefab) && !VehicleUtils.IsTrailer(prefab))
+                VehicleInfo prefab = prefabEntry.Value;
+                if (!(prefab is null) && definition.IsFromSystem(prefab) && !VehicleUtils.IsTrailer(prefab))
                 {
                     basicAssetsList.Add(prefab.name);
                 }

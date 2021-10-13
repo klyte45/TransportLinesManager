@@ -44,7 +44,7 @@ namespace Klyte.TransportLinesManager.UI
                     extension.RemoveAssetFromLine(lineId, m_currentAsset);
                 }
             };
-            KlyteMonoUtils.LimitWidthAndBox(m_checkbox.label, 280);
+            KlyteMonoUtils.LimitWidthAndBox(m_checkbox.label, 265);
             m_capacityEditor.eventTextSubmitted += CapacityEditor_eventTextSubmitted;
 
             m_checkbox.eventMouseEnter += (x, y) => OnMouseEnter?.Invoke();
@@ -91,7 +91,7 @@ namespace Klyte.TransportLinesManager.UI
             UICheckBox uiCheckbox = UIHelperExtension.AddCheckbox(panel, "AAAAAA", false);
             uiCheckbox.name = "AssetCheckbox";
             uiCheckbox.height = 29f;
-            uiCheckbox.width = 290f;
+            uiCheckbox.width = 285f;
             uiCheckbox.label.processMarkup = true;
             uiCheckbox.label.textScale = 0.8f;
 
