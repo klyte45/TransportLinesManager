@@ -33,9 +33,8 @@ namespace Klyte.TransportLinesManager.Overrides
             {
                 if (TransportLinesManagerMod.DebugMode)
                 {
-                    LogUtils.DoLog("allowedDepots.Count --{0}-- == 0||  allowedDepots.Contains({1}): --{2}--  ", allowedDepots.Count, currentId, string.Join(",", allowedDepots.Select(x => x.ToString()).ToArray()));
+                    LogUtils.DoLog("allowedDepots.Count --{0}-- == 0", allowedDepots.Count);
                 }
-
                 return;
             }
             var r = new Randomizer(new System.Random().Next());
