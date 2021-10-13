@@ -56,7 +56,7 @@ namespace Klyte.TransportLinesManager.Xml
         public void LoadFromGlobal()
         {
             ReloadGlobalFile();
-            Instance = XmlUtils.CloneViaXml(GlobalFile);
+            Instance = GlobalFile;
         }
         [XmlAttribute("autoColor")]
         public bool UseAutoColor { get; set; }

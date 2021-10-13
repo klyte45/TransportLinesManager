@@ -35,6 +35,10 @@ namespace Klyte.TransportLinesManager.Xml
         public TimeableList<TicketPriceEntryXml> TicketPriceEntries { get; set; } = new TimeableList<TicketPriceEntryXml>();
         [XmlElement("DepotsAllowed")]
         public SimpleXmlHashSet<ushort> DepotsAllowed { get; set; } = new SimpleXmlHashSet<ushort>();
+
+        [XmlAttribute("isZeroed")]
+        public bool IsZeroed { get; set; }
+
         [XmlAttribute("customIdentifier")]
         public string CustomCode
         {

@@ -4,7 +4,8 @@ using System.Xml.Serialization;
 
 namespace Klyte.TransportLinesManager.Xml
 {
-    public class TicketPriceEntryXml : ITimeable<TicketPriceEntryXml>
+
+    public class UintValueHourEntryXml<T> : ITimeable<T> where T : UintValueHourEntryXml<T>
     {
         private int m_hourOfDay;
         private uint m_value;
@@ -13,9 +14,10 @@ namespace Klyte.TransportLinesManager.Xml
         public int? HourOfDay
         {
             get => m_hourOfDay;
-            set {
+            set
+            {
                 m_hourOfDay = (value ?? -1) % 24;
-                OnEntryChanged?.Invoke(this);
+                OnEntryChanged?.Invoke((T)this);
             }
         }
 
@@ -23,12 +25,15 @@ namespace Klyte.TransportLinesManager.Xml
         public uint Value
         {
             get => m_value;
-            set {
+            set
+            {
                 m_value = value;
-                OnEntryChanged?.Invoke(this);
+                OnEntryChanged?.Invoke((T)this);
             }
         }
 
-        public event Action<TicketPriceEntryXml> OnEntryChanged;
+        public event Action<T> OnEntryChanged;
     }
+    public class BudgetEntryXml : UintValueHourEntryXml<BudgetEntryXml> { }
+    public class TicketPriceEntryXml : UintValueHourEntryXml<TicketPriceEntryXml> { }
 }

@@ -37,7 +37,7 @@ namespace Klyte.TransportLinesManager.UI
         private UIHelperExtension uiHelper;
 
         private UIPanel m_bg;
-        private UIButton m_toolboxToggleButton;
+        private TLMLineItemButtonControl m_toolboxToggleButton;
         private UIDropDown linePrefixDropDown;
         private UITextField lineNumberTxtBox;
         private UIPanel mainContainer;
@@ -77,23 +77,19 @@ namespace Klyte.TransportLinesManager.UI
             m_bg.relativePosition = new Vector3(0, 0);
             m_bg.isInteractive = false;
 
-            KlyteMonoUtils.CreateUIElement(out m_toolboxToggleButton, m_bg.transform);
-            m_toolboxToggleButton.disabledTextColor = new Color32(128, 128, 128, byte.MaxValue);
-            KlyteMonoUtils.InitButtonFull(m_toolboxToggleButton, false, "OptionBase");
-            m_toolboxToggleButton.size = new Vector2(36, 36);
-            m_toolboxToggleButton.name = "TLMLineCreationToolboxToggle";
-            m_toolboxToggleButton.zOrder = 11;
-            m_toolboxToggleButton.textScale = 1;
-            m_toolboxToggleButton.textVerticalAlignment = UIVerticalAlignment.Middle;
-            m_toolboxToggleButton.textHorizontalAlignment = UIHorizontalAlignment.Center;
-            m_toolboxToggleButton.relativePosition = new Vector3(parent.component.width - 40, 2);
+            TLMLineItemButtonControl.EnsureTemplate();
+            var toggleButton = m_bg.AttachUIComponent(UITemplateManager.GetAsGameObject(TLMLineItemButtonControl.LINE_ITEM_TEMPLATE)) as UIButton;
+            toggleButton.relativePosition = new Vector3(parent.component.width - 40, 2);
+            toggleButton.zOrder = 11;
 
-            m_toolboxToggleButton.processMarkup = true;
-            m_toolboxToggleButton.eventClicked += (x, y) =>
-            {
-                m_showLineCreationToolBox.value = !m_showLineCreationToolBox;
-                UpdateToolBoxVisibility();
-            };
+            m_toolboxToggleButton = toggleButton.GetComponent<TLMLineItemButtonControl>();
+            m_toolboxToggleButton.name = "TLMLineCreationToolboxToggle";
+            m_toolboxToggleButton.Resize(36);
+            m_toolboxToggleButton.OverrideClickEvent((x, y) =>
+           {
+               m_showLineCreationToolBox.value = !m_showLineCreationToolBox;
+               UpdateToolBoxVisibility();
+           });
 
             KlyteMonoUtils.CreateUIElement(out mainContainer, m_bg.transform);
             mainContainer.name = "TLMLineCreationToolbox";
@@ -170,11 +166,6 @@ namespace Klyte.TransportLinesManager.UI
              });
             prefixIncrementChk.relativePosition = new Vector3(5f, 50f);
 
-            uiHelper.AddCheckboxLocale("K45_TLM_SHOW_LINEAR_MAP", TLMController.LinearMapWhileCreatingLineVisibility, delegate (bool value)
-            {
-                TLMController.LinearMapWhileCreatingLineVisibility = value;
-            }).relativePosition = new Vector3(5f, 73f);
-
             UpdateToolBoxVisibility();
             SetVisible(false);
         }
@@ -184,11 +175,11 @@ namespace Klyte.TransportLinesManager.UI
             mainContainer.isVisible = m_showLineCreationToolBox;
             if (m_showLineCreationToolBox)
             {
-                m_toolboxToggleButton?.Focus();
+                m_toolboxToggleButton?.GetComponent<UIButton>().Focus();
             }
             else
             {
-                m_toolboxToggleButton?.Unfocus();
+                m_toolboxToggleButton?.GetComponent<UIButton>().Unfocus();
             }
         }
 
@@ -283,7 +274,7 @@ namespace Klyte.TransportLinesManager.UI
 
         public void Update()
         {
-            if (m_toolboxToggleButton.isVisible)
+            if (m_toolboxToggleButton.GetComponent<UIButton>().isVisible)
             {
                 if (lastPrefab != TransportTool.m_prefab)
                 {
@@ -333,8 +324,7 @@ namespace Klyte.TransportLinesManager.UI
                 ? TLMPrefixesUtils.CalculateAutoColor((ushort)(NextLineNumber + 1), tsd, true)
                 : tsd.Color;
             lineNumberTxtBox.color = color;
-            string lineStr = TLMLineUtils.GetIconString(KlyteResourceLoader.GetDefaultSpriteNameFor(TLMPrefixesUtils.GetLineIcon((ushort)(NextLineNumber + 1), tsd), true), color, TLMPrefixesUtils.GetString(prefixo, sep, sufixo, nonPrefix, (NextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix));
-            m_toolboxToggleButton.text = lineStr;
+            m_toolboxToggleButton.SetFixed(KlyteResourceLoader.GetDefaultSpriteNameFor(TLMPrefixesUtils.GetLineIcon((ushort)(NextLineNumber + 1), tsd), true), TLMPrefixesUtils.GetString(prefixo, sep, sufixo, nonPrefix, (NextLineNumber + 1) & 0xFFFF, zeros, invertPrefixSuffix), color);
             m_isDirty = false;
         }
 

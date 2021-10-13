@@ -1,23 +1,16 @@
-﻿<extended><color #9999FF>TLM 14 - 29/APR/21</color>
-
-- Perfomance: the data storage system was fully rewritten and now the mod is 30% faster in average than v13.5.
-- <color yellow>Express services for bus, tram and trolleybus</color>: when active, they will only stop if there's any passenger exchange scheduled in the stop.
-- <color yellow>Terminal mark for road shared modals</color>: useful when using express services to force the vehicles to stop. Also will be used to set destinations in Write The Signs 0.3. Right click in a stop in the map to mark it.
-- <color yellow>New map exporter algorithm</color>: It's usable finally! It generates a basic features HTML with the public transport lines from the city.
-- Added spawn unbunching feature to trolleybus (as well it already exists for bus and tram).
-- New palette editor ingame - load a city to edit the colors!
-- Now supports the RealTime clock if the day/night cycle is disabled - enable the option in menu for it!
-- Small changes on auto name algorithm.
-- Integration with Addresses 3 name new road name generation system.
-- Minor fixes in integrations with Addresses and Write the Signs mods.
-- Minor UI Fixes.
-
-<color yellow>r1 (30/APR/21):</color> Updated korean translation (thanks to <color yellow>PC28K</color>).
-<color yellow>r2 (02/MAY/21):</color> Fixed some wrong WTS's destinations when going to a outside connection.
-<color yellow>r3 (23/MAY/21):</color>
- - Fixing glitches in the earnings panel in some screens
- - Fixing the font glitches that were caused by K45 mods - ensure all mods were updated with versions from May/21
- - Fixed: Tourist bus model selection isn't being respected
- - Terminals now can be always used in ANY kind of line if Write The Signs mod is enabled
- - Fixed vehicle selection randomizing not working in some situations
- - Fixed vehicles capacity not being loaded when the game starts
+﻿<extended><color #9999FF>TLM 14.1 - 14/OUT/21</color>
+	- UI reviewed; Performance hugely improved!
+	- Ctrl + click to move the <K> button (instead of double click)
+		<color yellow>NOTICE:</color> It may not be working like this if you have other of my mods. Use Load Order Mod to ensure the TLM will be loaded first than any other mod by me.
+	- Cims outside the city area won't try to get taxis now (it was forcing the unspawn of taxis, as well the stands get empty because of it)
+	- Forcing all cims at stops to leave service when the budget comes to 0%
+	- The depot draw to the vehicles are really random now
+	- Express lines in road-based transport system now will deliver all passengers until the next terminal stop before go to depot
+	- Added clipboard actions at vehicle selection tab
+	- Added search filter for models at vehicle selection tab
+	- New near lines positioning - fixes some crashing situations
+	- Removed the legacy linear map completely
+	- The transport tool now shows information about the stops hovered (line it belongs to, distance between stops)
+	- Also in transport tool, it shows the distance from previous stop when creating a new line
+	- Was added some formatting alert when two stops are too close each other for road-shared transport types (recommended: at least 250m)
+	- Updated Japanese, Korean and Simplified Chinese locales

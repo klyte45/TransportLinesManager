@@ -11,11 +11,6 @@ using System.Xml.Serialization;
 
 namespace Klyte.TransportLinesManager.Extensions
 {
-    internal enum TLMTransportLineFlags : uint
-    {
-        ZERO_BUDGET_CURRENT = 0x80000000
-    }
-
     public class TLMTransportLineExtension : DataExtensionBase<TLMTransportLineExtension>, ISafeGettable<TLMTransportLineConfiguration>, IBasicExtension
     {
         [XmlElement("Configurations")]

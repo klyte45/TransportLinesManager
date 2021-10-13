@@ -8,6 +8,7 @@ using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
@@ -68,6 +69,12 @@ namespace Klyte.TransportLinesManager.Overrides
             LogUtils.DoLog("Loading SimulationStepPre Hook");
             RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), null, null, TranspileSimulationStepLine);
             RedirectorInstance.AddRedirect(typeof(TransportLineAI).GetMethod("SimulationStep", allFlags, null, new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }, null), null, null, TranspileSimulationStepAI);
+            #endregion
+
+            #region Vehicle going back on terminus stop only
+            MethodInfo TranspileSimulationStepLine_GoingBack = typeof(TransportLineOverrides).GetMethod("TranspileSimulationStepLine_GoingBack", allFlags);
+            LogUtils.DoLog("Loading TranspileSimulationStepLine_GoingBack Hook");
+            RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), null, null, TranspileSimulationStepLine_GoingBack);
             #endregion
 
             #region Express Bus Hooks
@@ -223,13 +230,13 @@ namespace Klyte.TransportLinesManager.Overrides
                 }
                 t.m_totalLength = lineLength;
             }
-            return TLMLineUtils.CalculateTargetVehicleCount(ref t, lineId, lineLength);
+            return TLMLineUtils.ProjectTargetVehicleCount(t.Info, lineLength, TLMLineUtils.GetEffectiveBudget(lineId));
         }
 
         #endregion
 
         #region Ticket Override
-        private static readonly MethodInfo m_getTicketPriceForPrefix = typeof(TLMLineUtils).GetMethod("GetTicketPriceForVehicle", RedirectorUtils.allFlags);
+        private static readonly MethodInfo m_getTicketPriceForPrefix = typeof(TransportLineOverrides).GetMethod("GetTicketPriceForVehicle", RedirectorUtils.allFlags);
         private static readonly MethodInfo m_getTicketPriceDefault = typeof(VehicleAI).GetMethod("GetTicketPrice", RedirectorUtils.allFlags);
 
         public static IEnumerable<CodeInstruction> TicketPriceTranspilerEnterVehicle(IEnumerable<CodeInstruction> instructions)
@@ -248,6 +255,55 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             LogUtils.PrintMethodIL(inst);
             return inst;
+        }
+
+        private static int GetTicketPriceForVehicle(VehicleAI ai, ushort vehicleID, ref Vehicle vehicleData)
+        {
+            var def = TransportSystemDefinition.From(vehicleData.Info);
+
+            if (def == default)
+            {
+                LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}):DEFAULT TSD FOR {ai}");
+                return ai.GetTicketPrice(vehicleID, ref vehicleData);
+            }
+
+            DistrictManager instance = Singleton<DistrictManager>.instance;
+            byte district = instance.GetDistrict(vehicleData.m_targetPos3);
+            DistrictPolicies.Services servicePolicies = instance.m_districts.m_buffer[district].m_servicePolicies;
+            DistrictPolicies.Event @event = instance.m_districts.m_buffer[district].m_eventPolicies & Singleton<EventManager>.instance.GetEventPolicyMask();
+            float multiplier;
+            if (vehicleData.Info.m_class.m_subService == ItemClass.SubService.PublicTransportTours)
+            {
+                multiplier = 1;
+            }
+            else
+            {
+                if ((servicePolicies & DistrictPolicies.Services.FreeTransport) != DistrictPolicies.Services.None)
+                {
+                    LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): FreeTransport at district!");
+                    return 0;
+                }
+                if ((@event & DistrictPolicies.Event.ComeOneComeAll) != DistrictPolicies.Event.None)
+                {
+                    LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): ComeOneComeAll at district!");
+                    return 0;
+                }
+                if ((servicePolicies & DistrictPolicies.Services.HighTicketPrices) != DistrictPolicies.Services.None)
+                {
+                    LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): HighTicketPrices at district!");
+                    instance.m_districts.m_buffer[district].m_servicePoliciesEffect = (instance.m_districts.m_buffer[district].m_servicePoliciesEffect | DistrictPolicies.Services.HighTicketPrices);
+                    multiplier = 5f / 4f;
+                }
+                else
+                {
+                    multiplier = 1;
+                }
+            }
+            uint ticketPriceDefault = TLMLineUtils.GetTicketPriceForLine(def, vehicleData.m_transportLine).First.Value;
+            LogUtils.DoLog($"GetTicketPriceForVehicle ({vehicleID}): multiplier = {multiplier}, ticketPriceDefault = {ticketPriceDefault}");
+
+            return (int)(multiplier * ticketPriceDefault);
+
         }
 
 
@@ -306,7 +362,16 @@ namespace Klyte.TransportLinesManager.Overrides
             if (findTargetStop && (data.Info.GetAI() is BusAI || data.Info.GetAI() is TramAI || data.Info.GetAI() is TrolleybusAI) && data.m_transportLine > 0)
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[data.m_transportLine];
-                data.m_targetBuilding = t.GetStop(SimulationManager.instance.m_randomizer.Int32((uint)t.CountStops(data.m_transportLine)));
+                if (TransportSystemDefinition.GetDefinitionForLine(ref t).GetConfig().RequireLineStartTerminal)
+                {
+                    var terminalMarkedStops = new ushort[t.CountStops(data.m_transportLine) - 1].Select((x, i) => Tuple.New(t.GetStop(i + 1), TLMStopDataContainer.Instance.SafeGet(t.GetStop(i + 1)).IsTerminal)).Where(x => x.Second).Select(x => x.First);
+                    var terminalStops = new ushort[] { t.m_stops }.Union(terminalMarkedStops).ToList();
+                    data.m_targetBuilding = terminalStops[SimulationManager.instance.m_randomizer.Int32((uint)terminalStops.Count)];
+                }
+                else
+                {
+                    data.m_targetBuilding = t.GetStop(SimulationManager.instance.m_randomizer.Int32((uint)t.CountStops(data.m_transportLine)));
+                }
             }
         }
         #endregion
@@ -323,7 +388,8 @@ namespace Klyte.TransportLinesManager.Overrides
             var validType = (info.m_vehicleType == VehicleInfo.VehicleType.Car && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled)
                 || (info.m_vehicleType == VehicleInfo.VehicleType.Tram && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled)
                 || (info.m_vehicleType == VehicleInfo.VehicleType.Trolleybus && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled);
-            return validType && TransportLine.GetPrevStop(nextStop) != tl.m_stops && !TLMStopDataContainer.Instance.SafeGet(nextStop).IsTerminal ? true : tl.CanLeaveStop(nextStop, waitTime);
+            var currentStop = TransportLine.GetPrevStop(nextStop);
+            return validType && currentStop != tl.m_stops && !TLMStopDataContainer.Instance.SafeGet(currentStop).IsTerminal ? true : tl.CanLeaveStop(nextStop, waitTime);
         }
 
         private static MethodInfo CanLeaveStop = typeof(TransportLine).GetMethod("CanLeaveStop", RedirectorUtils.allFlags);
@@ -342,6 +408,42 @@ namespace Klyte.TransportLinesManager.Overrides
             }
             LogUtils.PrintMethodIL(instrList);
             return instrList;
+        }
+        #endregion
+
+        #region Vehicle going back on terminus stop only
+        public static IEnumerable<CodeInstruction> TranspileSimulationStepLine_GoingBack(IEnumerable<CodeInstruction> instructions)
+        {
+            var inst = new List<CodeInstruction>(instructions);
+
+            for (int i = 1; i < inst.Count - 3; i++)
+            {
+                if (
+                    inst[i - 1].opcode == OpCodes.Br
+                    && inst[i].opcode == OpCodes.Ldloc_S
+                    && inst[i].operand is LocalBuilder lb1
+                    && lb1.LocalIndex == 11
+                    && inst[i + 1].opcode == OpCodes.Ldloc_S
+                    && inst[i + 1].operand is LocalBuilder lb2
+                    && lb2.LocalIndex == 32
+                    && inst[i + 2].opcode == OpCodes.Ble
+             )
+                {
+                    LogUtils.DoLog($"Found @ line {i}");
+                    var targetLabel = (Label)inst[i + 2].operand;
+                    var labelsToAdd = new List<Label>();
+                    while (!inst[i].labels.Contains(targetLabel))
+                    {
+                        labelsToAdd.AddRange(inst[i].labels);
+                        inst.RemoveAt(i);
+                    }
+                    LogUtils.DoLog($"Moved labels: {labelsToAdd.Count}");
+                    inst[i].labels.AddRange(labelsToAdd);
+                    break;
+                }
+            }
+            LogUtils.PrintMethodIL(inst);
+            return inst;
         }
         #endregion
     }
