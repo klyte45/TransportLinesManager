@@ -1,6 +1,7 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
+using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
@@ -150,12 +151,13 @@ namespace Klyte.TransportLinesManager.UI
 
             KlyteMonoUtils.CreateUIElement(out UIButton m_die, m_container.transform, "Delete");
             m_die.textScale = 1f;
-            m_die.width = 30;
-            m_die.height = 30;
+            m_die.width = 25;
+            m_die.height = 25;
             m_die.tooltip = Locale.Get("K45_TLM_DELETE_STOP_TICKET_PRICE_LIST");
             KlyteMonoUtils.InitButton(m_die, true, "OptionBase");
             m_die.isVisible = true;
-            m_die.text = "X";
+            m_die.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
+            m_die.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_Delete);
 
             go.AddComponent<L>();
 

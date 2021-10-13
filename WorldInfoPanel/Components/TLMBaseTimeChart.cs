@@ -57,7 +57,7 @@ namespace Klyte.TransportLinesManager.UI
             m_pasteButton = ConfigureActionButton(m_container, CommonsSpriteNames.K45_Paste);
             m_pasteButton.eventClick += (x, y) => ActionPaste();
             m_pasteButton.isVisible = false;
-            m_eraseButton = ConfigureActionButton(m_container, CommonsSpriteNames.K45_RemoveIcon);
+            m_eraseButton = ConfigureActionButton(m_container, CommonsSpriteNames.K45_Delete);
             m_eraseButton.eventClick += (x, y) => ActionDelete();
             m_eraseButton.color = Color.red;
 

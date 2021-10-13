@@ -183,6 +183,7 @@
     <Compile Include="ModShared\BridgeWTS.cs" />
     <Compile Include="ModShared\BridgeWTSFallback.cs" />
     <Compile Include="ModShared\IBridgeWTS.cs" />
+    <Compile Include="Overrides\TaxiOverrides.cs" />
     <Compile Include="Palettes\TLMAutoColorPalette.cs" />
     <Compile Include="CommonProperties.cs" />
     <Compile Include="CommonsWindow\List\Components\UVMLineListItem.cs" />
@@ -225,6 +226,7 @@
     <Compile Include="OptionsMenu\Tabs\TLMAutoNameBuildingsTab.cs" />
     <Compile Include="Overrides\PublicTransportAtRoadAIOverrides.cs" />
     <Compile Include="Palettes\RandomPastelColorGenerator.cs" />
+    <Compile Include="WorldInfoPanel\Components\TLMAssetItemLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMBaseSliderEditorLine.cs" />
     <Compile Include="WorldInfoPanel\Components\TLMBaseTimeChart.cs" />
     <Compile Include="WorldInfoPanel\NearLines\TLMLineItemButtonControl.cs" />

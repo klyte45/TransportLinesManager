@@ -1,7 +1,16 @@
-﻿<extended><color #9999FF>TLM 14.1 - 29/APR/21</color>
+﻿<extended><color #9999FF>TLM 14.1 - 14/OUT/21</color>
+	- UI reviewed; Performance hugely improved!
+	- Ctrl + click to move the <K> button (instead of double click)
+		<color yellow>NOTICE:</color> It may not be working like this if you have other of my mods. Use Load Order Mod to ensure the TLM will be loaded first than any other mod by me.
+	- Cims outside the city area won't try to get taxis now (it was forcing the unspawn of taxis, as well the stands get empty because of it)
+	- Forcing all cims at stops to leave service when the budget comes to 0%
+	- The depot draw to the vehicles are really random now
+	- Express lines in road-based transport system now will deliver all passengers until the next terminal stop before go to depot
+	- Added clipboard actions at vehicle selection tab
+	- Added search filter for models at vehicle selection tab
 	- New near lines positioning - fixes some crashing situations
 	- Removed the legacy linear map completely
 	- The transport tool now shows information about the stops hovered (line it belongs to, distance between stops)
 	- Also in transport tool, it shows the distance from previous stop when creating a new line
 	- Was added some formatting alert when two stops are too close each other for road-shared transport types (recommended: at least 250m)
-	- Updated Japanese and Simplified Chinese locales
+	- Updated Japanese, Korean and Simplified Chinese locales

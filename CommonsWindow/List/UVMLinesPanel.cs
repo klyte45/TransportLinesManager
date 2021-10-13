@@ -5,8 +5,10 @@ using Klyte.Commons.Extensions;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
+using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.CommonsWindow
@@ -25,8 +27,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private UIButton m_autoColorAll;
         private int m_lastLineCount;
         private UIPanel m_createdTitleLine;
-        protected UIScrollablePanel mainPanel;
         protected UIPanel titleLine;
+        protected UITemplateList<UIPanel> lineItems;
+        private UIScrollablePanel listPanel;
         public bool IsUpdated { get; set; }
 
         #region Awake
@@ -38,10 +41,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             CreateTitleRow(out titleLine, MainContainer);
 
 
-            KlyteMonoUtils.CreateScrollPanel(MainContainer, out mainPanel, out UIScrollbar scrollbar, MainContainer.width - 30, MainContainer.height - 50, new Vector3(5, 40));
-            mainPanel.autoLayout = true;
-            mainPanel.autoLayoutDirection = LayoutDirection.Vertical;
-            mainPanel.eventVisibilityChanged += OnToggleVisible;
+            KlyteMonoUtils.CreateScrollPanel(MainContainer, out listPanel, out UIScrollbar scrollbar, MainContainer.width - 30, MainContainer.height - 50, new Vector3(5, 40));
+            listPanel.autoLayout = true;
+            listPanel.autoLayoutDirection = LayoutDirection.Vertical;
+            listPanel.eventVisibilityChanged += OnToggleVisible;
+            UVMLineListItem.EnsureTemplate();
+            lineItems = new UITemplateList<UIPanel>(listPanel, UVMLineListItem.LINE_LIST_ITEM_TEMPLATE);
         }
 
         private void OnToggleVisible(UIComponent component, bool value)
@@ -56,7 +61,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         protected void Update()
         {
-            if (!mainPanel.isVisible)
+            if (!component.isVisible)
             {
                 return;
             }
@@ -71,27 +76,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             }
         }
 
-        protected void RemoveExtraLines(int linesCount)
-        {
-            while (mainPanel.components.Count > linesCount)
-            {
-                UIComponent uIComponent = mainPanel.components[linesCount];
-                mainPanel.RemoveUIComponent(uIComponent);
-                Destroy(uIComponent.gameObject);
-            }
-        }
-
-        #region Sorting
-
-        protected static int NaturalCompare(string left, string right) => SortingUtils.NaturalCompare(left, right);
-        protected static void Quicksort(IList<UIComponent> elements, Comparison<UIComponent> comp, bool invert) => SortingUtils.Quicksort(elements, comp, invert);
-
-        #endregion
 
         #region Awake
         protected void Start()
         {
-            m_lastSortCriterionLines = LineSortCriterion.DEFAULT;
+            m_lastSortCriterionLines = LineSortCriterion.LINE_NUMBER;
 
             UIComponent parent = GetComponent<UIComponent>();
             KlyteMonoUtils.CreateUIElement(out m_autoNameAll, parent.transform);
@@ -106,7 +95,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_autoNameAll.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoNameIcon);
             m_autoNameAll.eventClick += (component, eventParam) =>
             {
-                foreach (UVMLineListItem item in mainPanel.GetComponentsInChildren<UVMLineListItem>())
+                foreach (UVMLineListItem item in lineItems.items.Select(x => x.GetComponentInChildren<UVMLineListItem>()))
                 {
                     item.DoAutoName();
                 }
@@ -124,7 +113,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_autoColorAll.normalFgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(CommonsSpriteNames.K45_AutoColorIcon);
             m_autoColorAll.eventClick += (component, eventParam) =>
             {
-                foreach (UVMLineListItem item in mainPanel.GetComponentsInChildren<UVMLineListItem>())
+                foreach (UVMLineListItem item in lineItems.items.Select(x => x.GetComponentInChildren<UVMLineListItem>()))
                 {
                     item.DoAutoColor();
                 }
@@ -225,7 +214,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void Passengers_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
-            m_reverseOrder = m_lastSortCriterionLines == LineSortCriterion.PASSENGER ? !m_reverseOrder : false;
+            m_reverseOrder = m_lastSortCriterionLines == LineSortCriterion.PASSENGER ? !m_reverseOrder : true;
             m_lastSortCriterionLines = LineSortCriterion.PASSENGER;
             RefreshLines();
         }
@@ -238,14 +227,14 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void Vehicles_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
-            m_reverseOrder = m_lastSortCriterionLines == LineSortCriterion.VEHICLE ? !m_reverseOrder : false;
+            m_reverseOrder = m_lastSortCriterionLines == LineSortCriterion.VEHICLE ? !m_reverseOrder : true;
             m_lastSortCriterionLines = LineSortCriterion.VEHICLE;
             RefreshLines();
         }
 
         private void Stops_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
-            m_reverseOrder = m_lastSortCriterionLines == LineSortCriterion.STOP ? !m_reverseOrder : false;
+            m_reverseOrder = m_lastSortCriterionLines == LineSortCriterion.STOP ? !m_reverseOrder : true;
             m_lastSortCriterionLines = LineSortCriterion.STOP;
             RefreshLines();
         }
@@ -260,86 +249,76 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private void ToggleAllLinesVisibility(UIComponent component, bool value) =>
             Singleton<SimulationManager>.instance.AddAction(() =>
                                                                 {
-                                                                    foreach (UIComponent item in mainPanel.components)
+                                                                    foreach (UIComponent item in lineItems.items)
                                                                     {
-                                                                        var comp = (UVMLineListItem)item.GetComponent(ImplClassChildren);
+                                                                        var comp = item.GetComponent<UVMLineListItem>();
                                                                         comp.ChangeLineVisibility(value);
                                                                     }
                                                                     IsUpdated = false;
                                                                 });
         #endregion
 
-        private void AddToList(ushort lineID, ref int count)
-        {
-            UVMLineListItem lineInfoItem;
-            Type implClassBuildingLine = ImplClassChildren;
-            if (count >= mainPanel.components.Count)
-            {
-                var temp = new GameObject();
-                temp.AddComponent<UIPanel>();
-                lineInfoItem = (UVMLineListItem)temp.AddComponent(implClassBuildingLine);
-                mainPanel.AttachUIComponent(lineInfoItem.gameObject).transform.localScale = Vector3.one;
-                lineInfoItem.transform.localScale = Vector3.one;
-            }
-            else
-            {
-                lineInfoItem = (UVMLineListItem)mainPanel.components[count].GetComponent(implClassBuildingLine);
-            }
-            lineInfoItem.LineID = lineID;
-            lineInfoItem.RefreshData(true, true);
-            count++;
-        }
 
-        private static Type ImplClassChildren => typeof(UVMLineListItem);
+
         public void RefreshLines()
         {
-            try
+            m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
+            List<ushort> lines = TargetTsdLines();
+
+            var newItems = lineItems.SetItemCount(lines.Count);
+            if (lines.Count == 0)
             {
-                m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
+                return;
+            }
+            List<ushort> result;
+            switch (m_lastSortCriterionLines)
+            {
+                case LineSortCriterion.NAME:
+                    result = OnNameSort(lines);
+                    break;
+                case LineSortCriterion.PASSENGER:
+                    result = OnPassengerSort(lines);
+                    break;
+                case LineSortCriterion.STOP:
+                    result = OnStopSort(lines);
+                    break;
+                case LineSortCriterion.VEHICLE:
+                    result = OnVehicleSort(lines);
+                    break;
+                case LineSortCriterion.PROFIT:
+                    result = OnProfitSort(lines);
+                    break;
+                case LineSortCriterion.LINE_NUMBER:
+                default:
+                    result = OnLineNumberSort(lines);
+                    break;
+            }
+            for (int i = 0; i < lineItems.items.Count; i++)
+            {
+                newItems[i].GetComponent<UVMLineListItem>().LineID = result[i];
+            }
 
-                int count = 0;
-                for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
+            IsUpdated = true;
+        }
+
+        private List<ushort> TargetTsdLines()
+        {
+            List<ushort> lines = new List<ushort>();
+            for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
+            {
+                if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created && TSD.IsFromSystem(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID]))
                 {
-                    if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created && TSD.IsFromSystem(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID]))
-                    {
-                        AddToList(lineID, ref count);
-                    }
-
-                }
-                RemoveExtraLines(count);
-
-                switch (m_lastSortCriterionLines)
-                {
-                    case LineSortCriterion.NAME:
-                        OnNameSort();
-                        break;
-                    case LineSortCriterion.PASSENGER:
-                        OnPassengerSort();
-                        break;
-                    case LineSortCriterion.STOP:
-                        OnStopSort();
-                        break;
-                    case LineSortCriterion.VEHICLE:
-                        OnVehicleSort();
-                        break;
-                    case LineSortCriterion.PROFIT:
-                        OnProfitSort();
-                        break;
-                    case LineSortCriterion.LINE_NUMBER:
-                    default:
-                        OnLineNumberSort();
-                        break;
+                    lines.Add(lineID);
                 }
             }
-            catch { }
-            IsUpdated = true;
+
+            return lines;
         }
 
         #region Sorting
 
         private enum LineSortCriterion
         {
-            DEFAULT,
             NAME,
             STOP,
             VEHICLE,
@@ -347,151 +326,53 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             PROFIT,
             LINE_NUMBER
         }
+        private static int Compare(Tuple<ushort, string> left, Tuple<ushort, string> right) => string.Compare(left.Second, right.Second, StringComparison.InvariantCulture);
+        private static int Compare(Tuple<ushort, long> left, Tuple<ushort, long> right) => left.Second.CompareTo(right.Second);
+        private static int Compare(Tuple<ushort, int> left, Tuple<ushort, int> right) => left.Second.CompareTo(right.Second);
 
-        private static int CompareNames(UIComponent left, UIComponent right)
-        {
-            UVMLineListItem component = left.GetComponent<UVMLineListItem>();
-            UVMLineListItem component2 = right.GetComponent<UVMLineListItem>();
-            return string.Compare(component.LineName, component2.LineName, StringComparison.InvariantCulture);
-        }
 
-        private static int CompareProfit(UIComponent left, UIComponent right)
-        {
-            if (left == null || right == null)
-            {
-                return 0;
-            }
+        private List<ushort> OnNameSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
+                .Select(x => Tuple.New(x, Singleton<TransportManager>.instance.GetLineName(x)))
+                .ToList(),
+                new Comparison<Tuple<ushort, string>>(Compare),
+                m_reverseOrder).Select(x => x.First).ToList();
 
-            UVMLineListItem component = left.GetComponent<UVMLineListItem>();
-            UVMLineListItem component2 = right.GetComponent<UVMLineListItem>();
-            if (component == null || component2 == null)
-            {
-                return 0;
-            }
-            TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(component.LineID, out long income, out long expense);
-            long profit1 = income - expense;
-            TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(component2.LineID, out income, out expense);
-            long profit2 = income - expense;
-            return profit1.CompareTo(profit2);
 
-        }
+        private List<ushort> OnStopSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
+                .Select(x => Tuple.New(x, Singleton<TransportManager>.instance.m_lines.m_buffer[x].CountStops(x))).ToList(),
+                new Comparison<Tuple<ushort, int>>(Compare),
+                m_reverseOrder).Select(x => x.First).ToList();
 
-        private static int CompareLineNumbers(UIComponent left, UIComponent right)
-        {
-            if (left == null || right == null)
-            {
-                return 0;
-            }
 
-            UVMLineListItem component = left.GetComponent<UVMLineListItem>();
-            UVMLineListItem component2 = right.GetComponent<UVMLineListItem>();
-            if (component == null || component2 == null)
-            {
-                return 0;
-            }
-            var tsd = TransportSystemDefinition.From(component.LineID);
-            var tsd2 = TransportSystemDefinition.From(component2.LineID);
-            if (tsd == tsd2)
-            {
-                return component.LineNumber.CompareTo(component2.LineNumber);
-            }
-            else
-            {
-                return tsd.GetHashCode().CompareTo(tsd2.GetHashCode());
-            }
-        }
+        private List<ushort> OnVehicleSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
+                .Select(x => Tuple.New(x, Singleton<TransportManager>.instance.m_lines.m_buffer[x].CountVehicles(x))).ToList(),
+                new Comparison<Tuple<ushort, int>>(Compare),
+                m_reverseOrder).Select(x => x.First).ToList();
 
-        private static int CompareStops(UIComponent left, UIComponent right)
-        {
-            UVMLineListItem component = left.GetComponent<UVMLineListItem>();
-            UVMLineListItem component2 = right.GetComponent<UVMLineListItem>();
-            return component2.StopCounts.CompareTo(component.StopCounts);
-        }
+        private List<ushort> OnPassengerSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
+                .Select(x =>
+                {
+                    int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[x].m_passengers.m_residentPassengers.m_averageCount;
+                    int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[x].m_passengers.m_touristPassengers.m_averageCount;
+                    return Tuple.New(x, averageCount + averageCount2);
+                }).ToList(),
+                new Comparison<Tuple<ushort, int>>(Compare),
+                m_reverseOrder).Select(x => x.First).ToList();
 
-        private static int CompareVehicles(UIComponent left, UIComponent right)
-        {
-            UVMLineListItem component = left.GetComponent<UVMLineListItem>();
-            UVMLineListItem component2 = right.GetComponent<UVMLineListItem>();
-            return component2.VehicleCounts.CompareTo(component.VehicleCounts);
-        }
+        private List<ushort> OnLineNumberSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
+                .Select(x => Tuple.New(x, TLMLineUtils.GetLineStringId(x)))
+                .ToList(),
+                new Comparison<Tuple<ushort, string>>(Compare),
+                m_reverseOrder).Select(x => x.First).ToList();
 
-        private static int ComparePassengers(UIComponent left, UIComponent right)
-        {
-            UVMLineListItem component = left.GetComponent<UVMLineListItem>();
-            UVMLineListItem component2 = right.GetComponent<UVMLineListItem>();
-            return component2.PassengerCountsInt.CompareTo(component.PassengerCountsInt);
-        }
-
-        private void OnNameSort()
-        {
-            if (mainPanel.components.Count == 0)
-            {
-                return;
-            }
-
-            Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareNames), m_reverseOrder);
-            m_lastSortCriterionLines = LineSortCriterion.NAME;
-            mainPanel.Invalidate();
-        }
-
-        private void OnStopSort()
-        {
-            if (mainPanel.components.Count == 0)
-            {
-                return;
-            }
-
-            Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareStops), m_reverseOrder);
-            m_lastSortCriterionLines = LineSortCriterion.STOP;
-            mainPanel.Invalidate();
-        }
-
-        private void OnVehicleSort()
-        {
-            if (mainPanel.components.Count == 0)
-            {
-                return;
-            }
-
-            Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareVehicles), m_reverseOrder);
-            m_lastSortCriterionLines = LineSortCriterion.VEHICLE;
-            mainPanel.Invalidate();
-        }
-
-        private void OnPassengerSort()
-        {
-            if (mainPanel.components.Count == 0)
-            {
-                return;
-            }
-
-            Quicksort(mainPanel.components, new Comparison<UIComponent>(ComparePassengers), m_reverseOrder);
-            m_lastSortCriterionLines = LineSortCriterion.PASSENGER;
-            mainPanel.Invalidate();
-        }
-
-        private void OnLineNumberSort()
-        {
-            if (mainPanel.components.Count == 0)
-            {
-                return;
-            }
-
-            Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareLineNumbers), m_reverseOrder);
-            m_lastSortCriterionLines = LineSortCriterion.LINE_NUMBER;
-            mainPanel.Invalidate();
-        }
-        private void OnProfitSort()
-        {
-            if (mainPanel.components.Count == 0)
-            {
-                return;
-            }
-
-            Quicksort(mainPanel.components, new Comparison<UIComponent>(CompareProfit), m_reverseOrder);
-            m_lastSortCriterionLines = LineSortCriterion.PROFIT;
-            mainPanel.Invalidate();
-        }
+        private List<ushort> OnProfitSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
+                .Select(x =>
+                {
+                    TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(x, out long income, out long expense);
+                    return Tuple.New(x, income - expense);
+                }).ToList(),
+                new Comparison<Tuple<ushort, long>>(Compare),
+                m_reverseOrder).Select(x => x.First).ToList();
         #endregion
 
     }
