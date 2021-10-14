@@ -69,13 +69,13 @@ namespace Klyte.TransportLinesManager.UI
             {
                 return;
             }
-            var capacityEditor = x as UITextField;
-            string assetName = x.parent.GetComponentInChildren<UICheckBox>().objectUserData.ToString();
-            VehicleInfo info = PrefabCollection<VehicleInfo>.FindLoaded(assetName);
-            TransportSystemDefinition.From(info).GetTransportExtension().SetVehicleCapacity(assetName, value);
+            VehicleInfo info = PrefabCollection<VehicleInfo>.FindLoaded(m_currentAsset);
+            TransportSystemDefinition.From(info).GetTransportExtension().SetVehicleCapacity(m_currentAsset, value);
             m_isLoading = true;
-            capacityEditor.text = VehicleUtils.GetCapacity(info).ToString("0");
+            m_capacityEditor.text = VehicleUtils.GetCapacity(info).ToString("0");
             m_isLoading = false;
+
+            UVMPublicTransportWorldInfoPanel.MarkDirty(typeof(TLMAssetSelectorTab));
         }
 
 

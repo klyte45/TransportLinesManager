@@ -186,7 +186,7 @@ namespace Klyte.TransportLinesManager.UI
         private uint m_lastDrawTick;
         public void UpdateBindings()
         {
-            if(component.isVisible && (m_lastDrawTick + 23 < SimulationManager.instance.m_referenceFrameIndex || m_dirty))
+            if (component.isVisible && (m_lastDrawTick + 23 < SimulationManager.instance.m_referenceFrameIndex || m_dirty))
             {
                 ushort lineID = GetLineID();
                 if (lineID != 0)
@@ -413,14 +413,14 @@ namespace Klyte.TransportLinesManager.UI
                     m_stopsContainer.isVisible = false;
                 }
 
-
+                MarkDirty();
             }
         }
 
         private void UpdateTerminalStatus(ushort lineID, ushort currentStop, UIButton button) => button.normalBgSprite =
                                 TransportSystemDefinition.From(lineID).CanHaveTerminals() && (currentStop == Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_stops || TLMStopDataContainer.Instance.SafeGet(currentStop).IsTerminal)
                                 ? KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_S05StarIcon, true)
-                                : "";// KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_CircleIcon, true);
+                                : "";
         private void CreateConnectionPanel(NetManager instance, UIPanel basePanel, ushort currentStop)
         {
             ushort lineID = GetLineID();
@@ -429,12 +429,12 @@ namespace Klyte.TransportLinesManager.UI
             TLMLineUtils.GetNearLines(targetPos, 150f, ref linesFound);
             linesFound.Remove(lineID);
             UIPanel connectionPanel = basePanel.Find<UIPanel>("ConnectionPanel");
-            if(connectionPanel.objectUserData is null)
+            if (connectionPanel.objectUserData is null)
             {
                 connectionPanel.objectUserData = new UITemplateList<UIButton>(connectionPanel, TLMLineItemButtonControl.LINE_ITEM_TEMPLATE);
             }
             var templateList = connectionPanel.objectUserData as UITemplateList<UIButton>;
-            
+
             int newSize = linesFound.Count > m_kMaxConnectionsLine ? 18 : 36;
 
             var itemsEntries = templateList.SetItemCount(linesFound.Count);
@@ -447,19 +447,6 @@ namespace Klyte.TransportLinesManager.UI
             }
             connectionPanel.isVisible = m_currentMode == MapMode.CONNECTIONS;
         }
-
-        private void OpenLineLabel(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            if (ushort.TryParse(component.stringUserData, out ushort lineId) && lineId != 0)
-            {
-                Vector3 position = Singleton<NetManager>.instance.m_nodes.m_buffer[Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_stops].m_position;
-                InstanceID iid = InstanceID.Empty;
-                iid.TransportLine = lineId;
-                WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(position, iid);
-                eventParam.Use();
-            }
-        }
-
         #endregion
 
         private void UpdateVehicleButtons(ushort lineID)
