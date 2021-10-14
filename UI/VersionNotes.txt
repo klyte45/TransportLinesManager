@@ -14,5 +14,6 @@
 	- Also in transport tool, it shows the distance from previous stop when creating a new line
 	- Was added some formatting alert when two stops are too close each other for road-shared transport types (recommended: at least 250m)
 	- Updated Japanese, Korean and Simplified Chinese locales
-
-<color yellow>r2 (14/OCT/21)</color> Fixed capacity editor not working
+	
+<color yellow>r2 (14/OCT/21)</color> Fixed capacity editor not working.
+<color yellow>r3 (14/OCT/21)</color> Added missing Japanese locale option.

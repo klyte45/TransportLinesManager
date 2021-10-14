@@ -454,6 +454,7 @@
     <None Include="app.config" />
     <None Include="commons\LICENSE" />
     <None Include="commons\README.md" />
+    <EmbeddedResource Include="commons\UI\i18n\ja.properties" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -465,6 +466,7 @@
     <EmbeddedResource Include="UI\Images\%25K45_TLM_Icon.png" />
     <EmbeddedResource Include="UI\Images\%25K45_24hClock.png" />
     <EmbeddedResource Include="UI\i18n\zh.properties" />
+    <EmbeddedResource Include="UI\i18n\ja.properties" />
     <None Include="UI\Images\24hClock.psd" />
     <Content Include="commons\UI\Images\base.psd" />
     <Content Include="commons\UI\Images\sprites.psd" />
