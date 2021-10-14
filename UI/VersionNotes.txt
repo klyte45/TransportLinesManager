@@ -1,4 +1,4 @@
-﻿<extended><color #9999FF>TLM 14.1 - 14/OUT/21</color>
+﻿<extended><color #9999FF>TLM 14.1 - 13/OCT/21</color>
 	- UI reviewed; Performance hugely improved!
 	- Ctrl + click to move the <K> button (instead of double click)
 		<color yellow>NOTICE:</color> It may not be working like this if you have other of my mods. Use Load Order Mod to ensure the TLM will be loaded first than any other mod by me.
@@ -14,3 +14,6 @@
 	- Also in transport tool, it shows the distance from previous stop when creating a new line
 	- Was added some formatting alert when two stops are too close each other for road-shared transport types (recommended: at least 250m)
 	- Updated Japanese, Korean and Simplified Chinese locales
+	
+<color yellow>r2 (14/OCT/21)</color> Fixed capacity editor not working.
+<color yellow>r3 (14/OCT/21)</color> Added missing Japanese locale option.
