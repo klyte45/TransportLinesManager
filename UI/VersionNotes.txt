@@ -17,3 +17,4 @@
 	
 <color yellow>r2 (14/OCT/21)</color> Fixed capacity editor not working.
 <color yellow>r3 (14/OCT/21)</color> Added missing Japanese locale option.
+<color yellow>r4 (17/OCT/21)</color> Fixing minor bugs & issues post release; Updated ja, ko and cn locales.
