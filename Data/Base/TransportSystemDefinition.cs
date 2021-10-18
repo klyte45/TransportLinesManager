@@ -168,7 +168,11 @@ namespace Klyte.TransportLinesManager.Extensions
             };
         }
 
-        public bool IsFromSystem(VehicleInfo info) => info.m_class.m_subService == SubService && info.m_vehicleType == VehicleType && (VehicleUtils.GetTransportInfoField(info.m_vehicleAI)?.GetValue(info.m_vehicleAI) as TransportInfo)?.m_transportType == TransportType && VehicleUtils.GetVehicleCapacityField(info.m_vehicleAI) != null;
+        public bool IsFromSystem(VehicleInfo info) => info.m_class.m_subService == SubService
+            && info.m_vehicleType == VehicleType
+            && (info.m_class.m_level == Level || info.m_class.m_level == LevelAdditional)
+            && (VehicleUtils.GetTransportInfoField(info.m_vehicleAI)?.GetValue(info.m_vehicleAI) as TransportInfo)?.m_transportType == TransportType
+            && VehicleUtils.GetVehicleCapacityField(info.m_vehicleAI) != null;
 
         public bool IsFromSystem(TransportInfo info) => info != null && info.m_class.m_subService == SubService && info.m_vehicleType == VehicleType && info.m_transportType == TransportType;
 
