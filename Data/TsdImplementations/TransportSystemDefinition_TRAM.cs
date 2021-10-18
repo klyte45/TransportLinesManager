@@ -14,7 +14,8 @@ namespace Klyte.TransportLinesManager.Extensions
             new TransferManager.TransferReason[] { TransferManager.TransferReason.Tram },
             new Color32(73, 27, 137, 255),
             90,
-            LineIconSpriteNames.K45_TrapezeIcon);
+            LineIconSpriteNames.K45_TrapezeIcon,
+            true);
     }
 
 }

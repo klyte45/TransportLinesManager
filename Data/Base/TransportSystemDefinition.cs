@@ -87,6 +87,7 @@ namespace Klyte.TransportLinesManager.Extensions
         public Color Color { get; }
         public int DefaultCapacity { get; }
         public LineIconSpriteNames DefaultIcon { get; }
+        public bool HasLines { get; }
         public long? Id { get => Index_Internal; set { } }
 
         private TransportSystemDefinition(
@@ -98,6 +99,7 @@ namespace Klyte.TransportLinesManager.Extensions
             Color color,
             int defaultCapacity,
             LineIconSpriteNames defaultIcon,
+            bool hasLines,
             ItemClass.Level? levelAdditional = null)
         {
             VehicleType = vehicleType;
@@ -109,6 +111,7 @@ namespace Klyte.TransportLinesManager.Extensions
             Color = color;
             DefaultCapacity = defaultCapacity;
             DefaultIcon = defaultIcon;
+            HasLines = hasLines;
             Index_Internal = GetTsdIndex(TransportType, SubService, VehicleType, Level);
         }
 
@@ -145,8 +148,16 @@ namespace Klyte.TransportLinesManager.Extensions
                 case TransportInfo.TransportType.HotAirBalloon: return "IconBalloonTours";
                 case TransportInfo.TransportType.Post: return "SubBarPublicTransportPost";
                 case TransportInfo.TransportType.CableCar: return PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.EvacuationBus);
+                case TransportInfo.TransportType.Airplane:
+                    if (VehicleType == VehicleInfo.VehicleType.Helicopter)
+                    {
+                        return "IconPolicyHelicopterPriority";
+                    }
+                    else
+                    {
+                        return PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportType);
+                    }
                 //case TransportInfo.TransportType.Ship:
-                //case TransportInfo.TransportType.Airplane:
                 //case TransportInfo.TransportType.Bus:
                 //case TransportInfo.TransportType.Metro:
                 //case TransportInfo.TransportType.Train:

@@ -14,7 +14,8 @@ namespace Klyte.TransportLinesManager.Extensions
             new TransferManager.TransferReason[] { TransferManager.TransferReason.CableCar },
             new Color32(31, 96, 225, 255),
             1,
-            LineIconSpriteNames.K45_ConeIcon);
+            LineIconSpriteNames.K45_ConeIcon,
+            false);
     }
 
 }

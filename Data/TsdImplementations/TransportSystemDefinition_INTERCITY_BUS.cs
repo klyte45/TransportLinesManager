@@ -13,7 +13,8 @@ namespace Klyte.TransportLinesManager.Extensions
             new TransferManager.TransferReason[] { TransferManager.TransferReason.IntercityBus },
             new Color32(23, 91, 128, 255),
             50,
-            LineIconSpriteNames.K45_OctagonIcon);
+            LineIconSpriteNames.K45_OctagonIcon,
+            false);
     }
 
 }

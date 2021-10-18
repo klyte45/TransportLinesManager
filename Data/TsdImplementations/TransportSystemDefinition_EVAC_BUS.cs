@@ -23,7 +23,8 @@ namespace Klyte.TransportLinesManager.Extensions
                     },
             new Color32(202, 162, 31, 255),
             50,
-            LineIconSpriteNames.K45_CrossIcon);
+            LineIconSpriteNames.K45_CrossIcon,
+            false);
     }
 
 }

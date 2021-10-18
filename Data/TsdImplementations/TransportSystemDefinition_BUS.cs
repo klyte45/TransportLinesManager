@@ -15,6 +15,7 @@ namespace Klyte.TransportLinesManager.Extensions
             new Color32(53, 121, 188, 255),
             30,
             LineIconSpriteNames.K45_HexagonIcon,
+            true,
             ItemClass.Level.Level2
         );
     }
