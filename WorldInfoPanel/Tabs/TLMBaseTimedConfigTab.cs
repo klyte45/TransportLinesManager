@@ -182,7 +182,15 @@ namespace Klyte.TransportLinesManager.UI
             ReorderLines();
         }
 
-        private void SetValue(V idx, float val) => idx.Value = (uint)val;
+        private void SetValue(V idx, float val)
+        {
+            if (idx.Value != (uint)val)
+            {
+                idx.Value = (uint)val;
+                ReorderLines();
+            }
+        }
+
         private void AddEntry()
         {
             Config.Add(DefaultEntry());

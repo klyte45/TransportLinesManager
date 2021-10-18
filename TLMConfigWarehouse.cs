@@ -1260,9 +1260,6 @@ namespace Klyte.TransportLinesManager
                             case ADD_LINE_NUMBER_IN_AUTONAME & DESC_DATA:
                                 target.AddLineCodeInAutoname = GetBool(entry);
                                 continue;
-                            case MAX_VEHICLES_SPECIFIC_CONFIG & DESC_DATA:
-                                target.MaxVehiclesOnAbsoluteMode = GetInt(entry);
-                                continue;
                         }
                         break;
                     case USE_FOR_AUTO_NAMING_REF & ADC_DESC_PART:
