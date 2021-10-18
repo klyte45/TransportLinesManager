@@ -308,7 +308,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                             Singleton<SimulationManager>.instance.AddAction(delegate
                             {
                                 Singleton<TransportManager>.instance.ReleaseLine(m_lineID);
-                                GameObject.Destroy(gameObject);
+                                
                             });
                         }
                     });

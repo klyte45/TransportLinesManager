@@ -15,7 +15,9 @@ namespace Klyte.TransportLinesManager.Extensions
 {
     public partial class TransportSystemDefinition : IIdentifiable
     {
-        private static readonly NonSequentialList<TransportSystemDefinition> registeredTsd = new NonSequentialList<TransportSystemDefinition>()
+        private static readonly NonSequentialList<TransportSystemDefinition> registeredTsd;
+
+        static TransportSystemDefinition() => registeredTsd = new NonSequentialList<TransportSystemDefinition>()
         {
             [0] = BUS,
             [0] = BLIMP,
@@ -267,5 +269,8 @@ namespace Klyte.TransportLinesManager.Extensions
             (TransportType == TransportInfo.TransportType.Bus && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled) ||
             (TransportType == TransportInfo.TransportType.Tram && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled) ||
             (TransportType == TransportInfo.TransportType.Trolleybus && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled);
+
+
+
     }
 }
