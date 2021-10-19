@@ -16,6 +16,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         public override float PanelWidth => 875;
         public override float PanelHeight => component.parent.height;
 
+        internal UVMLinesPanel m_linesPanel;
+
         #region Awake
         protected override void AwakeActions()
         {
@@ -26,12 +28,12 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_stripMain.selectedIndex = 0;
 
             KlyteMonoUtils.CreateUIElement(out UIPanel bodyContent, MainPanel.transform, "Content", new Vector4(0, 85, MainPanel.width, MainPanel.height - 85));
-            var uvmLinesPanel = bodyContent.gameObject.AddComponent<UVMLinesPanel>();
+            m_linesPanel = bodyContent.gameObject.AddComponent<UVMLinesPanel>();
             m_stripMain.eventSelectedIndexChanged += (x, y) =>
             {
                 if (y >= 0)
                 {
-                    uvmLinesPanel.TSD = m_stripMain.tabs[y]?.objectUserData as TransportSystemDefinition;
+                    m_linesPanel.TSD = m_stripMain.tabs[y]?.objectUserData as TransportSystemDefinition;
                 }
             };
         }

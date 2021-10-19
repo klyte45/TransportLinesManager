@@ -47,7 +47,7 @@ namespace Klyte.TransportLinesManager.Extensions
                 if (legacyData != null)
                 {
                     LogUtils.DoWarnLog($"Loaded transport type extension from legacy: {entry.Key} to {entry.Value}");
-                    m_cachedList[entry.Value.Id ?? 0] = legacyData;
+                    m_cachedList[entry.Value.Id] = legacyData;
                 }
             }
         }

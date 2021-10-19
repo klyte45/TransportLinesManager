@@ -16,6 +16,7 @@ namespace Klyte.TransportLinesManager.Extensions
             30,
             LineIconSpriteNames.K45_HexagonIcon,
             true,
+            ItemClass.Level.Level3,
             ItemClass.Level.Level2
         );
     }

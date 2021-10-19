@@ -275,7 +275,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
             List<ushort> lines = TargetTsdLines();
 
-            m_countLines.text = string.Format(Locale.Get("K45_TLM_TOTALIZERTEXT"), lines.Count, TransportManager.instance.m_lineCount);
+            m_countLines.text = string.Format(Locale.Get("K45_TLM_TOTALIZERTEXT"), lines.Count - lines.Where(x => x == 0).Count(), TransportManager.instance.m_lineCount - 1);
             var newItems = lineItems.SetItemCount(lines.Count);
             if (lines.Count == 0)
             {
@@ -315,6 +315,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private List<ushort> TargetTsdLines()
         {
             List<ushort> lines = new List<ushort>();
+
+            if (!(TSD.LevelIntercity is null))
+            {
+                lines.Add(0);
+            }
             for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
             {
                 if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created && TSD.IsFromSystem(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID]))
@@ -322,7 +327,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     lines.Add(lineID);
                 }
             }
-
             return lines;
         }
 

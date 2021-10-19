@@ -18,29 +18,28 @@ namespace Klyte.TransportLinesManager.Xml
         [XmlIgnore]
         public long? Id
         {
-            get
-            {
-                var val = TransportSystemDefinition.GetTsdIndex(TransportType, SubService, VehicleType, Level);
-                return val == 0 ? null : (long?)val;
-            }
-
+            get => TSD?.Id;
             set
             {
                 if (value is null)
                 {
                     return;
                 }
-                var longVal = value ?? 0L;
-                SubService = (ItemClass.SubService)((longVal & 0xff00) >> 8);
-                VehicleType = (VehicleInfo.VehicleType)(((int)longVal & 0xff0000) == 0 ? 0 : (1 << ((((int)longVal & 0xff0000) >> 16) - 1)));
-                TransportType = (TransportInfo.TransportType)((longVal & 0xff000000) >> 24);
-                Level = (ItemClass.Level)(longVal & 0xff);
+                TSD = TransportSystemDefinition.FromIndex((uint)value);
             }
         }
 
-        protected TransportSystemDefinition ToTSD() => TransportSystemDefinition.From(TransportType, SubService, VehicleType, Level);
-
-
+        protected TransportSystemDefinition TSD
+        {
+            get => TransportSystemDefinition.From(TransportType, SubService, VehicleType, Level);
+            set
+            {
+                SubService = value.SubService;
+                VehicleType = value.VehicleType;
+                TransportType = value.TransportType;
+                Level = value.Level;
+            }
+        }
     }
 
 }

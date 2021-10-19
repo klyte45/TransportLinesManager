@@ -78,9 +78,9 @@ namespace Klyte.TransportLinesManager.Xml
         private NonSequentialList<TLMTransportTypeConfigurationsXML> PublicTransportConfigurations_internal { get; set; } = new NonSequentialList<TLMTransportTypeConfigurationsXML>();
         public TLMTransportTypeConfigurationsXML GetTransportData(TransportSystemDefinition def)
         {
-            if (!PublicTransportConfigurations_internal.TryGetValue(def.Id ?? 0, out TLMTransportTypeConfigurationsXML result))
+            if (!PublicTransportConfigurations_internal.TryGetValue(def.Id, out TLMTransportTypeConfigurationsXML result))
             {
-                result = PublicTransportConfigurations_internal[(long)def.Id] = new TLMTransportTypeConfigurationsXML();
+                result = PublicTransportConfigurations_internal[def.Id] = new TLMTransportTypeConfigurationsXML();
             }
             return result;
         }

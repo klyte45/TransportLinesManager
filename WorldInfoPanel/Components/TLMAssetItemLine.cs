@@ -32,7 +32,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
 
                 ushort lineId = UVMPublicTransportWorldInfoPanel.GetLineID();
-                IBasicExtension extension = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
+                IBasicExtension extension = lineId > 0 ? TLMLineUtils.GetEffectiveExtensionForLine(lineId) : UVMPublicTransportWorldInfoPanel.GetCurrentTSD().GetTransportExtension();
 
                 LogUtils.DoLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
                 if (y)
@@ -56,8 +56,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             m_isLoading = true;
             m_currentAsset = assetName;
-            m_checkbox.label.prefix = Locale.GetUnchecked("VEHICLE_TITLE", assetName);
-            m_checkbox.label.prefix = Locale.GetUnchecked("VEHICLE_TITLE", assetName);
+            m_checkbox.label.text = Locale.GetUnchecked("VEHICLE_TITLE", assetName);
             m_checkbox.isChecked = isAllowed;
             var info = PrefabCollection<VehicleInfo>.FindLoaded(m_currentAsset);
             var tsd = TransportSystemDefinition.From(info);
@@ -81,7 +80,7 @@ namespace Klyte.TransportLinesManager.UI
             UVMPublicTransportWorldInfoPanel.MarkDirty(typeof(TLMAssetSelectorTab));
         }
 
-        private void UpdateMaintenanceCost(VehicleInfo info, TransportSystemDefinition tsd) => m_checkbox.label.suffix = $"<color #aaaaaa>{LocaleFormatter.FormatUpkeep(Mathf.RoundToInt(VehicleUtils.GetCapacity(info) * tsd.GetEffectivePassengerCapacityCost() * 100), false)}</color>";
+        private void UpdateMaintenanceCost(VehicleInfo info, TransportSystemDefinition tsd) => m_checkbox.label.suffix = UVMPublicTransportWorldInfoPanel.GetLineID() == 0 ? "" : $"\n<color #aaaaaa>{LocaleFormatter.FormatUpkeep(Mathf.RoundToInt(VehicleUtils.GetCapacity(info) * tsd.GetEffectivePassengerCapacityCost() * 100), false)}</color>";
 
         public static void EnsureTemplate()
         {
@@ -98,7 +97,8 @@ namespace Klyte.TransportLinesManager.UI
             uiCheckbox.width = 285f;
             uiCheckbox.label.processMarkup = true;
             uiCheckbox.label.textScale = 0.8f;
-            uiCheckbox.label.text = "\n";
+            uiCheckbox.label.verticalAlignment = UIVerticalAlignment.Middle;
+            uiCheckbox.label.minimumSize = new Vector2(0, 32);
 
             KlyteMonoUtils.CreateUIElement(out UITextField capEditField, panel.transform, "Cap", new Vector4(0, 0, 50, 32));
             KlyteMonoUtils.UiTextFieldDefaults(capEditField);

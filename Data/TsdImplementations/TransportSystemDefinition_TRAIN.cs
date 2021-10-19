@@ -15,7 +15,8 @@ namespace Klyte.TransportLinesManager.Extensions
             new Color32(250, 104, 0, 255),
             240,
             LineIconSpriteNames.K45_CircleIcon,
-            true);
+            true,
+            ItemClass.Level.Level1);
     }
 
 }

@@ -156,17 +156,15 @@ namespace Klyte.TransportLinesManager.Utils
                 return (tsd.GetTransportExtension() as ISafeGettable<TLMPrefixConfiguration>).SafeGet(TLMPrefixesUtils.GetPrefix(lineId));
             }
         }
-        public static IBasicExtension GetEffectiveExtensionForLine(ushort lineId)
+        public static IBasicExtension GetEffectiveExtensionForLine(ushort lineId, TransportSystemDefinition tsd = null)
         {
-            if (TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId))
+            if (lineId == 0 && tsd is null)
             {
-                return TLMTransportLineExtension.Instance;
+                throw new Exception("Line 0 is undefined! Cannot get extension.");
             }
-            else
-            {
-                var tsd = TransportSystemDefinition.From(lineId);
-                return tsd.GetTransportExtension();
-            }
+            return lineId > 0 && TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId)
+                ? TLMTransportLineExtension.Instance
+                : (IBasicExtension)(tsd ?? TransportSystemDefinition.From(lineId)).GetTransportExtension();
         }
 
         public static float ReferenceTimer => (TransportLinesManagerMod.UseGameClockAsReferenceIfNoDayNight && !Singleton<SimulationManager>.instance.m_enableDayNight) ? (float)Singleton<SimulationManager>.instance.m_currentGameTime.TimeOfDay.TotalHours % 24 : Singleton<SimulationManager>.instance.m_currentDayTimeHour;
@@ -187,6 +185,11 @@ namespace Klyte.TransportLinesManager.Utils
         }
         public static string GetLineStringId(ushort lineIdx)
         {
+            if (lineIdx == 0)
+            {
+                return "";
+            }
+
             if (TLMTransportLineExtension.Instance.SafeGet(lineIdx).CustomCode is string customId && !customId.IsNullOrWhiteSpace())
             {
                 return customId;
@@ -200,6 +203,17 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static TransportSystemDefinition GetLineNamingParameters(ushort lineIdx, out NamingMode prefix, out Separator s, out NamingMode suffix, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix, out string icon)
         {
+            if (lineIdx == 0)
+            {
+                suffix = default;
+                s = default;
+                prefix = default;
+                nonPrefix = default;
+                zeros = false;
+                invertPrefixSuffix = false;
+                icon = "";
+                return null;
+            }
             var tsd = TransportSystemDefinition.GetDefinitionForLine(lineIdx);
             if (tsd != default)
             {
@@ -291,18 +305,21 @@ namespace Klyte.TransportLinesManager.Utils
                         if ((info.m_class.m_service == ItemClass.Service.PublicTransport))
                         {
                             ushort transportLine = nm.m_nodes.m_buffer[num6].m_transportLine;
-                            var tsd = TransportSystemDefinition.GetDefinitionForLine(transportLine);
-                            if (transportLine != 0 && tsd != default && tsd.GetConfig().ShowInLinearMap)
+                            if (transportLine != 0)
                             {
-                                TransportInfo info2 = tm.m_lines.m_buffer[transportLine].Info;
-                                if (!linesFound.Contains(transportLine) && (tm.m_lines.m_buffer[transportLine].m_flags & TransportLine.Flags.Temporary) == TransportLine.Flags.None)
+                                var tsd = TransportSystemDefinition.GetDefinitionForLine(transportLine);
+                                if (transportLine != 0 && tsd != default && tsd.GetConfig().ShowInLinearMap)
                                 {
-                                    float num8 = Vector3.SqrMagnitude(pos - nm.m_nodes.m_buffer[num6].m_position);
-                                    if (num8 < maxDistance * maxDistance || (info2.m_transportType == TransportInfo.TransportType.Ship && num8 < extendedMaxDistance * extendedMaxDistance))
+                                    TransportInfo info2 = tm.m_lines.m_buffer[transportLine].Info;
+                                    if (!linesFound.Contains(transportLine) && (tm.m_lines.m_buffer[transportLine].m_flags & TransportLine.Flags.Temporary) == TransportLine.Flags.None)
                                     {
-                                        linesFound.Add(transportLine);
-                                        GetNearLines(nm.m_nodes.m_buffer[num6].m_position, maxDistance, ref linesFound);
-                                        noneFound = false;
+                                        float num8 = Vector3.SqrMagnitude(pos - nm.m_nodes.m_buffer[num6].m_position);
+                                        if (num8 < maxDistance * maxDistance || (info2.m_transportType == TransportInfo.TransportType.Ship && num8 < extendedMaxDistance * extendedMaxDistance))
+                                        {
+                                            linesFound.Add(transportLine);
+                                            GetNearLines(nm.m_nodes.m_buffer[num6].m_position, maxDistance, ref linesFound);
+                                            noneFound = false;
+                                        }
                                     }
                                 }
                             }
@@ -441,6 +458,14 @@ namespace Klyte.TransportLinesManager.Utils
 
         private static void GetLineNumberCircleOnRefParams(ushort lineID, float ratio, out string text, out Color textColor, out float textScale, out Vector3 relativePosition)
         {
+            if (lineID == 0)
+            {
+                text = "";
+                textColor = default;
+                textScale = 0;
+                relativePosition = default;
+                return;
+            }
             text = GetLineStringId(lineID).Trim();
             string[] textParts = text.Split(new char[] { '\n' });
             int lenght = textParts.Max(x => x.Length);
@@ -533,7 +558,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineColor(id, targetColor));
                 yield return task.WaitTaskCompleted(comp);
-                if (UVMPublicTransportWorldInfoPanel.GetLineID() == id)
+                if (id > 0 && UVMPublicTransportWorldInfoPanel.GetLineID() == id)
                 {
                     UVMPublicTransportWorldInfoPanel.ForceReload();
                 }

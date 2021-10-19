@@ -136,7 +136,7 @@ namespace Klyte.TransportLinesManager.Extensions
         }
         #endregion
         #region Depot
-        public uint LineToIndex(ushort lineId) => lineId;
+        public uint LineToIndex(ushort lineId) => lineId > 0 ? lineId : throw new System.Exception("Line 0 cannot have specific configuration!");
 
 
         #endregion

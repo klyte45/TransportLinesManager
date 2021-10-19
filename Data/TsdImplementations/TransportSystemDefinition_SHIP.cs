@@ -15,7 +15,8 @@ namespace Klyte.TransportLinesManager.Extensions
             new Color32(0xa3, 0xb0, 0, 255),
             100,
             LineIconSpriteNames.K45_DiamondIcon,
-            true);
+            true,
+            ItemClass.Level.Level1);
     }
 
 }
