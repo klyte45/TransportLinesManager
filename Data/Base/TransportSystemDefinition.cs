@@ -6,6 +6,7 @@ using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.Xml;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,7 +16,9 @@ namespace Klyte.TransportLinesManager.Extensions
 {
     public partial class TransportSystemDefinition : IIdentifiable
     {
-        private static readonly NonSequentialList<TransportSystemDefinition> registeredTsd = new NonSequentialList<TransportSystemDefinition>()
+        private static readonly NonSequentialList<TransportSystemDefinition> registeredTsd;
+
+        static TransportSystemDefinition() => registeredTsd = new NonSequentialList<TransportSystemDefinition>()
         {
             [0] = BUS,
             [0] = BLIMP,
@@ -24,7 +27,6 @@ namespace Klyte.TransportLinesManager.Extensions
             [0] = EVAC_BUS,
             [0] = FERRY,
             [0] = HELICOPTER,
-            [0] = INTERCITY_BUS,
             [0] = METRO,
             [0] = MONORAIL,
             [0] = PLANE,
@@ -80,12 +82,15 @@ namespace Klyte.TransportLinesManager.Extensions
         public TransportInfo.TransportType TransportType { get; }
         public ItemClass.Level Level { get; }
         public ItemClass.Level? LevelAdditional { get; }
-        private long Index_Internal { get; }
+        public ItemClass.Level? LevelIntercity { get; }
+        private uint Index_Internal { get; }
         public TransferReason[] Reasons { get; }
         public Color Color { get; }
         public int DefaultCapacity { get; }
         public LineIconSpriteNames DefaultIcon { get; }
-        public long? Id { get => Index_Internal; set { } }
+        public bool HasLines { get; }
+        public uint Id { get => Index_Internal; set { } }
+        long? IIdentifiable.Id { get => Id; set { } }
 
         private TransportSystemDefinition(
         ItemClass.SubService subService,
@@ -96,6 +101,8 @@ namespace Klyte.TransportLinesManager.Extensions
             Color color,
             int defaultCapacity,
             LineIconSpriteNames defaultIcon,
+            bool hasLines,
+            ItemClass.Level? levelIntercity = null,
             ItemClass.Level? levelAdditional = null)
         {
             VehicleType = vehicleType;
@@ -107,11 +114,35 @@ namespace Klyte.TransportLinesManager.Extensions
             Color = color;
             DefaultCapacity = defaultCapacity;
             DefaultIcon = defaultIcon;
-            Index_Internal = GetTsdIndex(TransportType, SubService, VehicleType, Level);
+            HasLines = hasLines;
+            LevelIntercity = levelIntercity;
+            Index_Internal = GetTsdIndex(TransportType, SubService, VehicleType, Level, LevelAdditional, LevelIntercity);
         }
 
-        internal static long GetTsdIndex(TransportInfo.TransportType TransportType, ItemClass.SubService SubService, VehicleInfo.VehicleType VehicleType, ItemClass.Level Level)
-           => (((long)TransportType & 0xff) << 24) | (((long)KlyteMathUtils.BitScanForward((ulong)VehicleType) + 1) << 16) | (((long)SubService & 0xff) << 8) | ((long)Level & 0xff);
+
+        internal static uint GetTsdIndex(TransportInfo.TransportType TransportType, ItemClass.SubService SubService, VehicleInfo.VehicleType VehicleType, ItemClass.Level Level, ItemClass.Level? LevelAdditional, ItemClass.Level? LevelIntercity)
+        {
+            uint levelBitmask = (1u << ((byte)Level)) | (LevelAdditional is null ? 0u : (1u << ((byte)LevelAdditional)));
+
+            return (((uint)TransportType & 0x1fu) << 19)
+                       | ((((uint)KlyteMathUtils.BitScanForward((uint)VehicleType) + 1u) & 0x1Fu) << 14)
+                       | (((uint)SubService & 0x3fu) << 8)
+                       | ((levelBitmask & 0x1fu) << 3)
+                       | ((LevelIntercity is null ? 7u : (uint)LevelIntercity) & 0x7u);
+        }
+
+        internal static void GetParametersFromTsdIndex(uint num, out TransportInfo.TransportType TransportType, out ItemClass.SubService SubService, out VehicleInfo.VehicleType VehicleType, out ItemClass.Level Level, out ItemClass.Level? LevelAdditional, out ItemClass.Level? LevelIntercity)
+        {
+            TransportType = (TransportInfo.TransportType)((num >> 19) & 0x1f);
+            SubService = (ItemClass.SubService)((num >> 8) & 0x3f);
+            VehicleType = (VehicleInfo.VehicleType)(1 << (int)(((num >> 14) & 0x1f) - 1));
+            Level = (ItemClass.Level)(KlyteMathUtils.BitScanForward((num >> 3) & 0x1f));
+
+            var restLevel = (ulong)(((num >> 3) & 0x1f) - (1 << (int)Level));
+
+            LevelAdditional = restLevel == 0 ? null : (ItemClass.Level?)KlyteMathUtils.BitScanForward(restLevel);
+            LevelIntercity = (num & 0x7) == 7 ? null : (ItemClass.Level?)(num & 0x7);
+        }
 
         public ITLMTransportTypeExtension GetTransportExtension() => TLMTransportTypeDataContainer.Instance?.SafeGet(Index_Internal);
         public bool IsTour() => SubService == ItemClass.SubService.PublicTransportTours;
@@ -143,8 +174,11 @@ namespace Klyte.TransportLinesManager.Extensions
                 case TransportInfo.TransportType.HotAirBalloon: return "IconBalloonTours";
                 case TransportInfo.TransportType.Post: return "SubBarPublicTransportPost";
                 case TransportInfo.TransportType.CableCar: return PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportInfo.TransportType.EvacuationBus);
+                case TransportInfo.TransportType.Airplane:
+                    return VehicleType == VehicleInfo.VehicleType.Helicopter
+                        ? "IconPolicyHelicopterPriority"
+                        : PublicTransportWorldInfoPanel.GetVehicleTypeIcon(TransportType);
                 //case TransportInfo.TransportType.Ship:
-                //case TransportInfo.TransportType.Airplane:
                 //case TransportInfo.TransportType.Bus:
                 //case TransportInfo.TransportType.Metro:
                 //case TransportInfo.TransportType.Train:
@@ -155,7 +189,17 @@ namespace Klyte.TransportLinesManager.Extensions
             };
         }
 
-        public bool IsFromSystem(VehicleInfo info) => info.m_class.m_subService == SubService && info.m_vehicleType == VehicleType && (VehicleUtils.GetTransportInfoField(info.m_vehicleAI)?.GetValue(info.m_vehicleAI) as TransportInfo)?.m_transportType == TransportType && VehicleUtils.GetVehicleCapacityField(info.m_vehicleAI) != null;
+        public bool IsFromSystem(VehicleInfo info) => info.m_class.m_subService == SubService
+            && info.m_vehicleType == VehicleType
+            && (info.m_class.m_level == Level || info.m_class.m_level == LevelAdditional)
+            && (VehicleUtils.GetTransportInfoField(info.m_vehicleAI)?.GetValue(info.m_vehicleAI) as TransportInfo)?.m_transportType == TransportType
+            && VehicleUtils.GetVehicleCapacityField(info.m_vehicleAI) != null;
+        public bool IsFromSystemIntercity(VehicleInfo info) => !(LevelIntercity is null)
+            && info.m_class.m_subService == SubService
+            && info.m_vehicleType == VehicleType
+            && (info.m_class.m_level == LevelIntercity)
+            && (VehicleUtils.GetTransportInfoField(info.m_vehicleAI)?.GetValue(info.m_vehicleAI) as TransportInfo)?.m_transportType == TransportType
+            && VehicleUtils.GetVehicleCapacityField(info.m_vehicleAI) != null;
 
         public bool IsFromSystem(TransportInfo info) => info != null && info.m_class.m_subService == SubService && info.m_vehicleType == VehicleType && info.m_transportType == TransportType;
 
@@ -193,7 +237,7 @@ namespace Klyte.TransportLinesManager.Extensions
             x.SubService == info.m_class.m_subService
             && x.VehicleType == info.m_vehicleType
             && x.TransportType == info.m_transportType
-            && (x.Level == info.GetClassLevel() || x.LevelAdditional == info.GetClassLevel()));
+            && (x.Level == info.GetClassLevel() || x.LevelAdditional == info.GetClassLevel() || x.LevelIntercity == info.GetClassLevel()));
             if (result == default)
             {
                 LogUtils.DoErrorLog($"TSD NOT FOUND FOR TRANSPORT INFO: info.m_class.m_subService={info.m_class.m_subService}, info.m_vehicleType={info.m_vehicleType}, info.m_transportType={info.m_transportType}, info.classLevel = {info.GetClassLevel()}");
@@ -209,13 +253,37 @@ namespace Klyte.TransportLinesManager.Extensions
                     && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo")
                     && ReflectionUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo") is TransportInfo ti
                     && ti.m_transportType == x.TransportType
-                    && (x.Level == ti.GetClassLevel() || x.LevelAdditional == ti.GetClassLevel())
+                    && (x.Level == ti.GetClassLevel() || x.LevelAdditional == ti.GetClassLevel() || x.LevelIntercity == ti.GetClassLevel())
                 );
         public static TransportSystemDefinition From(uint lineId) => GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineId]);
+        public static TransportSystemDefinition FromOutsideConnection(ItemClass.SubService SubService, ItemClass.Level Level) => registeredTsd.Where(x => x.Value.LevelIntercity == Level && x.Value.SubService == SubService).FirstOrDefault().Value;
         public static TransportSystemDefinition From(TransportInfo.TransportType TransportType, ItemClass.SubService SubService, VehicleInfo.VehicleType VehicleType, ItemClass.Level Level)
-            => registeredTsd.TryGetValue(GetTsdIndex(TransportType, SubService, VehicleType, Level), out TransportSystemDefinition def) ? def : null;
+        {
+            var targetMask = GetTsdIndex(TransportType, SubService, VehicleType, Level, null, null);
+            LogUtils.DoLog($"Index ({TransportType},{SubService},{VehicleType},{Level}) == {targetMask.ToString("X8")}\n{Environment.StackTrace}");
+            return FromIndex(targetMask);
+        }
 
-        public static TransportSystemDefinition GetDefinitionForLine(ushort i) => GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[i]);
+        public static TransportSystemDefinition FromIndex(uint idx)
+        {
+            var result = registeredTsd.Where(x => (x.Key & 0xFFFF00) == (idx & 0xFFFF00) && (x.Key & 0xf8 & idx) > 0).FirstOrDefault().Value;
+            if (result is null)
+            {
+                LogUtils.DoErrorLog($"Invalid Index! Searching for: {idx.ToString("X8")}");
+            }
+
+            return result;
+        }
+
+        public static TransportSystemDefinition GetDefinitionForLine(ushort i)
+        {
+            if (i == 0)
+            {
+                throw new Exception("INVALID LINE TO GET DEFINITION: Line 0");
+            }
+            return GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[i]);
+        }
+
         public static TransportSystemDefinition GetDefinitionForLine(ref TransportLine t) => From(t.Info);
 
         public override string ToString() => SubService.ToString() + "|" + VehicleType.ToString();
@@ -267,5 +335,8 @@ namespace Klyte.TransportLinesManager.Extensions
             (TransportType == TransportInfo.TransportType.Bus && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled) ||
             (TransportType == TransportInfo.TransportType.Tram && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled) ||
             (TransportType == TransportInfo.TransportType.Trolleybus && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled);
+
+
+
     }
 }

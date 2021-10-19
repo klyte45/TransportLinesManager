@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using ColossalFramework.Globalization;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using Harmony;
@@ -16,8 +17,7 @@ namespace Klyte.TransportLinesManager.UI
 {
     public class UVMPublicTransportWorldInfoPanel : Redirector, IRedirectable
     {
-
-
+        public const InstanceType INSTANCE_TYPE_TSD = (InstanceType)0x45;
         #region Awake 
         public void Awake()
         {
@@ -33,6 +33,7 @@ namespace Klyte.TransportLinesManager.UI
             AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("OnGotFocus", RedirectorUtils.allFlags), typeof(UVMPublicTransportWorldInfoPanel).GetMethod("OnGotFocus", RedirectorUtils.allFlags));
             AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("OnLineColorChanged", RedirectorUtils.allFlags), typeof(Redirector).GetMethod("PreventDefault", RedirectorUtils.allFlags));
             AddRedirect(typeof(PublicTransportWorldInfoPanel).GetMethod("OnLineNameChanged", RedirectorUtils.allFlags), typeof(Redirector).GetMethod("PreventDefault", RedirectorUtils.allFlags));
+            AddRedirect(typeof(WorldInfoPanel).GetMethod("IsValidTarget", RedirectorUtils.allFlags), typeof(UVMPublicTransportWorldInfoPanel).GetMethod("PreIsValidTarget", RedirectorUtils.allFlags));
             TransportManager.instance.eventLineColorChanged += (x) =>
             {
                 if (x == GetLineID())
@@ -47,6 +48,16 @@ namespace Klyte.TransportLinesManager.UI
                     m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(x);
                 }
             };
+        }
+
+        public static bool PreIsValidTarget(ref WorldInfoPanel __instance, ref bool __result)
+        {
+            if (__instance is PublicTransportWorldInfoPanel && GetLineID() == 0)
+            {
+                __result = true;
+                return false;
+            }
+            return true;
         }
 
         public static IEnumerable<CodeInstruction> TranspileStart(IEnumerable<CodeInstruction> instructions, ILGenerator il)
@@ -120,6 +131,7 @@ namespace Klyte.TransportLinesManager.UI
             m_obj.m_nameField = __instance.Find<UITextField>("LineName");
             m_obj.m_vehicleType = __instance.Find<UISprite>("VehicleType");
             m_obj.m_vehicleType.size = new Vector2(32, 22);
+            m_obj.m_deleteButton = __instance.Find<UIButton>("DeleteLine");
         }
 
         private static void DestroyNotUsed(PublicTransportWorldInfoPanel __instance)
@@ -179,13 +191,13 @@ namespace Klyte.TransportLinesManager.UI
         protected static void UpdateBindings()
         {
             ushort lineID = GetLineID();
-            if (lineID != 0)
+            if (lineID < TransportManager.MAX_LINE_COUNT)
             {
                 if (m_obj.m_cachedLength != Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_totalLength || m_dirty)
                 {
                     OnSetTarget();
                 }
-                m_obj.m_vehicleType.spriteName = GetVehicleTypeIcon(lineID);
+                m_obj.m_vehicleType.spriteName = GetVehicleTypeIcon();
 
                 foreach (KeyValuePair<string, IUVMPTWIPChild> tab in m_obj.m_childControls)
                 {
@@ -194,6 +206,10 @@ namespace Klyte.TransportLinesManager.UI
                         tab.Value.UpdateBindings();
                     }
                 }
+            }
+            else
+            {
+                throw new Exception("INVALID LINE TO UPDATE: " + lineID);
             }
         }
 
@@ -209,11 +225,25 @@ namespace Klyte.TransportLinesManager.UI
         protected static bool OnSetTarget()
         {
             ushort lineID = GetLineID();
+            if (lineID >= TransportManager.MAX_LINE_COUNT)
+            {
+                throw new Exception($"INVALID LINE SET AS TARGET: {lineID}");
+            }
             if (lineID != 0)
             {
                 m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(lineID);
+                m_obj.m_nameField.Enable();
                 m_obj.m_specificConfig.isVisible = TransportSystemDefinition.From(lineID).HasVehicles();
                 m_obj.m_specificConfig.isChecked = TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID);
+                m_obj.m_cachedLength = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_totalLength;
+                m_obj.m_deleteButton.isVisible = true;
+            }
+            else
+            {
+                m_obj.m_nameField.text = string.Format(Locale.Get("K45_TLM_OUTSIDECONNECTION_LISTNAMETEMPLATE"), GetCurrentTSD().GetTransportName());
+                m_obj.m_nameField.Disable();
+                m_obj.m_specificConfig.isVisible = false;
+                m_obj.m_deleteButton.isVisible = false;
             }
 
             foreach (KeyValuePair<string, IUVMPTWIPChild> tab in m_obj.m_childControls)
@@ -229,15 +259,21 @@ namespace Klyte.TransportLinesManager.UI
                     tab.Value.Hide();
                 }
             }
-
-            m_obj.m_cachedLength = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_totalLength;
-            if (!m_dirty)
-            {
-                ReflectionUtils.RunPrivateMethod<object>(m_obj.origInstance, "UpdateBindings");
-            }
-
             m_dirty = false;
             m_dirtySource = null;
+
+            if (m_obj.m_lineConfigTabs.selectedIndex == -1 || !(m_obj.m_lineConfigTabs.tabPages.components[m_obj.m_lineConfigTabs.selectedIndex].GetComponent<IUVMPTWIPChild>()?.MayBeVisible() ?? false))
+            {
+                for (int i = 0; i < m_obj.m_lineConfigTabs.tabCount; i++)
+                {
+                    if (m_obj.m_lineConfigTabs.tabPages.components[i].GetComponent<IUVMPTWIPChild>()?.MayBeVisible() ?? false)
+                    {
+                        m_obj.m_lineConfigTabs.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
             return false;
         }
 
@@ -266,20 +302,20 @@ namespace Klyte.TransportLinesManager.UI
 
         private static void OnLineNameChanged(ushort id)
         {
-            if (id == GetLineID())
+            var lineId = GetLineID();
+            if (lineId > 0 && id == lineId)
             {
                 m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(id);
             }
         }
-
-
-
-        private static void OnRename(UIComponent comp, string text) => m_obj.origInstance.StartCoroutine(TLMController.Instance.RenameCoroutine(GetLineID(), text));
-
-
-
-
-
+        private static void OnRename(UIComponent comp, string text)
+        {
+            var lineId = GetLineID();
+            if (lineId > 0)
+            {
+                m_obj.origInstance.StartCoroutine(TLMController.Instance.RenameCoroutine(lineId, text));
+            }
+        }
 
         internal static UVMPublicTransportWorldInfoPanelObject.LineType GetLineType(ushort lineID)
         {
@@ -312,6 +348,10 @@ namespace Klyte.TransportLinesManager.UI
 
         internal static ushort GetLineID()
         {
+            if (m_obj.CurrentInstanceID.Type == INSTANCE_TYPE_TSD)
+            {
+                return 0;
+            }
             if (m_obj.CurrentInstanceID.Type == InstanceType.TransportLine)
             {
                 return m_obj.CurrentInstanceID.TransportLine;
@@ -324,13 +364,15 @@ namespace Klyte.TransportLinesManager.UI
                     return Singleton<VehicleManager>.instance.m_vehicles.m_buffer[firstVehicle].m_transportLine;
                 }
             }
-            return 0;
+
+            return 0xFFFF;
         }
+
+        internal static TransportSystemDefinition GetCurrentTSD() => GetLineID() > 0 ? TransportSystemDefinition.From(GetLineID()) : TransportSystemDefinition.FromIndex(m_obj.CurrentInstanceID.Index);
 
         internal static void ForceReload() => OnSetTarget();
 
-        public static string GetVehicleTypeIcon(ushort lineId) => TransportSystemDefinition.From(lineId).GetTransportTypeIcon();
-
+        public static string GetVehicleTypeIcon() => GetCurrentTSD()?.GetTransportTypeIcon();
 
 
         internal static UVMPublicTransportWorldInfoPanelObject m_obj;
@@ -348,24 +390,15 @@ namespace Klyte.TransportLinesManager.UI
             internal PublicTransportWorldInfoPanel origInstance = null;
 
             private Func<PublicTransportWorldInfoPanel, InstanceID> m_getterInstanceId = ReflectionUtils.GetGetFieldDelegate<PublicTransportWorldInfoPanel, InstanceID>("m_InstanceID", typeof(PublicTransportWorldInfoPanel));
-            internal InstanceID CurrentInstanceID
-            {
-                get
-                {
-                    if (origInstance == null)
-                    {
-                        return default;
-                    }
-
-                    return m_getterInstanceId(origInstance);
-                }
-            }
+            internal InstanceID CurrentInstanceID => origInstance is null ? (default) : m_getterInstanceId(origInstance);
 
             internal UITextField m_nameField;
 
             internal UISprite m_vehicleType;
 
             internal UICheckBox m_specificConfig;
+
+            internal UIButton m_deleteButton;
 
             internal float m_cachedLength;
 

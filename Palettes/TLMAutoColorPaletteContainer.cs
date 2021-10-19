@@ -1,3 +1,4 @@
+using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Utils;
@@ -264,7 +265,7 @@ namespace Klyte.TransportLinesManager
 
         public static void Save(string palette)
         {
-            if (m_palettes.ContainsKey(palette))
+            if (!palette.IsNullOrWhiteSpace() && m_palettes.ContainsKey(palette))
             {
                 m_palettes[palette].Save();
             }
@@ -288,7 +289,7 @@ namespace Klyte.TransportLinesManager
         {
             foreach (var paletteName in paletteOrderSearch)
             {
-                if (m_palettes.ContainsKey(paletteName))
+                if (!paletteName.IsNullOrWhiteSpace() && m_palettes.ContainsKey(paletteName))
                 {
                     TLMAutoColorPalette palette = m_palettes[paletteName];
                     if (!randomOnPaletteOverflow || number <= palette.Colors.Count)
@@ -302,7 +303,7 @@ namespace Klyte.TransportLinesManager
 
         public static List<Color32> GetColors(string paletteName)
         {
-            if (m_palettes.ContainsKey(paletteName))
+            if (!paletteName.IsNullOrWhiteSpace() && m_palettes.ContainsKey(paletteName))
             {
                 TLMAutoColorPalette palette = m_palettes[paletteName];
                 return palette.Colors;
@@ -312,7 +313,7 @@ namespace Klyte.TransportLinesManager
 
         public static TLMAutoColorPalette GetPalette(string paletteName)
         {
-            if (m_palettes.ContainsKey(paletteName))
+            if (!paletteName.IsNullOrWhiteSpace() && m_palettes.ContainsKey(paletteName))
             {
                 TLMAutoColorPalette palette = m_palettes[paletteName];
                 return palette;
@@ -322,7 +323,7 @@ namespace Klyte.TransportLinesManager
 
         public static void AddPalette(string paletteName)
         {
-            if (!m_palettes.ContainsKey(paletteName))
+            if (!paletteName.IsNullOrWhiteSpace() && !m_palettes.ContainsKey(paletteName))
             {
                 m_palettes[paletteName] = new TLMAutoColorPalette(paletteName, new List<Color32> { Color.white });
             }

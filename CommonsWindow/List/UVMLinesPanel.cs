@@ -14,12 +14,18 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.CommonsWindow
 {
 
-    internal abstract class UVMLinesPanel : UICustomControl
+    internal class UVMLinesPanel : UICustomControl
     {
         public UIPanel MainContainer { get; private set; }
 
-        internal abstract TransportSystemDefinition TSD { get; }
-
+        internal TransportSystemDefinition TSD
+        {
+            get => m_tsd; set
+            {
+                m_tsd = value;
+                m_isUpdated = false;
+            }
+        }
         private UICheckBox m_visibilityToggle;
         private LineSortCriterion m_lastSortCriterionLines;
         private bool m_reverseOrder = false;
@@ -30,7 +36,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         protected UIPanel titleLine;
         protected UITemplateList<UIPanel> lineItems;
         private UIScrollablePanel listPanel;
-        public bool IsUpdated { get; set; }
+        protected UILabel m_countLines;
+        private TransportSystemDefinition m_tsd = TransportSystemDefinition.BUS;
+
+
+        private bool m_isUpdated;
 
         #region Awake
         protected void Awake()
@@ -41,12 +51,16 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             CreateTitleRow(out titleLine, MainContainer);
 
 
-            KlyteMonoUtils.CreateScrollPanel(MainContainer, out listPanel, out UIScrollbar scrollbar, MainContainer.width - 30, MainContainer.height - 50, new Vector3(5, 40));
+            KlyteMonoUtils.CreateScrollPanel(MainContainer, out listPanel, out UIScrollbar scrollbar, MainContainer.width - 30, MainContainer.height - 70, new Vector3(5, 40));
             listPanel.autoLayout = true;
             listPanel.autoLayoutDirection = LayoutDirection.Vertical;
             listPanel.eventVisibilityChanged += OnToggleVisible;
             UVMLineListItem.EnsureTemplate();
             lineItems = new UITemplateList<UIPanel>(listPanel, UVMLineListItem.LINE_LIST_ITEM_TEMPLATE);
+
+            m_countLines = UIHelperExtension.AddLabel(MainContainer, "LineCounter", MainContainer.width, out UIPanel counterContainer);
+            m_countLines.padding.left = 5;
+            counterContainer.relativePosition = new Vector3(0, MainContainer.height - 20);
         }
 
         private void OnToggleVisible(UIComponent component, bool value)
@@ -65,13 +79,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 return;
             }
-            if (m_lastLineCount != TransportManager.instance.m_lineCount)
+            if (!m_isUpdated || m_lastLineCount != TransportManager.instance.m_lineCount)
             {
-                RefreshLines();
                 m_lastLineCount = Singleton<TransportManager>.instance.m_lineCount;
-            }
-            if (!IsUpdated)
-            {
                 RefreshLines();
             }
         }
@@ -254,7 +264,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                                                                         var comp = item.GetComponent<UVMLineListItem>();
                                                                         comp.ChangeLineVisibility(value);
                                                                     }
-                                                                    IsUpdated = false;
+                                                                    m_isUpdated = false;
                                                                 });
         #endregion
 
@@ -265,6 +275,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
             List<ushort> lines = TargetTsdLines();
 
+            m_countLines.text = string.Format(Locale.Get("K45_TLM_TOTALIZERTEXT"), lines.Count - lines.Where(x => x == 0).Count(), TransportManager.instance.m_lineCount - 1);
             var newItems = lineItems.SetItemCount(lines.Count);
             if (lines.Count == 0)
             {
@@ -298,12 +309,17 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 newItems[i].GetComponent<UVMLineListItem>().LineID = result[i];
             }
 
-            IsUpdated = true;
+            m_isUpdated = true;
         }
 
         private List<ushort> TargetTsdLines()
         {
             List<ushort> lines = new List<ushort>();
+
+            if (!(TSD.LevelIntercity is null))
+            {
+                lines.Add(0);
+            }
             for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
             {
                 if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created && TSD.IsFromSystem(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID]))
@@ -311,7 +327,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     lines.Add(lineID);
                 }
             }
-
             return lines;
         }
 
@@ -376,20 +391,5 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         #endregion
 
     }
-
-    internal sealed class UVMLinesPanelNorBus : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.BUS; }
-    internal sealed class UVMLinesPanelNorTrm : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TRAM; }
-    internal sealed class UVMLinesPanelNorMnr : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.MONORAIL; }
-    internal sealed class UVMLinesPanelNorMet : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.METRO; }
-    internal sealed class UVMLinesPanelNorTrn : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TRAIN; }
-    internal sealed class UVMLinesPanelNorFer : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.FERRY; }
-    internal sealed class UVMLinesPanelNorBlp : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.EVAC_BUS; }
-    internal sealed class UVMLinesPanelNorShp : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.BLIMP; }
-    internal sealed class UVMLinesPanelNorPln : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.SHIP; }
-    internal sealed class UVMLinesPanelEvcBus : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.PLANE; }
-    internal sealed class UVMLinesPanelTouBus : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TOUR_BUS; }
-    internal sealed class UVMLinesPanelTouPed : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TOUR_PED; }
-    internal sealed class UVMLinesPanelNorTrl : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TROLLEY; }
-    internal sealed class UVMLinesPanelNorHel : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.HELICOPTER; }
 
 }

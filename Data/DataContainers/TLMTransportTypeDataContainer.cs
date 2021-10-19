@@ -2,6 +2,7 @@
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace Klyte.TransportLinesManager.Extensions
@@ -31,7 +32,8 @@ namespace Klyte.TransportLinesManager.Extensions
 
         public void RefreshCapacities()
         {
-            foreach(var tsdItem in m_cachedList)
+            var items = m_cachedList.ToList();
+            foreach (var tsdItem in items)
             {
                 tsdItem.Value.InitCapacitiesInAssets();
             }
@@ -45,7 +47,7 @@ namespace Klyte.TransportLinesManager.Extensions
                 if (legacyData != null)
                 {
                     LogUtils.DoWarnLog($"Loaded transport type extension from legacy: {entry.Key} to {entry.Value}");
-                    m_cachedList[entry.Value.Id ?? 0] = legacyData;
+                    m_cachedList[entry.Value.Id] = legacyData;
                 }
             }
         }

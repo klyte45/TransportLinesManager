@@ -358,7 +358,7 @@ namespace Klyte.TransportLinesManager.UI
 
         public void Hide() => m_bg.isVisible = false;
         public void OnGotFocus() { }
-        public bool MayBeVisible() => true;
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID() is ushort lineId && lineId > 0;
 
         #region Number & Prefix edit
 

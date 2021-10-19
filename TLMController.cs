@@ -77,7 +77,7 @@ namespace Klyte.TransportLinesManager
 
         public bool CanSwitchView => false;
 
-        private static readonly SavedBool m_showLinearMapWhileCreatingLine = new SavedBool("K45_TLM_showLinearMapWhileCreatingLine", Settings.gameSettingsFile, true);            
+        private static readonly SavedBool m_showLinearMapWhileCreatingLine = new SavedBool("K45_TLM_showLinearMapWhileCreatingLine", Settings.gameSettingsFile, true);
 
         internal TLMLineCreationToolbox LineCreationToolbox => PublicTransportInfoViewPanelOverrides.Toolbox;
 
@@ -156,7 +156,7 @@ namespace Klyte.TransportLinesManager
             {
                 AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineName(id, newName));
                 yield return task.WaitTaskCompleted(this);
-                if (UVMPublicTransportWorldInfoPanel.GetLineID() == id)
+                if (id > 0 && UVMPublicTransportWorldInfoPanel.GetLineID() == id)
                 {
                     UVMPublicTransportWorldInfoPanel.m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(id);
                 }

@@ -36,7 +36,7 @@ namespace Klyte.TransportLinesManager.UI
         private UIButton m_eraseButton;
 
 
-        private TransportSystemDefinition TransportSystem => TransportSystemDefinition.From(GetLineID());
+        private TransportSystemDefinition TransportSystem => UVMPublicTransportWorldInfoPanel.GetCurrentTSD();
         internal static ushort GetLineID() => UVMPublicTransportWorldInfoPanel.GetLineID();
 
         private void CreateWindow()
@@ -50,9 +50,9 @@ namespace Klyte.TransportLinesManager.UI
             m_nameFilter.relativePosition = new Vector3(5, 50);
             m_nameFilter.height = 23;
             m_nameFilter.width = MainPanel.width - 10f;
-            m_nameFilter.eventKeyUp += (x, y) => UpdateAssetList(TLMLineUtils.GetEffectiveExtensionForLine(GetLineID()));
-            m_nameFilter.eventTextSubmitted += (x, y) => UpdateAssetList(TLMLineUtils.GetEffectiveExtensionForLine(GetLineID()));
-            m_nameFilter.eventTextCancelled += (x, y) => UpdateAssetList(TLMLineUtils.GetEffectiveExtensionForLine(GetLineID()));
+            m_nameFilter.eventKeyUp += (x, y) => UpdateAssetList(TLMLineUtils.GetEffectiveExtensionForLine(GetLineID(), TransportSystem));
+            m_nameFilter.eventTextSubmitted += (x, y) => UpdateAssetList(TLMLineUtils.GetEffectiveExtensionForLine(GetLineID(), TransportSystem));
+            m_nameFilter.eventTextCancelled += (x, y) => UpdateAssetList(TLMLineUtils.GetEffectiveExtensionForLine(GetLineID(), TransportSystem));
             m_nameFilter.horizontalAlignment = UIHorizontalAlignment.Left;
             m_nameFilter.padding = new RectOffset(2, 2, 4, 2);
 
@@ -98,7 +98,7 @@ namespace Klyte.TransportLinesManager.UI
         private void ActionCopy()
         {
             var lineId = GetLineID();
-            IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID());
+            IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID(), TransportSystem);
             var dataClipboard = XmlUtils.DefaultXmlSerialize(config.GetAssetListForLine(lineId).ToList());
             m_clipboard[TransportSystem] = dataClipboard;
             m_pasteButton.isVisible = true;
@@ -111,14 +111,14 @@ namespace Klyte.TransportLinesManager.UI
                 return;
             }
             var lineId = GetLineID();
-            IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID());
+            IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID(), TransportSystem);
             config.SetAssetListForLine(lineId, XmlUtils.DefaultXmlDeserialize<List<string>>(m_clipboard[TransportSystem]));
             UpdateAssetList(config);
         }
         private void ActionDelete()
         {
             var lineId = GetLineID();
-            IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID());
+            IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID(), TransportSystem);
             config.SetAssetListForLine(lineId, new List<string>());
             UpdateAssetList(config);
         }
@@ -188,12 +188,15 @@ namespace Klyte.TransportLinesManager.UI
                 return;
             }
             LogUtils.DoLog("tsd = {0}", tsd);
-            IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID());
+            IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(GetLineID(), TransportSystem);
 
             UpdateAssetList(config);
 
-
-            if (config is TLMTransportLineConfiguration)
+            if (GetLineID() == 0)
+            {
+                m_title.text = Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE_OUTSIDECONNECTION");
+            }
+            else if (config is TLMTransportLineConfiguration)
             {
                 m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE"), TLMLineUtils.GetLineStringId(GetLineID()));
             }
@@ -206,21 +209,22 @@ namespace Klyte.TransportLinesManager.UI
 
         private void UpdateAssetList(IBasicExtension config)
         {
+            var lineId = GetLineID();
             m_lastInfo = default;
             m_pasteButton.isVisible = m_clipboard.ContainsKey(TransportSystem);
-            var targetAssets = TransportSystem.GetTransportExtension().GetAllBasicAssetsForLine(0).Where(x => x.Value.Contains(m_nameFilter.text)).ToList();
-            UIPanel[] depotChecks = m_checkboxTemplateList.SetItemCount(targetAssets.Count);
-            List<string> allowedAssets = config.GetAssetListForLine(GetLineID());
+            var targetAssets = TransportSystem.GetTransportExtension().GetAllBasicAssetsForLine(lineId).Where(x => x.Value.Contains(m_nameFilter.text)).ToList();
+            UIPanel[] assetsCheck = m_checkboxTemplateList.SetItemCount(targetAssets.Count);
+            List<string> allowedAssets = config.GetAssetListForLine(lineId);
 
             if (TransportLinesManagerMod.DebugMode)
             {
                 LogUtils.DoLog($"selectedAssets Size = {allowedAssets?.Count} ({ string.Join(",", allowedAssets?.ToArray() ?? new string[0])}) {config?.GetType()}");
             }
 
-            for (int i = 0; i < depotChecks.Length; i++)
+            for (int i = 0; i < assetsCheck.Length; i++)
             {
                 string assetName = targetAssets[i].Key;
-                var controller = depotChecks[i].GetComponent<TLMAssetItemLine>();
+                var controller = assetsCheck[i].GetComponent<TLMAssetItemLine>();
                 controller.SetAsset(assetName, allowedAssets.Contains(assetName));
                 controller.OnMouseEnter = () =>
                 {
@@ -274,7 +278,7 @@ namespace Klyte.TransportLinesManager.UI
         public void OnGotFocus()
         { }
 
-        public bool MayBeVisible() => TransportSystem.HasVehicles();
+        public bool MayBeVisible() => TransportSystem?.HasVehicles() ?? false;
 
         public void Hide() => MainPanel.isVisible = false;
     }

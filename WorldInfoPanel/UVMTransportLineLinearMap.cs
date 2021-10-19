@@ -20,13 +20,57 @@ namespace Klyte.TransportLinesManager.UI
     public class UVMTransportLineLinearMap : UICustomControl, IUVMPTWIPChild
     {
         private UIScrollablePanel m_bg;
-
+        private UIScrollbar m_bgScrollbar;
+        private UICheckBox m_unscaledCheck;
         private MapMode m_currentMode = MapMode.NONE;
         private bool m_unscaledMode = true;
         private bool m_cachedUnscaledMode = true;
         private static bool m_dirty;
         private static bool m_dirtyNames;
         private static bool m_dirtyTerminal;
+
+        private UILabel m_labelLineIncomplete;
+        internal UISprite m_stopsLineSprite;
+
+        internal UISprite m_lineEnd;
+
+
+        internal float m_uILineLength;
+
+        internal float m_uILineOffset;
+
+        internal bool m_vehicleCountMismatch;
+        private UIPanel m_stopsContainer;
+        internal UITemplateList<UIPanel> m_stopButtons;
+
+        internal UITemplateList<UIButton> m_vehicleButtons;
+
+        internal float m_kstopsX = 170;
+        internal float m_kstopsXForWalkingTours = 170;
+        internal float m_kvehiclesX = 130;
+        internal float m_kminStopDistance = 50f;
+        internal float m_kvehicleButtonHeight = 36f;
+        internal float m_kminUILineLength = 370f;
+        internal float m_kmaxUILineLength = 10000f;
+
+        internal float m_actualStopsX;
+        internal Vector2 m_kLineSSpritePosition = new Vector2(175f, 20f);
+        internal Vector2 m_kLineSSpritePositionForWalkingTours = new Vector2(175f, 20f);
+        internal int m_kMaxConnectionsLine = 4;
+
+        internal UILabel m_stopsLabel;
+
+        internal UILabel m_vehiclesLabel;
+
+        internal UILabel m_connectionLabel;
+        internal TLMLineItemButtonControl m_lineTitleBtnCtrl;
+
+        public static UIScrollablePanel m_scrollPanel;
+
+        internal static Vector2 m_cachedScrollPosition;
+        private UIDropDown m_mapModeDropDown;
+        private UIPanel m_panelModeSelector;
+        private ushort[] m_cachedStopOrder;
 
         #region Overridable
 
@@ -60,12 +104,12 @@ namespace Klyte.TransportLinesManager.UI
             m_mapModeDropDown.size = new Vector2(200, 25);
             m_mapModeDropDown.itemHeight = 16;
 
-            UICheckBox unscaledCheck = UIHelperExtension.AddCheckboxLocale(m_panelModeSelector, "K45_TLM_LINEAR_MAP_SHOW_UNSCALED", m_unscaledMode, (val) =>
+            m_unscaledCheck = UIHelperExtension.AddCheckboxLocale(m_panelModeSelector, "K45_TLM_LINEAR_MAP_SHOW_UNSCALED", m_unscaledMode, (val) =>
             {
                 m_unscaledMode = val;
                 MarkDirty();
             });
-            KlyteMonoUtils.LimitWidthAndBox(unscaledCheck.label, 165);
+            KlyteMonoUtils.LimitWidthAndBox(m_unscaledCheck.label, 165);
 
             InstanceManagerOverrides.EventOnBuildingRenamed += (x) => m_dirtyNames = true;
         }
@@ -147,6 +191,7 @@ namespace Klyte.TransportLinesManager.UI
             m_stopsLabel = __instance.Find<UILabel>("StopsLabel");
             m_vehiclesLabel = __instance.Find<UILabel>("VehiclesLabel");
             m_labelLineIncomplete = __instance.Find<UILabel>("LabelLineIncomplete");
+            m_bgScrollbar = __instance.Find<UIScrollbar>("Scrollbar");
 
 
             UISprite lineStart = __instance.Find<UISprite>("LineStart");
@@ -186,7 +231,7 @@ namespace Klyte.TransportLinesManager.UI
         private uint m_lastDrawTick;
         public void UpdateBindings()
         {
-            if(component.isVisible && (m_lastDrawTick + 23 < SimulationManager.instance.m_referenceFrameIndex || m_dirty))
+            if (component.isVisible && (m_lastDrawTick + 23 < SimulationManager.instance.m_referenceFrameIndex || m_dirty))
             {
                 ushort lineID = GetLineID();
                 if (lineID != 0)
@@ -231,6 +276,10 @@ namespace Klyte.TransportLinesManager.UI
             ushort lineID = GetLineID();
             if (lineID != 0)
             {
+                m_bg.isVisible = true;
+                m_bgScrollbar.isVisible = true;            
+                m_unscaledCheck.isVisible = true;
+                m_mapModeDropDown.isVisible = true;
                 LineType lineType = GetLineType(lineID);
                 bool isTour = (lineType == LineType.WalkingTour);
                 m_mapModeDropDown.isVisible = !isTour;
@@ -413,14 +462,14 @@ namespace Klyte.TransportLinesManager.UI
                     m_stopsContainer.isVisible = false;
                 }
 
-
+                MarkDirty();
             }
         }
 
         private void UpdateTerminalStatus(ushort lineID, ushort currentStop, UIButton button) => button.normalBgSprite =
                                 TransportSystemDefinition.From(lineID).CanHaveTerminals() && (currentStop == Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_stops || TLMStopDataContainer.Instance.SafeGet(currentStop).IsTerminal)
                                 ? KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_S05StarIcon, true)
-                                : "";// KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_CircleIcon, true);
+                                : "";
         private void CreateConnectionPanel(NetManager instance, UIPanel basePanel, ushort currentStop)
         {
             ushort lineID = GetLineID();
@@ -429,12 +478,12 @@ namespace Klyte.TransportLinesManager.UI
             TLMLineUtils.GetNearLines(targetPos, 150f, ref linesFound);
             linesFound.Remove(lineID);
             UIPanel connectionPanel = basePanel.Find<UIPanel>("ConnectionPanel");
-            if(connectionPanel.objectUserData is null)
+            if (connectionPanel.objectUserData is null)
             {
                 connectionPanel.objectUserData = new UITemplateList<UIButton>(connectionPanel, TLMLineItemButtonControl.LINE_ITEM_TEMPLATE);
             }
             var templateList = connectionPanel.objectUserData as UITemplateList<UIButton>;
-            
+
             int newSize = linesFound.Count > m_kMaxConnectionsLine ? 18 : 36;
 
             var itemsEntries = templateList.SetItemCount(linesFound.Count);
@@ -447,19 +496,6 @@ namespace Klyte.TransportLinesManager.UI
             }
             connectionPanel.isVisible = m_currentMode == MapMode.CONNECTIONS;
         }
-
-        private void OpenLineLabel(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            if (ushort.TryParse(component.stringUserData, out ushort lineId) && lineId != 0)
-            {
-                Vector3 position = Singleton<NetManager>.instance.m_nodes.m_buffer[Singleton<TransportManager>.instance.m_lines.m_buffer[lineId].m_stops].m_position;
-                InstanceID iid = InstanceID.Empty;
-                iid.TransportLine = lineId;
-                WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(position, iid);
-                eventParam.Use();
-            }
-        }
-
         #endregion
 
         private void UpdateVehicleButtons(ushort lineID)
@@ -613,7 +649,15 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        public void Hide() { }
+        public void Hide()
+        {
+            m_bg.isVisible = false;
+            m_bgScrollbar.isVisible = false;
+            m_unscaledCheck.isVisible = false;
+            m_mapModeDropDown.isVisible = false;
+            m_labelLineIncomplete.isVisible = false;
+        }
+
         internal ushort GetLineID() => UVMPublicTransportWorldInfoPanel.GetLineID();
 
         private void UpdateStopButtons(ushort lineID)
@@ -694,50 +738,7 @@ namespace Klyte.TransportLinesManager.UI
             uilabel.suffix = "";
         }
 
-        public bool MayBeVisible() => true;
-
-        private UILabel m_labelLineIncomplete;
-        internal UISprite m_stopsLineSprite;
-
-        internal UISprite m_lineEnd;
-
-
-        internal float m_uILineLength;
-
-        internal float m_uILineOffset;
-
-        internal bool m_vehicleCountMismatch;
-        private UIPanel m_stopsContainer;
-        internal UITemplateList<UIPanel> m_stopButtons;
-
-        internal UITemplateList<UIButton> m_vehicleButtons;
-
-        internal float m_kstopsX = 170;
-        internal float m_kstopsXForWalkingTours = 170;
-        internal float m_kvehiclesX = 130;
-        internal float m_kminStopDistance = 50f;
-        internal float m_kvehicleButtonHeight = 36f;
-        internal float m_kminUILineLength = 370f;
-        internal float m_kmaxUILineLength = 10000f;
-
-        internal float m_actualStopsX;
-        internal Vector2 m_kLineSSpritePosition = new Vector2(175f, 20f);
-        internal Vector2 m_kLineSSpritePositionForWalkingTours = new Vector2(175f, 20f);
-        internal int m_kMaxConnectionsLine = 4;
-
-        internal UILabel m_stopsLabel;
-
-        internal UILabel m_vehiclesLabel;
-
-        internal UILabel m_connectionLabel;
-        internal TLMLineItemButtonControl m_lineTitleBtnCtrl;
-
-        public static UIScrollablePanel m_scrollPanel;
-
-        internal static Vector2 m_cachedScrollPosition;
-        private UIDropDown m_mapModeDropDown;
-        private UIPanel m_panelModeSelector;
-        private ushort[] m_cachedStopOrder;
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID() > 0;
 
         private enum MapMode
         {

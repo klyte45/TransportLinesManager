@@ -14,7 +14,8 @@ namespace Klyte.TransportLinesManager.Extensions
             new TransferManager.TransferReason[] { TransferManager.TransferReason.TouristBus },
             new Color32(110, 152, 251, 255),
             30,
-            LineIconSpriteNames.K45_CameraIcon);
+            LineIconSpriteNames.K45_CameraIcon,
+            true);
     }
 
 }

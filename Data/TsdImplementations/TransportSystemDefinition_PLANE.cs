@@ -14,7 +14,9 @@ namespace Klyte.TransportLinesManager.Extensions
             new TransferManager.TransferReason[] { TransferManager.TransferReason.PassengerPlane },
             new Color32(0xa8, 0x01, 0x7a, 255),
             200,
-            LineIconSpriteNames.K45_PentagonIcon);
+            LineIconSpriteNames.K45_PentagonIcon,
+            true,
+            ItemClass.Level.Level1);
     }
 
 }

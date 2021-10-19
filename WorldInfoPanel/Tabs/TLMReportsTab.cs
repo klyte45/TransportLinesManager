@@ -56,7 +56,7 @@ namespace Klyte.TransportLinesManager.UI
         public void OnEnable() { }
         public void OnDisable() { }
         public void OnGotFocus() { }
-        public bool MayBeVisible() => true;
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID() > 0;
         public void Hide() => m_bg.isVisible = false;
         public void OnSetTarget(Type source)
         {

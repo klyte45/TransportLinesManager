@@ -182,7 +182,15 @@ namespace Klyte.TransportLinesManager.UI
             ReorderLines();
         }
 
-        private void SetValue(V idx, float val) => idx.Value = (uint)val;
+        private void SetValue(V idx, float val)
+        {
+            if (idx.Value != (uint)val)
+            {
+                idx.Value = (uint)val;
+                ReorderLines();
+            }
+        }
+
         private void AddEntry()
         {
             Config.Add(DefaultEntry());
@@ -230,7 +238,7 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
         public void OnGotFocus() { }
-        public bool MayBeVisible() => TransportSystemDefinition.From(UVMPublicTransportWorldInfoPanel.GetLineID()).HasVehicles();
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID() is ushort lineId && lineId > 0 && TransportSystemDefinition.From(lineId).HasVehicles();
         public void Hide() => MainContainer.isVisible = false;
     }
 
