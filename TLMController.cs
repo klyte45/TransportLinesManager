@@ -100,7 +100,7 @@ namespace Klyte.TransportLinesManager
 
         public static Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
-            TransportLine t = TransportManager.instance.m_lines.m_buffer[i];
+            ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[i];
             try
             {
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(i);
