@@ -11,14 +11,11 @@ namespace Klyte.TransportLinesManager.Utils
         {
 
             BuildingManager bm = Singleton<BuildingManager>.instance;
-
-            Building b = bm.m_buildings.m_buffer[buildingId];
-            while (b.m_parentBuilding > 0)
+            if (bm.m_buildings.m_buffer[buildingId].m_parentBuilding > 0)
             {
-                LogUtils.DoLog("getBuildingName(): building id {0} - parent = {1}", buildingId, b.m_parentBuilding);
-                buildingId = b.m_parentBuilding;
-                b = bm.m_buildings.m_buffer[buildingId];
+                buildingId = Building.FindParentBuilding(buildingId);
             }
+            ref Building b = ref bm.m_buildings.m_buffer[buildingId];
             InstanceID iid = default;
             iid.Building = buildingId;
             serviceFound = b.Info?.GetService() ?? default;
@@ -37,7 +34,13 @@ namespace Klyte.TransportLinesManager.Utils
                 LogUtils.DoLog($"getBuildingName(): serviceFound {serviceFound} - subserviceFound = {subserviceFound} - tsd = {tsd} - prefix = {prefix}");
                 namingType = NamingTypeExtensions.From(tsd);
             }
-            return bm.GetBuildingName(buildingId, iid);
+            var targetName = bm.GetBuildingName(buildingId, iid);
+            if (targetName.StartsWith("BUILDING_TITLE"))
+            {
+                targetName = b.Info.GetUncheckedLocalizedTitle();
+            }
+            return targetName;
+
         }
     }
 

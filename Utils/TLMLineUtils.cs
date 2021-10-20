@@ -402,7 +402,7 @@ namespace Klyte.TransportLinesManager.Utils
             var otherLinesIntersections = new Dictionary<string, ushort>();
             foreach (ushort s in intersections)
             {
-                TransportLine tl = tm.m_lines.m_buffer[s];
+                ref TransportLine tl = ref tm.m_lines.m_buffer[s];
                 if (t.Equals(default(TransportLine)) || tl.Info.GetSubService() != t.Info.GetSubService() || tl.m_lineNumber != t.m_lineNumber)
                 {
                     var sortString = GetLineSortString(s, ref tl);
@@ -511,7 +511,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static string[] GetAllStopsFromLine(ushort lineID)
         {
-            TransportLine t = TransportManager.instance.m_lines.m_buffer[lineID];
+            ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineID];
             int stopsCount = t.CountStops(lineID);
             string[] result = new string[stopsCount];
             ItemClass.SubService ss = TransportSystemDefinition.GetDefinitionForLine(lineID).SubService;
@@ -583,7 +583,7 @@ namespace Klyte.TransportLinesManager.Utils
             var allowTerminals = TransportSystemDefinition.From(lineIdx).CanHaveTerminals();
             do
             {
-                NetNode stopNode = NetManager.instance.m_nodes.m_buffer[nextStop];
+                ref NetNode stopNode = ref NetManager.instance.m_nodes.m_buffer[nextStop];
                 string stationName = TLMStationUtils.GetStationName(nextStop, lineIdx, t.Info.m_class.m_subService, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, true, true, true);
                 var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName.Trim(), nextStop, allowTerminals && (TLMStopDataContainer.Instance.SafeGet(nextStop).IsTerminal || nextStop == t.m_stops));
                 stations.Add(tuple);

@@ -87,7 +87,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
 
             NetManager nm = Singleton<NetManager>.instance;
-            NetNode nn = nm.m_nodes.m_buffer[stopId];
+            ref NetNode nn = ref nm.m_nodes.m_buffer[stopId];
             Vector3 location = nn.m_position;
             if (tsd.VehicleType == VehicleInfo.VehicleType.Car || tsd.VehicleType == VehicleInfo.VehicleType.Tram || tsd.VehicleType == VehicleInfo.VehicleType.Trolleybus)
             {
@@ -223,21 +223,19 @@ namespace Klyte.TransportLinesManager.Utils
         };
 
 
-        public static string GetStationName(ushort stopId, ushort lineId, ItemClass.SubService ss) => GetStationName(stopId, lineId, ss, out ItemClass.Service serv, out ItemClass.SubService subServ, out string prefix, out ushort buildingId, out NamingType namingType, true);
+        public static string GetStationName(ushort stopId, ushort lineId, ItemClass.SubService ss) => GetStationName(stopId, lineId, ss, out _, out _, out _, out _, out _, true);
         public static string GetFullStationName(ushort stopId, ushort lineId, ItemClass.SubService ss)
         {
-            string result = GetStationName(stopId, lineId, ss, out ItemClass.Service serv, out ItemClass.SubService subServ, out string prefix, out ushort buildingId, out NamingType namingType, true);
+            string result = GetStationName(stopId, lineId, ss, out _, out _, out string prefix, out _, out _, true);
             return string.IsNullOrEmpty(prefix) ? result : prefix + " " + result;
         }
         public static Vector3 GetStationBuildingPosition(uint stopId, ItemClass.SubService ss)
         {
             ushort buildingId = GetStationBuilding(stopId, ss);
-
-
             if (buildingId > 0)
             {
                 BuildingManager bm = Singleton<BuildingManager>.instance;
-                Building b = bm.m_buildings.m_buffer[buildingId];
+                ref Building b = ref bm.m_buildings.m_buffer[buildingId];
                 InstanceID iid = default;
                 iid.Building = buildingId;
                 return b.m_position;
@@ -245,7 +243,7 @@ namespace Klyte.TransportLinesManager.Utils
             else
             {
                 NetManager nm = Singleton<NetManager>.instance;
-                NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+                ref NetNode nn = ref nm.m_nodes.m_buffer[(int)stopId];
                 return nn.m_position;
             }
         }
@@ -268,9 +266,9 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 tempBuildingId = BuildingUtils.FindBuilding(position, 100f, ItemClass.Service.PublicTransport, ss, m_defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.None);
 
-                while (BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding != 0)
+                if (BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding != 0)
                 {
-                    tempBuildingId = BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding;
+                    tempBuildingId = Building.FindParentBuilding(tempBuildingId);
                 }
                 if (BuildingUtils.IsBuildingValidForStation(true, bm, tempBuildingId))
                 {
@@ -279,9 +277,9 @@ namespace Klyte.TransportLinesManager.Utils
             }
 
             tempBuildingId = BuildingUtils.FindBuilding(position, 100f, ItemClass.Service.PublicTransport, ItemClass.SubService.None, m_defaultAllowedVehicleTypes, Building.Flags.None, Building.Flags.None);
-            while (BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding != 0)
+            if (BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding != 0)
             {
-                tempBuildingId = BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding;
+                tempBuildingId = Building.FindParentBuilding(tempBuildingId);
             }
             if (BuildingUtils.IsBuildingValidForStation(true, bm, tempBuildingId))
             {
@@ -290,9 +288,9 @@ namespace Klyte.TransportLinesManager.Utils
 
 
             tempBuildingId = BuildingUtils.FindBuilding(position, 100f, ItemClass.Service.Road, ItemClass.SubService.None, null, Building.Flags.None, Building.Flags.None);
-            while (BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding != 0)
+            if (BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding != 0)
             {
-                tempBuildingId = BuildingManager.instance.m_buildings.m_buffer[tempBuildingId].m_parentBuilding;
+                tempBuildingId = Building.FindParentBuilding(tempBuildingId);
             }
             if (BuildingUtils.IsBuildingValidForStation(true, bm, tempBuildingId))
             {
@@ -322,7 +320,7 @@ namespace Klyte.TransportLinesManager.Utils
         {
             NetManager nm = Singleton<NetManager>.instance;
             BuildingManager bm = Singleton<BuildingManager>.instance;
-            NetNode nn = nm.m_nodes.m_buffer[(int)stopId];
+            ref NetNode nn = ref nm.m_nodes.m_buffer[(int)stopId];
             ushort tempBuildingId;
 
             if (ss != ItemClass.SubService.None)
@@ -371,7 +369,7 @@ namespace Klyte.TransportLinesManager.Utils
                     if (conf.UseInAutoName)
                     {
                         tempBuildingId = BuildingUtils.FindBuilding(nn.m_position, 100f, serv, subserv, null, Building.Flags.None, Building.Flags.None);
-                        if (IsBuildingValidForStation(excludeCargo, bm, tempBuildingId))
+                        if (tempBuildingId > 0 && (!(idx is TransportSystemDefinition) || IsBuildingValidForStation(excludeCargo, bm, tempBuildingId)))
                         {
                             var parent = Building.FindParentBuilding(tempBuildingId);
                             return parent == 0 ? tempBuildingId : parent;
