@@ -28,10 +28,10 @@ namespace Klyte.TransportLinesManager.UI
         private UIColorField m_prefixColor;
 
         private bool m_isLoading;
-        private TransportSystemDefinition TransportSystem => TransportSystemDefinition.From(GetLineID());
+        private TransportSystemDefinition TransportSystem => GetLineID(out ushort lineId) ? TransportSystemDefinition.FromLineId(lineId, 0) : null;
         private ITLMTransportTypeExtension Extension => TransportSystem.GetTransportExtension();
-        public uint SelectedPrefix => TLMPrefixesUtils.GetPrefix(GetLineID());
-        internal static ushort GetLineID() => UVMPublicTransportWorldInfoPanel.GetLineID();
+        public uint SelectedPrefix => GetLineID(out ushort lineId) ? TLMPrefixesUtils.GetPrefix(lineId) : ~0u;
+        internal static bool GetLineID(out ushort lineId) => UVMPublicTransportWorldInfoPanel.GetLineID(out lineId, out ushort buildingId) && buildingId == 0;
 
         public void Awake()
         {
@@ -234,7 +234,7 @@ namespace Klyte.TransportLinesManager.UI
         public void OnEnable() { }
         public void OnDisable() { }
         public void OnGotFocus() { }
-        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID() is ushort lineId && lineId > 0 && TLMPrefixesUtils.HasPrefix(lineId) && !TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId);
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && buildingId == 0 && lineId > 0 && TLMPrefixesUtils.HasPrefix(lineId) && !TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId);
         public void Hide() => MainPanel.isVisible = false;
     }
 }

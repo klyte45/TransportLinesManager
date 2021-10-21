@@ -35,7 +35,7 @@ namespace Klyte.TransportLinesManager.Utils
                 namingType = NamingTypeExtensions.From(tsd);
             }
             var targetName = bm.GetBuildingName(buildingId, iid);
-            if (targetName.StartsWith("BUILDING_TITLE"))
+            if (targetName?.StartsWith("BUILDING_TITLE") ?? true)
             {
                 targetName = b.Info.GetUncheckedLocalizedTitle();
             }

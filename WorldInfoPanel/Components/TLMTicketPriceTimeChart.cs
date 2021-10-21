@@ -1,12 +1,9 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
-using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.UI
@@ -17,18 +14,28 @@ namespace Klyte.TransportLinesManager.UI
 
         public override TimeableList<TicketPriceEntryXml> GetCopyTarget()
         {
-            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-            return TLMLineUtils.GetEffectiveExtensionForLine(lineID).GetTicketPricesForLine(lineID);
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
+            if (buildingId == 0)
+            {
+                return TLMLineUtils.GetEffectiveExtensionForLine(lineID).GetTicketPricesForLine(lineID);
+            }
+            return null;
         }
         public override void SetPasteTarget(TimeableList<TicketPriceEntryXml> newVal)
         {
-            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-            TLMLineUtils.GetEffectiveExtensionForLine(lineID).SetTicketPricesForLine(lineID, newVal);
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
+            if (buildingId == 0)
+            {
+                TLMLineUtils.GetEffectiveExtensionForLine(lineID).SetTicketPricesForLine(lineID, newVal);
+            }
         }
         public override void OnDeleteTarget()
         {
-            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-            TLMLineUtils.GetEffectiveExtensionForLine(lineID).ClearTicketPricesOfLine(lineID);
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
+            if (buildingId == 0)
+            {
+                TLMLineUtils.GetEffectiveExtensionForLine(lineID).ClearTicketPricesOfLine(lineID);
+            }
         }
 
         public override void CreateLabels()
@@ -67,11 +74,14 @@ namespace Klyte.TransportLinesManager.UI
 
         public override void OnUpdate()
         {
-            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-            var tsd = TransportSystemDefinition.From(lineID);
-            Tuple<TicketPriceEntryXml, int> value = TLMLineUtils.GetTicketPriceForLine(tsd, lineID);
-            m_effectiveLabel.color = value.Second < 0 ? Color.gray : TLMTicketConfigTab.Instance.ColorOrder[value.Second % TLMTicketConfigTab.Instance.ColorOrder.Count];
-            m_effectiveLabel.text = (value.First.Value / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
+            if (buildingId == 0)
+            {
+                var tsd = TransportSystemDefinition.FromLineId(lineID, 0);
+                Tuple<TicketPriceEntryXml, int> value = TLMLineUtils.GetTicketPriceForLine(tsd, lineID);
+                m_effectiveLabel.color = value.Second < 0 ? Color.gray : TLMTicketConfigTab.Instance.ColorOrder[value.Second % TLMTicketConfigTab.Instance.ColorOrder.Count];
+                m_effectiveLabel.text = (value.First.Value / 100f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
+            }
         }
 
 

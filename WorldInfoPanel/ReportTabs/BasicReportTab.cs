@@ -66,11 +66,11 @@ namespace Klyte.TransportLinesManager.UI
 
         private uint m_lastUpdateFrame;
 
-        public void UpdateBindings(bool showDayTime)
+        public void UpdateBindings(bool showDayTime, bool force)
         {
-            if (m_bg.isVisible && m_lastUpdateFrame + 30 < SimulationManager.instance.m_referenceFrameIndex)
+            if (m_bg.isVisible && (force || m_lastUpdateFrame + 30 < SimulationManager.instance.m_referenceFrameIndex) && UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && buildingId == 0 && lineId > 0)
             {
-                List<D> report = GetReportData(UVMPublicTransportWorldInfoPanel.GetLineID());
+                List<D> report = GetReportData(lineId);
                 var totalizer = new D();
                 for (int i = 0; i < m_reportLines.Length; i++)
                 {

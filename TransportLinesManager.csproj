@@ -29,6 +29,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Compile Include="Cache\**\*.cs" />
     <Compile Include="Data\**\*.cs" />
     <Compile Include="Overrides\**\*.cs" />
     <Compile Include="Palettes\**\*.cs" />

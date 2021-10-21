@@ -1,5 +1,6 @@
 ﻿using ColossalFramework.UI;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using System.Linq;
@@ -65,6 +66,7 @@ namespace Klyte.TransportLinesManager
         private UILabel lineIdentifierLabel;
         private UILabel daytimeIndicatorLabel;
 
+        private ushort buildingId;
         private ushort lineId;
         private Vector3 position;
 
@@ -82,10 +84,19 @@ namespace Klyte.TransportLinesManager
             button.eventClick += (x, y) => currentEvent?.Invoke(x, y);
             currentEvent = (UIComponent x, UIMouseEventParameter y) =>
             {
-                if (lineId > 0)
+                if (buildingId == 0)
+                {
+                    if (lineId > 0)
+                    {
+                        InstanceID iid = InstanceID.Empty;
+                        iid.TransportLine = lineId;
+                        WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(position, iid);
+                    }
+                }
+                else
                 {
                     InstanceID iid = InstanceID.Empty;
-                    iid.TransportLine = lineId;
+                    iid.Set(TLMInstanceType.BuildingLines, (uint)(buildingId << 8) | (lineId & 0xFFu));
                     WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(position, iid);
                 }
             };
@@ -107,8 +118,9 @@ namespace Klyte.TransportLinesManager
             lineIdentifierLabel.transform.localScale = new Vector3(Mathf.Min(1f, newSize / lineIdentifierLabel.width), lineIdentifierLabel.transform.localScale.y, lineIdentifierLabel.transform.localScale.z);
         }
 
-        public void ResetData(ushort lineId, Vector3 position)
+        public void ResetData(ushort buildingId, ushort lineId, Vector3 position)
         {
+            this.buildingId = buildingId;
             this.lineId = lineId;
             this.position = position;
             ReloadData();
@@ -125,48 +137,72 @@ namespace Klyte.TransportLinesManager
 
         private void ReloadData()
         {
-            if (lineId == 0)
+            if (buildingId == 0)
             {
-                button.color = targetColor;
-                button.disabledColor = targetColor;
-                button.focusedColor = targetColor;
-                button.normalBgSprite = targetBg;
-                button.tooltip = "";
-                daytimeIndicatorLabel.isVisible = false;
-
-                GetLineNumberCircleOnRefParams(targetText, false, out Color textColor, out float textScale, out Vector3 relativePosition);
-                lineIdentifierLabel.text = targetText;
-                lineIdentifierLabel.textScale = textScale;
-                lineIdentifierLabel.relativePosition = relativePosition;
-                lineIdentifierLabel.textColor = textColor;
-                lineIdentifierLabel.useOutline = true;
-                lineIdentifierLabel.outlineColor = Color.black;
-                lineIdentifierLabel.transform.localScale = new Vector3(Mathf.Min(1f, button.width / lineIdentifierLabel.width), lineIdentifierLabel.transform.localScale.y, lineIdentifierLabel.transform.localScale.z);
-            }
-            else
-            {
-                var tm = TransportManager.instance;
-                ref TransportLine lineObj = ref tm.m_lines.m_buffer[lineId];
-                lineObj.GetActive(out bool day, out bool night);
-
-                button.color = lineObj.m_color;
-                button.disabledColor = lineObj.m_color;
-                button.focusedColor = lineObj.m_color;
-                button.normalBgSprite = TLMLineUtils.GetIconForLine(lineId);
-                button.tooltip = tm.GetLineName(lineId);
-                bool zeroed = TLMTransportLineExtension.Instance.SafeGet(lineId).IsZeroed;
-                if (!day || !night || zeroed)
+                if (lineId == 0)
                 {
-                    daytimeIndicatorLabel.isVisible = true;
-                    daytimeIndicatorLabel.backgroundSprite = zeroed ? "NoBudgetIcon" : day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
+                    button.color = targetColor;
+                    button.disabledColor = targetColor;
+                    button.focusedColor = targetColor;
+                    button.normalBgSprite = targetBg;
+                    button.tooltip = "";
+                    daytimeIndicatorLabel.isVisible = false;
+
+                    GetLineNumberCircleOnRefParams(targetText, false, out Color textColor, out float textScale, out Vector3 relativePosition);
+                    lineIdentifierLabel.text = targetText;
+                    lineIdentifierLabel.textScale = textScale;
+                    lineIdentifierLabel.relativePosition = relativePosition;
+                    lineIdentifierLabel.textColor = textColor;
+                    lineIdentifierLabel.useOutline = true;
+                    lineIdentifierLabel.outlineColor = Color.black;
+                    lineIdentifierLabel.transform.localScale = new Vector3(Mathf.Min(1f, button.width / lineIdentifierLabel.width), lineIdentifierLabel.transform.localScale.y, lineIdentifierLabel.transform.localScale.z);
                 }
                 else
                 {
-                    daytimeIndicatorLabel.isVisible = false;
-                }
+                    var tm = TransportManager.instance;
+                    ref TransportLine lineObj = ref tm.m_lines.m_buffer[lineId];
+                    lineObj.GetActive(out bool day, out bool night);
 
-                var text = TLMLineUtils.GetLineStringId(lineId).Trim();
-                GetLineNumberCircleOnRefParams(text, TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId), out Color textColor, out float textScale, out Vector3 relativePosition);
+                    button.color = lineObj.m_color;
+                    button.disabledColor = lineObj.m_color;
+                    button.focusedColor = lineObj.m_color;
+                    button.normalBgSprite = TLMLineUtils.GetIconForLine(lineId);
+                    button.tooltip = tm.GetLineName(lineId);
+                    bool zeroed = TLMTransportLineExtension.Instance.SafeGet(lineId).IsZeroed;
+                    if (!day || !night || zeroed)
+                    {
+                        daytimeIndicatorLabel.isVisible = true;
+                        daytimeIndicatorLabel.backgroundSprite = zeroed ? "NoBudgetIcon" : day ? "DayIcon" : night ? "NightIcon" : "DisabledIcon";
+                    }
+                    else
+                    {
+                        daytimeIndicatorLabel.isVisible = false;
+                    }
+
+                    var text = TLMLineUtils.GetLineStringId(lineId).Trim();
+                    GetLineNumberCircleOnRefParams(text, TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId), out Color textColor, out float textScale, out Vector3 relativePosition);
+                    lineIdentifierLabel.text = text;
+                    lineIdentifierLabel.textScale = textScale;
+                    lineIdentifierLabel.relativePosition = relativePosition;
+                    lineIdentifierLabel.textColor = textColor;
+                    lineIdentifierLabel.useOutline = true;
+                    lineIdentifierLabel.outlineColor = Color.black;
+                    lineIdentifierLabel.transform.localScale = new Vector3(Mathf.Min(1f, button.width / lineIdentifierLabel.width), lineIdentifierLabel.transform.localScale.y, lineIdentifierLabel.transform.localScale.z);
+                }
+            }
+            else
+            {
+                daytimeIndicatorLabel.isVisible = false;
+                var lineObj = TransportLinesManagerMod.Controller.BuildingLines.OutsideConnectionsLinesBuilding[buildingId][lineId];
+                var color = BuildingTransportLinesCache.COLOR_ORDER[lineId % BuildingTransportLinesCache.COLOR_ORDER.Length];
+                button.color = color;
+                button.disabledColor = color;
+                button.focusedColor = color;
+                button.normalBgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TransportSystemDefinition.FromIntercity(lineObj.Info)?.DefaultIcon ?? Commons.UI.Sprites.LineIconSpriteNames.K45_S10StarIcon, true);
+                button.tooltip = TLMStationUtils.GetStationName(lineObj.DstStop, (ushort)0xFFFFu, lineObj.Info.m_class.m_subService, buildingId);
+
+                var text = $"REG\n{lineObj.SrcStop.ToString("X4")}";
+                GetLineNumberCircleOnRefParams(text, false, out Color textColor, out float textScale, out Vector3 relativePosition);
                 lineIdentifierLabel.text = text;
                 lineIdentifierLabel.textScale = textScale;
                 lineIdentifierLabel.relativePosition = relativePosition;

@@ -161,7 +161,7 @@ namespace Klyte.TransportLinesManager.UI
              {
                  if (!alreadySyncing)
                  {
-                     TransportSystemDefinition.From(TransportTool.m_prefab).GetConfig().IncrementPrefixOnNewLine = value;
+                     TransportSystemDefinition.FromLocal(TransportTool.m_prefab).GetConfig().IncrementPrefixOnNewLine = value;
                  }
              });
             prefixIncrementChk.relativePosition = new Vector3(5f, 50f);
@@ -194,7 +194,7 @@ namespace Klyte.TransportLinesManager.UI
                 string value = "0" + lineNumberTxtBox.text;
                 int valPrefixo = linePrefixDropDown.selectedIndex;
 
-                var tsd = TransportSystemDefinition.From(TransportTool.m_prefab);
+                var tsd = TransportSystemDefinition.FromLocal(TransportTool.m_prefab);
                 TLMLineUtils.GetNamingRulesFromTSD(out NamingMode prefixo, out _, out _, out _, out _, out _, tsd);
                 ushort num = ushort.Parse(value);
                 if (prefixo != NamingMode.None)
@@ -211,7 +211,7 @@ namespace Klyte.TransportLinesManager.UI
         public void IncrementNumber()
         {
             //TLMUtils.doLog("Increment Toolbox num");
-            var tsd = TransportSystemDefinition.From(TransportTool.m_prefab);
+            var tsd = TransportSystemDefinition.FromLocal(TransportTool.m_prefab);
             int num = NextLineNumber;
             bool prefixIncrementVal = tsd.GetConfig().IncrementPrefixOnNewLine;
             //TLMUtils.doLog("prefixIncrement = " + prefixIncrementVal + "| num = " + num);
@@ -245,7 +245,7 @@ namespace Klyte.TransportLinesManager.UI
             }
             alreadySyncing = true;
             yield return 0;
-            var tsd = TransportSystemDefinition.From(TransportTool.m_prefab);
+            var tsd = TransportSystemDefinition.FromLocal(TransportTool.m_prefab);
             var config = tsd.GetConfig();
             if (TLMPrefixesUtils.HasPrefix(TransportTool.m_prefab))
             {
@@ -300,7 +300,7 @@ namespace Klyte.TransportLinesManager.UI
                 yield break;
             }
 
-            var tsd = TransportSystemDefinition.From(TransportTool.m_prefab);
+            var tsd = TransportSystemDefinition.FromLocal(TransportTool.m_prefab);
             TLMLineUtils.GetNamingRulesFromTSD(out NamingMode prefixo, out Separator sep, out NamingMode sufixo, out NamingMode nonPrefix, out bool zeros, out bool invertPrefixSuffix, tsd);
 
             if (syncFromInput)

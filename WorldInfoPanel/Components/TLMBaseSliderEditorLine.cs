@@ -52,11 +52,15 @@ namespace Klyte.TransportLinesManager.UI
             m_loading = true;
             try
             {
-                ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[UVMPublicTransportWorldInfoPanel.GetLineID()];
-                m_timeInput.text = Entry.HourOfDay.ToString();
-                ExtraOnFillData(ref t);
-                m_valueSlider.value = Entry.Value;
-                m_value.text = GetValueFormat(ref t);
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
+                if (buildingId == 0)
+                {
+                    ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineId];
+                    m_timeInput.text = Entry.HourOfDay.ToString();
+                    ExtraOnFillData(ref t);
+                    m_valueSlider.value = Entry.Value;
+                    m_value.text = GetValueFormat(ref t);
+                }
             }
             finally
             {
@@ -100,19 +104,27 @@ namespace Klyte.TransportLinesManager.UI
             };
             m_value.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
-                m_value.Hide();
-                m_valueField.Show();
-                m_valueField.text = GetValueAsInt(ref TransportManager.instance.m_lines.m_buffer[UVMPublicTransportWorldInfoPanel.GetLineID()]).ToString();
-                m_valueField.Focus();
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
+                if (buildingId == 0)
+                {
+                    m_value.Hide();
+                    m_valueField.Show();
+                    m_valueField.text = GetValueAsInt(ref TransportManager.instance.m_lines.m_buffer[lineId]).ToString();
+                    m_valueField.Focus();
+                }
             };
             m_valueField.eventLeaveFocus += delegate (UIComponent c, UIFocusEventParameter r)
             {
-                m_valueField.Hide();
-                if (uint.TryParse(m_valueField.text, out uint val))
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
+                if (buildingId == 0)
                 {
-                    SetValueFromTyping(ref TransportManager.instance.m_lines.m_buffer[UVMPublicTransportWorldInfoPanel.GetLineID()], val);
+                    m_valueField.Hide();
+                    if (uint.TryParse(m_valueField.text, out uint val))
+                    {
+                        SetValueFromTyping(ref TransportManager.instance.m_lines.m_buffer[lineId], val);
+                    }
+                    m_value.Show();
                 }
-                m_value.Show();
 
             };
 

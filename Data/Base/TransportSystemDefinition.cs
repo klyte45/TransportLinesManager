@@ -5,6 +5,7 @@ using Klyte.Commons.Interfaces;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections.Generic;
@@ -41,9 +42,15 @@ namespace Klyte.TransportLinesManager.Extensions
             [0] = FISHING,
         };
 
-        private static readonly Dictionary<TransportSystemDefinition, TransportInfo> m_infoList = new Dictionary<TransportSystemDefinition, TransportInfo>();
+        private static readonly Dictionary<TransportSystemDefinition, TransportInfoContainer> m_infoList = new Dictionary<TransportSystemDefinition, TransportInfoContainer>();
 
-        public static Dictionary<TransportSystemDefinition, TransportInfo> TransportInfoDict
+        public class TransportInfoContainer
+        {
+            public TransportInfo Local { get; internal set; }
+            public TransportInfo Intercity { get; internal set; }
+        }
+
+        public static Dictionary<TransportSystemDefinition, TransportInfoContainer> TransportInfoDict
         {
             get
             {
@@ -53,18 +60,49 @@ namespace Klyte.TransportLinesManager.Extensions
                     for (uint i = 0; i < PrefabCollection<TransportInfo>.LoadedCount(); i++)
                     {
                         TransportInfo info = PrefabCollection<TransportInfo>.GetLoaded(i);
-                        var tsd = TransportSystemDefinition.From(info);
+                        var tsd = FromLocal(info);
                         if (tsd == default)
                         {
-                            LogUtils.DoErrorLog($"TSD not found for info: {info}");
-                            continue;
+                            tsd = FromIntercity(info);
+
+                            if (tsd == default)
+                            {
+                                LogUtils.DoErrorLog($"TSD not found for info: {info}");
+                                continue;
+                            }
+                            else if (m_infoList.ContainsKey(tsd))
+                            {
+                                if (m_infoList[tsd].Intercity != null)
+                                {
+                                    LogUtils.DoErrorLog($"More than one info for same TSD Intercity \"{tsd}\": {m_infoList[tsd]},{info}");
+                                    continue;
+                                }
+                                m_infoList[tsd].Intercity = info;
+                            }
+                            else
+                            {
+                                m_infoList[tsd] = new TransportInfoContainer
+                                {
+                                    Intercity = info
+                                };
+                            }
                         }
-                        if (m_infoList.ContainsKey(tsd))
+                        else if (m_infoList.ContainsKey(tsd))
                         {
-                            LogUtils.DoErrorLog($"More than one info for same TSD \"{tsd}\": {m_infoList[tsd]},{info}");
-                            continue;
+                            if (m_infoList[tsd].Local != null)
+                            {
+                                LogUtils.DoErrorLog($"More than one info for same TSD Local \"{tsd}\": {m_infoList[tsd]},{info}");
+                                continue;
+                            }
+                            m_infoList[tsd].Local = info;
                         }
-                        m_infoList[tsd] = info;
+                        else
+                        {
+                            m_infoList[tsd] = new TransportInfoContainer
+                            {
+                                Local = info
+                            };
+                        }
                     }
                     IEnumerable<TransportSystemDefinition> missing = registeredTsd.Values.Where(x => !m_infoList.ContainsKey(x));
                     if (missing.Count() > 0 && CommonProperties.DebugMode)
@@ -225,9 +263,8 @@ namespace Klyte.TransportLinesManager.Extensions
         public static bool operator ==(TransportSystemDefinition a, TransportSystemDefinition b) => Equals(a, b);
         public static bool operator !=(TransportSystemDefinition a, TransportSystemDefinition b) => !(a == b);
 
-        public static TransportSystemDefinition From(PrefabAI buildingAI) => buildingAI is DepotAI depotAI ? From(depotAI.m_transportInfo) : null;
-
-        public static TransportSystemDefinition From(TransportInfo info)
+        public static TransportSystemDefinition From(PrefabAI buildingAI) => buildingAI is DepotAI depotAI ? FromLocal(depotAI.m_transportInfo) : buildingAI is OutsideConnectionAI ocAI ? FromIntercity(ocAI.m_transportInfo) : null;
+        public static TransportSystemDefinition FromLocal(TransportInfo info)
         {
             if (info is null)
             {
@@ -237,10 +274,27 @@ namespace Klyte.TransportLinesManager.Extensions
             x.SubService == info.m_class.m_subService
             && x.VehicleType == info.m_vehicleType
             && x.TransportType == info.m_transportType
-            && (x.Level == info.GetClassLevel() || x.LevelAdditional == info.GetClassLevel() || x.LevelIntercity == info.GetClassLevel()));
+            && (x.Level == info.GetClassLevel() || x.LevelAdditional == info.GetClassLevel()));
             if (result == default)
             {
-                LogUtils.DoErrorLog($"TSD NOT FOUND FOR TRANSPORT INFO: info.m_class.m_subService={info.m_class.m_subService}, info.m_vehicleType={info.m_vehicleType}, info.m_transportType={info.m_transportType}, info.classLevel = {info.GetClassLevel()}");
+                LogUtils.DoErrorLog($"Local TSD NOT FOUND FOR TRANSPORT INFO: info.m_class.m_subService={info.m_class.m_subService}, info.m_vehicleType={info.m_vehicleType}, info.m_transportType={info.m_transportType}, info.classLevel = {info.GetClassLevel()}");
+            }
+            return result;
+        }
+        public static TransportSystemDefinition FromIntercity(TransportInfo info)
+        {
+            if (info is null)
+            {
+                return default;
+            }
+            TransportSystemDefinition result = registeredTsd.Values.FirstOrDefault(x =>
+            x.SubService == info.m_class.m_subService
+            && x.VehicleType == info.m_vehicleType
+            && x.TransportType == info.m_transportType
+            && x.LevelIntercity == info.GetClassLevel());
+            if (result == default)
+            {
+                LogUtils.DoLog($"Intercity TSD NOT FOUND FOR TRANSPORT INFO: info.m_class.m_subService={info.m_class.m_subService}, info.m_vehicleType={info.m_vehicleType}, info.m_transportType={info.m_transportType}, info.classLevel = {info.GetClassLevel()}");
             }
             return result;
         }
@@ -255,7 +309,22 @@ namespace Klyte.TransportLinesManager.Extensions
                     && ti.m_transportType == x.TransportType
                     && (x.Level == ti.GetClassLevel() || x.LevelAdditional == ti.GetClassLevel() || x.LevelIntercity == ti.GetClassLevel())
                 );
-        public static TransportSystemDefinition From(uint lineId) => GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineId]);
+        public static TransportSystemDefinition FromLineId(uint lineId, ushort buildingId)
+        {
+            if (buildingId == 0)
+            {
+                return GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineId]);
+            }
+            else
+            {
+                ref Building b = ref BuildingManager.instance.m_buildings.m_buffer[buildingId];
+                var systemAI = b.Info.GetAI();
+                return systemAI is TransportStationAI tsai
+                    ? FromIntercity(tsai.UseSecondaryTransportInfoForConnection() ? tsai.m_secondaryTransportInfo : tsai.m_transportInfo)
+                    : null;
+            }
+        }
+
         public static TransportSystemDefinition FromOutsideConnection(ItemClass.SubService SubService, ItemClass.Level Level) => registeredTsd.Where(x => x.Value.LevelIntercity == Level && x.Value.SubService == SubService).FirstOrDefault().Value;
         public static TransportSystemDefinition From(TransportInfo.TransportType TransportType, ItemClass.SubService SubService, VehicleInfo.VehicleType VehicleType, ItemClass.Level Level)
         {
@@ -284,7 +353,7 @@ namespace Klyte.TransportLinesManager.Extensions
             return GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[i]);
         }
 
-        public static TransportSystemDefinition GetDefinitionForLine(ref TransportLine t) => From(t.Info);
+        public static TransportSystemDefinition GetDefinitionForLine(ref TransportLine t) => FromLocal(t.Info);
 
         public override string ToString() => SubService.ToString() + "|" + VehicleType.ToString();
 
@@ -299,9 +368,9 @@ namespace Klyte.TransportLinesManager.Extensions
         public float GetEffectivePassengerCapacityCost()
         {
             int settedCost = GetConfig()?.DefaultCostPerPassenger ?? 0;
-            return settedCost == 0 ? GetDefaultPassengerCapacityCost() : settedCost / 100f;
+            return settedCost == 0 ? GetDefaultPassengerCapacityCostLocal() : settedCost / 100f;
         }
-        public float GetDefaultPassengerCapacityCost() => TransportInfoDict.TryGetValue(this, out TransportInfo info) ? info.m_maintenanceCostPerVehicle / (float)DefaultCapacity : -1;
+        public float GetDefaultPassengerCapacityCostLocal() => TransportInfoDict.TryGetValue(this, out TransportInfoContainer info) && !(info.Local is null) ? info.Local.m_maintenanceCostPerVehicle / (float)DefaultCapacity : -1;
 
         public LineIconSpriteNames GetBgIcon()
         {

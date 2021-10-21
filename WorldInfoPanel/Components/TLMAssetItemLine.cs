@@ -31,17 +31,19 @@ namespace Klyte.TransportLinesManager.UI
                     return;
                 }
 
-                ushort lineId = UVMPublicTransportWorldInfoPanel.GetLineID();
-                IBasicExtension extension = lineId > 0 ? TLMLineUtils.GetEffectiveExtensionForLine(lineId) : UVMPublicTransportWorldInfoPanel.GetCurrentTSD().GetTransportExtension();
+                if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && buildingId == 0)
+                {
+                    IBasicExtension extension = lineId > 0 ? TLMLineUtils.GetEffectiveExtensionForLine(lineId) : UVMPublicTransportWorldInfoPanel.GetCurrentTSD().GetTransportExtension();
 
-                LogUtils.DoLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
-                if (y)
-                {
-                    extension.AddAssetToLine(lineId, m_currentAsset);
-                }
-                else
-                {
-                    extension.RemoveAssetFromLine(lineId, m_currentAsset);
+                    LogUtils.DoLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
+                    if (y)
+                    {
+                        extension.AddAssetToLine(lineId, m_currentAsset);
+                    }
+                    else
+                    {
+                        extension.RemoveAssetFromLine(lineId, m_currentAsset);
+                    }
                 }
             };
             KlyteMonoUtils.LimitWidthAndBox(m_checkbox.label, 265, out UIPanel container);
@@ -80,7 +82,11 @@ namespace Klyte.TransportLinesManager.UI
             UVMPublicTransportWorldInfoPanel.MarkDirty(typeof(TLMAssetSelectorTab));
         }
 
-        private void UpdateMaintenanceCost(VehicleInfo info, TransportSystemDefinition tsd) => m_checkbox.label.suffix = UVMPublicTransportWorldInfoPanel.GetLineID() == 0 ? "" : $"\n<color #aaaaaa>{LocaleFormatter.FormatUpkeep(Mathf.RoundToInt(VehicleUtils.GetCapacity(info) * tsd.GetEffectivePassengerCapacityCost() * 100), false)}</color>";
+        private void UpdateMaintenanceCost(VehicleInfo info, TransportSystemDefinition tsd)
+        {
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
+            m_checkbox.label.suffix = lineId == 0 || buildingId > 0 ? "" : $"\n<color #aaaaaa>{LocaleFormatter.FormatUpkeep(Mathf.RoundToInt(VehicleUtils.GetCapacity(info) * tsd.GetEffectivePassengerCapacityCost() * 100), false)}</color>";
+        }
 
         public static void EnsureTemplate()
         {

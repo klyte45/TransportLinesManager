@@ -25,7 +25,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static bool HasPrefix(ushort idx) => idx == 0 ? true : HasPrefix(TransportSystemDefinition.GetDefinitionForLine(idx));
 
-        public static bool HasPrefix(TransportInfo t) => HasPrefix(TransportSystemDefinition.From(t));
+        public static bool HasPrefix(TransportInfo t) => HasPrefix(TransportSystemDefinition.FromLocal(t));
 
         public static uint GetPrefix(ushort idx) =>
             idx == 0 ? PREFIX_REGIONAL :

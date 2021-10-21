@@ -57,11 +57,11 @@ namespace Klyte.TransportLinesManager.ModShared
 
         public static string GetFullStationName(ushort stopId, ushort lineId, ItemClass.SubService subService) =>
             stopId == 0 ? ""
-                : TLMLineUtils.IsRoadLine(lineId) ? TLMStationUtils.GetFullStationName(stopId, lineId, subService)
-                : TLMStationUtils.GetStationName(stopId, lineId, subService);
+                : TLMLineUtils.IsRoadLine(lineId) ? TLMStationUtils.GetFullStationName(stopId, lineId, subService, 0)
+                : TLMStationUtils.GetStationName(stopId, lineId, subService, 0);
 
         public static Tuple<string, Color, string> GetIconStringParameters(ushort lineID) => TLMLineUtils.GetIconStringParameters(lineID);
-        public static ushort GetStationBuilding(ushort stopId, ushort lineId) => TLMStationUtils.GetStationBuilding(stopId, lineId);
+        public static ushort GetStationBuilding(ushort stopId, ushort lineId) => TLMStationUtils.GetStationBuilding(stopId, lineId, 0);
         public static string GetLineSortString(ushort lineId, ref TransportLine transportLine) => TLMLineUtils.GetLineSortString(lineId, ref transportLine);
 
         public string GetVehicleIdentifier(ushort vehicleId)
@@ -91,7 +91,7 @@ namespace Klyte.TransportLinesManager.ModShared
                     ref TransportLine tl2 = ref TransportManager.instance.m_lines.m_buffer[tlId];
                     if (TLMPrefixesUtils.HasPrefix(ref tl2))
                     {
-                        var tsd2 = TransportSystemDefinition.From(tl2.Info);
+                        var tsd2 = TransportSystemDefinition.FromLocal(tl2.Info);
                         var prefix = (int)TLMPrefixesUtils.GetPrefix(tlId);
                         linePrefix = TLMPrefixesUtils.GetStringFromNameMode(tsd2.GetConfig().Prefix, prefix).Trim().PadLeft(3, '\0');
                     }
@@ -262,7 +262,7 @@ namespace Klyte.TransportLinesManager.ModShared
         [Obsolete("Deprecated in TLM14, use the alternative signature with destination list.", true)]
         public static void CalculateAutoName(ushort lineId, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr)
         {
-            TLMLineUtils.CalculateAutoName(lineId, out List<DestinationPoco> destinations);
+            TLMLineUtils.CalculateAutoName(lineId, 0, out List<DestinationPoco> destinations);
             if (destinations.Count > 0)
             {
                 startStation = destinations.First().stopId;
@@ -278,7 +278,7 @@ namespace Klyte.TransportLinesManager.ModShared
 
         }
         public static void CalculateAutoName(ushort lineId, out List<DestinationPoco> destinations)
-            => TLMLineUtils.CalculateAutoName(lineId, out destinations);
+            => TLMLineUtils.CalculateAutoName(lineId, 0, out destinations);
 
         public static string GetLineStringId(ushort lineId) => TLMLineUtils.GetLineStringId(lineId);
 

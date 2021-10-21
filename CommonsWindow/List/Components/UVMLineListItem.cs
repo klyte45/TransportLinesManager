@@ -5,7 +5,6 @@ using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
-using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Utils;
 using UnityEngine;
 
@@ -98,7 +97,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 SetBackgroundColor(((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None));
 
                 m_lineIsVisible.isVisible = true;
-                var tsd = TransportSystemDefinition.From(m_lineID);
+                var tsd = TransportSystemDefinition.FromLineId(m_lineID, 0);
                 if (updateColors)
                 {
                     m_lineColor.selectedColor = Singleton<TransportManager>.instance.GetLineColor(m_lineID);
@@ -228,7 +227,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         public void DoAutoColor() => TLMController.AutoColor(m_lineID);
 
-        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, out _));
+        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID,0, out _));
 
         private void OnMouseEnter(UIComponent comp, UIMouseEventParameter param)
         {
@@ -329,8 +328,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                  {
                      Vector3 position = default;
                      InstanceID iid = InstanceID.Empty;
-                     iid.Index = TLMPanel.Instance.m_linesPanel.TSD.Id;
-                     iid.Type = UVMPublicTransportWorldInfoPanel.INSTANCE_TYPE_TSD;
+                     iid.Set(TLMInstanceType.TransportSystemDefinition, TLMPanel.Instance.m_linesPanel.TSD.Id);
                      WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(position, iid);
                  }
              };
