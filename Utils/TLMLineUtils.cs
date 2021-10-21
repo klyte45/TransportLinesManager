@@ -525,7 +525,7 @@ namespace Klyte.TransportLinesManager.Utils
                 }
                 else
                 {
-                    var cacheInfo = TransportLinesManagerMod.Controller.BuildingLines.OutsideConnectionsLinesBuilding[buildingId][lineID];
+                    var cacheInfo = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId)[lineID];
                     stopsCount = cacheInfo.CountStops();
                     ss = cacheInfo.Info.m_class.m_subService;
                     getStop = cacheInfo.GetStop;
@@ -612,7 +612,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else
             {
-                var tl = TransportLinesManagerMod.Controller.BuildingLines.OutsideConnectionsLinesBuilding[srcBuildingId][lineIdx];
+                var tl = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(srcBuildingId)[lineIdx];
                 startStop = tl.SrcStop;
                 nextStop = tl.SrcStop;
                 allowPrefixInStations = m_roadTransportTypes.Contains(tl.Info.m_transportType);

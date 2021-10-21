@@ -1,7 +1,6 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +11,6 @@ namespace Klyte.TransportLinesManager
     public class TLMNearLinesController : UICustomControl
     {
         private UIPanel m_containerParent;
-        private UIPanel m_innerContainer;
         private UIPanel m_localContainer;
         private UILabel m_title;
         private UIPanel m_listContainer;
@@ -47,29 +45,32 @@ namespace Klyte.TransportLinesManager
 
         }
 
-        private static TLMNearLinesController InitPanelNearLinesOnWorldInfoPanel(UIComponent parent) => parent.gameObject.AddComponent<TLMNearLinesController>();
+        private static TLMNearLinesController InitPanelNearLinesOnWorldInfoPanel(UIComponent parent)
+        {
+            KlyteMonoUtils.CreateUIElement(out UIPanel panel, parent.transform);
+            return panel.gameObject.AddComponent<TLMNearLinesController>();
+        }
 
         public void Awake()
         {
             m_containerParent = GetComponent<UIPanel>();
-
-            m_innerContainer = m_containerParent.AddUIComponent<UIPanel>();
-            m_innerContainer.relativePosition = new Vector3(0, m_containerParent.height);
-            m_innerContainer.autoFitChildrenVertically = true;
-            m_innerContainer.autoLayout = true;
-            m_innerContainer.autoLayoutDirection = LayoutDirection.Vertical;
-            m_innerContainer.autoLayoutPadding = new RectOffset(2, 2, 2, 2);
-            m_innerContainer.padding = new RectOffset(2, 2, 2, 2);
-            m_innerContainer.autoLayoutStart = LayoutStart.TopLeft;
-            m_innerContainer.name = "TLMLinesNear";
-            m_innerContainer.width = 300;
-            m_innerContainer.padding.top = 5;
-            m_innerContainer.padding.bottom = 5;
-            m_innerContainer.relativePosition = new Vector3(m_containerParent.width + 10, 50);
-            m_innerContainer.backgroundSprite = "GenericPanelDark";
+            m_containerParent.relativePosition = new Vector3(m_containerParent.parent.width + 15, 50);
+            m_containerParent.backgroundSprite = "GenericPanelDark";
 
 
-            m_localContainer = m_innerContainer.AddUIComponent<UIPanel>();
+            m_containerParent.autoFitChildrenVertically = true;
+            m_containerParent.autoLayout = true;
+            m_containerParent.autoLayoutDirection = LayoutDirection.Vertical;
+            m_containerParent.autoLayoutPadding = new RectOffset(2, 2, 2, 2);
+            m_containerParent.padding = new RectOffset(2, 2, 2, 2);
+            m_containerParent.autoLayoutStart = LayoutStart.TopLeft;
+            m_containerParent.name = "TLMLinesNear";
+            m_containerParent.width = 300;
+            m_containerParent.padding.top = 5;
+            m_containerParent.padding.bottom = 5;
+
+
+            KlyteMonoUtils.CreateUIElement(out m_localContainer, m_containerParent.transform);
             m_localContainer.width = m_containerParent.width;
             m_localContainer.autoFitChildrenVertically = true;
             m_localContainer.autoLayout = true;
@@ -78,14 +79,16 @@ namespace Klyte.TransportLinesManager
             m_localContainer.padding = new RectOffset(2, 2, 2, 2);
             m_localContainer.autoLayoutStart = LayoutStart.TopLeft;
             m_localContainer.name = "TLMLinesNearRegional";
-            m_title = m_localContainer.AddUIComponent<UILabel>();
+
+            KlyteMonoUtils.CreateUIElement(out m_title, m_localContainer.transform);
             m_title.autoSize = false;
             m_title.width = m_localContainer.width;
             m_title.textAlignment = UIHorizontalAlignment.Left;
             m_title.localeID = "K45_TLM_NEAR_LINES";
             m_title.useOutline = true;
             m_title.height = 18;
-            m_listContainer = m_localContainer.AddUIComponent<UIPanel>();
+
+            KlyteMonoUtils.CreateUIElement(out m_listContainer, m_localContainer.transform);
             m_listContainer.width = m_localContainer.width;
             m_listContainer.autoFitChildrenVertically = true;
             m_listContainer.autoLayout = true;
@@ -99,7 +102,7 @@ namespace Klyte.TransportLinesManager
             m_localLinesTemplateList = new UITemplateList<UIButton>(m_listContainer, TLMLineItemButtonControl.LINE_ITEM_TEMPLATE);
 
 
-            m_regionalContainer = m_innerContainer.AddUIComponent<UIPanel>();
+            KlyteMonoUtils.CreateUIElement(out m_regionalContainer, m_containerParent.transform);
             m_regionalContainer.width = m_containerParent.width;
             m_regionalContainer.autoFitChildrenVertically = true;
             m_regionalContainer.autoLayout = true;
@@ -109,7 +112,7 @@ namespace Klyte.TransportLinesManager
             m_regionalContainer.autoLayoutStart = LayoutStart.TopLeft;
             m_regionalContainer.name = "TLMLinesNearRegional";
 
-            m_regTitle = m_regionalContainer.AddUIComponent<UILabel>();
+            KlyteMonoUtils.CreateUIElement(out m_regTitle, m_regionalContainer.transform);
             m_regTitle.autoSize = false;
             m_regTitle.width = m_regionalContainer.width;
             m_regTitle.textAlignment = UIHorizontalAlignment.Left;
@@ -117,8 +120,9 @@ namespace Klyte.TransportLinesManager
             m_regTitle.useOutline = true;
             m_regTitle.height = 18;
 
-            m_regListContainer = m_regionalContainer.AddUIComponent<UIPanel>();
-            m_regListContainer.width = m_regListContainer.width;
+
+            KlyteMonoUtils.CreateUIElement(out m_regListContainer, m_regionalContainer.transform);
+            m_regListContainer.width = m_regionalContainer.width;
             m_regListContainer.autoFitChildrenVertically = true;
             m_regListContainer.autoLayout = true;
             m_regListContainer.autoLayoutDirection = LayoutDirection.Horizontal;
@@ -165,7 +169,8 @@ namespace Klyte.TransportLinesManager
                 }
             }
 
-            var showRegional = TransportLinesManagerMod.Controller.BuildingLines.OutsideConnectionsLinesBuilding.TryGetValue(buildingId, out List<InnerBuildingLine> regionalLines);
+            var regionalLines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId);
+            var showRegional = regionalLines != null && regionalLines.Count > 0;
             if (showRegional)
             {
                 var itemsEntries = m_regionalLinesTemplateList.SetItemCount(regionalLines.Count);

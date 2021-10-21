@@ -245,7 +245,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 else
                 {
-                    var line = TransportLinesManagerMod.Controller.BuildingLines.OutsideConnectionsLinesBuilding[buildingId][lineID];
+                    var line = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId)[lineID];
                     color = BuildingTransportLinesCache.COLOR_ORDER[lineID % BuildingTransportLinesCache.COLOR_ORDER.Length];
                     stopsCount = line.CountStops();
                     firstStop = line.SrcStop;

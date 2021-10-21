@@ -11,44 +11,58 @@ namespace Klyte.TransportLinesManager.Cache
     public class BuildingTransportLinesCache
     {
 
-        public SimpleNonSequentialList<List<InnerBuildingLine>> OutsideConnectionsLinesBuilding = new SimpleNonSequentialList<List<InnerBuildingLine>>();
-        public SimpleNonSequentialList<Mesh[][]> m_lineMeshes = new SimpleNonSequentialList<Mesh[][]>();
-        public SimpleNonSequentialList<RenderGroup.MeshData[][]> m_lineMeshData = new SimpleNonSequentialList<RenderGroup.MeshData[][]>();
+        private SimpleNonSequentialList<List<InnerBuildingLine>> OutsideConnectionsLinesBuilding = new SimpleNonSequentialList<List<InnerBuildingLine>>();
+        private SimpleNonSequentialList<Mesh[][]> m_lineMeshes = new SimpleNonSequentialList<Mesh[][]>();
+        private SimpleNonSequentialList<RenderGroup.MeshData[][]> m_lineMeshData = new SimpleNonSequentialList<RenderGroup.MeshData[][]>();
 
         public void RenderBuildingLines(RenderManager.CameraInfo cameraInfo, ushort buildingId)
         {
-            ref Building b = ref BuildingManager.instance.m_buildings.m_buffer[buildingId];
+            var targetBuildingId = Building.FindParentBuilding(buildingId);
+            if (targetBuildingId == 0)
+            {
+                targetBuildingId = buildingId;
+            }
+
+            ref Building b = ref BuildingManager.instance.m_buildings.m_buffer[targetBuildingId];
             var info = b.Info;
             if (info.m_buildingAI is TransportStationAI tsai)
             {
-                if (!OutsideConnectionsLinesBuilding.ContainsKey(buildingId))
+                if (!OutsideConnectionsLinesBuilding.ContainsKey(targetBuildingId))
                 {
-                    DoMapping(buildingId, ref b, tsai);
+                    DoMapping(targetBuildingId, ref b, tsai);
                 }
 
-                for (int i = 0; i < OutsideConnectionsLinesBuilding[buildingId].Count; i++)
+                for (int i = 0; i < OutsideConnectionsLinesBuilding[targetBuildingId].Count; i++)
                 {
-                    if (OutsideConnectionsLinesBuilding[buildingId][i].BrokenFromSrc && OutsideConnectionsLinesBuilding[buildingId][i].BrokenFromDst)
+                    if (OutsideConnectionsLinesBuilding[targetBuildingId][i].BrokenFromSrc && OutsideConnectionsLinesBuilding[targetBuildingId][i].BrokenFromDst)
                     {
                         continue;
                     }
 
-                    if (m_lineMeshData[buildingId][i] != null)
+                    if (m_lineMeshData[targetBuildingId][i] != null)
                     {
-                        UpdateMesh(buildingId, i);
+                        UpdateMesh(targetBuildingId, i);
                     }
                     else
                     {
-                        RenderLine(cameraInfo, buildingId, (ushort)i);
+                        RenderLine(cameraInfo, targetBuildingId, (ushort)i);
                     }
                 }
             }
         }
 
-        public List<InnerBuildingLine> DoMapping(ushort buildingId)
+        public List<InnerBuildingLine> SafeGet(ushort buildingId)
         {
             ref Building b = ref BuildingManager.instance.m_buildings.m_buffer[buildingId];
             var info = b.Info;
+            if (b.m_parentBuilding != 0)
+            {
+                return SafeGet(Building.FindParentBuilding(buildingId));
+            }
+            if (OutsideConnectionsLinesBuilding.ContainsKey(buildingId))
+            {
+                return OutsideConnectionsLinesBuilding[buildingId];
+            }
             if (info.m_buildingAI is TransportStationAI tsai)
             {
                 DoMapping(buildingId, ref b, tsai);
@@ -62,39 +76,15 @@ namespace Klyte.TransportLinesManager.Cache
         private void DoMapping(ushort buildingId, ref Building b, TransportStationAI tsai)
         {
             OutsideConnectionsLinesBuilding[buildingId] = new List<InnerBuildingLine>();
-            var nextNodeId = b.m_netNode;
             var useSecInfo = tsai.UseSecondaryTransportInfoForConnection();
             var targetInfo = useSecInfo ? tsai.m_secondaryTransportInfo : tsai.m_transportInfo;
+            MapBuildingLines(buildingId, buildingId, targetInfo);
+            var nextSubBuildingId = b.m_subBuilding;
             do
             {
-                ref NetNode node = ref NetManager.instance.m_nodes.m_buffer[nextNodeId];
-                if (!(node.Info.m_netAI is TransportLineAI))
-                {
-                    break;
-                }
-                InnerBuildingLine transportLine;
-                if (TLMStationUtils.GetStationBuilding(nextNodeId, (ushort)OutsideConnectionsLinesBuilding[buildingId].Count, buildingId) != buildingId)
-                {
-                    transportLine = new InnerBuildingLine
-                    {
-                        Info = targetInfo,
-                        DstStop = nextNodeId,
-                        SrcStop = NetManager.instance.m_segments.m_buffer[node.m_segment0].GetOtherNode(nextNodeId)
-                    };
-                }
-                else
-                {
-                    transportLine = new InnerBuildingLine
-                    {
-                        Info = targetInfo,
-                        SrcStop = nextNodeId,
-                        DstStop = NetManager.instance.m_segments.m_buffer[node.m_segment0].GetOtherNode(nextNodeId)
-                    };
-                }
-
-                OutsideConnectionsLinesBuilding[buildingId].Add(transportLine);
-                nextNodeId = node.m_nextBuildingNode;
-            } while (nextNodeId != 0);
+                MapBuildingLines(buildingId, nextSubBuildingId, targetInfo);
+                nextSubBuildingId = BuildingManager.instance.m_buildings.m_buffer[nextSubBuildingId].m_subBuilding;
+            } while (nextSubBuildingId != 0);
 
             m_lineMeshData[buildingId] = new RenderGroup.MeshData[OutsideConnectionsLinesBuilding[buildingId].Count][];
             m_lineMeshes[buildingId] = new Mesh[OutsideConnectionsLinesBuilding[buildingId].Count][];
@@ -102,6 +92,37 @@ namespace Klyte.TransportLinesManager.Cache
             {
                 UpdateMeshData(buildingId, i);
             }
+        }
+
+        private void MapBuildingLines(ushort buildingIdKey, ushort buildingId, TransportInfo targetInfo)
+        {
+            var nextNodeId = BuildingManager.instance.m_buildings.m_buffer[buildingId].m_netNode;
+            do
+            {
+                var currentNode = nextNodeId;
+                ref NetNode node = ref NetManager.instance.m_nodes.m_buffer[currentNode];
+
+                if (!(node.Info.m_netAI is TransportLineAI))
+                {
+                    break;
+                }
+                InnerBuildingLine transportLine =
+                    TLMStationUtils.GetStationBuilding(nextNodeId, (ushort)OutsideConnectionsLinesBuilding[buildingIdKey].Count, buildingId) != buildingIdKey
+                        ? new InnerBuildingLine
+                        {
+                            Info = targetInfo,
+                            DstStop = nextNodeId,
+                            SrcStop = NetManager.instance.m_segments.m_buffer[node.m_segment0].GetOtherNode(nextNodeId)
+                        }
+                        : new InnerBuildingLine
+                        {
+                            Info = targetInfo,
+                            SrcStop = nextNodeId,
+                            DstStop = NetManager.instance.m_segments.m_buffer[node.m_segment0].GetOtherNode(nextNodeId)
+                        };
+                OutsideConnectionsLinesBuilding[buildingIdKey].Add(transportLine);
+                nextNodeId = node.m_nextBuildingNode;
+            } while (nextNodeId != 0);
         }
 
         public bool UpdateMeshData(ushort buildingId, ushort lineID)
@@ -333,7 +354,7 @@ namespace Klyte.TransportLinesManager.Cache
             }
         }
 
-        private void UpdateMesh(ushort buildingAI, int lineID)
+        private void UpdateMesh(ushort buildingId, int lineID)
         {
             while (!Monitor.TryEnter(m_lineMeshData, SimulationManager.SYNCHRONIZE_TIMEOUT))
             {
@@ -341,8 +362,8 @@ namespace Klyte.TransportLinesManager.Cache
             RenderGroup.MeshData[] array;
             try
             {
-                array = m_lineMeshData[buildingAI][lineID];
-                m_lineMeshData[buildingAI][lineID] = null;
+                array = m_lineMeshData[buildingId][lineID];
+                m_lineMeshData[buildingId][lineID] = null;
             }
             finally
             {
@@ -350,7 +371,7 @@ namespace Klyte.TransportLinesManager.Cache
             }
             if (array != null)
             {
-                Mesh[] array2 = m_lineMeshes[buildingAI][lineID];
+                Mesh[] array2 = m_lineMeshes[buildingId][lineID];
                 int num = 0;
                 if (array2 != null)
                 {
@@ -373,7 +394,7 @@ namespace Klyte.TransportLinesManager.Cache
                         UnityEngine.Object.Destroy(array2[k]);
                     }
                     array2 = array3;
-                    m_lineMeshes[buildingAI][lineID] = array2;
+                    m_lineMeshes[buildingId][lineID] = array2;
                 }
                 for (int l = 0; l < array.Length; l++)
                 {

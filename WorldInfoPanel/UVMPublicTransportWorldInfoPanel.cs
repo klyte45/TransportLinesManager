@@ -5,7 +5,6 @@ using ColossalFramework.UI;
 using Harmony;
 using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
@@ -278,13 +277,10 @@ namespace Klyte.TransportLinesManager.UI
             }
             else
             {
-                if (!TransportLinesManagerMod.Controller.BuildingLines.OutsideConnectionsLinesBuilding.TryGetValue(buildingId, out List<InnerBuildingLine> lines))
+                var lines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId);
+                if (lines == null)
                 {
-                    lines = TransportLinesManagerMod.Controller.BuildingLines.DoMapping(buildingId);
-                    if (lines == null)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
                 var lineObj = lines[lineID];
                 m_obj.m_nameField.text = string.Format(Locale.Get("K45_TLM_OUTSIDECONNECTION_TARGETCITYTEMPLATE"), TLMStationUtils.GetStationName(lineObj.DstStop, lineID, lineObj.Info.m_class.m_subService, buildingId));

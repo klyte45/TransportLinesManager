@@ -83,7 +83,7 @@ namespace Klyte.TransportLinesManager.UI
             UITemplateUtils.GetTemplateDict()[TEMPLATE_NAME] = go.AddComponent<LinearMapStationContainer>().component;
         }
 
-        private ItemClass.SubService CurrentSubService => m_buildingId > 0 ? TransportLinesManagerMod.Controller.BuildingLines.OutsideConnectionsLinesBuilding[m_buildingId][m_lineId].Info.m_netSubService : TransportSystemDefinition.GetDefinitionForLine(m_lineId).SubService;
+        private ItemClass.SubService CurrentSubService => m_buildingId > 0 ? TransportLinesManagerMod.Controller.BuildingLines.SafeGet(m_buildingId)[m_lineId].Info.m_netSubService : TransportSystemDefinition.GetDefinitionForLine(m_lineId).SubService;
 
         private ushort m_stopId;
         private ushort m_lineId;
@@ -257,10 +257,8 @@ namespace Klyte.TransportLinesManager.UI
                 linesFound.Remove(m_lineId);
             }
             var targBuilding = TLMStationUtils.GetStationBuilding(m_stopId, m_lineId, m_buildingId);
-            if (!TransportLinesManagerMod.Controller.BuildingLines.OutsideConnectionsLinesBuilding.TryGetValue(targBuilding, out List<InnerBuildingLine> lines))
-            {
-                lines = TransportLinesManagerMod.Controller.BuildingLines.DoMapping(targBuilding);
-            }
+            var lines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(targBuilding);
+
             var buildingLinesCt = lines is null ? 0 : lines.Count;
             if (targBuilding == m_buildingId)
             {
@@ -279,7 +277,7 @@ namespace Klyte.TransportLinesManager.UI
             }
             for (ushort j = 0; j < buildingLinesCt; idx++, j++)
             {
-                if(m_lineId == j && targBuilding == m_buildingId)
+                if (m_lineId == j && targBuilding == m_buildingId)
                 {
                     continue;
                 }

@@ -1,5 +1,4 @@
 ﻿using Klyte.Commons.Extensions;
-using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
 using UnityEngine;
 
@@ -8,12 +7,6 @@ namespace Klyte.TransportLinesManager.Overrides
 
     public class ToolManagerOverrides : Redirector, IRedirectable
     {
-
-        public static SimpleNonSequentialList<TransportLine[]> OutsideConnectionsLinesBuilding = new SimpleNonSequentialList<TransportLine[]>();
-
-        public static SimpleNonSequentialList<Mesh[][]> m_lineMeshes = new SimpleNonSequentialList<Mesh[][]>();
-        public static SimpleNonSequentialList<RenderGroup.MeshData[][]> m_lineMeshData = new SimpleNonSequentialList<RenderGroup.MeshData[][]>();
-
         public void Awake()
         {
             #region Hooks
@@ -24,7 +17,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
         public static void AfterEndOverlayImpl(RenderManager.CameraInfo cameraInfo)
         {
-            if (WorldInfoPanel.AnyWorldInfoPanelOpen() && WorldInfoPanel.GetCurrentInstanceID().Building > 0 || WorldInfoPanel.GetCurrentInstanceID().Type == (InstanceType)TLMInstanceType.BuildingLines)
+            if (WorldInfoPanel.AnyWorldInfoPanelOpen() && (WorldInfoPanel.GetCurrentInstanceID().Building > 0 || WorldInfoPanel.GetCurrentInstanceID().Type == (InstanceType)TLMInstanceType.BuildingLines))
             {
                 var buildingId = WorldInfoPanel.GetCurrentInstanceID().Type == (InstanceType)TLMInstanceType.BuildingLines ? WorldInfoPanel.GetCurrentInstanceID().Index >> 8 : WorldInfoPanel.GetCurrentInstanceID().Building;
                 ref Building b = ref BuildingManager.instance.m_buildings.m_buffer[buildingId];
