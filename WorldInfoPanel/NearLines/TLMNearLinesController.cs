@@ -170,11 +170,11 @@ namespace Klyte.TransportLinesManager
             }
 
             var regionalLines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId);
-            var showRegional = regionalLines != null && regionalLines.Count > 0;
+            var showRegional = regionalLines != null && regionalLines.RegionalLinesCount > 0;
             if (showRegional)
             {
-                var itemsEntries = m_regionalLinesTemplateList.SetItemCount(regionalLines.Count);
-                for (ushort idx = 0; idx < regionalLines.Count; idx++)
+                var itemsEntries = m_regionalLinesTemplateList.SetItemCount(regionalLines.RegionalLinesCount);
+                for (ushort idx = 0; idx < regionalLines.RegionalLinesCount; idx++)
                 {
                     var itemControl = itemsEntries[idx].GetComponent<TLMLineItemButtonControl>();
                     itemControl.ResetData(buildingId, idx, sidewalk);

@@ -30,7 +30,7 @@ namespace Klyte.TransportLinesManager
         public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
         public const ulong REALTIME_MOD_ID = 1420955187;
         public const ulong IPT2_MOD_ID = 928128676;
-        public BuildingTransportLinesCache BuildingLines { get; private set; } = new BuildingTransportLinesCache();
+        public BuildingTransportLinesCache BuildingLines { get; private set; }
 
         private bool? m_isRealTimeEnabled = null;
         protected static string GlobalBaseConfigFileName { get; } = "TLM_GlobalData.xml";
@@ -111,6 +111,8 @@ namespace Klyte.TransportLinesManager
 
         protected override void StartActions()
         {
+            BuildingLines = gameObject.AddComponent<BuildingTransportLinesCache>();
+
             TLMTransportTypeDataContainer.Instance.RefreshCapacities();
 
             using (var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits)))

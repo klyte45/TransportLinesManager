@@ -3,7 +3,6 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Utils;
@@ -83,7 +82,7 @@ namespace Klyte.TransportLinesManager.UI
             UITemplateUtils.GetTemplateDict()[TEMPLATE_NAME] = go.AddComponent<LinearMapStationContainer>().component;
         }
 
-        private ItemClass.SubService CurrentSubService => m_buildingId > 0 ? TransportLinesManagerMod.Controller.BuildingLines.SafeGet(m_buildingId)[m_lineId].Info.m_netSubService : TransportSystemDefinition.GetDefinitionForLine(m_lineId).SubService;
+        private ItemClass.SubService CurrentSubService => m_buildingId > 0 ? TransportLinesManagerMod.Controller.BuildingLines.SafeGet(m_buildingId).SafeGetRegionalLine(m_lineId)?.Info.m_netSubService ?? ItemClass.SubService.None : TransportSystemDefinition.GetDefinitionForLine(m_lineId).SubService;
 
         private ushort m_stopId;
         private ushort m_lineId;
@@ -259,7 +258,7 @@ namespace Klyte.TransportLinesManager.UI
             var targBuilding = TLMStationUtils.GetStationBuilding(m_stopId, m_lineId, m_buildingId);
             var lines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(targBuilding);
 
-            var buildingLinesCt = lines is null ? 0 : lines.Count;
+            var buildingLinesCt = lines is null ? 0 : lines.RegionalLinesCount;
             if (targBuilding == m_buildingId)
             {
                 buildingLinesCt--;

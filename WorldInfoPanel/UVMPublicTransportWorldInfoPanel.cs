@@ -282,7 +282,7 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     return false;
                 }
-                var lineObj = lines[lineID];
+                var lineObj = lines.SafeGetRegionalLine(lineID);
                 m_obj.m_nameField.text = string.Format(Locale.Get("K45_TLM_OUTSIDECONNECTION_TARGETCITYTEMPLATE"), TLMStationUtils.GetStationName(lineObj.DstStop, lineID, lineObj.Info.m_class.m_subService, buildingId));
                 m_obj.m_nameField.Disable();
                 m_obj.m_specificConfig.isVisible = false;
