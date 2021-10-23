@@ -21,31 +21,8 @@ namespace Klyte.TransportLinesManager
         private UITemplateList<UIButton> m_regionalLinesTemplateList;
         private ushort lastBuildingSelected = 0;
 
-        public static void InitNearLinesOnWorldInfoPanel()
-        {
-            BuildingWorldInfoPanel[] panelList = UIView.GetAView().GetComponentsInChildren<BuildingWorldInfoPanel>();
-            LogUtils.DoLog("WIP LIST: [{0}]", string.Join(", ", panelList.Select(x => x.name).ToArray()));
-            TLMLineItemButtonControl.EnsureTemplate();
-            foreach (BuildingWorldInfoPanel wip in panelList)
-            {
-                LogUtils.DoLog("LOADING WIP HOOK FOR: {0}", wip.name);
-                UIComponent parent2 = wip.GetComponent<UIComponent>();
-
-                if (parent2 is null)
-                {
-                    continue;
-                }
-                var isGrow = wip is ZonedBuildingWorldInfoPanel;
-                var controller = InitPanelNearLinesOnWorldInfoPanel(parent2);
-                parent2.eventVisibilityChanged += (x, y) => controller.EventWIPChanged(x, isGrow);
-                parent2.eventPositionChanged += (x, y) => controller.EventWIPChanged(x, isGrow);
-                parent2.eventSizeChanged += (x, y) => controller.EventWIPChanged(x, isGrow);
-
-            }
-
-        }
-
-        private static TLMNearLinesController InitPanelNearLinesOnWorldInfoPanel(UIComponent parent)
+ 
+        internal static TLMNearLinesController InitPanelNearLinesOnWorldInfoPanel(UIComponent parent)
         {
             KlyteMonoUtils.CreateUIElement(out UIPanel panel, parent.transform);
             return panel.gameObject.AddComponent<TLMNearLinesController>();
@@ -54,7 +31,7 @@ namespace Klyte.TransportLinesManager
         public void Awake()
         {
             m_containerParent = GetComponent<UIPanel>();
-            m_containerParent.relativePosition = new Vector3(m_containerParent.parent.width + 15, 50);
+            //m_containerParent.relativePosition = new Vector3(m_containerParent.parent.width + 15, 50);
             m_containerParent.backgroundSprite = "GenericPanelDark";
 
 
@@ -98,7 +75,7 @@ namespace Klyte.TransportLinesManager
             m_listContainer.autoLayoutStart = LayoutStart.TopLeft;
             m_listContainer.wrapLayout = true;
             m_listContainer.name = "TLMLinesNearList";
-
+            TLMLineItemButtonControl.EnsureTemplate();
             m_localLinesTemplateList = new UITemplateList<UIButton>(m_listContainer, TLMLineItemButtonControl.LINE_ITEM_TEMPLATE);
 
 
@@ -133,7 +110,7 @@ namespace Klyte.TransportLinesManager
             m_regListContainer.name = "TLMLinesNearListRegional";
             m_regionalLinesTemplateList = new UITemplateList<UIButton>(m_regListContainer, TLMLineItemButtonControl.LINE_ITEM_TEMPLATE);
         }
-        private void EventWIPChanged(UIComponent component, bool isGrow) => UpdateNearLines((isGrow ? TransportLinesManagerMod.ShowNearLinesGrow : TransportLinesManagerMod.ShowNearLinesPlop), true);
+        internal void EventWIPChanged(UIComponent component, bool isGrow) => UpdateNearLines((isGrow ? TransportLinesManagerMod.ShowNearLinesGrow : TransportLinesManagerMod.ShowNearLinesPlop), true);
 
         private void UpdateNearLines(bool show, bool force = false)
         {

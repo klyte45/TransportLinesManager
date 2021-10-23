@@ -1,6 +1,6 @@
 using ColossalFramework;
 using ColossalFramework.Plugins;
-using ColossalFramework.Threading;
+using ColossalFramework.UI;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Cache;
@@ -115,11 +115,45 @@ namespace Klyte.TransportLinesManager
 
             TLMTransportTypeDataContainer.Instance.RefreshCapacities();
 
-            using (var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits)))
-            {
-                TLMNearLinesController.InitNearLinesOnWorldInfoPanel();
-            }
+            StartCoroutine(VehicleUtils.UpdateCapacityUnits());
+            InitWipSidePanels();
+
         }
+        private static void InitWipSidePanels()
+        {
+            BuildingWorldInfoPanel[] panelList = UIView.GetAView().GetComponentsInChildren<BuildingWorldInfoPanel>();
+            LogUtils.DoLog("WIP LIST: [{0}]", string.Join(", ", panelList.Select(x => x.name).ToArray()));
+            TLMLineItemButtonControl.EnsureTemplate();
+            foreach (BuildingWorldInfoPanel wip in panelList)
+            {
+                LogUtils.DoLog("LOADING WIP HOOK FOR: {0}", wip.name);
+                UIComponent parent = wip.GetComponent<UIComponent>();
+                if (parent is null)
+                {
+                    continue;
+                }
+                KlyteMonoUtils.CreateUIElement(out UIPanel parent2, parent.transform, "TLMSidePanels", new Vector4(parent.width + 15, 50, 300, 0));
+                parent2.autoLayout = true;
+                parent2.autoLayoutPadding.bottom = 5;
+                parent2.autoFitChildrenVertically = true;
+                parent2.autoLayoutDirection = LayoutDirection.Vertical;
+                if (wip is CityServiceWorldInfoPanel)
+                {
+                    var controllerP = TLMRegionalPlatformSelection.Init(parent2);
+                    parent2.eventVisibilityChanged += (x, y) => controllerP.EventWIPChanged(x);
+                    parent2.eventPositionChanged += (x, y) => controllerP.EventWIPChanged(x);
+                    parent2.eventSizeChanged += (x, y) => controllerP.EventWIPChanged(x);
+                }
+                var isGrow = wip is ZonedBuildingWorldInfoPanel;
+                var controller = TLMNearLinesController.InitPanelNearLinesOnWorldInfoPanel(parent2);
+                parent2.eventVisibilityChanged += (x, y) => controller.EventWIPChanged(x, isGrow);
+                parent2.eventPositionChanged += (x, y) => controller.EventWIPChanged(x, isGrow);
+                parent2.eventSizeChanged += (x, y) => controller.EventWIPChanged(x, isGrow);
+
+            }
+
+        }
+
 
         public void OpenTLMPanel() => TransportLinesManagerMod.Instance.OpenPanelAtModTab();
         public void CloseTLMPanel() => TransportLinesManagerMod.Instance.ClosePanel();
