@@ -21,7 +21,10 @@ namespace Klyte.TransportLinesManager
         private UITemplateList<UIButton> m_regionalLinesTemplateList;
         private ushort lastBuildingSelected = 0;
 
- 
+        private bool m_dirty = true;
+        private bool m_mayShow = true;
+
+
         internal static TLMNearLinesController InitPanelNearLinesOnWorldInfoPanel(UIComponent parent)
         {
             KlyteMonoUtils.CreateUIElement(out UIPanel panel, parent.transform);
@@ -31,7 +34,6 @@ namespace Klyte.TransportLinesManager
         public void Awake()
         {
             m_containerParent = GetComponent<UIPanel>();
-            //m_containerParent.relativePosition = new Vector3(m_containerParent.parent.width + 15, 50);
             m_containerParent.backgroundSprite = "GenericPanelDark";
 
 
@@ -110,7 +112,19 @@ namespace Klyte.TransportLinesManager
             m_regListContainer.name = "TLMLinesNearListRegional";
             m_regionalLinesTemplateList = new UITemplateList<UIButton>(m_regListContainer, TLMLineItemButtonControl.LINE_ITEM_TEMPLATE);
         }
-        internal void EventWIPChanged(UIComponent component, bool isGrow) => UpdateNearLines((isGrow ? TransportLinesManagerMod.ShowNearLinesGrow : TransportLinesManagerMod.ShowNearLinesPlop), true);
+        internal void EventWIPChanged(bool isGrow)
+        {
+            m_dirty = true;
+            m_mayShow = isGrow ? TransportLinesManagerMod.ShowNearLinesGrow : TransportLinesManagerMod.ShowNearLinesPlop;
+        }
+
+        private void Update()
+        {
+            if (m_dirty)
+            {
+                UpdateNearLines(m_mayShow, true);
+            }
+        }
 
         private void UpdateNearLines(bool show, bool force = false)
         {
@@ -146,15 +160,19 @@ namespace Klyte.TransportLinesManager
                 }
             }
 
-            var regionalLines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId);
-            var showRegional = regionalLines != null && regionalLines.RegionalLinesCount > 0;
-            if (showRegional)
+            var showRegional = false;
+            if (b.Info.m_buildingAI is TransportStationAI tsai && tsai.m_transportLineInfo?.m_class.m_subService == ItemClass.SubService.PublicTransportTrain)
             {
-                var itemsEntries = m_regionalLinesTemplateList.SetItemCount(regionalLines.RegionalLinesCount);
-                for (ushort idx = 0; idx < regionalLines.RegionalLinesCount; idx++)
+                var regionalLines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId);
+                showRegional = regionalLines != null && regionalLines.RegionalLinesCount > 0;
+                if (showRegional)
                 {
-                    var itemControl = itemsEntries[idx].GetComponent<TLMLineItemButtonControl>();
-                    itemControl.ResetData(buildingId, idx, sidewalk);
+                    var itemsEntries = m_regionalLinesTemplateList.SetItemCount(regionalLines.RegionalLinesCount);
+                    for (ushort idx = 0; idx < regionalLines.RegionalLinesCount; idx++)
+                    {
+                        var itemControl = itemsEntries[idx].GetComponent<TLMLineItemButtonControl>();
+                        itemControl.ResetData(buildingId, idx, sidewalk);
+                    }
                 }
             }
 

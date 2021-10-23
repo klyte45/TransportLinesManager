@@ -20,6 +20,7 @@ namespace Klyte.TransportLinesManager
         private UIPanel m_platformListContainer;
         private UITemplateList<UIPanel> m_platformLinesTemplateList;
 
+        private bool m_dirty = true;
 
         internal static TLMRegionalPlatformSelection Init(UIComponent parent)
         {
@@ -47,9 +48,9 @@ namespace Klyte.TransportLinesManager
 
             m_title = UIHelperExtension.AddCheckboxLocale(m_containerParent, "K45_TLM_REGIONALPLATFORM_USECONFIG", false);
             m_title.label.autoSize = true;
-            KlyteMonoUtils.LimitWidthAndBox(m_title.label, 200);
-            m_title.height = 18;
-            m_title.width = 250;
+            KlyteMonoUtils.LimitWidthAndBox(m_title.label, 320);
+            m_title.height = 24;
+            m_title.width = 350;
 
             KlyteMonoUtils.CreateUIElement(out m_tableContainer, m_containerParent.transform);
             m_tableContainer.width = m_containerParent.width;
@@ -113,14 +114,19 @@ namespace Klyte.TransportLinesManager
             EventWIPChanged();
         }
 
-        internal void EventWIPChanged()
+        internal void EventWIPChanged() => m_dirty = true;
+        private void Update()
         {
-            m_title.eventCheckChanged -= OnToggleUseTlmSettings;
-            var building = WorldInfoPanel.GetCurrentInstanceID().Building;
-            var show = BuildingManager.instance.m_buildings.m_buffer[building].Info.m_buildingAI is TransportStationAI;
+            if (m_dirty)
+            {
+                m_title.eventCheckChanged -= OnToggleUseTlmSettings;
+                var building = WorldInfoPanel.GetCurrentInstanceID().Building;
+                var show = BuildingManager.instance.m_buildings.m_buffer[building].Info.m_buildingAI is TransportStationAI tsai && tsai.m_transportLineInfo?.m_class.m_subService == ItemClass.SubService.PublicTransportTrain;
 
-            UpdateNearPlatforms(show);
-            m_title.eventCheckChanged += OnToggleUseTlmSettings;
+                UpdateNearPlatforms(show);
+                m_title.eventCheckChanged += OnToggleUseTlmSettings;
+                m_dirty = false;
+            }
         }
 
         private void UpdateNearPlatforms(bool show)
@@ -130,7 +136,21 @@ namespace Klyte.TransportLinesManager
                 m_containerParent.isVisible = false;
                 return;
             }
+
             ushort buildingId = WorldInfoPanel.GetCurrentInstanceID().Building;
+            var data = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId);
+            if (data.BuildingData.TlmManagedRegionalLines)
+            {
+                m_title.isChecked = true;
+                m_tableContainer.isVisible = true;
+            }
+            else
+            {
+                m_title.isChecked = false;
+                m_tableContainer.isVisible = false;
+                m_containerParent.isVisible = true;
+                return;
+            }
             var instance = BuildingManager.instance;
             var nm = NetManager.instance;
             ref Building b = ref instance.m_buildings.m_buffer[buildingId];
@@ -147,7 +167,7 @@ namespace Klyte.TransportLinesManager
             {
                 titleItems[i].GetComponent<TLMTableTitleOutsideConnection>().ResetData(outsideConnections[i]);
             }
-            var stops = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId).StopPoints;
+            var stops = data.StopPoints;
             var rowItems = m_platformLinesTemplateList.SetItemCount(stops.Length);
             for (ushort i = 0; i < rowItems.Length; i++)
             {

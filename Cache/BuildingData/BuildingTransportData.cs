@@ -163,9 +163,9 @@ namespace Klyte.TransportLinesManager.Cache
                         int k = 0;
                         while (nextLaneId != 0)
                         {
-                            if (MapLane(nextLaneId, k, ref segment, directionPath, segment.Info.m_lanes[k], out List<StopPointDescriptorLanes> mappingResult))
+                            if (MapLane(nextLaneId, k, ref segment, directionPath, segment.Info.m_lanes[k], out StopPointDescriptorLanes mappingResult))
                             {
-                                result.AddRange(mappingResult);
+                                result.Add(mappingResult);
                             }
                             nextLaneId = nm.m_lanes.m_buffer[nextLaneId].m_nextLane;
                             k++;
@@ -216,51 +216,59 @@ namespace Klyte.TransportLinesManager.Cache
 
             return result.ToArray();
         }
-        private static bool MapLane(uint laneId, int laneIdx, ref NetSegment segment, Vector3 directionPath, NetInfo.Lane refLane, out List<StopPointDescriptorLanes> result)
+        private static bool MapLane(uint laneId, int laneIdx, ref NetSegment segment, Vector3 directionPath, NetInfo.Lane refLane, out StopPointDescriptorLanes result)
         {
-            result = new List<StopPointDescriptorLanes>();
-            if (refLane.m_laneType != NetInfo.LaneType.Vehicle)
+            result = default;
+            if (refLane.m_stopType == VehicleInfo.VehicleType.None)
             {
                 return false;
             }
 
-            segment.GetLeftAndRightLanes(segment.m_startNode, NetInfo.LaneType.Pedestrian, VehicleInfo.VehicleType.None, laneIdx, false, out int leftIdx, out int rightIdx, out uint leftLane, out uint rightLane);
+            segment.GetLeftAndRightLanes(segment.m_startNode, NetInfo.LaneType.Vehicle, refLane.m_stopType, laneIdx, false, out int leftIdx, out int rightIdx, out uint leftLane, out uint rightLane);
             ref NetLane nl = ref NetManager.instance.m_lanes.m_buffer[laneId];
+            if (leftIdx >= 0 && rightIdx >= 0)
+            {
+                var lanes = segment.Info.m_lanes;
+                if (Mathf.Abs(lanes[laneIdx].m_position - lanes[leftIdx].m_position) < Mathf.Abs(lanes[laneIdx].m_position - lanes[rightIdx].m_position))
+                {
+                    rightIdx = -1;
+                }
+                else
+                {
+                    leftIdx = -1;
+                }
+            }
             if (leftLane > 0 && leftIdx >= 0)
             {
-                var laneDescriptor = segment.Info.m_lanes[leftIdx];
-                if (laneDescriptor.m_stopType == refLane.m_vehicleType)
+                result = new StopPointDescriptorLanes
                 {
-                    result.Add(new StopPointDescriptorLanes
-                    {
-                        platformLine = nl.m_bezier,
-                        width = laneDescriptor.m_width,
-                        vehicleType = laneDescriptor.m_stopType,
-                        laneId = laneId,
-                        platformLaneId = leftLane,
-                        subbuildingId = -1,
-                        directionPath = directionPath * ((segment.m_flags & NetSegment.Flags.Invert) != 0 == (refLane.m_finalDirection == NetInfo.Direction.AvoidForward || refLane.m_finalDirection == NetInfo.Direction.Backward) ? 1 : -1)
-                    });
-                }
+                    platformLine = nl.m_bezier,
+                    width = refLane.m_width,
+                    vehicleType = refLane.m_stopType,
+                    laneId =  leftLane,
+                    platformLaneId = laneId,
+                    subbuildingId = -1,
+                    directionPath = directionPath * ((segment.m_flags & NetSegment.Flags.Invert) != 0 == (refLane.m_finalDirection == NetInfo.Direction.AvoidForward || refLane.m_finalDirection == NetInfo.Direction.Backward) ? 1 : -1)
+                };
+                return true;
+
             }
             if (rightLane > 0 && rightIdx >= 0)
             {
-                var laneDescriptor = segment.Info.m_lanes[rightIdx];
-                if (laneDescriptor.m_stopType == refLane.m_vehicleType)
+                result = new StopPointDescriptorLanes
                 {
-                    result.Add(new StopPointDescriptorLanes
-                    {
-                        platformLine = nl.m_bezier,
-                        width = laneDescriptor.m_width,
-                        vehicleType = laneDescriptor.m_stopType,
-                        laneId = laneId,
-                        platformLaneId = rightLane,
-                        subbuildingId = -1,
-                        directionPath = directionPath * ((segment.m_flags & NetSegment.Flags.Invert) != 0 == (refLane.m_finalDirection == NetInfo.Direction.AvoidForward || refLane.m_finalDirection == NetInfo.Direction.Backward) ? 1 : -1)
-                    });
-                }
+                    platformLine = nl.m_bezier,
+                    width = refLane.m_width,
+                    vehicleType = refLane.m_stopType,
+                    laneId = rightLane,
+                    platformLaneId = laneId,
+                    subbuildingId = -1,
+                    directionPath = directionPath * ((segment.m_flags & NetSegment.Flags.Invert) != 0 == (refLane.m_finalDirection == NetInfo.Direction.AvoidForward || refLane.m_finalDirection == NetInfo.Direction.Backward) ? 1 : -1)
+                };
+                return true;
+
             }
-            return result.Count > 0;
+            return false;
         }
         internal void GetPlatformData(ushort platformId, out PlatformConfig dataObj)
         {
@@ -279,7 +287,7 @@ namespace Klyte.TransportLinesManager.Cache
         public void RemoveRegionalLine(ushort platformId, ushort outsideConnectionId)
         {
             GetPlatformData(platformId, out PlatformConfig dataObj);
-            dataObj.RemoveDestination(outsideConnectionId);
+            dataObj.RemoveDestination(BuildingId, outsideConnectionId);
             RemapLines();
         }
 

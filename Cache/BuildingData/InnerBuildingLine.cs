@@ -169,6 +169,12 @@ namespace Klyte.TransportLinesManager.Cache
                                 flag = false;
                             }
                         }
+                        else
+                        {
+                            TransportLineAI.StartPathFind(segment, ref instance2.m_segments.m_buffer[segment], Info.m_netService, Info.m_secondaryNetService, Info.m_vehicleType, false);
+                            flag = false;
+                            m_needsToBeCalculated = true;
+                        }
                         num6 = instance2.m_segments.m_buffer[segment].m_endNode;
                         break;
                     }
@@ -201,10 +207,10 @@ namespace Klyte.TransportLinesManager.Cache
                     break;
                 }
             }
-            if (!flag)
-            {
-                return flag;
-            }
+            //if (!flag)
+            //{
+            //    return flag;
+            //}
             int num8 = 0;
             for (int j = 0; j < array.Length; j++)
             {

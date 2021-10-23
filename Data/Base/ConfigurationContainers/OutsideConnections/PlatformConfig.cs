@@ -1,7 +1,7 @@
 ﻿using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
@@ -21,25 +21,63 @@ namespace Klyte.TransportLinesManager.Extensions
         [XmlElement("targetOutsideConnectionBuildings")]
         public NonSequentialList<OutsideConnectionNodeInfo> TargetOutsideConnections { get; set; } = new NonSequentialList<OutsideConnectionNodeInfo>();
 
-        ~PlatformConfig() => ReleaseNodes();
-        public void ReleaseNodes()
+        public void ReleaseNodes(ushort sourceBuilding)
         {
             if (SimulationManager.exists)
             {
-                var nodesToRelease = TargetOutsideConnections.SelectMany(x => new List<ushort> { x.Value.m_nodeOutsideConnection, x.Value.m_nodeStation }).Where(x => x != 0).GroupBy(x => x).Select(x => x.First());
-                foreach (var key in TargetOutsideConnections.Keys.ToArray())
+                foreach (var val in TargetOutsideConnections.ToArray())
                 {
-                    TargetOutsideConnections[key] = null;
+                    ReleaseNodes(sourceBuilding, val.Value);
+                    TargetOutsideConnections.Remove(val.Key);
                 }
-                if (nodesToRelease.Count() > 0)
+            }
+        }
+        public void ReleaseNodes(ushort sourceBuilding, OutsideConnectionNodeInfo outsideConnection)
+        {
+            if (SimulationManager.exists)
+            {
+                var bm = BuildingManager.instance;
+                var instance = NetManager.instance;
+                ref Building data = ref bm.m_buildings.m_buffer[sourceBuilding];
+                ushort num = 0;
+                ushort num2 = data.m_netNode;
+                int num3 = 0;
+                while (num2 != 0)
                 {
-                    SimulationManager.instance.AddAction(() =>
+                    ushort nextBuildingNode = instance.m_nodes.m_buffer[num2].m_nextBuildingNode;
+                    if (num2 == outsideConnection.m_nodeStation || num2 == outsideConnection.m_nodeOutsideConnection)
                     {
-                        foreach (var node in nodesToRelease)
+                        if (num != 0)
                         {
-                            NetManager.instance.ReleaseNode(node);
+                            instance.m_nodes.m_buffer[num].m_nextBuildingNode = nextBuildingNode;
                         }
-                    });
+                        else
+                        {
+                            data.m_netNode = nextBuildingNode;
+                        }
+                        ReleaseLines(num2);
+                        instance.ReleaseNode(num2);
+                        num2 = num;
+                    }
+                    num = num2;
+                    num2 = nextBuildingNode;
+                    if (++num3 > 32768)
+                    {
+                        LogUtils.DoErrorLog("Invalid list detected!\n" + Environment.StackTrace);
+                        break;
+                    }
+                }
+            }
+        }
+        private void ReleaseLines(ushort node)
+        {
+            NetManager instance = NetManager.instance;
+            for (int i = 0; i < 8; i++)
+            {
+                ushort segment = instance.m_nodes.m_buffer[node].GetSegment(i);
+                if (segment != 0)
+                {
+                    instance.ReleaseSegment(segment, true);
                 }
             }
         }
@@ -69,22 +107,13 @@ namespace Klyte.TransportLinesManager.Extensions
                 }
             }
         }
-        public void RemoveDestination(ushort outsideConnectionId)
+        public void RemoveDestination(ushort stationId, ushort outsideConnectionId)
         {
             if (TargetOutsideConnections.ContainsKey(outsideConnectionId))
             {
-                var nodesToRelease = new List<ushort> { TargetOutsideConnections[outsideConnectionId].m_nodeOutsideConnection, TargetOutsideConnections[outsideConnectionId].m_nodeStation }.Where(x => x != 0).GroupBy(x => x).Select(x => x.First());
+                ReleaseNodes(stationId, TargetOutsideConnections[outsideConnectionId]);
+
                 TargetOutsideConnections.Remove(outsideConnectionId);
-                if (nodesToRelease.Count() > 0)
-                {
-                    SimulationManager.instance.AddAction(() =>
-                    {
-                        foreach (var node in nodesToRelease)
-                        {
-                            NetManager.instance.ReleaseNode(node);
-                        }
-                    });
-                }
             }
         }
 
@@ -105,6 +134,7 @@ namespace Klyte.TransportLinesManager.Extensions
                     {
                         instance.m_nodes.m_buffer[result.m_nodeStation].m_flags |= NetNode.Flags.Disabled;
                     }
+                    instance.m_nodes.m_buffer[result.m_nodeStation].m_flags |= NetNode.Flags.Fixed;
                     instance.UpdateNode(result.m_nodeStation);
                     instance.m_nodes.m_buffer[result.m_nodeStation].m_nextBuildingNode = stationBuilding.m_netNode;
                     stationBuilding.m_netNode = result.m_nodeStation;

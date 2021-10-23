@@ -24,14 +24,15 @@ namespace Klyte.TransportLinesManager.Extensions
         {
             if (SimulationManager.exists)
             {
-                var laneSegment = PlatformMappings.Values.Where(x => NetManager.instance.m_lanes.m_buffer[x.PlatformLaneId].m_segment == segmentId).Select(x => x.Id ?? 0);
+                var laneSegment = PlatformMappings.Values.Where(x => NetManager.instance.m_lanes.m_buffer[x.PlatformLaneId].m_segment == segmentId);
                 if (laneSegment.Count() > 0)
                 {
                     SimulationManager.instance.AddAction(() =>
                         {
                             foreach (var lane in laneSegment)
                             {
-                                PlatformMappings.Remove(lane);
+                                lane.ReleaseNodes((ushort)Id);
+                                PlatformMappings.Remove(lane.PlatformLaneId);
                             }
                         });
                 }
@@ -44,7 +45,6 @@ namespace Klyte.TransportLinesManager.Extensions
             if (value != TlmManagedRegionalLines && (building.Info.m_buildingAI is TransportStationAI stationAI))
             {
                 TlmManagedRegionalLines = value;
-                PlatformMappings.Clear();
                 stationAI.SetEmptying((ushort)(Id ?? 0), ref building, value);
                 var nextSubBuilding = building.m_subBuilding;
                 while (nextSubBuilding != 0)
@@ -64,8 +64,9 @@ namespace Klyte.TransportLinesManager.Extensions
                 {
                     foreach (var mapping in PlatformMappings.Values)
                     {
-                        mapping.ReleaseNodes();
+                        mapping.ReleaseNodes((ushort)Id);
                     }
+                    PlatformMappings.Clear();
                 }
             }
         }

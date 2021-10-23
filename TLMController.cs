@@ -137,19 +137,23 @@ namespace Klyte.TransportLinesManager
                 parent2.autoLayoutPadding.bottom = 5;
                 parent2.autoFitChildrenVertically = true;
                 parent2.autoLayoutDirection = LayoutDirection.Vertical;
+                var isGrow = wip is ZonedBuildingWorldInfoPanel;
+                var controller = TLMNearLinesController.InitPanelNearLinesOnWorldInfoPanel(parent2);
+                parent.eventVisibilityChanged += (x, y) => controller?.EventWIPChanged(isGrow);
+                parent.eventPositionChanged += (x, y) => controller?.EventWIPChanged(isGrow);
+                parent.eventSizeChanged += (x, y) => controller?.EventWIPChanged(isGrow);
                 if (wip is CityServiceWorldInfoPanel)
                 {
                     var controllerP = TLMRegionalPlatformSelection.Init(parent2);
                     parent.eventVisibilityChanged += (x, y) => controllerP?.EventWIPChanged();
                     parent.eventPositionChanged += (x, y) => controllerP?.EventWIPChanged();
                     parent.eventSizeChanged += (x, y) => controllerP?.EventWIPChanged();
-                    NetManagerOverrides.EventNodeChanged += (x) => controllerP?.EventWIPChanged();
+                    NetManagerOverrides.EventNodeChanged += (x) =>
+                    {
+                        controllerP?.EventWIPChanged();
+                        controller?.EventWIPChanged(isGrow);
+                    };
                 }
-                var isGrow = wip is ZonedBuildingWorldInfoPanel;
-                var controller = TLMNearLinesController.InitPanelNearLinesOnWorldInfoPanel(parent2);
-                parent.eventVisibilityChanged += (x, y) => controller?.EventWIPChanged(x, isGrow);
-                parent.eventPositionChanged += (x, y) => controller?.EventWIPChanged(x, isGrow);
-                parent.eventSizeChanged += (x, y) => controller?.EventWIPChanged(x, isGrow);
 
             }
 
