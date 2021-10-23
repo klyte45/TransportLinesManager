@@ -36,11 +36,8 @@ namespace Klyte.TransportLinesManager
         private UILabel content;
         private ushort buildingId;
 
-        public void Awake()
-        {
-            content = GetComponent<UILabel>();
-            KlyteMonoUtils.LimitWidthAndBox(content, 88, true);
-        }
+        public void Awake() => content = GetComponent<UILabel>();
+        public void Start() => KlyteMonoUtils.LimitWidthAndBox(content, 88, true);
 
         public void ResetData(ushort buildingId)
         {
@@ -53,7 +50,7 @@ namespace Klyte.TransportLinesManager
             var instance = BuildingManager.instance;
             ref Building b = ref instance.m_buildings.m_buffer[buildingId];
             content.prefix = instance.GetBuildingName(buildingId, new InstanceID { Building = buildingId });
-            var azimuth = (b.m_position.GetAngleXZ() + 360) % 360;
+            var azimuth = (90 - b.m_position.GetAngleXZ() + 360) % 360;
             content.suffix = $"{azimuth.ToString("0")}° - {CardinalPoint.GetCardinalPoint16LocalizedShort(azimuth)}";
         }
     }

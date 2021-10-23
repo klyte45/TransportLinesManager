@@ -13,6 +13,9 @@ namespace Klyte.TransportLinesManager.Cache
         public bool BrokenFromSrc { get; set; }
         public bool BrokenFromDst { get; set; }
 
+        private bool m_needsToBeCalculated;
+        private uint m_lastCheckTick;
+
         private Mesh[] m_lineMeshes;
         private RenderGroup.MeshData[] m_lineMeshData;
 
@@ -107,9 +110,9 @@ namespace Klyte.TransportLinesManager.Cache
 
         public void RenderLine(RenderManager.CameraInfo cameraInfo, ushort lineID)
         {
-            if (BrokenFromSrc && BrokenFromDst)
+            if (m_needsToBeCalculated && SimulationManager.instance.m_currentTickIndex - m_lastCheckTick > 50)
             {
-                return;
+                UpdateMeshData();
             }
             if (m_lineMeshData != null)
             {
@@ -130,6 +133,7 @@ namespace Klyte.TransportLinesManager.Cache
             ushort stops = SrcStop;
             ushort num4 = stops;
             int num5 = 0;
+            m_needsToBeCalculated = false;
             while (num4 != 0)
             {
                 ushort num6 = 0;
@@ -142,16 +146,17 @@ namespace Klyte.TransportLinesManager.Cache
                         if (path != 0U)
                         {
                             byte pathFindFlags = instance3.m_pathUnits.m_buffer[path].m_pathFindFlags;
-                            if ((pathFindFlags & 4) != 0)
+                            if ((pathFindFlags & 4) != 0)//not calculated
                             {
                                 Vector3 zero = Vector3.zero;
                                 if (!TransportLine.CalculatePathSegmentCount(path, 0, NetInfo.LaneType.All, VehicleInfo.VehicleType.All, ref array, ref num2, ref num3, ref zero))
                                 {
                                     TransportLineAI.StartPathFind(segment, ref instance2.m_segments.m_buffer[segment], Info.m_netService, Info.m_secondaryNetService, Info.m_vehicleType, false);
                                     flag = false;
+                                    m_needsToBeCalculated = true;
                                 }
                             }
-                            else if ((pathFindFlags & 8) == 0)
+                            else if ((pathFindFlags & 8) == 0) //invalid
                             {
                                 if (num4 == stops)
                                 {
@@ -297,6 +302,7 @@ namespace Klyte.TransportLinesManager.Cache
                 }
             }
             m_lineMeshData = array8;
+            m_lastCheckTick = SimulationManager.instance.m_currentTickIndex;
             //m_lineSegments[lineID] = array4;
             //m_lineCurves[lineID] = array5;
             //tl.m_bounds.SetMinMax(vector, vector2);
@@ -316,7 +322,7 @@ namespace Klyte.TransportLinesManager.Cache
                     Mesh mesh = m_lineMeshes[i];
                     if (mesh != null && cameraInfo.Intersect(mesh.bounds))
                     {
-                        material.color = BuildingTransportLinesCache.COLOR_ORDER[lineID % BuildingTransportLinesCache.COLOR_ORDER.Length];
+                        material.color = TLMController.COLOR_ORDER[lineID % TLMController.COLOR_ORDER.Length];
                         material.SetFloat(TransportManager.instance.ID_StartOffset, -1000f);
                         if (Info.m_requireSurfaceLine)
                         {

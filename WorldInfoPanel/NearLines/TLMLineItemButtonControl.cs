@@ -194,7 +194,7 @@ namespace Klyte.TransportLinesManager
             {
                 daytimeIndicatorLabel.isVisible = false;
                 var lineObj = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId).SafeGetRegionalLine(lineId);
-                var color = BuildingTransportLinesCache.COLOR_ORDER[lineId % BuildingTransportLinesCache.COLOR_ORDER.Length];
+                var color = TLMController.COLOR_ORDER[lineId % TLMController.COLOR_ORDER.Length];
                 button.color = color;
                 button.disabledColor = color;
                 button.focusedColor = color;

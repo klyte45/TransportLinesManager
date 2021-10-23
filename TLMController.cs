@@ -140,15 +140,16 @@ namespace Klyte.TransportLinesManager
                 if (wip is CityServiceWorldInfoPanel)
                 {
                     var controllerP = TLMRegionalPlatformSelection.Init(parent2);
-                    parent2.eventVisibilityChanged += (x, y) => controllerP.EventWIPChanged(x);
-                    parent2.eventPositionChanged += (x, y) => controllerP.EventWIPChanged(x);
-                    parent2.eventSizeChanged += (x, y) => controllerP.EventWIPChanged(x);
+                    parent.eventVisibilityChanged += (x, y) => controllerP?.EventWIPChanged();
+                    parent.eventPositionChanged += (x, y) => controllerP?.EventWIPChanged();
+                    parent.eventSizeChanged += (x, y) => controllerP?.EventWIPChanged();
+                    NetManagerOverrides.EventNodeChanged += (x) => controllerP?.EventWIPChanged();
                 }
                 var isGrow = wip is ZonedBuildingWorldInfoPanel;
                 var controller = TLMNearLinesController.InitPanelNearLinesOnWorldInfoPanel(parent2);
-                parent2.eventVisibilityChanged += (x, y) => controller.EventWIPChanged(x, isGrow);
-                parent2.eventPositionChanged += (x, y) => controller.EventWIPChanged(x, isGrow);
-                parent2.eventSizeChanged += (x, y) => controller.EventWIPChanged(x, isGrow);
+                parent.eventVisibilityChanged += (x, y) => controller?.EventWIPChanged(x, isGrow);
+                parent.eventPositionChanged += (x, y) => controller?.EventWIPChanged(x, isGrow);
+                parent.eventSizeChanged += (x, y) => controller?.EventWIPChanged(x, isGrow);
 
             }
 
@@ -179,6 +180,33 @@ namespace Klyte.TransportLinesManager
             ConnectorADR = PluginUtils.GetImplementationTypeForMod<BridgeADR, BridgeADRFallback, IBridgeADR>(gameObject, "KlyteAddresses", "2.99.99.0");
             ConnectorWTS = PluginUtils.GetImplementationTypeForMod<BridgeWTS, BridgeWTSFallback, IBridgeWTS>(gameObject, "KlyteWriteTheSigns", "0.3.0.0");
         }
+
+
+
+
+        internal static readonly Color[] COLOR_ORDER = new Color[]
+             {
+                Color.red,
+                Color.Lerp(Color.red, Color.yellow,0.5f),
+                Color.yellow,
+                Color.green,
+                Color.cyan,
+                Color.blue,
+                Color.Lerp(Color.blue, Color.magenta,0.5f),
+                Color.magenta,
+                Color.white,
+                Color.black,
+                Color.Lerp( Color.red,                                    Color.black,0.5f),
+                Color.Lerp( Color.Lerp(Color.red, Color.yellow,0.5f),     Color.black,0.5f),
+                Color.Lerp( Color.yellow,                                 Color.black,0.5f),
+                Color.Lerp( Color.green,                                  Color.black,0.5f),
+                Color.Lerp( Color.cyan,                                   Color.black,0.5f),
+                Color.Lerp( Color.blue,                                   Color.black,0.5f),
+                Color.Lerp( Color.Lerp(Color.blue, Color.magenta,0.5f),   Color.black,0.5f),
+                Color.Lerp( Color.magenta,                                Color.black,0.5f),
+                Color.Lerp( Color.white,                                  Color.black,0.25f),
+                Color.Lerp( Color.white,                                  Color.black,0.75f)
+             };
     }
 
 }

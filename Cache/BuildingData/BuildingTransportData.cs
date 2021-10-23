@@ -1,4 +1,5 @@
 ﻿using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,16 +7,31 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Cache
 {
-    public class BuildingTransportData
+    public class BuildingTransportDataCache
     {
         private List<InnerBuildingLine> RegionalLines { get; } = new List<InnerBuildingLine>();
         private ushort BuildingId { get; }
         public int RegionalLinesCount => RegionalLines.Count;
-        private StopPointDescriptorLanes[] StopPoints { get; }
+        public StopPointDescriptorLanes[] StopPoints { get; }
 
-        public BuildingTransportData(ushort buildingId, ref Building b, TransportStationAI tsai)
+        public TLMBuildingsConfiguration BuildingData => TLMBuildingDataContainer.Instance.SafeGet(BuildingId);
+
+        public BuildingTransportDataCache(ushort buildingId, ref Building b, TransportStationAI tsai)
         {
             BuildingId = buildingId;
+            RemapLines(buildingId, ref b, tsai);
+            StopPoints = MapStopPoints();
+        }
+
+        public void RemapLines()
+        {
+            RegionalLines.Clear();
+            ref Building b = ref BuildingManager.instance.m_buildings.m_buffer[BuildingId];
+            RemapLines(BuildingId, ref b, b.Info.m_buildingAI as TransportStationAI);
+        }
+
+        private void RemapLines(ushort buildingId, ref Building b, TransportStationAI tsai)
+        {
             var useSecInfo = tsai.UseSecondaryTransportInfoForConnection();
             var targetInfo = useSecInfo ? tsai.m_secondaryTransportInfo : tsai.m_transportInfo;
             MapBuildingLines(buildingId, buildingId, targetInfo);
@@ -30,8 +46,6 @@ namespace Klyte.TransportLinesManager.Cache
             {
                 RegionalLines[i].UpdateMeshData();
             }
-
-            StopPoints = MapStopPoints();
         }
 
         public InnerBuildingLine SafeGetRegionalLine(ushort lineId) => lineId < RegionalLines.Count ? RegionalLines[lineId] : null;
@@ -43,7 +57,7 @@ namespace Klyte.TransportLinesManager.Cache
             {
 
                 RenderManager.instance.OverlayEffect.DrawCircle(cameraInfo,
-                   BuildingTransportLinesCache.COLOR_ORDER[i % BuildingTransportLinesCache.COLOR_ORDER.Length],
+                   TLMController.COLOR_ORDER[i % TLMController.COLOR_ORDER.Length],
                      instance.m_lanes.m_buffer[StopPoints[i].laneId].m_bezier.Position(0.5f),
                      StopPoints[i].width * 2,
                    -1, 1280f, false, true);
@@ -69,6 +83,11 @@ namespace Klyte.TransportLinesManager.Cache
                 if (!(node.Info.m_netAI is TransportLineAI))
                 {
                     break;
+                }
+                if (RegionalLines.Any(x => x.SrcStop == nextNodeId || x.DstStop == nextNodeId))
+                {
+                    nextNodeId = node.m_nextBuildingNode;
+                    continue;
                 }
                 InnerBuildingLine transportLine =
                     TLMStationUtils.GetStationBuilding(nextNodeId, (ushort)RegionalLines.Count, buildingId) != buildingIdKey
@@ -144,9 +163,9 @@ namespace Klyte.TransportLinesManager.Cache
                         int k = 0;
                         while (nextLaneId != 0)
                         {
-                            if (MapLane(nextLaneId, ref segment, ref srcNode, ref dstNode, directionPath, segment.Info.m_lanes[k], out StopPointDescriptorLanes mappingResult))
+                            if (MapLane(nextLaneId, k, ref segment, directionPath, segment.Info.m_lanes[k], out List<StopPointDescriptorLanes> mappingResult))
                             {
-                                result.Add(mappingResult);
+                                result.AddRange(mappingResult);
                             }
                             nextLaneId = nm.m_lanes.m_buffer[nextLaneId].m_nextLane;
                             k++;
@@ -170,6 +189,7 @@ namespace Klyte.TransportLinesManager.Cache
                 subBuildingId = BuildingManager.instance.m_buildings.m_buffer[subBuildingId].m_subBuilding;
                 subbuildingIndex++;
             }
+            result = result.OrderByDescending(x => x.subbuildingId).GroupBy(x => x.platformLaneId).Select(x => x.First()).ToList();
             result.Sort((x, y) =>
             {
                 int priorityX = StopSearchUtils.VehicleToPriority(x.vehicleType);
@@ -196,24 +216,71 @@ namespace Klyte.TransportLinesManager.Cache
 
             return result.ToArray();
         }
-        private static bool MapLane(uint laneId, ref NetSegment segment, ref NetNode src, ref NetNode dst, Vector3 directionPath, NetInfo.Lane refLane, out StopPointDescriptorLanes result)
+        private static bool MapLane(uint laneId, int laneIdx, ref NetSegment segment, Vector3 directionPath, NetInfo.Lane refLane, out List<StopPointDescriptorLanes> result)
         {
-            result = default;
-            if (refLane.m_stopType == VehicleInfo.VehicleType.None)
+            result = new List<StopPointDescriptorLanes>();
+            if (refLane.m_laneType != NetInfo.LaneType.Vehicle)
             {
                 return false;
             }
+
+            segment.GetLeftAndRightLanes(segment.m_startNode, NetInfo.LaneType.Pedestrian, VehicleInfo.VehicleType.None, laneIdx, false, out int leftIdx, out int rightIdx, out uint leftLane, out uint rightLane);
             ref NetLane nl = ref NetManager.instance.m_lanes.m_buffer[laneId];
-            result = new StopPointDescriptorLanes
+            if (leftLane > 0 && leftIdx >= 0)
             {
-                platformLine = nl.m_bezier,
-                width = refLane.m_width,
-                vehicleType = refLane.m_stopType,
-                laneId = laneId,
-                subbuildingId = -1,
-                directionPath = directionPath * ((segment.m_flags & NetSegment.Flags.Invert) != 0 == (refLane.m_finalDirection == NetInfo.Direction.AvoidForward || refLane.m_finalDirection == NetInfo.Direction.Backward) ? 1 : -1)
-            };
-            return true;
+                var laneDescriptor = segment.Info.m_lanes[leftIdx];
+                if (laneDescriptor.m_stopType == refLane.m_vehicleType)
+                {
+                    result.Add(new StopPointDescriptorLanes
+                    {
+                        platformLine = nl.m_bezier,
+                        width = laneDescriptor.m_width,
+                        vehicleType = laneDescriptor.m_stopType,
+                        laneId = laneId,
+                        platformLaneId = leftLane,
+                        subbuildingId = -1,
+                        directionPath = directionPath * ((segment.m_flags & NetSegment.Flags.Invert) != 0 == (refLane.m_finalDirection == NetInfo.Direction.AvoidForward || refLane.m_finalDirection == NetInfo.Direction.Backward) ? 1 : -1)
+                    });
+                }
+            }
+            if (rightLane > 0 && rightIdx >= 0)
+            {
+                var laneDescriptor = segment.Info.m_lanes[rightIdx];
+                if (laneDescriptor.m_stopType == refLane.m_vehicleType)
+                {
+                    result.Add(new StopPointDescriptorLanes
+                    {
+                        platformLine = nl.m_bezier,
+                        width = laneDescriptor.m_width,
+                        vehicleType = laneDescriptor.m_stopType,
+                        laneId = laneId,
+                        platformLaneId = rightLane,
+                        subbuildingId = -1,
+                        directionPath = directionPath * ((segment.m_flags & NetSegment.Flags.Invert) != 0 == (refLane.m_finalDirection == NetInfo.Direction.AvoidForward || refLane.m_finalDirection == NetInfo.Direction.Backward) ? 1 : -1)
+                    });
+                }
+            }
+            return result.Count > 0;
+        }
+        internal void GetPlatformData(ushort platformId, out PlatformConfig dataObj)
+        {
+            var targetLaneIdx = StopPoints[platformId];
+            if (!BuildingData.PlatformMappings.TryGetValue(targetLaneIdx.UniquePlatformId, out dataObj))
+            {
+                dataObj = BuildingData.PlatformMappings[targetLaneIdx.UniquePlatformId] = new PlatformConfig();
+            }
+        }
+        public void AddRegionalLine(ushort platformId, ushort outsideConnectionId)
+        {
+            GetPlatformData(platformId, out PlatformConfig dataObj);
+            dataObj.AddDestination(BuildingId, outsideConnectionId);
+            RemapLines();
+        }
+        public void RemoveRegionalLine(ushort platformId, ushort outsideConnectionId)
+        {
+            GetPlatformData(platformId, out PlatformConfig dataObj);
+            dataObj.RemoveDestination(outsideConnectionId);
+            RemapLines();
         }
 
     }

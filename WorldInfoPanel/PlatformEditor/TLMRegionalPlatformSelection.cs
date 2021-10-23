@@ -1,5 +1,7 @@
 ﻿using ColossalFramework.UI;
+using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using System.Linq;
 using UnityEngine;
@@ -12,12 +14,11 @@ namespace Klyte.TransportLinesManager
 
         private UIPanel m_containerParent;
         private UIPanel m_tableContainer;
-        private UILabel m_title;
+        private UICheckBox m_title;
         private UIPanel m_titleRowContainer;
         private UITemplateList<UILabel> m_titleOutsideConnectionsTemplateList;
         private UIPanel m_platformListContainer;
-        private UITemplateList<UIButton> m_platformLinesTemplateList;
-        private ushort lastBuildingSelected = 0;
+        private UITemplateList<UIPanel> m_platformLinesTemplateList;
 
 
         internal static TLMRegionalPlatformSelection Init(UIComponent parent)
@@ -44,19 +45,16 @@ namespace Klyte.TransportLinesManager
             m_containerParent.padding.top = 5;
             m_containerParent.padding.bottom = 5;
 
-
-            KlyteMonoUtils.CreateUIElement(out m_title, m_containerParent.transform);
-            m_title.autoSize = true;
-            m_title.width = m_containerParent.width;
-            m_title.textAlignment = UIHorizontalAlignment.Left;
-            m_title.localeID = "K45_TLM_REGIONALPLATFORM_CONFIG";
-            m_title.useOutline = true;
+            m_title = UIHelperExtension.AddCheckboxLocale(m_containerParent, "K45_TLM_REGIONALPLATFORM_USECONFIG", false);
+            m_title.label.autoSize = true;
+            KlyteMonoUtils.LimitWidthAndBox(m_title.label, 200);
             m_title.height = 18;
+            m_title.width = 250;
 
             KlyteMonoUtils.CreateUIElement(out m_tableContainer, m_containerParent.transform);
             m_tableContainer.width = m_containerParent.width;
             m_tableContainer.autoFitChildrenVertically = true;
-            m_tableContainer.autoFitChildrenHorizontally= true;
+            m_tableContainer.autoFitChildrenHorizontally = true;
             m_tableContainer.autoLayout = true;
             m_tableContainer.autoLayoutDirection = LayoutDirection.Vertical;
             m_tableContainer.autoLayoutPadding = new RectOffset(2, 2, 2, 2);
@@ -103,17 +101,29 @@ namespace Klyte.TransportLinesManager
             m_platformListContainer.autoLayoutStart = LayoutStart.TopLeft;
             m_platformListContainer.wrapLayout = true;
             m_platformListContainer.name = "TLMPlatformRegionalDestinations";
-            m_platformLinesTemplateList = new UITemplateList<UIButton>(m_platformListContainer, TLMLineItemButtonControl.LINE_ITEM_TEMPLATE);
+            TLMTableRowOutsideConnection.EnsureTemplate();
+            m_platformLinesTemplateList = new UITemplateList<UIPanel>(m_platformListContainer, TLMTableRowOutsideConnection.ITEM_TEMPLATE);
         }
-        internal void EventWIPChanged(UIComponent component)
+
+        private void OnToggleUseTlmSettings(UIComponent _, bool value)
         {
+            var building = WorldInfoPanel.GetCurrentInstanceID().Building;
+            TLMBuildingDataContainer.Instance.SafeGet(building).OnToggleTlmRegionalManagement(value);
+
+            EventWIPChanged();
+        }
+
+        internal void EventWIPChanged()
+        {
+            m_title.eventCheckChanged -= OnToggleUseTlmSettings;
             var building = WorldInfoPanel.GetCurrentInstanceID().Building;
             var show = BuildingManager.instance.m_buildings.m_buffer[building].Info.m_buildingAI is TransportStationAI;
 
             UpdateNearPlatforms(show);
+            m_title.eventCheckChanged += OnToggleUseTlmSettings;
         }
 
-        private void UpdateNearPlatforms(bool show, bool force = false)
+        private void UpdateNearPlatforms(bool show)
         {
             if (!show)
             {
@@ -122,6 +132,7 @@ namespace Klyte.TransportLinesManager
             }
             ushort buildingId = WorldInfoPanel.GetCurrentInstanceID().Building;
             var instance = BuildingManager.instance;
+            var nm = NetManager.instance;
             ref Building b = ref instance.m_buildings.m_buffer[buildingId];
             if (!(b.Info.m_buildingAI is TransportStationAI tsai) || tsai.m_transportLineInfo is null)
             {
@@ -129,17 +140,28 @@ namespace Klyte.TransportLinesManager
                 return;
             }
             m_containerParent.isVisible = true;
-            var outsideConnections = instance.GetOutsideConnections().ToArray().Where(x =>
-            instance.m_buildings.m_buffer[x].Info is BuildingInfo outsideConn
-            && (
-                (outsideConn.m_class.m_service == tsai.m_transportLineInfo.m_class.m_service && outsideConn.m_class.m_subService == tsai.m_transportLineInfo.m_class.m_subService)
-                || tsai.IsIntercityBusConnection(outsideConn))
-            ).ToArray();
+            var outsideConnections = instance.GetOutsideConnections().ToArray().Where(tsai.IsValidOutsideConnection).ToArray();
 
             var titleItems = m_titleOutsideConnectionsTemplateList.SetItemCount(outsideConnections.Length);
             for (int i = 0; i < titleItems.Length; i++)
             {
                 titleItems[i].GetComponent<TLMTableTitleOutsideConnection>().ResetData(outsideConnections[i]);
+            }
+            var stops = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId).StopPoints;
+            var rowItems = m_platformLinesTemplateList.SetItemCount(stops.Length);
+            for (ushort i = 0; i < rowItems.Length; i++)
+            {
+                var row = rowItems[i];
+                if (tsai.IsValidOutsideConnectionTrack(nm.m_segments.m_buffer[nm.m_lanes.m_buffer[stops[i].laneId].m_segment].Info))
+                {
+                    row.isVisible = true;
+                    var controller = row.GetComponentInChildren<TLMTableRowOutsideConnection>();
+                    controller.ResetData(buildingId, i, outsideConnections);
+                }
+                else
+                {
+                    row.isVisible = false;
+                }
             }
         }
     }
