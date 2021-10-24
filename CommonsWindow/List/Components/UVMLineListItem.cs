@@ -97,7 +97,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 SetBackgroundColor(((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None));
 
                 m_lineIsVisible.isVisible = true;
-                var tsd = TransportSystemDefinition.FromLineId(m_lineID, 0);
+                var tsd = TransportSystemDefinition.FromLineId(m_lineID, false);
                 if (updateColors)
                 {
                     m_lineColor.selectedColor = Singleton<TransportManager>.instance.GetLineColor(m_lineID);
@@ -227,7 +227,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         public void DoAutoColor() => TLMController.AutoColor(m_lineID);
 
-        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID,0, out _));
+        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, 0, out _));
 
         private void OnMouseEnter(UIComponent comp, UIMouseEventParameter param)
         {

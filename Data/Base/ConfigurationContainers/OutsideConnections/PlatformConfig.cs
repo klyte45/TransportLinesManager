@@ -10,16 +10,16 @@ namespace Klyte.TransportLinesManager.Extensions
 {
     public class PlatformConfig : IIdentifiable
     {
-        [XmlAttribute("platformLaneId")]
+        [XmlAttribute("passengerLaneId")]
         public long? Id { get; set; }
 
         [XmlIgnore]
-        public uint PlatformLaneId => (uint)(Id >> 31);
-        [XmlIgnore]
-        public uint VehicleLaneId => (uint)(Id & 0x7FFFFFFF);
+        public uint PlatformLaneId => (uint)Id;
+        [XmlAttribute("vehicleLaneId")]
+        public uint VehicleLaneId { get; set; }
 
         [XmlElement("targetOutsideConnectionBuildings")]
-        public NonSequentialList<OutsideConnectionNodeInfo> TargetOutsideConnections { get; set; } = new NonSequentialList<OutsideConnectionNodeInfo>();
+        public NonSequentialList<OutsideConnectionLineInfo> TargetOutsideConnections { get; set; } = new NonSequentialList<OutsideConnectionLineInfo>();
 
         public void ReleaseNodes(ushort sourceBuilding)
         {
@@ -32,7 +32,7 @@ namespace Klyte.TransportLinesManager.Extensions
                 }
             }
         }
-        public void ReleaseNodes(ushort sourceBuilding, OutsideConnectionNodeInfo outsideConnection)
+        public void ReleaseNodes(ushort sourceBuilding, OutsideConnectionLineInfo outsideConnection)
         {
             if (SimulationManager.exists)
             {
@@ -86,7 +86,7 @@ namespace Klyte.TransportLinesManager.Extensions
             var keys = TargetOutsideConnections.Keys.ToArray();
             foreach (var key in keys)
             {
-                if (TargetOutsideConnections[key] is null && CreateConnectionLines(stationId, (ushort)key) is OutsideConnectionNodeInfo conn)
+                if (TargetOutsideConnections[key] is null && CreateConnectionLines(stationId, (ushort)key) is OutsideConnectionLineInfo conn)
                 {
                     TargetOutsideConnections[key] = conn;
                 }
@@ -97,12 +97,14 @@ namespace Klyte.TransportLinesManager.Extensions
             }
         }
 
-        public void AddDestination(ushort stationId, ushort outsideConnectionId)
+        public void AddDestination(ushort stationId, ushort outsideConnectionId, string name, Color clr)
         {
             if (!TargetOutsideConnections.ContainsKey(outsideConnectionId))
             {
-                if (CreateConnectionLines(stationId, outsideConnectionId) is OutsideConnectionNodeInfo conn)
+                if (CreateConnectionLines(stationId, outsideConnectionId) is OutsideConnectionLineInfo conn)
                 {
+                    conn.Identifier = name;
+                    conn.LineColor = clr;
                     TargetOutsideConnections[outsideConnectionId] = conn;
                 }
             }
@@ -119,14 +121,14 @@ namespace Klyte.TransportLinesManager.Extensions
 
         private Vector3 StationPlatformPosition => NetManager.instance.m_lanes.m_buffer[VehicleLaneId].m_bezier.Position(.5f);
 
-        private OutsideConnectionNodeInfo CreateConnectionLines(ushort stationId, ushort outsideConnectionId)
+        private OutsideConnectionLineInfo CreateConnectionLines(ushort stationId, ushort outsideConnectionId)
         {
             ref Building stationBuilding = ref BuildingManager.instance.m_buildings.m_buffer[stationId];
             ref Building outsideConnectionBuilding = ref BuildingManager.instance.m_buildings.m_buffer[outsideConnectionId];
             if ((stationBuilding.Info.m_buildingAI is TransportStationAI tsai) && (outsideConnectionBuilding.m_flags & Building.Flags.IncomingOutgoing) != Building.Flags.None)
             {
                 var stationPlatformPosition = StationPlatformPosition;
-                var result = new OutsideConnectionNodeInfo();
+                var result = new OutsideConnectionLineInfo();
                 NetManager instance = NetManager.instance;
                 if (tsai.CreateConnectionNode(out result.m_nodeStation, stationPlatformPosition))
                 {
@@ -135,6 +137,7 @@ namespace Klyte.TransportLinesManager.Extensions
                         instance.m_nodes.m_buffer[result.m_nodeStation].m_flags |= NetNode.Flags.Disabled;
                     }
                     instance.m_nodes.m_buffer[result.m_nodeStation].m_flags |= NetNode.Flags.Fixed;
+                    instance.m_nodes.m_buffer[result.m_nodeStation].m_lane = PlatformLaneId;
                     instance.UpdateNode(result.m_nodeStation);
                     instance.m_nodes.m_buffer[result.m_nodeStation].m_nextBuildingNode = stationBuilding.m_netNode;
                     stationBuilding.m_netNode = result.m_nodeStation;

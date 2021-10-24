@@ -7,6 +7,7 @@ using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static Klyte.TransportLinesManager.UI.UVMPublicTransportWorldInfoPanel.UVMPublicTransportWorldInfoPanelObject;
 
@@ -82,11 +83,11 @@ namespace Klyte.TransportLinesManager.UI
             UITemplateUtils.GetTemplateDict()[TEMPLATE_NAME] = go.AddComponent<LinearMapStationContainer>().component;
         }
 
-        private ItemClass.SubService CurrentSubService => m_buildingId > 0 ? TransportLinesManagerMod.Controller.BuildingLines.SafeGet(m_buildingId).SafeGetRegionalLine(m_lineId)?.Info.m_netSubService ?? ItemClass.SubService.None : TransportSystemDefinition.GetDefinitionForLine(m_lineId).SubService;
+        private ItemClass.SubService CurrentSubService => m_fromBuilding ? TransportLinesManagerMod.Controller.BuildingLines[m_lineId]?.Info.m_netSubService ?? ItemClass.SubService.None : TransportSystemDefinition.GetDefinitionForLine(m_lineId).SubService;
 
         private ushort m_stopId;
         private ushort m_lineId;
-        private ushort m_buildingId;
+        private bool m_fromBuilding;
         private UIPanel bg;
         private UIPanel connectionPanel;
         private UITextField stopNameField;
@@ -118,7 +119,7 @@ namespace Klyte.TransportLinesManager.UI
                 stopNameField.text = TLMStationUtils.GetStationName(m_stopId,
                     m_lineId,
                     CurrentSubService,
-                    m_buildingId);
+                    m_fromBuilding);
                 stopNameField.Focus();
             };
             stopNameField.eventLeaveFocus += delegate (UIComponent c, UIFocusEventParameter r)
@@ -128,17 +129,17 @@ namespace Klyte.TransportLinesManager.UI
             };
             stopNameField.eventTextSubmitted += (x, y) =>
             {
-                if (m_buildingId == 0)
+                if (!m_fromBuilding)
                 {
                     TLMStationUtils.SetStopName(y.Trim(), m_stopId, m_lineId, () =>
                     {
-                        uilabel.prefix = $"<color white>{TLMStationUtils.GetFullStationName(m_stopId, m_lineId, CurrentSubService, m_buildingId)}</color>";
+                        uilabel.prefix = $"<color white>{TLMStationUtils.GetFullStationName(m_stopId, m_lineId, CurrentSubService, m_fromBuilding)}</color>";
                     });
                 }
             };
             uibutton.eventMouseUp += (x, y) =>
             {
-                if ((y.buttons & UIMouseButton.Right) != 0 && m_buildingId == 0 && TransportSystemDefinition.FromLineId(m_lineId, m_buildingId).CanHaveTerminals() && m_stopId != Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineId].m_stops)
+                if ((y.buttons & UIMouseButton.Right) != 0 && !m_fromBuilding && TransportSystemDefinition.FromLineId(m_lineId, m_fromBuilding).CanHaveTerminals() && m_stopId != Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineId].m_stops)
                 {
                     var newVal = TLMStopDataContainer.Instance.SafeGet(m_stopId).IsTerminal;
                     TLMStopDataContainer.Instance.SafeGet(m_stopId).IsTerminal = !newVal;
@@ -155,20 +156,20 @@ namespace Klyte.TransportLinesManager.UI
             InstanceManagerOverrides.EventOnBuildingRenamed += (x) => m_dirtyNames = true;
         }
 
-        internal void SetTarget(ushort stopId, ushort buildingId, ushort lineId, string distance)
+        internal void SetTarget(ushort stopId, bool fromBuilding, ushort lineId, string distance)
         {
             m_stopId = stopId;
-            m_buildingId = buildingId;
+            m_fromBuilding = fromBuilding;
             m_lineId = lineId;
 
 
-            uilabel.prefix = TLMStationUtils.GetFullStationName(m_stopId, m_lineId, CurrentSubService, m_buildingId);
+            uilabel.prefix = TLMStationUtils.GetFullStationName(m_stopId, m_lineId, CurrentSubService, m_fromBuilding);
             uilabel.text = "";
 
             dist.text = distance;
             UpdateConnectionPanel();
             UpdateTerminalStatus();
-            uibutton.tooltipLocaleID = m_buildingId != 0 || !TransportSystemDefinition.FromLineId(m_lineId, m_buildingId).CanHaveTerminals()
+            uibutton.tooltipLocaleID = m_fromBuilding || !TransportSystemDefinition.FromLineId(m_lineId, m_fromBuilding).CanHaveTerminals()
                 ? ""
                 : m_stopId == TransportManager.instance.m_lines.m_buffer[m_lineId].m_stops
                     ? "K45_TLM_FIRSTSTOPALWAYSTERMINAL"
@@ -181,7 +182,7 @@ namespace Klyte.TransportLinesManager.UI
 
             if (m_dirtyNames)
             {
-                uilabel.prefix = TLMStationUtils.GetFullStationName((ushort)uibutton.objectUserData, m_lineId, CurrentSubService, m_buildingId);
+                uilabel.prefix = TLMStationUtils.GetFullStationName((ushort)uibutton.objectUserData, m_lineId, CurrentSubService, m_fromBuilding);
                 m_dirtyNames = false;
             }
             if (m_dirtyTerminal)
@@ -232,10 +233,10 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        private LineType GetLineType() => UVMPublicTransportWorldInfoPanel.GetLineType(m_lineId, m_buildingId);
+        private LineType GetLineType() => UVMPublicTransportWorldInfoPanel.GetLineType(m_lineId, m_fromBuilding);
 
         private void UpdateTerminalStatus() => uibutton.normalBgSprite =
-                              m_buildingId == 0 && TransportSystemDefinition.FromLineId(m_lineId, m_buildingId).CanHaveTerminals() && (m_stopId == Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineId].m_stops || TLMStopDataContainer.Instance.SafeGet(m_stopId).IsTerminal)
+                              !m_fromBuilding  && TransportSystemDefinition.FromLineId(m_lineId, m_fromBuilding).CanHaveTerminals() && (m_stopId == Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineId].m_stops || TLMStopDataContainer.Instance.SafeGet(m_stopId).IsTerminal)
                                 ? KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_S05StarIcon, true)
                                 : "";
 
@@ -251,20 +252,20 @@ namespace Klyte.TransportLinesManager.UI
             var linesFound = new List<ushort>();
             var targetPos = NetManager.instance.m_nodes.m_buffer[m_stopId].m_position;
             TLMLineUtils.GetNearLines(targetPos, 150f, ref linesFound);
-            if (m_buildingId == 0)
+            if (!m_fromBuilding)
             {
                 linesFound.Remove(m_lineId);
             }
-            var targBuilding = TLMStationUtils.GetStationBuilding(m_stopId, m_lineId, m_buildingId);
+            var targBuilding = TLMStationUtils.GetStationBuilding(m_stopId, m_lineId, m_fromBuilding);
             var lines = BuildingManager.instance.m_buildings.m_buffer[targBuilding].Info.m_buildingAI is TransportStationAI tsai && tsai.m_transportLineInfo.m_class.m_subService == ItemClass.SubService.PublicTransportTrain ? TransportLinesManagerMod.Controller.BuildingLines.SafeGet(targBuilding) : null;
 
-            var buildingLinesCt = lines is null ? 0 : lines.RegionalLinesCount;
-            if (targBuilding == m_buildingId)
+            var buildingLines = lines is null ? new List<long>() : lines.RegionalLines.Keys.ToList();
+            if (m_fromBuilding)
             {
-                buildingLinesCt--;
+                buildingLines.Remove(m_lineId);
             }
 
-            var itemsEntries = connections.SetItemCount(linesFound.Count + buildingLinesCt);
+            var itemsEntries = connections.SetItemCount(linesFound.Count + buildingLines.Count);
             int newSize = itemsEntries.Length > m_kMaxConnectionsLine ? 18 : 36;
             int idx = 0;
             for (; idx < linesFound.Count; idx++)
@@ -272,17 +273,14 @@ namespace Klyte.TransportLinesManager.UI
                 ushort lineId = linesFound[idx];
                 var itemControl = itemsEntries[idx].GetComponent<TLMLineItemButtonControl>();
                 itemControl.Resize(newSize);
-                itemControl.ResetData(0, lineId, targetPos);
+                itemControl.ResetData(false, lineId, targetPos);
             }
-            for (ushort j = 0; j < buildingLinesCt; idx++, j++)
+            for (int j = 0; j < buildingLines.Count; idx++, j++)
             {
-                if (m_lineId == j && targBuilding == m_buildingId)
-                {
-                    continue;
-                }
+                long line = buildingLines[j];
                 var itemControl = itemsEntries[idx].GetComponent<TLMLineItemButtonControl>();
                 itemControl.Resize(newSize);
-                itemControl.ResetData(targBuilding, j, targetPos);
+                itemControl.ResetData(true, (ushort)line, targetPos);
             }
         }
 

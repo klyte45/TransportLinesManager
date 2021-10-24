@@ -1,5 +1,7 @@
 ﻿using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Overrides;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Cache
@@ -9,6 +11,12 @@ namespace Klyte.TransportLinesManager.Cache
 
 
         private SimpleNonSequentialList<BuildingTransportDataCache> BuildingTransportDataCache;
+        private Dictionary<ushort, InnerBuildingLine> InnerBuildingLinesIndex;
+
+        public void InvalidateLinesCache()
+        {
+            InnerBuildingLinesIndex = null;
+        }
 
         private void Awake() => BuildingTransportDataCache = new SimpleNonSequentialList<BuildingTransportDataCache>();
 
@@ -25,9 +33,17 @@ namespace Klyte.TransportLinesManager.Cache
             NetManagerOverrides.EventNodeChanged -= ResetAllBuilding;
         }
 
-        private void ResetBuilding(ushort buildingId) => BuildingTransportDataCache.Remove(buildingId);
-        private void ResetAllBuilding(ushort _) => BuildingTransportDataCache.Clear();
+        private void ResetBuilding(ushort buildingId)
+        {
+            BuildingTransportDataCache.Remove(buildingId);
+            InnerBuildingLinesIndex = null;
+        }
 
+        private void ResetAllBuilding(ushort _)
+        {
+            BuildingTransportDataCache.Clear();
+            InnerBuildingLinesIndex = null;
+        }
 
         public void RenderBuildingLines(RenderManager.CameraInfo cameraInfo, ushort buildingId)
         {
@@ -64,7 +80,20 @@ namespace Klyte.TransportLinesManager.Cache
                 return BuildingTransportDataCache[buildingId];
             }
             BuildingTransportDataCache[buildingId] = info.m_buildingAI is TransportStationAI tsai ? new BuildingTransportDataCache(buildingId, ref b, tsai) : null;
+            InnerBuildingLinesIndex = null;
             return BuildingTransportDataCache[buildingId];
+        }
+
+        public InnerBuildingLine this[ushort nodeId]
+        {
+            get
+            {
+                if (InnerBuildingLinesIndex is null)
+                {
+                    InnerBuildingLinesIndex = BuildingTransportDataCache.SelectMany(x => x.Value.RegionalLines).ToDictionary(x => (ushort)x.Key, x => x.Value);
+                }
+                return InnerBuildingLinesIndex.TryGetValue(nodeId, out InnerBuildingLine result) ? result : null;
+            }
         }
     }
 }

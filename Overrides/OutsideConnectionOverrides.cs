@@ -38,6 +38,10 @@ namespace Klyte.TransportLinesManager.Overrides
             LogUtils.DoLog("START TRANSFER StationAI!!!!!!!!");
             return TryGetRandomVehicle(vm, ref r, service, subService, level);
         }
+        private static void SetRegionalLine(ushort vehicleId, ushort buildingId, ushort stopId)
+        {
+
+        }
 
         private static VehicleInfo TryGetRandomVehicle(VehicleManager vm, ref Randomizer r, ItemClass.Service service, ItemClass.SubService subService, ItemClass.Level level)
         {

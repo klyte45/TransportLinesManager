@@ -1,6 +1,5 @@
 ﻿using ColossalFramework.UI;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using System.Linq;
@@ -66,7 +65,7 @@ namespace Klyte.TransportLinesManager
         private UILabel lineIdentifierLabel;
         private UILabel daytimeIndicatorLabel;
 
-        private ushort buildingId;
+        private bool fromBuilding;
         private ushort lineId;
         private Vector3 position;
 
@@ -84,7 +83,7 @@ namespace Klyte.TransportLinesManager
             button.eventClick += (x, y) => currentEvent?.Invoke(x, y);
             currentEvent = (UIComponent x, UIMouseEventParameter y) =>
             {
-                if (buildingId == 0)
+                if (!fromBuilding)
                 {
                     if (lineId > 0)
                     {
@@ -96,7 +95,7 @@ namespace Klyte.TransportLinesManager
                 else
                 {
                     InstanceID iid = InstanceID.Empty;
-                    iid.Set(TLMInstanceType.BuildingLines, (uint)(buildingId << 8) | (lineId & 0xFFu));
+                    iid.Set(TLMInstanceType.BuildingLines, lineId);
                     WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(position, iid);
                 }
             };
@@ -118,9 +117,9 @@ namespace Klyte.TransportLinesManager
             lineIdentifierLabel.transform.localScale = new Vector3(Mathf.Min(1f, newSize / lineIdentifierLabel.width), lineIdentifierLabel.transform.localScale.y, lineIdentifierLabel.transform.localScale.z);
         }
 
-        public void ResetData(ushort buildingId, ushort lineId, Vector3 position)
+        public void ResetData(bool fromBuilding, ushort lineId, Vector3 position)
         {
-            this.buildingId = buildingId;
+            this.fromBuilding = fromBuilding;
             this.lineId = lineId;
             this.position = position;
             ReloadData();
@@ -137,7 +136,32 @@ namespace Klyte.TransportLinesManager
 
         private void ReloadData()
         {
-            if (buildingId == 0)
+            if (fromBuilding)
+            {
+                daytimeIndicatorLabel.isVisible = false;
+                var lineObj = TransportLinesManagerMod.Controller.BuildingLines[lineId];
+                if(lineObj is null)
+                {
+                    return;
+                }
+                var color = lineObj.LineDataObject?.LineColor ?? TLMController.COLOR_ORDER[lineId % TLMController.COLOR_ORDER.Length];
+                button.color = color;
+                button.disabledColor = color;
+                button.focusedColor = color;
+                button.normalBgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TransportSystemDefinition.FromIntercity(lineObj.Info)?.DefaultIcon ?? Commons.UI.Sprites.LineIconSpriteNames.K45_S10StarIcon, true);
+                button.tooltip = TLMStationUtils.GetStationName(lineObj.DstStop, lineObj.SrcStop, lineObj.Info.m_class.m_subService, fromBuilding);
+
+                var text = lineObj.LineDataObject?.Identifier ?? $"REG\n{lineObj.SrcStop.ToString("X4")}";
+                GetLineNumberCircleOnRefParams(text, false, out Color textColor, out float textScale, out Vector3 relativePosition);
+                lineIdentifierLabel.text = text;
+                lineIdentifierLabel.textScale = textScale;
+                lineIdentifierLabel.relativePosition = relativePosition;
+                lineIdentifierLabel.textColor = textColor;
+                lineIdentifierLabel.useOutline = true;
+                lineIdentifierLabel.outlineColor = Color.black;
+                lineIdentifierLabel.transform.localScale = new Vector3(Mathf.Min(1f, button.width / lineIdentifierLabel.width), lineIdentifierLabel.transform.localScale.y, lineIdentifierLabel.transform.localScale.z);
+            }
+            else
             {
                 if (lineId == 0)
                 {
@@ -189,27 +213,6 @@ namespace Klyte.TransportLinesManager
                     lineIdentifierLabel.outlineColor = Color.black;
                     lineIdentifierLabel.transform.localScale = new Vector3(Mathf.Min(1f, button.width / lineIdentifierLabel.width), lineIdentifierLabel.transform.localScale.y, lineIdentifierLabel.transform.localScale.z);
                 }
-            }
-            else
-            {
-                daytimeIndicatorLabel.isVisible = false;
-                var lineObj = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId).SafeGetRegionalLine(lineId);
-                var color = TLMController.COLOR_ORDER[lineId % TLMController.COLOR_ORDER.Length];
-                button.color = color;
-                button.disabledColor = color;
-                button.focusedColor = color;
-                button.normalBgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TransportSystemDefinition.FromIntercity(lineObj.Info)?.DefaultIcon ?? Commons.UI.Sprites.LineIconSpriteNames.K45_S10StarIcon, true);
-                button.tooltip = TLMStationUtils.GetStationName(lineObj.DstStop, (ushort)0xFFFFu, lineObj.Info.m_class.m_subService, buildingId);
-
-                var text = $"REG\n{lineObj.SrcStop.ToString("X4")}";
-                GetLineNumberCircleOnRefParams(text, false, out Color textColor, out float textScale, out Vector3 relativePosition);
-                lineIdentifierLabel.text = text;
-                lineIdentifierLabel.textScale = textScale;
-                lineIdentifierLabel.relativePosition = relativePosition;
-                lineIdentifierLabel.textColor = textColor;
-                lineIdentifierLabel.useOutline = true;
-                lineIdentifierLabel.outlineColor = Color.black;
-                lineIdentifierLabel.transform.localScale = new Vector3(Mathf.Min(1f, button.width / lineIdentifierLabel.width), lineIdentifierLabel.transform.localScale.y, lineIdentifierLabel.transform.localScale.z);
             }
         }
 

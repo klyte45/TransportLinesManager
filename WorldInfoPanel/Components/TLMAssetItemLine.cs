@@ -31,7 +31,7 @@ namespace Klyte.TransportLinesManager.UI
                     return;
                 }
 
-                if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && buildingId == 0)
+                if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding)
                 {
                     IBasicExtension extension = lineId > 0 ? TLMLineUtils.GetEffectiveExtensionForLine(lineId) : UVMPublicTransportWorldInfoPanel.GetCurrentTSD().GetTransportExtension();
 
@@ -84,8 +84,8 @@ namespace Klyte.TransportLinesManager.UI
 
         private void UpdateMaintenanceCost(VehicleInfo info, TransportSystemDefinition tsd)
         {
-            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
-            m_checkbox.label.suffix = lineId == 0 || buildingId > 0 ? "" : $"\n<color #aaaaaa>{LocaleFormatter.FormatUpkeep(Mathf.RoundToInt(VehicleUtils.GetCapacity(info) * tsd.GetEffectivePassengerCapacityCost() * 100), false)}</color>";
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+            m_checkbox.label.suffix = lineId == 0 || fromBuilding ? "" : $"\n<color #aaaaaa>{LocaleFormatter.FormatUpkeep(Mathf.RoundToInt(VehicleUtils.GetCapacity(info) * tsd.GetEffectivePassengerCapacityCost() * 100), false)}</color>";
         }
 
         public static void EnsureTemplate()

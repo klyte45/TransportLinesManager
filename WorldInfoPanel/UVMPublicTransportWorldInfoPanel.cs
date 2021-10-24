@@ -36,14 +36,14 @@ namespace Klyte.TransportLinesManager.UI
             AddRedirect(typeof(WorldInfoPanel).GetMethod("IsValidTarget", RedirectorUtils.allFlags), typeof(UVMPublicTransportWorldInfoPanel).GetMethod("PreIsValidTarget", RedirectorUtils.allFlags));
             TransportManager.instance.eventLineColorChanged += (x) =>
             {
-                if (GetLineID(out ushort lineId, out ushort buildingId) && x == lineId && buildingId == 0)
+                if (GetLineID(out ushort lineId, out bool fromBuilding) && x == lineId && !fromBuilding)
                 {
                     MarkDirty(null);
                 }
             };
             TransportManager.instance.eventLineNameChanged += (x) =>
             {
-                if (GetLineID(out ushort lineId, out ushort buildingId) && x == lineId && buildingId == 0)
+                if (GetLineID(out ushort lineId, out bool fromBuilding) && x == lineId && !fromBuilding)
                 {
                     m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(x);
                 }
@@ -53,7 +53,7 @@ namespace Klyte.TransportLinesManager.UI
 
         public static bool PreIsValidTarget(ref WorldInfoPanel __instance, ref bool __result)
         {
-            if (__instance is PublicTransportWorldInfoPanel && GetLineID(out ushort lineId, out ushort buildingId) && (lineId == 0 || buildingId > 0))
+            if (__instance is PublicTransportWorldInfoPanel && GetLineID(out ushort lineId, out bool fromBuilding) && (lineId == 0 || fromBuilding))
             {
                 __result = true;
                 return false;
@@ -118,9 +118,9 @@ namespace Klyte.TransportLinesManager.UI
 
             m_obj.m_specificConfig = UIHelperExtension.AddCheckboxLocale(__instance.component, "K45_TLM_USE_SPECIFIC_CONFIG", false, (x) =>
             {
-                if (GetLineID(out ushort lineId, out ushort buildingId))
+                if (GetLineID(out ushort lineId, out bool fromBuilding))
                 {
-                    if (buildingId == 0)
+                    if (!fromBuilding)
                     {
                         TLMTransportLineExtension.Instance.SetUseCustomConfig(lineId, x);
                         MarkDirty(typeof(UVMPublicTransportWorldInfoPanel));
@@ -197,9 +197,9 @@ namespace Klyte.TransportLinesManager.UI
 
         protected static void UpdateBindings()
         {
-            if (GetLineID(out ushort lineID, out ushort buildingId))
+            if (GetLineID(out ushort lineID, out bool fromBuilding))
             {
-                if (buildingId == 0)
+                if (!fromBuilding)
                 {
                     if (lineID < TransportManager.MAX_LINE_COUNT)
                     {
@@ -251,8 +251,8 @@ namespace Klyte.TransportLinesManager.UI
 
         protected static bool OnSetTarget()
         {
-            GetLineID(out ushort lineID, out ushort buildingId);
-            if (buildingId == 0)
+            GetLineID(out ushort lineID, out bool fromBuilding);
+            if (!fromBuilding)
             {
                 if (lineID >= TransportManager.MAX_LINE_COUNT)
                 {
@@ -262,7 +262,7 @@ namespace Klyte.TransportLinesManager.UI
                 {
                     m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(lineID);
                     m_obj.m_nameField.Enable();
-                    m_obj.m_specificConfig.isVisible = TransportSystemDefinition.FromLineId(lineID, buildingId).HasVehicles();
+                    m_obj.m_specificConfig.isVisible = TransportSystemDefinition.FromLineId(lineID, fromBuilding).HasVehicles();
                     m_obj.m_specificConfig.isChecked = TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID);
                     m_obj.m_cachedLength = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_totalLength;
                     m_obj.m_deleteButton.isVisible = true;
@@ -277,13 +277,12 @@ namespace Klyte.TransportLinesManager.UI
             }
             else
             {
-                var lines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId);
-                if (lines == null)
+                var lineObj = TransportLinesManagerMod.Controller.BuildingLines[lineID];
+                if (lineObj == null)
                 {
                     return false;
                 }
-                var lineObj = lines.SafeGetRegionalLine(lineID);
-                m_obj.m_nameField.text = string.Format(Locale.Get("K45_TLM_OUTSIDECONNECTION_TARGETCITYTEMPLATE"), TLMStationUtils.GetStationName(lineObj.DstStop, lineID, lineObj.Info.m_class.m_subService, buildingId));
+                m_obj.m_nameField.text = string.Format(Locale.Get("K45_TLM_OUTSIDECONNECTION_TARGETCITYTEMPLATE"), TLMStationUtils.GetStationName(lineObj.DstStop, lineID, lineObj.Info.m_class.m_subService, true));
                 m_obj.m_nameField.Disable();
                 m_obj.m_specificConfig.isVisible = false;
                 m_obj.m_deleteButton.isVisible = false;
@@ -345,8 +344,8 @@ namespace Klyte.TransportLinesManager.UI
 
         private static void OnLineNameChanged(ushort id)
         {
-            GetLineID(out ushort lineId, out ushort buildingId);
-            if (buildingId > 0)
+            GetLineID(out ushort lineId, out bool fromBuilding);
+            if (fromBuilding)
             {
                 return;
             }
@@ -357,8 +356,8 @@ namespace Klyte.TransportLinesManager.UI
         }
         private static void OnRename(UIComponent comp, string text)
         {
-            GetLineID(out ushort lineId, out ushort buildingId);
-            if (buildingId > 0)
+            GetLineID(out ushort lineId, out bool fromBuilding);
+            if (fromBuilding)
             {
                 return;
             }
@@ -368,9 +367,9 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        internal static UVMPublicTransportWorldInfoPanelObject.LineType GetLineType(ushort lineID, ushort buildingId)
+        internal static UVMPublicTransportWorldInfoPanelObject.LineType GetLineType(ushort lineID, bool fromBuilding)
         {
-            if (buildingId == 0)
+            if (!fromBuilding)
             {
                 string name = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info.name;
                 if (name != null)
@@ -400,21 +399,21 @@ namespace Klyte.TransportLinesManager.UI
         }
 
 
-        internal static bool GetLineID(out ushort lineId, out ushort buildingId)
+        internal static bool GetLineID(out ushort lineId, out bool fromBuilding)
         {
             if (m_obj.CurrentInstanceID.Type == (InstanceType)TLMInstanceType.TransportSystemDefinition)
             {
-                buildingId = 0;
+                fromBuilding = false;
                 lineId = 0;
                 return true;
             }
             if (m_obj.CurrentInstanceID.Type == (InstanceType)TLMInstanceType.BuildingLines)
             {
-                buildingId = (ushort)(m_obj.CurrentInstanceID.Index >> 8);
-                lineId = (ushort)(m_obj.CurrentInstanceID.Index & 0xFF);
+                fromBuilding = true;
+                lineId = (ushort)(m_obj.CurrentInstanceID.Index);
                 return true;
             }
-            buildingId = 0;
+            fromBuilding = false;
             if (m_obj.CurrentInstanceID.Type == InstanceType.TransportLine)
             {
                 lineId = m_obj.CurrentInstanceID.TransportLine;
@@ -429,12 +428,12 @@ namespace Klyte.TransportLinesManager.UI
                     return true;
                 }
             }
-            buildingId = 0xFFFF;
+            fromBuilding = false;
             lineId = 0xFFFF;
             return false;
         }
 
-        internal static TransportSystemDefinition GetCurrentTSD() => GetLineID(out ushort lineId, out ushort buildingId) && (lineId > 0 || buildingId != 0) ? TransportSystemDefinition.FromLineId(lineId, buildingId) : TransportSystemDefinition.FromIndex(m_obj.CurrentInstanceID.Index);
+        internal static TransportSystemDefinition GetCurrentTSD() => GetLineID(out ushort lineId, out bool fromBuilding) && (lineId > 0 || fromBuilding) ? TransportSystemDefinition.FromLineId(lineId, fromBuilding) : TransportSystemDefinition.FromIndex(m_obj.CurrentInstanceID.Index);
 
         internal static void ForceReload() => OnSetTarget();
 

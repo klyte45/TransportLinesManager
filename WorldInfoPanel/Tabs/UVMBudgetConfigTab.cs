@@ -46,7 +46,7 @@ namespace Klyte.TransportLinesManager.UI
 
         public static bool IsAbsoluteValue() => Instance.m_showAbsoluteCheckbox.isVisible && Instance.m_showAbsoluteCheckbox.isChecked;
         protected override TimeableList<BudgetEntryXml> Config
-            => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && buildingId == 0
+            => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding
             ? TLMLineUtils.GetEffectiveConfigForLine(lineId).BudgetEntries
             : null;
 

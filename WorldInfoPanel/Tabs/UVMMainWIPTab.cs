@@ -155,7 +155,7 @@ namespace Klyte.TransportLinesManager.UI
         private int colorChangeCooldown = 0;
         internal void OnColorChanged(UIComponent comp, Color color)
         {
-            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && lineId > 0 && buildingId == 0)
+            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && lineId > 0 && !fromBuilding)
             {
                 UVMPublicTransportWorldInfoPanel.m_obj.origInstance.StartCoroutine(ChangeColorCoroutine(lineId, color));
             }
@@ -178,7 +178,7 @@ namespace Klyte.TransportLinesManager.UI
             {
                 AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineColor(id, color));
                 yield return task.WaitTaskCompleted(this);
-                if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && lineId == id && buildingId == 0)
+                if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && lineId == id && !fromBuilding)
                 {
                     m_colorField.selectedColor = Singleton<TransportManager>.instance.GetLineColor(id);
                 }
@@ -187,9 +187,9 @@ namespace Klyte.TransportLinesManager.UI
         }
         public void OnSetTarget(Type source)
         {
-            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId))
+            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding))
             {
-                m_firstStopSelect.items = TLMLineUtils.GetAllStopsFromLine(lineID, buildingId);
+                m_firstStopSelect.items = TLMLineUtils.GetAllStopsFromLine(lineID, fromBuilding);
                 m_firstStopSelect.selectedIndex = 0;
                 if (source == GetType())
                 {
@@ -199,7 +199,7 @@ namespace Klyte.TransportLinesManager.UI
                 if (lineID != 0)
                 {
                     m_colorField.selectedColor = Singleton<TransportManager>.instance.GetLineColor(lineID);
-                    LineType lineType = UVMPublicTransportWorldInfoPanel.GetLineType(lineID, buildingId);
+                    LineType lineType = UVMPublicTransportWorldInfoPanel.GetLineType(lineID, fromBuilding);
                     m_weeklyPassengersString = ((lineType != LineType.WalkingTour) ? "TRANSPORT_LINE_PASSENGERS" : "TRANSPORT_LINE_PASSENGERS_WALKINGTOUR");
                     m_ageChart.tooltipLocaleID = ((lineType != LineType.WalkingTour) ? "PUBLICTRANSPORT_PASSENGERAGEGROUPS_TOOLTIP" : "PUBLICTRANSPORT_PASSENGERAGEGROUPS_TOOLTIP_WALKINGTOUR");
                     m_tripSaved.isVisible = (lineType == LineType.Default);
@@ -262,8 +262,8 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (component.isVisible && m_lastDrawTick + 31 < SimulationManager.instance.m_currentTickIndex)
             {
-                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
-                if (lineID != 0 && buildingId == 0)
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+                if (lineID != 0 && !fromBuilding)
                 {
                     TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].Info;
                     m_type.text = Locale.Get("TRANSPORT_LINE", info.name);
@@ -351,7 +351,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void OnLineColorChanged(ushort id)
         {
-            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && buildingId == 0 && id == lineId)
+            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding && id == lineId)
             {
                 m_colorField.selectedColor = Singleton<TransportManager>.instance.GetLineColor(id);
             }
@@ -365,7 +365,7 @@ namespace Klyte.TransportLinesManager.UI
 
         public void Hide() => m_bg.isVisible = false;
         public void OnGotFocus() { }
-        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && lineId > 0 && buildingId == 0;
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && lineId > 0 && !fromBuilding;
 
         #region Number & Prefix edit
 
@@ -419,12 +419,12 @@ namespace Klyte.TransportLinesManager.UI
         private IEnumerator SaveLineNumber()
         {
             yield return 0;
-            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
-            if (buildingId == 0 && lineId > 0)
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+            if (!fromBuilding && lineId > 0)
             {
                 string value = m_lineNumberLabel.text;
                 int valPrefixo = m_linePrefixDropDown.selectedIndex;
-                var tsd = TransportSystemDefinition.FromLineId(lineId, buildingId);
+                var tsd = TransportSystemDefinition.FromLineId(lineId, fromBuilding);
                 var hasPrefix = TLMPrefixesUtils.HasPrefix(tsd);
                 ushort.TryParse(value, out ushort num);
                 if (hasPrefix)
@@ -488,7 +488,7 @@ namespace Klyte.TransportLinesManager.UI
 
         private void SaveLineCode(UIComponent component, string text)
         {
-            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && lineId > 0 && buildingId == 0)
+            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && lineId > 0 && !fromBuilding)
             {
                 TLMTransportLineExtension.Instance.SafeGet(lineId).CustomCode = text;
                 UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
@@ -523,8 +523,8 @@ namespace Klyte.TransportLinesManager.UI
             {
                 return;
             }
-            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
-            if (buildingId == 0)
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+            if (!fromBuilding)
             {
                 TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
                 if ((t.m_flags & TransportLine.Flags.Invalid) != TransportLine.Flags.None)
@@ -556,8 +556,8 @@ namespace Klyte.TransportLinesManager.UI
             buttonAutoName.isVisible = true;
             buttonAutoName.eventClicked += (component, eventParam) =>
             {
-                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
-                if (buildingId == 0 && lineId > 0)
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+                if (!fromBuilding && lineId > 0)
                 {
                     TLMController.AutoName(lineId);
                     UVMPublicTransportWorldInfoPanel.MarkDirty(GetType());
@@ -576,7 +576,7 @@ namespace Klyte.TransportLinesManager.UI
             buttonAutoColor.isVisible = true;
             buttonAutoColor.eventClicked += (component, eventParam) =>
             {
-                if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && lineId > 0 && buildingId == 0)
+                if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && lineId > 0 && !fromBuilding)
                 {
                     TLMController.AutoColor(lineId);
                 }

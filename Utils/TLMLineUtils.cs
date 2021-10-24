@@ -152,7 +152,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             else
             {
-                var tsd = TransportSystemDefinition.FromLineId(lineId, 0);
+                var tsd = TransportSystemDefinition.FromLineId(lineId, false);
                 return (tsd.GetTransportExtension() as ISafeGettable<TLMPrefixConfiguration>).SafeGet(TLMPrefixesUtils.GetPrefix(lineId));
             }
         }
@@ -164,7 +164,7 @@ namespace Klyte.TransportLinesManager.Utils
             }
             return lineId > 0 && TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId)
                 ? TLMTransportLineExtension.Instance
-                : (IBasicExtension)(tsd ?? TransportSystemDefinition.FromLineId(lineId, 0)).GetTransportExtension();
+                : (IBasicExtension)(tsd ?? TransportSystemDefinition.FromLineId(lineId, false)).GetTransportExtension();
         }
 
         public static float ReferenceTimer => (TransportLinesManagerMod.UseGameClockAsReferenceIfNoDayNight && !Singleton<SimulationManager>.instance.m_enableDayNight) ? (float)Singleton<SimulationManager>.instance.m_currentGameTime.TimeOfDay.TotalHours % 24 : Singleton<SimulationManager>.instance.m_currentDayTimeHour;
@@ -509,32 +509,32 @@ namespace Klyte.TransportLinesManager.Utils
         }
 
 
-        public static string[] GetAllStopsFromLine(ushort lineID, ushort buildingId = 0)
+        public static string[] GetAllStopsFromLine(ushort lineID, bool fromBuilding=false)
         {
-            if (lineID > 0 || buildingId > 0)
+            if (lineID > 0 || fromBuilding)
             {
                 int stopsCount;
                 ItemClass.SubService ss;
                 Func<int, ushort> getStop;
-                if (buildingId == 0)
+                if (fromBuilding)
+                {
+                    var cacheInfo = TransportLinesManagerMod.Controller.BuildingLines[lineID];
+                    stopsCount = cacheInfo.CountStops();
+                    ss = cacheInfo.Info.m_class.m_subService;
+                    getStop = cacheInfo.GetStop;
+                }
+                else
                 {
                     ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineID];
                     stopsCount = t.CountStops(lineID);
                     ss = TransportSystemDefinition.GetDefinitionForLine(lineID).SubService;
                     getStop = t.GetStop;
                 }
-                else
-                {
-                    var cacheInfo = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId).SafeGetRegionalLine(lineID);
-                    stopsCount = cacheInfo.CountStops();
-                    ss = cacheInfo.Info.m_class.m_subService;
-                    getStop = cacheInfo.GetStop;
-                }
                 string[] result = new string[stopsCount];
                 for (int i = 0; i < stopsCount; i++)
                 {
                     ushort stationId = getStop(i);
-                    result[i] = TLMStationUtils.GetFullStationName(stationId, lineID, ss, buildingId);
+                    result[i] = TLMStationUtils.GetFullStationName(stationId, lineID, ss, fromBuilding);
                 }
                 return result;
             }
@@ -576,7 +576,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineColor(id, targetColor));
                 yield return task.WaitTaskCompleted(comp);
-                if (id > 0 && UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && lineId == id && buildingId == 0)
+                if (id > 0 && UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && lineId == id && !fromBuilding)
                 {
                     UVMPublicTransportWorldInfoPanel.ForceReload();
                 }
@@ -607,7 +607,7 @@ namespace Klyte.TransportLinesManager.Utils
                 startStop = tl.m_stops;
                 nextStop = tl.m_stops;
                 allowPrefixInStations = m_roadTransportTypes.Contains(tl.Info.m_transportType);
-                allowTerminals = TransportSystemDefinition.FromLineId(lineIdx, 0).CanHaveTerminals();
+                allowTerminals = TransportSystemDefinition.FromLineId(lineIdx, false).CanHaveTerminals();
                 subservice = tl.Info.m_class.m_subService;
             }
             else
@@ -616,7 +616,7 @@ namespace Klyte.TransportLinesManager.Utils
                 startStop = tl.SrcStop;
                 nextStop = tl.SrcStop;
                 allowPrefixInStations = m_roadTransportTypes.Contains(tl.Info.m_transportType);
-                allowTerminals = TransportSystemDefinition.FromLineId(lineIdx, 0).CanHaveTerminals();
+                allowTerminals = TransportSystemDefinition.FromLineId(lineIdx, false).CanHaveTerminals();
                 subservice = tl.Info.m_class.m_subService;
             }
 
@@ -624,7 +624,7 @@ namespace Klyte.TransportLinesManager.Utils
             do
             {
                 ref NetNode stopNode = ref NetManager.instance.m_nodes.m_buffer[nextStop];
-                string stationName = TLMStationUtils.GetStationName(nextStop, lineIdx, subservice, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType,srcBuildingId, excludeCargo: true, useRestrictionForAreas: true, useRoadMainNameOnAddress: true);
+                string stationName = TLMStationUtils.GetStationName(nextStop, lineIdx, subservice, out ItemClass.Service serviceFound, out ItemClass.SubService subserviceFound, out string prefixFound, out ushort buildingId, out NamingType namingType, srcBuildingId > 0, excludeCargo: true, useRestrictionForAreas: true, useRoadMainNameOnAddress: true);
                 var tuple = Tuple.New(namingType, allowPrefixInStations ? $"{prefixFound?.Trim()} {stationName?.Trim()}".Trim() : stationName.Trim(), nextStop, allowTerminals && (TLMStopDataContainer.Instance.SafeGet(nextStop).IsTerminal || nextStop == startStop));
                 stations.Add(tuple);
                 nextStop = TransportLine.GetNextStop(nextStop);

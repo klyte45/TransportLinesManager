@@ -1,13 +1,18 @@
 ﻿using ColossalFramework.Math;
+using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensions;
 using System;
 using UnityEngine;
 
 namespace Klyte.TransportLinesManager.Cache
 {
-    public class InnerBuildingLine
+    public class InnerBuildingLine : IIdentifiable
     {
+        public long? Id { get => SrcStop; set { } }
         public TransportInfo Info { get; set; }
+        public ushort SrcBuildingId { get; set; }
+        public ushort DstBuildingId { get; set; }
         public ushort SrcStop { get; set; }
         public ushort DstStop { get; set; }
         public bool BrokenFromSrc { get; set; }
@@ -108,7 +113,10 @@ namespace Klyte.TransportLinesManager.Cache
             }
         }
 
-        public void RenderLine(RenderManager.CameraInfo cameraInfo, ushort lineID)
+        private OutsideConnectionLineInfo m_cachedLineInfoRef;
+        public OutsideConnectionLineInfo LineDataObject => !TLMBuildingDataContainer.Instance.SafeGet(SrcBuildingId).TlmManagedRegionalLines ? null : m_cachedLineInfoRef ?? (m_cachedLineInfoRef = TLMBuildingDataContainer.Instance.SafeGet(SrcBuildingId).PlatformMappings[NetManager.instance.m_nodes.m_buffer[SrcStop].m_lane].TargetOutsideConnections[DstBuildingId]);
+
+        public void RenderLine(RenderManager.CameraInfo cameraInfo)
         {
             if (m_needsToBeCalculated && SimulationManager.instance.m_currentTickIndex - m_lastCheckTick > 50)
             {
@@ -118,7 +126,7 @@ namespace Klyte.TransportLinesManager.Cache
             {
                 UpdateMesh();
             }
-            RenderLine_internal(cameraInfo, lineID);
+            RenderLine_internal(cameraInfo);
         }
         public bool UpdateMeshData()
         {
@@ -316,7 +324,7 @@ namespace Klyte.TransportLinesManager.Cache
             return flag;
         }
 
-        private void RenderLine_internal(RenderManager.CameraInfo cameraInfo, ushort lineID)
+        private void RenderLine_internal(RenderManager.CameraInfo cameraInfo)
         {
             Material material = Info.m_lineMaterial2;
             TerrainManager instance2 = TerrainManager.instance;
@@ -328,7 +336,7 @@ namespace Klyte.TransportLinesManager.Cache
                     Mesh mesh = m_lineMeshes[i];
                     if (mesh != null && cameraInfo.Intersect(mesh.bounds))
                     {
-                        material.color = TLMController.COLOR_ORDER[lineID % TLMController.COLOR_ORDER.Length];
+                        material.color = LineDataObject?.LineColor ?? TLMController.COLOR_ORDER[SrcStop % TLMController.COLOR_ORDER.Length];
                         material.SetFloat(TransportManager.instance.ID_StartOffset, -1000f);
                         if (Info.m_requireSurfaceLine)
                         {

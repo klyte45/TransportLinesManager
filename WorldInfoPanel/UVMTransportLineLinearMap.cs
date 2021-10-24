@@ -3,7 +3,6 @@ using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
-using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.CommonsWindow;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
@@ -90,7 +89,7 @@ namespace Klyte.TransportLinesManager.UI
             m_mapModeDropDown = UIHelperExtension.CloneBasicDropDownNoLabel(Enum.GetValues(typeof(MapMode)).Cast<MapMode>().Where(x => x >= 0).Select(x => Locale.Get("K45_TLM_LINEAR_MAP_VIEW_MODE", x.Name())).ToArray(), (int idx) =>
                {
                    m_currentMode = (MapMode)idx;
-                   RefreshVehicleButtons(GetLineID(out ushort buildingId), buildingId);
+                   RefreshVehicleButtons(GetLineID(out bool fromBuilding), fromBuilding);
                    MarkDirty();
                }, m_panelModeSelector);
             m_mapModeDropDown.textScale = 0.75f;
@@ -161,8 +160,8 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (component.isVisible && (m_lastDrawTick + 23 < SimulationManager.instance.m_referenceFrameIndex || m_dirty))
             {
-                ushort lineID = GetLineID(out ushort buildingId);
-                if (lineID != 0 || buildingId != 0)
+                ushort lineID = GetLineID(out bool fromBuilding);
+                if (lineID != 0 || !fromBuilding)
                 {
                     if (m_cachedUnscaledMode != m_unscaledMode || m_dirty)
                     {
@@ -170,7 +169,7 @@ namespace Klyte.TransportLinesManager.UI
                         m_cachedUnscaledMode = m_unscaledMode;
                         m_dirty = false;
                     }
-                    UpdateVehicleButtons(lineID, buildingId);
+                    UpdateVehicleButtons(lineID, fromBuilding);
                     UpdateStopButtons();
                     m_panelModeSelector.relativePosition = new Vector3(405, 45);
                 }
@@ -201,15 +200,15 @@ namespace Klyte.TransportLinesManager.UI
                 return;
             }
 
-            ushort lineID = GetLineID(out ushort buildingId);
-            if (lineID != 0 || buildingId != 0)
+            ushort lineID = GetLineID(out bool fromBuilding);
+            if (lineID != 0 || fromBuilding)
             {
                 m_bg.isVisible = true;
                 m_bgScrollbar.isVisible = true;
-                m_unscaledCheck.isVisible = buildingId == 0;
-                LineType lineType = GetLineType(lineID, buildingId);
+                m_unscaledCheck.isVisible = !fromBuilding;
+                LineType lineType = GetLineType(lineID, fromBuilding);
                 bool isTour = (lineType == LineType.WalkingTour);
-                m_mapModeDropDown.isVisible = !isTour && buildingId == 0;
+                m_mapModeDropDown.isVisible = !isTour && !fromBuilding;
                 m_vehiclesLabel.isVisible = !isTour && m_currentMode != MapMode.CONNECTIONS && m_currentMode != MapMode.WAITING_AND_CONNECTIONS;
                 m_connectionLabel.isVisible = m_currentMode == MapMode.WAITING_AND_CONNECTIONS || m_currentMode == MapMode.CONNECTIONS;
 
@@ -228,27 +227,27 @@ namespace Klyte.TransportLinesManager.UI
                     m_actualStopsX = m_kstopsX;
                 }
 
-                if (buildingId != 0)
+                if (fromBuilding)
                 {
                     m_currentMode = MapMode.WAITING_AND_CONNECTIONS;
                 }
 
-                m_lineTitleBtnCtrl.ResetData(buildingId, lineID, Vector3.zero);
+                m_lineTitleBtnCtrl.ResetData(fromBuilding, lineID, Vector3.zero);
                 Color color;
                 int stopsCount;
                 ushort firstStop;
-                if (buildingId == 0)
+                if (fromBuilding)
+                {
+                    var line = TransportLinesManagerMod.Controller.BuildingLines[lineID];
+                    color = TLMController.COLOR_ORDER[lineID % TLMController.COLOR_ORDER.Length];
+                    stopsCount = line.CountStops();
+                    firstStop = line.SrcStop;
+                }
+                else
                 {
                     color = Singleton<TransportManager>.instance.GetLineColor(lineID);
                     stopsCount = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CountStops(lineID);
                     firstStop = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_stops;
-                }
-                else
-                {
-                    var line = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId).SafeGetRegionalLine(lineID);
-                    color = TLMController.COLOR_ORDER[lineID % TLMController.COLOR_ORDER.Length];
-                    stopsCount = line.CountStops();
-                    firstStop = line.SrcStop;
                 }
                 m_stopsLineSprite.color = color;
 
@@ -272,7 +271,7 @@ namespace Klyte.TransportLinesManager.UI
                         {
                             currentStop = instance.m_segments.m_buffer[segmentId].m_endNode;
                             distance = (instance.m_segments.m_buffer[segmentId].m_averageLength).ToString("0");
-                            float segmentSize = m_unscaledMode || buildingId != 0 ? m_kminStopDistance : instance.m_segments.m_buffer[segmentId].m_averageLength;
+                            float segmentSize = m_unscaledMode || fromBuilding ? m_kminStopDistance : instance.m_segments.m_buffer[segmentId].m_averageLength;
                             if (segmentSize == 0f)
                             {
                                 CODebugBase<LogChannel>.Error(LogChannel.Core, "Two transport line stops have zero distance");
@@ -287,7 +286,7 @@ namespace Klyte.TransportLinesManager.UI
                             break;
                         }
                     }
-                    container.SetTarget(currentStop, buildingId, lineID, distance);
+                    container.SetTarget(currentStop, fromBuilding, lineID, distance);
 
                     if (stopsCount > 2 && currentStop == firstStop)
                     {
@@ -343,8 +342,8 @@ namespace Klyte.TransportLinesManager.UI
                     m_stopButtons.items[j].relativePosition = relativePosition2;
                     num8 += stopPositions[j] * stopDistanceFactor;
                 }
-                RefreshVehicleButtons(lineID, buildingId);
-                if (buildingId != 0 || (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None)
+                RefreshVehicleButtons(lineID, fromBuilding);
+                if (fromBuilding || (Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None)
                 {
                     m_labelLineIncomplete.isVisible = false;
                     m_stopsContainer.isVisible = true;
@@ -360,11 +359,11 @@ namespace Klyte.TransportLinesManager.UI
 
         #endregion
 
-        private void UpdateVehicleButtons(ushort lineID, ushort buildingID)
+        private void UpdateVehicleButtons(ushort lineID, bool fromBuilding)
         {
             if (m_vehicleCountMismatch)
             {
-                RefreshVehicleButtons(lineID, buildingID);
+                RefreshVehicleButtons(lineID, fromBuilding);
                 m_vehicleCountMismatch = false;
             }
             if (m_currentMode == MapMode.CONNECTIONS || m_currentMode == MapMode.WAITING_AND_CONNECTIONS)
@@ -430,15 +429,15 @@ namespace Klyte.TransportLinesManager.UI
                         break;
                     case MapMode.EARNINGS_ALL_TIME:
                         TLMTransportLineStatusesManager.instance.GetIncomeAndExpensesForVehicle(vehicleId, out long income, out long expense);
-                        PrintIncomeExpenseVehicle(lineID, buildingID, idx, labelVehicle, income, expense, 100);
+                        PrintIncomeExpenseVehicle(lineID, fromBuilding, idx, labelVehicle, income, expense, 100);
                         break;
                     case MapMode.EARNINGS_LAST_WEEK:
                         TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForVehicles(vehicleId, out long income2, out long expense2);
-                        PrintIncomeExpenseVehicle(lineID, buildingID, idx, labelVehicle, income2, expense2, 8);
+                        PrintIncomeExpenseVehicle(lineID, fromBuilding, idx, labelVehicle, income2, expense2, 8);
                         break;
                     case MapMode.EARNINGS_CURRENT_WEEK:
                         TLMTransportLineStatusesManager.instance.GetCurrentIncomeAndExpensesForVehicles(vehicleId, out long income3, out long expense3);
-                        PrintIncomeExpenseVehicle(lineID, buildingID, idx, labelVehicle, income3, expense3, 8);
+                        PrintIncomeExpenseVehicle(lineID, fromBuilding, idx, labelVehicle, income3, expense3, 8);
                         break;
                 }
 
@@ -455,11 +454,11 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        private void PrintIncomeExpenseVehicle(ushort lineID, ushort buildingId, int idx, UILabel labelVehicle, long income, long expense, float scale)
+        private void PrintIncomeExpenseVehicle(ushort lineID, bool fromBuilding, int idx, UILabel labelVehicle, long income, long expense, float scale)
         {
-            if (buildingId == 0)
+            if (!fromBuilding)
             {
-                var tsd = TransportSystemDefinition.FromLineId(lineID, buildingId);
+                var tsd = TransportSystemDefinition.FromLineId(lineID, fromBuilding);
                 m_vehicleButtons.items[idx].color = Color.Lerp(Color.white, income > expense ? Color.green : Color.red, Mathf.Max(income, expense) / scale * TLMLineUtils.GetTicketPriceForLine(tsd, lineID).First.Value);
                 labelVehicle.text = $"\n<color #00cc00>{(income / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
                 labelVehicle.suffix = $"\n<color #ff0000>{(expense / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo)}</color>";
@@ -471,7 +470,7 @@ namespace Klyte.TransportLinesManager.UI
         public void OnGotFocus() => m_cachedScrollPosition = m_scrollPanel.scrollPosition;
         private void OnGotFocusBind(UIComponent component, UIFocusEventParameter eventParam) => m_cachedScrollPosition = m_scrollPanel.scrollPosition;
 
-        internal LineType GetLineType(ushort lineID, ushort buildingId) => UVMPublicTransportWorldInfoPanel.GetLineType(lineID, buildingId);
+        internal LineType GetLineType(ushort lineID, bool fromBuilding) => UVMPublicTransportWorldInfoPanel.GetLineType(lineID, fromBuilding);
 
         private float ShiftVerticalPosition(float y)
         {
@@ -483,9 +482,9 @@ namespace Klyte.TransportLinesManager.UI
             return y;
         }
 
-        private void RefreshVehicleButtons(ushort lineID, ushort buildingId)
+        private void RefreshVehicleButtons(ushort lineID, bool fromBuilding)
         {
-            if (m_currentMode == MapMode.CONNECTIONS || m_currentMode == MapMode.WAITING_AND_CONNECTIONS || buildingId != 0)
+            if (m_currentMode == MapMode.CONNECTIONS || m_currentMode == MapMode.WAITING_AND_CONNECTIONS || fromBuilding)
             {
                 m_vehiclesLabel.isVisible = false;
                 m_vehicleButtons.SetItemCount(0);
@@ -524,7 +523,7 @@ namespace Klyte.TransportLinesManager.UI
             m_labelLineIncomplete.isVisible = false;
         }
 
-        internal ushort GetLineID(out ushort buildingId) => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out buildingId) ? lineId : (ushort)0;
+        internal ushort GetLineID(out bool fromBuilding) => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out fromBuilding) ? lineId : (ushort)0;
 
         private void UpdateStopButtons()
         {
@@ -534,7 +533,7 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && (buildingId != 0 || lineId > 0);
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && (fromBuilding || lineId > 0);
 
 
     }

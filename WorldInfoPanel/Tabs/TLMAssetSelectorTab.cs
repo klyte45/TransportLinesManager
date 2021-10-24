@@ -39,8 +39,8 @@ namespace Klyte.TransportLinesManager.UI
         private TransportSystemDefinition TransportSystem => UVMPublicTransportWorldInfoPanel.GetCurrentTSD();
         internal static ushort GetLineID()
         {
-            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
-            return buildingId == 0 ? lineId : (ushort)0;
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+            return !fromBuilding ? lineId : (ushort)0;
         }
 
         private void CreateWindow()

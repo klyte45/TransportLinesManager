@@ -95,7 +95,7 @@ namespace Klyte.TransportLinesManager
         {
             if (allow)
             {
-                TransportLinesManagerMod.Controller.BuildingLines.SafeGet(m_buildingId).AddRegionalLine(m_platformIdx, outsideConnId);
+                TransportLinesManagerMod.Controller.BuildingLines.SafeGet(m_buildingId).AddRegionalLine(m_platformIdx, outsideConnId, $"REG\n{m_buildingId.ToString("X4")}\n{outsideConnId.ToString("X4")}", TLMController.COLOR_ORDER[SimulationManager.instance.m_randomizer.Int32((uint)TLMController.COLOR_ORDER.Length)]);
             }
             else
             {

@@ -52,8 +52,8 @@ namespace Klyte.TransportLinesManager.UI
             m_loading = true;
             try
             {
-                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
-                if (buildingId == 0)
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+                if (!fromBuilding)
                 {
                     ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineId];
                     m_timeInput.text = Entry.HourOfDay.ToString();
@@ -104,8 +104,8 @@ namespace Klyte.TransportLinesManager.UI
             };
             m_value.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
-                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
-                if (buildingId == 0)
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+                if (!fromBuilding)
                 {
                     m_value.Hide();
                     m_valueField.Show();
@@ -115,8 +115,8 @@ namespace Klyte.TransportLinesManager.UI
             };
             m_valueField.eventLeaveFocus += delegate (UIComponent c, UIFocusEventParameter r)
             {
-                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
-                if (buildingId == 0)
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+                if (!fromBuilding)
                 {
                     m_valueField.Hide();
                     if (uint.TryParse(m_valueField.text, out uint val))

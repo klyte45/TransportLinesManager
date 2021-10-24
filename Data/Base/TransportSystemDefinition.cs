@@ -309,14 +309,15 @@ namespace Klyte.TransportLinesManager.Extensions
                     && ti.m_transportType == x.TransportType
                     && (x.Level == ti.GetClassLevel() || x.LevelAdditional == ti.GetClassLevel() || x.LevelIntercity == ti.GetClassLevel())
                 );
-        public static TransportSystemDefinition FromLineId(uint lineId, ushort buildingId)
+        public static TransportSystemDefinition FromLineId(ushort lineId, bool fromBuilding)
         {
-            if (buildingId == 0)
+            if (!fromBuilding)
             {
                 return GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineId]);
             }
             else
             {
+                var buildingId = TLMStationUtils.GetStationBuilding(lineId, lineId, fromBuilding);
                 ref Building b = ref BuildingManager.instance.m_buildings.m_buffer[buildingId];
                 var systemAI = b.Info.GetAI();
                 return systemAI is TransportStationAI tsai

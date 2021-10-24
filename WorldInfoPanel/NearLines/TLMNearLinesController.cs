@@ -156,22 +156,22 @@ namespace Klyte.TransportLinesManager
                 {
                     ushort lineId = localLines[idx];
                     var itemControl = itemsEntries[idx].GetComponent<TLMLineItemButtonControl>();
-                    itemControl.ResetData(0, lineId, sidewalk);
+                    itemControl.ResetData(false, lineId, sidewalk);
                 }
             }
 
             var showRegional = false;
             if (b.Info.m_buildingAI is TransportStationAI tsai && tsai.m_transportLineInfo?.m_class.m_subService == ItemClass.SubService.PublicTransportTrain)
             {
-                var regionalLines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId);
-                showRegional = regionalLines != null && regionalLines.RegionalLinesCount > 0;
+                var regionalLines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId).RegionalLines.Keys.ToArray();
+                showRegional = regionalLines != null && regionalLines.Length > 0;
                 if (showRegional)
                 {
-                    var itemsEntries = m_regionalLinesTemplateList.SetItemCount(regionalLines.RegionalLinesCount);
-                    for (ushort idx = 0; idx < regionalLines.RegionalLinesCount; idx++)
+                    var itemsEntries = m_regionalLinesTemplateList.SetItemCount(regionalLines.Length);
+                    for (ushort idx = 0; idx < regionalLines.Length; idx++)
                     {
                         var itemControl = itemsEntries[idx].GetComponent<TLMLineItemButtonControl>();
-                        itemControl.ResetData(buildingId, idx, sidewalk);
+                        itemControl.ResetData(true, (ushort)regionalLines[idx], sidewalk);
                     }
                 }
             }

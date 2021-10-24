@@ -32,7 +32,7 @@ namespace Klyte.TransportLinesManager.Extensions
                             foreach (var lane in laneSegment)
                             {
                                 lane.ReleaseNodes((ushort)Id);
-                                PlatformMappings.Remove(lane.PlatformLaneId);
+                                PlatformMappings.Remove(lane.Id ?? 0);
                             }
                         });
                 }

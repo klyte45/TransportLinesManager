@@ -25,10 +25,10 @@ namespace Klyte.TransportLinesManager.UI
         private UIScrollbar m_scrollbar;
         private Dictionary<string, UICheckBox> m_checkboxes = new Dictionary<string, UICheckBox>();
         private bool m_isLoading;
-        private TransportSystemDefinition TransportSystem => TransportSystemDefinition.FromLineId(GetLineID(out ushort buildingId), buildingId);
-        internal static ushort GetLineID(out ushort buildingId)
+        private TransportSystemDefinition TransportSystem => TransportSystemDefinition.FromLineId(GetLineID(out bool fromBuilding), fromBuilding);
+        internal static ushort GetLineID(out bool fromBuilding)
         {
-            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out buildingId);
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out fromBuilding);
             return lineId;
         }
 
@@ -196,8 +196,8 @@ namespace Klyte.TransportLinesManager.UI
                     {
                         if (!m_isLoading)
                         {
-                            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
-                            if (lineID > 0 && buildingId == 0)
+                            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+                            if (lineID > 0 && !fromBuilding)
                             {
                                 if (y)
                                 {
@@ -246,7 +246,7 @@ namespace Klyte.TransportLinesManager.UI
         public void OnEnable() { }
         public void OnDisable() { }
         public void OnGotFocus() { }
-        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && buildingId == 0 && lineId > 0 && TransportSystem.HasVehicles();
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding && lineId > 0 && TransportSystem.HasVehicles();
 
         public void Hide() => MainPanel.isVisible = false;
     }

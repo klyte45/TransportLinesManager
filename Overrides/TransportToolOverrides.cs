@@ -171,7 +171,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     if (line > 0)
                     {
                         var stopId = TransportManager.instance.m_lines.m_buffer[tempLine].GetLastStop();
-                        text += $"\n<color white>{TLMStationUtils.GetFullStationName(stopId, line, tt.m_prefab.m_class.m_subService,0)}</color> @ <color #{TransportManager.instance.GetLineColor(line).SetBrightness(1).ClampSaturation(.5f).ToRGB()}>{TransportManager.instance.GetLineName(line)}</color>";
+                        text += $"\n<color white>{TLMStationUtils.GetFullStationName(stopId, line, tt.m_prefab.m_class.m_subService,false)}</color> @ <color #{TransportManager.instance.GetLineColor(line).SetBrightness(1).ClampSaturation(.5f).ToRGB()}>{TransportManager.instance.GetLineName(line)}</color>";
                         text += ProcessNeighborStops(line, tt, stopId);
                     }
                 }
@@ -180,7 +180,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     if ((hoverStopIndex != -1 || hoverSegmentIndex != -1) && line > 0)
                     {
                         var stopId = TransportManager.instance.m_lines.m_buffer[tempLine].GetStop(Math.Max(hoverStopIndex, hoverSegmentIndex));
-                        text += $"\n<color white>{TLMStationUtils.GetFullStationName(stopId, line, tt.m_prefab.m_class.m_subService,0)}</color> @ <color #{TransportManager.instance.GetLineColor(line).SetBrightness(1).ClampSaturation(.5f).ToRGB()}>{TransportManager.instance.GetLineName(line)}</color>";
+                        text += $"\n<color white>{TLMStationUtils.GetFullStationName(stopId, line, tt.m_prefab.m_class.m_subService,false)}</color> @ <color #{TransportManager.instance.GetLineColor(line).SetBrightness(1).ClampSaturation(.5f).ToRGB()}>{TransportManager.instance.GetLineName(line)}</color>";
                         text += ProcessNeighborStops(line, tt, stopId);
                     }
                 }
@@ -189,7 +189,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     if (hoverStopIndex != -1 && lastEditLine > 0)
                     {
                         var stopId = TransportManager.instance.m_lines.m_buffer[lastEditLine].GetStop(hoverStopIndex);
-                        text += $"\n<color white>{TLMStationUtils.GetFullStationName(stopId, lastEditLine, tt.m_prefab.m_class.m_subService,0)}</color> @ <color #{TransportManager.instance.GetLineColor(lastEditLine).SetBrightness(1).ClampSaturation(.5f).ToRGB()}>{TransportManager.instance.GetLineName(lastEditLine)}</color>";
+                        text += $"\n<color white>{TLMStationUtils.GetFullStationName(stopId, lastEditLine, tt.m_prefab.m_class.m_subService,false)}</color> @ <color #{TransportManager.instance.GetLineColor(lastEditLine).SetBrightness(1).ClampSaturation(.5f).ToRGB()}>{TransportManager.instance.GetLineName(lastEditLine)}</color>";
                         text += ProcessNeighborStops(lastEditLine, tt, stopId);
                     }
                     else if (hoverSegmentIndex != -1 && lastEditLine > 0)
@@ -205,8 +205,8 @@ namespace Klyte.TransportLinesManager.Overrides
 
                         text +=
                             $"\n<color #{TransportManager.instance.GetLineColor(lastEditLine).SetBrightness(1).ClampSaturation(.5f).ToRGB()}>{TransportManager.instance.GetLineName(lastEditLine)}</color>" +
-                            $"\n{Locale.Get("K45_TLM_TOOLINFO_PREVSTOP")}: {TLMStationUtils.GetFullStationName(prevStopId, lastEditLine, tt.m_prefab.m_class.m_subService,0)}" +
-                            $"\n{Locale.Get("K45_TLM_TOOLINFO_NEXTSTOP")}: {TLMStationUtils.GetFullStationName(nextStopId, lastEditLine, tt.m_prefab.m_class.m_subService,0)}" +
+                            $"\n{Locale.Get("K45_TLM_TOOLINFO_PREVSTOP")}: {TLMStationUtils.GetFullStationName(prevStopId, lastEditLine, tt.m_prefab.m_class.m_subService,false)}" +
+                            $"\n{Locale.Get("K45_TLM_TOOLINFO_NEXTSTOP")}: {TLMStationUtils.GetFullStationName(nextStopId, lastEditLine, tt.m_prefab.m_class.m_subService,false)}" +
                             $"\n{Locale.Get("K45_TLM_TOOLINFO_SEGMENTLENGHT")}: {d0}";
                     }
                 }
@@ -236,8 +236,8 @@ namespace Klyte.TransportLinesManager.Overrides
             var d0 = $"<color {c0}>{seg0.m_averageLength.ToString("N0")}m</color>";
             var d1 = $"<color {c1}>{seg1.m_averageLength.ToString("N0")}m</color>";
 
-            return (seg0Id > 0 ? $"\n{Locale.Get("K45_TLM_TOOLINFO_PREVSTOP")}: {d0} @ {TLMStationUtils.GetFullStationName(seg0.GetOtherNode(stopId), lastEditLine, tt.m_prefab.m_class.m_subService,0)}" : "") +
-                (seg1Id > 0 ? $"\n{Locale.Get("K45_TLM_TOOLINFO_NEXTSTOP")}: {d1} @ {TLMStationUtils.GetFullStationName(seg1.GetOtherNode(stopId), lastEditLine, tt.m_prefab.m_class.m_subService,0)}" : "");
+            return (seg0Id > 0 ? $"\n{Locale.Get("K45_TLM_TOOLINFO_PREVSTOP")}: {d0} @ {TLMStationUtils.GetFullStationName(seg0.GetOtherNode(stopId), lastEditLine, tt.m_prefab.m_class.m_subService,false)}" : "") +
+                (seg1Id > 0 ? $"\n{Locale.Get("K45_TLM_TOOLINFO_NEXTSTOP")}: {d1} @ {TLMStationUtils.GetFullStationName(seg1.GetOtherNode(stopId), lastEditLine, tt.m_prefab.m_class.m_subService,false)}" : "");
         }
 
         private static string GetDistanceColor(float averageLength) => averageLength < 100 ? "red" : averageLength < 250 ? "yellow" : averageLength > 2500 ? "yellow" : "green";

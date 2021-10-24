@@ -17,8 +17,8 @@ namespace Klyte.TransportLinesManager.UI
 
         public override TimeableList<BudgetEntryXml> GetCopyTarget()
         {
-            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
-            if (buildingId == 0)
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+            if (!fromBuilding)
             {
                 return TLMLineUtils.GetEffectiveExtensionForLine(lineID).GetBudgetsMultiplierForLine(lineID);
             }
@@ -26,16 +26,16 @@ namespace Klyte.TransportLinesManager.UI
         }
         public override void SetPasteTarget(TimeableList<BudgetEntryXml> newVal)
         {
-            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
-            if (buildingId == 0)
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+            if (!fromBuilding)
             {
                 TLMLineUtils.GetEffectiveExtensionForLine(lineID).SetAllBudgetMultipliersForLine(lineID, newVal);
             }
         }
         public override void OnDeleteTarget()
         {
-            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
-            if (buildingId == 0)
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+            if (!fromBuilding)
             {
                 TLMLineUtils.GetEffectiveExtensionForLine(lineID).RemoveAllBudgetMultipliersOfLine(lineID);
             }
@@ -87,8 +87,8 @@ namespace Klyte.TransportLinesManager.UI
 
         public override void OnUpdate()
         {
-            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
-            if (buildingId == 0)
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+            if (!fromBuilding)
             {
                 Tuple<float, int, int, float> value = TLMLineUtils.GetBudgetMultiplierLineWithIndexes(lineID);
                 m_effectiveSprite.color = UVMBudgetConfigTab.Instance.ColorOrder[value.Second % UVMBudgetConfigTab.Instance.ColorOrder.Count];

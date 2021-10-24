@@ -169,8 +169,8 @@ namespace Klyte.TransportLinesManager
             {
                 AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineName(id, newName));
                 yield return task.WaitTaskCompleted(this);
-                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId);
-                if (id > 0 && lineId == id && buildingId == 0)
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+                if (id > 0 && lineId == id && !fromBuilding)
                 {
                     UVMPublicTransportWorldInfoPanel.m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(id);
                 }

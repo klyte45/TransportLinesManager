@@ -9,7 +9,7 @@ namespace Klyte.TransportLinesManager.Cache
 {
     public class BuildingTransportDataCache
     {
-        private List<InnerBuildingLine> RegionalLines { get; } = new List<InnerBuildingLine>();
+        internal NonSequentialList<InnerBuildingLine> RegionalLines { get; } = new NonSequentialList<InnerBuildingLine>();
         private ushort BuildingId { get; }
         public int RegionalLinesCount => RegionalLines.Count;
         public StopPointDescriptorLanes[] StopPoints { get; }
@@ -22,6 +22,8 @@ namespace Klyte.TransportLinesManager.Cache
             RemapLines(buildingId, ref b, tsai);
             StopPoints = MapStopPoints();
         }
+
+
 
         public void RemapLines()
         {
@@ -42,13 +44,14 @@ namespace Klyte.TransportLinesManager.Cache
                 nextSubBuildingId = BuildingManager.instance.m_buildings.m_buffer[nextSubBuildingId].m_subBuilding;
             } while (nextSubBuildingId != 0);
 
-            for (ushort i = 0; i < RegionalLines.Count; i++)
+            foreach (var item in RegionalLines.Values)
             {
-                RegionalLines[i].UpdateMeshData();
+                item.UpdateMeshData();
             }
+            TransportLinesManagerMod.Controller.BuildingLines.InvalidateLinesCache();
         }
 
-        public InnerBuildingLine SafeGetRegionalLine(ushort lineId) => lineId < RegionalLines.Count ? RegionalLines[lineId] : null;
+        public InnerBuildingLine SafeGetRegionalLine(ushort lineId) => RegionalLines.TryGetValue(lineId, out InnerBuildingLine result) ? result : null;
 
         public void RenderStopPoints(RenderManager.CameraInfo cameraInfo)
         {
@@ -65,9 +68,9 @@ namespace Klyte.TransportLinesManager.Cache
         }
         public void RenderLines(RenderManager.CameraInfo cameraInfo)
         {
-            for (ushort i = 0; i < RegionalLines.Count; i++)
+            foreach (var line in RegionalLines.Values)
             {
-                RegionalLines[i].RenderLine(cameraInfo, i);
+                line.RenderLine(cameraInfo);
             }
         }
 
@@ -84,26 +87,33 @@ namespace Klyte.TransportLinesManager.Cache
                 {
                     break;
                 }
-                if (RegionalLines.Any(x => x.SrcStop == nextNodeId || x.DstStop == nextNodeId))
+                if (RegionalLines.Any(x => x.Key == nextNodeId || x.Key == nextNodeId))
                 {
                     nextNodeId = node.m_nextBuildingNode;
                     continue;
                 }
+                var otherNode = NetManager.instance.m_segments.m_buffer[node.m_segment0].GetOtherNode(nextNodeId);
+                var otherNodeBuilding = TLMStationUtils.GetStationBuilding(otherNode, buildingIdKey, true);
+                var thisBuilding = TLMStationUtils.GetStationBuilding(nextNodeId, buildingIdKey, true); 
                 InnerBuildingLine transportLine =
-                    TLMStationUtils.GetStationBuilding(nextNodeId, (ushort)RegionalLines.Count, buildingId) != buildingIdKey
+                    thisBuilding == buildingIdKey
                         ? new InnerBuildingLine
                         {
                             Info = targetInfo,
-                            DstStop = nextNodeId,
-                            SrcStop = NetManager.instance.m_segments.m_buffer[node.m_segment0].GetOtherNode(nextNodeId)
+                            SrcStop = nextNodeId,
+                            DstStop = otherNode,
+                            SrcBuildingId = thisBuilding,
+                            DstBuildingId = otherNodeBuilding
                         }
                         : new InnerBuildingLine
                         {
                             Info = targetInfo,
-                            SrcStop = nextNodeId,
-                            DstStop = NetManager.instance.m_segments.m_buffer[node.m_segment0].GetOtherNode(nextNodeId)
+                            DstStop = nextNodeId,
+                            SrcStop = otherNode,
+                            SrcBuildingId = otherNodeBuilding,
+                            DstBuildingId = thisBuilding,
                         };
-                RegionalLines.Add(transportLine);
+                RegionalLines[transportLine.SrcStop] = transportLine;
                 nextNodeId = node.m_nextBuildingNode;
             } while (nextNodeId != 0);
         }
@@ -245,7 +255,7 @@ namespace Klyte.TransportLinesManager.Cache
                     platformLine = nl.m_bezier,
                     width = refLane.m_width,
                     vehicleType = refLane.m_stopType,
-                    laneId =  leftLane,
+                    laneId = leftLane,
                     platformLaneId = laneId,
                     subbuildingId = -1,
                     directionPath = directionPath * ((segment.m_flags & NetSegment.Flags.Invert) != 0 == (refLane.m_finalDirection == NetInfo.Direction.AvoidForward || refLane.m_finalDirection == NetInfo.Direction.Backward) ? 1 : -1)
@@ -270,18 +280,19 @@ namespace Klyte.TransportLinesManager.Cache
             }
             return false;
         }
-        internal void GetPlatformData(ushort platformId, out PlatformConfig dataObj)
+        internal void GetPlatformData(ushort platformIdx, out PlatformConfig dataObj)
         {
-            var targetLaneIdx = StopPoints[platformId];
-            if (!BuildingData.PlatformMappings.TryGetValue(targetLaneIdx.UniquePlatformId, out dataObj))
+            var targetLaneIdx = StopPoints[platformIdx];
+            if (!BuildingData.PlatformMappings.TryGetValue(targetLaneIdx.platformLaneId, out dataObj))
             {
-                dataObj = BuildingData.PlatformMappings[targetLaneIdx.UniquePlatformId] = new PlatformConfig();
+                dataObj = BuildingData.PlatformMappings[targetLaneIdx.platformLaneId] = new PlatformConfig();
+                dataObj.VehicleLaneId = targetLaneIdx.laneId;
             }
         }
-        public void AddRegionalLine(ushort platformId, ushort outsideConnectionId)
+        public void AddRegionalLine(ushort platformId, ushort outsideConnectionId, string name, Color clr)
         {
             GetPlatformData(platformId, out PlatformConfig dataObj);
-            dataObj.AddDestination(BuildingId, outsideConnectionId);
+            dataObj.AddDestination(BuildingId, outsideConnectionId, name, clr);
             RemapLines();
         }
         public void RemoveRegionalLine(ushort platformId, ushort outsideConnectionId)

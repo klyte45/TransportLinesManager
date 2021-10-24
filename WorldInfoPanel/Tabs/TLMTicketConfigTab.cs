@@ -17,7 +17,7 @@ namespace Klyte.TransportLinesManager.UI
 
         public override float GetMaxSliderValue()
         {
-            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && buildingId == 0)
+            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding)
             {
                 var tsd = TransportSystemDefinition.GetDefinitionForLine(ref TransportManager.instance.m_lines.m_buffer[lineId]);
                 return TLMLineUtils.GetTicketPriceForLine(tsd, 0).First.Value * 5;
@@ -40,7 +40,7 @@ namespace Klyte.TransportLinesManager.UI
         };
 
         protected override TimeableList<TicketPriceEntryXml> Config
-            => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && buildingId == 0
+            => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding
                     ? TLMLineUtils.GetEffectiveConfigForLine(lineId).TicketPriceEntries
                     : null;
 

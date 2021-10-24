@@ -222,8 +222,8 @@ namespace Klyte.TransportLinesManager.UI
             {
                 return;
             }
-            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out ushort buildingId);
-            if (lineID > 0 && buildingId == 0)
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+            if (lineID > 0 && !fromBuilding)
             {
                 ExtraOnSetTarget(lineID);
                 RebuildList();
@@ -238,7 +238,7 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
         public void OnGotFocus() { }
-        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out ushort buildingId) && buildingId == 0 && lineId > 0 && TransportSystemDefinition.FromLineId(lineId, buildingId).HasVehicles();
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding && lineId > 0 && TransportSystemDefinition.FromLineId(lineId, fromBuilding).HasVehicles();
         public void Hide() => MainContainer.isVisible = false;
     }
 
