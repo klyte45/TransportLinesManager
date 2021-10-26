@@ -118,6 +118,13 @@ namespace Klyte.TransportLinesManager
             StartCoroutine(VehicleUtils.UpdateCapacityUnits());
             InitWipSidePanels();
 
+            foreach (var item in TLMBuildingDataContainer.Instance.GetAvailableEntries())
+            {
+                if (item.TlmManagedRegionalLines)
+                {
+                    TransportLinesManagerMod.Controller.BuildingLines.SafeGet((ushort)(item.Id ?? 0));
+                }
+            }
         }
         private static void InitWipSidePanels()
         {

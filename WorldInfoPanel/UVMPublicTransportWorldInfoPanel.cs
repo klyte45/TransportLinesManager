@@ -106,6 +106,7 @@ namespace Klyte.TransportLinesManager.UI
             KlyteMonoUtils.CreateTabsComponent(out m_obj.m_lineConfigTabs, out _, __instance.transform, "LineConfig", new Vector4(15, 45, 365, 30), new Vector4(15, 80, 380, 445));
 
             m_obj.m_childControls.Add("Default", TabCommons.CreateTabLocalized<UVMMainWIPTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_STATS_TAB", "Default", false));
+            m_obj.m_childControls.Add("DefaultRegional", TabCommons.CreateTabLocalized<TLMRegionalMainTab>(m_obj.m_lineConfigTabs, "ThumbStatistics", "K45_TLM_WIP_REGIONAL_TAB", "DefaultRegional", false));
             m_obj.m_childControls.Add("Reports", TabCommons.CreateTabLocalized<TLMReportsTab>(m_obj.m_lineConfigTabs, "IconMessage", "K45_TLM_WIP_REPORT_TAB", "Reports", false));
             m_obj.m_childControls.Add("Budget", TabCommons.CreateTabLocalized<UVMBudgetConfigTab>(m_obj.m_lineConfigTabs, "InfoPanelIconCurrency", "K45_TLM_WIP_BUDGET_CONFIGURATION_TAB", "Budget", false));
             m_obj.m_childControls.Add("Ticket", TabCommons.CreateTabLocalized<TLMTicketConfigTab>(m_obj.m_lineConfigTabs, "FootballTicketIcon", "K45_TLM_WIP_TICKET_CONFIGURATION_TAB", "Ticket", false));

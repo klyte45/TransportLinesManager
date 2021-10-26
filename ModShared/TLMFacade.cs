@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
@@ -281,6 +282,23 @@ namespace Klyte.TransportLinesManager.ModShared
             => TLMLineUtils.CalculateAutoName(lineId, 0, out destinations);
 
         public static string GetLineStringId(ushort lineId) => TLMLineUtils.GetLineStringId(lineId);
+        public static bool GetRegionalLineParameters(ushort buildingStopId, out string Identifier, out string formatBg, out Color color)
+        {
+            if (TransportLinesManagerMod.Controller.BuildingLines[buildingStopId] is InnerBuildingLine ibl && ibl.LineDataObject is OutsideConnectionLineInfo ocli)
+            {
+                Identifier = ocli.Identifier;
+                formatBg = ocli.LineBgSprite.ToString();
+                color = ocli.LineColor;
+                return true;
+            }
+            else
+            {
+                Identifier = null;
+                formatBg = null;
+                color = default;
+                return false;
+            }
+        }
 
         public class DestinationPoco
         {
