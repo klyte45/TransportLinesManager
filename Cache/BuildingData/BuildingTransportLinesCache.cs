@@ -13,10 +13,7 @@ namespace Klyte.TransportLinesManager.Cache
         private SimpleNonSequentialList<BuildingTransportDataCache> BuildingTransportDataCache;
         private Dictionary<ushort, InnerBuildingLine> InnerBuildingLinesIndex;
 
-        public void InvalidateLinesCache()
-        {
-            InnerBuildingLinesIndex = null;
-        }
+        public void InvalidateLinesCache() => InnerBuildingLinesIndex = null;
 
         private void Awake() => BuildingTransportDataCache = new SimpleNonSequentialList<BuildingTransportDataCache>();
 
@@ -37,12 +34,14 @@ namespace Klyte.TransportLinesManager.Cache
         {
             BuildingTransportDataCache.Remove(buildingId);
             InnerBuildingLinesIndex = null;
+            TLMController.UpdateRegionalLines();
         }
 
         private void ResetAllBuilding(ushort _)
         {
             BuildingTransportDataCache.Clear();
             InnerBuildingLinesIndex = null;
+            TLMController.UpdateRegionalLines();
         }
 
         public void RenderBuildingLines(RenderManager.CameraInfo cameraInfo, ushort buildingId)

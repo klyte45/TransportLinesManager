@@ -148,6 +148,34 @@ namespace Klyte.TransportLinesManager.Overrides
             LogUtils.PrintMethodIL(inst);
             return inst;
         }
+        private static IEnumerable<CodeInstruction> TranspileUpdateBindingsCSWIP(IEnumerable<CodeInstruction> instructions)
+        {
+            var inst = new List<CodeInstruction>(instructions);
+            MethodInfo CanAllowRegionalLines = typeof(OutsideConnectionOverrides).GetMethod("CanAllowVanillaRegionalLines", allFlags);
+
+            for (int i = 0; i < inst.Count - 1; i++)
+            {
+                if (inst[i + 1].opcode == OpCodes.Ldnull
+                    && inst[i].opcode == OpCodes.Ldloc_S
+                    && inst[i].operand is LocalBuilder lb
+                    && lb.LocalIndex == 5
+                    )
+                {
+                    inst.RemoveAt(i + 1);
+                    inst.RemoveAt(i + 1);
+                    inst.InsertRange(i + 1, new List<CodeInstruction> {
+                        new CodeInstruction(OpCodes.Ldloc_0),
+                        new CodeInstruction(OpCodes.Call, CanAllowRegionalLines),
+                    });
+                    break;
+                }
+            }
+
+            LogUtils.PrintMethodIL(inst);
+            return inst;
+        }
+
+        private static bool CanAllowVanillaRegionalLines(TransportStationAI stationAI, ushort buildingId) => !(stationAI is null) && !TLMBuildingDataContainer.Instance.SafeGet(buildingId).TlmManagedRegionalLines;
 
         public Redirector RedirectorInstance => this;
 
@@ -161,6 +189,7 @@ namespace Klyte.TransportLinesManager.Overrides
             RedirectorInstance.AddRedirect(typeof(OutsideConnectionAI).GetMethod("StartConnectionTransferImpl", allFlags), null, null, typeof(OutsideConnectionOverrides).GetMethod("TranspileStartConnectionTransferImpl", allFlags));
             RedirectorInstance.AddRedirect(typeof(TransportStationAI).GetMethod("CreateOutgoingVehicle", allFlags), null, null, typeof(OutsideConnectionOverrides).GetMethod("TranspileOutgoingVehicleSetLine", allFlags));
             RedirectorInstance.AddRedirect(typeof(TransportStationAI).GetMethod("CreateIncomingVehicle", allFlags), null, null, typeof(OutsideConnectionOverrides).GetMethod("TranspileIncomingVehicleSetLine", allFlags));
+            RedirectorInstance.AddRedirect(typeof(CityServiceWorldInfoPanel).GetMethod("UpdateBindings", allFlags), null, null, typeof(OutsideConnectionOverrides).GetMethod("TranspileUpdateBindingsCSWIP", allFlags));
         }
 
         #endregion

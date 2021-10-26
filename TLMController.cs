@@ -75,6 +75,8 @@ namespace Klyte.TransportLinesManager
         internal IBridgeADR ConnectorADR { get; private set; }
         internal IBridgeWTS ConnectorWTS { get; private set; }
 
+        private bool m_dirtyRegionalLines;
+
         public static Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
             ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[i];
@@ -118,14 +120,26 @@ namespace Klyte.TransportLinesManager
             StartCoroutine(VehicleUtils.UpdateCapacityUnits());
             InitWipSidePanels();
 
-            foreach (var item in TLMBuildingDataContainer.Instance.GetAvailableEntries())
+            UpdateRegionalLines();
+        }
+
+        internal static void UpdateRegionalLines() => TransportLinesManagerMod.Controller.m_dirtyRegionalLines = true;
+
+        public void Update()
+        {
+            if (m_dirtyRegionalLines)
             {
-                if (item.TlmManagedRegionalLines)
+                foreach (var item in TLMBuildingDataContainer.Instance.GetAvailableEntries())
                 {
-                    TransportLinesManagerMod.Controller.BuildingLines.SafeGet((ushort)(item.Id ?? 0));
+                    if (item.TlmManagedRegionalLines)
+                    {
+                        TransportLinesManagerMod.Controller.BuildingLines.SafeGet((ushort)(item.Id ?? 0));
+                    }
                 }
+                m_dirtyRegionalLines = false;
             }
         }
+
         private static void InitWipSidePanels()
         {
             BuildingWorldInfoPanel[] panelList = UIView.GetAView().GetComponentsInChildren<BuildingWorldInfoPanel>();
