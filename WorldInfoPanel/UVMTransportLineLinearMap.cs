@@ -239,7 +239,7 @@ namespace Klyte.TransportLinesManager.UI
                 if (fromBuilding)
                 {
                     var line = TransportLinesManagerMod.Controller.BuildingLines[lineID];
-                    color = TLMController.COLOR_ORDER[lineID % TLMController.COLOR_ORDER.Length];
+                    color = line.LineDataObject == null ? TLMController.COLOR_ORDER[lineID % TLMController.COLOR_ORDER.Length] : line.LineDataObject.LineColor;
                     stopsCount = line.CountStops();
                     firstStop = line.SrcStop;
                 }

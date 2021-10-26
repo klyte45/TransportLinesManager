@@ -31,18 +31,18 @@ namespace Klyte.TransportLinesManager.UI
                     return;
                 }
 
-                if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding)
+                if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding))
                 {
-                    IBasicExtension extension = lineId > 0 ? TLMLineUtils.GetEffectiveExtensionForLine(lineId) : UVMPublicTransportWorldInfoPanel.GetCurrentTSD().GetTransportExtension();
+                    IBasicExtension extension = lineId > 0 && !fromBuilding ? TLMLineUtils.GetEffectiveExtensionForLine(lineId) : UVMPublicTransportWorldInfoPanel.GetCurrentTSD().GetTransportExtension();
 
-                    LogUtils.DoLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}]");
+                    LogUtils.DoLog($"checkbox event: {x.objectUserData} => {y} at {extension}[{lineId}-{fromBuilding}]");
                     if (y)
                     {
-                        extension.AddAssetToLine(lineId, m_currentAsset);
+                        extension.AddAssetToLine(fromBuilding ? (ushort)0 : lineId, m_currentAsset);
                     }
                     else
                     {
-                        extension.RemoveAssetFromLine(lineId, m_currentAsset);
+                        extension.RemoveAssetFromLine(fromBuilding ? (ushort)0 : lineId, m_currentAsset);
                     }
                 }
             };

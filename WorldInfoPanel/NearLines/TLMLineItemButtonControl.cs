@@ -140,18 +140,19 @@ namespace Klyte.TransportLinesManager
             {
                 daytimeIndicatorLabel.isVisible = false;
                 var lineObj = TransportLinesManagerMod.Controller.BuildingLines[lineId];
-                if(lineObj is null)
+                if (lineObj is null)
                 {
                     return;
                 }
-                var color = lineObj.LineDataObject?.LineColor ?? TLMController.COLOR_ORDER[lineId % TLMController.COLOR_ORDER.Length];
+                var ldo = lineObj.LineDataObject;
+                var color = ldo?.LineColor ?? TLMController.COLOR_ORDER[lineId % TLMController.COLOR_ORDER.Length];
                 button.color = color;
                 button.disabledColor = color;
                 button.focusedColor = color;
-                button.normalBgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(TransportSystemDefinition.FromIntercity(lineObj.Info)?.DefaultIcon ?? Commons.UI.Sprites.LineIconSpriteNames.K45_S10StarIcon, true);
+                button.normalBgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(ldo?.LineBgSprite ?? TransportSystemDefinition.FromIntercity(lineObj.Info)?.DefaultIcon ?? Commons.UI.Sprites.LineIconSpriteNames.K45_S10StarIcon, true);
                 button.tooltip = TLMStationUtils.GetStationName(lineObj.DstStop, lineObj.SrcStop, lineObj.Info.m_class.m_subService, fromBuilding);
 
-                var text = lineObj.LineDataObject?.Identifier ?? $"REG\n{lineObj.SrcStop.ToString("X4")}";
+                var text = ldo?.Identifier ?? $"REG\n{lineObj.SrcStop.ToString("X4")}";
                 GetLineNumberCircleOnRefParams(text, false, out Color textColor, out float textScale, out Vector3 relativePosition);
                 lineIdentifierLabel.text = text;
                 lineIdentifierLabel.textScale = textScale;
