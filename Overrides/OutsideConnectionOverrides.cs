@@ -3,6 +3,7 @@ using Harmony;
 using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
+using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -43,7 +44,14 @@ namespace Klyte.TransportLinesManager.Overrides
             ref Vehicle veh = ref VehicleManager.instance.m_vehicles.m_buffer[vehicleId];
             if (TransportSystemDefinition.From(veh.Info) == TransportSystemDefinition.TRAIN)
             {
-                veh.m_custom = stopId;
+                if (TLMStationUtils.GetStationBuilding(stopId, 0, false) != veh.m_sourceBuilding)
+                {
+                    veh.m_custom = NetManager.instance.m_segments.m_buffer[NetManager.instance.m_nodes.m_buffer[stopId].GetSegment(0)].GetOtherNode(stopId);
+                }
+                else
+                {
+                    veh.m_custom = stopId;
+                }
             }
         }
 

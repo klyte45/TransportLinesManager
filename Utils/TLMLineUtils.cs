@@ -336,6 +336,10 @@ namespace Klyte.TransportLinesManager.Utils
                 ? KlyteResourceLoader.GetDefaultSpriteNameFor(TLMController.Instance.BuildingLines[lineIdx]?.LineDataObject?.LineBgSprite ?? TransportSystemDefinition.GetDefinitionForLine(lineIdx, regional)?.DefaultIcon ?? Commons.UI.Sprites.LineIconSpriteNames.NULL, noBorder)
                 : KlyteResourceLoader.GetDefaultSpriteNameFor(TLMPrefixesUtils.GetLineIcon(TransportManager.instance.m_lines.m_buffer[lineIdx].m_lineNumber, TransportSystemDefinition.GetDefinitionForLine(lineIdx, regional)), noBorder);
 
+        public static Color GetLineColor(ushort lineIdx, bool regional) => regional
+                ? TLMController.Instance.BuildingLines[lineIdx]?.LineDataObject?.LineColor ?? Color.clear
+                :TransportManager.instance.GetLineColor(lineIdx);
+
         public static bool GetNearLines(Vector3 pos, float maxDistance, ref List<ushort> linesFound)
         {
             float extendedMaxDistance = maxDistance * 1.3f;
@@ -656,7 +660,7 @@ namespace Klyte.TransportLinesManager.Utils
                 startStop = tl.m_stops;
                 nextStop = tl.m_stops;
                 allowPrefixInStations = m_roadTransportTypes.Contains(tl.Info.m_transportType);
-                allowTerminals = TransportSystemDefinition.FromLineId(lineIdx, false).CanHaveTerminals();
+                allowTerminals = TransportSystemDefinition.FromLineId(lineIdx, regionalLine).CanHaveTerminals();
                 subservice = tl.Info.m_class.m_subService;
             }
             else
@@ -665,7 +669,7 @@ namespace Klyte.TransportLinesManager.Utils
                 startStop = tl.SrcStop;
                 nextStop = tl.SrcStop;
                 allowPrefixInStations = m_roadTransportTypes.Contains(tl.Info.m_transportType);
-                allowTerminals = TransportSystemDefinition.FromLineId(lineIdx, false).CanHaveTerminals();
+                allowTerminals = TransportSystemDefinition.FromLineId(lineIdx, regionalLine)?.CanHaveTerminals() ?? false;
                 subservice = tl.Info.m_class.m_subService;
             }
 
@@ -792,9 +796,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         }
 
-        public static Tuple<string, Color, string> GetIconStringParameters(ushort lineId, bool regionalLine) => Tuple.New(GetIconForLine(lineId, false), Singleton<TransportManager>.instance.GetLineColor(lineId), GetLineStringId(lineId, regionalLine));
-
-
+        public static Tuple<string, Color, string> GetIconStringParameters(ushort lineId, bool regionalLine) => Tuple.New(GetIconForLine(lineId, regionalLine), GetLineColor(lineId, regionalLine), GetLineStringId(lineId, regionalLine));
 
         public static int ProjectTargetVehicleCount(TransportInfo info, float lineLength, float budget) => Mathf.CeilToInt(budget * lineLength / info.m_defaultVehicleDistance);
         public static float CalculateBudgetForEachVehicle(TransportInfo info, float lineLength) => info.m_defaultVehicleDistance / lineLength;
