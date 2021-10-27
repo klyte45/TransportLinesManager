@@ -263,7 +263,12 @@ namespace Klyte.TransportLinesManager.Extensions
         public static bool operator ==(TransportSystemDefinition a, TransportSystemDefinition b) => Equals(a, b);
         public static bool operator !=(TransportSystemDefinition a, TransportSystemDefinition b) => !(a == b);
 
-        public static TransportSystemDefinition From(PrefabAI buildingAI) => buildingAI is DepotAI depotAI ? FromLocal(depotAI.m_transportInfo) : buildingAI is OutsideConnectionAI ocAI ? FromIntercity(ocAI.m_transportInfo) : null;
+        public static TransportSystemDefinition From(PrefabAI prefabAI) =>
+            prefabAI is DepotAI depotAI
+                ? FromLocal(depotAI.m_transportInfo)
+                : prefabAI is OutsideConnectionAI ocAI
+                    ? FromIntercity(ocAI.m_transportInfo)
+                    : null;
         public static TransportSystemDefinition FromLocal(TransportInfo info)
         {
             if (info is null)
@@ -345,13 +350,20 @@ namespace Klyte.TransportLinesManager.Extensions
             return result;
         }
 
-        public static TransportSystemDefinition GetDefinitionForLine(ushort i)
+        public static TransportSystemDefinition GetDefinitionForLine(ushort i, bool regional)
         {
-            if (i == 0)
+            if (regional)
             {
-                throw new Exception("INVALID LINE TO GET DEFINITION: Line 0");
+                return FromIntercity(TLMController.Instance.BuildingLines[i]?.Info);
             }
-            return GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[i]);
+            else
+            {
+                if (i == 0)
+                {
+                    throw new Exception("INVALID LINE TO GET DEFINITION: Line 0");
+                }
+                return GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[i]);
+            }
         }
 
         public static TransportSystemDefinition GetDefinitionForLine(ref TransportLine t) => FromLocal(t.Info);

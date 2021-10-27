@@ -253,7 +253,19 @@ namespace Klyte.TransportLinesManager.UI
         protected static bool OnSetTarget()
         {
             GetLineID(out ushort lineID, out bool fromBuilding);
-            if (!fromBuilding)
+            if (fromBuilding)
+            {
+                var lineObj = TransportLinesManagerMod.Controller.BuildingLines[lineID];
+                if (lineObj == null)
+                {
+                    return false;
+                }
+                m_obj.m_nameField.text = TLMLineUtils.GetLineName(lineID, fromBuilding);
+                m_obj.m_nameField.Disable();
+                m_obj.m_specificConfig.isVisible = false;
+                m_obj.m_deleteButton.isVisible = false;
+            }
+            else
             {
                 if (lineID >= TransportManager.MAX_LINE_COUNT)
                 {
@@ -261,7 +273,7 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 if (lineID != 0)
                 {
-                    m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(lineID);
+                    m_obj.m_nameField.text = TLMLineUtils.GetLineName(lineID, fromBuilding);
                     m_obj.m_nameField.Enable();
                     m_obj.m_specificConfig.isVisible = TransportSystemDefinition.FromLineId(lineID, fromBuilding).HasVehicles();
                     m_obj.m_specificConfig.isChecked = TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineID);
@@ -275,18 +287,6 @@ namespace Klyte.TransportLinesManager.UI
                     m_obj.m_specificConfig.isVisible = false;
                     m_obj.m_deleteButton.isVisible = false;
                 }
-            }
-            else
-            {
-                var lineObj = TransportLinesManagerMod.Controller.BuildingLines[lineID];
-                if (lineObj == null)
-                {
-                    return false;
-                }
-                m_obj.m_nameField.text = string.Format(Locale.Get("K45_TLM_OUTSIDECONNECTION_TARGETCITYTEMPLATE"), TLMStationUtils.GetStationName(lineObj.DstStop, lineID, lineObj.Info.m_class.m_subService, true));
-                m_obj.m_nameField.Disable();
-                m_obj.m_specificConfig.isVisible = false;
-                m_obj.m_deleteButton.isVisible = false;
             }
 
             foreach (KeyValuePair<string, IUVMPTWIPChild> tab in m_obj.m_childControls)

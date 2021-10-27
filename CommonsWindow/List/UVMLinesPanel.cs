@@ -375,7 +375,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 m_reverseOrder).Select(x => x.First).ToList();
 
         private List<ushort> OnLineNumberSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x => Tuple.New(x, TLMLineUtils.GetLineStringId(x)))
+                .Select(x => Tuple.New(x, TLMLineUtils.GetLineStringId(x, false)))
                 .ToList(),
                 new Comparison<Tuple<ushort, string>>(Compare),
                 m_reverseOrder).Select(x => x.First).ToList();

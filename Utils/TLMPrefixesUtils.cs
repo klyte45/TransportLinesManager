@@ -23,7 +23,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static bool HasPrefix(ref TransportLine t) => HasPrefix(TransportSystemDefinition.GetDefinitionForLine(ref t));
 
-        public static bool HasPrefix(ushort idx) => idx == 0 ? true : HasPrefix(TransportSystemDefinition.GetDefinitionForLine(idx));
+        public static bool HasPrefix(ushort idx) => idx == 0 ? true : HasPrefix(TransportSystemDefinition.GetDefinitionForLine(idx, false));
 
         public static bool HasPrefix(TransportInfo t) => HasPrefix(TransportSystemDefinition.FromLocal(t));
 

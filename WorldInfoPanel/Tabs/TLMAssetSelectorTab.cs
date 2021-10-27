@@ -202,7 +202,7 @@ namespace Klyte.TransportLinesManager.UI
             }
             else if (config is TLMTransportLineConfiguration)
             {
-                m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE"), TLMLineUtils.GetLineStringId(GetLineID()));
+                m_title.text = string.Format(Locale.Get("K45_TLM_ASSET_SELECT_WINDOW_TITLE"), TLMLineUtils.GetLineStringId(GetLineID(), false));
             }
             else
             {

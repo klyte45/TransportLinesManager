@@ -84,9 +84,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 averageCount,
                 averageCount2
                 });
-                TLMLineUtils.SetLineNumberCircleOnRef(LineID, m_lineNumberFormatted, 0.8f);
+                TLMLineUtils.SetLineNumberCircleOnRef(LineID, false, m_lineNumberFormatted, 0.8f);
                 m_lineColor.atlas = m_linePassengers.atlas;
-                m_lineColor.normalFgSprite = TLMLineUtils.GetIconForLine(LineID);
+                m_lineColor.normalFgSprite = TLMLineUtils.GetIconForLine(LineID, false);
                 m_lineColor.isVisible = true;
                 m_deleteLine.isVisible = true;
                 m_buttonAutoName.isVisible = true;
@@ -227,7 +227,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         public void DoAutoColor() => TLMController.AutoColor(m_lineID);
 
-        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, 0, out _));
+        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, false, out _));
 
         private void OnMouseEnter(UIComponent comp, UIMouseEventParameter param)
         {

@@ -152,7 +152,7 @@ namespace Klyte.TransportLinesManager
                 button.normalBgSprite = KlyteResourceLoader.GetDefaultSpriteNameFor(ldo?.LineBgSprite ?? TransportSystemDefinition.FromIntercity(lineObj.Info)?.DefaultIcon ?? Commons.UI.Sprites.LineIconSpriteNames.K45_S10StarIcon, true);
                 button.tooltip = TLMStationUtils.GetStationName(lineObj.DstStop, lineObj.SrcStop, lineObj.Info.m_class.m_subService, fromBuilding);
 
-                var text = ldo?.Identifier ?? $"REG\n{lineObj.SrcStop.ToString("X4")}";
+                var text = TLMLineUtils.GetLineStringId(lineId, fromBuilding).Trim();
                 GetLineNumberCircleOnRefParams(text, false, out Color textColor, out float textScale, out Vector3 relativePosition);
                 lineIdentifierLabel.text = text;
                 lineIdentifierLabel.textScale = textScale;
@@ -191,7 +191,7 @@ namespace Klyte.TransportLinesManager
                     button.color = lineObj.m_color;
                     button.disabledColor = lineObj.m_color;
                     button.focusedColor = lineObj.m_color;
-                    button.normalBgSprite = TLMLineUtils.GetIconForLine(lineId);
+                    button.normalBgSprite = TLMLineUtils.GetIconForLine(lineId, false);
                     button.tooltip = tm.GetLineName(lineId);
                     bool zeroed = TLMTransportLineExtension.Instance.SafeGet(lineId).IsZeroed;
                     if (!day || !night || zeroed)
@@ -204,7 +204,7 @@ namespace Klyte.TransportLinesManager
                         daytimeIndicatorLabel.isVisible = false;
                     }
 
-                    var text = TLMLineUtils.GetLineStringId(lineId).Trim();
+                    var text = TLMLineUtils.GetLineStringId(lineId, fromBuilding).Trim();
                     GetLineNumberCircleOnRefParams(text, TLMTransportLineExtension.Instance.IsUsingCustomConfig(lineId), out Color textColor, out float textScale, out Vector3 relativePosition);
                     lineIdentifierLabel.text = text;
                     lineIdentifierLabel.textScale = textScale;

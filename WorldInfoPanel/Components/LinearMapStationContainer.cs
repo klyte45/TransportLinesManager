@@ -83,7 +83,7 @@ namespace Klyte.TransportLinesManager.UI
             UITemplateUtils.GetTemplateDict()[TEMPLATE_NAME] = go.AddComponent<LinearMapStationContainer>().component;
         }
 
-        private ItemClass.SubService CurrentSubService => m_fromBuilding ? TransportLinesManagerMod.Controller.BuildingLines[m_lineId]?.Info.m_netSubService ?? ItemClass.SubService.None : TransportSystemDefinition.GetDefinitionForLine(m_lineId).SubService;
+        private ItemClass.SubService CurrentSubService => TransportSystemDefinition.GetDefinitionForLine(m_lineId, m_fromBuilding).SubService;
 
         private ushort m_stopId;
         private ushort m_lineId;
@@ -236,7 +236,7 @@ namespace Klyte.TransportLinesManager.UI
         private LineType GetLineType() => UVMPublicTransportWorldInfoPanel.GetLineType(m_lineId, m_fromBuilding);
 
         private void UpdateTerminalStatus() => uibutton.normalBgSprite =
-                              !m_fromBuilding  && TransportSystemDefinition.FromLineId(m_lineId, m_fromBuilding).CanHaveTerminals() && (m_stopId == Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineId].m_stops || TLMStopDataContainer.Instance.SafeGet(m_stopId).IsTerminal)
+                              !m_fromBuilding && TransportSystemDefinition.FromLineId(m_lineId, m_fromBuilding).CanHaveTerminals() && (m_stopId == Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineId].m_stops || TLMStopDataContainer.Instance.SafeGet(m_stopId).IsTerminal)
                                 ? KlyteResourceLoader.GetDefaultSpriteNameFor(LineIconSpriteNames.K45_S05StarIcon, true)
                                 : "";
 

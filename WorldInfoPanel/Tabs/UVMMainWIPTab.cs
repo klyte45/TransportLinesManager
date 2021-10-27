@@ -213,7 +213,7 @@ namespace Klyte.TransportLinesManager.UI
                     ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineID];
                     ushort lineNumber = t.m_lineNumber;
 
-                    var tsd = TransportSystemDefinition.GetDefinitionForLine(lineID);
+                    var tsd = TransportSystemDefinition.GetDefinitionForLine(lineID, fromBuilding);
                     var config = tsd.GetConfig();
                     var mnPrefixo = config.Prefix;
 
@@ -462,7 +462,7 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
 
-        private bool IsLineNumberAlredyInUse(int numLinha, ushort lineIdx) => TLMLineUtils.IsLineNumberAlredyInUse(numLinha, TransportSystemDefinition.GetDefinitionForLine(lineIdx), lineIdx);
+        private bool IsLineNumberAlredyInUse(int numLinha, ushort lineIdx) => TLMLineUtils.IsLineNumberAlredyInUse(numLinha, TransportSystemDefinition.GetDefinitionForLine(lineIdx, false), lineIdx);
         #endregion
 
         #region Custom line code

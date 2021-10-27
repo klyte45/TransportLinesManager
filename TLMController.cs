@@ -82,7 +82,7 @@ namespace Klyte.TransportLinesManager
             ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[i];
             try
             {
-                var tsd = TransportSystemDefinition.GetDefinitionForLine(i);
+                var tsd = TransportSystemDefinition.GetDefinitionForLine(i, false);
                 if (tsd == default || (((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreAnyIfSet))
                 {
                     return Color.clear;
@@ -107,7 +107,7 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, 0, out _));
+        public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, false, out _));
 
         //------------------------------------
 

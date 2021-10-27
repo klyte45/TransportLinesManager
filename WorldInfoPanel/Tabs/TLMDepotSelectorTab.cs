@@ -227,7 +227,7 @@ namespace Klyte.TransportLinesManager.UI
 
             if (config is TLMTransportLineConfiguration)
             {
-                m_title.text = string.Format(Locale.Get("K45_TLM_DEPOT_SELECT_WINDOW_TITLE"), TLMLineUtils.GetLineStringId(GetLineID(out _)));
+                m_title.text = string.Format(Locale.Get("K45_TLM_DEPOT_SELECT_WINDOW_TITLE"), TLMLineUtils.GetLineStringId(GetLineID(out bool fromBuilding), fromBuilding));
             }
             else
             {
