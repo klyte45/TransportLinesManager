@@ -120,10 +120,27 @@ namespace Klyte.TransportLinesManager
             StartCoroutine(VehicleUtils.UpdateCapacityUnits());
             InitWipSidePanels();
 
-            UpdateRegionalLines();
+            m_dirtyRegionalLines = true;
         }
 
-        internal static void UpdateRegionalLines() => TransportLinesManagerMod.Controller.m_dirtyRegionalLines = true;
+        internal static bool UpdateRegionalLinesFromBuilding(ushort buildingId)
+        {
+            if (TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId) != null)
+            {
+                TransportLinesManagerMod.Controller.m_dirtyRegionalLines = true;
+                return true;
+            }
+            return false;
+        }
+        internal static bool UpdateRegionalLinesFromNode(ushort nodeId)
+        {
+            if (TransportLinesManagerMod.Controller.BuildingLines[nodeId] != null)
+            {
+                TransportLinesManagerMod.Controller.m_dirtyRegionalLines = true;
+                return true;
+            }
+            return false;
+        }
 
         public void Update()
         {
@@ -134,6 +151,16 @@ namespace Klyte.TransportLinesManager
                     if (item.TlmManagedRegionalLines)
                     {
                         TransportLinesManagerMod.Controller.BuildingLines.SafeGet((ushort)(item.Id ?? 0));
+                        if (TLMFacade.Instance != null)
+                        {
+                            foreach (var plats in item.PlatformMappings.Values)
+                            {
+                                foreach (var regLine in plats.TargetOutsideConnections)
+                                {
+                                    TLMFacade.Instance.OnRegionalLineParameterChanged(regLine.Value.m_nodeStation);
+                                }
+                            }
+                        }
                     }
                 }
                 m_dirtyRegionalLines = false;

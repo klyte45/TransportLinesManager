@@ -32,16 +32,20 @@ namespace Klyte.TransportLinesManager.Cache
 
         private void ResetBuilding(ushort buildingId)
         {
-            BuildingTransportDataCache.Remove(buildingId);
-            InnerBuildingLinesIndex = null;
-            TLMController.UpdateRegionalLines();
+            if (TLMController.UpdateRegionalLinesFromBuilding(buildingId))
+            {
+                BuildingTransportDataCache.Remove(buildingId);
+                InnerBuildingLinesIndex = null;
+            }
         }
 
-        private void ResetAllBuilding(ushort _)
+        private void ResetAllBuilding(ushort nodeId)
         {
-            BuildingTransportDataCache.Clear();
-            InnerBuildingLinesIndex = null;
-            TLMController.UpdateRegionalLines();
+            if (TLMController.UpdateRegionalLinesFromNode(nodeId))
+            {
+                BuildingTransportDataCache.Clear();
+                InnerBuildingLinesIndex = null;
+            }
         }
 
         public void RenderBuildingLines(RenderManager.CameraInfo cameraInfo, ushort buildingId)
@@ -70,15 +74,20 @@ namespace Klyte.TransportLinesManager.Cache
         {
             ref Building b = ref BuildingManager.instance.m_buildings.m_buffer[buildingId];
             var info = b.Info;
+
             if (b.m_parentBuilding != 0)
             {
                 return SafeGet(Building.FindParentBuilding(buildingId));
+            }
+            if (!(info.m_buildingAI is TransportStationAI tsai))
+            {
+                return null;
             }
             if (BuildingTransportDataCache.ContainsKey(buildingId))
             {
                 return BuildingTransportDataCache[buildingId];
             }
-            BuildingTransportDataCache[buildingId] = info.m_buildingAI is TransportStationAI tsai ? new BuildingTransportDataCache(buildingId, ref b, tsai) : null;
+            BuildingTransportDataCache[buildingId] = new BuildingTransportDataCache(buildingId, ref b, tsai);
             InnerBuildingLinesIndex = null;
             return BuildingTransportDataCache[buildingId];
         }

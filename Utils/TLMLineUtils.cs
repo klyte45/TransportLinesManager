@@ -117,12 +117,12 @@ namespace Klyte.TransportLinesManager.Utils
                 isBuilding = false;
                 return lineId;
             }
-            else if (TLMController.Instance.BuildingLines[stopId] is InnerBuildingLine ibl)
+            else if (TLMController.Instance.BuildingLines[stopId] is InnerBuildingLine ibl && ibl.LineDataObject != null)
             {
                 isBuilding = true;
                 return (int)ibl.Id;
             }
-            else if (TLMController.Instance.BuildingLines[NetManager.instance.m_segments.m_buffer[NetManager.instance.m_nodes.m_buffer[stopId].GetSegment(0)].GetOtherNode(stopId)] is InnerBuildingLine ibl2)
+            else if (TLMController.Instance.BuildingLines[NetManager.instance.m_segments.m_buffer[NetManager.instance.m_nodes.m_buffer[stopId].GetSegment(0)].GetOtherNode(stopId)] is InnerBuildingLine ibl2 && ibl2.LineDataObject != null)
             {
                 isBuilding = true;
                 return (int)ibl2.Id;
@@ -338,7 +338,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static Color GetLineColor(ushort lineIdx, bool regional) => regional
                 ? TLMController.Instance.BuildingLines[lineIdx]?.LineDataObject?.LineColor ?? Color.clear
-                :TransportManager.instance.GetLineColor(lineIdx);
+                : TransportManager.instance.GetLineColor(lineIdx);
 
         public static bool GetNearLines(Vector3 pos, float maxDistance, ref List<ushort> linesFound)
         {
@@ -450,14 +450,12 @@ namespace Klyte.TransportLinesManager.Utils
             return noneFound;
         }
 
-        public static Dictionary<string, ushort> SortLines(List<ushort> intersections)
+        public static Dictionary<string, Tuple<ushort, bool>> SortLines(List<Tuple<ushort, bool>> intersections)
         {
-            TransportManager tm = Singleton<TransportManager>.instance;
-            var otherLinesIntersections = new Dictionary<string, ushort>();
-            foreach (ushort s in intersections)
+            var otherLinesIntersections = new Dictionary<string, Tuple<ushort, bool>>();
+            foreach (var s in intersections)
             {
-                ref TransportLine tl = ref tm.m_lines.m_buffer[s];
-                var sortString = GetLineSortString(s, false);
+                var sortString = GetLineSortString(s.First, s.Second);
                 if (sortString != null)
                 {
                     otherLinesIntersections.Add(sortString, s);
@@ -468,7 +466,7 @@ namespace Klyte.TransportLinesManager.Utils
 
         public static string GetLineSortString(ushort s, bool regional)
         {
-            var tsd = TransportSystemDefinition.GetDefinitionForLine(s, regional);
+            var tsd = s == 0 ? default : TransportSystemDefinition.GetDefinitionForLine(s, regional);
             if (tsd == default)
             {
                 return null;
@@ -489,9 +487,7 @@ namespace Klyte.TransportLinesManager.Utils
             : tsd == TransportSystemDefinition.TOUR_BUS ? "M"
             : tsd == TransportSystemDefinition.TOUR_PED ? "N"
             : "";
-
-
-            return transportTypeLetter + GetLineStringId(s, false);
+            return transportTypeLetter + GetLineStringId(s, regional);
         }
 
 

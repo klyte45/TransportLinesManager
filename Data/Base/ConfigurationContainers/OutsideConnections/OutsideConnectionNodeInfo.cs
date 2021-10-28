@@ -1,6 +1,7 @@
 ﻿using Klyte.Commons.Interfaces;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.ModShared;
 using System;
 using System.Xml.Serialization;
 using UnityEngine;
@@ -25,7 +26,14 @@ namespace Klyte.TransportLinesManager.Extensions
         public ushort m_segmentToStation;
 
         [XmlAttribute("stringIdentifier")]
-        public string Identifier { get; set; }
+        public string Identifier
+        {
+            get => identifier; set
+            {
+                identifier = value;
+                TLMFacade.Instance?.OnRegionalLineParameterChanged(m_nodeStation);
+            }
+        }
 
         [XmlAttribute("color")]
         public string LineColorStr { get => LineColor.ToRGB(); set => LineColor = ColorExtensions.FromRGB(value); }
@@ -48,9 +56,27 @@ namespace Klyte.TransportLinesManager.Extensions
             }
         }
 
-        internal LineIconSpriteNames LineBgSprite { get; set; } = LineIconSpriteNames.K45_TriangleIcon;
-
         [XmlIgnore]
-        public Color LineColor;
+        public LineIconSpriteNames LineBgSprite
+        {
+            get => lineBgSprite; set
+            {
+                lineBgSprite = value;
+                TLMFacade.Instance?.OnRegionalLineParameterChanged(m_nodeStation);
+            }
+        }
+        [XmlIgnore]
+        public Color LineColor
+        {
+            get => lineColor; set
+            {
+                lineColor = value;
+                TLMFacade.Instance?.OnRegionalLineParameterChanged(m_nodeStation);
+            }
+        }
+
+        private Color lineColor;
+        private string identifier;
+        private LineIconSpriteNames lineBgSprite = LineIconSpriteNames.K45_TriangleIcon;
     }
 }

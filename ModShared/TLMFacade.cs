@@ -39,6 +39,13 @@ namespace Klyte.TransportLinesManager.ModShared
             }
         }
 
+        internal void OnRegionalLineParameterChanged(ushort regionalLine)
+        {
+            if (LoadingManager.instance.m_loadingComplete)
+            {
+                EventRegionalLineParameterChanged?.Invoke(regionalLine);
+            }
+        }
         internal void OnLineDestinationsChanged(ushort lineId)
         {
             if (LoadingManager.instance.m_loadingComplete)
@@ -55,6 +62,7 @@ namespace Klyte.TransportLinesManager.ModShared
         public event Action EventAutoNameParameterChanged;
         public event Action EventVehicleIdentifierParameterChanged;
         public event Action<ushort> EventLineDestinationsChanged;
+        public event Action<ushort> EventRegionalLineParameterChanged;
 
         [Obsolete("Use version with regional line flag", true)]
         public static string GetFullStationName(ushort stopId, ushort lineId, ItemClass.SubService subService) =>
@@ -72,6 +80,7 @@ namespace Klyte.TransportLinesManager.ModShared
         public static Tuple<string, Color, string> GetIconStringParameters(ushort lineID, bool regionalLine) => TLMLineUtils.GetIconStringParameters(lineID, regionalLine);
         [Obsolete("Use version with regional line flag", true)]
         public static ushort GetStationBuilding(ushort stopId, ushort lineId) => TLMStationUtils.GetStationBuilding(stopId, lineId, false);
+        public static Color GetLineColor(ushort lineId, bool regional) => TLMLineUtils.GetLineColor(lineId, regional);
         public static ushort GetStationBuilding(ushort stopId, ushort lineId, bool regional) => TLMStationUtils.GetStationBuilding(stopId, lineId, regional);
 
         [Obsolete("Use version with regional line flag", true)]
