@@ -86,7 +86,7 @@ namespace Klyte.TransportLinesManager.UI
             m_panelModeSelector.autoFitChildrenVertically = true;
             m_panelModeSelector.autoLayout = true;
             m_panelModeSelector.autoLayoutDirection = LayoutDirection.Horizontal;
-            m_mapModeDropDown = UIHelperExtension.CloneBasicDropDownNoLabel(Enum.GetValues(typeof(MapMode)).Cast<MapMode>().Where(x => x >= 0).Select(x => Locale.Get("K45_TLM_LINEAR_MAP_VIEW_MODE", x.Name())).ToArray(), (int idx) =>
+            m_mapModeDropDown = UIHelperExtension.CloneBasicDropDownNoLabel(Enum.GetValues(typeof(MapMode)).Cast<MapMode>().Where(x => x >= 0).Select(x => Locale.Get("K45_TLM_LINEAR_MAP_VIEW_MODE", x.ToString())).ToArray(), (int idx) =>
                {
                    m_currentMode = (MapMode)idx;
                    RefreshVehicleButtons(GetLineID(out bool fromBuilding), fromBuilding);

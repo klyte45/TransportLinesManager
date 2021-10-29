@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -161,9 +162,9 @@ namespace Klyte.TransportLinesManager
             }
 
             var showRegional = false;
-            if (b.Info.m_buildingAI is TransportStationAI tsai && tsai.m_transportLineInfo?.m_class.m_subService == ItemClass.SubService.PublicTransportTrain)
+            if (TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId) is BuildingTransportDataCache btdc)
             {
-                var regionalLines = TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId).RegionalLines.Keys.ToArray();
+                var regionalLines = btdc.RegionalLines.Keys.ToArray();
                 showRegional = regionalLines != null && regionalLines.Length > 0;
                 if (showRegional)
                 {
