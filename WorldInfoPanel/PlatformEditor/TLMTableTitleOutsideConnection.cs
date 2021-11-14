@@ -37,7 +37,7 @@ namespace Klyte.TransportLinesManager
         private ushort buildingId;
 
         public void Awake() => content = GetComponent<UILabel>();
-        public void Start() => KlyteMonoUtils.LimitWidthAndBox(content, 88, true);
+        public void Start() => KlyteMonoUtils.LimitWidthNoBox(content, 88);
 
         public void ResetData(ushort buildingId)
         {

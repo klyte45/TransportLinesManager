@@ -56,6 +56,7 @@ namespace Klyte.TransportLinesManager
         private UILabel m_platNum;
         private ushort m_platformIdx;
         private ushort m_buildingId;
+        private TransportSystemDefinition m_tsd;
         private UITemplateList<UIPanel> m_columnDataSelectionList;
 
         public void Awake()
@@ -69,10 +70,11 @@ namespace Klyte.TransportLinesManager
             m_columnDataSelectionList = new UITemplateList<UIPanel>(Find<UIPanel>("SelectionColumns"), TLMTableRowDataOutsideConnection.ITEM_TEMPLATE);
         }
 
-        public void ResetData(ushort buildingId, ushort platformIdx, ushort[] targetOutsideConnections)
+        public void ResetData(ushort buildingId, TransportSystemDefinition sysDef, ushort platformIdx, ushort[] targetOutsideConnections)
         {
             m_buildingId = buildingId;
             m_platformIdx = platformIdx;
+            m_tsd = sysDef;
             ReloadData(targetOutsideConnections);
         }
 
@@ -87,7 +89,15 @@ namespace Klyte.TransportLinesManager
             {
                 UIPanel column = columns[i];
                 var outsideConnId = targetOutsideConnections[i];
-                column.GetComponent<TLMTableRowDataOutsideConnection>().ResetData(dataObj?.TargetOutsideConnections.ContainsKey(outsideConnId) ?? false, (x) => ToggleOutsideConnection(x, outsideConnId));
+                if (m_tsd.IsValidOutsideConnection(outsideConnId))
+                {
+                    column.Enable();
+                    column.GetComponent<TLMTableRowDataOutsideConnection>().ResetData(dataObj?.TargetOutsideConnections.ContainsKey(outsideConnId) ?? false, (x) => ToggleOutsideConnection(x, outsideConnId));
+                }
+                else
+                {
+                    column.Disable();
+                }
             }
         }
 

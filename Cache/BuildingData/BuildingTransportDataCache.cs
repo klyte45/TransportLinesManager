@@ -34,13 +34,11 @@ namespace Klyte.TransportLinesManager.Cache
 
         private void RemapLines(ushort buildingId, ref Building b, TransportStationAI tsai)
         {
-            var useSecInfo = tsai.UseSecondaryTransportInfoForConnection();
-            var targetInfo = useSecInfo ? tsai.m_secondaryTransportInfo : tsai.m_transportInfo;
-            MapBuildingLines(buildingId, buildingId, targetInfo);
+            MapBuildingLines(buildingId, buildingId);
             var nextSubBuildingId = b.m_subBuilding;
             do
             {
-                MapBuildingLines(buildingId, nextSubBuildingId, targetInfo);
+                MapBuildingLines(buildingId, nextSubBuildingId);
                 nextSubBuildingId = BuildingManager.instance.m_buildings.m_buffer[nextSubBuildingId].m_subBuilding;
             } while (nextSubBuildingId != 0);
 
@@ -75,7 +73,7 @@ namespace Klyte.TransportLinesManager.Cache
         }
 
 
-        private void MapBuildingLines(ushort buildingIdKey, ushort buildingId, TransportInfo targetInfo)
+        private void MapBuildingLines(ushort buildingIdKey, ushort buildingId)
         {
             var nextNodeId = BuildingManager.instance.m_buildings.m_buffer[buildingId].m_netNode;
             do
@@ -87,32 +85,42 @@ namespace Klyte.TransportLinesManager.Cache
                 {
                     break;
                 }
-                if (RegionalLines.Any(x => x.Key == nextNodeId || x.Key == nextNodeId))
+                if (RegionalLines.Any(x => x.Value.SrcStop == nextNodeId || x.Value.DstStop == nextNodeId))
                 {
                     nextNodeId = node.m_nextBuildingNode;
                     continue;
                 }
                 var otherNode = NetManager.instance.m_segments.m_buffer[node.m_segment0].GetOtherNode(nextNodeId);
+                var thisBuilding = TLMStationUtils.GetStationBuilding(nextNodeId, buildingIdKey, true);
                 var otherNodeBuilding = TLMStationUtils.GetStationBuilding(otherNode, buildingIdKey, true);
-                var thisBuilding = TLMStationUtils.GetStationBuilding(nextNodeId, buildingIdKey, true); 
+
+                if (thisBuilding != buildingIdKey)
+                {
+                    var x = thisBuilding;
+                    thisBuilding = otherNodeBuilding;
+                    otherNodeBuilding = x;
+
+                    x = nextNodeId;
+                    nextNodeId = otherNode;
+                    otherNode = x;
+                }
+
+                ref Building outsideConnectionBuilding = ref BuildingManager.instance.m_buildings.m_buffer[otherNodeBuilding];
+                var tsd = TransportSystemDefinition.FromOutsideConnection(outsideConnectionBuilding.Info.GetSubService(), outsideConnectionBuilding.Info.GetClassLevel());
+                if(tsd is null) // Unsupported regional line type
+                {
+                    nextNodeId = node.m_nextBuildingNode;
+                    continue;
+                }
                 InnerBuildingLine transportLine =
-                    thisBuilding == buildingIdKey
-                        ? new InnerBuildingLine
-                        {
-                            Info = targetInfo,
-                            SrcStop = nextNodeId,
-                            DstStop = otherNode,
-                            SrcBuildingId = thisBuilding,
-                            DstBuildingId = otherNodeBuilding
-                        }
-                        : new InnerBuildingLine
-                        {
-                            Info = targetInfo,
-                            DstStop = nextNodeId,
-                            SrcStop = otherNode,
-                            SrcBuildingId = otherNodeBuilding,
-                            DstBuildingId = thisBuilding,
-                        };
+                    new InnerBuildingLine
+                    {
+                        Info = tsd.GetTransportInfoIntercity(),
+                        SrcStop = nextNodeId,
+                        DstStop = otherNode,
+                        SrcBuildingId = thisBuilding,
+                        DstBuildingId = otherNodeBuilding
+                    };
                 RegionalLines[transportLine.SrcStop] = transportLine;
                 nextNodeId = node.m_nextBuildingNode;
             } while (nextNodeId != 0);

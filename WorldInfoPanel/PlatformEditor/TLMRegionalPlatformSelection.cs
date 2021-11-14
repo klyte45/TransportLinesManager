@@ -2,7 +2,6 @@
 using Klyte.Commons.Extensions;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Extensions;
-using Klyte.TransportLinesManager.Utils;
 using System.Linq;
 using UnityEngine;
 
@@ -121,7 +120,7 @@ namespace Klyte.TransportLinesManager
             {
                 m_title.eventCheckChanged -= OnToggleUseTlmSettings;
                 var building = WorldInfoPanel.GetCurrentInstanceID().Building;
-                var show = BuildingManager.instance.m_buildings.m_buffer[building].Info.m_buildingAI is TransportStationAI tsai && tsai.m_transportLineInfo?.m_class.m_subService == ItemClass.SubService.PublicTransportTrain;
+                var show = BuildingManager.instance.m_buildings.m_buffer[building].Info.m_buildingAI is TransportStationAI tsai;
 
                 UpdateNearPlatforms(show);
                 m_title.eventCheckChanged += OnToggleUseTlmSettings;
@@ -148,19 +147,28 @@ namespace Klyte.TransportLinesManager
             {
                 m_title.isChecked = false;
                 m_tableContainer.isVisible = false;
-                m_containerParent.isVisible = true;
-                return;
             }
             var instance = BuildingManager.instance;
             var nm = NetManager.instance;
             ref Building b = ref instance.m_buildings.m_buffer[buildingId];
-            if (!(b.Info.m_buildingAI is TransportStationAI tsai) || tsai.m_transportLineInfo is null)
+            if (!(b.Info.m_buildingAI is TransportStationAI tsai))
+            {
+                m_containerParent.isVisible = false;
+                return;
+            }
+            var availableOutsideTransportInfo = data.StopPoints.Select(x =>
+            {
+                ref NetSegment segment = ref nm.m_segments.m_buffer[nm.m_lanes.m_buffer[x.laneId].m_segment];
+                var info = segment.Info;
+                return TransportSystemDefinition.FromNetInfo(info);
+            }).Where(x => x != null && x?.GetTransportInfoIntercity() != null).GroupBy(x => x).Select(x => x.First()).ToList();
+            if (availableOutsideTransportInfo.Count == 0)
             {
                 m_containerParent.isVisible = false;
                 return;
             }
             m_containerParent.isVisible = true;
-            var outsideConnections = instance.GetOutsideConnections().ToArray().Where(tsai.IsValidOutsideConnection).ToArray();
+            var outsideConnections = instance.GetOutsideConnections().ToArray().Where(x => availableOutsideTransportInfo.Any(y => y.IsValidOutsideConnection(x))).ToArray();
 
             var titleItems = m_titleOutsideConnectionsTemplateList.SetItemCount(outsideConnections.Length);
             for (int i = 0; i < titleItems.Length; i++)
@@ -172,11 +180,12 @@ namespace Klyte.TransportLinesManager
             for (ushort i = 0; i < rowItems.Length; i++)
             {
                 var row = rowItems[i];
-                if (tsai.IsValidOutsideConnectionTrack(nm.m_segments.m_buffer[nm.m_lanes.m_buffer[stops[i].laneId].m_segment].Info))
+                var trackInfo = nm.m_segments.m_buffer[nm.m_lanes.m_buffer[stops[i].laneId].m_segment].Info;
+                if (availableOutsideTransportInfo.Any(x => x.IsValidOutsideConnectionTrack(trackInfo)))
                 {
                     row.isVisible = true;
                     var controller = row.GetComponentInChildren<TLMTableRowOutsideConnection>();
-                    controller.ResetData(buildingId, i, outsideConnections);
+                    controller.ResetData(buildingId, TransportSystemDefinition.FromNetInfo(trackInfo), i, outsideConnections);
                 }
                 else
                 {

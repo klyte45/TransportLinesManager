@@ -114,10 +114,14 @@ namespace Klyte.TransportLinesManager.Cache
         }
 
         private OutsideConnectionLineInfo m_cachedLineInfoRef;
-        public OutsideConnectionLineInfo LineDataObject => !TLMBuildingDataContainer.Instance.SafeGet(SrcBuildingId).TlmManagedRegionalLines ? null : m_cachedLineInfoRef ?? (m_cachedLineInfoRef = TLMBuildingDataContainer.Instance.SafeGet(SrcBuildingId).PlatformMappings[NetManager.instance.m_nodes.m_buffer[SrcStop].m_lane].TargetOutsideConnections[DstBuildingId]);
+        public OutsideConnectionLineInfo LineDataObject 
+            => !TLMBuildingDataContainer.Instance.SafeGet(SrcBuildingId).TlmManagedRegionalLines 
+            ? null 
+            : m_cachedLineInfoRef ?? (m_cachedLineInfoRef = TLMBuildingDataContainer.Instance.SafeGet(SrcBuildingId).PlatformMappings[NetManager.instance.m_nodes.m_buffer[SrcStop].m_lane].TargetOutsideConnections[DstBuildingId]);
 
         public void RenderLine(RenderManager.CameraInfo cameraInfo)
         {
+            if (Info.m_transportType != TransportInfo.TransportType.Train) return;// TEMPORARY
             if (m_needsToBeCalculated && SimulationManager.instance.m_currentTickIndex - m_lastCheckTick > 50)
             {
                 UpdateMeshData();
