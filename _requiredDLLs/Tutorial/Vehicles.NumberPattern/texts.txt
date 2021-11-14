@@ -1,0 +1,33 @@
+To format the vehicle number to display at Write The Signs mod, TLM uses the following letters to represent significant digits:
+
+<color yellow>DEF</color>
+Represets each one of the three last digits of Depot ID from the current vehicle. 
+<color green>Example:</color> A depot with game ID 15302, <color yellow>D</color> will be switched to "3", <color yellow>E</color> to "0" and <color yellow>F</color> to "2"
+	
+<color yellow>JKL jkl</color>
+Represents the value of Nth vehicle in the current vehicle composition, starting at 0 (may be configured to start in 1 in the future). Useful for identify wagons of a train, as example.
+The upper case will print leading zeroes if the number doesn't reach that order of magnitude, the lower case will ignore the digits and print nothing.
+<color green>Example:</color> The 4th car of a passenger train will return nothing for <color yellow>j</color> nor <color yellow>k</color>, "0" for <color yellow>J</color> and <color yellow>K</color> and "3" for <color yellow>L</color> or <color yellow>l</color>.
+<color cyan>NOTE: <color yellow>L</color> and <color yellow>l</color> always will have the same value since the last zero always counts as significant digit. Same for multicase options below.</color>
+	
+<color yellow>MNO</color>
+Represets three letters from the current asset. Currently random, but will be customizable in next versions.
+	
+<color yellow>PQR</color>
+Represents three letters from the prefix. Note that most of prefixes can't have more than 2 digits (once the limit is 64), so <color yellow>P</color> is used only when ROMAN naming type is used for prefixes (what would seems weird on final result).
+<color green>Example:</color> If prefix is "IV", <color yellow>P</color> will be ignored, <color yellow>Q</color> became "I" and <color yellow>R</color> became "V". If it's "7", <color yellow>P</color> and <color yellow>Q</color> are ignored and <color yellow>R</color> became "7".
+	
+<color yellow>STU stu</color>
+Represents the ordinal value (starting in 0) counting vehicles spawned for its parent depot. Letter case has same behavior than <color yellow>jkl</color> group.
+<color green>Example:</color> If the bus is the 36th bus to left the garage, <color yellow>S</color> will be "0", <color yellow>s</color> will be ignored (no hundreds!), <color yellow>T</color> and <color yellow>t</color> became 3 and <color yellow>U</color> and <color yellow>u</color> became "5" (first = 0, remember!).
+	
+<color yellow>VWXYZ vwxyz</color>
+Represents the internal vehicle ID in game. Varies from 1 to 16383 (or 65535 for More Vehicles users) and are full random. Letter case has the same behavior than <color yellow>jkl</color> and <color yellow>stu</color> groups.
+<color green>Example:</color> The internal id of the vehicle is 7562. So <color yellow>V</color> became "0", <color yellow>v</color> is ignored, <color yellow>W</color> and <color yellow>w</color> are "7", <color yellow>X</color> and <color yellow>x</color> are "5", <color yellow>Y</color> and <color yellow>y</color> are "6" and <color yellow>Z</color> and <color yellow>z</color> are "2";
+	
+<color yellow>\</color>
+Use the backslash to escape the letter and use it literally (not apply the value). Double it to show a backslash in the output
+<color green>Example:</color> Even the internal ID of vehicle being 7562, if <color yellow>\v</color> is typed, <color yellow>v</color> will print "v" at output instead of being ignored.
+
+<color yellow>--Any other letter or symbol--</color>
+Will be printed as is in the output.

@@ -1,0 +1,266 @@
+﻿
+* {
+    color: rgba(0, 0, 0, 0.5);
+    font-family: Helvetica, Arial;
+}
+
+.unselect {
+    opacity: 50%;
+}
+
+.pathBG.unselect {
+    opacity: 100%;
+    stroke: transparent !important;
+}
+
+.pathFG.unselect {
+    opacity: 100%;
+    stroke: wheat !important;
+}
+
+.stationCircle.unselect {
+    opacity: 100%;
+    fill: wheat !important;
+}
+
+.stationArc.unselect {
+    opacity: 100%;
+    stroke: wheat !important;
+}
+
+.startArrow.unselect {
+    opacity: 0%;
+    fill: wheat !important;
+}
+
+.stationLabel.unselect {
+    opacity: 100%;
+}
+
+    .stationLabel.unselect * {
+        color: wheat !important;
+    }
+
+body {
+    background-color: antiquewhite;
+}
+
+div.stationLabel {
+    display: table;
+    position: absolute;
+}
+
+    div.stationLabel > p {
+        display: block;
+        font-size: 9px;
+        padding: 0;
+        position: relative;
+        text-align: start;
+        text-shadow: 0.45px 0.45px 0 antiquewhite, -0.45px 0.45px 0 antiquewhite, -0.45px -0.45px 0 antiquewhite, 0.45px -0.45px 0 antiquewhite;
+        transform-origin: center;
+        width: 0px;
+        height: 0;
+        margin: -1em 0;
+    }
+
+
+svg path {
+    filter: drop-shadow(-0.25px 0.25px 0 #fff) drop-shadow(-0.25px -0.25px 0 #fff) drop-shadow(0.25px 0.25px 0 #fff) drop-shadow(0.25px -0.25px 0 #fff);
+}
+
+svg polyline {
+    fill: none;
+}
+
+div.stationLabel > p > x {
+    display: inline-block;
+    height: 0;
+    transform-origin: left;
+    align-items: center;
+    position: relative;
+    height: 0;
+    width: 0px;
+    font-weight: bold;
+}
+
+    div.stationLabel > p > x > k {
+        display: block;
+        width: 60px;
+        user-select: none;
+    }
+
+.pathMetro {
+    stroke-width: 2.5px;
+    fill: none;
+}
+
+.pathMonorail {
+    stroke-width: 3.5px;
+    fill: none;
+}
+
+.pathTrain {
+    stroke-width: 5px;
+    fill: none;
+}
+
+.pathTram {
+    stroke-width: 1px;
+    fill: none;
+}
+
+.pathShip {
+    stroke-width: 4px;
+    fill: none;
+    stroke-dasharray: 15, 10;
+}
+
+
+#linesPanel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 400px;
+    border-left: 2px solid black;
+}
+
+
+    #linesPanel #title {
+        position: relative;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        height: 40px;
+        font-size: 30px;
+        color: white;
+        background: linear-gradient(-90deg, antiquewhite, #4466ff, blue, #4466ff, antiquewhite);
+    }
+
+    #linesPanel #date {
+        position: relative;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: white;
+        background: linear-gradient(-90deg, antiquewhite, #4466ff, blue, #4466ff, antiquewhite);
+        border-bottom: 5px double blue;
+        padding-bottom: 10px;
+    }
+
+    #linesPanel #content * {
+        overflow: hidden;
+    }
+
+    #linesPanel #content {
+        position: absolute;
+        top: 75px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow-y: auto;
+        padding: 5px 0px;
+        background: wheat;
+    }
+
+        #linesPanel #content * {
+            overflow: hidden;
+        }
+
+        #linesPanel #content .lineBlock {
+            height: 50px;
+            display: block;
+            float: left;
+            width: 100%;
+            position: relative;
+            padding: 2px 0;
+            border-bottom: 1px solid;
+            border-top: 1px solid;
+        }
+
+            #linesPanel #content .lineBlock .lineNumber {
+                position: relative;
+                top: 2px;
+                left: 2px;
+                width: 46px;
+                height: 46px;
+                display: table-caption;
+                vertical-align: top;
+                -webkit-text-stroke-color: black;
+                -webkit-text-stroke-width: 0.5px;
+                text-align: center;
+                color: white;
+                font-size: 40px;
+                z-index: 5;
+            }
+
+            #linesPanel #content .lineBlock svg text {
+                fill: white;
+                text-anchor: middle;
+                font-size: 40px;
+                dominant-baseline: central;
+                stroke: black;
+                stroke-width: 0.2px;
+            }
+
+        #linesPanel #content .lineName {
+            position: absolute;
+            top: 0;
+            left: 50px;
+            color: black;
+            z-index: 9999;
+        }
+
+        #linesPanel #content .lineType {
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            font-size: 75%;
+            color: #222222;
+        }
+
+
+k.textAngle3,
+k.textAngle2,
+k.textAngle1,
+k.textAngle4 {
+    position: absolute;
+    right: 0;
+    text-align: right;
+    bottom: 0px;
+    height: auto;
+    transform: translate(0, 50%) rotate(-45deg);
+    transform-origin: center right;
+}
+
+k.textAngle0,
+k.textAngle7,
+k.textAngle6,
+k.textAngle5 {
+    position: absolute;
+    left: 0;
+    text-align: left;
+    bottom: 0px;
+    height: auto;
+    transform: translate(0, 50%);
+    transform-origin: center left;
+}
+
+#mapContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 410px;
+}
+
+div#mapGroup {
+    transform-origin: top left;
+    transition: transform 1s ease-in-out;
+}
+
+    div#mapGroup.noAnimation {
+        transition: none;
+    }

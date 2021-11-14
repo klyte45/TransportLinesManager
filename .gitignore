@@ -1,0 +1,5 @@
+/.project
+/bin/
+obj
+.vs
+/TransportLinesManager.csproj.user
