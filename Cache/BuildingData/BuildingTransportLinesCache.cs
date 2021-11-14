@@ -1,4 +1,5 @@
 ﻿using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Overrides;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,15 +23,17 @@ namespace Klyte.TransportLinesManager.Cache
             BuildingManager.instance.EventBuildingReleased += ResetBuilding;
             BuildingManager.instance.EventBuildingRelocated += ResetBuilding;
             NetManagerOverrides.EventNodeChanged += ResetAllBuilding;
+            NetManagerOverrides.EventSegmentChanged += ResetAllBuildingSegment;
         }
         private void OnDisable()
         {
             BuildingManager.instance.EventBuildingReleased -= ResetBuilding;
             BuildingManager.instance.EventBuildingRelocated -= ResetBuilding;
             NetManagerOverrides.EventNodeChanged -= ResetAllBuilding;
+            NetManagerOverrides.EventNodeChanged -= ResetAllBuildingSegment;
         }
 
-        private void ResetBuilding(ushort buildingId)
+        internal void ResetBuilding(ushort buildingId)
         {
             if (TLMController.UpdateRegionalLinesFromBuilding(buildingId))
             {
@@ -45,6 +48,19 @@ namespace Klyte.TransportLinesManager.Cache
             {
                 BuildingTransportDataCache.Clear();
                 InnerBuildingLinesIndex = null;
+            }
+        }
+        private void ResetAllBuildingSegment(ushort segmentId)
+        {
+            var nm = NetManager.instance;
+            ref NetSegment seg = ref nm.m_segments.m_buffer[segmentId];
+            if (TransportSystemDefinition.FromNetInfo(seg.Info)?.LevelIntercity != null)
+            {
+                var building = BuildingManager.instance.FindBuilding(seg.m_middlePosition, 200f, ItemClass.Service.PublicTransport, 0, 0, 0);
+                if (BuildingTransportDataCache.Remove(building))
+                {
+                    InnerBuildingLinesIndex = null;
+                }
             }
         }
 

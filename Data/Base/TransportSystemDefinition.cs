@@ -5,7 +5,6 @@ using Klyte.Commons.Interfaces;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Interfaces;
-using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
 using System;
 using System.Collections.Generic;
@@ -156,6 +155,20 @@ namespace Klyte.TransportLinesManager.Extensions
             LevelIntercity = levelIntercity;
             Index_Internal = GetTsdIndex(TransportType, SubService, VehicleType, Level, LevelAdditional, LevelIntercity);
         }
+        public NetInfo GetLineInfoLocal()
+            => NetIndexes.instance.PrefabsLoaded.Values.Where(x => x.m_netAI is TransportLineAI tlai && x.m_class.m_subService == SubService && ((tlai.m_vehicleType & VehicleType) != 0) && (x.m_class.m_level == Level || x.m_class.m_level == LevelAdditional)).FirstOrDefault();
+
+        public NetInfo GetLineInfoIntercity()
+            => LevelIntercity == null
+            ? null
+            : NetIndexes.instance.PrefabsLoaded.Values.Where(x => x.m_netAI is TransportLineAI tlai && x.m_class.m_subService == SubService && ((tlai.m_vehicleType & VehicleType) != 0) && (x.m_class.m_level == LevelIntercity)).FirstOrDefault();
+
+        public TransportInfo GetTransportInfoLocal()
+            => TransportIndexes.instance.PrefabsLoaded.Values.Where(x => x.m_transportType == TransportType && x.m_class.m_subService == SubService && ((x.m_vehicleType & VehicleType) != 0) && (x.m_class.m_level == Level || x.m_class.m_level == LevelAdditional)).FirstOrDefault();
+        public TransportInfo GetTransportInfoIntercity()
+            => LevelIntercity == null
+            ? null
+            : TransportIndexes.instance.PrefabsLoaded.Values.Where(x => x.m_transportType == TransportType && x.m_class.m_subService == SubService && ((x.m_vehicleType & VehicleType) != 0) && (x.m_class.m_level == LevelIntercity)).FirstOrDefault();
 
 
         internal static uint GetTsdIndex(TransportInfo.TransportType TransportType, ItemClass.SubService SubService, VehicleInfo.VehicleType VehicleType, ItemClass.Level Level, ItemClass.Level? LevelAdditional, ItemClass.Level? LevelIntercity)
@@ -286,6 +299,18 @@ namespace Klyte.TransportLinesManager.Extensions
             }
             return result;
         }
+        public static TransportSystemDefinition FromNetInfo(NetInfo info)
+        {
+            if (info is null)
+            {
+                return default;
+            }
+            TransportSystemDefinition result = registeredTsd.Values.FirstOrDefault(x =>
+            x.SubService == info.m_class.m_subService
+            && (info.m_lanes.Any(lane => (x.VehicleType & lane.m_stopType) != 0) || (info.m_netAI is TransportLineAI tlai && (tlai.m_vehicleType & x.VehicleType) != 0))
+            && (x.Level == info.GetClassLevel() || x.LevelAdditional == info.GetClassLevel() || x.LevelIntercity == info.GetClassLevel()));
+            return result;
+        }
         public static TransportSystemDefinition FromIntercity(TransportInfo info)
         {
             if (info is null)
@@ -322,16 +347,28 @@ namespace Klyte.TransportLinesManager.Extensions
             }
             else
             {
-                var buildingId = TLMStationUtils.GetStationBuilding(lineId, lineId, fromBuilding);
-                ref Building b = ref BuildingManager.instance.m_buildings.m_buffer[buildingId];
-                var systemAI = b.Info.GetAI();
-                return systemAI is TransportStationAI tsai
-                    ? FromIntercity(tsai.UseSecondaryTransportInfoForConnection() ? tsai.m_secondaryTransportInfo : tsai.m_transportInfo)
-                    : null;
+                return FromNetInfo(NetManager.instance.m_nodes.m_buffer[lineId].Info);
             }
         }
 
-        public static TransportSystemDefinition FromOutsideConnection(ItemClass.SubService SubService, ItemClass.Level Level) => registeredTsd.Where(x => x.Value.LevelIntercity == Level && x.Value.SubService == SubService).FirstOrDefault().Value;
+        public bool IsIntercityBusConnection(BuildingInfo connectionInfo)
+            => connectionInfo.m_class.m_service == ItemClass.Service.Road && this == BUS && connectionInfo.m_class.m_subService == ItemClass.SubService.None;
+        public bool IsIntercityBusConnectionTrack(NetInfo trackInfo)
+            => trackInfo.m_class.m_service == ItemClass.Service.Road && this == BUS && trackInfo.m_class.m_subService == ItemClass.SubService.None;
+        public bool IsValidOutsideConnection(ushort outsideConnectionBuildingId)
+            => BuildingManager.instance.m_buildings.m_buffer[outsideConnectionBuildingId].Info is BuildingInfo outsideConn
+            && outsideConn.m_buildingAI is OutsideConnectionAI
+         && (
+             FromOutsideConnection(outsideConn.m_class.m_subService, outsideConn.m_class.m_level) == this
+             || IsIntercityBusConnection(outsideConn));
+        public bool IsValidOutsideConnectionTrack(NetInfo netInfo) =>
+              FromOutsideConnection(netInfo.m_class.m_subService, netInfo.m_class.m_level) == this
+              || IsIntercityBusConnectionTrack(netInfo);
+
+        public static TransportSystemDefinition FromOutsideConnection(ItemClass.SubService SubService, ItemClass.Level Level)
+            => SubService == ItemClass.SubService.PublicTransportTrain ? //TEMPORARY!
+             registeredTsd.Where(x => x.Value.LevelIntercity == Level && x.Value.SubService == SubService).FirstOrDefault().Value
+            : null;
         public static TransportSystemDefinition From(TransportInfo.TransportType TransportType, ItemClass.SubService SubService, VehicleInfo.VehicleType VehicleType, ItemClass.Level Level)
         {
             var targetMask = GetTsdIndex(TransportType, SubService, VehicleType, Level, null, null);
@@ -365,6 +402,7 @@ namespace Klyte.TransportLinesManager.Extensions
                 return GetDefinitionForLine(ref Singleton<TransportManager>.instance.m_lines.m_buffer[i]);
             }
         }
+
 
         public static TransportSystemDefinition GetDefinitionForLine(ref TransportLine t) => FromLocal(t.Info);
 

@@ -20,6 +20,15 @@ namespace Klyte.TransportLinesManager.Extensions
         public TLMBuildingsConfiguration() => NetManagerOverrides.EventSegmentReleased += OnSegmentReleased;
         ~TLMBuildingsConfiguration() => NetManagerOverrides.EventSegmentReleased -= OnSegmentReleased;
 
+        internal void GetPlatformData(uint laneId, out PlatformConfig dataObj)
+        {
+            if (!PlatformMappings.TryGetValue(laneId, out dataObj))
+            {
+                dataObj = PlatformMappings[laneId] = new PlatformConfig();
+                dataObj.VehicleLaneId = laneId;
+            }
+        }
+
         private void OnSegmentReleased(ushort segmentId)
         {
             if (SimulationManager.exists)

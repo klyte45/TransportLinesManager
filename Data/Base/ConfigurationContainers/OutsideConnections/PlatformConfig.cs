@@ -125,12 +125,13 @@ namespace Klyte.TransportLinesManager.Extensions
         {
             ref Building stationBuilding = ref BuildingManager.instance.m_buildings.m_buffer[stationId];
             ref Building outsideConnectionBuilding = ref BuildingManager.instance.m_buildings.m_buffer[outsideConnectionId];
-            if ((stationBuilding.Info.m_buildingAI is TransportStationAI tsai) && (outsideConnectionBuilding.m_flags & Building.Flags.IncomingOutgoing) != Building.Flags.None)
+            var outsideConnectionTSD = TransportSystemDefinition.FromOutsideConnection(outsideConnectionBuilding.Info.GetSubService(), outsideConnectionBuilding.Info.GetClassLevel());
+            if ((stationBuilding.Info.m_buildingAI is TransportStationAI) && (outsideConnectionBuilding.m_flags & Building.Flags.IncomingOutgoing) != Building.Flags.None && outsideConnectionTSD != null)
             {
                 var stationPlatformPosition = StationPlatformPosition;
                 var result = new OutsideConnectionLineInfo();
                 NetManager instance = NetManager.instance;
-                if (tsai.CreateConnectionNode(out result.m_nodeStation, stationPlatformPosition))
+                if (outsideConnectionTSD.CreateConnectionNode(out result.m_nodeStation, stationPlatformPosition))
                 {
                     if ((stationBuilding.m_flags & Building.Flags.Active) == Building.Flags.None)
                     {
@@ -144,7 +145,7 @@ namespace Klyte.TransportLinesManager.Extensions
                 }
                 Building.Flags incomingOutgoing = ((outsideConnectionBuilding.m_flags & Building.Flags.IncomingOutgoing) != Building.Flags.Incoming) ? Building.Flags.Incoming : Building.Flags.Outgoing;
                 Vector3 outsideConnectionPlatformPosition = TransportStationAIExtension.FindStopPosition(outsideConnectionId, ref outsideConnectionBuilding, incomingOutgoing);
-                if (tsai.CreateConnectionNode(out result.m_nodeOutsideConnection, outsideConnectionPlatformPosition))
+                if (outsideConnectionTSD.CreateConnectionNode(out result.m_nodeOutsideConnection, outsideConnectionPlatformPosition))
                 {
                     if ((stationBuilding.m_flags & Building.Flags.Active) == Building.Flags.None)
                     {
@@ -158,7 +159,7 @@ namespace Klyte.TransportLinesManager.Extensions
                 {
                     if ((outsideConnectionBuilding.m_flags & Building.Flags.Incoming) != Building.Flags.None)
                     {
-                        if (tsai.CreateConnectionSegment(out result.m_segmentToStation, result.m_nodeStation, result.m_nodeOutsideConnection, 0))
+                        if (outsideConnectionTSD.CreateConnectionSegment(out result.m_segmentToStation, result.m_nodeStation, result.m_nodeOutsideConnection, 0))
                         {
                             instance.m_segments.m_buffer[result.m_segmentToStation].m_flags |= NetSegment.Flags.Untouchable;
                             instance.UpdateSegment(result.m_segmentToStation);
@@ -166,7 +167,7 @@ namespace Klyte.TransportLinesManager.Extensions
                     }
                     if ((outsideConnectionBuilding.m_flags & Building.Flags.Outgoing) != Building.Flags.None)
                     {
-                        if (tsai.CreateConnectionSegment(out result.m_segmentToOutsideConnection, result.m_nodeOutsideConnection, result.m_nodeStation, 0))
+                        if (outsideConnectionTSD.CreateConnectionSegment(out result.m_segmentToOutsideConnection, result.m_nodeOutsideConnection, result.m_nodeStation, 0))
                         {
                             instance.m_segments.m_buffer[result.m_segmentToOutsideConnection].m_flags |= NetSegment.Flags.Untouchable;
                             instance.UpdateSegment(result.m_segmentToOutsideConnection);
