@@ -170,6 +170,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
             int serviceCounter = 0;
             CitizenManager instance = Singleton<CitizenManager>.instance;
+            uint numCitizenUnits = instance.m_units.m_size;
             uint num2 = data.m_citizenUnits;
             int num3 = 0;
             while (num2 != 0U)
@@ -190,7 +191,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     }
                 }
                 num2 = instance.m_units.m_buffer[(int)((UIntPtr)num2)].m_nextUnit;
-                if (++num3 > 524288)
+                if (++num3 > numCitizenUnits)
                 {
                     CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
                     break;
