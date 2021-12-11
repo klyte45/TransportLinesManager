@@ -264,12 +264,13 @@ namespace Klyte.TransportLinesManager.UI
                     var container = stopsButtons[idx].GetComponent<LinearMapStationContainer>();
                     m_cachedStopOrder[idx] = currentStop;
                     string distance = "(???)";
+                    ushort nextStop = 0;
                     for (int i = 0; i < 8; i++)
                     {
                         ushort segmentId = instance.m_nodes.m_buffer[currentStop].GetSegment(i);
                         if (segmentId != 0 && instance.m_segments.m_buffer[segmentId].m_startNode == currentStop)
                         {
-                            currentStop = instance.m_segments.m_buffer[segmentId].m_endNode;
+                            nextStop = instance.m_segments.m_buffer[segmentId].m_endNode;
                             distance = (instance.m_segments.m_buffer[segmentId].m_averageLength).ToString("0");
                             float segmentSize = m_unscaledMode || fromBuilding ? m_kminStopDistance : instance.m_segments.m_buffer[segmentId].m_averageLength;
                             if (segmentSize == 0f)
@@ -287,6 +288,7 @@ namespace Klyte.TransportLinesManager.UI
                         }
                     }
                     container.SetTarget(currentStop, fromBuilding, lineID, distance);
+                    currentStop = nextStop;
 
                     if (stopsCount > 2 && currentStop == firstStop)
                     {
@@ -296,7 +298,7 @@ namespace Klyte.TransportLinesManager.UI
                     {
                         break;
                     }
-                    if (stopsCount == 1)
+                    if (stopsCount == 1 || currentStop == 0)
                     {
                         break;
                     }

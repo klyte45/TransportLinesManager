@@ -106,7 +106,7 @@ namespace Klyte.TransportLinesManager.Cache
                 }
 
                 ref Building outsideConnectionBuilding = ref BuildingManager.instance.m_buildings.m_buffer[otherNodeBuilding];
-                var tsd = TransportSystemDefinition.FromOutsideConnection(outsideConnectionBuilding.Info.GetSubService(), outsideConnectionBuilding.Info.GetClassLevel());
+                var tsd = TransportSystemDefinition.FromOutsideConnection(outsideConnectionBuilding.Info.GetSubService(), outsideConnectionBuilding.Info.GetClassLevel(), VehicleInfo.VehicleType.None);
                 if(tsd is null) // Unsupported regional line type
                 {
                     nextNodeId = node.m_nextBuildingNode;

@@ -1,6 +1,5 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
-using ColossalFramework.Math;
 using ColossalFramework.UI;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Cache;
@@ -52,17 +51,17 @@ namespace Klyte.TransportLinesManager.Utils
             Vector3 position = nm.m_nodes.m_buffer[currentStop].m_position;
             Vector3 position2 = nm.m_nodes.m_buffer[nextStop].m_position;
             nm.m_nodes.m_buffer[currentStop].m_maxWaitTime = 0;
-            int minX = Mathf.Max((int)((position.x - 64) / 8f + 1080f), 0);
-            int minZ = Mathf.Max((int)((position.z - 64) / 8f + 1080f), 0);
-            int maxX = Mathf.Min((int)((position.x + 64) / 8f + 1080f), 2159);
-            int maxZ = Mathf.Min((int)((position.z + 64) / 8f + 1080f), 2159);
+            int minX = Mathf.Max((int)(((position.x - 64) / 8f) + 1080f), 0);
+            int minZ = Mathf.Max((int)(((position.z - 64) / 8f) + 1080f), 0);
+            int maxX = Mathf.Min((int)(((position.x + 64) / 8f) + 1080f), 2159);
+            int maxZ = Mathf.Min((int)(((position.z + 64) / 8f) + 1080f), 2159);
             int zIterator = minZ;
             while (zIterator <= maxZ)
             {
                 int xIterator = minX;
                 while (xIterator <= maxX)
                 {
-                    ushort citizenIterator = cm.m_citizenGrid[zIterator * 2160 + xIterator];
+                    ushort citizenIterator = cm.m_citizenGrid[(zIterator * 2160) + xIterator];
                     int loopCounter = 0;
                     while (citizenIterator != 0)
                     {
@@ -174,7 +173,6 @@ namespace Klyte.TransportLinesManager.Utils
                 {
                     var citizensToBored = new List<ushort>();
                     DoWithEachPassengerWaiting(stop, (citizenId) => citizensToBored.Add(citizenId));
-                    Randomizer r = new Randomizer();
                     foreach (var citizenId in citizensToBored)
                     {
                         CitizenManager.instance.m_instances.m_buffer[citizenId].m_waitCounter = byte.MaxValue;
@@ -343,10 +341,10 @@ namespace Klyte.TransportLinesManager.Utils
         public static bool GetNearLines(Vector3 pos, float maxDistance, ref List<ushort> linesFound)
         {
             float extendedMaxDistance = maxDistance * 1.3f;
-            int num = Mathf.Max((int)((pos.x - extendedMaxDistance) / 64f + 135f), 0);
-            int num2 = Mathf.Max((int)((pos.z - extendedMaxDistance) / 64f + 135f), 0);
-            int num3 = Mathf.Min((int)((pos.x + extendedMaxDistance) / 64f + 135f), 269);
-            int num4 = Mathf.Min((int)((pos.z + extendedMaxDistance) / 64f + 135f), 269);
+            int num = Mathf.Max((int)(((pos.x - extendedMaxDistance) / 64f) + 135f), 0);
+            int num2 = Mathf.Max((int)(((pos.z - extendedMaxDistance) / 64f) + 135f), 0);
+            int num3 = Mathf.Min((int)(((pos.x + extendedMaxDistance) / 64f) + 135f), 269);
+            int num4 = Mathf.Min((int)(((pos.z + extendedMaxDistance) / 64f) + 135f), 269);
             bool noneFound = true;
             NetManager nm = Singleton<NetManager>.instance;
             TransportManager tm = Singleton<TransportManager>.instance;
@@ -354,7 +352,7 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 for (int j = num; j <= num3; j++)
                 {
-                    ushort num6 = nm.m_nodeGrid[i * 270 + j];
+                    ushort num6 = nm.m_nodeGrid[(i * 270) + j];
                     int num7 = 0;
                     while (num6 != 0)
                     {
@@ -403,18 +401,17 @@ namespace Klyte.TransportLinesManager.Utils
             {
                 subservicesAllowed = new ItemClass.SubService[] { ItemClass.SubService.PublicTransportTrain, ItemClass.SubService.PublicTransportMetro };
             }
-            int num = Mathf.Max((int)((pos.x - maxDistance) / 64f + 135f), 0);
-            int num2 = Mathf.Max((int)((pos.z - maxDistance) / 64f + 135f), 0);
-            int num3 = Mathf.Min((int)((pos.x + maxDistance) / 64f + 135f), 269);
-            int num4 = Mathf.Min((int)((pos.z + maxDistance) / 64f + 135f), 269);
+            int num = Mathf.Max((int)(((pos.x - maxDistance) / 64f) + 135f), 0);
+            int num2 = Mathf.Max((int)(((pos.z - maxDistance) / 64f) + 135f), 0);
+            int num3 = Mathf.Min((int)(((pos.x + maxDistance) / 64f) + 135f), 269);
+            int num4 = Mathf.Min((int)(((pos.z + maxDistance) / 64f) + 135f), 269);
             bool noneFound = true;
             NetManager nm = Singleton<NetManager>.instance;
-            TransportManager tm = Singleton<TransportManager>.instance;
             for (int i = num2; i <= num4; i++)
             {
                 for (int j = num; j <= num3; j++)
                 {
-                    ushort stopId = nm.m_nodeGrid[i * 270 + j];
+                    ushort stopId = nm.m_nodeGrid[(i * 270) + j];
                     int num7 = 0;
                     while (stopId != 0)
                     {
@@ -751,7 +748,7 @@ namespace Klyte.TransportLinesManager.Utils
             LogUtils.DoLog("idxStations");
             do
             {
-                Tuple<int, NamingType, string> peerCandidate = idxStations.Where(x => x.Third != idxStations[j].Third && Math.Abs((x.First < idxStations[j].First ? x.First + idxStations.Count : x.First) - idxStations.Count / 2 - idxStations[j].First) <= maxDistanceEnd).OrderBy(x => x.Second.GetNamePrecedenceRate()).FirstOrDefault();
+                Tuple<int, NamingType, string> peerCandidate = idxStations.Where(x => x.Third != idxStations[j].Third && Math.Abs((x.First < idxStations[j].First ? x.First + idxStations.Count : x.First) - (idxStations.Count / 2) - idxStations[j].First) <= maxDistanceEnd).OrderBy(x => x.Second.GetNamePrecedenceRate()).FirstOrDefault();
                 if (peerCandidate != null && (mostRelevantEndIdx == -1 || stations[mostRelevantEndIdx].First.GetNamePrecedenceRate() > peerCandidate.Second.GetNamePrecedenceRate()))
                 {
                     targetStart = j;

@@ -52,7 +52,7 @@ namespace Klyte.TransportLinesManager.Overrides
             List<Type> allVehicleAI = ReflectionUtils.GetSubtypesRecursive(typeof(VehicleAI), typeof(VehicleAI));
 
             #region Color Override Hooks
-            MethodInfo TranspileGetColor = typeof(TransportLineOverrides).GetMethod("TranspileGetColor", allFlags);
+            MethodInfo PreGetColor = typeof(TransportLineOverrides).GetMethod("PreGetColor", allFlags);
 
             LogUtils.DoLog($"allVehicleAI size = {allVehicleAI.Count}");
             foreach (Type ai in allVehicleAI)
@@ -62,8 +62,8 @@ namespace Klyte.TransportLinesManager.Overrides
                 {
                     continue;
                 }
-                LogUtils.DoLog($"Loading Color Override Hooks for {ai}");
-                RedirectorInstance.AddRedirect(colorMethod, null, null, TranspileGetColor);
+                LogUtils.DoWarnLog($"Loading Color Override Hooks for {ai}");
+                RedirectorInstance.AddRedirect(colorMethod, PreGetColor);
             }
             #endregion
 
@@ -326,37 +326,37 @@ namespace Klyte.TransportLinesManager.Overrides
             {
                 if (inst[i].opcode == OpCodes.Call && inst[i].operand == m_getColorTL)
                 {
-                    inst[i] = inst[i - 2];
-                    inst.Insert(i + 1, new CodeInstruction(OpCodes.Call, m_getColorFor));
+                    inst.InsertRange(i + 1, new CodeInstruction[] {
+                        inst[i - 2],
+                        new CodeInstruction(OpCodes.Call, m_getColorFor)
+                    });
                 }
             }
-            LogUtils.PrintMethodIL(inst);
+
+            LogUtils.PrintMethodIL(inst, true);
             return inst;
         }
 
-        public static Color GetColorFor(ref TransportLine line, ushort transportLine)
+        public static bool PreGetColor(ref Color __result, ref Vehicle data, InfoManager.InfoMode infoMode)
         {
-            if (transportLine != 0)
+            if (data.m_transportLine != 0 && infoMode == InfoManager.InfoMode.None)
             {
-                var tsd = TransportSystemDefinition.GetDefinitionForLine(transportLine, false);
+                var tsd = TransportSystemDefinition.GetDefinitionForLine(data.m_transportLine, false);
                 if (tsd.TransportType == TransportInfo.TransportType.EvacuationBus)
                 {
-                    return Singleton<TransportManager>.instance.m_properties.m_transportColors[(int)line.Info.m_transportType];
+                    return true;
                 }
 
                 ITLMTransportTypeExtension ext = tsd.GetTransportExtension();
-                uint prefix = TLMPrefixesUtils.GetPrefix(transportLine);
+                uint prefix = TLMPrefixesUtils.GetPrefix(data.m_transportLine);
 
                 if (ext.IsUsingColorForModel(prefix) && ext.GetColor(prefix) != default)
                 {
-                    return ext.GetColor(prefix);
-                }
-                else
-                {
-                    return Singleton<TransportManager>.instance.m_lines.m_buffer[transportLine].GetColor();
+                    __result = ext.GetColor(prefix);
+                    return false;
                 }
             }
-            return Singleton<TransportManager>.instance.m_properties.m_transportColors[(int)line.Info.m_transportType];
+            return true;
 
         }
         #endregion

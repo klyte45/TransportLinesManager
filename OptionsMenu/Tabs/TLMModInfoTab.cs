@@ -6,7 +6,6 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
     internal class TLMModInfoTab : UICustomControl, ITLMConfigOptionsTab
     {
         private UIComponent parent;
-        private UITextField maxVehicle;
 
         public void ReloadData() { }
 
