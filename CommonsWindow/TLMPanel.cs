@@ -13,8 +13,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
     {
         private UITabstrip m_stripMain;
 
-        public override float PanelWidth => 875;
-        public override float PanelHeight => component.parent.height;
+        public override float PanelWidth { get; } = 875;
 
         internal UVMLinesPanel m_linesPanel;
 
