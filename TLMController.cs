@@ -125,7 +125,7 @@ namespace Klyte.TransportLinesManager
 
         internal static bool UpdateRegionalLinesFromBuilding(ushort buildingId)
         {
-            if (TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId) != null)
+            if (BuildingManager.instance.m_buildings.m_buffer[buildingId].Info.m_buildingAI is TransportStationAI)
             {
                 TransportLinesManagerMod.Controller.m_dirtyRegionalLines = true;
                 return true;
@@ -134,7 +134,7 @@ namespace Klyte.TransportLinesManager
         }
         internal static bool UpdateRegionalLinesFromNode(ushort nodeId)
         {
-            if (TransportLinesManagerMod.Controller.BuildingLines[nodeId] != null)
+            if (NetManager.instance.m_nodes.m_buffer[nodeId].Info.m_netAI is TransportLineAI && NetManager.instance.m_nodes.m_buffer[nodeId].m_transportLine == 0)
             {
                 TransportLinesManagerMod.Controller.m_dirtyRegionalLines = true;
                 return true;
