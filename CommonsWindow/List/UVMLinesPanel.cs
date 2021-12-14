@@ -258,14 +258,14 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void ToggleAllLinesVisibility(UIComponent component, bool value) =>
             Singleton<SimulationManager>.instance.AddAction(() =>
-                                                                {
-                                                                    foreach (UIComponent item in lineItems.items)
-                                                                    {
-                                                                        var comp = item.GetComponent<UVMLineListItem>();
-                                                                        comp.ChangeLineVisibility(value);
-                                                                    }
-                                                                    m_isUpdated = false;
-                                                                });
+            {
+                foreach (UIComponent item in lineItems.items)
+                {
+                    var comp = item.GetComponent<UVMLineListItem>();
+                    comp.ChangeLineVisibility(value);
+                }
+                m_isUpdated = false;
+            });
         #endregion
 
 
@@ -285,28 +285,29 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             switch (m_lastSortCriterionLines)
             {
                 case LineSortCriterion.NAME:
-                    result = OnNameSort(lines);
+                    result = ApplySort(lines, NameTupleMapper);
                     break;
                 case LineSortCriterion.PASSENGER:
-                    result = OnPassengerSort(lines);
+                    result = ApplySort(lines, PassengerTupleMapper);
                     break;
                 case LineSortCriterion.STOP:
-                    result = OnStopSort(lines);
+                    result = ApplySort(lines, StopTupleMapper);
                     break;
                 case LineSortCriterion.VEHICLE:
-                    result = OnVehicleSort(lines);
+                    result = ApplySort(lines, VehicleTupleMapper);
                     break;
                 case LineSortCriterion.PROFIT:
-                    result = OnProfitSort(lines);
+                    result = ApplySort(lines, ProfitTupleMapper);
                     break;
                 case LineSortCriterion.LINE_NUMBER:
                 default:
-                    result = OnLineNumberSort(lines);
+                    result = ApplySort(lines, LineNumberMapper);
                     break;
             }
             for (int i = 0; i < lineItems.items.Count; i++)
             {
                 newItems[i].GetComponent<UVMLineListItem>().LineID = result[i];
+                newItems[i].zOrder = i;
             }
 
             m_isUpdated = true;
@@ -341,53 +342,52 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             PROFIT,
             LINE_NUMBER
         }
-        private static int Compare(Tuple<ushort, string> left, Tuple<ushort, string> right) => string.Compare(left.Second, right.Second, StringComparison.InvariantCulture);
-        private static int Compare(Tuple<ushort, long> left, Tuple<ushort, long> right) => left.Second.CompareTo(right.Second);
-        private static int Compare(Tuple<ushort, int> left, Tuple<ushort, int> right) => left.Second.CompareTo(right.Second);
+        private static int Compare<T>(Tuple<ushort, T> left, Tuple<ushort, T> right) where T : IComparable =>
+             left.First == right.First
+                 ? 0
+             : left.First == 0 || right.First == ushort.MaxValue
+                 ? -1
+             : right.First == 0 || left.First == ushort.MaxValue
+                 ? 1
+             : left.Second is string leftStr && right.Second is string rightStr
+                 ? string.Compare(leftStr, rightStr, StringComparison.InvariantCulture)
+                 : left.Second.CompareTo(right.Second);
+        private List<ushort> ApplySort<T>(List<ushort> lines, Func<ushort, T> mapper) where T : IComparable
+            => SortingUtils.QuicksortList(
+                lines.Select(x => Tuple.New(GetEffectiveSortingLineId(x), mapper(x))).ToList(),
+                new Comparison<Tuple<ushort, T>>(Compare),
+                m_reverseOrder
+            ).Select(x => x.First == ushort.MaxValue ? (ushort)0 : x.First).ToList();
+
+        private ushort GetEffectiveSortingLineId(ushort x) => x == 0 && m_reverseOrder ? ushort.MaxValue : x;
+        private string NameTupleMapper(ushort x) => x == 0 ? default : Singleton<TransportManager>.instance.GetLineName(x);
+        private int StopTupleMapper(ushort x) => x == 0 ? default : Singleton<TransportManager>.instance.m_lines.m_buffer[x].CountStops(x);
+        private int VehicleTupleMapper(ushort x) => x == 0 ? default : Singleton<TransportManager>.instance.m_lines.m_buffer[x].CountVehicles(x);
+        private string LineNumberMapper(ushort x) => x == 0 ? default : TLMLineUtils.GetLineStringId(x, false);
+        private int PassengerTupleMapper(ushort x)
+        {
+            if (x == 0)
+            {
+                return 0;
+            }
+            int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[x].m_passengers.m_residentPassengers.m_averageCount;
+            int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[x].m_passengers.m_touristPassengers.m_averageCount;
+            return averageCount + averageCount2;
+        }
+        private long ProfitTupleMapper(ushort x)
+        {
+            if (x == 0)
+            {
+                return 0;
+            }
+            TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(x, out long income, out long expense);
+            return income - expense;
+        }
 
 
-        private List<ushort> OnNameSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x => Tuple.New(x, Singleton<TransportManager>.instance.GetLineName(x)))
-                .ToList(),
-                new Comparison<Tuple<ushort, string>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
 
 
-        private List<ushort> OnStopSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x => Tuple.New(x, Singleton<TransportManager>.instance.m_lines.m_buffer[x].CountStops(x))).ToList(),
-                new Comparison<Tuple<ushort, int>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
 
-
-        private List<ushort> OnVehicleSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x => Tuple.New(x, Singleton<TransportManager>.instance.m_lines.m_buffer[x].CountVehicles(x))).ToList(),
-                new Comparison<Tuple<ushort, int>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
-
-        private List<ushort> OnPassengerSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x =>
-                {
-                    int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[x].m_passengers.m_residentPassengers.m_averageCount;
-                    int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[x].m_passengers.m_touristPassengers.m_averageCount;
-                    return Tuple.New(x, averageCount + averageCount2);
-                }).ToList(),
-                new Comparison<Tuple<ushort, int>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
-
-        private List<ushort> OnLineNumberSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x => Tuple.New(x, TLMLineUtils.GetLineStringId(x, false)))
-                .ToList(),
-                new Comparison<Tuple<ushort, string>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
-
-        private List<ushort> OnProfitSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x =>
-                {
-                    TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(x, out long income, out long expense);
-                    return Tuple.New(x, income - expense);
-                }).ToList(),
-                new Comparison<Tuple<ushort, long>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
         #endregion
 
     }

@@ -72,7 +72,19 @@ namespace Klyte.TransportLinesManager.UI
         public void Hide() => m_bg.isVisible = false;
         public void OnSetTarget(Type source)
         {
-
+            foreach (KeyValuePair<string, ITLMReportChild> tab in m_childControls)
+            {
+                if (tab.Value.MayBeVisible())
+                {
+                    m_reportTabstrip.ShowTab(tab.Key);
+                }
+                else
+                {
+                    m_reportTabstrip.HideTab(tab.Key);
+                    tab.Value.Hide();
+                }
+            }
+            m_dirty = false;
         }
 
 
@@ -80,6 +92,7 @@ namespace Klyte.TransportLinesManager.UI
         {
             void UpdateBindings(bool showDayTime, bool force);
             bool MayBeVisible();
+            void Hide();
         }
     }
 }
