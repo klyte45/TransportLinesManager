@@ -11,8 +11,8 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.UI
 {
     public abstract class TLMBaseTimeChart<T, C, L, V> : MonoBehaviour
-        where T : TLMBaseTimedConfigTab<T, C, L, V> 
-        where V : UintValueHourEntryXml<V> 
+        where T : TLMBaseTimedConfigTab<T, C, L, V>
+        where V : UintValueHourEntryXml<V>
         where L : TLMBaseSliderEditorLine<L, V>
         where C : TLMBaseTimeChart<T, C, L, V>
     {
@@ -106,7 +106,10 @@ namespace Klyte.TransportLinesManager.UI
         {
             if (steps.Count == 0)
             {
-                return;
+                steps = new List<Tuple<int, Color, uint>>
+                {
+                    Tuple.New(0,Color.gray,1u)
+                };
             }
 
             steps.Sort((x, y) => x.First - y.First);
@@ -122,16 +125,17 @@ namespace Klyte.TransportLinesManager.UI
                 }
                 foreach (Tuple<int, Color, uint> loc in steps)
                 {
-                    m_clock.AddSlice(loc.Second, loc.Second, 1);// loc.Third / dividerMultiplier);
+                    var color = loc.Third == 0 ? Color.gray : loc.Second;
+                    m_clock.AddSlice(color, color, 1);// loc.Third / dividerMultiplier);
                 }
             }
             else
             {
                 for (int i = 0; i < m_clock.sliceCount; i++)
                 {
-                    m_clock.GetSlice(i).innerColor = steps[i].Second;
-                    m_clock.GetSlice(i).outterColor = steps[i].Second;
-                    m_clock.GetSlice(i).sizeMultiplier = 1;// steps[i].Third / dividerMultiplier;
+                    var color = steps[i].Third == 0 ? Color.gray : steps[i].Second;
+                    m_clock.GetSlice(i).innerColor = color;
+                    m_clock.GetSlice(i).outterColor = color;
                 }
             }
 

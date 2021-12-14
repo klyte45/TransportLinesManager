@@ -14,7 +14,8 @@ namespace Klyte.TransportLinesManager.Extensions
             new TransferManager.TransferReason[] { TransferManager.TransferReason.MetroTrain },
             new Color32(58, 224, 50, 255),
             180,
-            LineIconSpriteNames.K45_SquareIcon);
+            LineIconSpriteNames.K45_SquareIcon,
+            true);
     }
 
 }

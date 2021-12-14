@@ -182,7 +182,15 @@ namespace Klyte.TransportLinesManager.UI
             ReorderLines();
         }
 
-        private void SetValue(V idx, float val) => idx.Value = (uint)val;
+        private void SetValue(V idx, float val)
+        {
+            if (idx.Value != (uint)val)
+            {
+                idx.Value = (uint)val;
+                ReorderLines();
+            }
+        }
+
         private void AddEntry()
         {
             Config.Add(DefaultEntry());
@@ -214,8 +222,8 @@ namespace Klyte.TransportLinesManager.UI
             {
                 return;
             }
-            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-            if (lineID > 0)
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+            if (lineID > 0 && !fromBuilding)
             {
                 ExtraOnSetTarget(lineID);
                 RebuildList();
@@ -230,7 +238,7 @@ namespace Klyte.TransportLinesManager.UI
             }
         }
         public void OnGotFocus() { }
-        public bool MayBeVisible() => TransportSystemDefinition.From(UVMPublicTransportWorldInfoPanel.GetLineID()).HasVehicles();
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding && lineId > 0 && TransportSystemDefinition.FromLineId(lineId, fromBuilding).HasVehicles();
         public void Hide() => MainContainer.isVisible = false;
     }
 

@@ -14,12 +14,18 @@ using UnityEngine;
 namespace Klyte.TransportLinesManager.CommonsWindow
 {
 
-    internal abstract class UVMLinesPanel : UICustomControl
+    internal class UVMLinesPanel : UICustomControl
     {
         public UIPanel MainContainer { get; private set; }
 
-        internal abstract TransportSystemDefinition TSD { get; }
-
+        internal TransportSystemDefinition TSD
+        {
+            get => m_tsd; set
+            {
+                m_tsd = value;
+                m_isUpdated = false;
+            }
+        }
         private UICheckBox m_visibilityToggle;
         private LineSortCriterion m_lastSortCriterionLines;
         private bool m_reverseOrder = false;
@@ -30,7 +36,11 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         protected UIPanel titleLine;
         protected UITemplateList<UIPanel> lineItems;
         private UIScrollablePanel listPanel;
-        public bool IsUpdated { get; set; }
+        protected UILabel m_countLines;
+        private TransportSystemDefinition m_tsd = TransportSystemDefinition.BUS;
+
+
+        private bool m_isUpdated;
 
         #region Awake
         protected void Awake()
@@ -41,12 +51,16 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             CreateTitleRow(out titleLine, MainContainer);
 
 
-            KlyteMonoUtils.CreateScrollPanel(MainContainer, out listPanel, out UIScrollbar scrollbar, MainContainer.width - 30, MainContainer.height - 50, new Vector3(5, 40));
+            KlyteMonoUtils.CreateScrollPanel(MainContainer, out listPanel, out UIScrollbar scrollbar, MainContainer.width - 30, MainContainer.height - 70, new Vector3(5, 40));
             listPanel.autoLayout = true;
             listPanel.autoLayoutDirection = LayoutDirection.Vertical;
             listPanel.eventVisibilityChanged += OnToggleVisible;
             UVMLineListItem.EnsureTemplate();
             lineItems = new UITemplateList<UIPanel>(listPanel, UVMLineListItem.LINE_LIST_ITEM_TEMPLATE);
+
+            m_countLines = UIHelperExtension.AddLabel(MainContainer, "LineCounter", MainContainer.width, out UIPanel counterContainer);
+            m_countLines.padding.left = 5;
+            counterContainer.relativePosition = new Vector3(0, MainContainer.height - 20);
         }
 
         private void OnToggleVisible(UIComponent component, bool value)
@@ -65,13 +79,9 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 return;
             }
-            if (m_lastLineCount != TransportManager.instance.m_lineCount)
+            if (!m_isUpdated || m_lastLineCount != TransportManager.instance.m_lineCount)
             {
-                RefreshLines();
                 m_lastLineCount = Singleton<TransportManager>.instance.m_lineCount;
-            }
-            if (!IsUpdated)
-            {
                 RefreshLines();
             }
         }
@@ -248,14 +258,14 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void ToggleAllLinesVisibility(UIComponent component, bool value) =>
             Singleton<SimulationManager>.instance.AddAction(() =>
-                                                                {
-                                                                    foreach (UIComponent item in lineItems.items)
-                                                                    {
-                                                                        var comp = item.GetComponent<UVMLineListItem>();
-                                                                        comp.ChangeLineVisibility(value);
-                                                                    }
-                                                                    IsUpdated = false;
-                                                                });
+            {
+                foreach (UIComponent item in lineItems.items)
+                {
+                    var comp = item.GetComponent<UVMLineListItem>();
+                    comp.ChangeLineVisibility(value);
+                }
+                m_isUpdated = false;
+            });
         #endregion
 
 
@@ -265,6 +275,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_visibilityToggle.area = new Vector4(8, 5, 28, 28);
             List<ushort> lines = TargetTsdLines();
 
+            m_countLines.text = string.Format(Locale.Get("K45_TLM_TOTALIZERTEXT"), lines.Count - lines.Where(x => x == 0).Count(), TransportManager.instance.m_lineCount - 1);
             var newItems = lineItems.SetItemCount(lines.Count);
             if (lines.Count == 0)
             {
@@ -274,36 +285,42 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             switch (m_lastSortCriterionLines)
             {
                 case LineSortCriterion.NAME:
-                    result = OnNameSort(lines);
+                    result = ApplySort(lines, NameTupleMapper);
                     break;
                 case LineSortCriterion.PASSENGER:
-                    result = OnPassengerSort(lines);
+                    result = ApplySort(lines, PassengerTupleMapper);
                     break;
                 case LineSortCriterion.STOP:
-                    result = OnStopSort(lines);
+                    result = ApplySort(lines, StopTupleMapper);
                     break;
                 case LineSortCriterion.VEHICLE:
-                    result = OnVehicleSort(lines);
+                    result = ApplySort(lines, VehicleTupleMapper);
                     break;
                 case LineSortCriterion.PROFIT:
-                    result = OnProfitSort(lines);
+                    result = ApplySort(lines, ProfitTupleMapper);
                     break;
                 case LineSortCriterion.LINE_NUMBER:
                 default:
-                    result = OnLineNumberSort(lines);
+                    result = ApplySort(lines, LineNumberMapper);
                     break;
             }
             for (int i = 0; i < lineItems.items.Count; i++)
             {
                 newItems[i].GetComponent<UVMLineListItem>().LineID = result[i];
+                newItems[i].zOrder = i;
             }
 
-            IsUpdated = true;
+            m_isUpdated = true;
         }
 
         private List<ushort> TargetTsdLines()
         {
             List<ushort> lines = new List<ushort>();
+
+            if (!(TSD.LevelIntercity is null))
+            {
+                lines.Add(0);
+            }
             for (ushort lineID = 1; lineID < TransportManager.instance.m_lines.m_buffer.Length; lineID++)
             {
                 if ((Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].m_flags & (TransportLine.Flags.Created | TransportLine.Flags.Temporary)) == TransportLine.Flags.Created && TSD.IsFromSystem(ref Singleton<TransportManager>.instance.m_lines.m_buffer[lineID]))
@@ -311,7 +328,6 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     lines.Add(lineID);
                 }
             }
-
             return lines;
         }
 
@@ -326,70 +342,54 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             PROFIT,
             LINE_NUMBER
         }
-        private static int Compare(Tuple<ushort, string> left, Tuple<ushort, string> right) => string.Compare(left.Second, right.Second, StringComparison.InvariantCulture);
-        private static int Compare(Tuple<ushort, long> left, Tuple<ushort, long> right) => left.Second.CompareTo(right.Second);
-        private static int Compare(Tuple<ushort, int> left, Tuple<ushort, int> right) => left.Second.CompareTo(right.Second);
+        private static int Compare<T>(Tuple<ushort, T> left, Tuple<ushort, T> right) where T : IComparable =>
+             left.First == right.First
+                 ? 0
+             : left.First == 0 || right.First == ushort.MaxValue
+                 ? -1
+             : right.First == 0 || left.First == ushort.MaxValue
+                 ? 1
+             : left.Second is string leftStr && right.Second is string rightStr
+                 ? string.Compare(leftStr, rightStr, StringComparison.InvariantCulture)
+                 : left.Second.CompareTo(right.Second);
+        private List<ushort> ApplySort<T>(List<ushort> lines, Func<ushort, T> mapper) where T : IComparable
+            => SortingUtils.QuicksortList(
+                lines.Select(x => Tuple.New(GetEffectiveSortingLineId(x), mapper(x))).ToList(),
+                new Comparison<Tuple<ushort, T>>(Compare),
+                m_reverseOrder
+            ).Select(x => x.First == ushort.MaxValue ? (ushort)0 : x.First).ToList();
+
+        private ushort GetEffectiveSortingLineId(ushort x) => x == 0 && m_reverseOrder ? ushort.MaxValue : x;
+        private string NameTupleMapper(ushort x) => x == 0 ? default : Singleton<TransportManager>.instance.GetLineName(x);
+        private int StopTupleMapper(ushort x) => x == 0 ? default : Singleton<TransportManager>.instance.m_lines.m_buffer[x].CountStops(x);
+        private int VehicleTupleMapper(ushort x) => x == 0 ? default : Singleton<TransportManager>.instance.m_lines.m_buffer[x].CountVehicles(x);
+        private string LineNumberMapper(ushort x) => x == 0 ? default : TLMLineUtils.GetLineStringId(x, false);
+        private int PassengerTupleMapper(ushort x)
+        {
+            if (x == 0)
+            {
+                return 0;
+            }
+            int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[x].m_passengers.m_residentPassengers.m_averageCount;
+            int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[x].m_passengers.m_touristPassengers.m_averageCount;
+            return averageCount + averageCount2;
+        }
+        private long ProfitTupleMapper(ushort x)
+        {
+            if (x == 0)
+            {
+                return 0;
+            }
+            TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(x, out long income, out long expense);
+            return income - expense;
+        }
 
 
-        private List<ushort> OnNameSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x => Tuple.New(x, Singleton<TransportManager>.instance.GetLineName(x)))
-                .ToList(),
-                new Comparison<Tuple<ushort, string>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
 
 
-        private List<ushort> OnStopSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x => Tuple.New(x, Singleton<TransportManager>.instance.m_lines.m_buffer[x].CountStops(x))).ToList(),
-                new Comparison<Tuple<ushort, int>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
 
-
-        private List<ushort> OnVehicleSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x => Tuple.New(x, Singleton<TransportManager>.instance.m_lines.m_buffer[x].CountVehicles(x))).ToList(),
-                new Comparison<Tuple<ushort, int>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
-
-        private List<ushort> OnPassengerSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x =>
-                {
-                    int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[x].m_passengers.m_residentPassengers.m_averageCount;
-                    int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[x].m_passengers.m_touristPassengers.m_averageCount;
-                    return Tuple.New(x, averageCount + averageCount2);
-                }).ToList(),
-                new Comparison<Tuple<ushort, int>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
-
-        private List<ushort> OnLineNumberSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x => Tuple.New(x, TLMLineUtils.GetLineStringId(x)))
-                .ToList(),
-                new Comparison<Tuple<ushort, string>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
-
-        private List<ushort> OnProfitSort(List<ushort> lines) => SortingUtils.QuicksortList(lines
-                .Select(x =>
-                {
-                    TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(x, out long income, out long expense);
-                    return Tuple.New(x, income - expense);
-                }).ToList(),
-                new Comparison<Tuple<ushort, long>>(Compare),
-                m_reverseOrder).Select(x => x.First).ToList();
         #endregion
 
     }
-
-    internal sealed class UVMLinesPanelNorBus : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.BUS; }
-    internal sealed class UVMLinesPanelNorTrm : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TRAM; }
-    internal sealed class UVMLinesPanelNorMnr : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.MONORAIL; }
-    internal sealed class UVMLinesPanelNorMet : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.METRO; }
-    internal sealed class UVMLinesPanelNorTrn : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TRAIN; }
-    internal sealed class UVMLinesPanelNorFer : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.FERRY; }
-    internal sealed class UVMLinesPanelNorBlp : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.EVAC_BUS; }
-    internal sealed class UVMLinesPanelNorShp : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.BLIMP; }
-    internal sealed class UVMLinesPanelNorPln : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.SHIP; }
-    internal sealed class UVMLinesPanelEvcBus : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.PLANE; }
-    internal sealed class UVMLinesPanelTouBus : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TOUR_BUS; }
-    internal sealed class UVMLinesPanelTouPed : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TOUR_PED; }
-    internal sealed class UVMLinesPanelNorTrl : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.TROLLEY; }
-    internal sealed class UVMLinesPanelNorHel : UVMLinesPanel { internal override TransportSystemDefinition TSD { get; } = TransportSystemDefinition.HELICOPTER; }
 
 }

@@ -24,7 +24,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
             int nextStationId = 1;
             for (ushort lineId = 0; lineId < TransportManager.instance.m_lines.m_size; lineId++)
             {
-                TransportLine t = TransportManager.instance.m_lines.m_buffer[lineId];
+                ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineId];
 
                 if (t.m_lineNumber > 0 && allowedTypesToDraw.Contains(t.Info.m_transportType) && (t.m_flags & TransportLine.Flags.Complete) != TransportLine.Flags.None)
                 {
@@ -56,7 +56,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
                     ushort nextStop = startStop;
                     do
                     {
-                        string name = TLMStationUtils.GetStationName(nextStop, lineId, t.Info.m_stationSubService, out ItemClass.Service service, out ItemClass.SubService nil2, out string prefix, out ushort buildingId, out NamingType namingType);
+                        string name = TLMStationUtils.GetStationName(nextStop, lineId, t.Info.m_stationSubService, out ItemClass.Service service, out ItemClass.SubService nil2, out string prefix, out ushort buildingId, out NamingType namingType, false);
 
                         Vector3 worldPos = TLMStationUtils.GetStationBuildingPosition(nextStop, t.Info.m_stationSubService);
                         Vector2 pos2D = calc(worldPos, invPrecision);

@@ -14,7 +14,8 @@ namespace Klyte.TransportLinesManager.Extensions
             new TransferManager.TransferReason[] { TransferManager.TransferReason.Ferry },
             new Color32(0xe3, 0xf0, 0, 255),
             50,
-            LineIconSpriteNames.K45_S08StarIcon);
+            LineIconSpriteNames.K45_S08StarIcon,
+            true);
     }
 
 }

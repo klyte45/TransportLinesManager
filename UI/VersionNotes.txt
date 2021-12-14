@@ -1,20 +1,15 @@
-﻿<extended><color #9999FF>TLM 14.1 - 13/OCT/21</color>
-	- UI reviewed; Performance hugely improved!
-	- Ctrl + click to move the <K> button (instead of double click)
-		<color yellow>NOTICE:</color> It may not be working like this if you have other of my mods. Use Load Order Mod to ensure the TLM will be loaded first than any other mod by me.
-	- Cims outside the city area won't try to get taxis now (it was forcing the unspawn of taxis, as well the stands get empty because of it)
-	- Forcing all cims at stops to leave service when the budget comes to 0%
-	- The depot draw to the vehicles are really random now
-	- Express lines in road-based transport system now will deliver all passengers until the next terminal stop before go to depot
-	- Added clipboard actions at vehicle selection tab
-	- Added search filter for models at vehicle selection tab
-	- New near lines positioning - fixes some crashing situations
-	- Removed the legacy linear map completely
-	- The transport tool now shows information about the stops hovered (line it belongs to, distance between stops)
-	- Also in transport tool, it shows the distance from previous stop when creating a new line
-	- Was added some formatting alert when two stops are too close each other for road-shared transport types (recommended: at least 250m)
-	- Updated Japanese, Korean and Simplified Chinese locales
-	
-<color yellow>r2 (14/OCT/21)</color> Fixed capacity editor not working.
-<color yellow>r3 (14/OCT/21)</color> Added missing Japanese locale option.
-<color yellow>r4 (17/OCT/21)</color> Fixing minor bugs & issues post release; Updated ja, ko and cn locales.
+﻿<extended><color #9999FF>TLM 14.2 - 14/DEC/21</color>
+<color #FFFF00>Outside connection passenger transportation control:</color>
+	- Now you can select which kind of models can be spawned as regional line
+	- Fixed regional buses being able to be selected to municipal lines
+	- Added feature to control the platform use by regional trains in stations (no more trains annoying your city internal lines!)
+
+<color #FFFF00>Other stuff:</color>
+	- More UI reviewed; Performance hugely improved in line listing!
+	- Now the TLM button will be found at <color green>Unified UI Button</color> if you use it. You can change it at settings.
+	- Now the time-based ticket and budget screens accepts direct input to set the value
+	- Added costs of each vehicle in asset selection panel
+	- Fixed some thread running conditions when cleaning traffic
+	- Fixed some freezing/crashing caused by information in the line creation tooltip
+	- Reintroduced the hex color typing field at color pickers of the mod
+	- Fixed issues for players that don't use Addresses mod with TLM (which was preventing some features to work in this situation)

@@ -15,18 +15,21 @@ namespace Klyte.TransportLinesManager.Utils
 {
     public static class TLMPrefixesUtils
     {
+        public const uint PREFIX_REGIONAL = 66;
+
         #region Prefix Operations
 
         public static bool HasPrefix(TransportSystemDefinition tsd) => tsd != default && tsd != TransportSystemDefinition.EVAC_BUS && tsd.GetConfig().Prefix != NamingMode.None;
 
         public static bool HasPrefix(ref TransportLine t) => HasPrefix(TransportSystemDefinition.GetDefinitionForLine(ref t));
 
-        public static bool HasPrefix(ushort idx) => HasPrefix(TransportSystemDefinition.GetDefinitionForLine(idx));
+        public static bool HasPrefix(ushort idx) => idx == 0 ? true : HasPrefix(TransportSystemDefinition.GetDefinitionForLine(idx, false));
 
-        public static bool HasPrefix(TransportInfo t) => HasPrefix(TransportSystemDefinition.From(t));
+        public static bool HasPrefix(TransportInfo t) => HasPrefix(TransportSystemDefinition.FromLocal(t));
 
         public static uint GetPrefix(ushort idx) =>
-            HasPrefix(TransportSystemDefinition.GetDefinitionForLine(idx))
+            idx == 0 ? PREFIX_REGIONAL :
+            HasPrefix(idx)
                 ? Singleton<TransportManager>.instance.m_lines.m_buffer[idx].m_lineNumber / 1000u
                 : 0;
         internal static Color CalculateAutoColor(ushort num, TransportSystemDefinition tsdRef, bool avoidRandom = false, bool allowClear = false)

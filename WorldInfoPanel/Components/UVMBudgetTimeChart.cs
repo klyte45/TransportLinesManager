@@ -17,18 +17,28 @@ namespace Klyte.TransportLinesManager.UI
 
         public override TimeableList<BudgetEntryXml> GetCopyTarget()
         {
-            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-            return TLMLineUtils.GetEffectiveExtensionForLine(lineID).GetBudgetsMultiplierForLine(lineID);
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+            if (!fromBuilding)
+            {
+                return TLMLineUtils.GetEffectiveExtensionForLine(lineID).GetBudgetsMultiplierForLine(lineID);
+            }
+            return null;
         }
         public override void SetPasteTarget(TimeableList<BudgetEntryXml> newVal)
         {
-            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-            TLMLineUtils.GetEffectiveExtensionForLine(lineID).SetAllBudgetMultipliersForLine(lineID, newVal);
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+            if (!fromBuilding)
+            {
+                TLMLineUtils.GetEffectiveExtensionForLine(lineID).SetAllBudgetMultipliersForLine(lineID, newVal);
+            }
         }
         public override void OnDeleteTarget()
         {
-            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-            TLMLineUtils.GetEffectiveExtensionForLine(lineID).RemoveAllBudgetMultipliersOfLine(lineID);
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+            if (!fromBuilding)
+            {
+                TLMLineUtils.GetEffectiveExtensionForLine(lineID).RemoveAllBudgetMultipliersOfLine(lineID);
+            }
         }
 
         public override void CreateLabels()
@@ -77,15 +87,18 @@ namespace Klyte.TransportLinesManager.UI
 
         public override void OnUpdate()
         {
-            ushort lineID = UVMPublicTransportWorldInfoPanel.GetLineID();
-            Tuple<float, int, int, float> value = TLMLineUtils.GetBudgetMultiplierLineWithIndexes(lineID);
-            m_effectiveSprite.color = UVMBudgetConfigTab.Instance.ColorOrder[value.Second % UVMBudgetConfigTab.Instance.ColorOrder.Count];
-            m_effectiveSprite.progressColor = UVMBudgetConfigTab.Instance.ColorOrder[value.Third % UVMBudgetConfigTab.Instance.ColorOrder.Count];
-            m_effectiveSprite.value = value.Fourth;
-            int currentVehicleCount = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CountVehicles(lineID);
-            int targetVehicleCount = TransportLineOverrides.NewCalculateTargetVehicleCount(lineID);
-            m_effectiveLabel.prefix = (value.First * 100).ToString("0");
-            m_effectiveLabel.suffix = $"{currentVehicleCount.ToString("0")}/{targetVehicleCount.ToString("0")}";
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+            if (!fromBuilding)
+            {
+                Tuple<float, int, int, float> value = TLMLineUtils.GetBudgetMultiplierLineWithIndexes(lineID);
+                m_effectiveSprite.color = UVMBudgetConfigTab.Instance.ColorOrder[value.Second % UVMBudgetConfigTab.Instance.ColorOrder.Count];
+                m_effectiveSprite.progressColor = UVMBudgetConfigTab.Instance.ColorOrder[value.Third % UVMBudgetConfigTab.Instance.ColorOrder.Count];
+                m_effectiveSprite.value = value.Fourth;
+                int currentVehicleCount = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].CountVehicles(lineID);
+                int targetVehicleCount = TransportLineOverrides.NewCalculateTargetVehicleCount(lineID);
+                m_effectiveLabel.prefix = (value.First * 100).ToString("0");
+                m_effectiveLabel.suffix = $"{currentVehicleCount.ToString("0")}/{targetVehicleCount.ToString("0")}";
+            }
         }
 
 

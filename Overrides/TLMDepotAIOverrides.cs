@@ -85,7 +85,7 @@ namespace Klyte.TransportLinesManager.Overrides
 
             if (reason == m_transportInfo.m_vehicleReason || (__instance.m_secondaryTransportInfo != null && reason == __instance.m_secondaryTransportInfo.m_vehicleReason))
             {
-                var tsd = TransportSystemDefinition.From(__instance.m_transportInfo);
+                var tsd = TransportSystemDefinition.FromLocal(__instance.m_transportInfo);
 
                 Instance.SetRandomBuilding(tsd, offer.TransportLine, ref buildingID);
 

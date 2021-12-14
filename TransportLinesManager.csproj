@@ -1,316 +1,49 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3F345C94-6B63-4D8F-8A12-E1EBDAE831F3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Klyte</RootNamespace>
     <AssemblyName>TransportLinesManager</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <Optimize>false</Optimize>
+    <OutputPath>_requiredDlls</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-    <ConsolePause>False</ConsolePause>
-    <CustomCommands>
-      <CustomCommands>
-        <Command type="AfterBuild" command="xcopy /Y &quot;bin\Debug\${SolutionName}.dll&quot; &quot;J:\SteamLibrary\steamapps\workshop\content\255710\408875519\&quot;" workingdir="${ProjectDir}" externalConsole="True" />
-        <Command type="AfterBuild" command="xcopy /Y &quot;bin\Debug\UIHelperExtended.dll&quot; &quot;J:\SteamLibrary\steamapps\workshop\content\255710\408875519\&quot;" workingdir="${ProjectDir}" externalConsole="True" />
-      </CustomCommands>
-    </CustomCommands>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <CodeAnalysisRuleSet>
-    </CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <DebugType>none</DebugType>
-    <Optimize>True</Optimize>
-    <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-    <ConsolePause>False</ConsolePause>
-    <CodeAnalysisRuleSet>
-    </CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
+    <ConsolePause>False</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>
-    </CodeAnalysisRuleSet>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Compile Include="commons\Extensions\Redirector.cs" />
-    <Compile Include="commons\Extensions\UI\CheckboxOrdernatedList.cs" />
-    <Compile Include="commons\Extensions\UI\NumberedColorList.cs" />
-    <Compile Include="commons\Extensions\UI\TextList.cs" />
-    <Compile Include="commons\Extensions\UI\UIHelperExtended.cs" />
-    <Compile Include="commons\Extensions\UI\UITabstripAutoResize.cs" />
-    <Compile Include="commons\Interfaces\BaseController.cs" />
-    <Compile Include="commons\Interfaces\BasicIUserMod.cs" />
-    <Compile Include="commons\Interfaces\BasicIUserModSimplified.cs" />
-    <Compile Include="commons\Interfaces\BasicKPanel.cs" />
-    <Compile Include="commons\Interfaces\IEnumerableIndex.cs" />
-    <Compile Include="commons\Interfaces\IFontConfigContainer.cs" />
-    <Compile Include="commons\Interfaces\IIdentifiable.cs" />
-    <Compile Include="commons\Interfaces\ILibable.cs" />
-    <Compile Include="commons\Interfaces\ILibableAsContainer.cs" />
-    <Compile Include="commons\Interfaces\IPropColorContainer.cs" />
-    <Compile Include="commons\Interfaces\ITimeable.cs" />
-    <Compile Include="commons\Interfaces\IViewStartActions.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ConfigWarehouseBase.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\DataContainer.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\DataExtensionBase.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\DataExtensionLibBase.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterface2LevelIntImpl.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryByEnumImpl.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryByUintImpl.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceDictionaryStructValSimplImpl.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceIndexableImpl.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceListImpl .cs" />
-    <Compile Include="commons\Interfaces\Warehouse\ExtensionInterfaceSingleImpl.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\IDataExtension.cs" />
-    <Compile Include="commons\Interfaces\Warehouse\IDataExtensionLegacy.cs" />
-    <Compile Include="commons\Libraries\BasicLib.cs" />
-    <Compile Include="commons\Libraries\LibBaseData.cs" />
-    <Compile Include="commons\Libraries\LibBaseFile.cs" />
-    <Compile Include="commons\Redirectors\UIDynamicPanelsRedirector.cs" />
-    <Compile Include="commons\Redirectors\UIViewRedirector.cs" />
-    <Compile Include="commons\Redirectors\UIWorkshopAssetRedirector.cs" />
-    <Compile Include="commons\Tools\BasicBuildingTool.cs" />
-    <Compile Include="commons\Tools\BasicNetTool.cs" />
-    <Compile Include="commons\Tools\BasicVehicleTool.cs" />
-    <Compile Include="commons\UI\AVOPreviewRenderer.cs" />
-    <Compile Include="commons\UI\BasicRulesList.cs" />
-    <Compile Include="commons\UI\DefaultEditorUILib.cs" />
-    <Compile Include="commons\UI\i18n\KlyteLocaleManager.cs" />
-    <Compile Include="commons\UI\K45DialogControl.cs" />
-    <Compile Include="commons\UI\SpriteNames\CommonsSpriteNames.cs" />
-    <Compile Include="commons\UI\SpriteNames\LineIconSpriteNames.cs" />
-    <Compile Include="commons\UI\TLMAgesChartPanel.cs" />
-    <Compile Include="commons\UI\TLMWorkersChartPanel.cs" />
-    <Compile Include="commons\UI\UIPagingBar.cs" />
-    <Compile Include="commons\UI\UIRadialChartExtended.cs" />
-    <Compile Include="commons\Utils\BuildingUtils.cs" />
-    <Compile Include="commons\Utils\DistrictUtils.cs" />
-    <Compile Include="commons\Utils\FileUtils.cs" />
-    <Compile Include="commons\Utils\GeneralUtils.cs" />
-    <Compile Include="commons\Utils\KlyteMathUtils.cs" />
-    <Compile Include="commons\Utils\KlyteMonoUtils.cs" />
-    <Compile Include="commons\Utils\KlyteResourceLoader.cs" />
-    <Compile Include="commons\Utils\LogUtils.cs" />
-    <Compile Include="commons\Utils\MapUtils.cs" />
-    <Compile Include="commons\Utils\MeshUtils.cs" />
-    <Compile Include="commons\Utils\NumberingUtils.cs" />
-    <Compile Include="commons\Utils\PastelConfig.cs" />
-    <Compile Include="commons\Utils\PluginUtils.cs" />
-    <Compile Include="commons\Utils\PrefabIndexes.cs" />
-    <Compile Include="commons\Utils\RandomPastelColorGenerator.cs" />
-    <Compile Include="commons\Utils\ReflectionUtils.cs" />
-    <Compile Include="commons\Utils\RenderOverlayUtils.cs" />
-    <Compile Include="commons\Utils\RoadSearchUtils.cs" />
-    <Compile Include="commons\Utils\SegmentUtils.cs" />
-    <Compile Include="commons\Utils\SerializationUtils.cs" />
-    <Compile Include="commons\Utils\SortingUtils.cs" />
-    <Compile Include="commons\Utils\StopSearchUtils.cs" />
-    <Compile Include="commons\Utils\StructExtensions\ColorExtensions.cs" />
-    <Compile Include="commons\Utils\StructExtensions\Int32Extensions.cs" />
-    <Compile Include="commons\Utils\StructExtensions\NetSegmentExtensions.cs" />
-    <Compile Include="commons\Utils\StructExtensions\PathUnitExtensions.cs" />
-    <Compile Include="commons\Utils\StructExtensions\StringExtensions.cs" />
-    <Compile Include="commons\Utils\StructExtensions\Vector2Extensions.cs" />
-    <Compile Include="commons\Utils\StructExtensions\Vector3Extensions.cs" />
-    <Compile Include="commons\Utils\TabCommons.cs" />
-    <Compile Include="commons\Utils\TextureAtlasUtils.cs" />
-    <Compile Include="commons\Utils\TextureFilter.cs" />
-    <Compile Include="commons\Utils\TextureRenderUtils.cs" />
-    <Compile Include="commons\Utils\TextureScaler.cs" />
-    <Compile Include="commons\Utils\TextUtils.cs" />
-    <Compile Include="commons\Utils\UITemplateUtils.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\CardinalPoint .cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\ColorList.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\CoroutineWithData.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\EntryStructValueContainerStructVal.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\LibableList.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\MutableTuple.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\NonSequentialList.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\NumberArrays.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\PriorityQueue.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\Range.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\SimpleEnumerableList.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\SimpleNonSequentialList.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\SimpleXmlDictionary.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\SimpleXmlDictionaryStructVal.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\SimpleXmlHashSet.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\SimpleXmlList.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\TimeableList.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\Tuple.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\VectorsXml.cs" />
-    <Compile Include="commons\Utils\UtilitiesClasses\XmlDictionary.cs" />
-    <Compile Include="commons\Utils\VehicleUtils.cs" />
-    <Compile Include="commons\Utils\XmlUtils.cs" />
-    <Compile Include="commons\Utils\ZipUtils.cs" />
-    <Compile Include="ModShared\BridgeWTS.cs" />
-    <Compile Include="ModShared\BridgeWTSFallback.cs" />
-    <Compile Include="ModShared\IBridgeWTS.cs" />
-    <Compile Include="Overrides\TaxiOverrides.cs" />
-    <Compile Include="Palettes\TLMAutoColorPalette.cs" />
+    <Compile Include="Cache\**\*.cs" />
+    <Compile Include="Data\**\*.cs" />
+    <Compile Include="Overrides\**\*.cs" />
+    <Compile Include="Palettes\**\*.cs" />
     <Compile Include="CommonProperties.cs" />
-    <Compile Include="CommonsWindow\List\Components\UVMLineListItem.cs" />
-    <Compile Include="CommonsWindow\List\UVMLinesPanel.cs" />
-    <Compile Include="Data\DataContainers\TLMStopDataContainer.cs" />
-    <Compile Include="Data\Base\ConfigurationContainers\TLMStopsConfiguration.cs" />
-    <Compile Include="Data\Extensions\GameServiceExtensions.cs" />
-    <Compile Include="Data\Base\ConfigurationContainers\TLMAssetConfiguration.cs" />
-    <Compile Include="Data\DataContainers\TLMTransportTypeDataContainer.cs" />
-    <Compile Include="Data\Managers\TransportLineStorageBasicData.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_BALLOON.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_BLIMP.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_BUS.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_CABLE_CAR.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_EVAC_BUS.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_FERRY.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_FISHING .cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_HELICOPTER.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_INTERCITY_BUS.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_METRO.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_MONORAIL.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_PLANE.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_POST.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_SHIP.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TAXI.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TOUR_BUS.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TOUR_PED.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TRAIN.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TRAM.cs" />
-    <Compile Include="Data\TsdImplementations\TransportSystemDefinition_TROLLEY.cs" />
-    <Compile Include="Data\Extensions\TLMSpecialNamingClassExtensions.cs" />
-    <Compile Include="MapDrawer\TLMMapCityTransportObject.cs" />
-    <Compile Include="MapDrawer\TLMMapHtmlTemplate.cs" />
-    <Compile Include="MapDrawer\TLMMapStation.cs" />
-    <Compile Include="ModShared\BridgeADR.cs" />
-    <Compile Include="ModShared\BridgeADRFallback.cs" />
-    <Compile Include="ModShared\IBridgeADR.cs" />
-    <Compile Include="ModShared\TLMFacade.cs" />
-    <Compile Include="OptionsMenu\Tabs\ITLMConfigOptionsTab.cs" />
-    <Compile Include="OptionsMenu\Tabs\TLMAutoNameBuildingsTab.cs" />
-    <Compile Include="Overrides\PublicTransportAtRoadAIOverrides.cs" />
-    <Compile Include="Palettes\RandomPastelColorGenerator.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMAssetItemLine.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMBaseSliderEditorLine.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMBaseTimeChart.cs" />
-    <Compile Include="WorldInfoPanel\NearLines\TLMLineItemButtonControl.cs" />
-    <Compile Include="WorldInfoPanel\NearLines\TLMNearLinesController.cs" />
-    <Compile Include="Utils\NamingMode.cs" />
-    <Compile Include="Utils\NamingType.cs" />
-    <Compile Include="Utils\NamingTypeExtensions.cs" />
-    <Compile Include="Utils\Separator.cs" />
-    <Compile Include="Utils\TLMBuildingUtils.cs" />
-    <Compile Include="Utils\TLMPrefabUtils.cs" />
-    <Compile Include="Utils\TLMPrefixesUtils.cs" />
-    <Compile Include="Utils\TLMStationUtils.cs" />
-    <Compile Include="Utils\TLMVehicleUtils.cs" />
-    <Compile Include="WorldInfoPanel\Components\BaseReportLine.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMPassengerGenderReportLine.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMPassengerAgeReportLine.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMPassengerWealthReportLine.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMStudentTouristsReportLine.cs" />
-    <Compile Include="WorldInfoPanel\ReportTabs\BasicReportTab.cs" />
-    <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerGenderReportTab.cs" />
-    <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerAgeReportTab.cs" />
-    <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerWealthReportTab.cs" />
-    <Compile Include="WorldInfoPanel\ReportTabs\TLMLinePassengerReportTab.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\TLMReportsTab.cs" />
-    <Compile Include="Data\Base\Interfaces\ITLMAutoNameConfigurable.cs" />
-    <Compile Include="Data\Base\ConfigurationContainers\TLMAutoNameConfigurationData.cs" />
-    <Compile Include="Data\DataContainers\TLMBaseConfigXML.cs" />
-    <Compile Include="Data\Base\Enums\TLMSpecialNamingClass.cs" />
-    <Compile Include="Data\Base\TsdIdentifiable.cs" />
-    <Compile Include="Data\Base\ConfigurationContainers\TLMTransportLineConfiguration.cs" />
-    <Compile Include="Data\Base\UintValueHourEntryXml.cs" />
-    <Compile Include="Data\Extensions\ExtensionStaticExtensionMethods.cs" />
-    <Compile Include="Interfaces\ITLMTransportTypeExtension.cs" />
-    <Compile Include="Data\Base\ConfigurationContainers\TLMPrefixConfiguration.cs" />
-    <Compile Include="Data\Base\ConfigurationContainers\TLMTransportTypeExtension.cs" />
-    <Compile Include="Overrides\TLMDepotAIOverrides.cs" />
-    <Compile Include="Data\DataContainers\TLMTransportLineExtension.cs" />
-    <Compile Include="Data\Managers\TLMTransportLineStatusesManager.cs" />
-    <Compile Include="Interfaces\ExtensionInterfaces.cs" />
-    <Compile Include="Interfaces\LinearMapParentInterface.cs" />
-    <Compile Include="Overrides\InstanceManagerOverrides.cs" />
-    <Compile Include="Overrides\TLMTransportLineStatusesRedirector.cs" />
-    <Compile Include="UI\TLMLineCreationToolboxHooks.cs" />
-    <Compile Include="UI\TLMLineIconExtension.cs" />
-    <Compile Include="CommonsWindow\TLMPanel.cs" />
-    <Compile Include="OptionsMenu\Tabs\TLMModInfoTab.cs" />
-    <Compile Include="OptionsMenu\Tabs\TLMPaletteOptionsTab.cs" />
-    <Compile Include="OptionsMenu\Tabs\TLMAutoNamePublicAreasTab.cs" />
-    <Compile Include="OptionsMenu\Tabs\TLMAutomationOptionsTab.cs" />
-    <Compile Include="OptionsMenu\Tabs\TLMNearLinesConfigTab.cs" />
-    <Compile Include="OptionsMenu\Tabs\TLMShowConfigTabContainer.cs" />
-    <Compile Include="OptionsMenu\TLMShowConfigTab.cs" />
-    <Compile Include="OptionsMenu\TLMConfigOptions.cs" />
-    <Compile Include="Overrides\TransportToolOverrides.cs" />
-    <Compile Include="Overrides\TransportLineOverrides.cs" />
-    <Compile Include="Overrides\PublicTransportInfoViewPanelOverrides.cs" />
-    <Compile Include="MapDrawer\TLMMapTransportLine.cs" />
-    <Compile Include="TLMConfigWarehouse.cs" />
-    <Compile Include="MapDrawer\TLMMapDrawer.cs" />
+    <Compile Include="CommonsWindow\**\*.cs" />
+    <Compile Include="Interfaces\**\*.cs" />
+    <Compile Include="MapDrawer\**\*.cs" />
+    <Compile Include="ModShared\**\*.cs" />
+    <Compile Include="OptionsMenu\**\*.cs" />
+    <Compile Include="UI\**\*.cs" />
+    <Compile Include="WorldInfoPanel\**\*.cs" />
+    <Compile Include="Utils\**\*.cs" />
+    <Compile Include="TLM*.cs" />
     <Compile Include="TransportLinesManager.cs" />
-    <Compile Include="Data\Base\TransportSystemDefinition.cs" />
-    <Compile Include="TLMController.cs" />
-    <Compile Include="Palettes\TLMAutoColorPaletteContainer.cs" />
-    <Compile Include="UI\TLMLineCreationToolbox.cs" />
-    <Compile Include="Utils\TLMUiTemplateUtils.cs" />
-    <Compile Include="Utils\TLMLineUtils.cs" />
-    <Compile Include="Utils\TLMDepotUtils.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMFinanceReportLine.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMTicketPriceEditorLine.cs" />
-    <Compile Include="WorldInfoPanel\Components\TLMTicketPriceTimeChart.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\TLMPrefixOptionsTab.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\TLMDepotSelectorTab.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\TLMAssetSelectorTab.cs" />
-    <Compile Include="WorldInfoPanel\ReportTabs\TLMLineFinanceReportTab.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\TLMTicketConfigTab.cs" />
-    <Compile Include="WorldInfoPanel\Components\UVMBudgetEditorLine.cs" />
-    <Compile Include="WorldInfoPanel\Components\UVMBudgetTimeChart.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\IUVMPTWIPChild.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\TLMBaseTimedConfigTab.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\UVMBudgetConfigTab.cs" />
-    <Compile Include="WorldInfoPanel\Tabs\UVMMainWIPTab.cs" />
-    <Compile Include="WorldInfoPanel\UVMTransportLineLinearMap.cs" />
-    <Compile Include="WorldInfoPanel\UVMTransportLineWorldInfoPanel.cs" />
-    <Compile Include="Data\DataContainers\TLMTransportTypeConfigurationsXML.cs" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
@@ -361,177 +94,66 @@
     </MonoDevelop>
   </ProjectExtensions>
   <ItemGroup>
-    <EmbeddedResource Include="commons\UI\i18n\cn.properties" />
-    <EmbeddedResource Include="commons\UI\i18n\en.properties" />
-    <EmbeddedResource Include="commons\UI\i18n\fr.properties" />
-    <EmbeddedResource Include="commons\UI\i18n\pt.properties" />
-    <EmbeddedResource Include="commons\UI\i18n\ru.properties" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_24hLineIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_AbsoluteMode.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_AutoColorIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_AutoNameIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_CameraIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_CircleIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_ConeIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Copy.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_CrossIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Delete.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_DepotIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_DiamondIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Down.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Dropper.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Export.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_FontIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_HeptagonIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_HexagonIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Import.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_K45Button.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_K45ButtonDisabled.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_K45ButtonFocused.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_K45ButtonHovered.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Layers.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Left.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Load.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Lock.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_MapIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_MenuPanel_color.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Minus.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_MountainIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_MoveCross.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_New.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_OctagonIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_OvalIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_PaintBucket.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_ParachuteIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Paste.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_PentagonIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_PerHourIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Plus.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_QuestionMark.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_RelativeMode.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Reload.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_RemoveIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_RemoveUnwantedIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Right.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedHexagonIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedPentagonIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedSquareIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_RoundedTriangleIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_S03StarIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_S04StarIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_S05StarIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_S06StarIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_S07StarIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_S08StarIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_S09StarIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_S10StarIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Save.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Settings.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_SquareIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Steam.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_TrapezeIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_TriangleIcon.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Unlock.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_Up.png" />
-    <EmbeddedResource Include="commons\UI\Images\%25K45_X.png" />
-    <EmbeddedResource Include="commons\UI\Images\bordersDescriptor.txt" />
-    <EmbeddedResource Include="UI\Images\sprites.png" />
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="MapDrawer\app.js" />
     <EmbeddedResource Include="MapDrawer\lineDrawBasicCss.css" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UI\i18n\en.properties" />
-    <EmbeddedResource Include="UI\i18n\pt.properties" />
-    <EmbeddedResource Include="UI\i18n\de.properties" />
-    <EmbeddedResource Include="UI\i18n\es.properties" />
-    <EmbeddedResource Include="UI\i18n\fr.properties" />
-    <EmbeddedResource Include="UI\i18n\ko.properties" />
-    <EmbeddedResource Include="UI\i18n\ru.properties" />
-    <EmbeddedResource Include="UI\i18n\cn.properties" />
-    <EmbeddedResource Include="UI\i18n\nl.properties" />
-    <EmbeddedResource Include="UI\i18n\pl.properties" />
-    <None Include="app.config" />
-    <None Include="commons\LICENSE" />
-    <None Include="commons\README.md" />
-    <EmbeddedResource Include="commons\UI\i18n\ja.properties" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Include="commons\**\*.cs" />
+    <EmbeddedResource Include="commons\UI\i18n\*.properties" />
+    <EmbeddedResource Include="commons\UI\Images\*.png" />
+    <EmbeddedResource Include="commons\UI\Images\*.txt" />
+    <EmbeddedResource Include="UI\i18n\*.properties" />
+    <EmbeddedResource Include="UI\Images\*.png" />
+    <EmbeddedResource Include="UI\Images\*.txt" />
     <EmbeddedResource Include="UI\VersionNotes.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UI\Images\spritesCommon.png" />
-    <EmbeddedResource Include="MapDrawer\app.js" />
-    <EmbeddedResource Include="UI\Images\%25K45_TLM_Icon.png" />
-    <EmbeddedResource Include="UI\Images\%25K45_24hClock.png" />
-    <EmbeddedResource Include="UI\i18n\zh.properties" />
-    <EmbeddedResource Include="UI\i18n\ja.properties" />
-    <None Include="UI\Images\24hClock.psd" />
-    <Content Include="commons\UI\Images\base.psd" />
-    <Content Include="commons\UI\Images\sprites.psd" />
-    <Content Include="UI\Images\sprites.psd" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="0Harmony, Version=1.2.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Lib.Harmony.1.2.0.1\lib\net35\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Assembly-CSharp">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>S:\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>S:\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="ColossalManaged, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ColossalManaged">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>S:\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="ICities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ICities">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>S:\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>S:\Steam\SteamApps\common\Cities_Skylines\Cities_Data\Managed\Mono.Posix.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>S:\Steam\SteamApps\common\Cities_Skylines\Cities_Data\Managed\Mono.Security.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="UnifiedUILib">
+      <HintPath>S:\Steam\steamapps\workshop\content\255710\2255219025\UnifiedUILib.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <Aliases>UUI</Aliases>
+    </Reference>
+    <Reference Include="UnityEngine">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>S:\Steam\SteamApps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>S:\Steam\SteamApps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>S:\Steam\SteamApps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.UI.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\Xml\Base\" />
-    <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Addresses\Addresses.csproj">
       <Project>{3518655d-2922-4e78-8875-c38ce7b15adf}</Project>
       <Name>Addresses</Name>
       <Aliases>ADR</Aliases>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(TargetDir)0Harmony.dll" "$(ProjectDir)\_requiredDLLs\"
-xcopy /Y "$(TargetPath)" "$(ProjectDir)\_requiredDLLs\"
+    <PostBuildEvent>
 xcopy /Y  /e "$(ProjectDir)\_requiredDLLs\*" "S:\Steam\steamapps\workshop\content\255710\1312767991\"
-
 xcopy /Y /e "$(ProjectDir)\_requiredDLLs\*" "C:\Users\Leandro\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\TLM\"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
