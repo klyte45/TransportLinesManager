@@ -415,6 +415,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             };
         }
 
+        protected void Start() => m_lineColor.gameObject.AddComponent<UIColorFieldExtension>();
+
         public const string LINE_LIST_ITEM_TEMPLATE = "K45_TLM_LineListItemTemplate";
         public static void EnsureTemplate()
         {
