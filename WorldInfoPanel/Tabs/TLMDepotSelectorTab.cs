@@ -13,9 +13,7 @@ namespace Klyte.TransportLinesManager.UI
 {
     internal class TLMDepotSelectorTab : UICustomControl, IUVMPTWIPChild
     {
-        private UIHelperExtension m_uiHelper;
         private UILabel m_title;
-        private Color m_lastColor = Color.clear;
         private UITemplateList<UIPanel> m_checkboxTemplateList;
         public void Awake() => CreateWindow();
 
