@@ -178,7 +178,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
                 m_vehicleNumberFormatLocal.text = config.VehicleIdentifierFormatLocal ?? "";
                 m_vehicleNumberFormatForeign.text = config.VehicleIdentifierFormatForeign ?? "";
                 m_defaultCost.text = config.DefaultCostPerPassenger.ToString();
-                m_defaultCostLbl.suffix = $" (Def: {(TSD.GetDefaultPassengerCapacityCost() is float cost && cost >= 0 ? (cost * 100).ToString("0.00") + "¢" : "N /A")})";
+                m_defaultCostLbl.suffix = $" (Def: {(TSD.GetDefaultPassengerCapacityCostLocal() is float cost && cost >= 0 ? (cost * 100).ToString("0.00") + "¢" : "N /A")})";
                 m_defaultTicketPrice.text = config.DefaultTicketPrice.ToString();
             }
             OnPrefixOptionChange();

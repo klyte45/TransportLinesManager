@@ -21,8 +21,9 @@ namespace Klyte.TransportLinesManager.Extensions
     {
 
         private List<string> m_basicAssetsList;
+        private List<string> m_basicAssetsListIntercity;
 
-        private TransportSystemDefinition Definition => ToTSD();
+        private TransportSystemDefinition Definition => TSD;
 
         [XmlElement("Configurations")]
         public SimpleNonSequentialList<TLMPrefixConfiguration> Configurations { get; set; } = new SimpleNonSequentialList<TLMPrefixConfiguration>();
@@ -235,21 +236,45 @@ namespace Klyte.TransportLinesManager.Extensions
         #region Asset List
         public Dictionary<string, string> GetSelectedBasicAssetsForLine(ushort lineId)
         {
-            if (m_basicAssetsList == null)
+            if (lineId > 0)
             {
-                LoadBasicAssets();
-            }
+                if (m_basicAssetsList == null)
+                {
+                    LoadBasicAssets();
+                }
 
-            return ExtensionStaticExtensionMethods.GetAssetListForLine(this, lineId).Intersect(m_basicAssetsList).ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
+                return ExtensionStaticExtensionMethods.GetAssetListForLine(this, lineId).Intersect(m_basicAssetsList).ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
+            }
+            else
+            {
+
+                if (m_basicAssetsListIntercity == null)
+                {
+                    LoadBasicAssetsInterCity();
+                }
+                return ExtensionStaticExtensionMethods.GetAssetListForLine(this, lineId).Intersect(m_basicAssetsListIntercity).ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
+            }
         }
-        public Dictionary<string, string> GetAllBasicAssetsForLine(ushort lineId = 0)
+        public Dictionary<string, string> GetAllBasicAssetsForLine(ushort lineId)
         {
-            if (m_basicAssetsList == null)
+            if (lineId > 0)
             {
-                LoadBasicAssets();
-            }
+                if (m_basicAssetsList == null)
+                {
+                    LoadBasicAssets();
+                }
 
-            return m_basicAssetsList.ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
+                return m_basicAssetsList.ToDictionary(x => x, x => Locale.GetUnchecked("VEHICLE_TITLE", x));
+            }
+            else
+            {
+
+                if (m_basicAssetsListIntercity == null)
+                {
+                    LoadBasicAssetsInterCity();
+                }
+                return m_basicAssetsListIntercity.ToDictionary(x => x, x => Locale.GetUnchecked("VEHICLE_TITLE", x));
+            }
         }
         public List<string> GetBasicAssetListForLine(ushort lineId)
         {
@@ -278,6 +303,11 @@ namespace Klyte.TransportLinesManager.Extensions
         {
             TransportSystemDefinition tsd = Definition;
             m_basicAssetsList = TLMPrefabUtils.LoadBasicAssets(tsd);
+        }
+        private void LoadBasicAssetsInterCity()
+        {
+            TransportSystemDefinition tsd = Definition;
+            m_basicAssetsListIntercity = TLMPrefabUtils.LoadBasicAssetsIntercity(tsd);
         }
 
         #endregion

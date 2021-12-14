@@ -333,7 +333,7 @@ namespace Klyte.TransportLinesManager.Overrides
         {
             if (transportLine != 0)
             {
-                var tsd = TransportSystemDefinition.GetDefinitionForLine(transportLine);
+                var tsd = TransportSystemDefinition.GetDefinitionForLine(transportLine, false);
                 if (tsd.TransportType == TransportInfo.TransportType.EvacuationBus)
                 {
                     return Singleton<TransportManager>.instance.m_properties.m_transportColors[(int)line.Info.m_transportType];

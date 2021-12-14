@@ -13,9 +13,7 @@ namespace Klyte.TransportLinesManager.UI
 {
     internal class TLMDepotSelectorTab : UICustomControl, IUVMPTWIPChild
     {
-        private UIHelperExtension m_uiHelper;
         private UILabel m_title;
-        private Color m_lastColor = Color.clear;
         private UITemplateList<UIPanel> m_checkboxTemplateList;
         public void Awake() => CreateWindow();
 
@@ -25,8 +23,12 @@ namespace Klyte.TransportLinesManager.UI
         private UIScrollbar m_scrollbar;
         private Dictionary<string, UICheckBox> m_checkboxes = new Dictionary<string, UICheckBox>();
         private bool m_isLoading;
-        private TransportSystemDefinition TransportSystem => TransportSystemDefinition.From(GetLineID());
-        internal static ushort GetLineID() => UVMPublicTransportWorldInfoPanel.GetLineID();
+        private TransportSystemDefinition TransportSystem => TransportSystemDefinition.FromLineId(GetLineID(out bool fromBuilding), fromBuilding);
+        internal static ushort GetLineID(out bool fromBuilding)
+        {
+            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out fromBuilding);
+            return lineId;
+        }
 
         private void CreateWindow()
         {
@@ -162,7 +164,7 @@ namespace Klyte.TransportLinesManager.UI
             }
             m_isLoading = true;
 
-            var lineId = GetLineID();
+            var lineId = GetLineID(out _);
             List<ushort> cityDepotList = TLMDepotUtils.GetAllDepotsFromCity(tsd);
             Interfaces.IBasicExtension config = TLMLineUtils.GetEffectiveExtensionForLine(lineId);
             List<ushort> targetDepotList = config.GetAllowedDepots(tsd, lineId);
@@ -192,13 +194,17 @@ namespace Klyte.TransportLinesManager.UI
                     {
                         if (!m_isLoading)
                         {
-                            if (y)
+                            UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineID, out bool fromBuilding);
+                            if (lineID > 0 && !fromBuilding)
                             {
-                                TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).AddDepotForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), (ushort)x.objectUserData);
-                            }
-                            else
-                            {
-                                TLMLineUtils.GetEffectiveExtensionForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).RemoveDepotForLine(UVMPublicTransportWorldInfoPanel.GetLineID(), (ushort)x.objectUserData);
+                                if (y)
+                                {
+                                    TLMLineUtils.GetEffectiveExtensionForLine(lineID).AddDepotForLine(lineID, (ushort)x.objectUserData);
+                                }
+                                else
+                                {
+                                    TLMLineUtils.GetEffectiveExtensionForLine(lineID).RemoveDepotForLine(lineID, (ushort)x.objectUserData);
+                                }
                             }
                         }
                     };
@@ -219,11 +225,11 @@ namespace Klyte.TransportLinesManager.UI
 
             if (config is TLMTransportLineConfiguration)
             {
-                m_title.text = string.Format(Locale.Get("K45_TLM_DEPOT_SELECT_WINDOW_TITLE"), TLMLineUtils.GetLineStringId(GetLineID()));
+                m_title.text = string.Format(Locale.Get("K45_TLM_DEPOT_SELECT_WINDOW_TITLE"), TLMLineUtils.GetLineStringId(GetLineID(out bool fromBuilding), fromBuilding));
             }
             else
             {
-                int prefix = (int)TLMPrefixesUtils.GetPrefix(GetLineID());
+                int prefix = (int)TLMPrefixesUtils.GetPrefix(GetLineID(out _));
                 m_title.text = string.Format(Locale.Get("K45_TLM_DEPOT_SELECT_WINDOW_TITLE_PREFIX"), prefix > 0 ? NumberingUtils.GetStringFromNumber(TLMPrefixesUtils.GetStringOptionsForPrefix(tsd), prefix + 1) : Locale.Get("K45_TLM_UNPREFIXED"), tsd.GetTransportName());
             }
 
@@ -238,7 +244,7 @@ namespace Klyte.TransportLinesManager.UI
         public void OnEnable() { }
         public void OnDisable() { }
         public void OnGotFocus() { }
-        public bool MayBeVisible() => TransportSystem.HasVehicles();
+        public bool MayBeVisible() => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding && lineId > 0 && TransportSystem.HasVehicles();
 
         public void Hide() => MainPanel.isVisible = false;
     }

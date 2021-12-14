@@ -1,11 +1,10 @@
 using ColossalFramework;
 using ColossalFramework.Plugins;
-using ColossalFramework.Threading;
 using ColossalFramework.UI;
 using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.Extensions;
-using Klyte.TransportLinesManager.Interfaces;
 using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Overrides;
 using Klyte.TransportLinesManager.UI;
@@ -19,16 +18,11 @@ using UnityEngine;
 
 namespace Klyte.TransportLinesManager
 {
-    public class TLMController : BaseController<TransportLinesManagerMod, TLMController>, ILinearMapParentInterface
+    public class TLMController : BaseController<TransportLinesManagerMod, TLMController>
     {
-        public static DataContainer Container => DataContainer.instance;
-        public static TLMTransportLineStatusesManager Statuses => TLMTransportLineStatusesManager.instance;
-
         internal static TLMController Instance => TransportLinesManagerMod.Controller;
 
         public bool initializedWIP = false;
-
-        //private UIPanel _cachedDefaultListingLinesPanel;
 
         public static readonly string FOLDER_NAME = "TransportLinesManager";
         public static readonly string FOLDER_PATH = FileUtils.BASE_FOLDER_PATH + FOLDER_NAME;
@@ -36,6 +30,8 @@ namespace Klyte.TransportLinesManager
         public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
         public const ulong REALTIME_MOD_ID = 1420955187;
         public const ulong IPT2_MOD_ID = 928128676;
+        public BuildingTransportLinesCache BuildingLines { get; private set; }
+
         private bool? m_isRealTimeEnabled = null;
         protected static string GlobalBaseConfigFileName { get; } = "TLM_GlobalData.xml";
         public static string GlobalBaseConfigPath { get; } = Path.Combine(FOLDER_PATH, GlobalBaseConfigFileName);
@@ -70,40 +66,23 @@ namespace Klyte.TransportLinesManager
         public static string PalettesFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + PALETTE_SUBFOLDER_NAME;
         public static string ExportedMapsFolder { get; } = FOLDER_PATH + Path.DirectorySeparatorChar + EXPORTED_MAPS_SUBFOLDER_NAME;
 
-        public Transform TransformLinearMap => UIView.GetAView()?.transform;
-
         public ushort CurrentSelectedId { get; private set; }
         public void SetCurrentSelectedId(ushort line) => CurrentSelectedId = line;
 
-        public bool CanSwitchView => false;
-
-        private static readonly SavedBool m_showLinearMapWhileCreatingLine = new SavedBool("K45_TLM_showLinearMapWhileCreatingLine", Settings.gameSettingsFile, true);            
-
         internal TLMLineCreationToolbox LineCreationToolbox => PublicTransportInfoViewPanelOverrides.Toolbox;
-
-        public bool ForceShowStopsDistances => true;
-
-        public TransportInfo CurrentTransportInfo => Singleton<TransportTool>.instance.m_prefab;
 
         public TLMFacade SharedInstance { get; internal set; }
         internal IBridgeADR ConnectorADR { get; private set; }
         internal IBridgeWTS ConnectorWTS { get; private set; }
 
-        public void Update()
-        {
-            if (!GameObject.FindGameObjectWithTag("GameController") || ((GameObject.FindGameObjectWithTag("GameController")?.GetComponent<ToolController>())?.m_mode & ItemClass.Availability.Game) == ItemClass.Availability.None)
-            {
-                LogUtils.DoErrorLog("GameController NOT FOUND!");
-                return;
-            }
-        }
+        private bool m_dirtyRegionalLines;
 
         public static Color AutoColor(ushort i, bool ignoreRandomIfSet = true, bool ignoreAnyIfSet = false)
         {
-            TransportLine t = TransportManager.instance.m_lines.m_buffer[i];
+            ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[i];
             try
             {
-                var tsd = TransportSystemDefinition.GetDefinitionForLine(i);
+                var tsd = TransportSystemDefinition.GetDefinitionForLine(i, false);
                 if (tsd == default || (((t.m_flags & TransportLine.Flags.CustomColor) > 0) && ignoreAnyIfSet))
                 {
                     return Color.clear;
@@ -128,27 +107,109 @@ namespace Klyte.TransportLinesManager
             }
         }
 
-        public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, out _));
-        public void OnRenameStationAction(string autoName)
-        {
-
-        }
+        public static void AutoName(ushort m_LineID) => TLMLineUtils.SetLineName(m_LineID, TLMLineUtils.CalculateAutoName(m_LineID, false, out _));
 
         //------------------------------------
 
         protected override void StartActions()
         {
+            BuildingLines = gameObject.AddComponent<BuildingTransportLinesCache>();
+
             TLMTransportTypeDataContainer.Instance.RefreshCapacities();
 
-            using (var x = new EnumerableActionThread(new Func<ThreadBase, IEnumerator>(VehicleUtils.UpdateCapacityUnits)))
+            StartCoroutine(VehicleUtils.UpdateCapacityUnits());
+            InitWipSidePanels();
+
+            m_dirtyRegionalLines = true;
+        }
+
+        internal static bool UpdateRegionalLinesFromBuilding(ushort buildingId)
+        {
+            if (TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId) != null)
             {
-                TLMNearLinesController.InitNearLinesOnWorldInfoPanel();
+                TransportLinesManagerMod.Controller.m_dirtyRegionalLines = true;
+                return true;
+            }
+            return false;
+        }
+        internal static bool UpdateRegionalLinesFromNode(ushort nodeId)
+        {
+            if (TransportLinesManagerMod.Controller.BuildingLines[nodeId] != null)
+            {
+                TransportLinesManagerMod.Controller.m_dirtyRegionalLines = true;
+                return true;
+            }
+            return false;
+        }
+
+        public void Update()
+        {
+            if (m_dirtyRegionalLines)
+            {
+                foreach (var item in TLMBuildingDataContainer.Instance.GetAvailableEntries())
+                {
+                    if (item.TlmManagedRegionalLines)
+                    {
+                        TransportLinesManagerMod.Controller.BuildingLines.SafeGet((ushort)(item.Id ?? 0));
+                        if (TLMFacade.Instance != null)
+                        {
+                            foreach (var plats in item.PlatformMappings.Values)
+                            {
+                                foreach (var regLine in plats.TargetOutsideConnections)
+                                {
+                                    TLMFacade.Instance.OnRegionalLineParameterChanged(regLine.Value.m_nodeStation);
+                                }
+                            }
+                        }
+                    }
+                }
+                m_dirtyRegionalLines = false;
             }
         }
 
+        private static void InitWipSidePanels()
+        {
+            BuildingWorldInfoPanel[] panelList = UIView.GetAView().GetComponentsInChildren<BuildingWorldInfoPanel>();
+            LogUtils.DoLog("WIP LIST: [{0}]", string.Join(", ", panelList.Select(x => x.name).ToArray()));
+            TLMLineItemButtonControl.EnsureTemplate();
+            foreach (BuildingWorldInfoPanel wip in panelList)
+            {
+                LogUtils.DoLog("LOADING WIP HOOK FOR: {0}", wip.name);
+                UIComponent parent = wip.GetComponent<UIComponent>();
+                if (parent is null)
+                {
+                    continue;
+                }
+                KlyteMonoUtils.CreateUIElement(out UIPanel parent2, parent.transform, "TLMSidePanels", new Vector4(parent.width + 15, 50, 300, 0));
+                parent2.autoLayout = true;
+                parent2.autoLayoutPadding.bottom = 5;
+                parent2.autoFitChildrenVertically = true;
+                parent2.autoLayoutDirection = LayoutDirection.Vertical;
+                var isGrow = wip is ZonedBuildingWorldInfoPanel;
+                var controller = TLMNearLinesController.InitPanelNearLinesOnWorldInfoPanel(parent2);
+                parent.eventVisibilityChanged += (x, y) => controller?.EventWIPChanged(isGrow);
+                parent.eventPositionChanged += (x, y) => controller?.EventWIPChanged(isGrow);
+                parent.eventSizeChanged += (x, y) => controller?.EventWIPChanged(isGrow);
+                if (wip is CityServiceWorldInfoPanel)
+                {
+                    var controllerP = TLMRegionalPlatformSelection.Init(parent2);
+                    parent.eventVisibilityChanged += (x, y) => controllerP?.EventWIPChanged();
+                    parent.eventPositionChanged += (x, y) => controllerP?.EventWIPChanged();
+                    parent.eventSizeChanged += (x, y) => controllerP?.EventWIPChanged();
+                    NetManagerOverrides.EventNodeChanged += (x) =>
+                    {
+                        controllerP?.EventWIPChanged();
+                        controller?.EventWIPChanged(isGrow);
+                    };
+                }
+
+            }
+
+        }
+
+
         public void OpenTLMPanel() => TransportLinesManagerMod.Instance.OpenPanelAtModTab();
         public void CloseTLMPanel() => TransportLinesManagerMod.Instance.ClosePanel();
-
 
         public IEnumerator RenameCoroutine(ushort id, string newName)
         {
@@ -156,7 +217,8 @@ namespace Klyte.TransportLinesManager
             {
                 AsyncTask<bool> task = Singleton<SimulationManager>.instance.AddAction(Singleton<TransportManager>.instance.SetLineName(id, newName));
                 yield return task.WaitTaskCompleted(this);
-                if (UVMPublicTransportWorldInfoPanel.GetLineID() == id)
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+                if (id > 0 && lineId == id && !fromBuilding)
                 {
                     UVMPublicTransportWorldInfoPanel.m_obj.m_nameField.text = Singleton<TransportManager>.instance.GetLineName(id);
                 }
@@ -171,6 +233,32 @@ namespace Klyte.TransportLinesManager
             ConnectorWTS = PluginUtils.GetImplementationTypeForMod<BridgeWTS, BridgeWTSFallback, IBridgeWTS>(gameObject, "KlyteWriteTheSigns", "0.3.0.0");
         }
 
+
+
+
+        internal static readonly Color[] COLOR_ORDER = new Color[]
+             {
+                Color.red,
+                Color.Lerp(Color.red, Color.yellow,0.5f),
+                Color.yellow,
+                Color.green,
+                Color.cyan,
+                Color.blue,
+                Color.Lerp(Color.blue, Color.magenta,0.5f),
+                Color.magenta,
+                Color.white,
+                Color.black,
+                Color.Lerp( Color.red,                                    Color.black,0.5f),
+                Color.Lerp( Color.Lerp(Color.red, Color.yellow,0.5f),     Color.black,0.5f),
+                Color.Lerp( Color.yellow,                                 Color.black,0.5f),
+                Color.Lerp( Color.green,                                  Color.black,0.5f),
+                Color.Lerp( Color.cyan,                                   Color.black,0.5f),
+                Color.Lerp( Color.blue,                                   Color.black,0.5f),
+                Color.Lerp( Color.Lerp(Color.blue, Color.magenta,0.5f),   Color.black,0.5f),
+                Color.Lerp( Color.magenta,                                Color.black,0.5f),
+                Color.Lerp( Color.white,                                  Color.black,0.25f),
+                Color.Lerp( Color.white,                                  Color.black,0.75f)
+             };
     }
 
 }

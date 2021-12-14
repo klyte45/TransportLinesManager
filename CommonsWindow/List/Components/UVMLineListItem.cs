@@ -14,10 +14,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
     {
         private static readonly Color32 BackgroundColor = new Color32(49, 52, 58, 255);
         private static readonly Color32 BrokenBackgroundColor = new Color32(80, 26, 24, 255);
+        private static readonly Color32 Line0BackgroundColor = new Color32(88, 28, 124, 255);
         private static readonly Color32 ForegroundColor = new Color32(185, 221, 254, 255);
-        private static readonly Color32 SelectionBgColor = new Color32(233, 201, 148, 255);
 
-        private ushort m_lineID;
+        private ushort m_lineID = ushort.MaxValue;
 
         private UICheckBox m_lineIsVisible;
 
@@ -33,12 +33,14 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         private UILabel m_linePassengers;
 
         private UIButton m_lineNumberFormatted;
+        private UIButton m_deleteLine;
 
         private UILabel m_lineBalance;
 
         private UIPanel m_background;
         private bool m_mouseIsOver;
-
+        private UIButton m_buttonAutoName;
+        private UIButton m_buttonAutoColor;
 
         private bool m_isUpdatingVisibility = false;
 
@@ -59,84 +61,112 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         private void SetLineID(ushort id)
         {
-            m_lineID = id;
+            m_lineID = id >= TransportManager.MAX_LINE_COUNT ? throw new System.Exception($"INVALID LINE IDX: {id}") : id;
             m_lastUpdate = 0;
         }
 
         public void RefreshData(bool updateColors, bool updateVisibility)
         {
-
-            m_lineName.text = Singleton<TransportManager>.instance.GetLineName(m_lineID);
-            LineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_lineNumber;
-
-
-            int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_passengers.m_residentPassengers.m_averageCount;
-            int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_passengers.m_touristPassengers.m_averageCount;
-            m_linePassengers.text = (averageCount + averageCount2).ToString("N0");
-
-            m_linePassengers.tooltip = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
+            if (m_lineID < Singleton<TransportManager>.instance.m_lines.m_buffer.Length)
             {
+                if (m_lineID > 0)
+                {
+                    m_lineName.text = Singleton<TransportManager>.instance.GetLineName(m_lineID);
+                    LineNumber = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_lineNumber;
+
+
+                    int averageCount = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_passengers.m_residentPassengers.m_averageCount;
+                    int averageCount2 = (int)Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_passengers.m_touristPassengers.m_averageCount;
+                    m_linePassengers.isVisible = true;
+                    m_linePassengers.text = (averageCount + averageCount2).ToString("N0");
+
+                    m_linePassengers.tooltip = LocaleFormatter.FormatGeneric("TRANSPORT_LINE_PASSENGERS", new object[]
+                    {
                 averageCount,
                 averageCount2
-            });
-            TLMLineUtils.SetLineNumberCircleOnRef(LineID, m_lineNumberFormatted, 0.8f);
-            m_lineColor.atlas = m_linePassengers.atlas;
-            m_lineColor.normalFgSprite = TLMLineUtils.GetIconForLine(LineID);
+                    });
+                    TLMLineUtils.SetLineNumberCircleOnRef(LineID, false, m_lineNumberFormatted, 0.8f);
+                    m_lineColor.atlas = m_linePassengers.atlas;
+                    m_lineColor.normalFgSprite = TLMLineUtils.GetIconForLine(LineID, false);
+                    m_lineColor.isVisible = true;
+                    m_deleteLine.isVisible = true;
+                    m_buttonAutoName.isVisible = true;
+                    m_buttonAutoColor.isVisible = true;
+                    m_lineStops.isVisible = true;
+
+                    PassengerCountsInt = averageCount + averageCount2;
+
+                    SetBackgroundColor(((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None));
+
+                    m_lineIsVisible.isVisible = true;
+                    var tsd = TransportSystemDefinition.FromLineId(m_lineID, false);
+                    if (updateColors)
+                    {
+                        m_lineColor.selectedColor = Singleton<TransportManager>.instance.GetLineColor(m_lineID);
+                    }
+                    if (updateVisibility)
+                    {
+                        m_isUpdatingVisibility = true;
+                        m_lineIsVisible.isChecked = ((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Hidden) == TransportLine.Flags.None);
+                        m_isUpdatingVisibility = false;
+                    }
 
 
-            PassengerCountsInt = averageCount + averageCount2;
-
-            SetBackgroundColor(((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None));
-
-            var tsd = TransportSystemDefinition.From(m_lineID);
-            if (updateColors)
-            {
-                m_lineColor.selectedColor = Singleton<TransportManager>.instance.GetLineColor(m_lineID);
-            }
-            if (updateVisibility)
-            {
-                m_isUpdatingVisibility = true;
-                m_lineIsVisible.isChecked = ((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Hidden) == TransportLine.Flags.None);
-                m_isUpdatingVisibility = false;
-
-            }
+                    if (tsd.HasVehicles())
+                    {
+                        m_lineVehicles.isVisible = true;
+                        TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].Info;
+                        float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
 
 
-            if (tsd.HasVehicles())
-            {
-                m_lineVehicles.isVisible = true;
-                TransportInfo info = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].Info;
-                float overallBudget = Singleton<EconomyManager>.instance.GetBudget(info.m_class) / 100f;
+                        string vehTooltip = string.Format("{0} {1}", m_lineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
+                        m_lineVehicles.tooltip = vehTooltip;
+                        m_lineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].CountStops(m_lineID).ToString("N0");
+                        m_lineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].CountVehicles(m_lineID).ToString("N0");
 
+                        TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(LineID, out long income, out long expense);
+                        long balance = (income - expense);
+                        m_lineBalance.text = (balance / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
+                        m_lineBalance.textColor = balance >= 0 ? ColorExtensions.FromRGB("00c000") : ColorExtensions.FromRGB("c00000");
+                        m_lineBalance.isVisible = true;
 
-                string vehTooltip = string.Format("{0} {1}", m_lineVehicles.text, Locale.Get("PUBLICTRANSPORT_VEHICLES"));
-                m_lineVehicles.tooltip = vehTooltip;
-                m_lineStops.text = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].CountStops(m_lineID).ToString("N0");
-                m_lineVehicles.text = Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].CountVehicles(m_lineID).ToString("N0");
+                        m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.GetEffectiveBudget(LineID));
+                        m_lineBudgetLabel.tooltip = string.Format(Locale.Get("K45_TLM_LINE_BUDGET_EXPLAIN_2"),
+                            Locale.Get("TRANSPORT_LINE", Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].Info.m_transportType.ToString()),
+                            overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[LineID].m_budget / 100f, TLMLineUtils.GetEffectiveBudget(LineID));
+                        m_lineBudgetLabel.isVisible = true;
 
-                TLMTransportLineStatusesManager.instance.GetLastWeekIncomeAndExpensesForLine(LineID, out long income, out long expense);
-                long balance = (income - expense);
-                m_lineBalance.text = (balance / 100.0f).ToString(Settings.moneyFormat, LocaleManager.cultureInfo);
-                m_lineBalance.textColor = balance >= 0 ? ColorExtensions.FromRGB("00c000") : ColorExtensions.FromRGB("c00000");
-                m_lineBalance.isVisible = true;
-
-                m_lineBudgetLabel.text = string.Format("{0:0%}", TLMLineUtils.GetEffectiveBudget(LineID));
-                m_lineBudgetLabel.tooltip = string.Format(Locale.Get("K45_TLM_LINE_BUDGET_EXPLAIN_2"),
-                    Locale.Get("TRANSPORT_LINE", Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].Info.m_transportType.ToString()),
-                    overallBudget, Singleton<TransportManager>.instance.m_lines.m_buffer[LineID].m_budget / 100f, TLMLineUtils.GetEffectiveBudget(LineID));
-                m_lineBudgetLabel.isVisible = true;
-
-            }
-            else
-            {
-                m_lineBudgetLabel.isVisible = false;
-                m_lineBalance.isVisible = false;
+                    }
+                    else
+                    {
+                        m_lineBudgetLabel.isVisible = false;
+                        m_lineBalance.isVisible = false;
+                        m_lineVehicles.isVisible = false;
+                    }
+                }
+                else
+                {
+                    var currentTSD = TLMPanel.Instance.m_linesPanel.TSD;
+                    m_lineName.text = string.Format(Locale.Get("K45_TLM_OUTSIDECONNECTION_LISTNAMETEMPLATE"), currentTSD.GetTransportName());
+                    LineNumber = 0;
+                    m_linePassengers.isVisible = false;
+                    m_lineColor.isVisible = false;
+                    m_lineBudgetLabel.isVisible = false;
+                    m_lineBalance.isVisible = false;
+                    m_lineIsVisible.isVisible = false;
+                    m_deleteLine.isVisible = false;
+                    m_buttonAutoName.isVisible = false;
+                    m_buttonAutoColor.isVisible = false;
+                    m_lineVehicles.isVisible = false;
+                    m_lineStops.isVisible = false;
+                    SetBackgroundColor(false, true);
+                }
             }
         }
 
-        public void SetBackgroundColor(bool broken = true)
+        public void SetBackgroundColor(bool broken = false, bool lineZero = false)
         {
-            Color32 backgroundColor = !broken ? BackgroundColor : BrokenBackgroundColor;
+            Color32 backgroundColor = lineZero ? Line0BackgroundColor : !broken ? BackgroundColor : BrokenBackgroundColor;
             backgroundColor.a = !broken ? (byte)((base.component.zOrder % 2 != 0) ? 127 : 255) : (byte)Mathf.Lerp(127, 255, Mathf.Abs((SimulationManager.instance.m_currentTickIndex % 60 / 30f) - 1));
             if (m_mouseIsOver)
             {
@@ -155,6 +185,10 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             {
                 RefreshData(m_lastUpdate == 0, m_lastUpdate == 0);
                 m_lastUpdate = SimulationManager.instance.m_referenceFrameIndex;
+            }
+            else if (m_lineID > 0 && m_lineID < Singleton<TransportManager>.instance.m_lines.m_buffer.Length && ((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Complete) == TransportLine.Flags.None))
+            {
+                SetBackgroundColor(true);
             }
         }
 
@@ -175,21 +209,17 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         public void ChangeLineVisibility(bool r)
         {
-            if (m_lineID != 0 & !m_isUpdatingVisibility)
+            if (m_lineID < Singleton<TransportManager>.instance.m_lines.m_buffer.Length && m_lineID != 0 && !m_isUpdatingVisibility)
             {
-                Singleton<SimulationManager>.instance.AddAction(delegate
+                Singleton<SimulationManager>.instance.AddAction(() =>
                 {
                     if (r)
                     {
-                        ref TransportLine[] expr_2A_cp_0 = ref Singleton<TransportManager>.instance.m_lines.m_buffer;
-                        ushort expr_2A_cp_1 = m_lineID;
-                        expr_2A_cp_0[expr_2A_cp_1].m_flags = (expr_2A_cp_0[expr_2A_cp_1].m_flags & ~TransportLine.Flags.Hidden);
+                        Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags &= ~TransportLine.Flags.Hidden;
                     }
                     else
                     {
-                        ref TransportLine[] expr_5C_cp_0 = ref Singleton<TransportManager>.instance.m_lines.m_buffer;
-                        ushort expr_5C_cp_1 = m_lineID;
-                        expr_5C_cp_0[expr_5C_cp_1].m_flags = (expr_5C_cp_0[expr_5C_cp_1].m_flags | TransportLine.Flags.Hidden);
+                        Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags |= TransportLine.Flags.Hidden;
                     }
                 });
             }
@@ -197,7 +227,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
 
         public void DoAutoColor() => TLMController.AutoColor(m_lineID);
 
-        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, out _));
+        public void DoAutoName() => TLMLineUtils.SetLineName(m_lineID, TLMLineUtils.CalculateAutoName(m_lineID, false, out _));
 
         private void OnMouseEnter(UIComponent comp, UIMouseEventParameter param)
         {
@@ -210,9 +240,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     {
                         if ((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
                         {
-                            ref TransportLine[] expr_40_cp_0 = ref Singleton<TransportManager>.instance.m_lines.m_buffer;
-                            ushort expr_40_cp_1 = m_lineID;
-                            expr_40_cp_0[expr_40_cp_1].m_flags = (expr_40_cp_0[expr_40_cp_1].m_flags | TransportLine.Flags.Highlighted);
+                            Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags |= TransportLine.Flags.Highlighted;
                         }
                     });
                 }
@@ -230,9 +258,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                     {
                         if ((Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags & TransportLine.Flags.Created) != TransportLine.Flags.None)
                         {
-                            ref TransportLine[] expr_40_cp_0 = ref Singleton<TransportManager>.instance.m_lines.m_buffer;
-                            ushort expr_40_cp_1 = m_lineID;
-                            expr_40_cp_0[expr_40_cp_1].m_flags = (expr_40_cp_0[expr_40_cp_1].m_flags & ~TransportLine.Flags.Highlighted);
+                            Singleton<TransportManager>.instance.m_lines.m_buffer[m_lineID].m_flags &= ~TransportLine.Flags.Highlighted;
                         }
                     });
                 }
@@ -274,16 +300,16 @@ namespace Klyte.TransportLinesManager.CommonsWindow
             m_lineVehicles = Find<UILabel>("LineVehicles");
             m_lineVehicles = Find<UILabel>("LineVehicles");
             var viewLine = Find<UIButton>("ViewLine");
-            var deleteLine = Find<UIButton>("DeleteLine");
+            m_deleteLine = Find<UIButton>("DeleteLine");
             m_lineBudgetLabel = Find<UILabel>("LineBudget");
             m_lineIsVisible = Find<UICheckBox>("LineVisibility");
             m_lineColor = Find<UIColorField>("LineColor");
             m_lineNumberFormatted = m_lineColor.GetComponentInChildren<UIButton>();
-            var buttonAutoName = Find<UIButton>("AutoNameBtn");
-            var buttonAutoColor = Find<UIButton>("AutoColorBtn");
+            m_buttonAutoName = Find<UIButton>("AutoNameBtn");
+            m_buttonAutoColor = Find<UIButton>("AutoColorBtn");
 
-            buttonAutoName.eventClick += (component, eventParam) => DoAutoName();
-            buttonAutoColor.eventClick += (component, eventParam) => DoAutoColor();
+            m_buttonAutoName.eventClick += (component, eventParam) => DoAutoName();
+            m_buttonAutoColor.eventClick += (component, eventParam) => DoAutoColor();
 
             viewLine.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
              {
@@ -293,11 +319,17 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                      InstanceID iid = InstanceID.Empty;
                      iid.TransportLine = m_lineID;
                      WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(position, iid);
-
+                 }
+                 else
+                 {
+                     Vector3 position = default;
+                     InstanceID iid = InstanceID.Empty;
+                     iid.Set(TLMInstanceType.TransportSystemDefinition, TLMPanel.Instance.m_linesPanel.TSD.Id);
+                     WorldInfoPanel.Show<PublicTransportWorldInfoPanel>(position, iid);
                  }
              };
 
-            deleteLine.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
+            m_deleteLine.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
             {
                 if (m_lineID != 0)
                 {
@@ -308,7 +340,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                             Singleton<SimulationManager>.instance.AddAction(delegate
                             {
                                 Singleton<TransportManager>.instance.ReleaseLine(m_lineID);
-                                GameObject.Destroy(gameObject);
+
                             });
                         }
                     });
@@ -378,6 +410,8 @@ namespace Klyte.TransportLinesManager.CommonsWindow
                 }
             };
         }
+
+        protected void Start() => m_lineColor.gameObject.AddComponent<UIColorFieldExtension>();
 
         public const string LINE_LIST_ITEM_TEMPLATE = "K45_TLM_LineListItemTemplate";
         public static void EnsureTemplate()

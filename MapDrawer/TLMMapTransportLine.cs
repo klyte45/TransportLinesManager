@@ -1,7 +1,6 @@
 ﻿using ColossalFramework;
 using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -26,7 +25,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
         {
             TransportLine t = Singleton<TransportManager>.instance.m_lines.m_buffer[lineId];
             lineName = Singleton<TransportManager>.instance.GetLineName(lineId);
-            lineStringIdentifier = TLMLineUtils.GetLineStringId(lineId);
+            lineStringIdentifier = TLMLineUtils.GetLineStringId(lineId, false);
             TransportType = t.Info.m_transportType;
             subservice = t.Info.GetSubService();
             vehicleType = t.Info.m_vehicleType;
@@ -50,7 +49,7 @@ namespace Klyte.TransportLinesManager.MapDrawer
 
         public string ToJson()
         {
-            bool simmetry = GeneralUtils.FindSimetry(stations.Select(x => (int) x.stopId).ToArray(), out int middle);            
+            bool simmetry = GeneralUtils.FindSimetry(stations.Select(x => (int)x.stopId).ToArray(), out int middle);
             return $"{{\"lineId\": {lineId},\"stations\": [{string.Join(",", stations.Select(x => x.ToJson()).ToArray())}],\"transportType\": \"{TransportType}\"," +
                 $"\"subservice\": \"{subservice}\",\"vehicleType\": \"{vehicleType}\",\"lineName\": \"{lineName}\",\"lineStringIdentifier\": \"{lineStringIdentifier}\"," +
                 $"\"lineColor\": \"#{(lineColor.r.ToString("X2") + lineColor.g.ToString("X2") + lineColor.b.ToString("X2"))}\",\"activeDay\": {activeDay.ToString().ToLower()}," +

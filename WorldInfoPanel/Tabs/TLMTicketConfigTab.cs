@@ -17,8 +17,12 @@ namespace Klyte.TransportLinesManager.UI
 
         public override float GetMaxSliderValue()
         {
-            var tsd = TransportSystemDefinition.GetDefinitionForLine(ref TransportManager.instance.m_lines.m_buffer[UVMPublicTransportWorldInfoPanel.GetLineID()]);
-            return TLMLineUtils.GetTicketPriceForLine(tsd, 0).First.Value * 5;
+            if (UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding)
+            {
+                var tsd = TransportSystemDefinition.GetDefinitionForLine(ref TransportManager.instance.m_lines.m_buffer[lineId]);
+                return TLMLineUtils.GetTicketPriceForLine(tsd, 0).First.Value * 5;
+            }
+            return 0;
         }
 
         internal override List<Color> ColorOrder { get; } = new List<Color>()
@@ -35,7 +39,10 @@ namespace Klyte.TransportLinesManager.UI
             Color.red,
         };
 
-        protected override TimeableList<TicketPriceEntryXml> Config => TLMLineUtils.GetEffectiveConfigForLine(UVMPublicTransportWorldInfoPanel.GetLineID()).TicketPriceEntries;
+        protected override TimeableList<TicketPriceEntryXml> Config
+            => UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding) && !fromBuilding
+                    ? TLMLineUtils.GetEffectiveConfigForLine(lineId).TicketPriceEntries
+                    : null;
 
         protected override TicketPriceEntryXml DefaultEntry() => new TicketPriceEntryXml()
         {

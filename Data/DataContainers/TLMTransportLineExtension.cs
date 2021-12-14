@@ -48,7 +48,7 @@ namespace Klyte.TransportLinesManager.Extensions
         public List<string> GetBasicAssetListForLine(ushort lineId)
         {
 
-            var tsd = TransportSystemDefinition.From(lineId);
+            var tsd = TransportSystemDefinition.FromLineId(lineId, false);
             if (!m_basicAssetsList.ContainsKey(tsd))
             {
                 m_basicAssetsList[tsd] = TLMPrefabUtils.LoadBasicAssets(tsd);
@@ -58,7 +58,7 @@ namespace Klyte.TransportLinesManager.Extensions
         public Dictionary<string, string> GetSelectedBasicAssetsForLine(ushort lineId) => this.GetAssetListForLine(lineId).Where(x => PrefabCollection<VehicleInfo>.FindLoaded(x) != null).ToDictionary(x => x, x => Locale.Get("VEHICLE_TITLE", x));
         public Dictionary<string, string> GetAllBasicAssetsForLine(ushort lineId)
         {
-            var tsd = TransportSystemDefinition.From(lineId);
+            var tsd = TransportSystemDefinition.FromLineId(lineId, false);
             if (!m_basicAssetsList.ContainsKey(tsd))
             {
                 m_basicAssetsList[tsd] = TLMPrefabUtils.LoadBasicAssets(tsd);
@@ -88,7 +88,7 @@ namespace Klyte.TransportLinesManager.Extensions
 
         public uint GetDefaultTicketPrice(uint lineId = 0)
         {
-            var tsd = TransportSystemDefinition.From(lineId);
+            var tsd = TransportSystemDefinition.FromLineId((ushort)lineId, false);
             switch (tsd.SubService)
             {
                 case ItemClass.SubService.PublicTransportCableCar:
@@ -136,7 +136,7 @@ namespace Klyte.TransportLinesManager.Extensions
         }
         #endregion
         #region Depot
-        public uint LineToIndex(ushort lineId) => lineId;
+        public uint LineToIndex(ushort lineId) => lineId > 0 ? lineId : throw new System.Exception("Line 0 cannot have specific configuration!");
 
 
         #endregion

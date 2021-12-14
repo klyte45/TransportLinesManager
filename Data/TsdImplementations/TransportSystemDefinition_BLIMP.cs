@@ -14,7 +14,8 @@ namespace Klyte.TransportLinesManager.Extensions
             new TransferManager.TransferReason[] { TransferManager.TransferReason.Blimp },
             new Color32(0xd8, 0x01, 0xaa, 255),
             35,
-            LineIconSpriteNames.K45_ParachuteIcon);
+            LineIconSpriteNames.K45_ParachuteIcon,
+            true);
     }
 
 }

@@ -77,6 +77,27 @@ namespace Klyte.TransportLinesManager.Utils
             yield break;
         }
 
+        internal static ushort GetVehicleLine(ushort vehicleId, out bool regional)
+        {
+            ref Vehicle[] buffer7 = ref VehicleManager.instance.m_vehicles.m_buffer;
+            ref Vehicle veh = ref buffer7[buffer7[vehicleId].GetFirstVehicle(vehicleId)];
+            if (veh.m_transportLine != 0)
+            {
+                regional = false;
+                return veh.m_transportLine;
+            }
+            else if (TransportSystemDefinition.From(veh.Info).LevelIntercity != null)
+            {
+                regional = veh.m_custom != 0;
+                return veh.m_custom;
+            }
+            else
+            {
+                regional = false;
+                return 0;
+            }
+        }
+
         public static void RemoveAllUnwantedVehicles()
         {
             VehicleManager vm = Singleton<VehicleManager>.instance;

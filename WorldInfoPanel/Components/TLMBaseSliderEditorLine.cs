@@ -16,6 +16,7 @@ namespace Klyte.TransportLinesManager.UI
         protected UIPanel m_container;
         protected UITextField m_timeInput;
         protected UILabel m_value;
+        private UITextField m_valueField;
         protected UIButton m_die;
         protected UISlider m_valueSlider;
 
@@ -51,11 +52,15 @@ namespace Klyte.TransportLinesManager.UI
             m_loading = true;
             try
             {
-                ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[UVMPublicTransportWorldInfoPanel.GetLineID()];
-                m_timeInput.text = Entry.HourOfDay.ToString();
-                ExtraOnFillData(ref t);
-                m_valueSlider.value = Entry.Value;
-                m_value.text = GetValueFormat(ref t);
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+                if (!fromBuilding)
+                {
+                    ref TransportLine t = ref TransportManager.instance.m_lines.m_buffer[lineId];
+                    m_timeInput.text = Entry.HourOfDay.ToString();
+                    ExtraOnFillData(ref t);
+                    m_valueSlider.value = Entry.Value;
+                    m_value.text = GetValueFormat(ref t);
+                }
             }
             finally
             {
@@ -68,11 +73,14 @@ namespace Klyte.TransportLinesManager.UI
         protected virtual void ExtraOnFillData(ref TransportLine t) { }
 
         public abstract string GetValueFormat(ref TransportLine t);
+        public abstract uint GetValueAsInt(ref TransportLine t);
+        public abstract void SetValueFromTyping(ref TransportLine t, uint value);
 
         public void Awake()
         {
             m_container = GetComponent<UIPanel>();
             m_value = Find<UILabel>("ValueLabel");
+            m_valueField = Find<UITextField>("ValueField");
             m_timeInput = Find<UITextField>("HourInput");
             m_timeInput.eventTextSubmitted += SendText;
             m_valueSlider = GetComponentInChildren<UISlider>();
@@ -82,7 +90,44 @@ namespace Klyte.TransportLinesManager.UI
             };
             m_die = Find<UIButton>("Delete");
             m_die.eventClick += (component, eventParam) => OnDie?.Invoke(Entry);
-            KlyteMonoUtils.LimitWidthAndBox(m_value, 60);
+            KlyteMonoUtils.LimitWidthAndBox(m_value, 60, out UIPanel container, true);
+
+            container.AttachUIComponent(m_valueField.gameObject);
+
+            m_value.eventMouseEnter += delegate (UIComponent c, UIMouseEventParameter r)
+            {
+                m_value.backgroundSprite = "TextFieldPanelHovered";
+            };
+            m_value.eventMouseLeave += delegate (UIComponent c, UIMouseEventParameter r)
+            {
+                m_value.backgroundSprite = string.Empty;
+            };
+            m_value.eventClick += delegate (UIComponent c, UIMouseEventParameter r)
+            {
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+                if (!fromBuilding)
+                {
+                    m_value.Hide();
+                    m_valueField.Show();
+                    m_valueField.text = GetValueAsInt(ref TransportManager.instance.m_lines.m_buffer[lineId]).ToString();
+                    m_valueField.Focus();
+                }
+            };
+            m_valueField.eventLeaveFocus += delegate (UIComponent c, UIFocusEventParameter r)
+            {
+                UVMPublicTransportWorldInfoPanel.GetLineID(out ushort lineId, out bool fromBuilding);
+                if (!fromBuilding)
+                {
+                    m_valueField.Hide();
+                    if (uint.TryParse(m_valueField.text, out uint val))
+                    {
+                        SetValueFromTyping(ref TransportManager.instance.m_lines.m_buffer[lineId], val);
+                    }
+                    m_value.Show();
+                }
+
+            };
+
         }
 
         protected static void EnsureTemplate(string templateName)
@@ -121,6 +166,21 @@ namespace Klyte.TransportLinesManager.UI
             m_value.textAlignment = UIHorizontalAlignment.Center;
             m_value.padding = new RectOffset(3, 3, 5, 3);
             m_value.processMarkup = true;
+
+
+            KlyteMonoUtils.CreateUIElement(out UITextField m_valueField, m_container.transform, "ValueField", new Vector4(0, 0, 60, 26));
+            m_valueField.numericalOnly = true;
+            m_valueField.allowNegative = false;
+            m_valueField.allowFloats = false;
+            m_valueField.text = "";
+            m_valueField.maxLength = 5;
+            m_valueField.verticalAlignment = UIVerticalAlignment.Middle;
+            m_valueField.horizontalAlignment = UIHorizontalAlignment.Center;
+            m_valueField.selectionSprite = "EmptySprite";
+            m_valueField.builtinKeyNavigation = true;
+            m_valueField.isVisible = false;
+            m_valueField.padding.top = 5;
+            m_valueField.textScale = 1.125f;
 
             var m_ValueSlider = UIHelperExtension.AddSlider(m_container, null, 0, 500, 5, -1,
                  (x) =>
@@ -164,7 +224,7 @@ namespace Klyte.TransportLinesManager.UI
             UITemplateUtils.GetTemplateDict()[templateName] = m_container;
         }
 
-        private void SetValue(float val)
+        protected void SetValue(float val)
         {
             if (m_loading)
             {

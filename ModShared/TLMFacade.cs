@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Utils;
 using Klyte.TransportLinesManager.Xml;
@@ -38,6 +39,13 @@ namespace Klyte.TransportLinesManager.ModShared
             }
         }
 
+        internal void OnRegionalLineParameterChanged(ushort regionalLine)
+        {
+            if (LoadingManager.instance.m_loadingComplete)
+            {
+                EventRegionalLineParameterChanged?.Invoke(regionalLine);
+            }
+        }
         internal void OnLineDestinationsChanged(ushort lineId)
         {
             if (LoadingManager.instance.m_loadingComplete)
@@ -54,15 +62,30 @@ namespace Klyte.TransportLinesManager.ModShared
         public event Action EventAutoNameParameterChanged;
         public event Action EventVehicleIdentifierParameterChanged;
         public event Action<ushort> EventLineDestinationsChanged;
+        public event Action<ushort> EventRegionalLineParameterChanged;
 
+        [Obsolete("Use version with regional line flag", true)]
         public static string GetFullStationName(ushort stopId, ushort lineId, ItemClass.SubService subService) =>
+             GetFullStationName(stopId, lineId, false, subService);
+        public ushort GetVehicleLine(ushort vehicleId, out bool regional) => TLMVehicleUtils.GetVehicleLine(vehicleId, out regional);
+        public static string GetFullStationName(ushort stopId, ushort lineId, bool regional, ItemClass.SubService subService) =>
             stopId == 0 ? ""
-                : TLMLineUtils.IsRoadLine(lineId) ? TLMStationUtils.GetFullStationName(stopId, lineId, subService)
-                : TLMStationUtils.GetStationName(stopId, lineId, subService);
+                : TLMLineUtils.IsRoadLine(lineId, regional) ? TLMStationUtils.GetFullStationName(stopId, lineId, subService, regional)
+                : TLMStationUtils.GetStationName(stopId, lineId, subService, regional);
 
-        public static Tuple<string, Color, string> GetIconStringParameters(ushort lineID) => TLMLineUtils.GetIconStringParameters(lineID);
-        public static ushort GetStationBuilding(ushort stopId, ushort lineId) => TLMStationUtils.GetStationBuilding(stopId, lineId);
-        public static string GetLineSortString(ushort lineId, ref TransportLine transportLine) => TLMLineUtils.GetLineSortString(lineId, ref transportLine);
+        [Obsolete("Use version with regional line flag", true)]
+        public static Tuple<string, Color, string> GetIconStringParameters(ushort lineID) => TLMLineUtils.GetIconStringParameters(lineID, false);
+        public static int GetStopLine(ushort stopId, out bool isBuilding) => TLMLineUtils.GetStopLine(stopId, out isBuilding);
+        public static string GetLineName(ushort lineId, bool regional) => TLMLineUtils.GetLineName(lineId, regional);
+        public static Tuple<string, Color, string> GetIconStringParameters(ushort lineID, bool regionalLine) => TLMLineUtils.GetIconStringParameters(lineID, regionalLine);
+        [Obsolete("Use version with regional line flag", true)]
+        public static ushort GetStationBuilding(ushort stopId, ushort lineId) => TLMStationUtils.GetStationBuilding(stopId, lineId, false);
+        public static Color GetLineColor(ushort lineId, bool regional) => TLMLineUtils.GetLineColor(lineId, regional);
+        public static ushort GetStationBuilding(ushort stopId, ushort lineId, bool regional) => TLMStationUtils.GetStationBuilding(stopId, lineId, regional);
+
+        [Obsolete("Use version with regional line flag", true)]
+        public static string GetLineSortString(ushort lineId, ref TransportLine transportLine) => TLMLineUtils.GetLineSortString(lineId, false);
+        public static string GetLineSortString(ushort lineId, bool regional) => TLMLineUtils.GetLineSortString(lineId, regional);
 
         public string GetVehicleIdentifier(ushort vehicleId)
         {
@@ -91,7 +114,7 @@ namespace Klyte.TransportLinesManager.ModShared
                     ref TransportLine tl2 = ref TransportManager.instance.m_lines.m_buffer[tlId];
                     if (TLMPrefixesUtils.HasPrefix(ref tl2))
                     {
-                        var tsd2 = TransportSystemDefinition.From(tl2.Info);
+                        var tsd2 = TransportSystemDefinition.FromLocal(tl2.Info);
                         var prefix = (int)TLMPrefixesUtils.GetPrefix(tlId);
                         linePrefix = TLMPrefixesUtils.GetStringFromNameMode(tsd2.GetConfig().Prefix, prefix).Trim().PadLeft(3, '\0');
                     }
@@ -262,7 +285,7 @@ namespace Klyte.TransportLinesManager.ModShared
         [Obsolete("Deprecated in TLM14, use the alternative signature with destination list.", true)]
         public static void CalculateAutoName(ushort lineId, out ushort startStation, out ushort endStation, out string startStationStr, out string endStationStr)
         {
-            TLMLineUtils.CalculateAutoName(lineId, out List<DestinationPoco> destinations);
+            TLMLineUtils.CalculateAutoName(lineId, false, out List<DestinationPoco> destinations);
             if (destinations.Count > 0)
             {
                 startStation = destinations.First().stopId;
@@ -277,10 +300,32 @@ namespace Klyte.TransportLinesManager.ModShared
             }
 
         }
+        [Obsolete("Deprecated in TLM14, use the alternative signature with regional parameter.", true)]
         public static void CalculateAutoName(ushort lineId, out List<DestinationPoco> destinations)
-            => TLMLineUtils.CalculateAutoName(lineId, out destinations);
+            => TLMLineUtils.CalculateAutoName(lineId, false, out destinations);
+        public static void CalculateAutoName(ushort lineId, bool regional, out List<DestinationPoco> destinations)
+            => TLMLineUtils.CalculateAutoName(lineId, regional, out destinations);
 
-        public static string GetLineStringId(ushort lineId) => TLMLineUtils.GetLineStringId(lineId);
+        [Obsolete("Use version with boolean indicator for regional lines", true)]
+        public static string GetLineStringId(ushort lineId) => TLMLineUtils.GetLineStringId(lineId, false);
+        public static string GetLineStringId(ushort lineId, bool regionalLine) => TLMLineUtils.GetLineStringId(lineId, regionalLine);
+        public static bool GetRegionalLineParameters(ushort buildingStopId, out string Identifier, out string formatBg, out Color color)
+        {
+            if (TransportLinesManagerMod.Controller.BuildingLines[buildingStopId] is InnerBuildingLine ibl && ibl.LineDataObject is OutsideConnectionLineInfo ocli)
+            {
+                Identifier = ocli.Identifier;
+                formatBg = ocli.LineBgSprite.ToString();
+                color = ocli.LineColor;
+                return true;
+            }
+            else
+            {
+                Identifier = null;
+                formatBg = null;
+                color = default;
+                return false;
+            }
+        }
 
         public class DestinationPoco
         {

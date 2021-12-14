@@ -14,7 +14,8 @@ namespace Klyte.TransportLinesManager.Extensions
             new TransferManager.TransferReason[] { TransferManager.TransferReason.Fish },
             new Color(.671f, .333f, 0, 1),
             1,
-            default);
+            default,
+            false);
     }
 
 }

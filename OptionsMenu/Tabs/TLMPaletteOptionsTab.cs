@@ -142,7 +142,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
 
             KlyteMonoUtils.CreateUIElement(out UIColorField colorField, panel.transform);
             KlyteMonoUtils.InitColorField(colorField, 36);
-            var triggerButton = UIHelperExtension.AddLabel(colorField, "0", 36);
+            var triggerButton = UIHelperExtension.AddLabel(colorField, "0", 36, out _);
             triggerButton.autoSize = false;
             triggerButton.size = colorField.size;
             triggerButton.backgroundSprite = "ColorPickerOutline";
@@ -199,7 +199,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                             StartCoroutine(SavePalette(paletteName));
                         }
                     };
-                    colorField.eventColorPickerOpen += KlyteMonoUtils.DefaultColorPickerHandler;
+                    colorField.gameObject.AddComponent<UIColorFieldExtension>();
                     colorField.objectUserData = true;
                 }
                 (colorField.triggerButton as UILabel).text = $"{i.ToString("0")}";
