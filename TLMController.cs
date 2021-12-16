@@ -229,8 +229,8 @@ namespace Klyte.TransportLinesManager
         internal void Awake()
         {
             SharedInstance = gameObject.AddComponent<TLMFacade>();
-            ConnectorADR = PluginUtils.GetImplementationTypeForMod<BridgeADR, BridgeADRFallback, IBridgeADR>(gameObject, "KlyteAddresses", "2.99.99.0");
-            ConnectorWTS = PluginUtils.GetImplementationTypeForMod<BridgeWTS, BridgeWTSFallback, IBridgeWTS>(gameObject, "KlyteWriteTheSigns", "0.3.0.0");
+            ConnectorADR = PluginUtils.GetImplementationTypeForMod<BridgeADRFallback, IBridgeADR>(gameObject, "KlyteAddresses", "2.99.99.0", "Klyte.TransportLinesManager.ModShared.BridgeADR");
+            ConnectorWTS = PluginUtils.GetImplementationTypeForMod<BridgeWTSFallback, IBridgeWTS>(gameObject, "KlyteWriteTheSigns", "0.3.0.0", "Klyte.TransportLinesManager.ModShared.BridgeWTS");
         }
 
 
