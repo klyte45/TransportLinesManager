@@ -12,7 +12,7 @@ using Klyte.TransportLinesManager.Xml;
 using System.Collections.Generic;
 using System.Reflection;
 
-[assembly: AssemblyVersion("14.2.0.1")]
+[assembly: AssemblyVersion("14.2.0.9")]
 namespace Klyte.TransportLinesManager
 {
     public class TransportLinesManagerMod : BasicIUserMod<TransportLinesManagerMod, TLMController, TLMPanel>
@@ -20,7 +20,6 @@ namespace Klyte.TransportLinesManager
         public override string SimpleName => "Transport Lines Manager";
         public override string Description => "Allows to customize and manage your public transport systems.";
         public override bool UseGroup9 => false;
-
 
         protected override List<ulong> IncompatibleModList { get; } = new List<ulong>()
         {
