@@ -19,7 +19,7 @@
 	- Fixed issues with the linear map not being properly updated
 	- Removed invalid references to unloaded DLLs
 	- Fixed CTD when a integrable mod (UUI, ADR or WTS) is not subscribed
-
-<color #FFFF00>r8 16/DEC/21:</color>
-	- Fixed near lines panel disappearing after checking a building with no near lines
 	- Fixed font glitch related crashes
+	   
+<color #FFFF00>r9 03/JAN/22:</color>
+	- Fixed issue preventing intercity buses to work properly
