@@ -130,9 +130,9 @@ namespace Klyte.TransportLinesManager
 
         private void UpdateNearLines(bool show, bool force = false)
         {
+            m_containerParent.isVisible = show;
             if (!show)
             {
-                m_containerParent.isVisible = false;
                 return;
             }
             ushort buildingId = WorldInfoPanel.GetCurrentInstanceID().Building;
