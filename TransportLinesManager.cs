@@ -21,10 +21,15 @@ namespace Klyte.TransportLinesManager
         public override string Description => "Allows to customize and manage your public transport systems.";
         public override bool UseGroup9 => false;
 
-        protected override List<ulong> IncompatibleModList { get; } = new List<ulong>()
+        protected override Dictionary<ulong, string> IncompatibleModList { get; } = new Dictionary<ulong, string>();
+
+        public TransportLinesManagerMod() : base()
         {
-            TLMController.IPT2_MOD_ID
-        };
+            IncompatibleModList[TLMController.IPT2_MOD_ID] = "IPT2 is incompatible since TLM changes the same code behavior. Isn't recommended to use both together.";
+            IncompatibleModList[TLMController.RETURN_VEHICLE_MOD_ID] = "Transport Vehicle Return Patch is not necessary to use along the TLM since version 14." +
+            " With the introduction of the Express Buses system, now the vehicles are emptied in the next terminal stop before get to the depot.";
+        }
+
         protected override List<string> IncompatibleDllModList { get; } = new List<string>()
         {
             "ImprovedPublicTransport2"
