@@ -120,7 +120,7 @@ namespace Klyte.TransportLinesManager
             {
                 m_title.eventCheckChanged -= OnToggleUseTlmSettings;
                 var building = WorldInfoPanel.GetCurrentInstanceID().Building;
-                var show = BuildingManager.instance.m_buildings.m_buffer[building].Info.m_buildingAI is TransportStationAI tsai && tsai.m_transportInfo?.m_class.m_subService == ItemClass.SubService.PublicTransportTrain;
+                var show = BuildingManager.instance.m_buildings.m_buffer[building].Info.m_buildingAI is TransportStationAI tsai && (tsai.m_transportLineInfo?.m_class.m_subService == ItemClass.SubService.PublicTransportTrain);
 
                 UpdateNearPlatforms(show);
                 m_title.eventCheckChanged += OnToggleUseTlmSettings;

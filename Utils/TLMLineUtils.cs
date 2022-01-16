@@ -51,10 +51,10 @@ namespace Klyte.TransportLinesManager.Utils
             Vector3 position = nm.m_nodes.m_buffer[currentStop].m_position;
             Vector3 position2 = nm.m_nodes.m_buffer[nextStop].m_position;
             nm.m_nodes.m_buffer[currentStop].m_maxWaitTime = 0;
-            int minX = Mathf.Max((int)(((position.x - 64) / 8f) + 1080f), 0);
-            int minZ = Mathf.Max((int)(((position.z - 64) / 8f) + 1080f), 0);
-            int maxX = Mathf.Min((int)(((position.x + 64) / 8f) + 1080f), 2159);
-            int maxZ = Mathf.Min((int)(((position.z + 64) / 8f) + 1080f), 2159);
+            int minX = Mathf.Max((int)((position.x - 72) / 8f + 1080f), 0);
+            int minZ = Mathf.Max((int)((position.z - 72) / 8f + 1080f), 0);
+            int maxX = Mathf.Min((int)((position.x + 72) / 8f + 1080f), 2159);
+            int maxZ = Mathf.Min((int)((position.z + 72) / 8f + 1080f), 2159);
             int zIterator = minZ;
             while (zIterator <= maxZ)
             {

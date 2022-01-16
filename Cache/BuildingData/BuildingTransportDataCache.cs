@@ -127,7 +127,7 @@ namespace Klyte.TransportLinesManager.Cache
         }
 
         private StopPointDescriptorLanes[] MapStopPoints() => MapStopPoints(BuildingId, 1f);
-        private StopPointDescriptorLanes[] MapStopPoints(ushort buildingId, float thresold)
+        private StopPointDescriptorLanes[] MapStopPoints(ushort buildingId, float thresold, bool isSubBuilding = false)
         {
             var result = new List<StopPointDescriptorLanes>();
 
@@ -191,11 +191,13 @@ namespace Klyte.TransportLinesManager.Cache
                     }
                 }
             }
+            if (!isSubBuilding)
+            {
             var subBuildingId = b.m_subBuilding;
             var subbuildingIndex = 0;
             while (subBuildingId > 0)
             {
-                StopPointDescriptorLanes[] subPlats = MapStopPoints(subBuildingId, thresold);
+                    StopPointDescriptorLanes[] subPlats = MapStopPoints(subBuildingId, thresold, true);
                 if (subPlats != null)
                 {
                     result.AddRange(subPlats.Select(x =>
@@ -206,6 +208,7 @@ namespace Klyte.TransportLinesManager.Cache
                 }
                 subBuildingId = BuildingManager.instance.m_buildings.m_buffer[subBuildingId].m_subBuilding;
                 subbuildingIndex++;
+            }
             }
             result = result.OrderByDescending(x => x.subbuildingId).GroupBy(x => x.platformLaneId).Select(x => x.First()).ToList();
             result.Sort((x, y) =>

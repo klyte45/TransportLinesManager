@@ -30,6 +30,7 @@ namespace Klyte.TransportLinesManager
         public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
         public const ulong REALTIME_MOD_ID = 1420955187;
         public const ulong IPT2_MOD_ID = 928128676;
+        public const ulong RETURN_VEHICLE_MOD_ID = 2101977903UL;
         public BuildingTransportLinesCache BuildingLines { get; private set; }
 
         private bool? m_isRealTimeEnabled = null;
@@ -125,7 +126,7 @@ namespace Klyte.TransportLinesManager
 
         internal static bool UpdateRegionalLinesFromBuilding(ushort buildingId)
         {
-            if (TransportLinesManagerMod.Controller.BuildingLines.SafeGet(buildingId) != null)
+            if (BuildingManager.instance.m_buildings.m_buffer[buildingId].Info.m_buildingAI is TransportStationAI)
             {
                 TransportLinesManagerMod.Controller.m_dirtyRegionalLines = true;
                 return true;
@@ -134,7 +135,7 @@ namespace Klyte.TransportLinesManager
         }
         internal static bool UpdateRegionalLinesFromNode(ushort nodeId)
         {
-            if (TransportLinesManagerMod.Controller.BuildingLines[nodeId] != null)
+            if (NetManager.instance.m_nodes.m_buffer[nodeId].Info.m_netAI is TransportLineAI && NetManager.instance.m_nodes.m_buffer[nodeId].m_transportLine == 0)
             {
                 TransportLinesManagerMod.Controller.m_dirtyRegionalLines = true;
                 return true;
@@ -229,8 +230,8 @@ namespace Klyte.TransportLinesManager
         internal void Awake()
         {
             SharedInstance = gameObject.AddComponent<TLMFacade>();
-            ConnectorADR = PluginUtils.GetImplementationTypeForMod<BridgeADR, BridgeADRFallback, IBridgeADR>(gameObject, "KlyteAddresses", "2.99.99.0");
-            ConnectorWTS = PluginUtils.GetImplementationTypeForMod<BridgeWTS, BridgeWTSFallback, IBridgeWTS>(gameObject, "KlyteWriteTheSigns", "0.3.0.0");
+            ConnectorADR = PluginUtils.GetImplementationTypeForMod<BridgeADRFallback, IBridgeADR>(gameObject, "KlyteAddresses", "2.99.99.0", "Klyte.TransportLinesManager.ModShared.BridgeADR");
+            ConnectorWTS = PluginUtils.GetImplementationTypeForMod<BridgeWTSFallback, IBridgeWTS>(gameObject, "KlyteWriteTheSigns", "0.3.0.0", "Klyte.TransportLinesManager.ModShared.BridgeWTS");
         }
 
 

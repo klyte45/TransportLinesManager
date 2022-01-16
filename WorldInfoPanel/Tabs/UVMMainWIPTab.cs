@@ -56,6 +56,7 @@ namespace Klyte.TransportLinesManager.UI
             UIComponent parentToDestroy = ptwip.Find<UILabel>("Color").parent.parent;
             m_lineColorContainer = RebindUI(ptwip.Find<UILabel>("Color").parent);
             m_colorField = component.Find<UIColorField>("ColorField");
+            m_colorField.gameObject.AddComponent<UIColorFieldExtension>();
             m_colorFieldButton = m_colorField.Find<UIButton>("Button");
 
             LogUtils.DoLog("CHART");

@@ -199,7 +199,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                             StartCoroutine(SavePalette(paletteName));
                         }
                     };
-                    colorField.eventColorPickerOpen += KlyteMonoUtils.DefaultColorPickerHandler;
+                    colorField.gameObject.AddComponent<UIColorFieldExtension>();
                     colorField.objectUserData = true;
                 }
                 (colorField.triggerButton as UILabel).text = $"{i.ToString("0")}";

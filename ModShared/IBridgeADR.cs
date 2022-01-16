@@ -1,5 +1,4 @@
-﻿extern alias ADR;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Klyte.TransportLinesManager.ModShared
 {

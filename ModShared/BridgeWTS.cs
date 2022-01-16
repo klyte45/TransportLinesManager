@@ -1,6 +1,4 @@
-﻿extern alias ADR;
-
-namespace Klyte.TransportLinesManager.ModShared
+﻿namespace Klyte.TransportLinesManager.ModShared
 {
     internal class BridgeWTS : IBridgeWTS
     {

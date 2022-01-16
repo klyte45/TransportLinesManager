@@ -86,7 +86,7 @@ namespace Klyte.TransportLinesManager.UI
         }
 
         public abstract bool MayBeVisible();
-
+        public void Hide() => m_bg.isVisible = false;
 
         #endregion
 
