@@ -107,7 +107,7 @@ namespace Klyte.TransportLinesManager.Cache
 
                 ref Building outsideConnectionBuilding = ref BuildingManager.instance.m_buildings.m_buffer[otherNodeBuilding];
                 var tsd = TransportSystemDefinition.FromOutsideConnection(outsideConnectionBuilding.Info.GetSubService(), outsideConnectionBuilding.Info.GetClassLevel());
-                if(tsd is null) // Unsupported regional line type
+                if (tsd is null) // Unsupported regional line type
                 {
                     nextNodeId = node.m_nextBuildingNode;
                     continue;
@@ -127,7 +127,7 @@ namespace Klyte.TransportLinesManager.Cache
         }
 
         private StopPointDescriptorLanes[] MapStopPoints() => MapStopPoints(BuildingId, 1f);
-        private StopPointDescriptorLanes[] MapStopPoints(ushort buildingId, float thresold)
+        private StopPointDescriptorLanes[] MapStopPoints(ushort buildingId, float thresold, bool isSubBuilding = false)
         {
             var result = new List<StopPointDescriptorLanes>();
 
@@ -191,21 +191,24 @@ namespace Klyte.TransportLinesManager.Cache
                     }
                 }
             }
-            var subBuildingId = b.m_subBuilding;
-            var subbuildingIndex = 0;
-            while (subBuildingId > 0)
+            if (!isSubBuilding)
             {
-                StopPointDescriptorLanes[] subPlats = MapStopPoints(subBuildingId, thresold);
-                if (subPlats != null)
+                var subBuildingId = b.m_subBuilding;
+                var subbuildingIndex = 0;
+                while (subBuildingId > 0)
                 {
-                    result.AddRange(subPlats.Select(x =>
+                    StopPointDescriptorLanes[] subPlats = MapStopPoints(subBuildingId, thresold, true);
+                    if (subPlats != null)
                     {
-                        x.subbuildingId = (sbyte)subbuildingIndex;
-                        return x;
-                    }));
+                        result.AddRange(subPlats.Select(x =>
+                        {
+                            x.subbuildingId = (sbyte)subbuildingIndex;
+                            return x;
+                        }));
+                    }
+                    subBuildingId = BuildingManager.instance.m_buildings.m_buffer[subBuildingId].m_subBuilding;
+                    subbuildingIndex++;
                 }
-                subBuildingId = BuildingManager.instance.m_buildings.m_buffer[subBuildingId].m_subBuilding;
-                subbuildingIndex++;
             }
             result = result.OrderByDescending(x => x.subbuildingId).GroupBy(x => x.platformLaneId).Select(x => x.First()).ToList();
             result.Sort((x, y) =>
