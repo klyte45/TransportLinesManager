@@ -1,6 +1,7 @@
 ﻿using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Klyte.Commons.Extensions;
+using Klyte.Commons.UI;
 using Klyte.Commons.UI.SpriteNames;
 using Klyte.Commons.UI.Sprites;
 using Klyte.Commons.Utils;
@@ -63,50 +64,37 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             m_uiHelper.AddSpace(30);
 
 
-            AddDropdown(Locale.Get("K45_TLM_PREFIX"), out m_prefixDD, m_uiHelper, TLMConfigOptions.namingOptionsPrefix.Select(x => x.GetName()).ToArray(), (x) =>
+            AddDropdown(Locale.Get("K45_TLM_PREFIX"), out m_prefixDD, m_uiHelper, TLMConfigOptions.namingOptionsPrefix.Select(x => Tuple.New(x.GetName(), x)).OrderBy(x => x.First).ToArray(), (x) =>
+             {
+                 TSD.GetConfig().Prefix = x;
+                 OnPrefixOptionChange();
+
+             });
+            AddDropdown(Locale.Get("K45_TLM_SEPARATOR"), out m_separatorDD, m_uiHelper, TLMConfigOptions.namingOptionsSeparator.Select(x => Tuple.New(x.GetName(), x)).OrderBy(x => x.First).ToArray(), (x) =>
             {
-                if (x >= 0)
-                {
-                    TSD.GetConfig().Prefix = TLMConfigOptions.namingOptionsPrefix[x];
-                    OnPrefixOptionChange();
-                }
+                TSD.GetConfig().Separator = x;
+
             });
-            AddDropdown(Locale.Get("K45_TLM_SEPARATOR"), out m_separatorDD, m_uiHelper, TLMConfigOptions.namingOptionsSeparator.Select(x => x.GetName()).ToArray(), (x) =>
+            AddDropdown(Locale.Get("K45_TLM_SUFFIX"), out m_suffixDD, m_uiHelper, TLMConfigOptions.namingOptionsSuffix.Select(x => Tuple.New(x.GetName(), x)).OrderBy(x => x.First).ToArray(), (x) =>
             {
-                if (x >= 0)
-                {
-                    TSD.GetConfig().Separator = TLMConfigOptions.namingOptionsSeparator[x];
-                }
+                TSD.GetConfig().Suffix = x;
+                OnSuffixOptionChange();
+
             });
-            AddDropdown(Locale.Get("K45_TLM_SUFFIX"), out m_suffixDD, m_uiHelper, TLMConfigOptions.namingOptionsSuffix.Select(x => x.GetName()).ToArray(), (x) =>
+            AddDropdown(Locale.Get("K45_TLM_IDENTIFIER_NON_PREFIXED"), out m_nonPrefixDD, m_uiHelper, TLMConfigOptions.namingOptionsSuffix.Select(x => Tuple.New(x.GetName(), x)).OrderBy(x => x.First).ToArray(), (x) =>
             {
-                if (x >= 0)
-                {
-                    TSD.GetConfig().Suffix = TLMConfigOptions.namingOptionsSuffix[x];
-                    OnSuffixOptionChange();
-                }
+                TSD.GetConfig().NonPrefixedNaming = x;
+
             });
-            AddDropdown(Locale.Get("K45_TLM_IDENTIFIER_NON_PREFIXED"), out m_nonPrefixDD, m_uiHelper, TLMConfigOptions.namingOptionsSuffix.Select(x => x.GetName()).ToArray(), (x) =>
-            {
-                if (x >= 0)
-                {
-                    TSD.GetConfig().NonPrefixedNaming = TLMConfigOptions.namingOptionsSuffix[x];
-                }
-            });
-            AddDropdown(Locale.Get("K45_TLM_PALETTE"), out m_paletteDD, m_uiHelper, TLMAutoColorPaletteContainer.PaletteList, (x) =>
-            {
-                if (x >= 0)
-                {
-                    TSD.GetConfig().Palette = x == 0 ? null : TLMAutoColorPaletteContainer.PaletteList[x];
-                }
-            });
-            AddDropdown(Locale.Get("K45_TLM_ICON"), out m_iconDD, m_uiHelper, Enum.GetValues(typeof(LineIconSpriteNames)).OfType<LineIconSpriteNames>().Select(x => x.GetNameForTLM()).ToArray(), (x) =>
-            {
-                if (x >= 0)
-                {
-                    TSD.GetConfig().DefaultLineIcon = (LineIconSpriteNames)x;
-                }
-            });
+            AddDropdown(Locale.Get("K45_TLM_PALETTE"), out m_paletteDD, m_uiHelper, TLMAutoColorPaletteContainer.PaletteList.Select(x => Tuple.New(x, x)).OrderBy(x => x.First).ToArray(), (x) =>
+               {
+                   TSD.GetConfig().Palette = x;
+
+               });
+            AddDropdown(Locale.Get("K45_TLM_ICON"), out m_iconDD, m_uiHelper, Enum.GetValues(typeof(LineIconSpriteNames)).OfType<LineIconSpriteNames>().Select(x => Tuple.New(x.GetNameForTLM(), x)).OrderBy(x => x.First).ToArray(), (x) =>
+               {
+                   TSD.GetConfig().DefaultLineIcon = x;
+               });
             m_uiHelper.AddSpace(5);
 
             AddCheckbox(Locale.Get("K45_TLM_USE_AUTO_NAME"), out m_useInAutoName, m_uiHelper, (x) => TSD.GetConfig().UseInAutoName = x);
@@ -154,18 +142,18 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             var config = TSD.GetConfig();
             bool isPrefixed = config.Prefix != NamingMode.None;
             m_zerosContainer.isVisible = isPrefixed && config.Suffix == NamingMode.Number;
-            m_prefixAsSuffixContainer.isVisible = isPrefixed && config.Suffix == NamingMode.Number && (NamingMode)m_prefixDD.selectedIndex != NamingMode.Number;
+            m_prefixAsSuffixContainer.isVisible = isPrefixed && config.Suffix == NamingMode.Number && m_prefixDD.GetSelection<NamingMode>() != NamingMode.Number;
         }
 
         public void ReloadData()
         {
             var config = TSD.GetConfig();
-            m_paletteDD.selectedValue = config.Palette.TrimToNull() ?? TLMAutoColorPaletteContainer.PaletteList[0];
-            m_iconDD.selectedIndex = (int)config.DefaultLineIcon;
-            m_suffixDD.selectedIndex = Array.IndexOf(TLMConfigOptions.namingOptionsSuffix, config.Suffix);
-            m_nonPrefixDD.selectedIndex = Array.IndexOf(TLMConfigOptions.namingOptionsSuffix, config.NonPrefixedNaming);
-            m_separatorDD.selectedIndex = Array.IndexOf(TLMConfigOptions.namingOptionsSeparator, config.Separator);
-            m_prefixDD.selectedIndex = Array.IndexOf(TLMConfigOptions.namingOptionsPrefix, config.Prefix);
+            m_paletteDD.SetSelection(config.Palette);
+            m_iconDD.SetSelection(config.DefaultLineIcon);
+            m_suffixDD.SetSelection(config.Suffix);
+            m_nonPrefixDD.SetSelection(config.NonPrefixedNaming);
+            m_separatorDD.SetSelection(config.Separator);
+            m_prefixDD.SetSelection(config.Prefix);
             m_prefixIncrement.isChecked = config.IncrementPrefixOnNewLine;
             m_zerosContainer.isChecked = config.UseLeadingZeros;
             m_prefixAsSuffixContainer.isChecked = config.InvertPrefixSuffix;
