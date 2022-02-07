@@ -144,26 +144,46 @@ namespace Klyte.TransportLinesManager.UI
 
         private static void DestroyNotUsed(PublicTransportWorldInfoPanel __instance)
         {
-            FakeDestroy(__instance.Find("ActivityPanel"));
-            FakeDestroy(__instance.Find<UIPanel>("LineModelSelectorContainer"));
-            FakeDestroy(__instance.Find<UILabel>("ModelLabel"));
-            FakeDestroy(__instance.Find<UILabel>("LabelPassengers"));
+            FakeDestroy<UIComponent>(__instance, ("ActivityPanel"));
+            FakeDestroy<UIButton>(__instance, ("VehicleSelector"));
+            FakeDestroy<UILabel>(__instance, ("LabelPassengers"));
 
-            FakeDestroy(__instance.Find<UISlider>("SliderModifyVehicleCount"));
-            FakeDestroy(__instance.Find<UILabel>("VehicleCountPercent"));
-            FakeDestroy(__instance.Find<UILabel>("VehicleAmount"));
-            FakeDestroy(__instance.Find<UIPanel>("PanelVehicleCount"));
+            FakeDestroy<UISlider>(__instance, ("SliderModifyVehicleCount"));
+            FakeDestroy<UILabel>(__instance, ("VehicleCountPercent"));
+            FakeDestroy<UILabel>(__instance, ("VehicleAmount"));
+            FakeDestroy<UIPanel>(__instance, ("PanelVehicleCount"));
 
-            FakeDestroy(__instance.Find<UISlider>("SliderTicketPrice"));
-            FakeDestroy(__instance.Find<UILabel>("LabelTicketPrice"));
-            FakeDestroy(__instance.Find<UIPanel>("TicketPriceSection"));
+            FakeDestroy<UISlider>(__instance, ("SliderTicketPrice"));
+            FakeDestroy<UILabel>(__instance, ("LabelTicketPrice"));
+            FakeDestroy<UIPanel>(__instance, ("TicketPriceSection"));
         }
-
+        
+        public static void FakeDestroy<T>(PublicTransportWorldInfoPanel parent, string name) where T : UIComponent
+        {
+            var comp = parent.Find<T>(name);
+            if (comp)
+            {
+                comp.isVisible = false;
+                comp.isEnabled = false;
+                comp.isInteractive = false;
+            }
+            else
+            {
+                LogUtils.DoWarnLog($"The component {name} doesn't exists in the PublicTransportWorldInfoPanel!");
+            }
+        }
         public static void FakeDestroy(UIComponent comp)
         {
-            comp.isVisible = false;
-            comp.isEnabled = false;
-            comp.isInteractive = false;
+            if (comp)
+            {
+                comp.isVisible = false;
+                comp.isEnabled = false;
+                comp.isInteractive = false;
+            }
+            else
+            {
+                LogUtils.DoWarnLog($"The component sent doesn't exists in the PublicTransportWorldInfoPanel! Stacktrace: {Environment.StackTrace}");
+            }
         }
 
         private static void SetNameFieldProperties()

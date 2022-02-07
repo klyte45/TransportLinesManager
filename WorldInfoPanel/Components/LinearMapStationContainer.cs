@@ -163,7 +163,6 @@ namespace Klyte.TransportLinesManager.UI
             m_lineId = lineId;
             uibutton.objectUserData = stopId;
 
-
             uilabel.prefix = TLMStationUtils.GetFullStationName(m_stopId, m_lineId, CurrentSubService, m_fromBuilding);
             uilabel.text = "";
 

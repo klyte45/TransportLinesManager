@@ -114,6 +114,7 @@ namespace Klyte.TransportLinesManager.Extensions
             }
         }
 
+
         public ItemClass.SubService SubService { get; }
         public VehicleInfo.VehicleType VehicleType { get; }
         public TransportInfo.TransportType TransportType { get; }
@@ -359,15 +360,15 @@ namespace Klyte.TransportLinesManager.Extensions
             => BuildingManager.instance.m_buildings.m_buffer[outsideConnectionBuildingId].Info is BuildingInfo outsideConn
             && outsideConn.m_buildingAI is OutsideConnectionAI
          && (
-             FromOutsideConnection(outsideConn.m_class.m_subService, outsideConn.m_class.m_level) == this
+             FromOutsideConnection(outsideConn.m_class.m_subService, outsideConn.m_class.m_level, VehicleInfo.VehicleType.None) == this
              || IsIntercityBusConnection(outsideConn));
         public bool IsValidOutsideConnectionTrack(NetInfo netInfo) =>
-              FromOutsideConnection(netInfo.m_class.m_subService, netInfo.m_class.m_level) == this
+              FromOutsideConnection(netInfo.m_class.m_subService, netInfo.m_class.m_level, VehicleInfo.VehicleType.None) == this
               || IsIntercityBusConnectionTrack(netInfo);
 
-        public static TransportSystemDefinition FromOutsideConnection(ItemClass.SubService SubService, ItemClass.Level Level)
-            => SubService == ItemClass.SubService.PublicTransportTrain ? //TEMPORARY!
-             registeredTsd.Where(x => x.Value.LevelIntercity == Level && x.Value.SubService == SubService).FirstOrDefault().Value
+        internal static TransportSystemDefinition FromOutsideConnection(ItemClass.SubService subService, ItemClass.Level level, VehicleInfo.VehicleType type)
+            => subService == ItemClass.SubService.PublicTransportTrain ? //TEMPORARY!
+             registeredTsd.Where(x => x.Value.LevelIntercity == level && x.Value.SubService == subService && (type == VehicleInfo.VehicleType.None || x.Value.VehicleType == type)).FirstOrDefault().Value
             : null;
         public static TransportSystemDefinition From(TransportInfo.TransportType TransportType, ItemClass.SubService SubService, VehicleInfo.VehicleType VehicleType, ItemClass.Level Level)
         {

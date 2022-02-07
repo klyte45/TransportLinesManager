@@ -77,7 +77,7 @@ namespace Klyte.TransportLinesManager.Utils
             Vector3 position2 = instance.m_nodes.m_buffer[endNode].m_position;
             Vector3 vector = position2 - position;
             vector = VectorUtils.NormalizeXZ(vector);
-            if (instance.CreateSegment(out segment, ref Singleton<SimulationManager>.instance.m_randomizer, tsd.GetLineInfoIntercity(), startNode, endNode, vector, -vector, Singleton<SimulationManager>.instance.m_currentBuildIndex, Singleton<SimulationManager>.instance.m_currentBuildIndex, false))
+            if (instance.CreateSegment(out segment, ref Singleton<SimulationManager>.instance.m_randomizer, tsd.GetLineInfoIntercity(), null, startNode, endNode, vector, -vector, Singleton<SimulationManager>.instance.m_currentBuildIndex, Singleton<SimulationManager>.instance.m_currentBuildIndex, false))
             {
                 instance.m_segments.m_buffer[segment].m_trafficLightState0 = (byte)gateIndex;
                 Singleton<SimulationManager>.instance.m_currentBuildIndex += 2U;

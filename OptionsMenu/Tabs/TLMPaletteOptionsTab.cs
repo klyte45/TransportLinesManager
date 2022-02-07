@@ -203,8 +203,8 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
                     colorField.objectUserData = true;
                 }
                 (colorField.triggerButton as UILabel).text = $"{i.ToString("0")}";
-                (colorField.triggerButton as UILabel).textColor = KlyteMonoUtils.ContrastColor(colors[i]);
-                (colorField.triggerButton as UILabel).disabledTextColor = KlyteMonoUtils.ContrastColor(colors[i]);
+                (colorField.triggerButton as UILabel).textColor = ((Color)colors[i]).ContrastColor();
+                (colorField.triggerButton as UILabel).disabledTextColor = ((Color)colors[i]).ContrastColor();
                 colorField.selectedColor = colors[i];
                 colorField.isVisible = true;
             }

@@ -1,4 +1,5 @@
 using Klyte.TransportLinesManager;
+using UnityEngine;
 
 namespace Klyte.Commons
 {
@@ -15,5 +16,10 @@ namespace Klyte.Commons
         public static string[] AssetExtraDirectoryNames { get; } = new string[0];
 
         public static string GitHubRepoPath { get; } = "klyte45/TransportLinesManager";
+
+
+        public static float UIScale { get; } = 1f;
+        public static Color ModColor { get; } = new Color32(0, 0, 179, 255);
+        public static MonoBehaviour Controller => TransportLinesManagerMod.Controller;
     }
 }

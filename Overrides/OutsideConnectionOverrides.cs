@@ -28,16 +28,16 @@ namespace Klyte.TransportLinesManager.Overrides
             if (m_managedReasons.Contains(reason))
             {
                 LogUtils.DoLog("START TRANSFER OutsideConnectionAI!!!!!!!!");
-                return TryGetRandomVehicle(vm, ref r, service, subService, level);
+                return TryGetRandomVehicle(vm, ref r, service, subService, level, VehicleInfo.VehicleType.None);
             }
             return vm.GetRandomVehicleInfo(ref r, service, subService, level);
 
         }
-        private static VehicleInfo TryGetRandomVehicleStation(VehicleManager vm, ref Randomizer r, ItemClass.Service service, ItemClass.SubService subService, ItemClass.Level level)
+        public static VehicleInfo TryGetRandomVehicleStation(VehicleManager vm, ref Randomizer r, ItemClass.Service service, ItemClass.SubService subService, ItemClass.Level level, VehicleInfo.VehicleType type)
         {
 
             LogUtils.DoLog("START TRANSFER StationAI!!!!!!!!");
-            return TryGetRandomVehicle(vm, ref r, service, subService, level);
+            return TryGetRandomVehicle(vm, ref r, service, subService, level, type);
         }
         private static void SetRegionalLine(ushort vehicleId, ushort stopId)
         {
@@ -55,9 +55,9 @@ namespace Klyte.TransportLinesManager.Overrides
             }
         }
 
-        private static VehicleInfo TryGetRandomVehicle(VehicleManager vm, ref Randomizer r, ItemClass.Service service, ItemClass.SubService subService, ItemClass.Level level)
+        private static VehicleInfo TryGetRandomVehicle(VehicleManager vm, ref Randomizer r, ItemClass.Service service, ItemClass.SubService subService, ItemClass.Level level, VehicleInfo.VehicleType type)
         {
-            var tsd = TransportSystemDefinition.FromOutsideConnection(subService, level);
+            var tsd = TransportSystemDefinition.FromOutsideConnection(subService, level, type);
             if (!(tsd is null))
             {
                 VehicleInfo randomVehicleInfo = tsd.GetTransportExtension().GetAModel(0);

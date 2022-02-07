@@ -3,3 +3,4 @@
 obj
 .vs
 /TransportLinesManager.csproj.user
+/packages

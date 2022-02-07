@@ -125,7 +125,7 @@ namespace Klyte.TransportLinesManager.Extensions
         {
             ref Building stationBuilding = ref BuildingManager.instance.m_buildings.m_buffer[stationId];
             ref Building outsideConnectionBuilding = ref BuildingManager.instance.m_buildings.m_buffer[outsideConnectionId];
-            var outsideConnectionTSD = TransportSystemDefinition.FromOutsideConnection(outsideConnectionBuilding.Info.GetSubService(), outsideConnectionBuilding.Info.GetClassLevel());
+            var outsideConnectionTSD = TransportSystemDefinition.FromOutsideConnection(outsideConnectionBuilding.Info.GetSubService(), outsideConnectionBuilding.Info.GetClassLevel(), VehicleInfo.VehicleType.None);
             if ((stationBuilding.Info.m_buildingAI is TransportStationAI) && (outsideConnectionBuilding.m_flags & Building.Flags.IncomingOutgoing) != Building.Flags.None && outsideConnectionTSD != null)
             {
                 var stationPlatformPosition = StationPlatformPosition;

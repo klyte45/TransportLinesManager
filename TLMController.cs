@@ -30,6 +30,7 @@ namespace Klyte.TransportLinesManager
         public const string EXPORTED_MAPS_SUBFOLDER_NAME = "ExportedMaps";
         public const ulong REALTIME_MOD_ID = 1420955187;
         public const ulong IPT2_MOD_ID = 928128676;
+        public const ulong RETURN_VEHICLE_MOD_ID = 2101977903UL;
         public BuildingTransportLinesCache BuildingLines { get; private set; }
 
         private bool? m_isRealTimeEnabled = null;

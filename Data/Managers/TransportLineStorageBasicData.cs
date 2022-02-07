@@ -210,6 +210,8 @@ namespace Klyte.TransportLinesManager.Extensions
             protected virtual Action<Stream, long> SerializeFunction { get; } = WriteLong;
             protected virtual Func<Stream, long> DeserializeFunction { get; } = ReadLong;
 
+            public bool IsLegacyCompatOnly => false;
+
             public void OnReleased() { }
 
             public void LoadDefaults(ISerializableData serializableData) { }
