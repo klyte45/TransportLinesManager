@@ -323,11 +323,11 @@ namespace Klyte.TransportLinesManager.UI
                     {
                         m_pullValue.text = StringUtils.SafeFormat(Locale.Get("PUBTRANSWORLDINFOPANEL_PULLVALUE"), Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].GetPullValue(lineID));
                         ushort stop = Singleton<TransportManager>.instance.m_lines.m_buffer[lineID].GetStop(0);
-                        if ((Singleton<NetManager>.instance.m_nodes.m_buffer[stop].m_problems & Notification.Problem.TooLong) != Notification.Problem.None)
+                        if ((Singleton<NetManager>.instance.m_nodes.m_buffer[stop].m_problems & Notification.Problem1.TooLong) != Notification.Problem1.None)
                         {
                             m_warningTooLongIcon.isVisible = true;
                             m_warningTooLongText.isVisible = true;
-                            if ((Singleton<NetManager>.instance.m_nodes.m_buffer[stop].m_problems & Notification.Problem.MajorProblem) != Notification.Problem.None)
+                            if ((Singleton<NetManager>.instance.m_nodes.m_buffer[stop].m_problems & Notification.Problem1.MajorProblem) != Notification.Problem1.None)
                             {
                                 m_warningTooLongText.text = Locale.Get("PUBTRANSWORLDINFOPANEL_LINEWAYTOOLONG");
                                 m_warningTooLongIcon.spriteName = "BuildingNotificationTooLongTour";

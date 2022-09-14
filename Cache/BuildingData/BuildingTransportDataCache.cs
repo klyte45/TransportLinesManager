@@ -245,7 +245,7 @@ namespace Klyte.TransportLinesManager.Cache
                 return false;
             }
 
-            segment.GetLeftAndRightLanes(segment.m_startNode, NetInfo.LaneType.Vehicle, refLane.m_stopType, laneIdx, false, out int leftIdx, out int rightIdx, out uint leftLane, out uint rightLane);
+            segment.GetLeftAndRightLanes(segment.m_startNode, NetInfo.LaneType.Vehicle, refLane.m_stopType, VehicleInfo.VehicleCategory.All, laneIdx, false, out int leftIdx, out int rightIdx, out uint leftLane, out uint rightLane);
             ref NetLane nl = ref NetManager.instance.m_lanes.m_buffer[laneId];
             if (leftIdx >= 0 && rightIdx >= 0)
             {

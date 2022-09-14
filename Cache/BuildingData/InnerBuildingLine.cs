@@ -161,9 +161,9 @@ namespace Klyte.TransportLinesManager.Cache
                             if ((pathFindFlags & 4) != 0)//not calculated
                             {
                                 Vector3 zero = Vector3.zero;
-                                if (!TransportLine.CalculatePathSegmentCount(path, 0, NetInfo.LaneType.All, VehicleInfo.VehicleType.All, ref array, ref num2, ref num3, ref zero))
+                                if (!TransportLine.CalculatePathSegmentCount(path, 0, NetInfo.LaneType.All, VehicleInfo.VehicleType.All, VehicleInfo.VehicleCategory.All, ref array, ref num2, ref num3, ref zero))
                                 {
-                                    TransportLineAI.StartPathFind(segment, ref instance2.m_segments.m_buffer[segment], Info.m_netService, Info.m_secondaryNetService, Info.m_vehicleType, false);
+                                    TransportLineAI.StartPathFind(segment, ref instance2.m_segments.m_buffer[segment], Info.m_netService, Info.m_secondaryNetService, Info.m_vehicleType, Info.vehicleCategory, false);
                                     flag = false;
                                     m_needsToBeCalculated = true;
                                 }
@@ -183,7 +183,7 @@ namespace Klyte.TransportLinesManager.Cache
                         }
                         else
                         {
-                            TransportLineAI.StartPathFind(segment, ref instance2.m_segments.m_buffer[segment], Info.m_netService, Info.m_secondaryNetService, Info.m_vehicleType, false);
+                            TransportLineAI.StartPathFind(segment, ref instance2.m_segments.m_buffer[segment], Info.m_netService, Info.m_secondaryNetService, Info.m_vehicleType, Info.vehicleCategory, false);
                             flag = false;
                             m_needsToBeCalculated = true;
                         }
@@ -265,7 +265,7 @@ namespace Klyte.TransportLinesManager.Cache
                         if (path2 != 0U && (instance3.m_pathUnits.m_buffer[(int)((UIntPtr)path2)].m_pathFindFlags & 4) != 0)
                         {
                             array4[num9].m_curveStart = num10;
-                            TransportLine.FillPathSegments(path2, 0, NetInfo.LaneType.All, VehicleInfo.VehicleType.All, ref array, array5, null, ref num10, ref num11, lengthScale, out Vector3 vector3, out Vector3 vector4, Info.m_requireSurfaceLine, true);
+                            TransportLine.FillPathSegments(path2, 0, NetInfo.LaneType.All, VehicleInfo.VehicleType.All, VehicleInfo.VehicleCategory.All, ref array, array5, null, ref num10, ref num11, lengthScale, out Vector3 vector3, out Vector3 vector4, Info.m_requireSurfaceLine, true);
                             vector = Vector3.Min(vector, vector3);
                             vector2 = Vector3.Max(vector2, vector4);
                             array4[num9].m_bounds.SetMinMax(vector3, vector4);

@@ -86,7 +86,7 @@ namespace Klyte.TransportLinesManager.Utils
                 regional = false;
                 return veh.m_transportLine;
             }
-            else if (TransportSystemDefinition.From(veh.Info).LevelIntercity != null)
+            else if (TransportSystemDefinition.From(veh.Info)?.LevelIntercity != null)
             {
                 regional = veh.m_custom != 0;
                 return veh.m_custom;
