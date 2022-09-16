@@ -2,5 +2,6 @@
 	- Airports DLC Update
 	- Fixing bugs related to infine loop that may freeze the game
 	- Minor improvements
-
-<extended><color #9999FF>r1 - 14/SEP/22</color> - Fixes for P&P DLC
+	
+<color #9999FF>r1 - 14/SEP/22</color> - Fixes for P&P DLC
+<color #9999FF>r2 - 16/SEP/22</color> - Fixed issues related to failing saving/loading settings

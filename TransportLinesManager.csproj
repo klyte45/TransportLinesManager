@@ -287,7 +287,7 @@
   <PropertyGroup>
     <PostBuildEvent>
 xcopy /Y  /e "$(ProjectDir)\_requiredDLLs\*" "S:\SteamLibrary\steamapps\workshop\content\255710\1312767991\"
-xcopy /Y /e "$(ProjectDir)\_requiredDLLs\*" "%25APPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\TLM\"</PostBuildEvent>
+xcopy /Y /e "$(ProjectDir)\_requiredDLLs\*" "%25APPDATA%25\..\Local\Colossal Order\Cities_Skylines\Addons\Mods\TLM\"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <!--PreBuildEvent>del /Q "S:\SteamLibrary\steamapps\workshop\content\255710\1312767991\*"
