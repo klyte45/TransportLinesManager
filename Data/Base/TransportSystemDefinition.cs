@@ -336,7 +336,7 @@ namespace Klyte.TransportLinesManager.Extensions
                     x.SubService == info.m_class.m_subService
                     && x.VehicleType == info.m_vehicleType
                     && ReflectionUtils.HasField(info.GetAI(), "m_transportInfo")
-                    && ReflectionUtils.GetPrivateField<TransportInfo>(info.GetAI(), "m_transportInfo") is TransportInfo ti
+                    && (info.GetAI() is PrefabAI prefabAI) && prefabAI.GetType().GetField("m_transportInfo").GetValue(prefabAI) is TransportInfo ti
                     && ti.m_transportType == x.TransportType
                     && (x.Level == ti.GetClassLevel() || x.LevelAdditional == ti.GetClassLevel() || x.LevelIntercity == ti.GetClassLevel())
                 );

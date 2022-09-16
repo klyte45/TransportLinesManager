@@ -91,10 +91,14 @@ namespace Klyte.TransportLinesManager.ModShared
         {
             var firstVehicle = VehicleManager.instance.m_vehicles.m_buffer[vehicleId].GetFirstVehicle(vehicleId);
             ref Vehicle vehicle = ref VehicleManager.instance.m_vehicles.m_buffer[firstVehicle];
+            var tsd = TransportSystemDefinition.From(vehicle.Info);
+            if(tsd is null)
+            {
+                return vehicleId.ToString("X4");
+            }
             var tlId = vehicle.m_transportLine;
             ref TransportLine tl = ref TransportManager.instance.m_lines.m_buffer[tlId];
 
-            var tsd = TransportSystemDefinition.From(vehicle.Info);
             var config = tsd.GetConfig();
             string identifierFormat = (tlId == 0 && vehicle.m_targetBuilding != 0 ? config.VehicleIdentifierFormatForeign : config.VehicleIdentifierFormatLocal);
 

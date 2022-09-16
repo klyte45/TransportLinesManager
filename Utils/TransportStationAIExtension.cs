@@ -33,7 +33,7 @@ namespace Klyte.TransportLinesManager.Utils
                 ushort segment = instance.m_nodes.m_buffer[num].GetSegment(i);
                 if (segment != 0)
                 {
-                    instance.m_segments.m_buffer[segment].GetLeftAndRightLanes(num, NetInfo.LaneType.Pedestrian, VehicleInfo.VehicleType.None, -1, false, out _, out _, out uint num4, out uint num5);
+                    instance.m_segments.m_buffer[segment].GetLeftAndRightLanes(num, NetInfo.LaneType.Pedestrian, VehicleInfo.VehicleType.None, VehicleInfo.VehicleCategory.None, -1, false, out _, out _, out uint num4, out uint num5);
                     if (incomingOutgoing == Building.Flags.Outgoing || num5 == 0U)
                     {
                         if (num4 != 0U)

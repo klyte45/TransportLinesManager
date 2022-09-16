@@ -15,7 +15,7 @@ namespace Klyte.Commons
         public static string[] AssetExtraFileNames { get; } = new string[0];
         public static string[] AssetExtraDirectoryNames { get; } = new string[0];
 
-        public static string GitHubRepoPath { get; } = "klyte45/TransportLinesManager";
+        public static string GitHubRepoPath { get; } = "klyte45/TransportLinesManager"; 
 
 
         public static float UIScale { get; } = 1f;

@@ -160,6 +160,7 @@ namespace Klyte.TransportLinesManager.OptionsMenu
             m_autoColorBasedContainer.isChecked = config.PalettePrefixBased;
             m_randomPaletteOnOverflow.isChecked = config.PaletteRandomOnOverflow;
             m_useInAutoName.isChecked = config.UseInAutoName;
+            m_requireStartAtTerminal.isChecked = config.RequireLineStartTerminal;
             m_namingPrefix.text = config.NamingPrefix ?? "";
             if (TSD.VehicleType != VehicleInfo.VehicleType.None)
             {

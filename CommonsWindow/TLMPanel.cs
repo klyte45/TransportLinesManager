@@ -48,7 +48,7 @@ namespace Klyte.TransportLinesManager.CommonsWindow
         internal void OpenAt(TransportSystemDefinition tsd)
         {
             TLMController.Instance.OpenTLMPanel();
-            m_stripMain.selectedIndex = m_stripMain.Find<UIComponent>(tsd.GetTransportName())?.zOrder ?? -1;
+            m_stripMain.selectedIndex = m_stripMain.Find<UIComponent>(tsd.ToString())?.zOrder ?? -1;
         }
 
         private void CreateTsdTabstrip()
