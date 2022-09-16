@@ -121,7 +121,7 @@ namespace Klyte.TransportLinesManager
 
         private void Update()
         {
-            if (m_dirty && component.isVisible)
+            if (m_dirty && component.parent.isVisible)
             {
                 UpdateNearLines(m_mayShow, true);
                 m_dirty = false;
