@@ -13,15 +13,11 @@ namespace Klyte.TransportLinesManager.Overrides
         public Redirector RedirectorInstance { get; set; }
 
 
-        #region Events
-        #endregion
-#pragma warning restore IDE0051 // Remover membros privados não utilizados
-
         #region Hooking
 
         public void Awake()
         {
-            LogUtils.DoLog("Loading Net Manager Overrides");
+            LogUtils.DoLog("Loading CityServiceWorldInfoPanel Overrides");
             RedirectorInstance = KlyteMonoUtils.CreateElement<Redirector>(transform);
             #region Net Manager Hooks
             MethodInfo OnNodeChanged = GetType().GetMethod("OnGoToLines", RedirectorUtils.allFlags);
