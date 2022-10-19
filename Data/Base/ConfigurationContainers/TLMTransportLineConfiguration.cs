@@ -47,7 +47,7 @@ namespace Klyte.TransportLinesManager.Xml
                 customIdentifier = value.TrimToNull();
                 if (!LoadingManager.instance.m_currentlyLoading)
                 {
-                    TLMController.Instance.SharedInstance.OnLineSymbolParameterChanged();
+                    TLMController.Instance?.SharedInstance.OnLineSymbolParameterChanged();
                 }
             }
         }

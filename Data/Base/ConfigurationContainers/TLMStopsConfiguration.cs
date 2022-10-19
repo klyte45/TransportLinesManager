@@ -18,7 +18,7 @@ namespace Klyte.TransportLinesManager.Extensions
                 isTerminal = value;
                 if (!LoadingManager.instance.m_currentlyLoading)
                 {
-                    TLMController.Instance.SharedInstance.OnLineDestinationsChanged(NetManager.instance.m_nodes.m_buffer[Id ?? 0].m_transportLine);
+                    TLMController.Instance?.SharedInstance.OnLineDestinationsChanged(NetManager.instance.m_nodes.m_buffer[Id ?? 0].m_transportLine);
                 }
             }
         }

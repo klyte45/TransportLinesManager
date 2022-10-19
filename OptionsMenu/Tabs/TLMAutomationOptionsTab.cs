@@ -45,9 +45,21 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             group7.AddSpace(15);
 
             AddCheckboxLocale("K45_TLM_AUTO_COLOR_ENABLED", out m_autoColor, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.UseAutoColor = x);
-            AddCheckboxLocale("K45_TLM_AUTO_NAME_ENABLED", out m_autoName, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.UseAutoName = x);
-            AddCheckboxLocale("K45_TLM_USE_CIRCULAR_AUTO_NAME", out m_circular, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.CircularIfSingleDistrictLine = x);
-            AddCheckboxLocale("K45_TLM_ADD_LINE_NUMBER_AUTO_NAME", out m_addLineCode, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.AddLineCodeInAutoname = x);
+            AddCheckboxLocale("K45_TLM_AUTO_NAME_ENABLED", out m_autoName, group7, (x) =>
+            {
+                TLMBaseConfigXML.CurrentContextConfig.UseAutoName = x;
+                TransportLinesManagerMod.Controller.SharedInstance.OnAutoNameParameterChanged();
+            });
+            AddCheckboxLocale("K45_TLM_USE_CIRCULAR_AUTO_NAME", out m_circular, group7, (x) =>
+            {
+                TLMBaseConfigXML.CurrentContextConfig.CircularIfSingleDistrictLine = x;
+                TransportLinesManagerMod.Controller.SharedInstance.OnAutoNameParameterChanged();
+            });
+            AddCheckboxLocale("K45_TLM_ADD_LINE_NUMBER_AUTO_NAME", out m_addLineCode, group7, (x) =>
+            {
+                TLMBaseConfigXML.CurrentContextConfig.AddLineCodeInAutoname = x;
+                TransportLinesManagerMod.Controller.SharedInstance.OnAutoNameParameterChanged();
+            });
             group7.AddSpace(15);
 
             AddCheckboxLocale("K45_TLM_ENABLE_EXPRESS_BUSES", out m_expressBuses, group7, (x) => TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled = x);

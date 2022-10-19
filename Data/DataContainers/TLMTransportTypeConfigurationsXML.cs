@@ -1,5 +1,5 @@
 ﻿using Klyte.Commons.UI.Sprites;
-using Klyte.TransportLinesManager.Extensions;
+using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Utils;
 using System.Xml.Serialization;
 
@@ -8,6 +8,9 @@ namespace Klyte.TransportLinesManager.Xml
     [XmlRoot("TransportType")]
     public class TLMTransportTypeConfigurationsXML : TsdIdentifiable, ITLMAutoNameConfigurable
     {
+        private string vehicleIdentifierFormatLocal = "VWXYZ";
+        private string vehicleIdentifierFormatForeign = "VWXYZ";
+
         [XmlAttribute("prefix")]
         public NamingMode Prefix { get; set; } = NamingMode.Number;
         [XmlAttribute("separator")]
@@ -21,7 +24,7 @@ namespace Klyte.TransportLinesManager.Xml
         [XmlAttribute("incrementByPrefix")]
         public bool IncrementPrefixOnNewLine { get; set; } = false;
         [XmlAttribute("palette")]
-        public string Palette { get; set; } = null;
+        public string Palette { get; set; } = "";
         [XmlAttribute("randomPaletteOnOverflow")]
         public bool PaletteRandomOnOverflow { get; set; } = false;
         [XmlAttribute("paletteBasedOnPrefix")]
@@ -37,15 +40,15 @@ namespace Klyte.TransportLinesManager.Xml
         [XmlAttribute("lineIcon")]
         public LineIconSpriteNames DefaultLineIcon { get; set; } = LineIconSpriteNames.NULL;
         [XmlAttribute("vehicleIdentifierLocal")]
-        public string VehicleIdentifierFormatLocal { get; set; } = "";
+        public string VehicleIdentifierFormatLocal { get => vehicleIdentifierFormatLocal; set => vehicleIdentifierFormatLocal = value.TrimToNull() ?? "VWXYZ"; }
         [XmlAttribute("VehicleIdentifierForeign")]
-        public string VehicleIdentifierFormatForeign { get; set; } = "";
+        public string VehicleIdentifierFormatForeign { get => vehicleIdentifierFormatForeign; set => vehicleIdentifierFormatForeign = value.TrimToNull() ?? "VWXYZ"; }
         [XmlAttribute("useInAutoname")]
         public bool UseInAutoName { get; set; }
         [XmlAttribute("buildingNamePrefix")]
         public string NamingPrefix { get; set; }
         [XmlAttribute("requireLineStartTerminal")]
-        public bool RequireLineStartTerminal { get; set; }
+        public bool RequireLineStartTerminal { get; set; } = true;
 
     }
 

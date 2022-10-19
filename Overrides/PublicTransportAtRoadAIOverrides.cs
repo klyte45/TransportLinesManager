@@ -43,29 +43,33 @@ namespace Klyte.TransportLinesManager.Overrides
 
         public static bool PreArrivingToDestination(ushort vehicleID, ref Vehicle vehicleData, VehicleAI __instance)
         {
-            if (!(
-                (__instance is BusAI && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled)
-                || (__instance is TramAI && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled)
-                || (__instance is TrolleybusAI && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled)
-                ) || vehicleData.m_transportLine == 0 || (vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0 || vehicleData.GetFirstVehicle(vehicleID) != vehicleID)
+            if ((vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0 || vehicleData.GetFirstVehicle(vehicleID) != vehicleID || vehicleData.m_transportLine == 0)
             {
-                CheckDespawn(vehicleID, ref vehicleData);
+                return true;
+            }
+            var unloadPredict = GetQuantityPassengerUnloadOnNextStop(vehicleID, ref vehicleData, out bool full, out bool empty);
+            if (!(
+            (__instance is BusAI && TLMBaseConfigXML.CurrentContextConfig.ExpressBusesEnabled)
+            || (__instance is TramAI && TLMBaseConfigXML.CurrentContextConfig.ExpressTramsEnabled)
+            || (__instance is TrolleybusAI && TLMBaseConfigXML.CurrentContextConfig.ExpressTrolleybusesEnabled)
+            ))
+            {
+                CheckDespawn(vehicleID, ref vehicleData, empty, true);
                 return true;
             }
             var currentStop = vehicleData.m_targetBuilding;
             ref TransportLine line = ref TransportManager.instance.m_lines.m_buffer[vehicleData.m_transportLine];
             if (currentStop == 0 || currentStop == line.m_stops || TLMStopDataContainer.Instance.SafeGet(currentStop).IsTerminal)
             {
-                CheckDespawn(vehicleID, ref vehicleData);
+                CheckDespawn(vehicleID, ref vehicleData, empty, true);
                 return true;
             }
-            TLMLineUtils.GetQuantityPassengerWaiting(currentStop, out int residents, out int tourists, out _);
-            var unloadPredict = GetQuantityPassengerUnloadOnNextStop(vehicleID, ref vehicleData, out bool full, out bool empty);
-            if (unloadPredict > 0 || (!full && residents + tourists > 0))
+            else if (CheckDespawn(vehicleID, ref vehicleData, empty, false))
             {
                 return true;
             }
-            if (empty && CheckDespawn(vehicleID, ref vehicleData))
+            TLMLineUtils.GetQuantityPassengerWaiting(currentStop, out int residents, out int tourists, out _);
+            if (unloadPredict > 0 || (!full && residents + tourists > 0))
             {
                 return true;
             }
@@ -119,7 +123,7 @@ namespace Klyte.TransportLinesManager.Overrides
             return false;
         }
 
-        private static bool CheckDespawn(ushort vehicleID, ref Vehicle vehicleData, bool isEmpty = false)
+        private static bool CheckDespawn(ushort vehicleID, ref Vehicle vehicleData, bool isEmpty, bool forceIfNotEmpty)
         {
             if (vehicleData.m_transportLine != 0)
             {
@@ -130,12 +134,13 @@ namespace Klyte.TransportLinesManager.Overrides
                     if (isEmpty)
                     {
                         vehicleData.Info.m_vehicleAI.SetTransportLine(vehicleID, ref vehicleData, 0);
+                        return true;
                     }
-                    else
+                    else if (forceIfNotEmpty)
                     {
                         TLMVehicleUtils.DoSoftDespawn(vehicleID, ref vehicleData);
+                        return false;
                     }
-                    return true;
                 }
             }
             return false;

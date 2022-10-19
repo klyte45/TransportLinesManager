@@ -1,5 +1,6 @@
 ﻿using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Utils;
 using System;
 using System.Linq;
@@ -59,6 +60,7 @@ namespace Klyte.TransportLinesManager.Extensions
                         instance.ReleaseNode(num2);
                         num2 = num;
                     }
+                    TLMFacade.Instance.OnRegionalLineParameterChanged(num);
                     num = num2;
                     num2 = nextBuildingNode;
                     if (++num3 > 32768)
@@ -106,6 +108,7 @@ namespace Klyte.TransportLinesManager.Extensions
                     conn.Identifier = name;
                     conn.LineColor = clr;
                     TargetOutsideConnections[outsideConnectionId] = conn;
+                    TLMFacade.Instance.OnRegionalLineParameterChanged(conn.m_nodeStation);
                 }
             }
         }
@@ -114,7 +117,7 @@ namespace Klyte.TransportLinesManager.Extensions
             if (TargetOutsideConnections.ContainsKey(outsideConnectionId))
             {
                 ReleaseNodes(stationId, TargetOutsideConnections[outsideConnectionId]);
-
+                TLMFacade.Instance.OnRegionalLineParameterChanged(TargetOutsideConnections[outsideConnectionId].m_nodeStation);
                 TargetOutsideConnections.Remove(outsideConnectionId);
             }
         }
@@ -138,7 +141,6 @@ namespace Klyte.TransportLinesManager.Extensions
                         instance.m_nodes.m_buffer[result.m_nodeStation].m_flags |= NetNode.Flags.Disabled;
                     }
                     instance.m_nodes.m_buffer[result.m_nodeStation].m_flags |= NetNode.Flags.Fixed;
-                    instance.m_nodes.m_buffer[result.m_nodeStation].m_lane = PlatformLaneId;
                     instance.UpdateNode(result.m_nodeStation);
                     instance.m_nodes.m_buffer[result.m_nodeStation].m_nextBuildingNode = stationBuilding.m_netNode;
                     stationBuilding.m_netNode = result.m_nodeStation;

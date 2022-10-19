@@ -1,5 +1,6 @@
 ﻿using Klyte.Commons.Interfaces;
 using Klyte.Commons.Utils;
+using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.Overrides;
 using System.Linq;
 using System.Xml.Serialization;
@@ -54,19 +55,13 @@ namespace Klyte.TransportLinesManager.Extensions
             if (value != TlmManagedRegionalLines && (building.Info.m_buildingAI is TransportStationAI stationAI))
             {
                 TlmManagedRegionalLines = value;
-                stationAI.SetEmptying((ushort)(Id ?? 0), ref building, value);
-                var nextSubBuilding = building.m_subBuilding;
-                while (nextSubBuilding != 0)
-                {
-                    ref Building subBuilding = ref BuildingManager.instance.m_buildings.m_buffer[nextSubBuilding];
-                    stationAI.SetEmptying(nextSubBuilding, ref subBuilding, value);
-                    nextSubBuilding = subBuilding.m_subBuilding;
-                }
+                stationAI.SetEmptying((ushort)(Id ?? 0), ref building, true);
                 if (value)
                 {
                     foreach (var mapping in PlatformMappings.Values)
                     {
                         mapping.UpdateStationNodes((ushort)Id);
+                        TLMFacade.Instance.OnRegionalLineParameterChanged((ushort)Id);
                     }
                 }
                 else
@@ -74,6 +69,7 @@ namespace Klyte.TransportLinesManager.Extensions
                     foreach (var mapping in PlatformMappings.Values)
                     {
                         mapping.ReleaseNodes((ushort)Id);
+                        TLMFacade.Instance.OnRegionalLineParameterChanged((ushort)Id);
                     }
                     PlatformMappings.Clear();
                 }

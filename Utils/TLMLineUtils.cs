@@ -5,6 +5,7 @@ using Klyte.Commons.Utils;
 using Klyte.TransportLinesManager.Cache;
 using Klyte.TransportLinesManager.Extensions;
 using Klyte.TransportLinesManager.Interfaces;
+using Klyte.TransportLinesManager.ModShared;
 using Klyte.TransportLinesManager.UI;
 using Klyte.TransportLinesManager.Xml;
 using System;
@@ -627,7 +628,19 @@ namespace Klyte.TransportLinesManager.Utils
             }
         }
 
-        public static AsyncTask<bool> SetLineName(ushort lineIdx, string name) => Singleton<SimulationManager>.instance.AddAction(TransportManager.instance.SetLineName(lineIdx, name));
+        public static void SetLineName(ushort lineIdx, string name)
+        {
+            TLMController.Instance.StartCoroutine(SetLineName_internal(lineIdx, name));
+        }
+        private static IEnumerator SetLineName_internal(ushort lineIdx, string name)
+        {
+            var asyncTask = Singleton<SimulationManager>.instance.AddAction(TransportManager.instance.SetLineName(lineIdx, name));
+            yield return new WaitUntil(() => asyncTask.completedOrFailed);
+            if (asyncTask.completed && asyncTask.returnValue)
+            {
+                TLMFacade.Instance.OnLineDestinationsChanged(lineIdx);
+            }
+        }
 
         private static TransportInfo.TransportType[] m_roadTransportTypes = new TransportInfo.TransportType[] { TransportInfo.TransportType.Bus, TransportInfo.TransportType.Tram, TransportInfo.TransportType.Trolleybus };
         internal static bool IsRoadLine(ushort lineId, bool regional) => regional

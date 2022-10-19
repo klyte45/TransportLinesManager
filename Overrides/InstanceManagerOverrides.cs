@@ -9,7 +9,7 @@ namespace Klyte.TransportLinesManager.Overrides
     public class InstanceManagerOverrides : MonoBehaviour, IRedirectable
     {
         public Redirector RedirectorInstance { get; private set; }
-
+         
 
         #region Events
         public delegate void OnBuildingNameChanged(ushort buildingID);

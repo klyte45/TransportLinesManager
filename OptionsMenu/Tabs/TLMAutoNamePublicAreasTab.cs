@@ -39,8 +39,17 @@ namespace Klyte.TransportLinesManager.OptionsMenu.Tabs
             }
         }
 
-        private void SetUseAutoName(TLMSpecialNamingClass service, bool x) => TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(service).UseInAutoName = x;
-        private void SetPrefix(TLMSpecialNamingClass service, string x) => TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(service).NamingPrefix = x;
+        private void SetUseAutoName(TLMSpecialNamingClass service, bool x)
+        {
+            TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(service).UseInAutoName = x;
+            TransportLinesManagerMod.Controller?.SharedInstance.OnAutoNameParameterChanged();
+        }
+
+        private void SetPrefix(TLMSpecialNamingClass service, string x)
+        {
+            TLMBaseConfigXML.CurrentContextConfig.GetAutoNameData(service).NamingPrefix = x;
+            TransportLinesManagerMod.Controller?.SharedInstance.OnAutoNameParameterChanged();
+        }
 
         public void ReloadData()
         {

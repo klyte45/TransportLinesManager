@@ -1,10 +1,9 @@
-﻿<extended><color #9999FF>TLM 14.3 - 25/JAN/22</color>
-	- Airports DLC Update
-	- Fixing bugs related to infine loop that may freeze the game
-	- Minor improvements
-	
-<color #9999FF>r1 - 14/SEP/22</color> - Fixes for P&P DLC
-<color #9999FF>r2 - 16/SEP/22</color> - Fixed issues related to failing saving/loading settings
-<color #9999FF>r3 - 16/SEP/22</color> 
-	- Fixed loading issues with strange characters (and failing to load TLM stuff)
-	- Small fixes
+﻿<extended><color #9999FF>TLM 14.4 - 19/OCT/22</color>
+	- Fixed issue with the custom outside connections spawning a lot of vehicles - needs re-setting outside connection stops to work
+	- Fixed issue with passengers in border of platform that never get a train - needs re-setting the affected stops
+	- Fixed some UI bindings not working, what was causing the current configuration not being properly loaded in UI, neither saving it right when modified
+	- Fixed bindings for Write The Signs mod
+	- Added support to the future Write Everywhere mod (replacement for WTS)
+	- Fixed starting/ending line only on terminus setup
+	- Fixed vehicles getting back to depot with passengers inside
+

@@ -77,6 +77,12 @@ namespace Klyte.TransportLinesManager.Overrides
             #endregion
 
             #region Vehicle going back on terminus stop only
+            MethodInfo PreventShouldReturnToSource = typeof(TransportLineOverrides).GetMethod("PreventShouldReturnToSource", allFlags);
+            LogUtils.DoLog("Loading PreventShouldReturnToSource Hook");
+            RedirectorInstance.AddRedirect(typeof(TramAI).GetMethod("ShouldReturnToSource", allFlags), PreventShouldReturnToSource);
+            RedirectorInstance.AddRedirect(typeof(BusAI).GetMethod("ShouldReturnToSource", allFlags), PreventShouldReturnToSource);
+            RedirectorInstance.AddRedirect(typeof(TrolleybusAI).GetMethod("ShouldReturnToSource", allFlags), PreventShouldReturnToSource);
+
             MethodInfo TranspileSimulationStepLine_GoingBack = typeof(TransportLineOverrides).GetMethod("TranspileSimulationStepLine_GoingBack", allFlags);
             LogUtils.DoLog("Loading TranspileSimulationStepLine_GoingBack Hook");
             RedirectorInstance.AddRedirect(typeof(TransportLine).GetMethod("SimulationStep", allFlags), null, null, TranspileSimulationStepLine_GoingBack);
@@ -98,8 +104,6 @@ namespace Klyte.TransportLinesManager.Overrides
             #endregion
         }
         #endregion
-
-        private static Dictionary<uint, Tuple<ushort, ushort>> m_counterIdx = new Dictionary<uint, Tuple<ushort, ushort>>();
 
         public Redirector RedirectorInstance => new Redirector();
 
@@ -417,10 +421,14 @@ namespace Klyte.TransportLinesManager.Overrides
         #endregion
 
         #region Vehicle going back on terminus stop only
+        public static bool PreventShouldReturnToSource()
+        {
+            return false;
+        }
         public static IEnumerable<CodeInstruction> TranspileSimulationStepLine_GoingBack(IEnumerable<CodeInstruction> instructions)
+
         {
             var inst = new List<CodeInstruction>(instructions);
-
             for (int i = 1; i < inst.Count - 3; i++)
             {
                 if (
@@ -430,7 +438,7 @@ namespace Klyte.TransportLinesManager.Overrides
                     && lb1.LocalIndex == 11
                     && inst[i + 1].opcode == OpCodes.Ldloc_S
                     && inst[i + 1].operand is LocalBuilder lb2
-                    && lb2.LocalIndex == 32
+                    && lb2.LocalIndex == 36
                     && inst[i + 2].opcode == OpCodes.Ble
              )
                 {
